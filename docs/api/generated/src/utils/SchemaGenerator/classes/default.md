@@ -1,15 +1,15 @@
-[**amdWiki API v1.5.0**](../../../../README.md)
+[**ngdpbase API v1.5.0**](../../../../README.md)
 
 ***
 
-[amdWiki API](../../../../README.md) / [src/utils/SchemaGenerator](../README.md) / default
+[ngdpbase API](../../../../README.md) / [src/utils/SchemaGenerator](../README.md) / default
 
 # Class: default
 
-Defined in: [src/utils/SchemaGenerator.ts:130](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/SchemaGenerator.ts#L130)
+Defined in: [src/utils/SchemaGenerator.ts:130](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/SchemaGenerator.ts#L130)
 
 SchemaGenerator - Generates Schema.org JSON-LD markup from page metadata
-Provides SEO and semantic web benefits for amdWiki platform
+Provides SEO and semantic web benefits for ngdpbase platform
 
 ## Constructors
 
@@ -27,7 +27,7 @@ Provides SEO and semantic web benefits for amdWiki platform
 
 > `static` **determineSchemaType**(`pageData`): `string`
 
-Defined in: [src/utils/SchemaGenerator.ts:212](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/SchemaGenerator.ts#L212)
+Defined in: [src/utils/SchemaGenerator.ts:212](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/SchemaGenerator.ts#L212)
 
 Determine appropriate Schema.org type based on page metadata
 
@@ -51,7 +51,7 @@ Schema.org type
 
 > `static` **enhanceCreativeWork**(`schema`, `pageData`, `_options`): `BaseSchema`
 
-Defined in: [src/utils/SchemaGenerator.ts:286](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/SchemaGenerator.ts#L286)
+Defined in: [src/utils/SchemaGenerator.ts:286](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/SchemaGenerator.ts#L286)
 
 Enhance CreativeWork schema for project pages
 
@@ -79,7 +79,7 @@ Enhance CreativeWork schema for project pages
 
 > `static` **enhanceSchemaByType**(`baseSchema`, `pageData`, `options`): `BaseSchema`
 
-Defined in: [src/utils/SchemaGenerator.ts:251](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/SchemaGenerator.ts#L251)
+Defined in: [src/utils/SchemaGenerator.ts:251](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/SchemaGenerator.ts#L251)
 
 Enhance schema based on determined type
 
@@ -115,7 +115,7 @@ Enhanced schema object
 
 > `static` **enhanceTechArticle**(`schema`, `pageData`, `_options`): `BaseSchema`
 
-Defined in: [src/utils/SchemaGenerator.ts:270](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/SchemaGenerator.ts#L270)
+Defined in: [src/utils/SchemaGenerator.ts:270](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/SchemaGenerator.ts#L270)
 
 Enhance TechArticle schema for documentation
 
@@ -143,7 +143,7 @@ Enhance TechArticle schema for documentation
 
 > `static` **enhanceWebPage**(`schema`, `pageData`, `options`): `BaseSchema`
 
-Defined in: [src/utils/SchemaGenerator.ts:302](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/SchemaGenerator.ts#L302)
+Defined in: [src/utils/SchemaGenerator.ts:302](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/SchemaGenerator.ts#L302)
 
 Enhance WebPage schema for wiki pages
 
@@ -171,7 +171,7 @@ Enhance WebPage schema for wiki pages
 
 > `static` **generateACLBasedPermissions**(`pageACL`, `userManager`, `_options`): `unknown`[]
 
-Defined in: [src/utils/SchemaGenerator.ts:708](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/SchemaGenerator.ts#L708)
+Defined in: [src/utils/SchemaGenerator.ts:708](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/SchemaGenerator.ts#L708)
 
 Generate permissions based on parsed page ACL
 
@@ -205,7 +205,7 @@ Array of DigitalDocumentPermission objects
 
 > `static` **generateComprehensiveSchema**(`siteData`, `options`): (`Record`\<`string`, `unknown`\> \| `BaseSchema`)[]
 
-Defined in: [src/utils/SchemaGenerator.ts:785](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/SchemaGenerator.ts#L785)
+Defined in: [src/utils/SchemaGenerator.ts:785](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/SchemaGenerator.ts#L785)
 
 Generate comprehensive site schema using Schema.org compliant data
 
@@ -235,7 +235,7 @@ Array of schema objects
 
 > `static` **generateDeveloperPermissions**(`_pageData`, `_userManager`, `_options`): `unknown`[]
 
-Defined in: [src/utils/SchemaGenerator.ts:668](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/SchemaGenerator.ts#L668)
+Defined in: [src/utils/SchemaGenerator.ts:668](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/SchemaGenerator.ts#L668)
 
 Generate permissions for Developer category pages
 
@@ -265,7 +265,7 @@ Array of DigitalDocumentPermission objects
 
 > `static` **generateDigitalDocumentPermissions**(`pageData`, `_user`, `options`): `unknown`[]
 
-Defined in: [src/utils/SchemaGenerator.ts:468](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/SchemaGenerator.ts#L468)
+Defined in: [src/utils/SchemaGenerator.ts:468](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/SchemaGenerator.ts#L468)
 
 Generate DigitalDocumentPermission objects for a page
 
@@ -299,7 +299,7 @@ Array of DigitalDocumentPermission objects
 
 > `static` **generateDocumentationPermissions**(`_pageData`, `_userManager`, `_options`): `unknown`[]
 
-Defined in: [src/utils/SchemaGenerator.ts:628](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/SchemaGenerator.ts#L628)
+Defined in: [src/utils/SchemaGenerator.ts:628](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/SchemaGenerator.ts#L628)
 
 Generate permissions for Documentation category pages
 
@@ -329,7 +329,7 @@ Array of DigitalDocumentPermission objects
 
 > `static` **generateGeneralPagePermissions**(`_pageData`, `_userManager`, `_options`): `unknown`[]
 
-Defined in: [src/utils/SchemaGenerator.ts:528](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/SchemaGenerator.ts#L528)
+Defined in: [src/utils/SchemaGenerator.ts:528](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/SchemaGenerator.ts#L528)
 
 Generate permissions for General category pages (user content)
 
@@ -359,7 +359,7 @@ Array of DigitalDocumentPermission objects
 
 > `static` **generateOrganizationSchema**(`organizationData`, `options`): `Record`\<`string`, `unknown`\>
 
-Defined in: [src/utils/SchemaGenerator.ts:395](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/SchemaGenerator.ts#L395)
+Defined in: [src/utils/SchemaGenerator.ts:395](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/SchemaGenerator.ts#L395)
 
 Generate Organization schema from Schema.org compliant organization data
 
@@ -389,7 +389,7 @@ Organization schema object
 
 > `static` **generatePageSchema**(`pageData`, `options`): `BaseSchema`
 
-Defined in: [src/utils/SchemaGenerator.ts:137](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/SchemaGenerator.ts#L137)
+Defined in: [src/utils/SchemaGenerator.ts:137](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/SchemaGenerator.ts#L137)
 
 Generate Schema.org markup for a wiki page
 
@@ -419,7 +419,7 @@ JSON-LD schema object
 
 > `static` **generatePermissionsByContext**(`pageData`, `pageACL`, `userManager`, `_aclManager`, `options`): `unknown`[]
 
-Defined in: [src/utils/SchemaGenerator.ts:501](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/SchemaGenerator.ts#L501)
+Defined in: [src/utils/SchemaGenerator.ts:501](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/SchemaGenerator.ts#L501)
 
 Generate permissions based on page category and protection level
 
@@ -465,7 +465,7 @@ Array of DigitalDocumentPermission objects
 
 > `static` **generatePersonSchema**(`personData`, `options`): `Record`\<`string`, `unknown`\>
 
-Defined in: [src/utils/SchemaGenerator.ts:377](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/SchemaGenerator.ts#L377)
+Defined in: [src/utils/SchemaGenerator.ts:377](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/SchemaGenerator.ts#L377)
 
 Generate Person schema from Schema.org compliant person data
 
@@ -495,7 +495,7 @@ Person schema object
 
 > `static` **generateScriptTag**(`schema`): `string`
 
-Defined in: [src/utils/SchemaGenerator.ts:357](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/SchemaGenerator.ts#L357)
+Defined in: [src/utils/SchemaGenerator.ts:357](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/SchemaGenerator.ts#L357)
 
 Generate JSON-LD script tag for HTML injection
 
@@ -519,7 +519,7 @@ HTML script tag
 
 > `static` **generateSiteSchema**(`pages`, `options`): `BaseSchema`[]
 
-Defined in: [src/utils/SchemaGenerator.ts:367](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/SchemaGenerator.ts#L367)
+Defined in: [src/utils/SchemaGenerator.ts:367](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/SchemaGenerator.ts#L367)
 
 Generate schema for multiple pages (site-wide)
 
@@ -549,7 +549,7 @@ Array of schema objects
 
 > `static` **generateSoftwareSchema**(`configData`, `options`): `BaseSchema`
 
-Defined in: [src/utils/SchemaGenerator.ts:413](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/SchemaGenerator.ts#L413)
+Defined in: [src/utils/SchemaGenerator.ts:413](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/SchemaGenerator.ts#L413)
 
 Generate SoftwareApplication schema from wiki configuration
 
@@ -579,7 +579,7 @@ SoftwareApplication schema object
 
 > `static` **generateSystemPagePermissions**(`_pageData`, `_userManager`, `_options`): `unknown`[]
 
-Defined in: [src/utils/SchemaGenerator.ts:596](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/SchemaGenerator.ts#L596)
+Defined in: [src/utils/SchemaGenerator.ts:596](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/SchemaGenerator.ts#L596)
 
 Generate permissions for System category pages (app-managed)
 
@@ -609,7 +609,7 @@ Array of DigitalDocumentPermission objects
 
 > `static` **mapPrincipalToGrantee**(`principal`, `userManager`): \{ `@type`: `string`; `audienceType?`: `string`; `name?`: `string`; \} \| `null`
 
-Defined in: [src/utils/SchemaGenerator.ts:748](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/SchemaGenerator.ts#L748)
+Defined in: [src/utils/SchemaGenerator.ts:748](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/SchemaGenerator.ts#L748)
 
 Map ACL principal to Schema.org grantee object
 

@@ -8,7 +8,7 @@
 
 ## Overview
 
-SchemaManager loads and provides access to JSON schemas used throughout amdWiki for validating page metadata, configuration files, and other structured data.
+SchemaManager loads and provides access to JSON schemas used throughout ngdpbase for validating page metadata, configuration files, and other structured data.
 
 ## Key Features
 
@@ -48,7 +48,7 @@ Examples:
 
 ```json
 {
-  "amdwiki.directories.schemas": "./schemas"
+  "ngdpbase.directories.schemas": "./schemas"
 }
 ```
 

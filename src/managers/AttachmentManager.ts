@@ -170,23 +170,23 @@ class AttachmentManager extends BaseManager {
     }
 
     // Check if attachments are enabled (ALL LOWERCASE)
-    const attachmentsEnabled = configManager.getProperty('amdwiki.attachment.enabled', true) as boolean;
+    const attachmentsEnabled = configManager.getProperty('ngdpbase.attachment.enabled', true) as boolean;
     if (!attachmentsEnabled) {
       logger.info('📎 AttachmentManager: Attachments disabled by configuration');
       return;
     }
 
     // Load provider with fallback (ALL LOWERCASE)
-    const defaultProvider = configManager.getProperty('amdwiki.attachment.provider.default', 'basicattachmentprovider') as string;
-    const providerName = configManager.getProperty('amdwiki.attachment.provider', defaultProvider) as string;
+    const defaultProvider = configManager.getProperty('ngdpbase.attachment.provider.default', 'basicattachmentprovider') as string;
+    const providerName = configManager.getProperty('ngdpbase.attachment.provider', defaultProvider) as string;
 
     // Normalize provider name to PascalCase for class loading
     // basicattachmentprovider -> BasicAttachmentProvider
     this.providerClass = this.normalizeProviderName(providerName);
 
     // Load shared attachment settings
-    this.maxSize = configManager.getProperty('amdwiki.attachment.maxsize', 10485760) as number;
-    this.allowedTypes = configManager.getProperty('amdwiki.attachment.allowedtypes', 'image/*,text/*,application/pdf') as string;
+    this.maxSize = configManager.getProperty('ngdpbase.attachment.maxsize', 10485760) as number;
+    this.allowedTypes = configManager.getProperty('ngdpbase.attachment.allowedtypes', 'image/*,text/*,application/pdf') as string;
 
     logger.info(`📎 Loading attachment provider: ${providerName} (${this.providerClass})`);
 

@@ -1,5 +1,5 @@
 /**
- * Shared plugin formatting utilities for amdWiki plugins.
+ * Shared plugin formatting utilities for ngdpbase plugins.
  * Implements the common output formats defined in issue #238 (Code Consolidation).
  *
  * All plugins should use these helpers to ensure consistent behaviour for

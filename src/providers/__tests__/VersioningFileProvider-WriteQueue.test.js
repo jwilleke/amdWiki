@@ -35,23 +35,23 @@ describe('VersioningFileProvider - Write Queue', () => {
     const configManager = {
       getProperty: jest.fn((key, defaultValue) => {
         const config = {
-          'amdwiki.page.enabled': true,
-          'amdwiki.page.provider.filesystem.storagedir': path.join(testDir, 'pages'),
-          'amdwiki.page.provider.filesystem.requiredpagesdir': path.join(testDir, 'required-pages'),
-          'amdwiki.page.provider.filesystem.encoding': 'utf-8',
-          'amdwiki.page.provider.filesystem.autosave': true,
-          'amdwiki.page.provider.filesystem.pluralmatching': false,
-          'amdwiki.page.provider.versioning.indexfile': indexPath,
-          'amdwiki.page.provider.versioning.maxversions': 50,
-          'amdwiki.page.provider.versioning.retentiondays': 365,
-          'amdwiki.page.provider.versioning.compression': 'gzip',
-          'amdwiki.page.provider.versioning.deltastorage': true,
-          'amdwiki.page.provider.versioning.checkpointinterval': 10
+          'ngdpbase.page.enabled': true,
+          'ngdpbase.page.provider.filesystem.storagedir': path.join(testDir, 'pages'),
+          'ngdpbase.page.provider.filesystem.requiredpagesdir': path.join(testDir, 'required-pages'),
+          'ngdpbase.page.provider.filesystem.encoding': 'utf-8',
+          'ngdpbase.page.provider.filesystem.autosave': true,
+          'ngdpbase.page.provider.filesystem.pluralmatching': false,
+          'ngdpbase.page.provider.versioning.indexfile': indexPath,
+          'ngdpbase.page.provider.versioning.maxversions': 50,
+          'ngdpbase.page.provider.versioning.retentiondays': 365,
+          'ngdpbase.page.provider.versioning.compression': 'gzip',
+          'ngdpbase.page.provider.versioning.deltastorage': true,
+          'ngdpbase.page.provider.versioning.checkpointinterval': 10
         };
         return config[key] !== undefined ? config[key] : defaultValue;
       }),
       getResolvedDataPath: jest.fn((key, defaultValue) => {
-        if (key === 'amdwiki.page.provider.versioning.indexfile') {
+        if (key === 'ngdpbase.page.provider.versioning.indexfile') {
           return indexPath;
         }
         return defaultValue;

@@ -30,10 +30,10 @@ function makeEngine(snippetLength = 200) {
       if (name === 'ConfigurationManager') {
         return {
           getProperty: (key, def) => {
-            if (key === 'amdwiki.search.provider.lunr.stemming') return false;
-            if (key === 'amdwiki.search.provider.lunr.snippetlength') return snippetLength;
-            if (key.startsWith('amdwiki.search.provider.lunr.boost')) return 1;
-            if (key === 'amdwiki.search.provider.lunr.maxresults') return 100;
+            if (key === 'ngdpbase.search.provider.lunr.stemming') return false;
+            if (key === 'ngdpbase.search.provider.lunr.snippetlength') return snippetLength;
+            if (key.startsWith('ngdpbase.search.provider.lunr.boost')) return 1;
+            if (key === 'ngdpbase.search.provider.lunr.maxresults') return 100;
             return def;
           },
           getResolvedDataPath: (_key, def) => def

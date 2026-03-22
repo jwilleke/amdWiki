@@ -22,7 +22,7 @@ The ImagePlugin implements JSPWiki-style inline image functionality. It supports
 | Property | Value |
 | ---------- | ------- |
 | Name | Image |
-| Author | amdWiki |
+| Author | ngdpbase |
 | Version | 1.0.0 |
 | JSPWiki Compatible | Yes |
 
@@ -135,8 +135,8 @@ The plugin reads these configuration options:
 
 | Property | Default | Description |
 | ---------- | --------- | ------------- |
-| `amdwiki.features.images.defaultAlt` | "Uploaded image" | Default alt text |
-| `amdwiki.features.images.defaultClass` | "wiki-image" | Default CSS class |
+| `ngdpbase.features.images.defaultAlt` | "Uploaded image" | Default alt text |
+| `ngdpbase.features.images.defaultClass` | "wiki-image" | Default CSS class |
 
 ## Technical Implementation
 
@@ -157,7 +157,7 @@ if (!src.startsWith("http") && !src.startsWith("/")) {
 
 ## JSPWiki Compatibility
 
-| Feature | JSPWiki | amdWiki | Notes |
+| Feature | JSPWiki | ngdpbase | Notes |
 | --------- | --------- | --------- | ------- |
 | Basic syntax | Yes | Yes | Fully compatible |
 | src, alt, width, height | Yes | Yes | Same behavior |

@@ -205,19 +205,19 @@ class AttachmentHandler extends BaseSyntaxHandler {
     if (configManager) {
       try {
         // Load from configuration hierarchy
-        this.attachmentConfig.enhanced = configManager.getProperty('amdwiki.markup.handlers.attachment.enhanced', this.attachmentConfig.enhanced);
-        this.attachmentConfig.thumbnails = configManager.getProperty('amdwiki.markup.handlers.attachment.thumbnails', this.attachmentConfig.thumbnails);
-        this.attachmentConfig.metadata = configManager.getProperty('amdwiki.markup.handlers.attachment.metadata', this.attachmentConfig.metadata);
+        this.attachmentConfig.enhanced = configManager.getProperty('ngdpbase.markup.handlers.attachment.enhanced', this.attachmentConfig.enhanced);
+        this.attachmentConfig.thumbnails = configManager.getProperty('ngdpbase.markup.handlers.attachment.thumbnails', this.attachmentConfig.thumbnails);
+        this.attachmentConfig.metadata = configManager.getProperty('ngdpbase.markup.handlers.attachment.metadata', this.attachmentConfig.metadata);
 
         // Detailed attachment settings
-        const thumbnailSizes = configManager.getProperty('amdwiki.attachment.enhanced.thumbnailSizes', this.attachmentConfig.thumbnailSizes.join(','));
+        const thumbnailSizes = configManager.getProperty('ngdpbase.attachment.enhanced.thumbnailSizes', this.attachmentConfig.thumbnailSizes.join(','));
         this.attachmentConfig.thumbnailSizes = thumbnailSizes.split(',').map((size: string) => size.trim());
 
-        this.attachmentConfig.showFileSize = configManager.getProperty('amdwiki.attachment.enhanced.showFileSize', this.attachmentConfig.showFileSize);
-        this.attachmentConfig.showModified = configManager.getProperty('amdwiki.attachment.enhanced.showModified', this.attachmentConfig.showModified);
-        this.attachmentConfig.iconPath = configManager.getProperty('amdwiki.attachment.enhanced.iconPath', this.attachmentConfig.iconPath);
-        this.attachmentConfig.cacheMetadata = configManager.getProperty('amdwiki.attachment.enhanced.cacheMetadata', this.attachmentConfig.cacheMetadata);
-        this.attachmentConfig.generateThumbnails = configManager.getProperty('amdwiki.attachment.enhanced.generateThumbnails', this.attachmentConfig.generateThumbnails);
+        this.attachmentConfig.showFileSize = configManager.getProperty('ngdpbase.attachment.enhanced.showFileSize', this.attachmentConfig.showFileSize);
+        this.attachmentConfig.showModified = configManager.getProperty('ngdpbase.attachment.enhanced.showModified', this.attachmentConfig.showModified);
+        this.attachmentConfig.iconPath = configManager.getProperty('ngdpbase.attachment.enhanced.iconPath', this.attachmentConfig.iconPath);
+        this.attachmentConfig.cacheMetadata = configManager.getProperty('ngdpbase.attachment.enhanced.cacheMetadata', this.attachmentConfig.cacheMetadata);
+        this.attachmentConfig.generateThumbnails = configManager.getProperty('ngdpbase.attachment.enhanced.generateThumbnails', this.attachmentConfig.generateThumbnails);
 
       } catch (error) {
         const err = error as Error;

@@ -19,7 +19,7 @@
 
 **Issue**: The `[[` escaping problem keeps recurring despite multiple fixes because our current string-based parsing pipeline is inherently fragile and order-dependent.
 
-**Root Cause**: amdWiki's MarkupParser processes content as **strings** through multiple phases, making it impossible to reliably handle escaping, variables, plugins, and links without conflicts.
+**Root Cause**: ngdpbase's MarkupParser processes content as **strings** through multiple phases, making it impossible to reliably handle escaping, variables, plugins, and links without conflicts.
 
 **Example of the Issue**:
 
@@ -31,13 +31,13 @@
 **Expected Output**:
 
 ```text
-Application Name ([{$applicationname}]) : amdWiki
+Application Name ([{$applicationname}]) : ngdpbase
 ```
 
 **Actual Output**:
 
 ```text
-Application Name ([amdWiki: amdWiki
+Application Name ([ngdpbase: ngdpbase
 ```
 
 The `[[` escape is being processed incorrectly because string replacements happen in the wrong order.
@@ -136,7 +136,7 @@ public class XHTMLRenderer {
 4. **Cacheable**: WikiDocument can be cached and reused
 5. **Transformable**: DOM can be manipulated before rendering
 
-## amdWiki's Current Architecture (String-Based)
+## ngdpbase's Current Architecture (String-Based)
 
 ### Current Pipeline
 
@@ -401,7 +401,7 @@ await parser.initialize();
 
 // Parse wiki markup using new pipeline
 const content = `
-## Welcome to amdWiki
+## Welcome to ngdpbase
 
 Hello [{$username}]!
 
@@ -414,7 +414,7 @@ const context = { userName: 'JohnDoe' };
 const html = await parser.parseWithDOMExtraction(content, context);
 
 // Result:
-// <h2 id="welcome-to-amdwiki">Welcome to amdWiki</h2>
+// <h2 id="welcome-to-ngdpbase">Welcome to ngdpbase</h2>
 // <p>Hello <span class="wiki-variable">JohnDoe</span>!</p>
 // <p>Check out <a href="#HomePage">HomePage</a> for more info.</p>
 // <div class="toc">Table of Contents</div>

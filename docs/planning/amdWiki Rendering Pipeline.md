@@ -1,6 +1,6 @@
-# Overview of the Rendering Pipeline for amdWiki
+# Overview of the Rendering Pipeline for ngdpbase
 
-amdWiki is a Node.js-based, file-based wiki application inspired by JSPWiki, using Markdown for page storage and Express.js for server-side handling. It supports JSPWiki-style syntax (e.g., `[Link Text|PageName]` for links, `[{Image src='image.jpg'}]` for plugins) alongside Markdown. The rendering pipeline is primarily **server-side**, processing raw Markdown/wiki markup into HTML through a sophisticated 7-phase MarkupParser system, embedding it in EJS templates, and serving styled responses to the browser.
+ngdpbase is a Node.js-based, file-based wiki application inspired by JSPWiki, using Markdown for page storage and Express.js for server-side handling. It supports JSPWiki-style syntax (e.g., `[Link Text|PageName]` for links, `[{Image src='image.jpg'}]` for plugins) alongside Markdown. The rendering pipeline is primarily **server-side**, processing raw Markdown/wiki markup into HTML through a sophisticated 7-phase MarkupParser system, embedding it in EJS templates, and serving styled responses to the browser.
 
 The pipeline is triggered per HTTP request (e.g., GET `/wiki/Main`), orchestrated by Express middleware and routes through the WikiEngine manager architecture. It integrates authentication, access control (via JSON policies), and auditing. The core rendering is handled by RenderingManager which can operate in two modes:
 
@@ -66,7 +66,7 @@ The RenderingManager routes content through either the Advanced Parser (MarkupPa
 
 **Phase 3e: Filter Pipeline** (`MarkupParser.js:phaseFilterPipeline`)
 
-- Applies content filters if enabled (configurable via `amdwiki.markup.filters.enabled`):
+- Applies content filters if enabled (configurable via `ngdpbase.markup.filters.enabled`):
   - **SecurityFilter**: XSS prevention, HTML sanitization
   - **SpamFilter**: Spam link detection and blocking
   - **ValidationFilter**: Content validation and compliance checks
@@ -98,7 +98,7 @@ The RenderingManager routes content through either the Advanced Parser (MarkupPa
 - Step 3: Process wiki-style links (RenderingManager.js:837-918)
 - Step 4: Convert to HTML via Showdown (RenderingManager.js:198)
 - Step 5: Post-process tables with styling (RenderingManager.js:407-473)
-- Used when: `amdwiki.markup.useAdvancedParser=false` or MarkupParser unavailable
+- Used when: `ngdpbase.markup.useAdvancedParser=false` or MarkupParser unavailable
 - Location: RenderingManager.js:181-204
 
 ### Phase 4. **Template Rendering**
@@ -114,7 +114,7 @@ The RenderingManager routes content through either the Advanced Parser (MarkupPa
 
 - The rendered HTML is sent as the response with appropriate headers (e.g., `Content-Type: text/html`).
 - **Advanced caching** via CacheManager with multiple strategies:
-  - **Parse Results Cache**: Full content parsing results (TTL: 300s, configurable via `amdwiki.markup.cache.parseResults.ttl`)
+  - **Parse Results Cache**: Full content parsing results (TTL: 300s, configurable via `ngdpbase.markup.cache.parseResults.ttl`)
   - **Handler Results Cache**: Individual handler outputs (TTL: 600s)
   - **Pattern Compilation Cache**: Pre-compiled regex patterns (TTL: 3600s)
   - **Variable Resolution Cache**: System variable lookups (TTL: 900s)
@@ -233,7 +233,7 @@ Response
 
 ### Notes
 
-- **Inspiration from JSPWiki**: amdWiki implements a manager-based architecture similar to JSPWiki (`WikiEngine`, `RenderingManager`, `PageManager`), with a 7-phase MarkupParser that mirrors JSPWiki's parsing pipeline while using Markdown as the base format.
+- **Inspiration from JSPWiki**: ngdpbase implements a manager-based architecture similar to JSPWiki (`WikiEngine`, `RenderingManager`, `PageManager`), with a 7-phase MarkupParser that mirrors JSPWiki's parsing pipeline while using Markdown as the base format.
 - **Extensibility**:
   - Plugin system via PluginManager and PluginSyntaxHandler
   - Custom syntax handlers can be registered via HandlerRegistry
@@ -247,15 +247,15 @@ Response
   - Configurable TTLs for different cache strategies
   - File-based I/O with intelligent caching suitable for small-to-medium wikis
 - **Configuration**:
-  - Advanced parser mode: `amdwiki.markup.useAdvancedParser=true` (default)
-  - Legacy fallback: `amdwiki.markup.fallbackToLegacy=true`
-  - Individual handlers: `amdwiki.markup.handlers.[handler].enabled`
-  - Filters: `amdwiki.markup.filters.enabled`
-  - Cache strategies: `amdwiki.markup.cache.[strategy].enabled`
-  - Performance monitoring: `amdwiki.markup.performance.monitoring`
-- **Documentation**: See [PROJECT-STRUCTURE.md](https://github.com/jwilleke/amdWiki/blob/master/docs/architecture/PROJECT-STRUCTURE.md) and [ROADMAP.md](https://github.com/jwilleke/amdWiki/blob/master/docs/planning/ROADMAP.md) for deeper details.
+  - Advanced parser mode: `ngdpbase.markup.useAdvancedParser=true` (default)
+  - Legacy fallback: `ngdpbase.markup.fallbackToLegacy=true`
+  - Individual handlers: `ngdpbase.markup.handlers.[handler].enabled`
+  - Filters: `ngdpbase.markup.filters.enabled`
+  - Cache strategies: `ngdpbase.markup.cache.[strategy].enabled`
+  - Performance monitoring: `ngdpbase.markup.performance.monitoring`
+- **Documentation**: See [PROJECT-STRUCTURE.md](https://github.com/jwilleke/ngdpbase/blob/master/docs/architecture/PROJECT-STRUCTURE.md) and [ROADMAP.md](https://github.com/jwilleke/ngdpbase/blob/master/docs/planning/ROADMAP.md) for deeper details.
 
-This pipeline captures amdWiki's server-centric rendering with sophisticated JSPWiki-style processing. For code-level verification or customizations, refer to:
+This pipeline captures ngdpbase's server-centric rendering with sophisticated JSPWiki-style processing. For code-level verification or customizations, refer to:
 
 - `src/WikiEngine.js` - Manager initialization and orchestration
 - `src/managers/RenderingManager.js` - Rendering orchestration and legacy parser
@@ -266,7 +266,7 @@ This pipeline captures amdWiki's server-centric rendering with sophisticated JSP
 
 ## Rendering Pipeline Comparison
 
-To compare the rendering pipelines of **amdWiki** (based on the GitHub repository [jwilleke/amdWiki](https://github.com/jwilleke/amdWiki)) and **JSPWiki** (version 2.12.x), we’ll analyze their processes for transforming raw content into HTML for browser display, focusing on their architecture, components, and functionality. Both are wiki engines, but amdWiki is a lightweight, Node.js-based application using Markdown and Express.js, while JSPWiki is a Java-based, servlet-driven system with a robust, extensible architecture. Below is a detailed comparison of their rendering pipelines, followed by pros and cons, grounded in their respective documentation and source code.
+To compare the rendering pipelines of **ngdpbase** (based on the GitHub repository [jwilleke/ngdpbase](https://github.com/jwilleke/ngdpbase)) and **JSPWiki** (version 2.12.x), we’ll analyze their processes for transforming raw content into HTML for browser display, focusing on their architecture, components, and functionality. Both are wiki engines, but ngdpbase is a lightweight, Node.js-based application using Markdown and Express.js, while JSPWiki is a Java-based, servlet-driven system with a robust, extensible architecture. Below is a detailed comparison of their rendering pipelines, followed by pros and cons, grounded in their respective documentation and source code.
 
 ### Rendering Pipeline Comparison
 
@@ -307,9 +307,9 @@ JSPWiki’s pipeline is a server-side process orchestrated by the `WikiEngine`, 
    - **Process**: Caches HTML fragments (`jspwiki.cache.expiryPeriod`); sends response via `WikiServlet`.
    - **Details**: Optimizes repeated views; dynamic content (e.g., WikiForms) may bypass caching.
 
-#### amdWiki Rendering Pipeline
+#### ngdpbase Rendering Pipeline
 
-amdWiki's pipeline is built on Node.js with Express.js, using Markdown with comprehensive JSPWiki-style syntax support and EJS templates. It features a sophisticated 7-phase MarkupParser inspired by JSPWiki's architecture while maintaining lightweight deployment and file-based storage.
+ngdpbase's pipeline is built on Node.js with Express.js, using Markdown with comprehensive JSPWiki-style syntax support and EJS templates. It features a sophisticated 7-phase MarkupParser inspired by JSPWiki's architecture while maintaining lightweight deployment and file-based storage.
 
 1. **HTTP Request Handling**:
    - **Component**: Express routes via `WikiRoutes` (`src/routes/WikiRoutes.js`).
@@ -331,12 +331,12 @@ amdWiki's pipeline is built on Node.js with Express.js, using Markdown with comp
      - **Phase 5**: Filter Pipeline - SecurityFilter, SpamFilter, ValidationFilter
      - **Phase 6**: Markdown Conversion - Showdown with tables, strikethrough, tasklists
      - **Phase 7**: Post-processing - HTML restoration, table class application, cleanup
-   - **Details**: Configurable via `amdwiki.markup.*` settings; supports JSPWiki plugins, links, forms, styles, attachments.
+   - **Details**: Configurable via `ngdpbase.markup.*` settings; supports JSPWiki plugins, links, forms, styles, attachments.
 
 4. **Content Rendering - Legacy Parser Mode (Fallback)**:
    - **Component**: `RenderingManager.renderWithLegacyParser()`.
    - **Process**: Expand macros → Process JSPWiki tables → Process wiki links → Showdown conversion → Post-process styling.
-   - **Details**: Used when `amdwiki.markup.useAdvancedParser=false` or MarkupParser unavailable.
+   - **Details**: Used when `ngdpbase.markup.useAdvancedParser=false` or MarkupParser unavailable.
 
 5. **Caching**:
    - **Component**: `CacheManager` with multi-strategy caching integrated in MarkupParser.
@@ -355,7 +355,7 @@ amdWiki's pipeline is built on Node.js with Express.js, using Markdown with comp
 
 ### Comparison Table
 
-| Aspect | JSPWiki Rendering Pipeline | amdWiki Rendering Pipeline |
+| Aspect | JSPWiki Rendering Pipeline | ngdpbase Rendering Pipeline |
 | --------------------------- | ---------------------------------------------------- | ---------------------------------------------------- |
 | **Technology** | Java, Servlet, JSP | Node.js, Express, EJS |
 | **Content Format** | JSPWiki markup (e.g., `**bold**`, `[{Plugin}]`) | Markdown + JSPWiki-style syntax (links, plugins, forms, styles) |
@@ -396,7 +396,7 @@ amdWiki's pipeline is built on Node.js with Express.js, using Markdown with comp
 - **Dependency**: Relies on servlet containers, less flexible for lightweight deployments.
 - **Dynamic Content**: Plugins like `CurrentTimePlugin` require cache tuning to avoid stale outputs.
 
-#### amdWiki Rendering Pipeline
+#### ngdpbase Rendering Pipeline
 
 **Pros**:
 
@@ -427,7 +427,7 @@ amdWiki's pipeline is built on Node.js with Express.js, using Markdown with comp
 - **Flow**: `WikiServlet` → `WikiEngine` → `PageManager` (fetch `Main.txt`) → `SpamFilter` → `JSPWikiMarkupParser` (`<b>Main</b> 2025-09-21 04:35:00 EDT`) → Post-filter → `view.jsp` (with `jspwiki.css`) → Cached → Response.
 - **Output**: `<div class="content">Welcome <b>Main</b>! 2025-09-21 04:35:00 EDT</div>`.
 
-**amdWiki** (Advanced Parser):
+**ngdpbase** (Advanced Parser):
 
 - **Markup**: `# Welcome *Main*! [{Image src='logo.jpg'}] Current user: [{$username}]`
 - **Flow**:
@@ -448,15 +448,15 @@ amdWiki's pipeline is built on Node.js with Express.js, using Markdown with comp
 ### Summary
 
 - **JSPWiki**: Suited for complex, enterprise-grade wikis needing robust versioning, extensive extensibility via SPI, and granular access control. Its pipeline is feature-rich and battle-tested but heavyweight, requiring significant setup (servlet container, configuration) and Java expertise.
-- **amdWiki**: Modern wiki engine that combines JSPWiki's sophisticated parsing architecture with Node.js/Express agility and Markdown familiarity. Features a comprehensive 7-phase MarkupParser with extensive JSPWiki syntax support, advanced multi-strategy caching, and performance monitoring. Ideal for teams wanting JSPWiki-style features in a modern JavaScript stack with quick deployment. While handler library and versioning are less mature than JSPWiki's decades of development, the architecture is designed for extensibility and growth.
+- **ngdpbase**: Modern wiki engine that combines JSPWiki's sophisticated parsing architecture with Node.js/Express agility and Markdown familiarity. Features a comprehensive 7-phase MarkupParser with extensive JSPWiki syntax support, advanced multi-strategy caching, and performance monitoring. Ideal for teams wanting JSPWiki-style features in a modern JavaScript stack with quick deployment. While handler library and versioning are less mature than JSPWiki's decades of development, the architecture is designed for extensibility and growth.
 
 **Key Differentiators**:
 
 - **JSPWiki**: Java/Servlet ecosystem, pure wiki markup, decades of plugins, enterprise features
-- **amdWiki**: Node.js/Express, Markdown + JSPWiki syntax, modern tooling, lightweight deployment, manager-based architecture
+- **ngdpbase**: Node.js/Express, Markdown + JSPWiki syntax, modern tooling, lightweight deployment, manager-based architecture
 
 For detailed implementation, refer to:
 
 - JSPWiki's [API docs](https://jspwiki.apache.org/apidocs/2.12.2/)
-- amdWiki's [PROJECT-STRUCTURE.md](https://github.com/jwilleke/amdWiki/blob/master/docs/architecture/PROJECT-STRUCTURE.md)
-- amdWiki's source: `src/WikiEngine.js`, `src/managers/RenderingManager.js`, `src/parsers/MarkupParser.js`
+- ngdpbase's [PROJECT-STRUCTURE.md](https://github.com/jwilleke/ngdpbase/blob/master/docs/architecture/PROJECT-STRUCTURE.md)
+- ngdpbase's source: `src/WikiEngine.js`, `src/managers/RenderingManager.js`, `src/parsers/MarkupParser.js`

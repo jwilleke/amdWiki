@@ -1,12 +1,12 @@
-[**amdWiki API v1.5.0**](../../../../README.md)
+[**ngdpbase API v1.5.0**](../../../../README.md)
 
 ***
 
-[amdWiki API](../../../../README.md) / [src/parsers/MarkupParser](../README.md) / HandlerConfig
+[ngdpbase API](../../../../README.md) / [src/parsers/MarkupParser](../README.md) / HandlerConfig
 
 # Interface: HandlerConfig
 
-Defined in: [src/parsers/MarkupParser.ts:67](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L67)
+Defined in: [src/parsers/MarkupParser.ts:67](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L67)
 
 Individual handler configuration
 
@@ -16,7 +16,7 @@ Individual handler configuration
 
 > **enabled**: `boolean`
 
-Defined in: [src/parsers/MarkupParser.ts:69](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L69)
+Defined in: [src/parsers/MarkupParser.ts:69](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L69)
 
 Whether handler is enabled
 
@@ -26,7 +26,7 @@ Whether handler is enabled
 
 > `optional` **enhanced**: `boolean`
 
-Defined in: [src/parsers/MarkupParser.ts:73](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L73)
+Defined in: [src/parsers/MarkupParser.ts:73](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L73)
 
 Whether enhanced mode is enabled
 
@@ -36,7 +36,7 @@ Whether enhanced mode is enabled
 
 > `optional` **metadata**: `boolean`
 
-Defined in: [src/parsers/MarkupParser.ts:77](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L77)
+Defined in: [src/parsers/MarkupParser.ts:77](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L77)
 
 Whether metadata collection is enabled
 
@@ -46,7 +46,7 @@ Whether metadata collection is enabled
 
 > **priority**: `number`
 
-Defined in: [src/parsers/MarkupParser.ts:71](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L71)
+Defined in: [src/parsers/MarkupParser.ts:71](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L71)
 
 Handler priority
 
@@ -56,6 +56,6 @@ Handler priority
 
 > `optional` **thumbnails**: `boolean`
 
-Defined in: [src/parsers/MarkupParser.ts:75](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L75)
+Defined in: [src/parsers/MarkupParser.ts:75](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L75)
 
 Whether thumbnails are enabled

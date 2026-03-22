@@ -237,11 +237,11 @@ abstract class BaseFilter {
         if (filterType) {
           // Load filter-specific configuration
           this.config.enabled = configManager.getProperty(
-            `amdwiki.markup.filters.${filterType}.enabled`,
+            `ngdpbase.markup.filters.${filterType}.enabled`,
             this.config.enabled
           ) as boolean;
           this.config.priority = configManager.getProperty(
-            `amdwiki.markup.filters.${filterType}.priority`,
+            `ngdpbase.markup.filters.${filterType}.priority`,
             this.config.priority
           ) as number;
 

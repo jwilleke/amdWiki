@@ -1,12 +1,12 @@
-[**amdWiki API v1.5.0**](../../../../README.md)
+[**ngdpbase API v1.5.0**](../../../../README.md)
 
 ***
 
-[amdWiki API](../../../../README.md) / [src/managers/BackupManager](../README.md) / default
+[ngdpbase API](../../../../README.md) / [src/managers/BackupManager](../README.md) / default
 
 # Class: default
 
-Defined in: [src/managers/BackupManager.ts:90](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BackupManager.ts#L90)
+Defined in: [src/managers/BackupManager.ts:90](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BackupManager.ts#L90)
 
 BackupManager - Coordinates backup and restore operations across all managers
 
@@ -49,7 +49,7 @@ console.log('Backup created:', backupPath);
 
 > **new default**(`engine`): `BackupManager`
 
-Defined in: [src/managers/BackupManager.ts:101](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BackupManager.ts#L101)
+Defined in: [src/managers/BackupManager.ts:101](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BackupManager.ts#L101)
 
 Creates a new BackupManager instance
 
@@ -75,7 +75,7 @@ The wiki engine instance
 
 > `protected` `optional` **config**: `Record`\<`string`, `unknown`\>
 
-Defined in: [src/managers/BaseManager.ts:61](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L61)
+Defined in: [src/managers/BaseManager.ts:61](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L61)
 
 Configuration passed during initialization
 
@@ -89,7 +89,7 @@ Configuration passed during initialization
 
 > `protected` **engine**: [`WikiEngine`](../../../types/WikiEngine/interfaces/WikiEngine.md)
 
-Defined in: [src/managers/BaseManager.ts:54](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L54)
+Defined in: [src/managers/BaseManager.ts:54](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L54)
 
 Reference to the wiki engine
 
@@ -103,7 +103,7 @@ Reference to the wiki engine
 
 > `protected` **initialized**: `boolean`
 
-Defined in: [src/managers/BaseManager.ts:57](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L57)
+Defined in: [src/managers/BaseManager.ts:57](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L57)
 
 Initialization status flag
 
@@ -117,7 +117,7 @@ Initialization status flag
 
 > **backup**(): `Promise`\<[`BackupData`](../../BaseManager/interfaces/BackupData.md)\>
 
-Defined in: [src/managers/BackupManager.ts:144](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BackupManager.ts#L144)
+Defined in: [src/managers/BackupManager.ts:144](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BackupManager.ts#L144)
 
 Backup BackupManager's own state (conforms to BaseManager interface)
 
@@ -137,7 +137,7 @@ Backup data for this manager
 
 > **createBackup**(`options`): `Promise`\<`string`\>
 
-Defined in: [src/managers/BackupManager.ts:185](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BackupManager.ts#L185)
+Defined in: [src/managers/BackupManager.ts:185](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BackupManager.ts#L185)
 
 Perform a complete backup of all managers to a file
 
@@ -169,7 +169,7 @@ Path to created backup file
 
 > **getEngine**(): [`WikiEngine`](../../../types/WikiEngine/interfaces/WikiEngine.md)
 
-Defined in: [src/managers/BaseManager.ts:125](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L125)
+Defined in: [src/managers/BaseManager.ts:125](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L125)
 
 Get the wiki engine instance
 
@@ -195,7 +195,7 @@ const config = this.getEngine().getConfig();
 
 > **getLatestBackup**(): `Promise`\<`string` \| `null`\>
 
-Defined in: [src/managers/BackupManager.ts:474](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BackupManager.ts#L474)
+Defined in: [src/managers/BackupManager.ts:474](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BackupManager.ts#L474)
 
 Get the most recent backup file path
 
@@ -211,7 +211,7 @@ Path to most recent backup, or null if none exist
 
 > **initialize**(`config?`): `Promise`\<`void`\>
 
-Defined in: [src/managers/BackupManager.ts:115](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BackupManager.ts#L115)
+Defined in: [src/managers/BackupManager.ts:115](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BackupManager.ts#L115)
 
 Initialize BackupManager
 
@@ -243,7 +243,7 @@ If ConfigurationManager is not available
 
 > **isInitialized**(): `boolean`
 
-Defined in: [src/managers/BaseManager.ts:113](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L113)
+Defined in: [src/managers/BaseManager.ts:113](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L113)
 
 Check if manager has been initialized
 
@@ -271,7 +271,7 @@ if (manager.isInitialized()) {
 
 > **listBackups**(): `Promise`\<[`BackupFileInfo`](../interfaces/BackupFileInfo.md)[]\>
 
-Defined in: [src/managers/BackupManager.ts:405](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BackupManager.ts#L405)
+Defined in: [src/managers/BackupManager.ts:405](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BackupManager.ts#L405)
 
 List all available backups
 
@@ -287,7 +287,7 @@ List of backup files with metadata
 
 > **restore**(`backupData`): `Promise`\<`void`\>
 
-Defined in: [src/managers/BaseManager.ts:198](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L198)
+Defined in: [src/managers/BaseManager.ts:198](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L198)
 
 Restore manager data from backup
 
@@ -332,7 +332,7 @@ async restore(backupData: BackupData): Promise<void> {
 
 > **restoreFromFile**(`backupPath`, `options`): `Promise`\<[`RestoreResults`](../interfaces/RestoreResults.md)\>
 
-Defined in: [src/managers/BackupManager.ts:286](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BackupManager.ts#L286)
+Defined in: [src/managers/BackupManager.ts:286](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BackupManager.ts#L286)
 
 Restore all managers from a backup file
 
@@ -368,7 +368,7 @@ Restore results
 
 > **restoreState**(`backupData`): `Promise`\<`void`\>
 
-Defined in: [src/managers/BackupManager.ts:162](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BackupManager.ts#L162)
+Defined in: [src/managers/BackupManager.ts:162](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BackupManager.ts#L162)
 
 Restore BackupManager's own state (conforms to BaseManager interface)
 
@@ -390,7 +390,7 @@ Backup data from backup()
 
 > **shutdown**(): `Promise`\<`void`\>
 
-Defined in: [src/managers/BaseManager.ts:143](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L143)
+Defined in: [src/managers/BaseManager.ts:143](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L143)
 
 Shutdown the manager and cleanup resources
 

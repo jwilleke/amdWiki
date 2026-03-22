@@ -16,13 +16,13 @@ const SearchManager = require('../SearchManager');
 // Mock ConfigurationManager
 const mockConfigurationManager = {
   getProperty: jest.fn((key, defaultValue) => {
-    if (key === 'amdwiki.search.enabled') {
+    if (key === 'ngdpbase.search.enabled') {
       return true;
     }
-    if (key === 'amdwiki.search.provider.default') {
+    if (key === 'ngdpbase.search.provider.default') {
       return 'lunrsearchprovider';
     }
-    if (key === 'amdwiki.search.provider') {
+    if (key === 'ngdpbase.search.provider') {
       return 'lunrsearchprovider';
     }
     return defaultValue;
@@ -254,7 +254,7 @@ describe('SearchManager', () => {
     test('should skip provider loading when search disabled', async () => {
       const disabledConfigManager = {
         getProperty: jest.fn((key, defaultValue) => {
-          if (key === 'amdwiki.search.enabled') {
+          if (key === 'ngdpbase.search.enabled') {
             return false; // Disable search
           }
           return defaultValue;

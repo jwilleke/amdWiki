@@ -1,6 +1,6 @@
 # WikiContext - The Rendering Orchestrator
 
-`WikiContext` is the central orchestrator for content rendering in amdWiki. For each page request, a `WikiContext` instance is created to act as a request-scoped container, bundling all information related to the request, such as page details, user information, and the HTTP request itself.
+`WikiContext` is the central orchestrator for content rendering in ngdpbase. For each page request, a `WikiContext` instance is created to act as a request-scoped container, bundling all information related to the request, such as page details, user information, and the HTTP request itself.
 
 ## Core Responsibilities
 

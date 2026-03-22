@@ -22,7 +22,7 @@ The UptimePlugin shows how long the wiki server has been running since its last 
 | Property | Value |
 | ---------- | ------- |
 | Name | UptimePlugin |
-| Author | amdWiki |
+| Author | ngdpbase |
 | Version | 1.0.0 |
 | JSPWiki Compatible | Yes |
 
@@ -70,7 +70,7 @@ Server uptime: [{UptimePlugin}]
 
 ```wiki
 ----
-Wiki powered by amdWiki. Uptime: [{UptimePlugin}]
+Wiki powered by ngdpbase. Uptime: [{UptimePlugin}]
 ```
 
 ## Output Format
@@ -123,7 +123,7 @@ formatUptime(seconds) {
 
 ## JSPWiki Compatibility
 
-| Feature | JSPWiki | amdWiki | Notes |
+| Feature | JSPWiki | ngdpbase | Notes |
 | --------- | --------- | --------- | ------- |
 | Basic syntax | Yes | Yes | Same behavior |
 | Output format | Similar | Yes | Days/hours/minutes |

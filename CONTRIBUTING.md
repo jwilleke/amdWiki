@@ -1,20 +1,20 @@
-# Contributing to amdWiki
+# Contributing to ngdpbase
 
-Welcome! We appreciate your interest in contributing to amdWiki, a JSPWiki-inspired file-based wiki built with Node.js.
+Welcome! We appreciate your interest in contributing to ngdpbase, a JSPWiki-inspired file-based wiki built with Node.js.
 
 📖 **First time here?** Read [README.md](README.md) for project overview, features, and structure.
 
 ## 🚀 Quick Start
 
 1. **Fork** the repository
-2. **Clone** your fork: `git clone https://github.com/your-username/amdWiki.git`
+2. **Clone** your fork: `git clone https://github.com/your-username/ngdpbase.git`
 3. **Install** dependencies: `npm install`
 4. **Start** development server: `./server.sh start dev`
 5. **Test** your changes: `npm test`
 
 ## Server Management
 
-amdWiki uses `server.sh` for all server operations. See [SERVER.md](SERVER.md) for detailed documentation.
+ngdpbase uses `server.sh` for all server operations. See [SERVER.md](SERVER.md) for detailed documentation.
 
 **Common Commands:**
 
@@ -34,14 +34,14 @@ amdWiki uses `server.sh` for all server operations. See [SERVER.md](SERVER.md) f
 
   | Type        | Location                      | Purpose                             |
   |-------------|-------------------------------|-------------------------------------|
-  | PM2 Output  | ~/.pm2/logs/amdWiki-out.log   | Real-time stdout, startup messages  |
-  | PM2 Errors  | ~/.pm2/logs/amdWiki-error.log | Real-time stderr, plugin errors     |
+  | PM2 Output  | ~/.pm2/logs/ngdpbase-out.log   | Real-time stdout, startup messages  |
+  | PM2 Errors  | ~/.pm2/logs/ngdpbase-error.log | Real-time stderr, plugin errors     |
   | Application | ./data/logs/app.log           | Winston logger, detailed operations |
   | Audit       | ./data/logs/audit.log         | Security/audit events               |
 
 ## ⚙️ Configuration System
 
-amdWiki uses a **hierarchical configuration system** with three layers that merge in priority order:
+ngdpbase uses a **hierarchical configuration system** with three layers that merge in priority order:
 
 1. `config/app-default-config.json` - Base defaults (required, ~1150 properties)
 2. `data/config/app-{environment}-config.json` - Environment-specific settings (optional)
@@ -82,9 +82,9 @@ amdWiki uses a **hierarchical configuration system** with three layers that merg
 Follow JSPWiki-style naming conventions:
 
 ```javascript
-"amdwiki.{category}.{property}": value
-"amdwiki.page.provider": "filesystemprovider"
-"amdwiki.backup.autoBackup": true
+"ngdpbase.{category}.{property}": value
+"ngdpbase.page.provider": "filesystemprovider"
+"ngdpbase.backup.autoBackup": true
 "jspwiki.parser.useExtractionPipeline": true
 ```
 
@@ -92,7 +92,7 @@ Follow JSPWiki-style naming conventions:
 
 ## 🏗️ Architecture Overview
 
-amdWiki follows a **manager-based architecture** inspired by JSPWiki:
+ngdpbase follows a **manager-based architecture** inspired by JSPWiki:
 
 - **WikiEngine** - Central orchestrator (`src/WikiEngine.ts`)
 - **Managers** - Modular functionality (`src/managers/`)
@@ -107,7 +107,7 @@ amdWiki follows a **manager-based architecture** inspired by JSPWiki:
 
 ### WikiDocument DOM Parsing Architecture
 
-amdWiki uses a **three-phase extraction pipeline** that separates JSPWiki syntax processing from Markdown parsing:
+ngdpbase uses a **three-phase extraction pipeline** that separates JSPWiki syntax processing from Markdown parsing:
 
 ```text
 Content → Extract JSPWiki → Create DOM Nodes → Showdown → Merge → HTML
@@ -134,7 +134,7 @@ Content → Extract JSPWiki → Create DOM Nodes → Showdown → Merge → HTML
 
 ### Session Management Architecture
 
-amdWiki uses **express-session** for session management (standard Express middleware):
+ngdpbase uses **express-session** for session management (standard Express middleware):
 
 **Session Setup (app.js):**
 
@@ -142,7 +142,7 @@ amdWiki uses **express-session** for session management (standard Express middle
 const session = require('express-session');
 
 app.use(session({
-  secret: configManager.getProperty('amdwiki.session.secret', 'change-in-production'),
+  secret: configManager.getProperty('ngdpbase.session.secret', 'change-in-production'),
   resave: false,
   saveUninitialized: false,
   cookie: {
@@ -294,7 +294,7 @@ v4: diff_from_v3.diff.gz               (2.2 KB)
 - `src/utils/DeltaStorage.js` - Diff creation and application
 - `src/utils/VersionCompression.js` - Compression utilities
 - `src/providers/BasePageProvider.js` - Versioning methods interface
-- [Phase 1 Implementation](https://github.com/jwilleke/amdWiki/issues/125)
+- [Phase 1 Implementation](https://github.com/jwilleke/ngdpbase/issues/125)
 
 ## 🔧 Development Guidelines
 
@@ -317,7 +317,7 @@ v4: diff_from_v3.diff.gz               (2.2 KB)
 
 ## 🔷 TypeScript Guidelines
 
-amdWiki is migrating to TypeScript with strict mode enabled. All new code should be written in TypeScript.
+ngdpbase is migrating to TypeScript with strict mode enabled. All new code should be written in TypeScript.
 
 ### TypeScript Setup
 
@@ -706,7 +706,7 @@ Current documentation coverage:
  * NewManager - Brief description of manager purpose
  *
  * Detailed description of what this manager does and its role
- * in the amdWiki architecture.
+ * in the ngdpbase architecture.
  *
  * @class NewManager
  * @extends BaseManager
@@ -1129,7 +1129,7 @@ npx tsx src/utils/version.ts set 1.2.3  # Set specific version
 The version script automatically updates:
 
 - `package.json` — `version` field
-- `config/app-default-config.json` — `amdwiki.version` field
+- `config/app-default-config.json` — `ngdpbase.version` field
 - `CHANGELOG.md` — Adds new version section (if [Unreleased] exists)
 
 **Important:** Always use `src/utils/version.ts` for version changes to keep all files in sync.
@@ -1187,4 +1187,4 @@ By contributing, you agree that your contributions will be licensed under the sa
 
 ---
 
-Thank you for contributing to amdWiki! 🚀
+Thank you for contributing to ngdpbase! 🚀

@@ -1,12 +1,12 @@
-[**amdWiki API v1.5.0**](../../../../README.md)
+[**ngdpbase API v1.5.0**](../../../../README.md)
 
 ***
 
-[amdWiki API](../../../../README.md) / [src/managers/PluginManager](../README.md) / default
+[ngdpbase API](../../../../README.md) / [src/managers/PluginManager](../README.md) / default
 
 # Class: default
 
-Defined in: [src/managers/PluginManager.ts:108](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/PluginManager.ts#L108)
+Defined in: [src/managers/PluginManager.ts:108](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/PluginManager.ts#L108)
 
 PluginManager - Handles plugin discovery, registration, and execution
 
@@ -43,7 +43,7 @@ const result = await pluginManager.execute('CurrentTimePlugin', params);
 
 > **new default**(`engine`): `PluginManager`
 
-Defined in: [src/managers/PluginManager.ts:119](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/PluginManager.ts#L119)
+Defined in: [src/managers/PluginManager.ts:119](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/PluginManager.ts#L119)
 
 Creates a new PluginManager instance
 
@@ -69,7 +69,7 @@ The wiki engine instance
 
 > `protected` `optional` **config**: `Record`\<`string`, `unknown`\>
 
-Defined in: [src/managers/BaseManager.ts:61](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L61)
+Defined in: [src/managers/BaseManager.ts:61](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L61)
 
 Configuration passed during initialization
 
@@ -83,7 +83,7 @@ Configuration passed during initialization
 
 > `protected` **engine**: [`WikiEngine`](../../../types/WikiEngine/interfaces/WikiEngine.md)
 
-Defined in: [src/managers/BaseManager.ts:54](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L54)
+Defined in: [src/managers/BaseManager.ts:54](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L54)
 
 Reference to the wiki engine
 
@@ -97,7 +97,7 @@ Reference to the wiki engine
 
 > `protected` **initialized**: `boolean`
 
-Defined in: [src/managers/BaseManager.ts:57](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L57)
+Defined in: [src/managers/BaseManager.ts:57](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L57)
 
 Initialization status flag
 
@@ -111,7 +111,7 @@ Initialization status flag
 
 > **backup**(): `Promise`\<[`BackupData`](../../BaseManager/interfaces/BackupData.md)\>
 
-Defined in: [src/managers/BaseManager.ts:169](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L169)
+Defined in: [src/managers/BaseManager.ts:169](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L169)
 
 Backup manager data
 
@@ -153,7 +153,7 @@ async backup(): Promise<BackupData> {
 
 > **execute**(`pluginName`, `pageName`, `params`, `context`): `Promise`\<`string`\>
 
-Defined in: [src/managers/PluginManager.ts:328](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/PluginManager.ts#L328)
+Defined in: [src/managers/PluginManager.ts:328](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/PluginManager.ts#L328)
 
 Execute a plugin
 
@@ -195,7 +195,7 @@ Plugin output
 
 > **findPlugin**(`pluginName`): [`Plugin`](../type-aliases/Plugin.md) \| `null`
 
-Defined in: [src/managers/PluginManager.ts:271](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/PluginManager.ts#L271)
+Defined in: [src/managers/PluginManager.ts:271](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/PluginManager.ts#L271)
 
 Find plugin by name (case-insensitive)
 Supports JSPWiki-style plugin naming where you can use either:
@@ -222,7 +222,7 @@ Plugin object or null if not found
 
 > **getEngine**(): [`WikiEngine`](../../../types/WikiEngine/interfaces/WikiEngine.md)
 
-Defined in: [src/managers/BaseManager.ts:125](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L125)
+Defined in: [src/managers/BaseManager.ts:125](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L125)
 
 Get the wiki engine instance
 
@@ -248,7 +248,7 @@ const config = this.getEngine().getConfig();
 
 > **getPluginInfo**(`pluginName`): [`PluginInfo`](../interfaces/PluginInfo.md) \| `null`
 
-Defined in: [src/managers/PluginManager.ts:377](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/PluginManager.ts#L377)
+Defined in: [src/managers/PluginManager.ts:377](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/PluginManager.ts#L377)
 
 Get plugin info
 
@@ -272,7 +272,7 @@ Plugin information
 
 > **getPluginNames**(): `string`[]
 
-Defined in: [src/managers/PluginManager.ts:368](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/PluginManager.ts#L368)
+Defined in: [src/managers/PluginManager.ts:368](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/PluginManager.ts#L368)
 
 Get list of all registered plugins
 
@@ -288,7 +288,7 @@ Array of plugin names
 
 > **hasPlugin**(`pluginName`): `boolean`
 
-Defined in: [src/managers/PluginManager.ts:407](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/PluginManager.ts#L407)
+Defined in: [src/managers/PluginManager.ts:407](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/PluginManager.ts#L407)
 
 Check if plugin exists
 
@@ -312,7 +312,7 @@ True if plugin exists
 
 > **initialize**(`config?`): `Promise`\<`void`\>
 
-Defined in: [src/managers/PluginManager.ts:132](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/PluginManager.ts#L132)
+Defined in: [src/managers/PluginManager.ts:132](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/PluginManager.ts#L132)
 
 Initialize the PluginManager and discover plugins
 
@@ -340,7 +340,7 @@ Configuration object (unused, reads from ConfigurationManager)
 
 > **isInitialized**(): `boolean`
 
-Defined in: [src/managers/BaseManager.ts:113](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L113)
+Defined in: [src/managers/BaseManager.ts:113](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L113)
 
 Check if manager has been initialized
 
@@ -368,7 +368,7 @@ if (manager.isInitialized()) {
 
 > **loadPlugin**(`pluginPath`): `Promise`\<`void`\>
 
-Defined in: [src/managers/PluginManager.ts:221](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/PluginManager.ts#L221)
+Defined in: [src/managers/PluginManager.ts:221](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/PluginManager.ts#L221)
 
 Load a single plugin from a validated, allowed root
 
@@ -390,10 +390,10 @@ Path to the plugin file
 
 > **registerPlugins**(): `Promise`\<`void`\>
 
-Defined in: [src/managers/PluginManager.ts:144](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/PluginManager.ts#L144)
+Defined in: [src/managers/PluginManager.ts:144](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/PluginManager.ts#L144)
 
 Register all plugins from search paths obtained ONLY from
-ConfigurationManager at key: amdwiki.managers.pluginManager.searchPaths
+ConfigurationManager at key: ngdpbase.managers.pluginManager.searchPaths
 
 #### Returns
 
@@ -405,7 +405,7 @@ ConfigurationManager at key: amdwiki.managers.pluginManager.searchPaths
 
 > **restore**(`backupData`): `Promise`\<`void`\>
 
-Defined in: [src/managers/BaseManager.ts:198](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L198)
+Defined in: [src/managers/BaseManager.ts:198](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L198)
 
 Restore manager data from backup
 
@@ -450,7 +450,7 @@ async restore(backupData: BackupData): Promise<void> {
 
 > **shutdown**(): `Promise`\<`void`\>
 
-Defined in: [src/managers/BaseManager.ts:143](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L143)
+Defined in: [src/managers/BaseManager.ts:143](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L143)
 
 Shutdown the manager and cleanup resources
 

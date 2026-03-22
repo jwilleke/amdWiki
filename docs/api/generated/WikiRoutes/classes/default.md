@@ -1,12 +1,12 @@
-[**amdWiki API v1.5.0**](../../README.md)
+[**ngdpbase API v1.5.0**](../../README.md)
 
 ***
 
-[amdWiki API](../../README.md) / [WikiRoutes](../README.md) / default
+[ngdpbase API](../../README.md) / [WikiRoutes](../README.md) / default
 
 # Class: default
 
-Defined in: [src/routes/WikiRoutes.ts:118](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L118)
+Defined in: [src/routes/WikiRoutes.ts:118](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L118)
 
 ## Constructors
 
@@ -14,7 +14,7 @@ Defined in: [src/routes/WikiRoutes.ts:118](https://github.com/jwilleke/amdWiki/b
 
 > **new default**(`engine`): `WikiRoutes`
 
-Defined in: [src/routes/WikiRoutes.ts:121](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L121)
+Defined in: [src/routes/WikiRoutes.ts:121](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L121)
 
 #### Parameters
 
@@ -32,7 +32,7 @@ Defined in: [src/routes/WikiRoutes.ts:121](https://github.com/jwilleke/amdWiki/b
 
 > **adminAuditExport**(`req`, `res`): `Promise`\<`Response`\<`any`, `Record`\<`string`, `any`\>\>\>
 
-Defined in: [src/routes/WikiRoutes.ts:4853](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L4853)
+Defined in: [src/routes/WikiRoutes.ts:4853](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L4853)
 
 Export audit logs
 
@@ -56,7 +56,7 @@ Export audit logs
 
 > **adminAuditLogDetails**(`req`, `res`): `Promise`\<`Response`\<`any`, `Record`\<`string`, `any`\>\>\>
 
-Defined in: [src/routes/WikiRoutes.ts:4820](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L4820)
+Defined in: [src/routes/WikiRoutes.ts:4820](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L4820)
 
 API endpoint for individual audit log details
 
@@ -80,7 +80,7 @@ API endpoint for individual audit log details
 
 > **adminAuditLogs**(`req`, `res`): `Promise`\<`void` \| `Response`\<`any`, `Record`\<`string`, `any`\>\>\>
 
-Defined in: [src/routes/WikiRoutes.ts:4735](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L4735)
+Defined in: [src/routes/WikiRoutes.ts:4735](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L4735)
 
 Admin audit logs page
 
@@ -104,7 +104,7 @@ Admin audit logs page
 
 > **adminAuditLogsApi**(`req`, `res`): `Promise`\<`Response`\<`any`, `Record`\<`string`, `any`\>\>\>
 
-Defined in: [src/routes/WikiRoutes.ts:4772](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L4772)
+Defined in: [src/routes/WikiRoutes.ts:4772](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L4772)
 
 API endpoint for audit logs data
 
@@ -128,7 +128,7 @@ API endpoint for audit logs data
 
 > **adminBackup**(`req`, `res`): `Promise`\<`void` \| `Response`\<`any`, `Record`\<`string`, `any`\>\>\>
 
-Defined in: [src/routes/WikiRoutes.ts:3417](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L3417)
+Defined in: [src/routes/WikiRoutes.ts:3417](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L3417)
 
 Admin backup - Create and download full system backup
 
@@ -152,7 +152,7 @@ Admin backup - Create and download full system backup
 
 > **adminCacheStats**(`req`, `res`): `Promise`\<`Response`\<`any`, `Record`\<`string`, `any`\>\>\>
 
-Defined in: [src/routes/WikiRoutes.ts:4625](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L4625)
+Defined in: [src/routes/WikiRoutes.ts:4625](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L4625)
 
 Admin cache statistics API endpoint
 
@@ -176,7 +176,7 @@ Admin cache statistics API endpoint
 
 > **adminClearAllNotifications**(`req`, `res`): `Promise`\<`void` \| `Response`\<`any`, `Record`\<`string`, `any`\>\>\>
 
-Defined in: [src/routes/WikiRoutes.ts:4540](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L4540)
+Defined in: [src/routes/WikiRoutes.ts:4540](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L4540)
 
 Clear all notifications (admin only)
 
@@ -200,7 +200,7 @@ Clear all notifications (admin only)
 
 > **adminClearCache**(`req`, `res`): `Promise`\<`Response`\<`any`, `Record`\<`string`, `any`\>\>\>
 
-Defined in: [src/routes/WikiRoutes.ts:4653](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L4653)
+Defined in: [src/routes/WikiRoutes.ts:4653](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L4653)
 
 Admin clear all cache API endpoint
 
@@ -224,7 +224,7 @@ Admin clear all cache API endpoint
 
 > **adminClearCacheRegion**(`req`, `res`): `Promise`\<`Response`\<`any`, `Record`\<`string`, `any`\>\>\>
 
-Defined in: [src/routes/WikiRoutes.ts:4688](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L4688)
+Defined in: [src/routes/WikiRoutes.ts:4688](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L4688)
 
 Admin clear cache region API endpoint
 
@@ -248,7 +248,7 @@ Admin clear cache region API endpoint
 
 > **adminConfiguration**(`req`, `res`): `Promise`\<`void` \| `Response`\<`any`, `Record`\<`string`, `any`\>\>\>
 
-Defined in: [src/routes/WikiRoutes.ts:3475](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L3475)
+Defined in: [src/routes/WikiRoutes.ts:3475](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L3475)
 
 Admin configuration management page
 
@@ -272,7 +272,7 @@ Admin configuration management page
 
 > **adminCreateOrganization**(`req`, `res`): `Promise`\<`void` \| `Response`\<`any`, `Record`\<`string`, `any`\>\>\>
 
-Defined in: [src/routes/WikiRoutes.ts:4008](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L4008)
+Defined in: [src/routes/WikiRoutes.ts:4008](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L4008)
 
 Create New Organization
 
@@ -296,7 +296,7 @@ Create New Organization
 
 > **adminCreatePolicy**(`req`, `res`): `Promise`\<`Response`\<`any`, `Record`\<`string`, `any`\>\>\>
 
-Defined in: [src/routes/WikiRoutes.ts:2927](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L2927)
+Defined in: [src/routes/WikiRoutes.ts:2927](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L2927)
 
 Create a new policy
 
@@ -320,7 +320,7 @@ Create a new policy
 
 > **adminCreateRole**(`req`, `res`): `Promise`\<`Response`\<`any`, `Record`\<`string`, `any`\>\>\>
 
-Defined in: [src/routes/WikiRoutes.ts:3318](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L3318)
+Defined in: [src/routes/WikiRoutes.ts:3318](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L3318)
 
 Create new role (admin only)
 
@@ -344,7 +344,7 @@ Create new role (admin only)
 
 > **adminCreateUser**(`req`, `res`): `Promise`\<`void` \| `Response`\<`any`, `Record`\<`string`, `any`\>\>\>
 
-Defined in: [src/routes/WikiRoutes.ts:3128](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L3128)
+Defined in: [src/routes/WikiRoutes.ts:3128](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L3128)
 
 Create new user (admin)
 
@@ -368,7 +368,7 @@ Create new user (admin)
 
 > **adminDashboard**(`req`, `res`): `Promise`\<`void` \| `Response`\<`any`, `Record`\<`string`, `any`\>\>\>
 
-Defined in: [src/routes/WikiRoutes.ts:2692](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L2692)
+Defined in: [src/routes/WikiRoutes.ts:2692](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L2692)
 
 Admin dashboard
 
@@ -392,7 +392,7 @@ Admin dashboard
 
 > **adminDeleteOrganization**(`req`, `res`): `Promise`\<`void` \| `Response`\<`any`, `Record`\<`string`, `any`\>\>\>
 
-Defined in: [src/routes/WikiRoutes.ts:4084](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L4084)
+Defined in: [src/routes/WikiRoutes.ts:4084](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L4084)
 
 Delete Organization
 
@@ -416,7 +416,7 @@ Delete Organization
 
 > **adminDeletePolicy**(`req`, `res`): `Promise`\<`Response`\<`any`, `Record`\<`string`, `any`\>\>\>
 
-Defined in: [src/routes/WikiRoutes.ts:3047](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L3047)
+Defined in: [src/routes/WikiRoutes.ts:3047](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L3047)
 
 Delete a policy
 
@@ -440,7 +440,7 @@ Delete a policy
 
 > **adminDeleteRole**(`req`, `res`): `Promise`\<`Response`\<`any`, `Record`\<`string`, `any`\>\>\>
 
-Defined in: [src/routes/WikiRoutes.ts:3373](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L3373)
+Defined in: [src/routes/WikiRoutes.ts:3373](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L3373)
 
 Delete role (admin only)
 
@@ -464,7 +464,7 @@ Delete role (admin only)
 
 > **adminDeleteUser**(`req`, `res`): `Promise`\<`Response`\<`any`, `Record`\<`string`, `any`\>\>\>
 
-Defined in: [src/routes/WikiRoutes.ts:3203](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L3203)
+Defined in: [src/routes/WikiRoutes.ts:3203](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L3203)
 
 Delete user (admin)
 
@@ -488,7 +488,7 @@ Delete user (admin)
 
 > **adminDismissNotification**(`req`, `res`): `Promise`\<`void` \| `Response`\<`any`, `Record`\<`string`, `any`\>\>\>
 
-Defined in: [src/routes/WikiRoutes.ts:4504](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L4504)
+Defined in: [src/routes/WikiRoutes.ts:4504](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L4504)
 
 Dismiss a notification (admin only)
 
@@ -512,7 +512,7 @@ Dismiss a notification (admin only)
 
 > **adminFixFiles**(`req`, `res`): `Promise`\<`Response`\<`any`, `Record`\<`string`, `any`\>\>\>
 
-Defined in: [src/routes/WikiRoutes.ts:4181](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L4181)
+Defined in: [src/routes/WikiRoutes.ts:4181](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L4181)
 
 Admin API route to fix all non-compliant files
 
@@ -536,7 +536,7 @@ Admin API route to fix all non-compliant files
 
 > **adminGetOrganization**(`req`, `res`): `Promise`\<`Response`\<`any`, `Record`\<`string`, `any`\>\>\>
 
-Defined in: [src/routes/WikiRoutes.ts:4119](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L4119)
+Defined in: [src/routes/WikiRoutes.ts:4119](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L4119)
 
 Get Single Organization (API endpoint)
 
@@ -560,7 +560,7 @@ Get Single Organization (API endpoint)
 
 > **adminGetOrganizationSchema**(`req`, `res`): `Promise`\<`Response`\<`any`, `Record`\<`string`, `any`\>\>\>
 
-Defined in: [src/routes/WikiRoutes.ts:4214](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L4214)
+Defined in: [src/routes/WikiRoutes.ts:4214](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L4214)
 
 Get Organization Schema.org JSON-LD (API endpoint)
 
@@ -584,7 +584,7 @@ Get Organization Schema.org JSON-LD (API endpoint)
 
 > **adminGetPersonSchema**(`req`, `res`): `Promise`\<`Response`\<`any`, `Record`\<`string`, `any`\>\>\>
 
-Defined in: [src/routes/WikiRoutes.ts:4248](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L4248)
+Defined in: [src/routes/WikiRoutes.ts:4248](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L4248)
 
 Get Schema.org Person schema for a user
 
@@ -608,7 +608,7 @@ Get Schema.org Person schema for a user
 
 > **adminGetPolicy**(`req`, `res`): `Promise`\<`Response`\<`any`, `Record`\<`string`, `any`\>\>\>
 
-Defined in: [src/routes/WikiRoutes.ts:2968](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L2968)
+Defined in: [src/routes/WikiRoutes.ts:2968](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L2968)
 
 Get a specific policy
 
@@ -632,7 +632,7 @@ Get a specific policy
 
 > **adminLogs**(`req`, `res`): `Promise`\<`void` \| `Response`\<`any`, `Record`\<`string`, `any`\>\>\>
 
-Defined in: [src/routes/WikiRoutes.ts:3856](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L3856)
+Defined in: [src/routes/WikiRoutes.ts:3856](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L3856)
 
 Admin logs page
 
@@ -656,7 +656,7 @@ Admin logs page
 
 > **adminNotifications**(`req`, `res`): `Promise`\<`void` \| `Response`\<`any`, `Record`\<`string`, `any`\>\>\>
 
-Defined in: [src/routes/WikiRoutes.ts:4569](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L4569)
+Defined in: [src/routes/WikiRoutes.ts:4569](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L4569)
 
 Notification management page (admin only)
 
@@ -680,7 +680,7 @@ Notification management page (admin only)
 
 > **adminOrganizations**(`req`, `res`): `Promise`\<`void` \| `Response`\<`any`, `Record`\<`string`, `any`\>\>\>
 
-Defined in: [src/routes/WikiRoutes.ts:3946](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L3946)
+Defined in: [src/routes/WikiRoutes.ts:3946](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L3946)
 
 Admin Organizations Management Page
 
@@ -704,7 +704,7 @@ Admin Organizations Management Page
 
 > **adminPolicies**(`req`, `res`): `Promise`\<`void` \| `Response`\<`any`, `Record`\<`string`, `any`\>\>\>
 
-Defined in: [src/routes/WikiRoutes.ts:2876](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L2876)
+Defined in: [src/routes/WikiRoutes.ts:2876](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L2876)
 
 Admin policy management dashboard
 
@@ -728,7 +728,7 @@ Admin policy management dashboard
 
 > **adminReindex**(`req`, `res`): `Promise`\<`Response`\<`any`, `Record`\<`string`, `any`\>\>\>
 
-Defined in: [src/routes/WikiRoutes.ts:3795](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L3795)
+Defined in: [src/routes/WikiRoutes.ts:3795](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L3795)
 
 Admin reindex - Refresh page cache and rebuild search index
 
@@ -752,7 +752,7 @@ Admin reindex - Refresh page cache and rebuild search index
 
 > **adminResetConfiguration**(`req`, `res`): `Promise`\<`void` \| `Response`\<`any`, `Record`\<`string`, `any`\>\>\>
 
-Defined in: [src/routes/WikiRoutes.ts:3558](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L3558)
+Defined in: [src/routes/WikiRoutes.ts:3558](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L3558)
 
 Reset configuration to defaults
 
@@ -776,7 +776,7 @@ Reset configuration to defaults
 
 > **adminRestart**(`req`, `res`): `Promise`\<`Response`\<`any`, `Record`\<`string`, `any`\>\>\>
 
-Defined in: [src/routes/WikiRoutes.ts:3744](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L3744)
+Defined in: [src/routes/WikiRoutes.ts:3744](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L3744)
 
 Restart the system (PM2)
 
@@ -800,7 +800,7 @@ Restart the system (PM2)
 
 > **adminRoles**(`req`, `res`): `Promise`\<`void` \| `Response`\<`any`, `Record`\<`string`, `any`\>\>\>
 
-Defined in: [src/routes/WikiRoutes.ts:3234](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L3234)
+Defined in: [src/routes/WikiRoutes.ts:3234](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L3234)
 
 Admin roles management
 
@@ -824,7 +824,7 @@ Admin roles management
 
 > **adminSettings**(`req`, `res`): `Promise`\<`void` \| `Response`\<`any`, `Record`\<`string`, `any`\>\>\>
 
-Defined in: [src/routes/WikiRoutes.ts:3698](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L3698)
+Defined in: [src/routes/WikiRoutes.ts:3698](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L3698)
 
 Admin settings page
 
@@ -848,7 +848,7 @@ Admin settings page
 
 > **adminTestVariables**(`req`, `res`): `Promise`\<`void` \| `Response`\<`any`, `Record`\<`string`, `any`\>\>\>
 
-Defined in: [src/routes/WikiRoutes.ts:3644](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L3644)
+Defined in: [src/routes/WikiRoutes.ts:3644](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L3644)
 
 Test variable expansion
 
@@ -872,7 +872,7 @@ Test variable expansion
 
 > **adminToggleMaintenance**(`req`, `res`): `Promise`\<`void` \| `Response`\<`any`, `Record`\<`string`, `any`\>\>\>
 
-Defined in: [src/routes/WikiRoutes.ts:2792](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L2792)
+Defined in: [src/routes/WikiRoutes.ts:2792](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L2792)
 
 Toggle maintenance mode (admin only)
 
@@ -896,7 +896,7 @@ Toggle maintenance mode (admin only)
 
 > **adminUpdateConfiguration**(`req`, `res`): `Promise`\<`void` \| `Response`\<`any`, `Record`\<`string`, `any`\>\>\>
 
-Defined in: [src/routes/WikiRoutes.ts:3519](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L3519)
+Defined in: [src/routes/WikiRoutes.ts:3519](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L3519)
 
 Update configuration property
 
@@ -920,7 +920,7 @@ Update configuration property
 
 > **adminUpdateOrganization**(`req`, `res`): `Promise`\<`void` \| `Response`\<`any`, `Record`\<`string`, `any`\>\>\>
 
-Defined in: [src/routes/WikiRoutes.ts:4045](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L4045)
+Defined in: [src/routes/WikiRoutes.ts:4045](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L4045)
 
 Update Existing Organization
 
@@ -944,7 +944,7 @@ Update Existing Organization
 
 > **adminUpdatePolicy**(`req`, `res`): `Promise`\<`Response`\<`any`, `Record`\<`string`, `any`\>\>\>
 
-Defined in: [src/routes/WikiRoutes.ts:3006](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L3006)
+Defined in: [src/routes/WikiRoutes.ts:3006](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L3006)
 
 Update an existing policy
 
@@ -968,7 +968,7 @@ Update an existing policy
 
 > **adminUpdateRole**(`req`, `res`): `Promise`\<`Response`\<`any`, `Record`\<`string`, `any`\>\>\>
 
-Defined in: [src/routes/WikiRoutes.ts:3274](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L3274)
+Defined in: [src/routes/WikiRoutes.ts:3274](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L3274)
 
 Update role permissions (admin only)
 
@@ -992,7 +992,7 @@ Update role permissions (admin only)
 
 > **adminUpdateUser**(`req`, `res`): `Promise`\<`Response`\<`any`, `Record`\<`string`, `any`\>\>\>
 
-Defined in: [src/routes/WikiRoutes.ts:3168](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L3168)
+Defined in: [src/routes/WikiRoutes.ts:3168](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L3168)
 
 Update user (admin)
 
@@ -1016,7 +1016,7 @@ Update user (admin)
 
 > **adminUsers**(`req`, `res`): `Promise`\<`void` \| `Response`\<`any`, `Record`\<`string`, `any`\>\>\>
 
-Defined in: [src/routes/WikiRoutes.ts:3088](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L3088)
+Defined in: [src/routes/WikiRoutes.ts:3088](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L3088)
 
 Admin users management
 
@@ -1040,7 +1040,7 @@ Admin users management
 
 > **adminValidateFiles**(`req`, `res`): `Promise`\<`void` \| `Response`\<`any`, `Record`\<`string`, `any`\>\>\>
 
-Defined in: [src/routes/WikiRoutes.ts:4144](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L4144)
+Defined in: [src/routes/WikiRoutes.ts:4144](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L4144)
 
 Admin route to validate all files and check for naming convention compliance
 
@@ -1064,7 +1064,7 @@ Admin route to validate all files and check for naming convention compliance
 
 > **adminVariables**(`req`, `res`): `Promise`\<`void` \| `Response`\<`any`, `Record`\<`string`, `any`\>\>\>
 
-Defined in: [src/routes/WikiRoutes.ts:3584](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L3584)
+Defined in: [src/routes/WikiRoutes.ts:3584](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L3584)
 
 Admin variable management page
 
@@ -1088,7 +1088,7 @@ Admin variable management page
 
 > **comparePageVersions**(`req`, `res`): `Promise`\<`Response`\<`any`, `Record`\<`string`, `any`\>\>\>
 
-Defined in: [src/routes/WikiRoutes.ts:5298](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L5298)
+Defined in: [src/routes/WikiRoutes.ts:5298](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L5298)
 
 GET /api/page/:identifier/compare/:v1/:v2
 Compare two versions of a page
@@ -1113,7 +1113,7 @@ Compare two versions of a page
 
 > **createPage**(`req`, `res`): `Promise`\<`void` \| `Response`\<`any`, `Record`\<`string`, `any`\>\>\>
 
-Defined in: [src/routes/WikiRoutes.ts:972](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L972)
+Defined in: [src/routes/WikiRoutes.ts:972](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L972)
 
 Display create new page form with template selection
 
@@ -1137,7 +1137,7 @@ Display create new page form with template selection
 
 > **createPageFromTemplate**(`req`, `res`): `Promise`\<`void` \| `Response`\<`any`, `Record`\<`string`, `any`\>\>\>
 
-Defined in: [src/routes/WikiRoutes.ts:1111](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L1111)
+Defined in: [src/routes/WikiRoutes.ts:1111](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L1111)
 
 Create a new page from template
 
@@ -1161,7 +1161,7 @@ Create a new page from template
 
 > **createWikiContext**(`req`, `options`): [`default`](../../src/context/WikiContext/classes/default.md)
 
-Defined in: [src/routes/WikiRoutes.ts:132](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L132)
+Defined in: [src/routes/WikiRoutes.ts:132](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L132)
 
 Create a WikiContext for the given request and page
 This should be the single source of truth for all context information
@@ -1192,7 +1192,7 @@ WikiContext instance
 
 > **createWikiPage**(`req`, `res`): `Promise`\<`void` \| `Response`\<`any`, `Record`\<`string`, `any`\>\>\>
 
-Defined in: [src/routes/WikiRoutes.ts:1403](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L1403)
+Defined in: [src/routes/WikiRoutes.ts:1403](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L1403)
 
 Create a new wiki page via POST /wiki/:page
 
@@ -1220,7 +1220,7 @@ Express response object
 
 > **deleteAttachment**(`req`, `res`): `Promise`\<`Response`\<`any`, `Record`\<`string`, `any`\>\>\>
 
-Defined in: [src/routes/WikiRoutes.ts:2104](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L2104)
+Defined in: [src/routes/WikiRoutes.ts:2104](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L2104)
 
 Delete attachment
 
@@ -1244,7 +1244,7 @@ Delete attachment
 
 > **deleteExport**(`req`, `res`): `Promise`\<`void`\>
 
-Defined in: [src/routes/WikiRoutes.ts:2246](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L2246)
+Defined in: [src/routes/WikiRoutes.ts:2246](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L2246)
 
 Delete export file
 
@@ -1268,7 +1268,7 @@ Delete export file
 
 > **deletePage**(`req`, `res`): `Promise`\<`void` \| `Response`\<`any`, `Record`\<`string`, `any`\>\>\>
 
-Defined in: [src/routes/WikiRoutes.ts:1698](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L1698)
+Defined in: [src/routes/WikiRoutes.ts:1698](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L1698)
 
 Delete a page
 
@@ -1292,7 +1292,7 @@ Delete a page
 
 > **downloadExport**(`req`, `res`): `Promise`\<`void` \| `Response`\<`any`, `Record`\<`string`, `any`\>\>\>
 
-Defined in: [src/routes/WikiRoutes.ts:2225](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L2225)
+Defined in: [src/routes/WikiRoutes.ts:2225](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L2225)
 
 Download export file
 
@@ -1316,7 +1316,7 @@ Download export file
 
 > **editPage**(`req`, `res`): `Promise`\<`void` \| `Response`\<`any`, `Record`\<`string`, `any`\>\>\>
 
-Defined in: [src/routes/WikiRoutes.ts:1255](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L1255)
+Defined in: [src/routes/WikiRoutes.ts:1255](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L1255)
 
 #### Parameters
 
@@ -1338,7 +1338,7 @@ Defined in: [src/routes/WikiRoutes.ts:1255](https://github.com/jwilleke/amdWiki/
 
 > **editPageIndex**(`req`, `res`): `Promise`\<`void` \| `Response`\<`any`, `Record`\<`string`, `any`\>\>\>
 
-Defined in: [src/routes/WikiRoutes.ts:1064](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L1064)
+Defined in: [src/routes/WikiRoutes.ts:1064](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L1064)
 
 Handle /edit route without page parameter
 
@@ -1362,7 +1362,7 @@ Handle /edit route without page parameter
 
 > **exportPage**(`req`, `res`): `Promise`\<`void` \| `Response`\<`any`, `Record`\<`string`, `any`\>\>\>
 
-Defined in: [src/routes/WikiRoutes.ts:2148](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L2148)
+Defined in: [src/routes/WikiRoutes.ts:2148](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L2148)
 
 Export page selection form
 
@@ -1386,7 +1386,7 @@ Export page selection form
 
 > **exportPageHtml**(`req`, `res`): `Promise`\<`Response`\<`any`, `Record`\<`string`, `any`\>\>\>
 
-Defined in: [src/routes/WikiRoutes.ts:2168](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L2168)
+Defined in: [src/routes/WikiRoutes.ts:2168](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L2168)
 
 Export page to HTML
 
@@ -1410,7 +1410,7 @@ Export page to HTML
 
 > **exportPageMarkdown**(`req`, `res`): `Promise`\<`void`\>
 
-Defined in: [src/routes/WikiRoutes.ts:2186](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L2186)
+Defined in: [src/routes/WikiRoutes.ts:2186](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L2186)
 
 Export page to Markdown
 
@@ -1434,7 +1434,7 @@ Export page to Markdown
 
 > **formatLeftMenuContent**(`content`): `string`
 
-Defined in: [src/routes/WikiRoutes.ts:798](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L798)
+Defined in: [src/routes/WikiRoutes.ts:798](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L798)
 
 Format left menu content for Bootstrap navigation
 
@@ -1454,7 +1454,7 @@ Format left menu content for Bootstrap navigation
 
 > **generatePageSchema**(`pageData`, `req`): `string`
 
-Defined in: [src/routes/WikiRoutes.ts:608](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L608)
+Defined in: [src/routes/WikiRoutes.ts:608](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L608)
 
 Generate Schema.org JSON-LD markup for a page
 
@@ -1484,7 +1484,7 @@ HTML script tag with JSON-LD
 
 > **generateSiteSchema**(`req`): `Promise`\<`string`\>
 
-Defined in: [src/routes/WikiRoutes.ts:635](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L635)
+Defined in: [src/routes/WikiRoutes.ts:635](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L635)
 
 Generate site-wide Schema.org markup (Organization, SoftwareApplication)
 
@@ -1508,7 +1508,7 @@ HTML script tags with JSON-LD
 
 > **getActiveSesssionCount**(`req`, `res`): `void`
 
-Defined in: [src/routes/WikiRoutes.ts:352](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L352)
+Defined in: [src/routes/WikiRoutes.ts:352](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L352)
 
 Session count (uses app.js sessionStore)
 
@@ -1532,7 +1532,7 @@ Session count (uses app.js sessionStore)
 
 > **getAllCategories**(): `Promise`\<`any`[]\>
 
-Defined in: [src/routes/WikiRoutes.ts:462](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L462)
+Defined in: [src/routes/WikiRoutes.ts:462](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L462)
 
 Get all categories including admin-only categories
 
@@ -1546,7 +1546,7 @@ Get all categories including admin-only categories
 
 > **getCategories**(): `Promise`\<`any`[]\>
 
-Defined in: [src/routes/WikiRoutes.ts:426](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L426)
+Defined in: [src/routes/WikiRoutes.ts:426](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L426)
 
 Extract categories from System Categories page
 
@@ -1560,7 +1560,7 @@ Extract categories from System Categories page
 
 > **getCommonTemplateData**(`req`): `Promise`\<`any`\>
 
-Defined in: [src/routes/WikiRoutes.ts:218](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L218)
+Defined in: [src/routes/WikiRoutes.ts:218](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L218)
 
 Get common template data that all pages need.
 This is now the single source of truth for common data.
@@ -1583,7 +1583,7 @@ Express request object.
 
 > **getLeftMenu**(`userContext`): `Promise`\<`string` \| `null`\>
 
-Defined in: [src/routes/WikiRoutes.ts:767](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L767)
+Defined in: [src/routes/WikiRoutes.ts:767](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L767)
 
 Get and format left menu content from LeftMenu page
 
@@ -1603,7 +1603,7 @@ Get and format left menu content from LeftMenu page
 
 > **getPageMetadata**(`req`, `res`): `Promise`\<`Response`\<`any`, `Record`\<`string`, `any`\>\>\>
 
-Defined in: [src/routes/WikiRoutes.ts:4935](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L4935)
+Defined in: [src/routes/WikiRoutes.ts:4935](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L4935)
 
 Get page metadata in a user-friendly format
 
@@ -1627,7 +1627,7 @@ Get page metadata in a user-friendly format
 
 > **getPageNames**(`_req`, `res`): `Promise`\<`void`\>
 
-Defined in: [src/routes/WikiRoutes.ts:1915](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L1915)
+Defined in: [src/routes/WikiRoutes.ts:1915](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L1915)
 
 API endpoint for getting all page names
 
@@ -1651,7 +1651,7 @@ API endpoint for getting all page names
 
 > **getPageSource**(`req`, `res`): `Promise`\<`Response`\<`any`, `Record`\<`string`, `any`\>\>\>
 
-Defined in: [src/routes/WikiRoutes.ts:3920](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L3920)
+Defined in: [src/routes/WikiRoutes.ts:3920](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L3920)
 
 Get raw page source (markdown content) for viewing/copying
 
@@ -1675,7 +1675,7 @@ Get raw page source (markdown content) for viewing/copying
 
 > **getPageSuggestions**(`req`, `res`): `Promise`\<`Response`\<`any`, `Record`\<`string`, `any`\>\>\>
 
-Defined in: [src/routes/WikiRoutes.ts:5093](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L5093)
+Defined in: [src/routes/WikiRoutes.ts:5093](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L5093)
 
 API endpoint for page name autocomplete suggestions
 GET /api/page-suggestions?q=partial
@@ -1706,7 +1706,7 @@ Related: GitHub Issue #90 - TypeDown for Internal Page Links
 
 > **getPageVersion**(`req`, `res`): `Promise`\<`Response`\<`any`, `Record`\<`string`, `any`\>\>\>
 
-Defined in: [src/routes/WikiRoutes.ts:5231](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L5231)
+Defined in: [src/routes/WikiRoutes.ts:5231](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L5231)
 
 GET /api/page/:identifier/version/:version
 Get specific version content
@@ -1731,7 +1731,7 @@ Get specific version content
 
 > **getPageVersions**(`req`, `res`): `Promise`\<`Response`\<`any`, `Record`\<`string`, `any`\>\>\>
 
-Defined in: [src/routes/WikiRoutes.ts:5181](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L5181)
+Defined in: [src/routes/WikiRoutes.ts:5181](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L5181)
 
 GET /api/page/:identifier/versions
 Get version history for a page
@@ -1756,7 +1756,7 @@ Get version history for a page
 
 > **getRequestContext**(`req`): `object`
 
-Defined in: [src/routes/WikiRoutes.ts:339](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L339)
+Defined in: [src/routes/WikiRoutes.ts:339](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L339)
 
 Extract request context for access control
 
@@ -1796,7 +1796,7 @@ Context information
 
 > **getRequestInfo**(`req`): `RequestInfo`
 
-Defined in: [src/routes/WikiRoutes.ts:196](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L196)
+Defined in: [src/routes/WikiRoutes.ts:196](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L196)
 
 Extract request information for variable expansion
 
@@ -1820,7 +1820,7 @@ Request information object
 
 > **getSystemCategories**(): `string`[]
 
-Defined in: [src/routes/WikiRoutes.ts:499](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L499)
+Defined in: [src/routes/WikiRoutes.ts:499](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L499)
 
 Get system categories from configuration (admin-only)
 
@@ -1834,7 +1834,7 @@ Get system categories from configuration (admin-only)
 
 > **getTemplateDataFromContext**(`wikiContext`): `TemplateData`
 
-Defined in: [src/routes/WikiRoutes.ts:149](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L149)
+Defined in: [src/routes/WikiRoutes.ts:149](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L149)
 
 Extract template data from WikiContext
 This ensures all templates get consistent data structure
@@ -1859,7 +1859,7 @@ Template data object
 
 > **getUserKeywords**(): `Promise`\<`string`[]\>
 
-Defined in: [src/routes/WikiRoutes.ts:535](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L535)
+Defined in: [src/routes/WikiRoutes.ts:535](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L535)
 
 Extract user keywords from User-Keywords page
 
@@ -1873,7 +1873,7 @@ Extract user keywords from User-Keywords page
 
 > **homePage**(`_req`, `res`): `void`
 
-Defined in: [src/routes/WikiRoutes.ts:1930](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L1930)
+Defined in: [src/routes/WikiRoutes.ts:1930](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L1930)
 
 Home page - show main index
 
@@ -1897,7 +1897,7 @@ Home page - show main index
 
 > **isRequiredPage**(`pageName`): `Promise`\<`boolean`\>
 
-Defined in: [src/routes/WikiRoutes.ts:734](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L734)
+Defined in: [src/routes/WikiRoutes.ts:734](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L734)
 
 Check if a page is a protected page (admin-only edit)
 
@@ -1928,7 +1928,7 @@ True if page requires admin permission to edit
 
 > **listExports**(`req`, `res`): `Promise`\<`void`\>
 
-Defined in: [src/routes/WikiRoutes.ts:2205](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L2205)
+Defined in: [src/routes/WikiRoutes.ts:2205](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L2205)
 
 List available exports
 
@@ -1952,7 +1952,7 @@ List available exports
 
 > **loginPage**(`req`, `res`): `Promise`\<`void`\>
 
-Defined in: [src/routes/WikiRoutes.ts:2263](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L2263)
+Defined in: [src/routes/WikiRoutes.ts:2263](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L2263)
 
 Login page
 
@@ -1976,7 +1976,7 @@ Login page
 
 > **pageDiff**(`req`, `res`): `Promise`\<`void`\>
 
-Defined in: [src/routes/WikiRoutes.ts:5510](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L5510)
+Defined in: [src/routes/WikiRoutes.ts:5510](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L5510)
 
 GET /diff/:page?v1=X&v2=Y
 Show version comparison view
@@ -2001,7 +2001,7 @@ Show version comparison view
 
 > **pageHistory**(`req`, `res`): `Promise`\<`void`\>
 
-Defined in: [src/routes/WikiRoutes.ts:5433](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L5433)
+Defined in: [src/routes/WikiRoutes.ts:5433](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L5433)
 
 GET /history/:page
 Show page history view
@@ -2026,7 +2026,7 @@ Show page history view
 
 > **parseFileSize**(`sizeStr`): `number`
 
-Defined in: [src/routes/WikiRoutes.ts:172](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L172)
+Defined in: [src/routes/WikiRoutes.ts:172](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L172)
 
 Parse file size string (e.g., '5MB', '1GB') to bytes
 
@@ -2050,7 +2050,7 @@ Size in bytes
 
 > **previewPage**(`req`, `res`): `Promise`\<`void`\>
 
-Defined in: [src/routes/WikiRoutes.ts:1938](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L1938)
+Defined in: [src/routes/WikiRoutes.ts:1938](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L1938)
 
 API endpoint to get page preview
 
@@ -2074,7 +2074,7 @@ API endpoint to get page preview
 
 > **processLogin**(`req`, `res`): `Promise`\<`void`\>
 
-Defined in: [src/routes/WikiRoutes.ts:2291](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L2291)
+Defined in: [src/routes/WikiRoutes.ts:2291](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L2291)
 
 Process login
 
@@ -2098,7 +2098,7 @@ Process login
 
 > **processLogout**(`req`, `res`): `void`
 
-Defined in: [src/routes/WikiRoutes.ts:2347](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L2347)
+Defined in: [src/routes/WikiRoutes.ts:2347](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L2347)
 
 Process logout
 
@@ -2122,7 +2122,7 @@ Process logout
 
 > **processRegister**(`req`, `res`): `Promise`\<`void`\>
 
-Defined in: [src/routes/WikiRoutes.ts:2423](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L2423)
+Defined in: [src/routes/WikiRoutes.ts:2423](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L2423)
 
 Process registration
 
@@ -2146,7 +2146,7 @@ Process registration
 
 > **profilePage**(`req`, `res`): `Promise`\<`void`\>
 
-Defined in: [src/routes/WikiRoutes.ts:2466](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L2466)
+Defined in: [src/routes/WikiRoutes.ts:2466](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L2466)
 
 User profile page
 
@@ -2170,7 +2170,7 @@ User profile page
 
 > **registerPage**(`req`, `res`): `Promise`\<`void`\>
 
-Defined in: [src/routes/WikiRoutes.ts:2404](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L2404)
+Defined in: [src/routes/WikiRoutes.ts:2404](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L2404)
 
 Registration page
 
@@ -2194,7 +2194,7 @@ Registration page
 
 > **registerRoutes**(`app`): `void`
 
-Defined in: [src/routes/WikiRoutes.ts:4283](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L4283)
+Defined in: [src/routes/WikiRoutes.ts:4283](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L4283)
 
 Register all routes with the Express app
 
@@ -2216,7 +2216,7 @@ Express application instance
 
 > **renderError**(`req`, `res`, `status`, `title`, `message`): `Promise`\<`void` \| `Response`\<`any`, `Record`\<`string`, `any`\>\>\>
 
-Defined in: [src/routes/WikiRoutes.ts:703](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L703)
+Defined in: [src/routes/WikiRoutes.ts:703](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L703)
 
 Render error page with consistent template data
 
@@ -2252,7 +2252,7 @@ Render error page with consistent template data
 
 > **restorePageVersion**(`req`, `res`): `Promise`\<`Response`\<`any`, `Record`\<`string`, `any`\>\>\>
 
-Defined in: [src/routes/WikiRoutes.ts:5357](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L5357)
+Defined in: [src/routes/WikiRoutes.ts:5357](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L5357)
 
 POST /api/page/:identifier/restore/:version
 Restore page to a specific version
@@ -2277,7 +2277,7 @@ Restore page to a specific version
 
 > **savePage**(`req`, `res`): `Promise`\<`void` \| `Response`\<`any`, `Record`\<`string`, `any`\>\>\>
 
-Defined in: [src/routes/WikiRoutes.ts:1550](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L1550)
+Defined in: [src/routes/WikiRoutes.ts:1550](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L1550)
 
 Save a page
 
@@ -2301,7 +2301,7 @@ Save a page
 
 > **searchPages**(`req`, `res`): `Promise`\<`void`\>
 
-Defined in: [src/routes/WikiRoutes.ts:1792](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L1792)
+Defined in: [src/routes/WikiRoutes.ts:1792](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L1792)
 
 Search pages with advanced options
 
@@ -2325,7 +2325,7 @@ Search pages with advanced options
 
 > **searchSuggestions**(`req`, `res`): `void`
 
-Defined in: [src/routes/WikiRoutes.ts:1898](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L1898)
+Defined in: [src/routes/WikiRoutes.ts:1898](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L1898)
 
 API endpoint for search suggestions
 
@@ -2349,7 +2349,7 @@ API endpoint for search suggestions
 
 > **serveAttachment**(`req`, `res`): `Promise`\<`Response`\<`any`, `Record`\<`string`, `any`\>\>\>
 
-Defined in: [src/routes/WikiRoutes.ts:2072](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L2072)
+Defined in: [src/routes/WikiRoutes.ts:2072](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L2072)
 
 Serve attachment file
 
@@ -2373,7 +2373,7 @@ Serve attachment file
 
 > **updatePreferences**(`req`, `res`): `Promise`\<`void`\>
 
-Defined in: [src/routes/WikiRoutes.ts:2591](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L2591)
+Defined in: [src/routes/WikiRoutes.ts:2591](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L2591)
 
 Update user preferences
 
@@ -2397,7 +2397,7 @@ Update user preferences
 
 > **updateProfile**(`req`, `res`): `Promise`\<`void`\>
 
-Defined in: [src/routes/WikiRoutes.ts:2524](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L2524)
+Defined in: [src/routes/WikiRoutes.ts:2524](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L2524)
 
 Update user profile
 
@@ -2421,7 +2421,7 @@ Update user profile
 
 > **uploadAttachment**(`req`, `res`): `Promise`\<`Response`\<`any`, `Record`\<`string`, `any`\>\>\>
 
-Defined in: [src/routes/WikiRoutes.ts:1984](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L1984)
+Defined in: [src/routes/WikiRoutes.ts:1984](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L1984)
 
 Upload attachment for a page
 
@@ -2445,7 +2445,7 @@ Upload attachment for a page
 
 > **uploadImage**(`req`, `res`): `Response`\<`any`, `Record`\<`string`, `any`\>\>
 
-Defined in: [src/routes/WikiRoutes.ts:2043](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L2043)
+Defined in: [src/routes/WikiRoutes.ts:2043](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L2043)
 
 Upload image file
 
@@ -2469,7 +2469,7 @@ Upload image file
 
 > **userInfo**(`req`, `res`): `Promise`\<`void`\>
 
-Defined in: [src/routes/WikiRoutes.ts:2365](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L2365)
+Defined in: [src/routes/WikiRoutes.ts:2365](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L2365)
 
 User info debug page (shows current user state)
 
@@ -2493,7 +2493,7 @@ User info debug page (shows current user state)
 
 > **viewPage**(`req`, `res`): `Promise`\<`void` \| `Response`\<`any`, `Record`\<`string`, `any`\>\>\>
 
-Defined in: [src/routes/WikiRoutes.ts:847](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L847)
+Defined in: [src/routes/WikiRoutes.ts:847](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/WikiRoutes.ts#L847)
 
 Display a wiki page
 

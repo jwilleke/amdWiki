@@ -1,8 +1,8 @@
 # Brainstorm Update – Super Clean & Practical Path Forward
 
-for <https://github.com/jwilleke/amdWiki>
+for <https://github.com/jwilleke/ngdpbase>
 
-This is based on <https://github.com/jwilleke/amdWiki/issues/154> and how to add "Small Business" addons to the Next-gen Digital PLatform.
+This is based on <https://github.com/jwilleke/ngdpbase/issues/154> and how to add "Small Business" addons to the Next-gen Digital PLatform.
 
 ## Other discussions on this Subject
 
@@ -12,13 +12,13 @@ Here’s the refined, realistic, still-nextgen architecture we can actually ship
 
 ## Final Stack for All Add-Ons (in /addons folder)
 
-| Layer | Technology | Why it’s perfect for amdWiki |
+| Layer | Technology | Why it’s perfect for ngdpbase |
 | ------------------- | ------------------- | --------------------------------------------------------------------------------------------- |
 | Core Storage | File system + SQLite (with FTS5) | SQLite = single file, zero config, full ACID, SQL power. Lives in `/data/addons/` |
 | Structured Data | JSON + schema.org validation | Every record is valid JSON-LD (Person, Organization, FinancialProduct, Invoice, Payment…) |
 | Reports & Exports | Markdown files + on-the-fly CSV/JSON/PDF | Generated Markdown pages live alongside normal wiki pages → instantly viewable and editable |
-| Attachments | Existing amdWiki attachments folder | No new storage system needed |
-| Search | Existing amdWiki full-text search + optional SQLite FTS5 | Fast and works out of the box |
+| Attachments | Existing ngdpbase attachments folder | No new storage system needed |
+| Search | Existing ngdpbase full-text search + optional SQLite FTS5 | Fast and works out of the box |
 
 ### Proposed /addons Folder Structure (final brainstorm layout)
 
@@ -78,11 +78,11 @@ Here’s the refined, realistic, still-nextgen architecture we can actually ship
 | 2025-11-20 | Office rent | [{Person id='vendor-003'}] | –$2,000.00 | $3,420 |
 ```
 
-→ Looks beautiful in amdWiki, is searchable, versioned, and exportable.
+→ Looks beautiful in ngdpbase, is searchable, versioned, and exportable.
 
 ### Why this wins
 
-- 100 % compatible with current amdWiki (no Docker, no external services)
+- 100 % compatible with current ngdpbase (no Docker, no external services)
 - Everything is still just files + one tiny SQLite file per add-on
 - Reports are real wiki pages → collaborative, auditable, printable
 - Exports are one-click from the report page
@@ -99,7 +99,7 @@ Medici is a fantastic find—it's a lightweight, double-entry accounting library
 Since we're brainstorming, let's explore how Medici fits our ultra-minimal path: Drop-in integration via /addons/financial-ledger/, with MongoDB as the backend (easy to add via Docker or Atlas free tier). No full rewrite—just enhance the ledger for real-world business use (e.g., invoicing, expense tracking). BusinessHub can then query Medici for dashboards/reports.
 
 - Pros: Enforces "everything balances" (no more manual math errors); fast caching for balances; extensible metadata (link to schema.org Persons/Organizations).
-- Cons: Adds MongoDB dep (but amdWiki is Node.js, so seamless); slight learning curve for double-entry if new.
+- Cons: Adds MongoDB dep (but ngdpbase is Node.js, so seamless); slight learning curve for double-entry if new.
 
 ### How Medici Ties into Our Business Core
 
@@ -144,7 +144,7 @@ This elevates our 3-core-function model: Transactions now power reliable "Money 
 
 ### Possible Key Integration Ideas
 
-- Setup: In financial-ledger/package.json: "medici": "^7.2.0". Config: app-custom-config.json adds "db.mongoUri": "mongodb://localhost:27017/amdwiki_ledger".
+- Setup: In financial-ledger/package.json: "medici": "^7.2.0". Config: app-custom-config.json adds "db.mongoUri": "mongodb://localhost:27017/ngdpbase_ledger".
 - Schema.org Mapping: Wrap Medici entries in JSON-LD
 
 ```js
@@ -171,7 +171,7 @@ const ldExport = { '@context': 'https://schema.org', '@type': 'FinancialProduct'
 - Accuracy: Double-entry prevents errors—ideal for real businesses (not just toy ledgers).
 - Scalability: MongoDB handles growth; caching keeps queries instant.
 - Standards Fit: Metadata + JSON-LD = schema.org-ready exports (e.g., for Google Finance snippets).
-- amdWiki Synergy: Node.js native; embed ledgers in wiki pages for "living financial docs" (e.g., project budgets as pages with auto-updating balances).
+- ngdpbase Synergy: Node.js native; embed ledgers in wiki pages for "living financial docs" (e.g., project budgets as pages with auto-updating balances).
 
 This feels like the missing piece—turns our simple tracker into a pro tool.
 
@@ -183,20 +183,20 @@ Ready for a prototype medici-wrapper.js snippet?
 
 ## AddonsManager
 
-[AddonsManager](https://github.com/jwilleke/amdWiki/issues/158)
+[AddonsManager](https://github.com/jwilleke/ngdpbase/issues/158)
 
 ## person-contacts add-on
 
-Create an issue for person-contacts add-on. [person-contacts add-on](https://github.com/jwilleke/amdWiki/issues/157)
+Create an issue for person-contacts add-on. [person-contacts add-on](https://github.com/jwilleke/ngdpbase/issues/157)
 
-Please remember Add-ons must be Add-ons and not required for basic amdWiki Operations
+Please remember Add-ons must be Add-ons and not required for basic ngdpbase Operations
 
 ## financial-ledger add-on
 
 Create an issue for Basic SQLite financial-ledger add-on with ability to upgrade to full Go full Medici
 
-Please remember Add-ons must be Add-ons and not required for basic amdWiki Operations
+Please remember Add-ons must be Add-ons and not required for basic ngdpbase Operations
 
 ## business-hub
 
-[business-hub](https://github.com/jwilleke/amdWiki/issues/158)
+[business-hub](https://github.com/jwilleke/ngdpbase/issues/158)

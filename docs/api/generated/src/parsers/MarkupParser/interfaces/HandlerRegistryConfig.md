@@ -1,12 +1,12 @@
-[**amdWiki API v1.5.0**](../../../../README.md)
+[**ngdpbase API v1.5.0**](../../../../README.md)
 
 ***
 
-[amdWiki API](../../../../README.md) / [src/parsers/MarkupParser](../README.md) / HandlerRegistryConfig
+[ngdpbase API](../../../../README.md) / [src/parsers/MarkupParser](../README.md) / HandlerRegistryConfig
 
 # Interface: HandlerRegistryConfig
 
-Defined in: [src/parsers/MarkupParser.ts:51](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L51)
+Defined in: [src/parsers/MarkupParser.ts:51](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L51)
 
 Handler registry configuration
 
@@ -16,7 +16,7 @@ Handler registry configuration
 
 > `optional` **allowDuplicatePriorities**: `boolean`
 
-Defined in: [src/parsers/MarkupParser.ts:59](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L59)
+Defined in: [src/parsers/MarkupParser.ts:59](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L59)
 
 Whether to allow duplicate priorities
 
@@ -26,7 +26,7 @@ Whether to allow duplicate priorities
 
 > `optional` **defaultTimeout**: `number`
 
-Defined in: [src/parsers/MarkupParser.ts:63](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L63)
+Defined in: [src/parsers/MarkupParser.ts:63](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L63)
 
 Default handler timeout in ms
 
@@ -36,7 +36,7 @@ Default handler timeout in ms
 
 > `optional` **enableConflictDetection**: `boolean`
 
-Defined in: [src/parsers/MarkupParser.ts:61](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L61)
+Defined in: [src/parsers/MarkupParser.ts:61](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L61)
 
 Whether to enable conflict detection
 
@@ -46,7 +46,7 @@ Whether to enable conflict detection
 
 > `optional` **enableDependencyResolution**: `boolean`
 
-Defined in: [src/parsers/MarkupParser.ts:53](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L53)
+Defined in: [src/parsers/MarkupParser.ts:53](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L53)
 
 Whether to enable dependency resolution
 
@@ -56,7 +56,7 @@ Whether to enable dependency resolution
 
 > `optional` **maxHandlers**: `number`
 
-Defined in: [src/parsers/MarkupParser.ts:57](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L57)
+Defined in: [src/parsers/MarkupParser.ts:57](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L57)
 
 Maximum number of handlers
 
@@ -66,6 +66,6 @@ Maximum number of handlers
 
 > `optional` **maxPriority**: `number`
 
-Defined in: [src/parsers/MarkupParser.ts:55](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L55)
+Defined in: [src/parsers/MarkupParser.ts:55](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L55)
 
 Maximum handler priority

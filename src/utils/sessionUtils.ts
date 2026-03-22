@@ -41,7 +41,7 @@ interface UserData {
 }
 
 /**
- * Builds userContext from Express session, using ConfigurationManager for amdwiki.authorizer
+ * Builds userContext from Express session, using ConfigurationManager for ngdpbase.authorizer
  * and UserManager to gather user information.
  * Prepares for future AuthorizationManager.js (JSPWiki-inspired).
  *
@@ -52,7 +52,7 @@ export async function buildUserContext(req: RequestWithSession): Promise<UserCon
   // Note: These managers are instantiated without a full engine context
   // They work for basic property access and user lookup operations
   const configManager = new ConfigurationManager(null as unknown as WikiEngine);
-  const rawAuthorizer = configManager.getProperty?.('amdwiki.authorizer');
+  const rawAuthorizer = configManager.getProperty?.('ngdpbase.authorizer');
   const authorizer = typeof rawAuthorizer === 'string' ? rawAuthorizer : 'DefaultAuthorizer';
 
   const userManager = new UserManager(null as unknown as WikiEngine);

@@ -1,10 +1,10 @@
-# Using Version History in amdWiki
+# Using Version History in ngdpbase
 
-A complete guide to viewing, comparing, and restoring page versions in amdWiki.
+A complete guide to viewing, comparing, and restoring page versions in ngdpbase.
 
 ## Overview
 
-amdWiki's version history feature allows you to:
+ngdpbase's version history feature allows you to:
 
 - View all previous versions of any page
 - Compare changes between versions
@@ -442,7 +442,7 @@ A: Yes, by the administrator. If disabled, pages revert to single-version storag
 
 ## Summary
 
-Version history in amdWiki provides:
+Version history in ngdpbase provides:
 
 - ✅ Complete page history with metadata
 - ✅ Easy comparison between any versions
@@ -462,4 +462,4 @@ Use version history to:
 
 **Last Updated**: 2024-10-16
 **Version**: 1.0
-**Applies to**: amdWiki 1.3.2+
+**Applies to**: ngdpbase 1.3.2+

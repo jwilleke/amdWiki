@@ -703,57 +703,57 @@ class MarkupParser extends BaseManager {
     // Load from configuration manager if available
     if (configManager) {
       try {
-        this.config.enabled = configManager.getProperty('amdwiki.markup.enabled', this.config.enabled);
-        this.config.caching = configManager.getProperty('amdwiki.markup.caching', this.config.caching);
-        this.config.cacheTTL = configManager.getProperty('amdwiki.markup.cacheTTL', this.config.cacheTTL);
+        this.config.enabled = configManager.getProperty('ngdpbase.markup.enabled', this.config.enabled);
+        this.config.caching = configManager.getProperty('ngdpbase.markup.caching', this.config.caching);
+        this.config.cacheTTL = configManager.getProperty('ngdpbase.markup.cacheTTL', this.config.cacheTTL);
         
         // Handler registry configuration
-        this.config.handlerRegistry.maxHandlers = configManager.getProperty('amdwiki.markup.handlerRegistry.maxHandlers', this.config.handlerRegistry.maxHandlers);
-        this.config.handlerRegistry.allowDuplicatePriorities = configManager.getProperty('amdwiki.markup.handlerRegistry.allowDuplicatePriorities', this.config.handlerRegistry.allowDuplicatePriorities);
-        this.config.handlerRegistry.enableDependencyResolution = configManager.getProperty('amdwiki.markup.handlerRegistry.enableDependencyResolution', this.config.handlerRegistry.enableDependencyResolution);
-        this.config.handlerRegistry.enableConflictDetection = configManager.getProperty('amdwiki.markup.handlerRegistry.enableConflictDetection', this.config.handlerRegistry.enableConflictDetection);
-        this.config.handlerRegistry.defaultTimeout = configManager.getProperty('amdwiki.markup.handlerRegistry.defaultTimeout', this.config.handlerRegistry.defaultTimeout);
+        this.config.handlerRegistry.maxHandlers = configManager.getProperty('ngdpbase.markup.handlerRegistry.maxHandlers', this.config.handlerRegistry.maxHandlers);
+        this.config.handlerRegistry.allowDuplicatePriorities = configManager.getProperty('ngdpbase.markup.handlerRegistry.allowDuplicatePriorities', this.config.handlerRegistry.allowDuplicatePriorities);
+        this.config.handlerRegistry.enableDependencyResolution = configManager.getProperty('ngdpbase.markup.handlerRegistry.enableDependencyResolution', this.config.handlerRegistry.enableDependencyResolution);
+        this.config.handlerRegistry.enableConflictDetection = configManager.getProperty('ngdpbase.markup.handlerRegistry.enableConflictDetection', this.config.handlerRegistry.enableConflictDetection);
+        this.config.handlerRegistry.defaultTimeout = configManager.getProperty('ngdpbase.markup.handlerRegistry.defaultTimeout', this.config.handlerRegistry.defaultTimeout);
         
         // Individual handler configuration
         for (const handlerName of Object.keys(this.config.handlers)) {
           const handler = this.config.handlers[handlerName];
-          handler.enabled = configManager.getProperty(`amdwiki.markup.handlers.${handlerName}.enabled`, handler.enabled);
-          handler.priority = configManager.getProperty(`amdwiki.markup.handlers.${handlerName}.priority`, handler.priority);
+          handler.enabled = configManager.getProperty(`ngdpbase.markup.handlers.${handlerName}.enabled`, handler.enabled);
+          handler.priority = configManager.getProperty(`ngdpbase.markup.handlers.${handlerName}.priority`, handler.priority);
           
           // Advanced attachment handler configuration
           if (handlerName === 'attachment') {
-            handler.enhanced = configManager.getProperty('amdwiki.markup.handlers.attachment.enhanced', handler.enhanced);
-            handler.thumbnails = configManager.getProperty('amdwiki.markup.handlers.attachment.thumbnails', handler.thumbnails);
-            handler.metadata = configManager.getProperty('amdwiki.markup.handlers.attachment.metadata', handler.metadata);
+            handler.enhanced = configManager.getProperty('ngdpbase.markup.handlers.attachment.enhanced', handler.enhanced);
+            handler.thumbnails = configManager.getProperty('ngdpbase.markup.handlers.attachment.thumbnails', handler.thumbnails);
+            handler.metadata = configManager.getProperty('ngdpbase.markup.handlers.attachment.metadata', handler.metadata);
           }
         }
         
         // Filter configuration
-        this.config.filters.enabled = configManager.getProperty('amdwiki.markup.filters.enabled', this.config.filters.enabled);
-        this.config.filters.spam.enabled = configManager.getProperty('amdwiki.markup.filters.spam.enabled', this.config.filters.spam.enabled);
-        this.config.filters.security.enabled = configManager.getProperty('amdwiki.markup.filters.security.enabled', this.config.filters.security.enabled);
-        this.config.filters.validation.enabled = configManager.getProperty('amdwiki.markup.filters.validation.enabled', this.config.filters.validation.enabled);
+        this.config.filters.enabled = configManager.getProperty('ngdpbase.markup.filters.enabled', this.config.filters.enabled);
+        this.config.filters.spam.enabled = configManager.getProperty('ngdpbase.markup.filters.spam.enabled', this.config.filters.spam.enabled);
+        this.config.filters.security.enabled = configManager.getProperty('ngdpbase.markup.filters.security.enabled', this.config.filters.security.enabled);
+        this.config.filters.validation.enabled = configManager.getProperty('ngdpbase.markup.filters.validation.enabled', this.config.filters.validation.enabled);
         
         // Advanced cache configuration
-        this.config.cache.parseResults.enabled = configManager.getProperty('amdwiki.markup.cache.parseResults.enabled', this.config.cache.parseResults.enabled);
-        this.config.cache.parseResults.ttl = configManager.getProperty('amdwiki.markup.cache.parseResults.ttl', this.config.cache.parseResults.ttl);
-        this.config.cache.parseResults.maxSize = configManager.getProperty('amdwiki.markup.cache.parseResults.maxSize', this.config.cache.parseResults.maxSize);
-        this.config.cache.handlerResults.enabled = configManager.getProperty('amdwiki.markup.cache.handlerResults.enabled', this.config.cache.handlerResults.enabled);
-        this.config.cache.handlerResults.ttl = configManager.getProperty('amdwiki.markup.cache.handlerResults.ttl', this.config.cache.handlerResults.ttl);
-        this.config.cache.handlerResults.maxSize = configManager.getProperty('amdwiki.markup.cache.handlerResults.maxSize', this.config.cache.handlerResults.maxSize);
-        this.config.cache.patterns.enabled = configManager.getProperty('amdwiki.markup.cache.patterns.enabled', this.config.cache.patterns.enabled);
-        this.config.cache.patterns.ttl = configManager.getProperty('amdwiki.markup.cache.patterns.ttl', this.config.cache.patterns.ttl);
-        this.config.cache.variables.enabled = configManager.getProperty('amdwiki.markup.cache.variables.enabled', this.config.cache.variables.enabled);
-        this.config.cache.variables.ttl = configManager.getProperty('amdwiki.markup.cache.variables.ttl', this.config.cache.variables.ttl);
-        this.config.cache.enableWarmup = configManager.getProperty('amdwiki.markup.cache.enableWarmup', this.config.cache.enableWarmup);
-        this.config.cache.metricsEnabled = configManager.getProperty('amdwiki.markup.cache.metricsEnabled', this.config.cache.metricsEnabled);
+        this.config.cache.parseResults.enabled = configManager.getProperty('ngdpbase.markup.cache.parseResults.enabled', this.config.cache.parseResults.enabled);
+        this.config.cache.parseResults.ttl = configManager.getProperty('ngdpbase.markup.cache.parseResults.ttl', this.config.cache.parseResults.ttl);
+        this.config.cache.parseResults.maxSize = configManager.getProperty('ngdpbase.markup.cache.parseResults.maxSize', this.config.cache.parseResults.maxSize);
+        this.config.cache.handlerResults.enabled = configManager.getProperty('ngdpbase.markup.cache.handlerResults.enabled', this.config.cache.handlerResults.enabled);
+        this.config.cache.handlerResults.ttl = configManager.getProperty('ngdpbase.markup.cache.handlerResults.ttl', this.config.cache.handlerResults.ttl);
+        this.config.cache.handlerResults.maxSize = configManager.getProperty('ngdpbase.markup.cache.handlerResults.maxSize', this.config.cache.handlerResults.maxSize);
+        this.config.cache.patterns.enabled = configManager.getProperty('ngdpbase.markup.cache.patterns.enabled', this.config.cache.patterns.enabled);
+        this.config.cache.patterns.ttl = configManager.getProperty('ngdpbase.markup.cache.patterns.ttl', this.config.cache.patterns.ttl);
+        this.config.cache.variables.enabled = configManager.getProperty('ngdpbase.markup.cache.variables.enabled', this.config.cache.variables.enabled);
+        this.config.cache.variables.ttl = configManager.getProperty('ngdpbase.markup.cache.variables.ttl', this.config.cache.variables.ttl);
+        this.config.cache.enableWarmup = configManager.getProperty('ngdpbase.markup.cache.enableWarmup', this.config.cache.enableWarmup);
+        this.config.cache.metricsEnabled = configManager.getProperty('ngdpbase.markup.cache.metricsEnabled', this.config.cache.metricsEnabled);
         
         // Performance monitoring configuration
-        this.config.performance.monitoring = configManager.getProperty('amdwiki.markup.performance.monitoring', this.config.performance.monitoring);
-        this.config.performance.alertThresholds.parseTime = configManager.getProperty('amdwiki.markup.performance.alertThresholds.parseTime', this.config.performance.alertThresholds.parseTime);
-        this.config.performance.alertThresholds.cacheHitRatio = configManager.getProperty('amdwiki.markup.performance.alertThresholds.cacheHitRatio', this.config.performance.alertThresholds.cacheHitRatio);
-        this.config.performance.alertThresholds.errorRate = configManager.getProperty('amdwiki.markup.performance.alertThresholds.errorRate', this.config.performance.alertThresholds.errorRate);
-        this.config.performance.alertThresholds.minCacheSamples = configManager.getProperty('amdwiki.markup.performance.alertThresholds.minCacheSamples', this.config.performance.alertThresholds.minCacheSamples);
+        this.config.performance.monitoring = configManager.getProperty('ngdpbase.markup.performance.monitoring', this.config.performance.monitoring);
+        this.config.performance.alertThresholds.parseTime = configManager.getProperty('ngdpbase.markup.performance.alertThresholds.parseTime', this.config.performance.alertThresholds.parseTime);
+        this.config.performance.alertThresholds.cacheHitRatio = configManager.getProperty('ngdpbase.markup.performance.alertThresholds.cacheHitRatio', this.config.performance.alertThresholds.cacheHitRatio);
+        this.config.performance.alertThresholds.errorRate = configManager.getProperty('ngdpbase.markup.performance.alertThresholds.errorRate', this.config.performance.alertThresholds.errorRate);
+        this.config.performance.alertThresholds.minCacheSamples = configManager.getProperty('ngdpbase.markup.performance.alertThresholds.minCacheSamples', this.config.performance.alertThresholds.minCacheSamples);
         
       } catch (err) {
         logger.warn('⚠️  Failed to load MarkupParser config from ConfigurationManager, using defaults:', getErrorMessage(err));

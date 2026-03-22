@@ -1,6 +1,6 @@
 # Cache System
 
-The amdWiki cache system provides centralized, configurable caching across all managers and components to improve performance and reduce redundant operations.
+The ngdpbase cache system provides centralized, configurable caching across all managers and components to improve performance and reduce redundant operations.
 
 ## Architecture
 
@@ -38,26 +38,26 @@ Each manager gets its own isolated cache region to prevent key collisions:
 
 | Property | Default | Description |
 | ---------- | --------- | ------------- |
-| `amdwiki.cache.enabled` | `true` | Enable/disable caching |
-| `amdwiki.cache.provider` | `'node-cache'` | Cache backend (`node-cache`, `redis`, `null`) |
-| `amdwiki.cache.defaultTTL` | `300` | Default TTL in seconds |
-| `amdwiki.cache.maxKeys` | `1000` | Maximum cached keys |
-| `amdwiki.cache.checkPeriod` | `120` | Cleanup interval in seconds |
+| `ngdpbase.cache.enabled` | `true` | Enable/disable caching |
+| `ngdpbase.cache.provider` | `'node-cache'` | Cache backend (`node-cache`, `redis`, `null`) |
+| `ngdpbase.cache.defaultTTL` | `300` | Default TTL in seconds |
+| `ngdpbase.cache.maxKeys` | `1000` | Maximum cached keys |
+| `ngdpbase.cache.checkPeriod` | `120` | Cleanup interval in seconds |
 
 ### Node-Cache Specific
 
 ```javascript
-amdwiki.cache.node.stdTTL = 300
-amdwiki.cache.node.checkperiod = 120
-amdwiki.cache.node.maxKeys = 1000
+ngdpbase.cache.node.stdTTL = 300
+ngdpbase.cache.node.checkperiod = 120
+ngdpbase.cache.node.maxKeys = 1000
 ```
 
 ### Redis Configuration (Future)
 
 ```javascript
-amdwiki.cache.redis.url = 'redis://localhost:6379'
-amdwiki.cache.redis.keyPrefix = 'amdwiki:'
-amdwiki.cache.redis.enableCluster = false
+ngdpbase.cache.redis.url = 'redis://localhost:6379'
+ngdpbase.cache.redis.keyPrefix = 'ngdpbase:'
+ngdpbase.cache.redis.enableCluster = false
 ```
 
 ## Usage
@@ -169,10 +169,10 @@ The system automatically falls back to null cache if the primary adapter fails h
 
 ```javascript
 // Via configuration
-amdwiki.cache.enabled = false
+ngdpbase.cache.enabled = false
 
 // Via provider setting
-amdwiki.cache.provider = 'null'
+ngdpbase.cache.provider = 'null'
 ```
 
 ### Debug Mode

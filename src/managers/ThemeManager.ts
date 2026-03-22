@@ -28,9 +28,9 @@ export interface ThemePaths {
 
 const DEFAULT_THEME_INFO: ThemeInfo = {
   name: 'Default',
-  description: 'Default amdWiki theme',
+  description: 'Default ngdpbase theme',
   version: '1.0.0',
-  author: 'amdWiki'
+  author: 'ngdpbase'
 };
 
 export class ThemeManager {

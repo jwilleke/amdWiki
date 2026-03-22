@@ -2,13 +2,13 @@
  * AddonsManager - Core Add-on Management System
  *
  * Handles discovery, registration, lifecycle management, and dependencies
- * for optional amdWiki add-ons. This enables optional business modules
- * (person-contacts, financial-ledger, etc.) without modifying amdWiki core.
+ * for optional ngdpbase add-ons. This enables optional business modules
+ * (person-contacts, financial-ledger, etc.) without modifying ngdpbase core.
  *
  * @class AddonsManager
  * @extends BaseManager
  *
- * @see {@link https://github.com/jwilleke/amdWiki/issues/158}
+ * @see {@link https://github.com/jwilleke/ngdpbase/issues/158}
  */
 
 import * as fs from 'fs';
@@ -143,7 +143,7 @@ class AddonsManager extends BaseManager {
     } else {
       // Check if AddonsManager is enabled
       const enabled = configManager.getProperty(
-        'amdwiki.managers.addonsManager.enabled',
+        'ngdpbase.managers.addonsManager.enabled',
         true
       ) as boolean;
 
@@ -154,7 +154,7 @@ class AddonsManager extends BaseManager {
 
       // Get configured addons path
       this.addonsPath = configManager.getProperty(
-        'amdwiki.managers.addonsManager.addonsPath',
+        'ngdpbase.managers.addonsManager.addonsPath',
         './addons'
       ) as string;
     }
@@ -283,7 +283,7 @@ class AddonsManager extends BaseManager {
     }
 
     return configManager.getProperty(
-      `amdwiki.addons.${addonName}.enabled`,
+      `ngdpbase.addons.${addonName}.enabled`,
       false
     ) as boolean;
   }
@@ -304,7 +304,7 @@ class AddonsManager extends BaseManager {
     const config: Record<string, unknown> = {};
 
     // Get the full config and extract addon-specific properties
-    const fullConfig = configManager.getProperty('amdwiki.addons', {}) as Record<
+    const fullConfig = configManager.getProperty('ngdpbase.addons', {}) as Record<
       string,
       unknown
     >;

@@ -22,16 +22,16 @@ describe.skip('VersioningFileProvider', () => {
     configManager = {
       getProperty: jest.fn((key, defaultValue) => {
         const config = {
-          'amdwiki.page.enabled': true,
-          'amdwiki.page.provider.filesystem.storagedir': path.join(testDir, 'pages'),
-          'amdwiki.page.provider.filesystem.requiredpagesdir': path.join(testDir, 'required-pages'),
-          'amdwiki.page.provider.filesystem.encoding': 'utf-8',
-          'amdwiki.page.provider.filesystem.autosave': true,
-          'amdwiki.page.provider.versioning.indexfile': path.join(testDir, 'data', 'page-index.json'),
-          'amdwiki.page.provider.versioning.maxversions': 50,
-          'amdwiki.page.provider.versioning.retentiondays': 365,
-          'amdwiki.page.provider.versioning.compression': 'gzip',
-          'amdwiki.page.provider.versioning.deltastorage': true
+          'ngdpbase.page.enabled': true,
+          'ngdpbase.page.provider.filesystem.storagedir': path.join(testDir, 'pages'),
+          'ngdpbase.page.provider.filesystem.requiredpagesdir': path.join(testDir, 'required-pages'),
+          'ngdpbase.page.provider.filesystem.encoding': 'utf-8',
+          'ngdpbase.page.provider.filesystem.autosave': true,
+          'ngdpbase.page.provider.versioning.indexfile': path.join(testDir, 'data', 'page-index.json'),
+          'ngdpbase.page.provider.versioning.maxversions': 50,
+          'ngdpbase.page.provider.versioning.retentiondays': 365,
+          'ngdpbase.page.provider.versioning.compression': 'gzip',
+          'ngdpbase.page.provider.versioning.deltastorage': true
         };
         return config[key] !== undefined ? config[key] : defaultValue;
       })
@@ -130,8 +130,8 @@ describe.skip('VersioningFileProvider', () => {
 
     test('should validate configuration values', async () => {
       configManager.getProperty = jest.fn((key, defaultValue) => {
-        if (key === 'amdwiki.page.provider.versioning.maxversions') return -5;
-        if (key === 'amdwiki.page.provider.versioning.retentiondays') return 0;
+        if (key === 'ngdpbase.page.provider.versioning.maxversions') return -5;
+        if (key === 'ngdpbase.page.provider.versioning.retentiondays') return 0;
         return defaultValue;
       });
 
@@ -156,7 +156,7 @@ describe.skip('VersioningFileProvider', () => {
 
     test('should handle compression setting', async () => {
       configManager.getProperty = jest.fn((key, defaultValue) => {
-        if (key === 'amdwiki.page.provider.versioning.compression') return 'none';
+        if (key === 'ngdpbase.page.provider.versioning.compression') return 'none';
         return defaultValue;
       });
 
@@ -167,7 +167,7 @@ describe.skip('VersioningFileProvider', () => {
 
     test('should handle delta storage disabled', async () => {
       configManager.getProperty = jest.fn((key, defaultValue) => {
-        if (key === 'amdwiki.page.provider.versioning.deltastorage') return false;
+        if (key === 'ngdpbase.page.provider.versioning.deltastorage') return false;
         return defaultValue;
       });
 
@@ -350,10 +350,10 @@ describe.skip('VersioningFileProvider', () => {
     test('should store full content when deltaStorage disabled', async () => {
       // Disable delta storage
       configManager.getProperty = jest.fn((key, defaultValue) => {
-        if (key === 'amdwiki.page.provider.versioning.deltastorage') return false;
-        if (key === 'amdwiki.page.provider.filesystem.storagedir') return path.join(testDir, 'pages');
-        if (key === 'amdwiki.page.provider.filesystem.requiredpagesdir') return path.join(testDir, 'required-pages');
-        if (key === 'amdwiki.page.provider.versioning.indexfile') return path.join(testDir, 'data', 'page-index.json');
+        if (key === 'ngdpbase.page.provider.versioning.deltastorage') return false;
+        if (key === 'ngdpbase.page.provider.filesystem.storagedir') return path.join(testDir, 'pages');
+        if (key === 'ngdpbase.page.provider.filesystem.requiredpagesdir') return path.join(testDir, 'required-pages');
+        if (key === 'ngdpbase.page.provider.versioning.indexfile') return path.join(testDir, 'data', 'page-index.json');
         return defaultValue;
       });
 
@@ -562,7 +562,7 @@ describe.skip('VersioningFileProvider', () => {
     test('should store required pages in correct location', async () => {
       // Mock system categories config
       configManager.getProperty = jest.fn((key, defaultValue) => {
-        if (key === 'amdwiki.system-category') {
+        if (key === 'ngdpbase.system-category') {
           return {
             Navigation: {
               label: 'Navigation',
@@ -570,9 +570,9 @@ describe.skip('VersioningFileProvider', () => {
             }
           };
         }
-        if (key === 'amdwiki.page.provider.filesystem.storagedir') return path.join(testDir, 'pages');
-        if (key === 'amdwiki.page.provider.filesystem.requiredpagesdir') return path.join(testDir, 'required-pages');
-        if (key === 'amdwiki.page.provider.versioning.indexfile') return path.join(testDir, 'data', 'page-index.json');
+        if (key === 'ngdpbase.page.provider.filesystem.storagedir') return path.join(testDir, 'pages');
+        if (key === 'ngdpbase.page.provider.filesystem.requiredpagesdir') return path.join(testDir, 'required-pages');
+        if (key === 'ngdpbase.page.provider.versioning.indexfile') return path.join(testDir, 'data', 'page-index.json');
         return defaultValue;
       });
 

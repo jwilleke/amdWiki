@@ -2,7 +2,7 @@
 
 ## Overview
 
-The `AuditManager` is responsible for audit trail logging and compliance monitoring in amdWiki. It provides a centralized system for tracking security events, access decisions, policy evaluations, and user actions. The AuditManager uses a **provider pattern** to support multiple audit storage backends, making it flexible for different deployment scenarios from single-instance development to enterprise cloud deployments.
+The `AuditManager` is responsible for audit trail logging and compliance monitoring in ngdpbase. It provides a centralized system for tracking security events, access decisions, policy evaluations, and user actions. The AuditManager uses a **provider pattern** to support multiple audit storage backends, making it flexible for different deployment scenarios from single-instance development to enterprise cloud deployments.
 
 **Key Features:**
 
@@ -71,13 +71,13 @@ All configuration keys use **lowercase** format per Issue #102 refactoring.
 ```json
 {
   "_comment_audit_storage": "Audit trail storage configuration (ALL LOWERCASE)",
-  "amdwiki.audit.enabled": true,
-  "amdwiki.audit.provider.default": "fileauditprovider",
-  "amdwiki.audit.provider": "fileauditprovider",
-  "amdwiki.audit.loglevel": "info",
-  "amdwiki.audit.maxqueuesize": 1000,
-  "amdwiki.audit.flushinterval": 30000,
-  "amdwiki.audit.retentiondays": 90
+  "ngdpbase.audit.enabled": true,
+  "ngdpbase.audit.provider.default": "fileauditprovider",
+  "ngdpbase.audit.provider": "fileauditprovider",
+  "ngdpbase.audit.loglevel": "info",
+  "ngdpbase.audit.maxqueuesize": 1000,
+  "ngdpbase.audit.flushinterval": 30000,
+  "ngdpbase.audit.retentiondays": 90
 }
 ```
 
@@ -85,13 +85,13 @@ All configuration keys use **lowercase** format per Issue #102 refactoring.
 
 | Configuration Key |Type |Default |Description |
 | ------------------ | ------ | --------- |
-| `amdwiki.audit.enabled` |boolean |`true` |Enable/disable audit logging |
-| `amdwiki.audit.provider.default` |string |`"fileauditprovider"` |Fallback provider if primary fails |
-| `amdwiki.audit.provider` |string |`"fileauditprovider"` |Active audit provider |
-| `amdwiki.audit.loglevel` |string |`"info"` |Minimum log level (debug, info, warn, error) |
-| `amdwiki.audit.maxqueuesize` |number |`1000` |Maximum events in memory before flush |
-| `amdwiki.audit.flushinterval` |number |`30000` |Flush interval in milliseconds |
-| `amdwiki.audit.retentiondays` |number |`90` |Days to retain audit logs |
+| `ngdpbase.audit.enabled` |boolean |`true` |Enable/disable audit logging |
+| `ngdpbase.audit.provider.default` |string |`"fileauditprovider"` |Fallback provider if primary fails |
+| `ngdpbase.audit.provider` |string |`"fileauditprovider"` |Active audit provider |
+| `ngdpbase.audit.loglevel` |string |`"info"` |Minimum log level (debug, info, warn, error) |
+| `ngdpbase.audit.maxqueuesize` |number |`1000` |Maximum events in memory before flush |
+| `ngdpbase.audit.flushinterval` |number |`30000` |Flush interval in milliseconds |
+| `ngdpbase.audit.retentiondays` |number |`90` |Days to retain audit logs |
 
 ### Provider-Specific Configuration
 
@@ -99,30 +99,30 @@ All configuration keys use **lowercase** format per Issue #102 refactoring.
 
 ```json
 {
-  "amdwiki.audit.provider.file.logdirectory": "./logs",
-  "amdwiki.audit.provider.file.auditfilename": "audit.log",
-  "amdwiki.audit.provider.file.archivefilename": "audit-archive.log",
-  "amdwiki.audit.provider.file.maxfilesize": "10MB",
-  "amdwiki.audit.provider.file.maxfiles": 10
+  "ngdpbase.audit.provider.file.logdirectory": "./logs",
+  "ngdpbase.audit.provider.file.auditfilename": "audit.log",
+  "ngdpbase.audit.provider.file.archivefilename": "audit-archive.log",
+  "ngdpbase.audit.provider.file.maxfilesize": "10MB",
+  "ngdpbase.audit.provider.file.maxfiles": 10
 }
 ```
 
 | Configuration Key |Type |Default |Description |
 | ---- | ----- | ----- | ----- | -----
-| `amdwiki.audit.provider.file.logdirectory` |string |`"./logs"` |Directory for audit log files |
-| `amdwiki.audit.provider.file.auditfilename` |string |`"audit.log"` |Main audit log filename |
-| `amdwiki.audit.provider.file.archivefilename` |string |`"audit-archive.log"` |Archive log filename |
-| `amdwiki.audit.provider.file.maxfilesize` |string |`"10MB"` |Maximum file size before rotation |
-| `amdwiki.audit.provider.file.maxfiles` |number |`10` |Maximum archived files to keep |
+| `ngdpbase.audit.provider.file.logdirectory` |string |`"./logs"` |Directory for audit log files |
+| `ngdpbase.audit.provider.file.auditfilename` |string |`"audit.log"` |Main audit log filename |
+| `ngdpbase.audit.provider.file.archivefilename` |string |`"audit-archive.log"` |Archive log filename |
+| `ngdpbase.audit.provider.file.maxfilesize` |string |`"10MB"` |Maximum file size before rotation |
+| `ngdpbase.audit.provider.file.maxfiles` |number |`10` |Maximum archived files to keep |
 
 #### DatabaseAuditProvider (Future)
 
 ```json
 {
-  "amdwiki.audit.provider.database.type": "postgresql",
-  "amdwiki.audit.provider.database.connectionstring": "",
-  "amdwiki.audit.provider.database.tablename": "audit_logs",
-  "amdwiki.audit.provider.database.maxconnections": 10
+  "ngdpbase.audit.provider.database.type": "postgresql",
+  "ngdpbase.audit.provider.database.connectionstring": "",
+  "ngdpbase.audit.provider.database.tablename": "audit_logs",
+  "ngdpbase.audit.provider.database.maxconnections": 10
 }
 ```
 
@@ -130,10 +130,10 @@ All configuration keys use **lowercase** format per Issue #102 refactoring.
 
 ```json
 {
-  "amdwiki.audit.provider.cloud.service": "cloudwatch",
-  "amdwiki.audit.provider.cloud.region": "us-east-1",
-  "amdwiki.audit.provider.cloud.loggroup": "/amdwiki/audit",
-  "amdwiki.audit.provider.cloud.logstream": "audit-events"
+  "ngdpbase.audit.provider.cloud.service": "cloudwatch",
+  "ngdpbase.audit.provider.cloud.region": "us-east-1",
+  "ngdpbase.audit.provider.cloud.loggroup": "/ngdpbase/audit",
+  "ngdpbase.audit.provider.cloud.logstream": "audit-events"
 }
 ```
 
@@ -152,15 +152,15 @@ All configuration keys use **lowercase** format per Issue #102 refactoring.
 
 ```javascript
 // 1. Check if auditing is enabled
-const auditEnabled = config.get('amdwiki.audit.enabled', true);
+const auditEnabled = config.get('ngdpbase.audit.enabled', true);
 if (!auditEnabled) {
   // Use NullAuditProvider
   return;
 }
 
 // 2. Get provider from config with fallback
-const defaultProvider = config.get('amdwiki.audit.provider.default', 'fileauditprovider');
-const providerName = config.get('amdwiki.audit.provider', defaultProvider);
+const defaultProvider = config.get('ngdpbase.audit.provider.default', 'fileauditprovider');
+const providerName = config.get('ngdpbase.audit.provider', defaultProvider);
 
 // 3. Normalize provider name (lowercase -> PascalCase)
 const providerClass = normalizeProviderName(providerName);
@@ -195,7 +195,7 @@ class CustomAuditProvider extends BaseAuditProvider {
   async initialize() {
     // Load configuration
     const configManager = this.engine.getManager('ConfigurationManager');
-    const customConfig = configManager.getProperty('amdwiki.audit.provider.custom.endpoint');
+    const customConfig = configManager.getProperty('ngdpbase.audit.provider.custom.endpoint');
 
     // Initialize your storage backend
     this.client = new CustomClient(customConfig);
@@ -277,9 +277,9 @@ module.exports = CustomAuditProvider;
 
 ```json
 {
-  "amdwiki.audit.provider": "customauditprovider",
-  "amdwiki.audit.provider.custom.endpoint": "https://audit.example.com",
-  "amdwiki.audit.provider.custom.apikey": "your-api-key"
+  "ngdpbase.audit.provider": "customauditprovider",
+  "ngdpbase.audit.provider.custom.endpoint": "https://audit.example.com",
+  "ngdpbase.audit.provider.custom.apikey": "your-api-key"
 }
 ```
 
@@ -898,7 +898,7 @@ await auditManager.logAuditEvent(event);  // Non-blocking
 // FileAuditProvider queues events and flushes periodically
 
 // Use appropriate retention policies
-"amdwiki.audit.retentiondays": 90  // Balance compliance vs storage
+"ngdpbase.audit.retentiondays": 90  // Balance compliance vs storage
 
 // Consider provider scalability
 // FileAuditProvider: Single instance, moderate volume
@@ -967,7 +967,7 @@ if (!await auditManager.isHealthy()) {
 ```javascript
 // Check if auditing is enabled
 const config = engine.getManager('ConfigurationManager');
-const enabled = config.getProperty('amdwiki.audit.enabled');
+const enabled = config.getProperty('ngdpbase.audit.enabled');
 console.log('Audit enabled:', enabled);
 
 // Check provider health
@@ -982,7 +982,7 @@ console.log('Provider:', info.name);
 
 **Solutions:**
 
-- Ensure `amdwiki.audit.enabled` is `true`
+- Ensure `ngdpbase.audit.enabled` is `true`
 - Check log directory permissions for FileAuditProvider
 - Verify provider configuration is correct
 - Check server logs for initialization errors
@@ -1028,9 +1028,9 @@ async isHealthy() {
 
 ```json
 {
-  "amdwiki.audit.maxqueuesize": 500,      // Reduce queue size
-  "amdwiki.audit.flushinterval": 10000,   // Flush more frequently
-  "amdwiki.audit.retentiondays": 30       // Shorter retention
+  "ngdpbase.audit.maxqueuesize": 500,      // Reduce queue size
+  "ngdpbase.audit.flushinterval": 10000,   // Flush more frequently
+  "ngdpbase.audit.retentiondays": 30       // Shorter retention
 }
 ```
 
@@ -1068,9 +1068,9 @@ const results = await auditManager.searchAuditLogs(
 
 ```json
 {
-  "amdwiki.audit.provider.file.maxfilesize": "5MB",  // Smaller files
-  "amdwiki.audit.provider.file.maxfiles": 5,         // Fewer archives
-  "amdwiki.audit.retentiondays": 30                  // Shorter retention
+  "ngdpbase.audit.provider.file.maxfilesize": "5MB",  // Smaller files
+  "ngdpbase.audit.provider.file.maxfiles": 5,         // Fewer archives
+  "ngdpbase.audit.retentiondays": 30                  // Shorter retention
 }
 ```
 
@@ -1078,7 +1078,7 @@ Implement log rotation monitoring:
 
 ```javascript
 // Check log directory size
-const logDir = config.get('amdwiki.audit.provider.file.logdirectory');
+const logDir = config.get('ngdpbase.audit.provider.file.logdirectory');
 const stats = await fs.stat(path.join(logDir, 'audit.log'));
 if (stats.size > 50 * 1024 * 1024) {  // 50MB
   logger.warn('Audit log file is large, consider cleanup');
@@ -1091,7 +1091,7 @@ Enable debug logging to diagnose issues:
 
 ```json
 {
-  "amdwiki.audit.loglevel": "debug"
+  "ngdpbase.audit.loglevel": "debug"
 }
 ```
 
@@ -1109,12 +1109,12 @@ This will output detailed information about audit operations:
 
 | Old Key (Deprecated) | New Key (Issue #102) |
 | --------------------- | ---------------------- |
-| `audit.enabled` | `amdwiki.audit.enabled` |
-| `audit.logFile` | `amdwiki.audit.provider.file.auditfilename` |
-| `audit.retention` | `amdwiki.audit.retentiondays` |
+| `audit.enabled` | `ngdpbase.audit.enabled` |
+| `audit.logFile` | `ngdpbase.audit.provider.file.auditfilename` |
+| `audit.retention` | `ngdpbase.audit.retentiondays` |
 | `audit.includeContext` | Removed (always included in context field) |
-| N/A | `amdwiki.audit.provider` (NEW) |
-| N/A | `amdwiki.audit.provider.default` (NEW) |
+| N/A | `ngdpbase.audit.provider` (NEW) |
+| N/A | `ngdpbase.audit.provider.default` (NEW) |
 
 ### Migration Steps
 
@@ -1135,10 +1135,10 @@ This will output detailed information about audit operations:
 
    ```json
    {
-     "amdwiki.audit.enabled": true,
-     "amdwiki.audit.provider": "fileauditprovider",
-     "amdwiki.audit.provider.file.auditfilename": "audit.log",
-     "amdwiki.audit.retentiondays": 90
+     "ngdpbase.audit.enabled": true,
+     "ngdpbase.audit.provider": "fileauditprovider",
+     "ngdpbase.audit.provider.file.auditfilename": "audit.log",
+     "ngdpbase.audit.retentiondays": 90
    }
    ```
 
@@ -1153,7 +1153,7 @@ This will output detailed information about audit operations:
    New code:
 
    ```javascript
-   const enabled = config.get('amdwiki.audit.enabled');
+   const enabled = config.get('ngdpbase.audit.enabled');
    ```
 
 3. **Test Migration:**
@@ -1286,6 +1286,6 @@ This will output detailed information about audit operations:
 - [FileAuditProvider](../src/providers/FileAuditProvider.js) - File-based implementation
 - [NullAuditProvider](../src/providers/NullAuditProvider.js) - No-op implementation
 - [AuditManager](../src/managers/AuditManager.js) - Manager implementation
-- [GitHub Issue #102](https://github.com/jwilleke/amdWiki/issues/102) - Configuration refactoring
+- [GitHub Issue #102](https://github.com/jwilleke/ngdpbase/issues/102) - Configuration refactoring
 - [OWASP Logging Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Logging_Cheat_Sheet.html)
 - [NIST SP 800-92: Guide to Computer Security Log Management](https://csrc.nist.gov/publications/detail/sp/800-92/final)

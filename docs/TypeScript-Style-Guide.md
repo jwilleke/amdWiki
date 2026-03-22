@@ -1,10 +1,10 @@
 # TypeScript Style Guide
 
-This guide documents TypeScript conventions and patterns used in amdWiki. For general coding standards (formatting, linting, naming conventions, git commits), see **[CODE_STANDARDS.md](../CODE_STANDARDS.md)**.
+This guide documents TypeScript conventions and patterns used in ngdpbase. For general coding standards (formatting, linting, naming conventions, git commits), see **[CODE_STANDARDS.md](../CODE_STANDARDS.md)**.
 
 ## Overview
 
-amdWiki uses TypeScript with strict mode enabled. The codebase follows CommonJS module conventions for Node.js compatibility.
+ngdpbase uses TypeScript with strict mode enabled. The codebase follows CommonJS module conventions for Node.js compatibility.
 
 ### TypeScript Migration Rules
 

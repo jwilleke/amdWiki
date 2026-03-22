@@ -77,13 +77,13 @@ const total = renderingManager.getTotalPagesCount();
 
 ```json
 {
-  "amdwiki.rendering.useadvancedparser": true,
-  "amdwiki.rendering.fallbacktolegacy": true,
-  "amdwiki.rendering.integration.enabled": true,
-  "amdwiki.rendering.performance.comparison.enabled": false,
-  "amdwiki.rendering.debug.logging.enabled": false,
-  "amdwiki.translator-reader.match-english-plurals": true,
-  "amdwiki.markup.jspwikitables.enabled": true
+  "ngdpbase.rendering.useadvancedparser": true,
+  "ngdpbase.rendering.fallbacktolegacy": true,
+  "ngdpbase.rendering.integration.enabled": true,
+  "ngdpbase.rendering.performance.comparison.enabled": false,
+  "ngdpbase.rendering.debug.logging.enabled": false,
+  "ngdpbase.translator-reader.match-english-plurals": true,
+  "ngdpbase.markup.jspwikitables.enabled": true
 }
 ```
 
@@ -128,7 +128,7 @@ const total = renderingManager.getTotalPagesCount();
 ## Variable Syntax
 
 ```markdown
-[{$applicationname}]  → amdWiki
+[{$applicationname}]  → ngdpbase
 [{$pagename}]          → Current page name
 [{$baseurl}]           → http://localhost:3000
 [{$totalpages}]        → 90

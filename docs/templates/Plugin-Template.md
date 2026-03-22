@@ -22,7 +22,7 @@ Detailed description of what this plugin provides and when to use it.
 | Property | Value |
 | ---------- | ------- |
 | Name | PluginName |
-| Author | amdWiki |
+| Author | ngdpbase |
 | Version | 1.0.0 |
 | JSPWiki Compatible | Yes/Partial/No |
 
@@ -150,7 +150,7 @@ The plugin receives a WikiContext with:
 
 ## JSPWiki Compatibility
 
-| Feature | JSPWiki | amdWiki | Notes |
+| Feature | JSPWiki | ngdpbase | Notes |
 | --------- | --------- | --------- | ------- |
 | Basic syntax | Yes | Yes | Fully compatible |
 | param1 | Yes | Yes | Same behavior |

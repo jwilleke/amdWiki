@@ -1,12 +1,12 @@
-[**amdWiki API v1.5.0**](../../../../README.md)
+[**ngdpbase API v1.5.0**](../../../../README.md)
 
 ***
 
-[amdWiki API](../../../../README.md) / [src/providers/FileUserProvider](../README.md) / default
+[ngdpbase API](../../../../README.md) / [src/providers/FileUserProvider](../README.md) / default
 
 # Class: default
 
-Defined in: [src/providers/FileUserProvider.ts:42](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/FileUserProvider.ts#L42)
+Defined in: [src/providers/FileUserProvider.ts:42](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/FileUserProvider.ts#L42)
 
 FileUserProvider - JSON file-based user and session storage
 
@@ -23,7 +23,7 @@ This is the default provider for UserManager.
 
 > **new default**(`engine`): `FileUserProvider`
 
-Defined in: [src/providers/FileUserProvider.ts:49](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/FileUserProvider.ts#L49)
+Defined in: [src/providers/FileUserProvider.ts:49](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/FileUserProvider.ts#L49)
 
 #### Parameters
 
@@ -45,7 +45,7 @@ Defined in: [src/providers/FileUserProvider.ts:49](https://github.com/jwilleke/a
 
 > `protected` **engine**: [`WikiEngine`](../../../types/WikiEngine/interfaces/WikiEngine.md)
 
-Defined in: [src/providers/BaseUserProvider.ts:43](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/BaseUserProvider.ts#L43)
+Defined in: [src/providers/BaseUserProvider.ts:43](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/BaseUserProvider.ts#L43)
 
 Reference to the wiki engine
 
@@ -59,7 +59,7 @@ Reference to the wiki engine
 
 > **initialized**: `boolean`
 
-Defined in: [src/providers/BaseUserProvider.ts:46](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/BaseUserProvider.ts#L46)
+Defined in: [src/providers/BaseUserProvider.ts:46](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/BaseUserProvider.ts#L46)
 
 Whether provider has been initialized
 
@@ -73,7 +73,7 @@ Whether provider has been initialized
 
 > **backup**(): `Promise`\<`FileUserProviderBackupData`\>
 
-Defined in: [src/providers/FileUserProvider.ts:329](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/FileUserProvider.ts#L329)
+Defined in: [src/providers/FileUserProvider.ts:329](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/FileUserProvider.ts#L329)
 
 Backup all user and session data
 
@@ -91,7 +91,7 @@ Backup all user and session data
 
 > **cleanExpiredSessions**(): `Promise`\<`number`\>
 
-Defined in: [src/providers/FileUserProvider.ts:307](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/FileUserProvider.ts#L307)
+Defined in: [src/providers/FileUserProvider.ts:307](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/FileUserProvider.ts#L307)
 
 Clean up expired sessions
 
@@ -109,7 +109,7 @@ Clean up expired sessions
 
 > **createSession**(`sessionId`, `sessionData`): `Promise`\<`void`\>
 
-Defined in: [src/providers/FileUserProvider.ts:270](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/FileUserProvider.ts#L270)
+Defined in: [src/providers/FileUserProvider.ts:270](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/FileUserProvider.ts#L270)
 
 Create a new session
 
@@ -137,7 +137,7 @@ Create a new session
 
 > **createUser**(`username`, `userData`): `Promise`\<`void`\>
 
-Defined in: [src/providers/FileUserProvider.ts:223](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/FileUserProvider.ts#L223)
+Defined in: [src/providers/FileUserProvider.ts:223](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/FileUserProvider.ts#L223)
 
 Create a new user
 
@@ -165,7 +165,7 @@ Create a new user
 
 > **deleteSession**(`sessionId`): `Promise`\<`boolean`\>
 
-Defined in: [src/providers/FileUserProvider.ts:293](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/FileUserProvider.ts#L293)
+Defined in: [src/providers/FileUserProvider.ts:293](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/FileUserProvider.ts#L293)
 
 Delete a session
 
@@ -189,7 +189,7 @@ Delete a session
 
 > **deleteUser**(`username`): `Promise`\<`boolean`\>
 
-Defined in: [src/providers/FileUserProvider.ts:249](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/FileUserProvider.ts#L249)
+Defined in: [src/providers/FileUserProvider.ts:249](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/FileUserProvider.ts#L249)
 
 Delete a user
 
@@ -213,7 +213,7 @@ Delete a user
 
 > **getAllSessions**(): `Promise`\<`Map`\<`string`, [`UserSession`](../../../types/User/interfaces/UserSession.md)\>\>
 
-Defined in: [src/providers/FileUserProvider.ts:286](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/FileUserProvider.ts#L286)
+Defined in: [src/providers/FileUserProvider.ts:286](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/FileUserProvider.ts#L286)
 
 Get all sessions
 
@@ -231,7 +231,7 @@ Get all sessions
 
 > **getAllUsernames**(): `Promise`\<`string`[]\>
 
-Defined in: [src/providers/FileUserProvider.ts:209](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/FileUserProvider.ts#L209)
+Defined in: [src/providers/FileUserProvider.ts:209](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/FileUserProvider.ts#L209)
 
 Get all usernames
 
@@ -249,7 +249,7 @@ Get all usernames
 
 > **getAllUsers**(): `Promise`\<`Map`\<`string`, [`User`](../../../types/User/interfaces/User.md)\>\>
 
-Defined in: [src/providers/FileUserProvider.ts:216](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/FileUserProvider.ts#L216)
+Defined in: [src/providers/FileUserProvider.ts:216](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/FileUserProvider.ts#L216)
 
 Get all users
 
@@ -267,7 +267,7 @@ Get all users
 
 > **getProviderInfo**(): `object`
 
-Defined in: [src/providers/FileUserProvider.ts:398](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/FileUserProvider.ts#L398)
+Defined in: [src/providers/FileUserProvider.ts:398](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/FileUserProvider.ts#L398)
 
 Get provider information
 
@@ -301,7 +301,7 @@ Get provider information
 
 > **getSession**(`sessionId`): `Promise`\<[`UserSession`](../../../types/User/interfaces/UserSession.md) \| `null`\>
 
-Defined in: [src/providers/FileUserProvider.ts:279](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/FileUserProvider.ts#L279)
+Defined in: [src/providers/FileUserProvider.ts:279](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/FileUserProvider.ts#L279)
 
 Get a session by ID
 
@@ -325,7 +325,7 @@ Get a session by ID
 
 > **getUser**(`username`): `Promise`\<[`User`](../../../types/User/interfaces/User.md) \| `null`\>
 
-Defined in: [src/providers/FileUserProvider.ts:202](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/FileUserProvider.ts#L202)
+Defined in: [src/providers/FileUserProvider.ts:202](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/FileUserProvider.ts#L202)
 
 Get a user by username
 
@@ -349,7 +349,7 @@ Get a user by username
 
 > **initialize**(): `Promise`\<`void`\>
 
-Defined in: [src/providers/FileUserProvider.ts:61](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/FileUserProvider.ts#L61)
+Defined in: [src/providers/FileUserProvider.ts:61](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/FileUserProvider.ts#L61)
 
 Initialize the provider
 
@@ -367,7 +367,7 @@ Initialize the provider
 
 > **restore**(`backupData`): `Promise`\<`void`\>
 
-Defined in: [src/providers/FileUserProvider.ts:358](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/FileUserProvider.ts#L358)
+Defined in: [src/providers/FileUserProvider.ts:358](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/FileUserProvider.ts#L358)
 
 Restore user and session data from backup
 
@@ -391,7 +391,7 @@ Restore user and session data from backup
 
 > **shutdown**(): `void`
 
-Defined in: [src/providers/FileUserProvider.ts:410](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/FileUserProvider.ts#L410)
+Defined in: [src/providers/FileUserProvider.ts:410](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/FileUserProvider.ts#L410)
 
 Shutdown the provider - clean up expired sessions then call parent
 
@@ -409,7 +409,7 @@ Shutdown the provider - clean up expired sessions then call parent
 
 > **updateUser**(`username`, `userData`): `Promise`\<`void`\>
 
-Defined in: [src/providers/FileUserProvider.ts:236](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/FileUserProvider.ts#L236)
+Defined in: [src/providers/FileUserProvider.ts:236](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/FileUserProvider.ts#L236)
 
 Update an existing user
 
@@ -437,7 +437,7 @@ Update an existing user
 
 > **userExists**(`username`): `Promise`\<`boolean`\>
 
-Defined in: [src/providers/FileUserProvider.ts:263](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/FileUserProvider.ts#L263)
+Defined in: [src/providers/FileUserProvider.ts:263](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/FileUserProvider.ts#L263)
 
 Check if user exists
 

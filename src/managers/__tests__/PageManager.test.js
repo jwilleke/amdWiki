@@ -12,11 +12,11 @@ const PageManager = require('../PageManager');
 const mockConfigurationManager = {
   getProperty: jest.fn((key, defaultValue) => {
     const config = {
-      'amdwiki.page.enabled': true,
-      'amdwiki.page.provider.default': 'filesystemprovider',
-      'amdwiki.page.provider': 'filesystemprovider',
-      'amdwiki.directories.pages': './pages',
-      'amdwiki.directories.required-pages': './required-pages'
+      'ngdpbase.page.enabled': true,
+      'ngdpbase.page.provider.default': 'filesystemprovider',
+      'ngdpbase.page.provider': 'filesystemprovider',
+      'ngdpbase.directories.pages': './pages',
+      'ngdpbase.directories.required-pages': './required-pages'
     };
     return config[key] !== undefined ? config[key] : defaultValue;
   })
@@ -40,11 +40,11 @@ describe('PageManager', () => {
     // Reset mock implementation to default behavior
     mockConfigurationManager.getProperty.mockImplementation((key, defaultValue) => {
       const config = {
-        'amdwiki.page.enabled': true,
-        'amdwiki.page.provider.default': 'filesystemprovider',
-        'amdwiki.page.provider': 'filesystemprovider',
-        'amdwiki.directories.pages': './pages',
-        'amdwiki.directories.required-pages': './required-pages'
+        'ngdpbase.page.enabled': true,
+        'ngdpbase.page.provider.default': 'filesystemprovider',
+        'ngdpbase.page.provider': 'filesystemprovider',
+        'ngdpbase.directories.pages': './pages',
+        'ngdpbase.directories.required-pages': './required-pages'
       };
       return config[key] !== undefined ? config[key] : defaultValue;
     });
@@ -73,13 +73,13 @@ describe('PageManager', () => {
     });
 
     test('should get configuration from ConfigurationManager', async () => {
-      expect(mockConfigurationManager.getProperty).toHaveBeenCalledWith('amdwiki.page.enabled', true);
-      expect(mockConfigurationManager.getProperty).toHaveBeenCalledWith('amdwiki.page.provider', expect.any(String));
+      expect(mockConfigurationManager.getProperty).toHaveBeenCalledWith('ngdpbase.page.enabled', true);
+      expect(mockConfigurationManager.getProperty).toHaveBeenCalledWith('ngdpbase.page.provider', expect.any(String));
     });
 
     test('should handle disabled page storage', async () => {
       mockConfigurationManager.getProperty.mockImplementation((key, defaultValue) => {
-        if (key === 'amdwiki.page.enabled') return false;
+        if (key === 'ngdpbase.page.enabled') return false;
         return defaultValue;
       });
 
@@ -309,9 +309,9 @@ describe('PageManager', () => {
 
     test('should normalize versioningfileprovider to VersioningFileProvider', async () => {
       mockConfigurationManager.getProperty.mockImplementation((key, defaultValue) => {
-        if (key === 'amdwiki.page.provider') return 'versioningfileprovider';
-        if (key === 'amdwiki.page.provider.default') return 'filesystemprovider';
-        if (key === 'amdwiki.page.enabled') return true;
+        if (key === 'ngdpbase.page.provider') return 'versioningfileprovider';
+        if (key === 'ngdpbase.page.provider.default') return 'filesystemprovider';
+        if (key === 'ngdpbase.page.enabled') return true;
         return defaultValue;
       });
 

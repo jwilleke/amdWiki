@@ -9,7 +9,7 @@ The ConfigAccessorPlugin provides access to system configuration values includin
 ### Get Configuration Value (Inline)
 
 ```wiki
-[{ConfigAccessor key='amdwiki.server.port' valueonly='true'}]
+[{ConfigAccessor key='ngdpbase.server.port' valueonly='true'}]
 ```
 
 Returns just the value `3000` for inline use in text.
@@ -17,7 +17,7 @@ Returns just the value `3000` for inline use in text.
 ### Display Configuration Value (Formatted)
 
 ```wiki
-[{ConfigAccessor key='amdwiki.server.port'}]
+[{ConfigAccessor key='ngdpbase.server.port'}]
 ```
 
 Displays a formatted card showing the key and value.
@@ -25,7 +25,7 @@ Displays a formatted card showing the key and value.
 ### Get Multiple Values with Wildcard (Inline)
 
 ```wiki
-[{ConfigAccessor key='amdwiki.server.*' valueonly='true'}]
+[{ConfigAccessor key='ngdpbase.server.*' valueonly='true'}]
 ```
 
 Returns matching values, one per line.
@@ -33,7 +33,7 @@ Returns matching values, one per line.
 ### Display Multiple Values with Wildcard (Formatted)
 
 ```wiki
-[{ConfigAccessor key='amdwiki.server.*'}]
+[{ConfigAccessor key='ngdpbase.server.*'}]
 ```
 
 Displays a formatted table showing all matching keys and values.
@@ -117,7 +117,7 @@ Shows all configuration properties for a specific feature.
 ### Example 1: Inline Value in Text (Smart Default)
 
 ```wiki
-The server is running on port [{ConfigAccessor key='amdwiki.server.port' valueonly='true'}].
+The server is running on port [{ConfigAccessor key='ngdpbase.server.port' valueonly='true'}].
 ```
 
 **Output:** The server is running on port 3000.
@@ -127,18 +127,18 @@ The server is running on port [{ConfigAccessor key='amdwiki.server.port' valueon
 ### Example 2: Display Single Config Value (Formatted)
 
 ```wiki
-[{ConfigAccessor key='amdwiki.server.port'}]
+[{ConfigAccessor key='ngdpbase.server.port'}]
 ```
 
 **Output:** Formatted card showing:
 
-- **Key:** `amdwiki.server.port`
+- **Key:** `ngdpbase.server.port`
 - **Value:** `3000`
 
 ### Example 3: Get All Server Config (Inline, Default Newlines)
 
 ```wiki
-[{ConfigAccessor key='amdwiki.server.*' valueonly='true'}]
+[{ConfigAccessor key='ngdpbase.server.*' valueonly='true'}]
 ```
 
 **Output:** Plain text, one value per line:
@@ -153,21 +153,21 @@ localhost
 ### Example 4: Display All Server Config (Formatted)
 
 ```wiki
-[{ConfigAccessor key='amdwiki.server.*'}]
+[{ConfigAccessor key='ngdpbase.server.*'}]
 ```
 
-**Output:** Formatted table showing all keys matching `amdwiki.server.*`:
+**Output:** Formatted table showing all keys matching `ngdpbase.server.*`:
 
-- `amdwiki.server.port` → `3000`
-- `amdwiki.server.host` → `localhost`
+- `ngdpbase.server.port` → `3000`
+- `ngdpbase.server.host` → `localhost`
 
 ### Example 5: Embed Application Name in Text
 
 ```wiki
-Welcome to [{ConfigAccessor key='amdwiki.applicationName' valueonly='true'}]!
+Welcome to [{ConfigAccessor key='ngdpbase.applicationName' valueonly='true'}]!
 ```
 
-**Output:** Welcome to amdWiki!
+**Output:** Welcome to ngdpbase!
 
 ### Example 6: Display All Roles
 
@@ -248,7 +248,7 @@ This creates the same Security Policy Summary table as seen on the `/admin/roles
 ### Example 9: Get Multiple Role Names (Inline)
 
 ```wiki
-[{ConfigAccessor key='amdwiki.roles.definitions.*.name' valueonly='true'}]
+[{ConfigAccessor key='ngdpbase.roles.definitions.*.name' valueonly='true'}]
 ```
 
 **Output:** Plain text, one role name per line:
@@ -266,7 +266,7 @@ anonymous
 ```wiki
 ## Server Configuration
 
-[{ConfigAccessor key='amdwiki.server.*' valueonly='true' before='* ' after='\n'}]
+[{ConfigAccessor key='ngdpbase.server.*' valueonly='true' before='* ' after='\n'}]
 ```
 
 **Output:**
@@ -281,7 +281,7 @@ anonymous
 ### Example 11: Inline Comma-Separated List
 
 ```wiki
-Available roles: [{ConfigAccessor key='amdwiki.roles.definitions.*.name' valueonly='true' before='' after=', '}]
+Available roles: [{ConfigAccessor key='ngdpbase.roles.definitions.*.name' valueonly='true' before='' after=', '}]
 ```
 
 **Output:** Available roles: admin, editor, contributor, reader, anonymous,
@@ -292,7 +292,7 @@ Available roles: [{ConfigAccessor key='amdwiki.roles.definitions.*.name' valueon
 
 ```wiki
 <ul>
-[{ConfigAccessor key='amdwiki.server.*' valueonly='true' before='<li>' after='</li>\n'}]
+[{ConfigAccessor key='ngdpbase.server.*' valueonly='true' before='<li>' after='</li>\n'}]
 </ul>
 ```
 
@@ -312,23 +312,23 @@ The `key` parameter supports wildcards using the `*` character for flexible patt
 ### Single Wildcard
 
 ```wiki
-[{ConfigAccessor key='amdwiki.server.*'}]
+[{ConfigAccessor key='ngdpbase.server.*'}]
 ```
 
-Matches: `amdwiki.server.port`, `amdwiki.server.host`, etc.
+Matches: `ngdpbase.server.port`, `ngdpbase.server.host`, etc.
 
 ### Multiple Levels
 
 ```wiki
-[{ConfigAccessor key='amdwiki.*.port'}]
+[{ConfigAccessor key='ngdpbase.*.port'}]
 ```
 
-Matches: `amdwiki.server.port`, `amdwiki.database.port`, etc.
+Matches: `ngdpbase.server.port`, `ngdpbase.database.port`, etc.
 
 ### Nested Wildcards
 
 ```wiki
-[{ConfigAccessor key='amdwiki.roles.definitions.*.name'}]
+[{ConfigAccessor key='ngdpbase.roles.definitions.*.name'}]
 ```
 
 Matches all role names in the role definitions.
@@ -336,10 +336,10 @@ Matches all role names in the role definitions.
 ### Full Wildcard
 
 ```wiki
-[{ConfigAccessor key='amdwiki.*'}]
+[{ConfigAccessor key='ngdpbase.*'}]
 ```
 
-Matches all configuration keys starting with `amdwiki.`
+Matches all configuration keys starting with `ngdpbase.`
 
 ## Value-Only Mode
 
@@ -359,8 +359,8 @@ When `valueonly='true'` is specified:
 
 The `after` parameter has intelligent defaults based on usage:
 
-- **Single value** (e.g., `key='amdwiki.server.port'`): Default `after=''` - No trailing newline, perfect for inline use
-- **Multiple values** (e.g., `key='amdwiki.server.*'`): Default `after='\n'` - One value per line, perfect for lists
+- **Single value** (e.g., `key='ngdpbase.server.port'`): Default `after=''` - No trailing newline, perfect for inline use
+- **Multiple values** (e.g., `key='ngdpbase.server.*'`): Default `after='\n'` - One value per line, perfect for lists
 
 This means you don't need to specify `after=''` for inline single values - it just works!
 
@@ -387,11 +387,11 @@ This means you don't need to specify `after=''` for inline single values - it ju
 ```wiki
 ## Server Information
 
-- **Application:** [{ConfigAccessor key='amdwiki.applicationName' valueonly='true'}]
-- **Port:** [{ConfigAccessor key='amdwiki.server.port' valueonly='true'}]
-- **Environment:** [{ConfigAccessor key='amdwiki.environment' valueonly='true'}]
+- **Application:** [{ConfigAccessor key='ngdpbase.applicationName' valueonly='true'}]
+- **Port:** [{ConfigAccessor key='ngdpbase.server.port' valueonly='true'}]
+- **Environment:** [{ConfigAccessor key='ngdpbase.environment' valueonly='true'}]
 
-The system is running version [{ConfigAccessor key='amdwiki.version' valueonly='true'}]
+The system is running version [{ConfigAccessor key='ngdpbase.version' valueonly='true'}]
 and has been up for [{$uptime}].
 ```
 
@@ -404,7 +404,7 @@ The plugin uses these ConfigurationManager methods internally:
 Gets all configuration properties as an object. Used for wildcard matching.
 
 ```javascript
-returns: { 'amdwiki.server.port': 3000, 'amdwiki.server.host': 'localhost', ... }
+returns: { 'ngdpbase.server.port': 3000, 'ngdpbase.server.host': 'localhost', ... }
 ```
 
 ### getProperty(key, defaultValue)
@@ -412,7 +412,7 @@ returns: { 'amdwiki.server.port': 3000, 'amdwiki.server.host': 'localhost', ... 
 Gets a single configuration property by dot-notation key.
 
 ```javascript
-key: 'amdwiki.server.port'
+key: 'ngdpbase.server.port'
 returns: 3000
 ```
 
@@ -438,32 +438,32 @@ returns: { indexPath: './index', ... }
 
 ### Server Configuration
 
-- `amdwiki.server.port` - Server port number
-- `amdwiki.server.host` - Server hostname
-- `amdwiki.baseURL` - Base URL for the wiki
+- `ngdpbase.server.port` - Server port number
+- `ngdpbase.server.host` - Server hostname
+- `ngdpbase.baseURL` - Base URL for the wiki
 
 ### Application Configuration
 
-- `amdwiki.applicationName` - Application display name
-- `amdwiki.version` - Current version
-- `amdwiki.environment` - Environment (development/production)
+- `ngdpbase.applicationName` - Application display name
+- `ngdpbase.version` - Current version
+- `ngdpbase.environment` - Environment (development/production)
 
 ### Roles Configuration
 
-- `amdwiki.roles.definitions` - All role definitions
-- `amdwiki.access.policies` - Access control policies
+- `ngdpbase.roles.definitions` - All role definitions
+- `ngdpbase.access.policies` - Access control policies
 
 ### Feature Flags
 
-- `amdwiki.features.search` - Search feature config
-- `amdwiki.features.versioning` - Version control config
-- `amdwiki.features.attachments` - Attachment handling config
+- `ngdpbase.features.search` - Search feature config
+- `ngdpbase.features.versioning` - Version control config
+- `ngdpbase.features.attachments` - Attachment handling config
 
 ### Manager Configuration
 
-- `amdwiki.managers.pluginManager.searchPaths` - Plugin directories
-- `amdwiki.managers.userManager.*` - User management settings
-- `amdwiki.managers.pageManager.*` - Page management settings
+- `ngdpbase.managers.pluginManager.searchPaths` - Plugin directories
+- `ngdpbase.managers.userManager.*` - User management settings
+- `ngdpbase.managers.pageManager.*` - Page management settings
 
 ## Role Information
 
@@ -514,7 +514,7 @@ Built-in roles defined in configuration:
 
 ## Case-Insensitive Usage
 
-Plugin names are case-insensitive in amdWiki:
+Plugin names are case-insensitive in ngdpbase:
 
 ```wiki
 [{ConfigAccessor}]           ✓ Works
@@ -607,12 +607,12 @@ Embed configuration values directly in page text:
 ```wiki
 ## Welcome
 
-Welcome to [{ConfigAccessor key='amdwiki.applicationName' valueonly='true'}]!
+Welcome to [{ConfigAccessor key='ngdpbase.applicationName' valueonly='true'}]!
 
-The server is running on port [{ConfigAccessor key='amdwiki.server.port' valueonly='true'}]
+The server is running on port [{ConfigAccessor key='ngdpbase.server.port' valueonly='true'}]
 and currently has [{$totalpages}] pages.
 
-System version: [{ConfigAccessor key='amdwiki.version' valueonly='true'}]
+System version: [{ConfigAccessor key='ngdpbase.version' valueonly='true'}]
 ```
 
 ### 2. System Information Pages
@@ -622,13 +622,13 @@ Display current configuration on admin/status pages:
 ```wiki
 ## Server Configuration
 
-**Port:** [{ConfigAccessor key='amdwiki.server.port' valueonly='true'}]
-**Host:** [{ConfigAccessor key='amdwiki.server.host' valueonly='true'}]
-**Environment:** [{ConfigAccessor key='amdwiki.environment' valueonly='true'}]
+**Port:** [{ConfigAccessor key='ngdpbase.server.port' valueonly='true'}]
+**Host:** [{ConfigAccessor key='ngdpbase.server.host' valueonly='true'}]
+**Environment:** [{ConfigAccessor key='ngdpbase.environment' valueonly='true'}]
 
 ### All Server Settings
 
-[{ConfigAccessor key='amdwiki.server.*'}]
+[{ConfigAccessor key='ngdpbase.server.*'}]
 ```
 
 ### 3. Role Documentation
@@ -690,7 +690,7 @@ Available roles in the system:
 - Reader
 - Anonymous
 
-Role count: [{ConfigAccessor key='amdwiki.roles.definitions.*' valueonly='true'}] (returns count via wildcard)
+Role count: [{ConfigAccessor key='ngdpbase.roles.definitions.*' valueonly='true'}] (returns count via wildcard)
 ```
 
 ### 5. Feature Documentation
@@ -722,7 +722,7 @@ Find all related configuration values:
 
 All database settings:
 
-[{ConfigAccessor key='amdwiki.database.*'}]
+[{ConfigAccessor key='ngdpbase.database.*'}]
 ```
 
 ## See Also
@@ -768,7 +768,7 @@ All database settings:
 - **2.0.0** (2025-10-17) - Major enhancement release
   - **BREAKING:** Now requires either `key` or `type` parameter (no default behavior)
   - Added `valueonly` parameter for inline value embedding
-  - Added wildcard support for `key` parameter (e.g., `amdwiki.server.*`)
+  - Added wildcard support for `key` parameter (e.g., `ngdpbase.server.*`)
   - Multiple value display when wildcards match multiple keys
   - Plain text output mode for easy inline usage
   - Enhanced error handling for edge cases

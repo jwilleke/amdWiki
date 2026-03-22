@@ -99,7 +99,7 @@ Set the default map provider in `config/app-default-config.json`:
 
 ```json
 {
-  "amdwiki.location.defaultProvider": "osm"
+  "ngdpbase.location.defaultProvider": "osm"
 }
 ```
 

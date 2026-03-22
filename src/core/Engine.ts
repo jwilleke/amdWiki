@@ -157,10 +157,10 @@ class Engine {
   /**
    * Get application name from configuration
    *
-   * @returns {string} Application name (defaults to 'amdWiki')
+   * @returns {string} Application name (defaults to 'ngdpbase')
    */
   getApplicationName(): string {
-    return this.getProperty<string>('applicationName', 'amdWiki') || 'amdWiki';
+    return this.getProperty<string>('applicationName', 'ngdpbase') || 'ngdpbase';
   }
 
   /**

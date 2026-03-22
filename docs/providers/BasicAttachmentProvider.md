@@ -25,12 +25,12 @@ BasicAttachmentProvider implements filesystem-based attachment storage with SHA-
 
 ```javascript
 // All configuration via ConfigurationManager (lowercase keys)
-'amdwiki.attachment.provider.basic.storagedir'  // Storage directory (default: ./data/attachments)
-'amdwiki.attachment.metadatafile'               // Metadata file (default: ./data/attachments/attachment-metadata.json)
-'amdwiki.attachment.maxsize'                    // Max file size bytes (default: 10485760 = 10MB)
-'amdwiki.attachment.allowedtypes'               // MIME types (default: 'image/*,text/*,application/pdf')
-'amdwiki.attachment.provider.basic.hashcontent' // Enable content hashing (default: true)
-'amdwiki.attachment.provider.basic.hashmethod'  // Hash algorithm (default: 'sha256')
+'ngdpbase.attachment.provider.basic.storagedir'  // Storage directory (default: ./data/attachments)
+'ngdpbase.attachment.metadatafile'               // Metadata file (default: ./data/attachments/attachment-metadata.json)
+'ngdpbase.attachment.maxsize'                    // Max file size bytes (default: 10485760 = 10MB)
+'ngdpbase.attachment.allowedtypes'               // MIME types (default: 'image/*,text/*,application/pdf')
+'ngdpbase.attachment.provider.basic.hashcontent' // Enable content hashing (default: true)
+'ngdpbase.attachment.provider.basic.hashmethod'  // Hash algorithm (default: 'sha256')
 ```
 
 ## Basic Usage
@@ -132,7 +132,7 @@ metadata['abc123...'].mentions = [
 
 ```javascript
 // Configuration
-'amdwiki.attachment.allowedtypes': 'image/*,text/*,application/pdf'
+'ngdpbase.attachment.allowedtypes': 'image/*,text/*,application/pdf'
 
 // Upload checks MIME type
 await provider.uploadAttachment('Page', buffer, 'file.exe', 'application/x-msdownload', {...});
@@ -146,7 +146,7 @@ await provider.uploadAttachment('Page', buffer, 'photo.jpg', 'image/jpeg', {...}
 
 ```javascript
 // Configuration
-'amdwiki.attachment.maxsize': 10485760  // 10MB in bytes
+'ngdpbase.attachment.maxsize': 10485760  // 10MB in bytes
 
 // Upload checks file size
 const largeBuffer = Buffer.alloc(20 * 1024 * 1024);  // 20MB

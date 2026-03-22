@@ -1,12 +1,12 @@
-[**amdWiki API v1.5.0**](../../../../README.md)
+[**ngdpbase API v1.5.0**](../../../../README.md)
 
 ***
 
-[amdWiki API](../../../../README.md) / [src/utils/DeltaStorage](../README.md) / default
+[ngdpbase API](../../../../README.md) / [src/utils/DeltaStorage](../README.md) / default
 
 # Class: default
 
-Defined in: [src/utils/DeltaStorage.ts:37](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/DeltaStorage.ts#L37)
+Defined in: [src/utils/DeltaStorage.ts:37](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/DeltaStorage.ts#L37)
 
 DeltaStorage - Utility for creating and applying content diffs
 
@@ -21,11 +21,11 @@ fast-diff returns an array of tuples: [operation, text]
 ## Example
 
 ```ts
-const diff = DeltaStorage.createDiff("Hello world", "Hello amdWiki");
-// Returns: [[0, "Hello "], [-1, "world"], [1, "amdWiki"]]
+const diff = DeltaStorage.createDiff("Hello world", "Hello ngdpbase");
+// Returns: [[0, "Hello "], [-1, "world"], [1, "ngdpbase"]]
 
 const reconstructed = DeltaStorage.applyDiff("Hello world", diff);
-// Returns: "Hello amdWiki"
+// Returns: "Hello ngdpbase"
 ```
 
 ## Constructors
@@ -44,7 +44,7 @@ const reconstructed = DeltaStorage.applyDiff("Hello world", diff);
 
 > `static` **applyDiff**(`baseContent`, `diff`): `string`
 
-Defined in: [src/utils/DeltaStorage.ts:75](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/DeltaStorage.ts#L75)
+Defined in: [src/utils/DeltaStorage.ts:75](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/DeltaStorage.ts#L75)
 
 Apply a diff to base content to reconstruct a version
 
@@ -79,9 +79,9 @@ If inputs are invalid
 
 ```ts
 const base = "Hello world";
-const diff: DiffTuple[] = [[0, "Hello "], [-1, "world"], [1, "amdWiki"]];
+const diff: DiffTuple[] = [[0, "Hello "], [-1, "world"], [1, "ngdpbase"]];
 const result = DeltaStorage.applyDiff(base, diff);
-// Returns: "Hello amdWiki"
+// Returns: "Hello ngdpbase"
 ```
 
 ***
@@ -90,7 +90,7 @@ const result = DeltaStorage.applyDiff(base, diff);
 
 > `static` **applyDiffChain**(`v1Content`, `diffArray`): `string`
 
-Defined in: [src/utils/DeltaStorage.ts:147](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/DeltaStorage.ts#L147)
+Defined in: [src/utils/DeltaStorage.ts:147](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/DeltaStorage.ts#L147)
 
 Apply multiple diffs sequentially
 
@@ -139,7 +139,7 @@ const v3 = DeltaStorage.applyDiffChain(v1, diffs);
 
 > `static` **calculateHash**(`content`): `string`
 
-Defined in: [src/utils/DeltaStorage.ts:181](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/DeltaStorage.ts#L181)
+Defined in: [src/utils/DeltaStorage.ts:181](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/DeltaStorage.ts#L181)
 
 Calculate SHA-256 hash of content
 
@@ -166,7 +166,7 @@ SHA-256 hash in hexadecimal format
 
 > `static` **createDiff**(`oldContent`, `newContent`): [`DiffTuple`](../type-aliases/DiffTuple.md)[]
 
-Defined in: [src/utils/DeltaStorage.ts:51](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/DeltaStorage.ts#L51)
+Defined in: [src/utils/DeltaStorage.ts:51](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/DeltaStorage.ts#L51)
 
 Generate diff between old and new content
 
@@ -206,7 +206,7 @@ const diff = DeltaStorage.createDiff("foo", "bar");
 
 > `static` **getDiffStats**(`diff`): [`DiffStats`](../interfaces/DiffStats.md)
 
-Defined in: [src/utils/DeltaStorage.ts:220](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/DeltaStorage.ts#L220)
+Defined in: [src/utils/DeltaStorage.ts:220](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/DeltaStorage.ts#L220)
 
 Calculate diff statistics
 
@@ -240,7 +240,7 @@ const stats = DeltaStorage.getDiffStats(diff);
 
 > `static` **verifyHash**(`content`, `expectedHash`): `boolean`
 
-Defined in: [src/utils/DeltaStorage.ts:199](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/DeltaStorage.ts#L199)
+Defined in: [src/utils/DeltaStorage.ts:199](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/DeltaStorage.ts#L199)
 
 Verify content integrity using hash
 

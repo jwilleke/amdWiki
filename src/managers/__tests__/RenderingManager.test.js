@@ -17,16 +17,16 @@ const RenderingManager = require('../RenderingManager');
 // Mock ConfigurationManager
 const mockConfigurationManager = {
   getProperty: jest.fn((key, defaultValue) => {
-    if (key === 'amdwiki.translator-reader.match-english-plurals') {
+    if (key === 'ngdpbase.translator-reader.match-english-plurals') {
       return true;
     }
-    if (key === 'amdwiki.rendering.use-advanced-parser') {
+    if (key === 'ngdpbase.rendering.use-advanced-parser') {
       return true; // Use advanced parser to avoid expandAllVariables error
     }
-    if (key === 'amdwiki.rendering.log-parsing-method') {
+    if (key === 'ngdpbase.rendering.log-parsing-method') {
       return false;
     }
-    if (key === 'amdwiki.rendering.performance-comparison') {
+    if (key === 'ngdpbase.rendering.performance-comparison') {
       return false;
     }
     return defaultValue;

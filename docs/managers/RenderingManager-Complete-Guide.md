@@ -26,7 +26,7 @@
 
 ## Overview
 
-The **RenderingManager** is the central coordinator for markdown rendering and wiki markup processing in amdWiki. It orchestrates the conversion of markdown/wiki markup to HTML, supporting both a modern MarkupParser system and a legacy Showdown-based renderer.
+The **RenderingManager** is the central coordinator for markdown rendering and wiki markup processing in ngdpbase. It orchestrates the conversion of markdown/wiki markup to HTML, supporting both a modern MarkupParser system and a legacy Showdown-based renderer.
 
 ### Key Responsibilities
 
@@ -60,7 +60,7 @@ This approach provides:
 
 ```
 ┌───────────────────────────────────────────────────────────────────┐
-│                       amdWiki Engine                               │
+│                       ngdpbase Engine                               │
 │                                                                    │
 │  ┌──────────────────────────────────────────────────────────────┐ │
 │  │                  RenderingManager                             │ │
@@ -215,7 +215,7 @@ this.converter = new showdown.Converter({
 
 ### Overview
 
-Footnotes allow you to add notes and references at the bottom of your page without cluttering the main text. amdWiki implements **GitHub Flavored Markdown (GFM) compatible footnote syntax** using the `showdown-footnotes` extension.
+Footnotes allow you to add notes and references at the bottom of your page without cluttering the main text. ngdpbase implements **GitHub Flavored Markdown (GFM) compatible footnote syntax** using the `showdown-footnotes` extension.
 
 **Added:** Version 1.3.2 (2025-10-16)
 **Implementation:** `src/managers/RenderingManager.js:5, 92`
@@ -317,7 +317,7 @@ Footnotes generate clean, semantic HTML:
 
 #### Custom Extension Patch
 
-amdWiki uses a **patched version** of `showdown-footnotes` located at `src/extensions/showdown-footnotes-fixed.js` to fix two critical bugs in the original extension:
+ngdpbase uses a **patched version** of `showdown-footnotes` located at `src/extensions/showdown-footnotes-fixed.js` to fix two critical bugs in the original extension:
 
 Bug #1: Missing Global Flag
 
@@ -376,7 +376,7 @@ Enable/disable footnotes in `config/app-default-config.json`:
 ```json
 {
   "_comment_footnotes": "Markdown footnote configuration",
-  "amdwiki.markdown.footnotes.enabled": true
+  "ngdpbase.markdown.footnotes.enabled": true
 }
 ```
 
@@ -465,14 +465,14 @@ Located in `config/app-default-config.json`:
   "jspwiki.parser.useExtractionPipeline": true,
 
   "_comment_footnotes": "Markdown footnote configuration",
-  "amdwiki.markdown.footnotes.enabled": true,
+  "ngdpbase.markdown.footnotes.enabled": true,
 
   "_comment_markup": "MarkupParser configuration",
-  "amdwiki.markup.enabled": true,
-  "amdwiki.markup.useAdvancedParser": true,
-  "amdwiki.markup.fallbackToLegacy": true,
-  "amdwiki.markup.logParsingMethod": true,
-  "amdwiki.markup.performanceComparison": false
+  "ngdpbase.markup.enabled": true,
+  "ngdpbase.markup.useAdvancedParser": true,
+  "ngdpbase.markup.fallbackToLegacy": true,
+  "ngdpbase.markup.logParsingMethod": true,
+  "ngdpbase.markup.performanceComparison": false
 }
 ```
 
@@ -836,8 +836,8 @@ Configuration is loaded at initialization:
 const configManager = engine.getManager('ConfigurationManager');
 
 // RenderingManager reads these properties
-const useAdvanced = configManager.getProperty('amdwiki.markup.useAdvancedParser');
-const footnotes = configManager.getProperty('amdwiki.markdown.footnotes.enabled');
+const useAdvanced = configManager.getProperty('ngdpbase.markup.useAdvancedParser');
+const footnotes = configManager.getProperty('ngdpbase.markdown.footnotes.enabled');
 ```
 
 ---
@@ -850,8 +850,8 @@ Enable MarkupParser for best features:
 
 ```json
 {
-  "amdwiki.markup.useAdvancedParser": true,
-  "amdwiki.markup.fallbackToLegacy": true
+  "ngdpbase.markup.useAdvancedParser": true,
+  "ngdpbase.markup.fallbackToLegacy": true
 }
 ```
 
@@ -884,8 +884,8 @@ Enable performance comparison during development:
 
 ```json
 {
-  "amdwiki.markup.performanceComparison": true,
-  "amdwiki.markup.logParsingMethod": true
+  "ngdpbase.markup.performanceComparison": true,
+  "ngdpbase.markup.logParsingMethod": true
 }
 ```
 
@@ -975,8 +975,8 @@ console.log('MarkupParser initialized:', markupParser?.isInitialized());
 
    ```json
    {
-     "amdwiki.markup.enabled": true,
-     "amdwiki.markup.useAdvancedParser": true
+     "ngdpbase.markup.enabled": true,
+     "ngdpbase.markup.useAdvancedParser": true
    }
    ```
 
@@ -1013,8 +1013,8 @@ console.log('Backlinks:', backlinks);
 ```javascript
 // Enable performance logging
 {
-  "amdwiki.markup.performanceComparison": true,
-  "amdwiki.markup.logParsingMethod": true
+  "ngdpbase.markup.performanceComparison": true,
+  "ngdpbase.markup.logParsingMethod": true
 }
 ```
 
@@ -1033,8 +1033,8 @@ console.log('Backlinks:', backlinks);
 
    ```json
    {
-     "amdwiki.markup.caching": true,
-     "amdwiki.markup.cacheTTL": 300
+     "ngdpbase.markup.caching": true,
+     "ngdpbase.markup.cacheTTL": 300
    }
    ```
 
@@ -1069,5 +1069,5 @@ console.log('Backlinks:', backlinks);
 ---
 
 **Last Updated:** 2025-10-16
-**Maintained By:** amdWiki Development Team
+**Maintained By:** ngdpbase Development Team
 **Status:** Production Ready ✅

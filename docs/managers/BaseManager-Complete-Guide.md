@@ -101,7 +101,7 @@ async initialize(config = {}) {
   const configManager = this.engine.getManager('ConfigurationManager');
 
   // Load your configuration
-  this.setting = configManager.getProperty('amdwiki.mymanager.setting', 'default');
+  this.setting = configManager.getProperty('ngdpbase.mymanager.setting', 'default');
 
   console.log('MyManager initialized');
 }
@@ -312,7 +312,7 @@ class MyManager extends BaseManager {
 
     // Get configuration
     const configManager = this.engine.getManager('ConfigurationManager');
-    this.setting = configManager.getProperty('amdwiki.mymanager.setting', 'default');
+    this.setting = configManager.getProperty('ngdpbase.mymanager.setting', 'default');
 
     console.log('MyManager initialized');
   }
@@ -359,7 +359,7 @@ await this.getManager('MyManager').initialize();
 - **Abstract class:** BaseManager is meant to be extended, not used directly
 - **Engine reference:** Always available via `this.engine` or `this.getEngine()`
 - **Configuration:** Use ConfigurationManager for all configuration access
-- **23 managers:** amdWiki has 23 specialized managers extending BaseManager
+- **23 managers:** ngdpbase has 23 specialized managers extending BaseManager
 
 ---
 

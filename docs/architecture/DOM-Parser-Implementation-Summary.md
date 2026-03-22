@@ -12,11 +12,11 @@ issue: #93
 
 **Status:** ✅ Complete and Integrated
 **Date Completed:** 2025-10-12
-**GitHub Issue:** [#93 - Migrate to WikiDocument DOM-Based Parsing Architecture](https://github.com/jwilleke/amdWiki/issues/93)
+**GitHub Issue:** [#93 - Migrate to WikiDocument DOM-Based Parsing Architecture](https://github.com/jwilleke/ngdpbase/issues/93)
 
 ## Executive Summary
 
-The DOM-based parser has been successfully implemented and integrated as the primary parsing engine for amdWiki. This architectural change **permanently fixes** the recurring `[[` escaping issues by replacing fragile string-based parsing with robust, structured DOM parsing.
+The DOM-based parser has been successfully implemented and integrated as the primary parsing engine for ngdpbase. This architectural change **permanently fixes** the recurring `[[` escaping issues by replacing fragile string-based parsing with robust, structured DOM parsing.
 
 ### Key Achievement
 
@@ -569,7 +569,7 @@ Status: Production Ready
 
 - [WikiDocument DOM Architecture](WikiDocument-DOM-Architecture.md)
 - [Migration TODO](WikiDocument-Migration-TODO.md)
-- [GitHub Issue #93](https://github.com/jwilleke/amdWiki/issues/93)
+- [GitHub Issue #93](https://github.com/jwilleke/ngdpbase/issues/93)
 - JSPWiki MarkupParser: <https://github.com/apache/jspwiki/blob/master/jspwiki-main/src/main/java/org/apache/wiki/parser/MarkupParser.java>
 - JSPWiki WikiDocument API: <https://jspwiki.apache.org/apidocs/2.12.1/org/apache/wiki/parser/WikiDocument.html>
 

@@ -21,10 +21,10 @@ interface CloudConfig {
  * Suitable for AWS CloudWatch, Azure Monitor, Google Cloud Logging.
  *
  * Configuration keys (all lowercase):
- * - amdwiki.audit.provider.cloud.service - Cloud service (cloudwatch, azuremonitor, stackdriver)
- * - amdwiki.audit.provider.cloud.region - Cloud region
- * - amdwiki.audit.provider.cloud.loggroup - Log group/namespace
- * - amdwiki.audit.provider.cloud.logstream - Log stream name
+ * - ngdpbase.audit.provider.cloud.service - Cloud service (cloudwatch, azuremonitor, stackdriver)
+ * - ngdpbase.audit.provider.cloud.region - Cloud region
+ * - ngdpbase.audit.provider.cloud.loggroup - Log group/namespace
+ * - ngdpbase.audit.provider.cloud.logstream - Log stream name
  *
  * TODO: Implement AWS CloudWatch Logs integration
  * TODO: Implement Azure Monitor Logs integration
@@ -57,19 +57,19 @@ class CloudAuditProvider extends BaseAuditProvider {
     // Load provider-specific settings (ALL LOWERCASE)
     this._config = {
       service: configManager.getProperty(
-        'amdwiki.audit.provider.cloud.service',
+        'ngdpbase.audit.provider.cloud.service',
         'cloudwatch'
       ) as string,
       region: configManager.getProperty(
-        'amdwiki.audit.provider.cloud.region',
+        'ngdpbase.audit.provider.cloud.region',
         'us-east-1'
       ) as string,
       logGroup: configManager.getProperty(
-        'amdwiki.audit.provider.cloud.loggroup',
-        '/amdwiki/audit'
+        'ngdpbase.audit.provider.cloud.loggroup',
+        '/ngdpbase/audit'
       ) as string,
       logStream: configManager.getProperty(
-        'amdwiki.audit.provider.cloud.logstream',
+        'ngdpbase.audit.provider.cloud.logstream',
         'audit-events'
       ) as string
     };

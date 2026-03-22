@@ -1,12 +1,12 @@
-[**amdWiki API v1.5.0**](../../../../README.md)
+[**ngdpbase API v1.5.0**](../../../../README.md)
 
 ***
 
-[amdWiki API](../../../../README.md) / [src/managers/PolicyEvaluator](../README.md) / export=
+[ngdpbase API](../../../../README.md) / [src/managers/PolicyEvaluator](../README.md) / export=
 
 # Class: export=
 
-Defined in: [src/managers/PolicyEvaluator.ts:89](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/PolicyEvaluator.ts#L89)
+Defined in: [src/managers/PolicyEvaluator.ts:89](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/PolicyEvaluator.ts#L89)
 
 PolicyEvaluator - Evaluates access policies against a given context.
 
@@ -45,7 +45,7 @@ if (result.allowed) console.log('Access granted');
 
 > **new export=**(`engine`): `PolicyEvaluator`
 
-Defined in: [src/managers/PolicyEvaluator.ts:98](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/PolicyEvaluator.ts#L98)
+Defined in: [src/managers/PolicyEvaluator.ts:98](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/PolicyEvaluator.ts#L98)
 
 Creates a new PolicyEvaluator instance
 
@@ -71,7 +71,7 @@ The wiki engine instance
 
 > `protected` `optional` **config**: `Record`\<`string`, `unknown`\>
 
-Defined in: [src/managers/BaseManager.ts:61](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L61)
+Defined in: [src/managers/BaseManager.ts:61](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L61)
 
 Configuration passed during initialization
 
@@ -85,7 +85,7 @@ Configuration passed during initialization
 
 > `protected` **engine**: [`WikiEngine`](../../../types/WikiEngine/interfaces/WikiEngine.md)
 
-Defined in: [src/managers/BaseManager.ts:54](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L54)
+Defined in: [src/managers/BaseManager.ts:54](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L54)
 
 Reference to the wiki engine
 
@@ -99,7 +99,7 @@ Reference to the wiki engine
 
 > `protected` **initialized**: `boolean`
 
-Defined in: [src/managers/BaseManager.ts:57](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L57)
+Defined in: [src/managers/BaseManager.ts:57](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L57)
 
 Initialization status flag
 
@@ -113,7 +113,7 @@ Initialization status flag
 
 > **backup**(): `Promise`\<[`BackupData`](../../BaseManager/interfaces/BackupData.md)\>
 
-Defined in: [src/managers/BaseManager.ts:169](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L169)
+Defined in: [src/managers/BaseManager.ts:169](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L169)
 
 Backup manager data
 
@@ -155,7 +155,7 @@ async backup(): Promise<BackupData> {
 
 > **evaluateAccess**(`context`): `Promise`\<`EvaluationResult`\>
 
-Defined in: [src/managers/PolicyEvaluator.ts:141](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/PolicyEvaluator.ts#L141)
+Defined in: [src/managers/PolicyEvaluator.ts:141](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/PolicyEvaluator.ts#L141)
 
 Evaluates all relevant policies to make an access decision.
 
@@ -195,7 +195,7 @@ console.log('Allowed:', result.allowed, 'Reason:', result.reason);
 
 > **getEngine**(): [`WikiEngine`](../../../types/WikiEngine/interfaces/WikiEngine.md)
 
-Defined in: [src/managers/BaseManager.ts:125](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L125)
+Defined in: [src/managers/BaseManager.ts:125](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L125)
 
 Get the wiki engine instance
 
@@ -221,7 +221,7 @@ const config = this.getEngine().getConfig();
 
 > **initialize**(): `Promise`\<`void`\>
 
-Defined in: [src/managers/PolicyEvaluator.ts:114](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/PolicyEvaluator.ts#L114)
+Defined in: [src/managers/PolicyEvaluator.ts:114](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/PolicyEvaluator.ts#L114)
 
 Initializes the PolicyEvaluator by getting reference to PolicyManager
 
@@ -252,7 +252,7 @@ console.log('Policy evaluator ready');
 
 > **isInitialized**(): `boolean`
 
-Defined in: [src/managers/BaseManager.ts:113](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L113)
+Defined in: [src/managers/BaseManager.ts:113](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L113)
 
 Check if manager has been initialized
 
@@ -280,7 +280,7 @@ if (manager.isInitialized()) {
 
 > **matches**(`policy`, `context`): `boolean`
 
-Defined in: [src/managers/PolicyEvaluator.ts:179](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/PolicyEvaluator.ts#L179)
+Defined in: [src/managers/PolicyEvaluator.ts:179](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/PolicyEvaluator.ts#L179)
 
 Checks if a single policy matches the given context.
 
@@ -322,7 +322,7 @@ if (matches) console.log('Policy applies to this request');
 
 > **matchesAction**(`actions`, `action`): `boolean`
 
-Defined in: [src/managers/PolicyEvaluator.ts:283](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/PolicyEvaluator.ts#L283)
+Defined in: [src/managers/PolicyEvaluator.ts:283](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/PolicyEvaluator.ts#L283)
 
 Checks if the action matches the policy's actions.
 
@@ -367,7 +367,7 @@ const matches = evaluator.matchesAction(
 
 > **matchesResource**(`resources`, `pageName`): `boolean`
 
-Defined in: [src/managers/PolicyEvaluator.ts:252](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/PolicyEvaluator.ts#L252)
+Defined in: [src/managers/PolicyEvaluator.ts:252](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/PolicyEvaluator.ts#L252)
 
 Checks if the resource matches the policy's resources.
 
@@ -410,7 +410,7 @@ const matches = evaluator.matchesResource(
 
 > **matchesSubject**(`policySubjects`, `userContext`): `boolean`
 
-Defined in: [src/managers/PolicyEvaluator.ts:206](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/PolicyEvaluator.ts#L206)
+Defined in: [src/managers/PolicyEvaluator.ts:206](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/PolicyEvaluator.ts#L206)
 
 Check if the user context's roles match the policy's subject requirements.
 
@@ -455,7 +455,7 @@ const matches = evaluator.matchesSubject(
 
 > **restore**(`backupData`): `Promise`\<`void`\>
 
-Defined in: [src/managers/BaseManager.ts:198](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L198)
+Defined in: [src/managers/BaseManager.ts:198](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L198)
 
 Restore manager data from backup
 
@@ -500,7 +500,7 @@ async restore(backupData: BackupData): Promise<void> {
 
 > **shutdown**(): `Promise`\<`void`\>
 
-Defined in: [src/managers/BaseManager.ts:143](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L143)
+Defined in: [src/managers/BaseManager.ts:143](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L143)
 
 Shutdown the manager and cleanup resources
 

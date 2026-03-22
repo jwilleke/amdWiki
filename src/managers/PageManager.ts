@@ -33,7 +33,7 @@ interface ProviderConstructor {
  * backends (filesystem, database, cloud, etc.) to be swapped via configuration.
  *
  * The PageManager acts as a thin coordinator that:
- * - Loads the configured provider (via "amdwiki.page.provider")
+ * - Loads the configured provider (via "ngdpbase.page.provider")
  * - Proxies all page operations to the provider
  * - Maintains the public API for backward compatibility
  *
@@ -89,15 +89,15 @@ class PageManager extends BaseManager {
     }
 
     // Check if page storage is enabled (ALL LOWERCASE)
-    const pageEnabled = configManager.getProperty('amdwiki.page.enabled', true) as boolean;
+    const pageEnabled = configManager.getProperty('ngdpbase.page.enabled', true) as boolean;
     if (!pageEnabled) {
       logger.info('📄 PageManager: Page storage disabled by configuration');
       return;
     }
 
     // Load provider with fallback (ALL LOWERCASE)
-    const defaultProvider = configManager.getProperty('amdwiki.page.provider.default', 'filesystemprovider') as string;
-    const providerName = configManager.getProperty('amdwiki.page.provider', defaultProvider) as string;
+    const defaultProvider = configManager.getProperty('ngdpbase.page.provider.default', 'filesystemprovider') as string;
+    const providerName = configManager.getProperty('ngdpbase.page.provider', defaultProvider) as string;
 
     // Normalize provider name to PascalCase for class loading
     this.providerClass = this.normalizeProviderName(providerName);
@@ -298,14 +298,14 @@ class PageManager extends BaseManager {
     // Only applies to non-required pages (required pages are always public).
     const configManager = this.engine.getManager<ConfigurationManager>('ConfigurationManager');
     const userKeywordDefs = (configManager
-      ? configManager.getProperty('amdwiki.user-keywords', {}) as Record<string, { storageLocation?: string }>
+      ? configManager.getProperty('ngdpbase.user-keywords', {}) as Record<string, { storageLocation?: string }>
       : {}) as Record<string, { storageLocation?: string }>;
     const userKeywords = (rawMetadata['user-keywords'] || []);
 
     // Determine if this is a required page by checking the system-category config.
     // Required pages (storageLocation === 'required') cannot be marked private.
     const systemCategoriesConfig = (configManager
-      ? configManager.getProperty('amdwiki.system-category', {}) as Record<string, { label?: string; storageLocation?: string }>
+      ? configManager.getProperty('ngdpbase.system-category', {}) as Record<string, { label?: string; storageLocation?: string }>
       : {}) as Record<string, { label?: string; storageLocation?: string }>;
     const pageSystemCategory = ((rawMetadata as Record<string, unknown>)['system-category'] as string | undefined)
       || ((existingPage?.metadata as Record<string, unknown> | undefined)?.['system-category'] as string | undefined)

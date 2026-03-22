@@ -6,7 +6,7 @@
 
 ## Overview
 
-The `MarkupParser` is the core parsing engine for amdWiki, responsible for converting wiki markup into HTML. As of Phase 6 (Issue #120), it supports two parsing pipelines:
+The `MarkupParser` is the core parsing engine for ngdpbase, responsible for converting wiki markup into HTML. As of Phase 6 (Issue #120), it supports two parsing pipelines:
 
 1. **Primary Pipeline** (default): WikiDocument DOM extraction (Issues #115-#120)
 2. **Legacy Pipeline**: 7-phase string-based parser (deprecated, fallback only)
@@ -323,22 +323,22 @@ Use `parseWithDOMExtraction()` instead for new code.
 {
   "_comment_parser": "Parser configuration",
   "jspwiki.parser.useExtractionPipeline": true,
-  "amdwiki.parser.enabled": true
+  "ngdpbase.parser.enabled": true
 }
 ```
 
 **Properties:**
 
 - `jspwiki.parser.useExtractionPipeline` (boolean): Use extraction pipeline (default: `true`)
-- `amdwiki.parser.enabled` (boolean): Enable MarkupParser (default: `true`)
+- `ngdpbase.parser.enabled` (boolean): Enable MarkupParser (default: `true`)
 
 ### Cache Configuration
 
 ```json
 {
-  "amdwiki.markup.cache.parseResults.enabled": true,
-  "amdwiki.markup.cache.parseResults.ttl": 300000,
-  "amdwiki.markup.cache.parseResults.maxSize": 1000
+  "ngdpbase.markup.cache.parseResults.enabled": true,
+  "ngdpbase.markup.cache.parseResults.ttl": 300000,
+  "ngdpbase.markup.cache.parseResults.maxSize": 1000
 }
 ```
 
@@ -346,8 +346,8 @@ Use `parseWithDOMExtraction()` instead for new code.
 
 ```json
 {
-  "amdwiki.markup.performance.monitoring": true,
-  "amdwiki.markup.performance.alertThresholds.parseTime": 1000
+  "ngdpbase.markup.performance.monitoring": true,
+  "ngdpbase.markup.performance.alertThresholds.parseTime": 1000
 }
 ```
 
@@ -438,7 +438,7 @@ When JSPWiki element processing fails, an error node is created:
 
 ### Cache Integration
 
-The parser integrates with amdWiki's cache system:
+The parser integrates with ngdpbase's cache system:
 
 - **Parse Results Cache**: Caches final HTML output
 - **TTL**: 5 minutes (configurable)
@@ -485,7 +485,7 @@ const html = await parser.parse('See [HomePage] for details', {});
 
 ```javascript
 const content = `
-# Welcome to amdWiki
+# Welcome to ngdpbase
 
 Current user: [{$username}]
 
@@ -584,7 +584,7 @@ If you have custom syntax handlers, see the [Migration Guide](../migration/WikiD
 
 **Solution:**
 
-1. Enable parse results cache: `amdwiki.markup.cache.parseResults.enabled = true`
+1. Enable parse results cache: `ngdpbase.markup.cache.parseResults.enabled = true`
 2. Check page size (consider breaking up large pages)
 3. Monitor logs for slow parse warnings
 4. Check for plugin performance issues
@@ -679,5 +679,5 @@ See [Phase 5 Manual QA Plan](../testing/Phase5-Manual-QA-Plan.md) for comprehens
 ---
 
 **Last Updated:** 2025-10-13
-**Maintainer:** amdWiki Team
+**Maintainer:** ngdpbase Team
 **Status:** Production Ready

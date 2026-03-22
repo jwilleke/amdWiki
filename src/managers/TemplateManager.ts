@@ -241,7 +241,7 @@ class TemplateManager extends BaseManager {
    * @returns {Promise<void>}
    */
   async createDefaultTheme(): Promise<void> {
-    const defaultThemeCSS = `/* amdWiki Default Theme */
+    const defaultThemeCSS = `/* ngdpbase Default Theme */
 
 :root {
   --primary-color: #007bff;

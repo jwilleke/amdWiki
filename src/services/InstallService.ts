@@ -196,7 +196,7 @@ class InstallService {
     const adminExists = await userManager.hasRole('admin', 'admin');
 
     // Check if pages directory is empty
-    const pagesDir = this.configManager.getProperty<string>('amdwiki.page.provider.filesystem.storagedir');
+    const pagesDir = this.configManager.getProperty<string>('ngdpbase.page.provider.filesystem.storagedir');
     const pagesExist = await this.#hasPagesInDirectory(pagesDir);
 
     return !adminExists || !pagesExist;
@@ -217,13 +217,13 @@ class InstallService {
     const userManager = this.engine.getManager('UserManager') as UserManager;
     const adminExists = await userManager.hasRole('admin', 'admin');
 
-    const pagesDir = this.configManager.getProperty<string>('amdwiki.page.provider.filesystem.storagedir');
+    const pagesDir = this.configManager.getProperty<string>('ngdpbase.page.provider.filesystem.storagedir');
     const pagesExist = await this.#hasPagesInDirectory(pagesDir);
 
     const customConfigPath = path.join(__dirname, '../../config/app-custom-config.json');
     const customConfigExists = await fs.pathExists(customConfigPath);
 
-    const usersDir = this.configManager.getProperty<string>('amdwiki.user.provider.storagedir');
+    const usersDir = this.configManager.getProperty<string>('ngdpbase.user.provider.storagedir');
     const organizationsPath = path.join(usersDir, 'organizations.json');
     const organizationsExist = await fs.pathExists(organizationsPath);
 
@@ -254,7 +254,7 @@ class InstallService {
       return { missingPagesOnly: false };
     }
 
-    const pagesDir = this.configManager.getProperty<string>('amdwiki.page.provider.filesystem.storagedir');
+    const pagesDir = this.configManager.getProperty<string>('ngdpbase.page.provider.filesystem.storagedir');
     const pagesExist = await this.#hasPagesInDirectory(pagesDir);
 
     // Check if pages directory exists but is empty
@@ -284,12 +284,12 @@ class InstallService {
   async createPagesFolder(): Promise<PagesFolderResult> {
     try {
       const pagesDir = this.configManager.getProperty(
-        'amdwiki.page.provider.filesystem.storagedir',
+        'ngdpbase.page.provider.filesystem.storagedir',
         './data/pages'
       );
 
       const requiredPagesDir = this.configManager.getProperty(
-        'amdwiki.page.provider.filesystem.requiredpagesdir',
+        'ngdpbase.page.provider.filesystem.requiredpagesdir',
         './required-pages'
       );
 
@@ -476,7 +476,7 @@ class InstallService {
       }
 
       // 2. Remove organizations.json
-      const usersDir = this.configManager.getProperty<string>('amdwiki.user.provider.storagedir');
+      const usersDir = this.configManager.getProperty<string>('ngdpbase.user.provider.storagedir');
       const organizationsPath = path.join(usersDir, 'organizations.json');
       if (await fs.pathExists(organizationsPath)) {
         const backupPath = organizationsPath + '.backup-' + Date.now();
@@ -507,7 +507,7 @@ class InstallService {
 
       // 4. Remove copied pages (only if they were copied during this installation)
       const pagesDir = this.configManager.getProperty(
-        'amdwiki.page.provider.filesystem.storagedir',
+        'ngdpbase.page.provider.filesystem.storagedir',
         './data/pages'
       );
 
@@ -768,17 +768,17 @@ class InstallService {
 
     // Merge installation data using ConfigurationManager's merge strategy
     const installationProperties: Record<string, unknown> = {
-      'amdwiki.applicationName': data.applicationName,
-      'amdwiki.baseURL': data.baseURL,
-      'amdwiki.session.secret': data.sessionSecret || crypto.randomBytes(32).toString('hex'),
-      'amdwiki.install.organization.name': data.orgName,
-      'amdwiki.install.organization.legalName': data.orgLegalName || '',
-      'amdwiki.install.organization.description': data.orgDescription,
-      'amdwiki.install.organization.foundingDate': data.orgFoundingDate || '',
-      'amdwiki.install.organization.contactEmail': data.adminEmail,
-      'amdwiki.install.organization.addressLocality': data.orgAddressLocality || '',
-      'amdwiki.install.organization.addressRegion': data.orgAddressRegion || '',
-      'amdwiki.install.organization.addressCountry': data.orgAddressCountry || ''
+      'ngdpbase.applicationName': data.applicationName,
+      'ngdpbase.baseURL': data.baseURL,
+      'ngdpbase.session.secret': data.sessionSecret || crypto.randomBytes(32).toString('hex'),
+      'ngdpbase.install.organization.name': data.orgName,
+      'ngdpbase.install.organization.legalName': data.orgLegalName || '',
+      'ngdpbase.install.organization.description': data.orgDescription,
+      'ngdpbase.install.organization.foundingDate': data.orgFoundingDate || '',
+      'ngdpbase.install.organization.contactEmail': data.adminEmail,
+      'ngdpbase.install.organization.addressLocality': data.orgAddressLocality || '',
+      'ngdpbase.install.organization.addressRegion': data.orgAddressRegion || '',
+      'ngdpbase.install.organization.addressCountry': data.orgAddressCountry || ''
     };
 
     // Merge with existing config
@@ -798,13 +798,13 @@ class InstallService {
    * @param data - Installation data
    */
   async #writeOrganizationData(data: InstallData): Promise<void> {
-    const usersDir = this.configManager.getProperty<string>('amdwiki.user.provider.storagedir');
+    const usersDir = this.configManager.getProperty<string>('ngdpbase.user.provider.storagedir');
     const organizationsPath = path.join(usersDir, 'organizations.json');
 
     const organization = {
       '@context': 'https://schema.org',
       '@type': 'Organization',
-      'identifier': 'amdwiki-platform',
+      'identifier': 'ngdpbase-platform',
       'name': data.orgName,
       'legalName': data.orgLegalName || null,
       'alternateName': [data.orgName],
@@ -904,11 +904,11 @@ class InstallService {
    */
   async #copyStartupPages(): Promise<void> {
     const requiredPagesDir = this.configManager.getProperty(
-      'amdwiki.page.provider.filesystem.requiredpagesdir',
+      'ngdpbase.page.provider.filesystem.requiredpagesdir',
       './required-pages'
     );
     const pagesDir = this.configManager.getProperty(
-      'amdwiki.page.provider.filesystem.storagedir',
+      'ngdpbase.page.provider.filesystem.storagedir',
       './pages'
     );
 

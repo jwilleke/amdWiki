@@ -1,12 +1,12 @@
-[**amdWiki API v1.5.0**](../../../../README.md)
+[**ngdpbase API v1.5.0**](../../../../README.md)
 
 ***
 
-[amdWiki API](../../../../README.md) / [src/core/Engine](../README.md) / default
+[ngdpbase API](../../../../README.md) / [src/core/Engine](../README.md) / default
 
 # Abstract Class: default
 
-Defined in: [src/core/Engine.ts:18](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/core/Engine.ts#L18)
+Defined in: [src/core/Engine.ts:18](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/core/Engine.ts#L18)
 
 Engine interface - Main wiki engine following JSPWiki architecture
 
@@ -25,7 +25,7 @@ for each web application instance. This is the base class that WikiEngine extend
 
 > **new default**(): `Engine`
 
-Defined in: [src/core/Engine.ts:36](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/core/Engine.ts#L36)
+Defined in: [src/core/Engine.ts:36](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/core/Engine.ts#L36)
 
 Creates a new Engine instance
 
@@ -39,7 +39,7 @@ Creates a new Engine instance
 
 > `optional` **config**: [`WikiConfig`](../../../types/Config/interfaces/WikiConfig.md)
 
-Defined in: [src/core/Engine.ts:29](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/core/Engine.ts#L29)
+Defined in: [src/core/Engine.ts:29](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/core/Engine.ts#L29)
 
 Configuration object passed during initialization
 
@@ -49,7 +49,7 @@ Configuration object passed during initialization
 
 > `protected` **initialized**: `boolean`
 
-Defined in: [src/core/Engine.ts:26](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/core/Engine.ts#L26)
+Defined in: [src/core/Engine.ts:26](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/core/Engine.ts#L26)
 
 Flag indicating if engine has been initialized
 
@@ -59,7 +59,7 @@ Flag indicating if engine has been initialized
 
 > `protected` **managers**: `Map`\<`string`, [`default`](../../../managers/BaseManager/classes/default.md)\>
 
-Defined in: [src/core/Engine.ts:20](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/core/Engine.ts#L20)
+Defined in: [src/core/Engine.ts:20](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/core/Engine.ts#L20)
 
 Map of registered manager instances keyed by name
 
@@ -69,7 +69,7 @@ Map of registered manager instances keyed by name
 
 > `protected` **properties**: `Map`\<`string`, `unknown`\>
 
-Defined in: [src/core/Engine.ts:23](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/core/Engine.ts#L23)
+Defined in: [src/core/Engine.ts:23](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/core/Engine.ts#L23)
 
 Map of configuration properties
 
@@ -79,7 +79,7 @@ Map of configuration properties
 
 > **getApplicationName**(): `string`
 
-Defined in: [src/core/Engine.ts:162](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/core/Engine.ts#L162)
+Defined in: [src/core/Engine.ts:162](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/core/Engine.ts#L162)
 
 Get application name from configuration
 
@@ -87,7 +87,7 @@ Get application name from configuration
 
 `string`
 
-Application name (defaults to 'amdWiki')
+Application name (defaults to 'ngdpbase')
 
 ***
 
@@ -95,7 +95,7 @@ Application name (defaults to 'amdWiki')
 
 > **getConfig**(): [`WikiConfig`](../../../types/Config/interfaces/WikiConfig.md)
 
-Defined in: [src/core/Engine.ts:180](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/core/Engine.ts#L180)
+Defined in: [src/core/Engine.ts:180](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/core/Engine.ts#L180)
 
 Get configuration object
 
@@ -111,7 +111,7 @@ Configuration object
 
 > **getManager**\<`T`\>(`managerName`): `T` \| `undefined`
 
-Defined in: [src/core/Engine.ts:93](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/core/Engine.ts#L93)
+Defined in: [src/core/Engine.ts:93](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/core/Engine.ts#L93)
 
 Get a manager instance by class/name
 
@@ -149,7 +149,7 @@ const configManager = engine.getManager<ConfigurationManager>('ConfigurationMana
 
 > **getProperties**(): `Map`\<`string`, `unknown`\>
 
-Defined in: [src/core/Engine.ts:144](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/core/Engine.ts#L144)
+Defined in: [src/core/Engine.ts:144](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/core/Engine.ts#L144)
 
 Get all configuration properties
 
@@ -165,7 +165,7 @@ Map of all configuration properties
 
 > **getProperty**\<`T`\>(`key`, `defaultValue?`): `T` \| `null`
 
-Defined in: [src/core/Engine.ts:134](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/core/Engine.ts#L134)
+Defined in: [src/core/Engine.ts:134](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/core/Engine.ts#L134)
 
 Get configuration property value
 
@@ -207,7 +207,7 @@ const appName = engine.getProperty('applicationName', 'MyWiki');
 
 > **getRegisteredManagers**(): `string`[]
 
-Defined in: [src/core/Engine.ts:120](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/core/Engine.ts#L120)
+Defined in: [src/core/Engine.ts:120](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/core/Engine.ts#L120)
 
 Get all registered manager names
 
@@ -230,7 +230,7 @@ const managers = engine.getRegisteredManagers();
 
 > **getWorkDir**(): `string`
 
-Defined in: [src/core/Engine.ts:171](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/core/Engine.ts#L171)
+Defined in: [src/core/Engine.ts:171](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/core/Engine.ts#L171)
 
 Get working directory path from configuration
 
@@ -246,7 +246,7 @@ Working directory path (defaults to './')
 
 > **initialize**(`config`): `Promise`\<`void`\>
 
-Defined in: [src/core/Engine.ts:50](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/core/Engine.ts#L50)
+Defined in: [src/core/Engine.ts:50](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/core/Engine.ts#L50)
 
 Initialize the engine with configuration
 
@@ -274,7 +274,7 @@ If engine is already initialized
 
 > `protected` **initializeManagers**(): `Promise`\<`void`\>
 
-Defined in: [src/core/Engine.ts:76](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/core/Engine.ts#L76)
+Defined in: [src/core/Engine.ts:76](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/core/Engine.ts#L76)
 
 Initialize all managers
 
@@ -291,7 +291,7 @@ Subclasses can make this async if needed.
 
 > **isConfigured**(): `boolean`
 
-Defined in: [src/core/Engine.ts:153](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/core/Engine.ts#L153)
+Defined in: [src/core/Engine.ts:153](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/core/Engine.ts#L153)
 
 Check if engine has been initialized
 
@@ -307,7 +307,7 @@ True if engine is initialized and configured
 
 > **registerManager**(`name`, `manager`): `void`
 
-Defined in: [src/core/Engine.ts:107](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/core/Engine.ts#L107)
+Defined in: [src/core/Engine.ts:107](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/core/Engine.ts#L107)
 
 Register a manager with the engine
 
@@ -341,7 +341,7 @@ engine.registerManager('PageManager', new PageManager(engine));
 
 > **shutdown**(): `Promise`\<`void`\>
 
-Defined in: [src/core/Engine.ts:190](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/core/Engine.ts#L190)
+Defined in: [src/core/Engine.ts:190](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/core/Engine.ts#L190)
 
 Shutdown the engine and cleanup all managers
 

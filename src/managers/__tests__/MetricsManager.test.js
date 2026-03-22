@@ -76,11 +76,11 @@ describe('MetricsManager', () => {
     mockConfigManager = {
       getProperty: jest.fn((key, defaultValue) => {
         const config = {
-          'amdwiki.telemetry.enabled': false,
-          'amdwiki.telemetry.metrics.port': 9464,
-          'amdwiki.telemetry.metrics.host': '0.0.0.0',
-          'amdwiki.telemetry.metrics.path': '/metrics',
-          'amdwiki.telemetry.metrics.interval': 15000
+          'ngdpbase.telemetry.enabled': false,
+          'ngdpbase.telemetry.metrics.port': 9464,
+          'ngdpbase.telemetry.metrics.host': '0.0.0.0',
+          'ngdpbase.telemetry.metrics.path': '/metrics',
+          'ngdpbase.telemetry.metrics.interval': 15000
         };
         return key in config ? config[key] : defaultValue;
       })
@@ -135,11 +135,11 @@ describe('MetricsManager', () => {
     beforeEach(() => {
       mockConfigManager.getProperty = jest.fn((key, defaultValue) => {
         const config = {
-          'amdwiki.telemetry.enabled': true,
-          'amdwiki.telemetry.metrics.port': 9464,
-          'amdwiki.telemetry.metrics.host': '0.0.0.0',
-          'amdwiki.telemetry.metrics.path': '/metrics',
-          'amdwiki.telemetry.metrics.interval': 15000
+          'ngdpbase.telemetry.enabled': true,
+          'ngdpbase.telemetry.metrics.port': 9464,
+          'ngdpbase.telemetry.metrics.host': '0.0.0.0',
+          'ngdpbase.telemetry.metrics.path': '/metrics',
+          'ngdpbase.telemetry.metrics.interval': 15000
         };
         return key in config ? config[key] : defaultValue;
       });
@@ -158,37 +158,37 @@ describe('MetricsManager', () => {
       await manager.initialize();
 
       const counterNames = mockMeter.createCounter.mock.calls.map(c => c[0]);
-      expect(counterNames).toContain('amdwiki_page_views_total');
-      expect(counterNames).toContain('amdwiki_page_saves_total');
-      expect(counterNames).toContain('amdwiki_page_deletes_total');
-      expect(counterNames).toContain('amdwiki_search_rebuilds_total');
-      expect(counterNames).toContain('amdwiki_page_index_saves_total');
-      expect(counterNames).toContain('amdwiki_login_attempts_total');
-      expect(counterNames).toContain('amdwiki_http_requests_total');
+      expect(counterNames).toContain('ngdpbase_page_views_total');
+      expect(counterNames).toContain('ngdpbase_page_saves_total');
+      expect(counterNames).toContain('ngdpbase_page_deletes_total');
+      expect(counterNames).toContain('ngdpbase_search_rebuilds_total');
+      expect(counterNames).toContain('ngdpbase_page_index_saves_total');
+      expect(counterNames).toContain('ngdpbase_login_attempts_total');
+      expect(counterNames).toContain('ngdpbase_http_requests_total');
     });
 
     test('should create histograms with correct names', async () => {
       await manager.initialize();
 
       const histogramNames = mockMeter.createHistogram.mock.calls.map(c => c[0]);
-      expect(histogramNames).toContain('amdwiki_page_view_duration_ms');
-      expect(histogramNames).toContain('amdwiki_page_save_duration_ms');
-      expect(histogramNames).toContain('amdwiki_page_delete_duration_ms');
-      expect(histogramNames).toContain('amdwiki_search_rebuild_duration_ms');
-      expect(histogramNames).toContain('amdwiki_page_index_save_duration_ms');
-      expect(histogramNames).toContain('amdwiki_engine_init_duration_ms');
-      expect(histogramNames).toContain('amdwiki_http_request_duration_ms');
+      expect(histogramNames).toContain('ngdpbase_page_view_duration_ms');
+      expect(histogramNames).toContain('ngdpbase_page_save_duration_ms');
+      expect(histogramNames).toContain('ngdpbase_page_delete_duration_ms');
+      expect(histogramNames).toContain('ngdpbase_search_rebuild_duration_ms');
+      expect(histogramNames).toContain('ngdpbase_page_index_save_duration_ms');
+      expect(histogramNames).toContain('ngdpbase_engine_init_duration_ms');
+      expect(histogramNames).toContain('ngdpbase_http_request_duration_ms');
     });
 
     test('should derive metric prefix from applicationName', async () => {
       mockConfigManager.getProperty = jest.fn((key, defaultValue) => {
         const config = {
-          'amdwiki.telemetry.enabled': true,
-          'amdwiki.applicationName': 'jimstest',
-          'amdwiki.telemetry.metrics.port': 9464,
-          'amdwiki.telemetry.metrics.host': '0.0.0.0',
-          'amdwiki.telemetry.metrics.path': '/metrics',
-          'amdwiki.telemetry.metrics.interval': 15000
+          'ngdpbase.telemetry.enabled': true,
+          'ngdpbase.applicationName': 'jimstest',
+          'ngdpbase.telemetry.metrics.port': 9464,
+          'ngdpbase.telemetry.metrics.host': '0.0.0.0',
+          'ngdpbase.telemetry.metrics.path': '/metrics',
+          'ngdpbase.telemetry.metrics.interval': 15000
         };
         return key in config ? config[key] : defaultValue;
       });
@@ -228,13 +228,13 @@ describe('MetricsManager', () => {
 
       mockConfigManager.getProperty = jest.fn((key, defaultValue) => {
         const config = {
-          'amdwiki.telemetry.enabled': true,
-          'amdwiki.applicationName': 'jimstest',
-          'amdwiki.telemetry.serviceName': 'jimstest-wiki',
-          'amdwiki.telemetry.metrics.port': 9464,
-          'amdwiki.telemetry.metrics.host': '0.0.0.0',
-          'amdwiki.telemetry.metrics.path': '/metrics',
-          'amdwiki.telemetry.metrics.interval': 15000
+          'ngdpbase.telemetry.enabled': true,
+          'ngdpbase.applicationName': 'jimstest',
+          'ngdpbase.telemetry.serviceName': 'jimstest-wiki',
+          'ngdpbase.telemetry.metrics.port': 9464,
+          'ngdpbase.telemetry.metrics.host': '0.0.0.0',
+          'ngdpbase.telemetry.metrics.path': '/metrics',
+          'ngdpbase.telemetry.metrics.interval': 15000
         };
         return key in config ? config[key] : defaultValue;
       });
@@ -255,7 +255,7 @@ describe('MetricsManager', () => {
       // Default config has no serviceName — falls back to prefix
       await manager.initialize();
 
-      expect(resourceFromAttributes).toHaveBeenCalledWith({ 'service.name': 'amdwiki' });
+      expect(resourceFromAttributes).toHaveBeenCalledWith({ 'service.name': 'ngdpbase' });
     });
 
     test('should return a metrics handler when enabled', async () => {
@@ -269,12 +269,12 @@ describe('MetricsManager', () => {
   describe('shutdown', () => {
     test('should clean up meter provider on shutdown', async () => {
       mockConfigManager.getProperty = jest.fn((key, defaultValue) => {
-        if (key === 'amdwiki.telemetry.enabled') return true;
+        if (key === 'ngdpbase.telemetry.enabled') return true;
         const config = {
-          'amdwiki.telemetry.metrics.port': 9464,
-          'amdwiki.telemetry.metrics.host': '0.0.0.0',
-          'amdwiki.telemetry.metrics.path': '/metrics',
-          'amdwiki.telemetry.metrics.interval': 15000
+          'ngdpbase.telemetry.metrics.port': 9464,
+          'ngdpbase.telemetry.metrics.host': '0.0.0.0',
+          'ngdpbase.telemetry.metrics.path': '/metrics',
+          'ngdpbase.telemetry.metrics.interval': 15000
         };
         return key in config ? config[key] : defaultValue;
       });
@@ -304,16 +304,16 @@ describe('MetricsManager', () => {
     test('should create OTLP reader when otlp.enabled=true and endpoint is set', async () => {
       mockConfigManager.getProperty = jest.fn((key, defaultValue) => {
         const config = {
-          'amdwiki.telemetry.enabled': true,
-          'amdwiki.telemetry.metrics.port': 9464,
-          'amdwiki.telemetry.metrics.host': '0.0.0.0',
-          'amdwiki.telemetry.metrics.path': '/metrics',
-          'amdwiki.telemetry.metrics.interval': 15000,
-          'amdwiki.telemetry.otlp.enabled': true,
-          'amdwiki.telemetry.otlp.endpoint': 'https://otel.example.com/v1/metrics',
-          'amdwiki.telemetry.otlp.headers': {},
-          'amdwiki.telemetry.otlp.interval': 15000,
-          'amdwiki.telemetry.otlp.timeout': 30000
+          'ngdpbase.telemetry.enabled': true,
+          'ngdpbase.telemetry.metrics.port': 9464,
+          'ngdpbase.telemetry.metrics.host': '0.0.0.0',
+          'ngdpbase.telemetry.metrics.path': '/metrics',
+          'ngdpbase.telemetry.metrics.interval': 15000,
+          'ngdpbase.telemetry.otlp.enabled': true,
+          'ngdpbase.telemetry.otlp.endpoint': 'https://otel.example.com/v1/metrics',
+          'ngdpbase.telemetry.otlp.headers': {},
+          'ngdpbase.telemetry.otlp.interval': 15000,
+          'ngdpbase.telemetry.otlp.timeout': 30000
         };
         return key in config ? config[key] : defaultValue;
       });
@@ -335,13 +335,13 @@ describe('MetricsManager', () => {
     test('should NOT create OTLP reader when otlp.enabled=false', async () => {
       mockConfigManager.getProperty = jest.fn((key, defaultValue) => {
         const config = {
-          'amdwiki.telemetry.enabled': true,
-          'amdwiki.telemetry.metrics.port': 9464,
-          'amdwiki.telemetry.metrics.host': '0.0.0.0',
-          'amdwiki.telemetry.metrics.path': '/metrics',
-          'amdwiki.telemetry.metrics.interval': 15000,
-          'amdwiki.telemetry.otlp.enabled': false,
-          'amdwiki.telemetry.otlp.endpoint': 'https://otel.example.com/v1/metrics'
+          'ngdpbase.telemetry.enabled': true,
+          'ngdpbase.telemetry.metrics.port': 9464,
+          'ngdpbase.telemetry.metrics.host': '0.0.0.0',
+          'ngdpbase.telemetry.metrics.path': '/metrics',
+          'ngdpbase.telemetry.metrics.interval': 15000,
+          'ngdpbase.telemetry.otlp.enabled': false,
+          'ngdpbase.telemetry.otlp.endpoint': 'https://otel.example.com/v1/metrics'
         };
         return key in config ? config[key] : defaultValue;
       });
@@ -355,13 +355,13 @@ describe('MetricsManager', () => {
     test('should NOT create OTLP reader when endpoint is empty', async () => {
       mockConfigManager.getProperty = jest.fn((key, defaultValue) => {
         const config = {
-          'amdwiki.telemetry.enabled': true,
-          'amdwiki.telemetry.metrics.port': 9464,
-          'amdwiki.telemetry.metrics.host': '0.0.0.0',
-          'amdwiki.telemetry.metrics.path': '/metrics',
-          'amdwiki.telemetry.metrics.interval': 15000,
-          'amdwiki.telemetry.otlp.enabled': true,
-          'amdwiki.telemetry.otlp.endpoint': ''
+          'ngdpbase.telemetry.enabled': true,
+          'ngdpbase.telemetry.metrics.port': 9464,
+          'ngdpbase.telemetry.metrics.host': '0.0.0.0',
+          'ngdpbase.telemetry.metrics.path': '/metrics',
+          'ngdpbase.telemetry.metrics.interval': 15000,
+          'ngdpbase.telemetry.otlp.enabled': true,
+          'ngdpbase.telemetry.otlp.endpoint': ''
         };
         return key in config ? config[key] : defaultValue;
       });
@@ -375,16 +375,16 @@ describe('MetricsManager', () => {
     test('should shut down OTLP reader on shutdown', async () => {
       mockConfigManager.getProperty = jest.fn((key, defaultValue) => {
         const config = {
-          'amdwiki.telemetry.enabled': true,
-          'amdwiki.telemetry.metrics.port': 9464,
-          'amdwiki.telemetry.metrics.host': '0.0.0.0',
-          'amdwiki.telemetry.metrics.path': '/metrics',
-          'amdwiki.telemetry.metrics.interval': 15000,
-          'amdwiki.telemetry.otlp.enabled': true,
-          'amdwiki.telemetry.otlp.endpoint': 'https://otel.example.com/v1/metrics',
-          'amdwiki.telemetry.otlp.headers': {},
-          'amdwiki.telemetry.otlp.interval': 15000,
-          'amdwiki.telemetry.otlp.timeout': 30000
+          'ngdpbase.telemetry.enabled': true,
+          'ngdpbase.telemetry.metrics.port': 9464,
+          'ngdpbase.telemetry.metrics.host': '0.0.0.0',
+          'ngdpbase.telemetry.metrics.path': '/metrics',
+          'ngdpbase.telemetry.metrics.interval': 15000,
+          'ngdpbase.telemetry.otlp.enabled': true,
+          'ngdpbase.telemetry.otlp.endpoint': 'https://otel.example.com/v1/metrics',
+          'ngdpbase.telemetry.otlp.headers': {},
+          'ngdpbase.telemetry.otlp.interval': 15000,
+          'ngdpbase.telemetry.otlp.timeout': 30000
         };
         return key in config ? config[key] : defaultValue;
       });

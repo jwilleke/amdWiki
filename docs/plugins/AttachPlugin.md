@@ -18,7 +18,7 @@ Displays page attachments inline in wiki content. Image attachments render as cl
 | Property | Value |
 | ---------- | ------- |
 | Name | ATTACH |
-| Author | amdWiki |
+| Author | ngdpbase |
 | Version | 1.0.0 |
 | JSPWiki Compatible | Partial (positional syntax compatible) |
 
@@ -205,7 +205,7 @@ function parsePositional(originalMatch: string): { filename: string; caption: st
 
 ## JSPWiki Compatibility
 
-| Feature | JSPWiki | amdWiki | Notes |
+| Feature | JSPWiki | ngdpbase | Notes |
 | --------- | --------- | --------- | ------- |
 | `[{ATTACH filename}]` | Yes | Yes | Positional syntax supported |
 | `[{ATTACH filename\|caption}]` | Yes | Yes | Pipe-separated caption |

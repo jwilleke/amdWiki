@@ -1,12 +1,12 @@
-[**amdWiki API v1.5.0**](../../../../README.md)
+[**ngdpbase API v1.5.0**](../../../../README.md)
 
 ***
 
-[amdWiki API](../../../../README.md) / [src/managers/PluginManager](../README.md) / PluginInfo
+[ngdpbase API](../../../../README.md) / [src/managers/PluginManager](../README.md) / PluginInfo
 
 # Interface: PluginInfo
 
-Defined in: [src/managers/PluginManager.ts:75](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/PluginManager.ts#L75)
+Defined in: [src/managers/PluginManager.ts:75](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/PluginManager.ts#L75)
 
 Plugin information returned by getPluginInfo
 
@@ -16,7 +16,7 @@ Plugin information returned by getPluginInfo
 
 > **author**: `string`
 
-Defined in: [src/managers/PluginManager.ts:78](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/PluginManager.ts#L78)
+Defined in: [src/managers/PluginManager.ts:78](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/PluginManager.ts#L78)
 
 ***
 
@@ -24,7 +24,7 @@ Defined in: [src/managers/PluginManager.ts:78](https://github.com/jwilleke/amdWi
 
 > **description**: `string`
 
-Defined in: [src/managers/PluginManager.ts:77](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/PluginManager.ts#L77)
+Defined in: [src/managers/PluginManager.ts:77](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/PluginManager.ts#L77)
 
 ***
 
@@ -32,7 +32,7 @@ Defined in: [src/managers/PluginManager.ts:77](https://github.com/jwilleke/amdWi
 
 > **name**: `string`
 
-Defined in: [src/managers/PluginManager.ts:76](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/PluginManager.ts#L76)
+Defined in: [src/managers/PluginManager.ts:76](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/PluginManager.ts#L76)
 
 ***
 
@@ -40,4 +40,4 @@ Defined in: [src/managers/PluginManager.ts:76](https://github.com/jwilleke/amdWi
 
 > **version**: `string`
 
-Defined in: [src/managers/PluginManager.ts:79](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/PluginManager.ts#L79)
+Defined in: [src/managers/PluginManager.ts:79](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/PluginManager.ts#L79)

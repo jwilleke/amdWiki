@@ -1,14 +1,14 @@
-[**amdWiki API v1.5.0**](../../../../README.md)
+[**ngdpbase API v1.5.0**](../../../../README.md)
 
 ***
 
-[amdWiki API](../../../../README.md) / [src/types/guards](../README.md) / isUserSession
+[ngdpbase API](../../../../README.md) / [src/types/guards](../README.md) / isUserSession
 
 # Function: isUserSession()
 
 > **isUserSession**(`value`): `value is UserSession`
 
-Defined in: [src/types/guards.ts:268](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/guards.ts#L268)
+Defined in: [src/types/guards.ts:268](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/guards.ts#L268)
 
 Check if value is a valid UserSession object
 

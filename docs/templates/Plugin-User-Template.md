@@ -1,7 +1,7 @@
 ---
 title: PluginName Plugin
 description: How to use the PluginName plugin in your wiki pages
-author: amdWiki
+author: ngdpbase
 dateModified: YYYY-MM-DD
 category: system/documentation
 ---

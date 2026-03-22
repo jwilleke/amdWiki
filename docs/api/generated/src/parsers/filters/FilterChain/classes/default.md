@@ -1,12 +1,12 @@
-[**amdWiki API v1.5.0**](../../../../../README.md)
+[**ngdpbase API v1.5.0**](../../../../../README.md)
 
 ***
 
-[amdWiki API](../../../../../README.md) / [src/parsers/filters/FilterChain](../README.md) / default
+[ngdpbase API](../../../../../README.md) / [src/parsers/filters/FilterChain](../README.md) / default
 
 # Class: default
 
-Defined in: [src/parsers/filters/FilterChain.ts:180](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/FilterChain.ts#L180)
+Defined in: [src/parsers/filters/FilterChain.ts:180](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/FilterChain.ts#L180)
 
 FilterChain - Modular content filtering pipeline
 
@@ -16,7 +16,7 @@ FilterChain - Modular content filtering pipeline
 
 > **new default**(`engine`): `FilterChain`
 
-Defined in: [src/parsers/filters/FilterChain.ts:189](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/FilterChain.ts#L189)
+Defined in: [src/parsers/filters/FilterChain.ts:189](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/FilterChain.ts#L189)
 
 #### Parameters
 
@@ -34,7 +34,7 @@ Defined in: [src/parsers/filters/FilterChain.ts:189](https://github.com/jwilleke
 
 > **addFilter**(`filter`, `_options`): `boolean`
 
-Defined in: [src/parsers/filters/FilterChain.ts:304](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/FilterChain.ts#L304)
+Defined in: [src/parsers/filters/FilterChain.ts:304](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/FilterChain.ts#L304)
 
 Add filter to the chain with modular configuration
 
@@ -64,7 +64,7 @@ True if added successfully
 
 > **clearAll**(): `Promise`\<`void`\>
 
-Defined in: [src/parsers/filters/FilterChain.ts:784](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/FilterChain.ts#L784)
+Defined in: [src/parsers/filters/FilterChain.ts:784](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/FilterChain.ts#L784)
 
 Clear all filters and reset state
 
@@ -78,7 +78,7 @@ Clear all filters and reset state
 
 > **disableFilter**(`filterId`): `boolean`
 
-Defined in: [src/parsers/filters/FilterChain.ts:669](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/FilterChain.ts#L669)
+Defined in: [src/parsers/filters/FilterChain.ts:669](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/FilterChain.ts#L669)
 
 Disable filter by ID
 
@@ -102,7 +102,7 @@ True if successful
 
 > **enableFilter**(`filterId`): `boolean`
 
-Defined in: [src/parsers/filters/FilterChain.ts:653](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/FilterChain.ts#L653)
+Defined in: [src/parsers/filters/FilterChain.ts:653](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/FilterChain.ts#L653)
 
 Enable filter by ID
 
@@ -126,7 +126,7 @@ True if successful
 
 > **exportState**(): [`ExportedChainState`](../interfaces/ExportedChainState.md)
 
-Defined in: [src/parsers/filters/FilterChain.ts:762](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/FilterChain.ts#L762)
+Defined in: [src/parsers/filters/FilterChain.ts:762](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/FilterChain.ts#L762)
 
 Export filter chain state for persistence or debugging
 
@@ -142,7 +142,7 @@ Serializable state
 
 > **getConfiguration**(): [`ConfigurationSummary`](../interfaces/ConfigurationSummary.md)
 
-Defined in: [src/parsers/filters/FilterChain.ts:749](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/FilterChain.ts#L749)
+Defined in: [src/parsers/filters/FilterChain.ts:749](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/FilterChain.ts#L749)
 
 Get configuration summary for debugging (modular introspection)
 
@@ -158,7 +158,7 @@ Configuration summary
 
 > **getFilter**(`filterId`): [`default`](../../BaseFilter/classes/default.md) \| `null`
 
-Defined in: [src/parsers/filters/FilterChain.ts:632](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/FilterChain.ts#L632)
+Defined in: [src/parsers/filters/FilterChain.ts:632](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/FilterChain.ts#L632)
 
 Get filter by ID
 
@@ -182,7 +182,7 @@ Filter or null if not found
 
 > **getFilters**(`enabledOnly`): [`default`](../../BaseFilter/classes/default.md)[]
 
-Defined in: [src/parsers/filters/FilterChain.ts:641](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/FilterChain.ts#L641)
+Defined in: [src/parsers/filters/FilterChain.ts:641](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/FilterChain.ts#L641)
 
 Get all filters sorted by priority
 
@@ -206,7 +206,7 @@ Filters sorted by priority
 
 > **getStats**(): [`ExtendedFilterChainStats`](../interfaces/ExtendedFilterChainStats.md)
 
-Defined in: [src/parsers/filters/FilterChain.ts:684](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/FilterChain.ts#L684)
+Defined in: [src/parsers/filters/FilterChain.ts:684](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/FilterChain.ts#L684)
 
 Get comprehensive filter chain statistics (modular monitoring)
 
@@ -222,7 +222,7 @@ Filter chain statistics
 
 > **initialize**(`context`): `Promise`\<`void`\>
 
-Defined in: [src/parsers/filters/FilterChain.ts:211](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/FilterChain.ts#L211)
+Defined in: [src/parsers/filters/FilterChain.ts:211](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/FilterChain.ts#L211)
 
 Initialize FilterChain with complete modular configuration
 
@@ -244,7 +244,7 @@ Initialization context
 
 > **loadModularConfiguration**(): `void`
 
-Defined in: [src/parsers/filters/FilterChain.ts:231](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/FilterChain.ts#L231)
+Defined in: [src/parsers/filters/FilterChain.ts:231](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/FilterChain.ts#L231)
 
 Load modular configuration from app-default-config.json and app-custom-config.json
 Demonstrates complete configuration modularity and reusability
@@ -259,7 +259,7 @@ Demonstrates complete configuration modularity and reusability
 
 > **process**(`content`, `context`): `Promise`\<`string`\>
 
-Defined in: [src/parsers/filters/FilterChain.ts:383](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/FilterChain.ts#L383)
+Defined in: [src/parsers/filters/FilterChain.ts:383](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/FilterChain.ts#L383)
 
 Process content through the filter chain with modular execution
 
@@ -289,7 +289,7 @@ Filtered content
 
 > **removeFilter**(`filterId`): `boolean`
 
-Defined in: [src/parsers/filters/FilterChain.ts:344](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/FilterChain.ts#L344)
+Defined in: [src/parsers/filters/FilterChain.ts:344](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/FilterChain.ts#L344)
 
 Remove filter from the chain
 
@@ -313,7 +313,7 @@ True if removed successfully
 
 > **resetStats**(): `void`
 
-Defined in: [src/parsers/filters/FilterChain.ts:721](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/FilterChain.ts#L721)
+Defined in: [src/parsers/filters/FilterChain.ts:721](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/FilterChain.ts#L721)
 
 Reset all filter statistics
 
@@ -327,7 +327,7 @@ Reset all filter statistics
 
 > **shutdown**(): `Promise`\<`void`\>
 
-Defined in: [src/parsers/filters/FilterChain.ts:804](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/FilterChain.ts#L804)
+Defined in: [src/parsers/filters/FilterChain.ts:804](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/FilterChain.ts#L804)
 
 Shutdown filter chain
 

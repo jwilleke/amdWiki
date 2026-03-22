@@ -2,7 +2,7 @@
 
 ## Overview
 
-amdWiki's Policy-Based Access Control (PBAC) system provides flexible, JSON-based access control policies that allow administrators to define sophisticated permission rules beyond traditional role-based access control.
+ngdpbase's Policy-Based Access Control (PBAC) system provides flexible, JSON-based access control policies that allow administrators to define sophisticated permission rules beyond traditional role-based access control.
 
 ### Key Features
 
@@ -17,7 +17,7 @@ amdWiki's Policy-Based Access Control (PBAC) system provides flexible, JSON-base
 
 ### Web Interface
 
-1. Log in to amdWiki as an administrator
+1. Log in to ngdpbase as an administrator
 2. Navigate to `/admin/policies` or click "Policy Management" from the admin dashboard
 3. The policy management interface will display:
    - Policy statistics overview
@@ -520,7 +520,7 @@ The policy system can integrate with:
 
 Key configuration files:
 
-- `config/app-default-config.json`: Policy storage (key: `amdwiki.access.policies`)
+- `config/app-default-config.json`: Policy storage (key: `ngdpbase.access.policies`)
 - `config/policy-schemas.json`: Schema definitions
 - ~~`config/access-policies.json`~~: **DEPRECATED** - Policies now in app-default-config.json
 
@@ -530,4 +530,4 @@ Complete API documentation available at `/admin/policies/api-docs`
 
 ---
 
-*This guide covers amdWiki Policy-Based Access Control version 1.0. For the latest updates and additional features, check the official documentation.*
+*This guide covers ngdpbase Policy-Based Access Control version 1.0. For the latest updates and additional features, check the official documentation.*

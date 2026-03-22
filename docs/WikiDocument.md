@@ -1,6 +1,6 @@
 # WikiDocument Summary
 
-`WikiDocument` is a key architectural component in amdWiki that provides a DOM-based representation of a wiki page. It is inspired by JSPWiki's class of the same name and is designed to solve the problems of fragile, order-dependent string-based parsing.
+`WikiDocument` is a key architectural component in ngdpbase that provides a DOM-based representation of a wiki page. It is inspired by JSPWiki's class of the same name and is designed to solve the problems of fragile, order-dependent string-based parsing.
 
 ## Core Purpose
 

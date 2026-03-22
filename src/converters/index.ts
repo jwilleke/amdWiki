@@ -1,7 +1,7 @@
 /**
  * Content Converters Module
  *
- * Provides converters for importing content from various wiki formats into amdWiki.
+ * Provides converters for importing content from various wiki formats into ngdpbase.
  * Uses an extensible converter registry pattern for adding new format support.
  *
  * @module converters

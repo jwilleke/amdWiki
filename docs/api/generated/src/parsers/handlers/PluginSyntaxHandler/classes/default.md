@@ -1,12 +1,12 @@
-[**amdWiki API v1.5.0**](../../../../../README.md)
+[**ngdpbase API v1.5.0**](../../../../../README.md)
 
 ***
 
-[amdWiki API](../../../../../README.md) / [src/parsers/handlers/PluginSyntaxHandler](../README.md) / default
+[ngdpbase API](../../../../../README.md) / [src/parsers/handlers/PluginSyntaxHandler](../README.md) / default
 
 # Class: default
 
-Defined in: [src/parsers/handlers/PluginSyntaxHandler.ts:84](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/PluginSyntaxHandler.ts#L84)
+Defined in: [src/parsers/handlers/PluginSyntaxHandler.ts:84](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/PluginSyntaxHandler.ts#L84)
 
 PluginSyntaxHandler - Enhanced plugin syntax processing
 
@@ -26,7 +26,7 @@ Depends On: #56 - Handler Registration and Priority System
 
 > **new default**(`engine`): `PluginSyntaxHandler`
 
-Defined in: [src/parsers/handlers/PluginSyntaxHandler.ts:89](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/PluginSyntaxHandler.ts#L89)
+Defined in: [src/parsers/handlers/PluginSyntaxHandler.ts:89](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/PluginSyntaxHandler.ts#L89)
 
 #### Parameters
 
@@ -48,7 +48,7 @@ Defined in: [src/parsers/handlers/PluginSyntaxHandler.ts:89](https://github.com/
 
 > `readonly` **dependencies**: (`string` \| [`DependencySpec`](../../BaseSyntaxHandler/interfaces/DependencySpec.md))[]
 
-Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:171](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L171)
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:171](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L171)
 
 #### Inherited from
 
@@ -60,7 +60,7 @@ Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:171](https://github.com/j
 
 > `protected` `optional` **dependencyErrors**: [`DependencyError`](../../BaseSyntaxHandler/interfaces/DependencyError.md)[]
 
-Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:178](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L178)
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:178](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L178)
 
 #### Inherited from
 
@@ -72,7 +72,7 @@ Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:178](https://github.com/j
 
 > `readonly` **description**: `string`
 
-Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:170](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L170)
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:170](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L170)
 
 #### Inherited from
 
@@ -84,7 +84,7 @@ Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:170](https://github.com/j
 
 > `protected` **enabled**: `boolean`
 
-Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:176](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L176)
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:176](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L176)
 
 #### Inherited from
 
@@ -96,7 +96,7 @@ Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:176](https://github.com/j
 
 > **handlerId**: `string`
 
-Defined in: [src/parsers/handlers/PluginSyntaxHandler.ts:85](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/PluginSyntaxHandler.ts#L85)
+Defined in: [src/parsers/handlers/PluginSyntaxHandler.ts:85](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/PluginSyntaxHandler.ts#L85)
 
 #### Overrides
 
@@ -108,7 +108,7 @@ Defined in: [src/parsers/handlers/PluginSyntaxHandler.ts:85](https://github.com/
 
 > `protected` `optional` **initContext**: [`InitializationContext`](../../BaseSyntaxHandler/interfaces/InitializationContext.md)
 
-Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:177](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L177)
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:177](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L177)
 
 #### Inherited from
 
@@ -120,7 +120,7 @@ Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:177](https://github.com/j
 
 > `protected` **initialized**: `boolean`
 
-Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:175](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L175)
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:175](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L175)
 
 #### Inherited from
 
@@ -132,7 +132,7 @@ Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:175](https://github.com/j
 
 > `protected` **options**: `Required`\<[`HandlerOptions`](../../BaseSyntaxHandler/interfaces/HandlerOptions.md)\>
 
-Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:173](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L173)
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:173](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L173)
 
 #### Inherited from
 
@@ -144,7 +144,7 @@ Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:173](https://github.com/j
 
 > `readonly` **pattern**: `RegExp`
 
-Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:167](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L167)
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:167](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L167)
 
 #### Inherited from
 
@@ -156,7 +156,7 @@ Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:167](https://github.com/j
 
 > `readonly` **priority**: `number`
 
-Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:166](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L166)
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:166](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L166)
 
 #### Inherited from
 
@@ -168,7 +168,7 @@ Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:166](https://github.com/j
 
 > `protected` **stats**: [`HandlerStats`](../../BaseSyntaxHandler/interfaces/HandlerStats.md)
 
-Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:174](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L174)
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:174](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L174)
 
 #### Inherited from
 
@@ -180,7 +180,7 @@ Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:174](https://github.com/j
 
 > `readonly` **version**: `string`
 
-Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:169](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L169)
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:169](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L169)
 
 #### Inherited from
 
@@ -192,7 +192,7 @@ Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:169](https://github.com/j
 
 > `protected` **buildRegexFlags**(): `string`
 
-Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:261](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L261)
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:261](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L261)
 
 Build regex flags based on options
 
@@ -212,7 +212,7 @@ Regex flags string
 
 > **clone**(`overrides`): [`HandlerCloneConfig`](../../BaseSyntaxHandler/interfaces/HandlerCloneConfig.md)
 
-Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:712](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L712)
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:712](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L712)
 
 Create a clone of this handler with different options
 
@@ -240,7 +240,7 @@ Handler configuration for creating new instance
 
 > `protected` **compilePattern**(`pattern`): `RegExp`
 
-Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:242](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L242)
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:242](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L242)
 
 Compile pattern into RegExp if it's a string
 
@@ -268,7 +268,7 @@ Compiled regular expression
 
 > `protected` **createErrorContext**(`error`, `content`, `context`): [`ErrorContext`](../../BaseSyntaxHandler/interfaces/ErrorContext.md)
 
-Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:480](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L480)
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:480](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L480)
 
 Create error context for debugging
 
@@ -308,7 +308,7 @@ Error context
 
 > `protected` **createTimeoutPromise**(): `Promise`\<`string`\>
 
-Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:461](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L461)
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:461](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L461)
 
 Create timeout promise for handler execution
 
@@ -328,7 +328,7 @@ Promise that rejects after timeout
 
 > **disable**(): `void`
 
-Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:630](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L630)
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:630](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L630)
 
 Disable the handler
 
@@ -346,7 +346,7 @@ Disable the handler
 
 > **enable**(): `void`
 
-Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:623](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L623)
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:623](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L623)
 
 Enable the handler
 
@@ -364,7 +364,7 @@ Enable the handler
 
 > **execute**(`content`, `context`): `Promise`\<`string`\>
 
-Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:414](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L414)
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:414](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L414)
 
 Execute the handler with performance tracking and error handling
 
@@ -398,7 +398,7 @@ Processed content
 
 > **getDependencyErrors**(): [`DependencyError`](../../BaseSyntaxHandler/interfaces/DependencyError.md)[]
 
-Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:378](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L378)
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:378](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L378)
 
 Get dependency validation errors
 
@@ -418,7 +418,7 @@ Array of dependency errors
 
 > **getInfo**(): `Record`\<`string`, `unknown`\>
 
-Defined in: [src/parsers/handlers/PluginSyntaxHandler.ts:464](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/PluginSyntaxHandler.ts#L464)
+Defined in: [src/parsers/handlers/PluginSyntaxHandler.ts:464](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/PluginSyntaxHandler.ts#L464)
 
 Get handler information for debugging
 
@@ -434,7 +434,7 @@ Handler information
 
 > **getMetadata**(): [`HandlerMetadata`](../../BaseSyntaxHandler/interfaces/HandlerMetadata.md)
 
-Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:678](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L678)
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:678](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L678)
 
 Get handler metadata
 
@@ -454,7 +454,7 @@ Handler metadata
 
 > **getStats**(): [`HandlerStats`](../../BaseSyntaxHandler/interfaces/HandlerStats.md) & `object`
 
-Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:646](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L646)
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:646](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L646)
 
 Get handler statistics
 
@@ -474,7 +474,7 @@ Handler statistics
 
 > **getSupportedPatterns**(): `string`[]
 
-Defined in: [src/parsers/handlers/PluginSyntaxHandler.ts:433](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/PluginSyntaxHandler.ts#L433)
+Defined in: [src/parsers/handlers/PluginSyntaxHandler.ts:433](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/PluginSyntaxHandler.ts#L433)
 
 Get supported plugin patterns for this handler
 
@@ -490,7 +490,7 @@ Array of supported patterns
 
 > **handle**(`_match`, `_context`): `Promise`\<`string`\>
 
-Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:404](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L404)
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:404](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L404)
 
 Handle a specific match - called for each pattern match
 
@@ -520,7 +520,7 @@ Replacement content
 
 > **hasDependencyErrors**(): `boolean`
 
-Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:386](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L386)
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:386](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L386)
 
 Check if handler has unresolved dependencies
 
@@ -540,7 +540,7 @@ True if there are dependency errors
 
 > **initialize**(`context`): `Promise`\<`void`\>
 
-Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:274](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L274)
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:274](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L274)
 
 Initialize the handler (optional override)
 Called when handler is registered
@@ -567,7 +567,7 @@ Initialization context
 
 > **isEnabled**(): `boolean`
 
-Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:638](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L638)
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:638](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L638)
 
 Check if handler is enabled
 
@@ -587,7 +587,7 @@ True if enabled
 
 > `protected` **onInitialize**(`context`): `Promise`\<`void`\>
 
-Defined in: [src/parsers/handlers/PluginSyntaxHandler.ts:110](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/PluginSyntaxHandler.ts#L110)
+Defined in: [src/parsers/handlers/PluginSyntaxHandler.ts:110](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/PluginSyntaxHandler.ts#L110)
 
 Initialize handler with configuration
 
@@ -613,7 +613,7 @@ Initialization context
 
 > `protected` **onShutdown**(): `Promise`\<`void`\>
 
-Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:703](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L703)
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:703](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L703)
 
 Custom shutdown logic (override in subclasses)
 
@@ -631,7 +631,7 @@ Custom shutdown logic (override in subclasses)
 
 > **parseParameters**(`paramString`): `Record`\<`string`, `unknown`\>
 
-Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:503](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L503)
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:503](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L503)
 
 Parse parameters from parameter string
 Handles various formats: key=value, key='value', key="value"
@@ -660,7 +660,7 @@ Parsed parameters
 
 > **process**(`content`, `context`): `Promise`\<`string`\>
 
-Defined in: [src/parsers/handlers/PluginSyntaxHandler.ts:133](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/PluginSyntaxHandler.ts#L133)
+Defined in: [src/parsers/handlers/PluginSyntaxHandler.ts:133](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/PluginSyntaxHandler.ts#L133)
 
 Process content by finding and executing all plugin instances
 Supports both simple [{Plugin}] and body syntax [{Plugin}]content[/{Plugin}]
@@ -695,7 +695,7 @@ Content with plugins executed
 
 > **resetStats**(): `void`
 
-Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:664](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L664)
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:664](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L664)
 
 Reset handler statistics
 
@@ -713,7 +713,7 @@ Reset handler statistics
 
 > **shutdown**(): `Promise`\<`void`\>
 
-Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:695](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L695)
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:695](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L695)
 
 Clean up handler resources (optional override)
 Called when handler is unregistered
@@ -732,7 +732,7 @@ Called when handler is unregistered
 
 > **toString**(): `string`
 
-Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:730](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L730)
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:730](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L730)
 
 String representation of handler
 
@@ -752,7 +752,7 @@ String representation
 
 > `protected` **validateDependencies**(`context`): `void`
 
-Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:303](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L303)
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:303](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L303)
 
 Validate handler dependencies
 
@@ -778,7 +778,7 @@ Initialization context
 
 > `protected` **validateParameter**(`key`, `value`, `rule`): [`ParameterValidationResult`](../../BaseSyntaxHandler/interfaces/ParameterValidationResult.md)
 
-Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:575](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L575)
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:575](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L575)
 
 Validate a single parameter
 
@@ -818,7 +818,7 @@ Validation result
 
 > **validateParameters**(`params`, `schema`): [`ValidationResult`](../../BaseSyntaxHandler/interfaces/ValidationResult.md)
 
-Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:536](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L536)
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:536](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L536)
 
 Validate parameters against schema
 
@@ -852,7 +852,7 @@ Validation result
 
 > `protected` **validateSpecificDependency**(`dependency`, `context`): `void`
 
-Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:340](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L340)
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:340](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L340)
 
 Validate specific dependency requirement
 

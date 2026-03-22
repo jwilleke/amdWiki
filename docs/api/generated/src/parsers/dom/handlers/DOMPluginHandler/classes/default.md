@@ -1,12 +1,12 @@
-[**amdWiki API v1.5.0**](../../../../../../README.md)
+[**ngdpbase API v1.5.0**](../../../../../../README.md)
 
 ***
 
-[amdWiki API](../../../../../../README.md) / [src/parsers/dom/handlers/DOMPluginHandler](../README.md) / default
+[ngdpbase API](../../../../../../README.md) / [src/parsers/dom/handlers/DOMPluginHandler](../README.md) / default
 
 # Class: default
 
-Defined in: [src/parsers/dom/handlers/DOMPluginHandler.ts:155](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMPluginHandler.ts#L155)
+Defined in: [src/parsers/dom/handlers/DOMPluginHandler.ts:155](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMPluginHandler.ts#L155)
 
 DOMPluginHandler class
 
@@ -16,7 +16,7 @@ DOMPluginHandler class
 
 > **new default**(`engine`): `DOMPluginHandler`
 
-Defined in: [src/parsers/dom/handlers/DOMPluginHandler.ts:167](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMPluginHandler.ts#L167)
+Defined in: [src/parsers/dom/handlers/DOMPluginHandler.ts:167](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMPluginHandler.ts#L167)
 
 Creates a new DOMPluginHandler
 
@@ -38,7 +38,7 @@ WikiEngine instance
 
 > **createNodeFromExtract**(`element`, `context`, `wikiDocument`): `Promise`\<[`LinkedomElement`](../../../WikiDocument/interfaces/LinkedomElement.md)\>
 
-Defined in: [src/parsers/dom/handlers/DOMPluginHandler.ts:434](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMPluginHandler.ts#L434)
+Defined in: [src/parsers/dom/handlers/DOMPluginHandler.ts:434](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMPluginHandler.ts#L434)
 
 Creates a DOM node from an extracted plugin element
 
@@ -85,7 +85,7 @@ const node = await handler.createNodeFromExtract(element, context, wikiDoc);
 
 > **executePlugin**(`pluginName`, `parameters`, `context`, `pluginElement`): `Promise`\<`string` \| `null`\>
 
-Defined in: [src/parsers/dom/handlers/DOMPluginHandler.ts:369](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMPluginHandler.ts#L369)
+Defined in: [src/parsers/dom/handlers/DOMPluginHandler.ts:369](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMPluginHandler.ts#L369)
 
 Executes a plugin through PluginManager
 
@@ -127,7 +127,7 @@ Plugin output HTML or null
 
 > **getStatistics**(`wikiDocument`): [`PluginStatistics`](../interfaces/PluginStatistics.md)
 
-Defined in: [src/parsers/dom/handlers/DOMPluginHandler.ts:537](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMPluginHandler.ts#L537)
+Defined in: [src/parsers/dom/handlers/DOMPluginHandler.ts:537](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMPluginHandler.ts#L537)
 
 Gets statistics about plugin processing
 
@@ -151,7 +151,7 @@ Statistics
 
 > **initialize**(): `Promise`\<`void`\>
 
-Defined in: [src/parsers/dom/handlers/DOMPluginHandler.ts:176](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMPluginHandler.ts#L176)
+Defined in: [src/parsers/dom/handlers/DOMPluginHandler.ts:176](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMPluginHandler.ts#L176)
 
 Initializes the handler
 
@@ -165,7 +165,7 @@ Initializes the handler
 
 > **parseParameters**(`paramString`): `Record`\<`string`, `string`\>
 
-Defined in: [src/parsers/dom/handlers/DOMPluginHandler.ts:329](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMPluginHandler.ts#L329)
+Defined in: [src/parsers/dom/handlers/DOMPluginHandler.ts:329](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMPluginHandler.ts#L329)
 
 Parses parameter string into object
 
@@ -189,7 +189,7 @@ Parsed parameters
 
 > **parsePluginContent**(`pluginContent`): [`PluginInfo`](../interfaces/PluginInfo.md) \| `null`
 
-Defined in: [src/parsers/dom/handlers/DOMPluginHandler.ts:299](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMPluginHandler.ts#L299)
+Defined in: [src/parsers/dom/handlers/DOMPluginHandler.ts:299](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMPluginHandler.ts#L299)
 
 Parses plugin content string into name and parameters
 
@@ -213,7 +213,7 @@ Plugin content (e.g., "TableOfContents max=3")
 
 > **processPlugins**(`wikiDocument`, `context`): `Promise`\<[`default`](../../../WikiDocument/classes/default.md)\>
 
-Defined in: [src/parsers/dom/handlers/DOMPluginHandler.ts:191](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMPluginHandler.ts#L191)
+Defined in: [src/parsers/dom/handlers/DOMPluginHandler.ts:191](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMPluginHandler.ts#L191)
 
 Processes plugins in a WikiDocument
 

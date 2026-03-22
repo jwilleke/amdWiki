@@ -1,12 +1,12 @@
-[**amdWiki API v1.5.0**](../../../../README.md)
+[**ngdpbase API v1.5.0**](../../../../README.md)
 
 ***
 
-[amdWiki API](../../../../README.md) / [src/managers/BackupManager](../README.md) / BackupFileInfo
+[ngdpbase API](../../../../README.md) / [src/managers/BackupManager](../README.md) / BackupFileInfo
 
 # Interface: BackupFileInfo
 
-Defined in: [src/managers/BackupManager.ts:51](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BackupManager.ts#L51)
+Defined in: [src/managers/BackupManager.ts:51](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BackupManager.ts#L51)
 
 Backup file information
 
@@ -16,7 +16,7 @@ Backup file information
 
 > **created**: `Date`
 
-Defined in: [src/managers/BackupManager.ts:55](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BackupManager.ts#L55)
+Defined in: [src/managers/BackupManager.ts:55](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BackupManager.ts#L55)
 
 ***
 
@@ -24,7 +24,7 @@ Defined in: [src/managers/BackupManager.ts:55](https://github.com/jwilleke/amdWi
 
 > **filename**: `string`
 
-Defined in: [src/managers/BackupManager.ts:52](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BackupManager.ts#L52)
+Defined in: [src/managers/BackupManager.ts:52](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BackupManager.ts#L52)
 
 ***
 
@@ -32,7 +32,7 @@ Defined in: [src/managers/BackupManager.ts:52](https://github.com/jwilleke/amdWi
 
 > **modified**: `Date`
 
-Defined in: [src/managers/BackupManager.ts:56](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BackupManager.ts#L56)
+Defined in: [src/managers/BackupManager.ts:56](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BackupManager.ts#L56)
 
 ***
 
@@ -40,7 +40,7 @@ Defined in: [src/managers/BackupManager.ts:56](https://github.com/jwilleke/amdWi
 
 > **path**: `string`
 
-Defined in: [src/managers/BackupManager.ts:53](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BackupManager.ts#L53)
+Defined in: [src/managers/BackupManager.ts:53](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BackupManager.ts#L53)
 
 ***
 
@@ -48,4 +48,4 @@ Defined in: [src/managers/BackupManager.ts:53](https://github.com/jwilleke/amdWi
 
 > **size**: `number`
 
-Defined in: [src/managers/BackupManager.ts:54](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BackupManager.ts#L54)
+Defined in: [src/managers/BackupManager.ts:54](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BackupManager.ts#L54)

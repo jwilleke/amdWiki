@@ -1,7 +1,7 @@
 /**
  * Import Manager
  *
- * Manages the import of content from external wiki formats into amdWiki.
+ * Manages the import of content from external wiki formats into ngdpbase.
  * Uses an extensible converter registry pattern to support multiple formats
  * (JSPWiki, MediaWiki, Confluence, etc.).
  *
@@ -312,7 +312,7 @@ class ImportManager extends BaseManager {
 
     // Get target directory (default to data/pages)
     const configManager = this.engine.getManager<ConfigurationManager>('ConfigurationManager');
-    const defaultPagesDir = configManager?.getProperty('amdwiki.page.provider.filesystem.storagedir', './data/pages') as string ?? './data/pages';
+    const defaultPagesDir = configManager?.getProperty('ngdpbase.page.provider.filesystem.storagedir', './data/pages') as string ?? './data/pages';
     const targetDir = options.targetDir ?? path.resolve(defaultPagesDir);
 
     // Determine file extensions to process
@@ -615,7 +615,7 @@ class ImportManager extends BaseManager {
     logger.info(`[ImportManager] Fetching URL: ${url}`);
     const response = await fetch(url, {
       headers: {
-        'User-Agent': 'amdWiki/1.0 (URL Import)',
+        'User-Agent': 'ngdpbase/1.0 (URL Import)',
         'Accept': 'text/html,application/xhtml+xml'
       },
       redirect: 'follow',
@@ -702,7 +702,7 @@ class ImportManager extends BaseManager {
 
     // Determine target path
     const configManager = this.engine.getManager<ConfigurationManager>('ConfigurationManager');
-    const defaultPagesDir = configManager?.getProperty('amdwiki.page.provider.filesystem.storagedir', './data/pages') as string ?? './data/pages';
+    const defaultPagesDir = configManager?.getProperty('ngdpbase.page.provider.filesystem.storagedir', './data/pages') as string ?? './data/pages';
     const targetPath = path.join(path.resolve(defaultPagesDir), `${pageUuid}.md`);
 
     // Write file (unless dry run)
@@ -1109,7 +1109,7 @@ class ImportManager extends BaseManager {
     }
 
     // Get existing user-keywords from config
-    const existingKeywords = (configManager.getProperty('amdwiki.user-keywords') || {}) as Record<
+    const existingKeywords = (configManager.getProperty('ngdpbase.user-keywords') || {}) as Record<
       string,
       Record<string, unknown>
     >;
@@ -1139,7 +1139,7 @@ class ImportManager extends BaseManager {
     }
 
     if (addedCount > 0) {
-      await configManager.setProperty('amdwiki.user-keywords', updatedKeywords);
+      await configManager.setProperty('ngdpbase.user-keywords', updatedKeywords);
       logger.info(`[ImportManager] Added ${addedCount} new user-keywords to config`);
     }
 

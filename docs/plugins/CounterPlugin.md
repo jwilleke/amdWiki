@@ -295,7 +295,7 @@ Progress: [{$counter}]/10 steps completed
 
 This plugin is fully compatible with JSPWiki's Counter plugin:
 
-| Feature | JSPWiki | amdWiki | Compatible |
+| Feature | JSPWiki | ngdpbase | Compatible |
 | --------- | --------- | --------- | ------------ |
 | Basic counter | ✓ | ✓ | ✓ |
 | Named counters | ✓ | ✓ | ✓ |

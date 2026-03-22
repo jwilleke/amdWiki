@@ -298,7 +298,7 @@ const VariablesPlugin: SimplePlugin = {
         if (configAccessorPlugin && configAccessorPlugin.execute) {
           try {
             // Execute ConfigAccessorPlugin to get configuration values
-            const configOutput = await configAccessorPlugin.execute(context, { key: 'amdwiki.*' });
+            const configOutput = await configAccessorPlugin.execute(context, { key: 'ngdpbase.*' });
             html += configOutput;
           } catch {
             html += '<div class="alert alert-warning">\n';

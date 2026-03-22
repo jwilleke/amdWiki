@@ -199,8 +199,8 @@ class UserManager extends BaseManager {
     }
 
     // Load provider with fallback (ALL LOWERCASE)
-    const defaultProvider = configManager.getProperty('amdwiki.user.provider.default', 'fileuserprovider') as string;
-    const providerName = configManager.getProperty('amdwiki.user.provider', defaultProvider) as string;
+    const defaultProvider = configManager.getProperty('ngdpbase.user.provider.default', 'fileuserprovider') as string;
+    const providerName = configManager.getProperty('ngdpbase.user.provider', defaultProvider) as string;
 
     // Normalize provider name to PascalCase for class loading
     this.providerClass = this.normalizeProviderName(providerName);
@@ -229,11 +229,11 @@ class UserManager extends BaseManager {
     }
 
     // Load configuration settings (for business logic)
-    this.passwordSalt = configManager.getProperty('amdwiki.user.security.passwordsalt', 'amdwiki-salt') as string;
-    this.defaultPassword = configManager.getProperty('amdwiki.user.security.defaultpassword', 'admin123') as string;
+    this.passwordSalt = configManager.getProperty('ngdpbase.user.security.passwordsalt', 'ngdpbase-salt') as string;
+    this.defaultPassword = configManager.getProperty('ngdpbase.user.security.defaultpassword', 'admin123') as string;
 
     // Load role definitions from config
-    const roleDefinitions = configManager.getProperty('amdwiki.roles.definitions', {}) as Record<string, Role>;
+    const roleDefinitions = configManager.getProperty('ngdpbase.roles.definitions', {}) as Record<string, Role>;
     this.roles = new Map(Object.entries(roleDefinitions));
 
     logger.info(`👤 Loaded ${this.roles.size} role definitions from configuration`);
@@ -339,7 +339,7 @@ class UserManager extends BaseManager {
    * @returns {string} Hashed password
    */
   hashPassword(password: string): string {
-    const salt = this.passwordSalt || 'amdwiki-salt';
+    const salt = this.passwordSalt || 'ngdpbase-salt';
     return crypto
       .createHash('sha256')
       .update(password + salt)
@@ -418,13 +418,13 @@ class UserManager extends BaseManager {
           email: 'admin@localhost',
           memberOf: {
             '@type': 'Organization',
-            identifier: 'amdwiki-platform',
-            name: 'amdWiki Platform'
+            identifier: 'ngdpbase-platform',
+            name: 'ngdpbase Platform'
           },
           worksFor: {
             '@type': 'Organization',
-            identifier: 'amdwiki-platform',
-            name: 'amdWiki Platform'
+            identifier: 'ngdpbase-platform',
+            name: 'ngdpbase Platform'
           },
           hasCredential: [
             {
@@ -433,7 +433,7 @@ class UserManager extends BaseManager {
               competencyRequired: ['System Administration', 'User Management', 'Configuration Management'],
               issuedBy: {
                 '@type': 'Organization',
-                identifier: 'amdwiki-platform'
+                identifier: 'ngdpbase-platform'
               }
             }
           ],
@@ -797,7 +797,7 @@ class UserManager extends BaseManager {
     const defaultTimeFormat = LocaleUtils.getTimeFormatFromLocale(userLocale);
 
     const configManager = this.engine.getManager<ConfigurationManager>('ConfigurationManager');
-    const defaultTimezone = configManager ? (configManager.getProperty('amdwiki.default.timezone', 'UTC') as string) : 'UTC';
+    const defaultTimezone = configManager ? (configManager.getProperty('ngdpbase.default.timezone', 'UTC') as string) : 'UTC';
 
     const user: User = {
       username,
@@ -833,13 +833,13 @@ class UserManager extends BaseManager {
           name: user.displayName,
           alternateName: [username],
           email: user.email,
-          memberOf: { '@type': 'Organization', identifier: 'amdwiki-platform', name: 'amdWiki Platform' },
-          worksFor: { '@type': 'Organization', identifier: 'amdwiki-platform', name: 'amdWiki Platform' },
+          memberOf: { '@type': 'Organization', identifier: 'ngdpbase-platform', name: 'ngdpbase Platform' },
+          worksFor: { '@type': 'Organization', identifier: 'ngdpbase-platform', name: 'ngdpbase Platform' },
           hasCredential: roles.map((role) => ({
             '@type': 'EducationalOccupationalCredential',
             credentialCategory: role,
             competencyRequired: this.getRoleCompetencies(role),
-            issuedBy: { '@type': 'Organization', identifier: 'amdwiki-platform' }
+            issuedBy: { '@type': 'Organization', identifier: 'ngdpbase-platform' }
           })),
           jobTitle: this.getJobTitleFromRoles(roles),
           memberOfStartDate: user.createdAt,
@@ -910,7 +910,7 @@ class UserManager extends BaseManager {
             '@type': 'EducationalOccupationalCredential',
             credentialCategory: role,
             competencyRequired: this.getRoleCompetencies(role),
-            issuedBy: { '@type': 'Organization', identifier: 'amdwiki-platform' }
+            issuedBy: { '@type': 'Organization', identifier: 'ngdpbase-platform' }
           }));
           updateData.jobTitle = this.getJobTitleFromRoles(updates.roles);
         }

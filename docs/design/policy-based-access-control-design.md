@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document outlines the design for Issue #19: Policy-Based Access Control (JSON Config), which will implement a flexible, JSON-based policy system for amdWiki's access control framework.
+This document outlines the design for Issue #19: Policy-Based Access Control (JSON Config), which will implement a flexible, JSON-based policy system for ngdpbase's access control framework.
 
 ## Current State Analysis
 
@@ -390,4 +390,4 @@ config/
 - **Usability**: Admin can create policies without technical issues
 - **Maintainability**: Easy policy updates and troubleshooting
 
-This design provides a solid foundation for flexible, enterprise-grade access control while maintaining amdWiki's simplicity and performance.
+This design provides a solid foundation for flexible, enterprise-grade access control while maintaining ngdpbase's simplicity and performance.

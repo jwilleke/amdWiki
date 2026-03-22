@@ -1,6 +1,6 @@
 # Telemetry
 
-amdWiki uses [OpenTelemetry](https://opentelemetry.io/) to collect application metrics and export them in [Prometheus](https://prometheus.io/) format. The `MetricsManager` owns all metric creation and recording; when telemetry is disabled, every recording method is a no-op.
+ngdpbase uses [OpenTelemetry](https://opentelemetry.io/) to collect application metrics and export them in [Prometheus](https://prometheus.io/) format. The `MetricsManager` owns all metric creation and recording; when telemetry is disabled, every recording method is a no-op.
 
 ## Configuration
 
@@ -8,22 +8,22 @@ All settings live in the configuration hierarchy (`app-default-config.json`, ove
 
 | Property | Default | Description |
 |----------|---------|-------------|
-| `amdwiki.telemetry.enabled` | `false` | Enable or disable metrics collection |
-| `amdwiki.telemetry.serviceName` | `""` | OTLP `service.name` resource attribute (falls back to metric prefix if empty) |
-| `amdwiki.telemetry.metrics.port` | `9464` | Port for the standalone Prometheus exporter |
-| `amdwiki.telemetry.metrics.host` | `0.0.0.0` | Bind address for the Prometheus exporter |
-| `amdwiki.telemetry.metrics.path` | `/metrics` | HTTP path for metrics endpoint |
-| `amdwiki.telemetry.metrics.interval` | `15000` | Collection interval in milliseconds |
-| `amdwiki.telemetry.otlp.enabled` | `false` | Enable OTLP HTTP push-based export |
-| `amdwiki.telemetry.otlp.endpoint` | `""` | OTLP collector URL (e.g., `https://otel.example.com/v1/metrics`) |
-| `amdwiki.telemetry.otlp.headers` | `{}` | Custom headers for OTLP requests (e.g., auth tokens) |
-| `amdwiki.telemetry.otlp.interval` | `30000` | Push interval in milliseconds (must be >= timeout) |
-| `amdwiki.telemetry.otlp.timeout` | `30000` | Export timeout in milliseconds |
+| `ngdpbase.telemetry.enabled` | `false` | Enable or disable metrics collection |
+| `ngdpbase.telemetry.serviceName` | `""` | OTLP `service.name` resource attribute (falls back to metric prefix if empty) |
+| `ngdpbase.telemetry.metrics.port` | `9464` | Port for the standalone Prometheus exporter |
+| `ngdpbase.telemetry.metrics.host` | `0.0.0.0` | Bind address for the Prometheus exporter |
+| `ngdpbase.telemetry.metrics.path` | `/metrics` | HTTP path for metrics endpoint |
+| `ngdpbase.telemetry.metrics.interval` | `15000` | Collection interval in milliseconds |
+| `ngdpbase.telemetry.otlp.enabled` | `false` | Enable OTLP HTTP push-based export |
+| `ngdpbase.telemetry.otlp.endpoint` | `""` | OTLP collector URL (e.g., `https://otel.example.com/v1/metrics`) |
+| `ngdpbase.telemetry.otlp.headers` | `{}` | Custom headers for OTLP requests (e.g., auth tokens) |
+| `ngdpbase.telemetry.otlp.interval` | `30000` | Push interval in milliseconds (must be >= timeout) |
+| `ngdpbase.telemetry.otlp.timeout` | `30000` | Export timeout in milliseconds |
 
 To enable telemetry, add the following to your custom config (`data/config/app-custom-config.json`):
 
 ```json
-"amdwiki.telemetry.enabled": true
+"ngdpbase.telemetry.enabled": true
 ```
 
 Restart the server after changing telemetry settings.
@@ -41,7 +41,7 @@ The standalone exporter on port 9464 is intended for Prometheus scrape targets. 
 
 ## Metrics Reference
 
-All metric names are prefixed with the application name from `amdwiki.applicationName`, sanitized for Prometheus (lowercased, non-alphanumeric characters replaced with underscores). For example, if `applicationName` is `jimstest`, metrics are prefixed `jimstest_`. The default prefix is `amdwiki_`.
+All metric names are prefixed with the application name from `ngdpbase.applicationName`, sanitized for Prometheus (lowercased, non-alphanumeric characters replaced with underscores). For example, if `applicationName` is `jimstest`, metrics are prefixed `jimstest_`. The default prefix is `ngdpbase_`.
 
 The tables below use `{app}` as a placeholder for the prefix.
 
@@ -88,14 +88,14 @@ In addition to the Prometheus pull-based exporter, MetricsManager can push metri
 To enable OTLP export alongside Prometheus, add to your custom config:
 
 ```json
-"amdwiki.telemetry.otlp.enabled": true,
-"amdwiki.telemetry.otlp.endpoint": "https://otel.example.com/v1/metrics"
+"ngdpbase.telemetry.otlp.enabled": true,
+"ngdpbase.telemetry.otlp.endpoint": "https://otel.example.com/v1/metrics"
 ```
 
 If the collector requires authentication, pass headers:
 
 ```json
-"amdwiki.telemetry.otlp.headers": { "Authorization": "Bearer <token>" }
+"ngdpbase.telemetry.otlp.headers": { "Authorization": "Bearer <token>" }
 ```
 
 Both exporters run simultaneously -- Prometheus for local scraping and OTLP for centralized collection.
@@ -138,7 +138,7 @@ Add a scrape target to your `prometheus.yml`:
 
 ```yaml
 scrape_configs:
-  - job_name: 'amdwiki'
+  - job_name: 'ngdpbase'
     scrape_interval: 15s
     static_configs:
       - targets: ['localhost:9464']
@@ -148,7 +148,7 @@ For Docker deployments, use the container hostname or service name instead of `l
 
 ### Example Queries
 
-Replace `{app}` with your actual prefix (e.g., `jimstest`, `amdwiki`).
+Replace `{app}` with your actual prefix (e.g., `jimstest`, `ngdpbase`).
 
 ```promql
 # Average page view duration over the last 5 minutes
@@ -173,11 +173,11 @@ The telemetry system adds three npm packages:
 - `@opentelemetry/exporter-prometheus` -- Prometheus exporter
 - `@opentelemetry/exporter-metrics-otlp-http` -- OTLP HTTP metric exporter
 
-These are production dependencies but only initialize when `amdwiki.telemetry.enabled` is `true`.
+These are production dependencies but only initialize when `ngdpbase.telemetry.enabled` is `true`.
 
 ## Disabling Telemetry
 
-Set `amdwiki.telemetry.enabled` to `false` (the default). When disabled:
+Set `ngdpbase.telemetry.enabled` to `false` (the default). When disabled:
 
 - No OpenTelemetry SDK is initialized
 - No ports are opened
@@ -249,7 +249,7 @@ Counters reset to zero on every restart. Histograms also reset. If you are graph
 If another process is on port 9464, MetricsManager will fail to initialize and log an error. Either stop the conflicting process or change the port:
 
 ```json
-"amdwiki.telemetry.metrics.port": 9465
+"ngdpbase.telemetry.metrics.port": 9465
 ```
 
 ### OTLP export silently failing
@@ -257,8 +257,8 @@ If another process is on port 9464, MetricsManager will fail to initialize and l
 If OTLP export is enabled but metrics are not appearing in your collector:
 
 1. Check the endpoint URL includes the full path: `https://collector.example.com/v1/metrics`
-2. Verify any required auth headers are set in `amdwiki.telemetry.otlp.headers`
-3. Confirm `amdwiki.telemetry.otlp.interval` is less than or equal to `amdwiki.telemetry.otlp.timeout`
+2. Verify any required auth headers are set in `ngdpbase.telemetry.otlp.headers`
+3. Confirm `ngdpbase.telemetry.otlp.interval` is less than or equal to `ngdpbase.telemetry.otlp.timeout`
 4. Look for OTLP export errors in the server log — MetricsManager logs failed exports at `error` level
 
 ### No data on port 3000 /metrics

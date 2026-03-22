@@ -1,12 +1,12 @@
-[**amdWiki API v1.5.0**](../../../../README.md)
+[**ngdpbase API v1.5.0**](../../../../README.md)
 
 ***
 
-[amdWiki API](../../../../README.md) / [src/managers/VariableManager](../README.md) / VariableContext
+[ngdpbase API](../../../../README.md) / [src/managers/VariableManager](../README.md) / VariableContext
 
 # Interface: VariableContext
 
-Defined in: [src/managers/VariableManager.ts:15](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/VariableManager.ts#L15)
+Defined in: [src/managers/VariableManager.ts:15](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/VariableManager.ts#L15)
 
 Variable context interface - contains contextual information for variable expansion
 
@@ -20,7 +20,7 @@ Variable context interface - contains contextual information for variable expans
 
 > `optional` **pageName**: `string`
 
-Defined in: [src/managers/VariableManager.ts:16](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/VariableManager.ts#L16)
+Defined in: [src/managers/VariableManager.ts:16](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/VariableManager.ts#L16)
 
 ***
 
@@ -28,7 +28,7 @@ Defined in: [src/managers/VariableManager.ts:16](https://github.com/jwilleke/amd
 
 > `optional` **requestInfo**: `object`
 
-Defined in: [src/managers/VariableManager.ts:24](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/VariableManager.ts#L24)
+Defined in: [src/managers/VariableManager.ts:24](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/VariableManager.ts#L24)
 
 #### acceptLanguage?
 
@@ -56,7 +56,7 @@ Defined in: [src/managers/VariableManager.ts:24](https://github.com/jwilleke/amd
 
 > `optional` **userContext**: `object`
 
-Defined in: [src/managers/VariableManager.ts:18](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/VariableManager.ts#L18)
+Defined in: [src/managers/VariableManager.ts:18](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/VariableManager.ts#L18)
 
 #### displayName?
 
@@ -80,4 +80,4 @@ Defined in: [src/managers/VariableManager.ts:18](https://github.com/jwilleke/amd
 
 > `optional` **userName**: `string`
 
-Defined in: [src/managers/VariableManager.ts:17](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/VariableManager.ts#L17)
+Defined in: [src/managers/VariableManager.ts:17](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/VariableManager.ts#L17)

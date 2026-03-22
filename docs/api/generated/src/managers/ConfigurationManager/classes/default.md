@@ -1,12 +1,12 @@
-[**amdWiki API v1.5.0**](../../../../README.md)
+[**ngdpbase API v1.5.0**](../../../../README.md)
 
 ***
 
-[amdWiki API](../../../../README.md) / [src/managers/ConfigurationManager](../README.md) / default
+[ngdpbase API](../../../../README.md) / [src/managers/ConfigurationManager](../README.md) / default
 
 # Class: default
 
-Defined in: [src/managers/ConfigurationManager.ts:41](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ConfigurationManager.ts#L41)
+Defined in: [src/managers/ConfigurationManager.ts:41](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ConfigurationManager.ts#L41)
 
 ConfigurationManager - Handles JSPWiki-compatible configuration management
 
@@ -45,7 +45,7 @@ const port = configManager.getServerPort();
 
 > **new default**(`engine`): `ConfigurationManager`
 
-Defined in: [src/managers/ConfigurationManager.ts:58](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ConfigurationManager.ts#L58)
+Defined in: [src/managers/ConfigurationManager.ts:58](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ConfigurationManager.ts#L58)
 
 Creates a new ConfigurationManager instance
 
@@ -71,7 +71,7 @@ The wiki engine instance
 
 > `protected` `optional` **config**: `Record`\<`string`, `unknown`\>
 
-Defined in: [src/managers/BaseManager.ts:61](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L61)
+Defined in: [src/managers/BaseManager.ts:61](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L61)
 
 Configuration passed during initialization
 
@@ -85,7 +85,7 @@ Configuration passed during initialization
 
 > `protected` **engine**: [`WikiEngine`](../../../types/WikiEngine/interfaces/WikiEngine.md)
 
-Defined in: [src/managers/BaseManager.ts:54](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L54)
+Defined in: [src/managers/BaseManager.ts:54](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L54)
 
 Reference to the wiki engine
 
@@ -99,7 +99,7 @@ Reference to the wiki engine
 
 > `protected` **initialized**: `boolean`
 
-Defined in: [src/managers/BaseManager.ts:57](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L57)
+Defined in: [src/managers/BaseManager.ts:57](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L57)
 
 Initialization status flag
 
@@ -113,7 +113,7 @@ Initialization status flag
 
 > **backup**(): `Promise`\<[`BackupData`](../../BaseManager/interfaces/BackupData.md)\>
 
-Defined in: [src/managers/ConfigurationManager.ts:592](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ConfigurationManager.ts#L592)
+Defined in: [src/managers/ConfigurationManager.ts:592](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ConfigurationManager.ts#L592)
 
 Backup configuration data
 
@@ -137,7 +137,7 @@ Backup data containing custom configuration
 
 > **getAccessControlConfig**(): `object`
 
-Defined in: [src/managers/ConfigurationManager.ts:450](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ConfigurationManager.ts#L450)
+Defined in: [src/managers/ConfigurationManager.ts:450](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ConfigurationManager.ts#L450)
 
 Get access control configuration
 
@@ -185,7 +185,7 @@ Access control configuration
 
 > **getAllProperties**(): [`WikiConfig`](../../../types/Config/interfaces/WikiConfig.md)
 
-Defined in: [src/managers/ConfigurationManager.ts:251](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ConfigurationManager.ts#L251)
+Defined in: [src/managers/ConfigurationManager.ts:251](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ConfigurationManager.ts#L251)
 
 Get all configuration properties
 
@@ -210,7 +210,7 @@ console.log(JSON.stringify(allConfig, null, 2));
 
 > **getApplicationName**(): `string`
 
-Defined in: [src/managers/ConfigurationManager.ts:263](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ConfigurationManager.ts#L263)
+Defined in: [src/managers/ConfigurationManager.ts:263](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ConfigurationManager.ts#L263)
 
 Get application name
 
@@ -218,12 +218,12 @@ Get application name
 
 `string`
 
-Application name (defaults to 'amdWiki')
+Application name (defaults to 'ngdpbase')
 
 #### Example
 
 ```ts
-const name = configManager.getApplicationName(); // 'amdWiki'
+const name = configManager.getApplicationName(); // 'ngdpbase'
 ```
 
 ***
@@ -232,7 +232,7 @@ const name = configManager.getApplicationName(); // 'amdWiki'
 
 > **getAuditConfig**(): `object`
 
-Defined in: [src/managers/ConfigurationManager.ts:481](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ConfigurationManager.ts#L481)
+Defined in: [src/managers/ConfigurationManager.ts:481](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ConfigurationManager.ts#L481)
 
 Get audit configuration
 
@@ -296,7 +296,7 @@ Audit configuration
 
 > **getBaseURL**(): `string`
 
-Defined in: [src/managers/ConfigurationManager.ts:272](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ConfigurationManager.ts#L272)
+Defined in: [src/managers/ConfigurationManager.ts:272](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ConfigurationManager.ts#L272)
 
 Get base URL for the wiki
 
@@ -312,7 +312,7 @@ Base URL (defaults to 'http://localhost:3000')
 
 > **getCustomProperties**(): `Partial`\<[`WikiConfig`](../../../types/Config/interfaces/WikiConfig.md)\>
 
-Defined in: [src/managers/ConfigurationManager.ts:566](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ConfigurationManager.ts#L566)
+Defined in: [src/managers/ConfigurationManager.ts:566](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ConfigurationManager.ts#L566)
 
 Get custom configuration for admin UI
 
@@ -338,7 +338,7 @@ console.log('Customized settings:', Object.keys(customSettings));
 
 > **getDefaultProperties**(): [`WikiConfig`](../../../types/Config/interfaces/WikiConfig.md)
 
-Defined in: [src/managers/ConfigurationManager.ts:578](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ConfigurationManager.ts#L578)
+Defined in: [src/managers/ConfigurationManager.ts:578](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ConfigurationManager.ts#L578)
 
 Get default configuration for comparison
 
@@ -357,7 +357,7 @@ Default configuration properties
 
 > **getDirectories**(): `object`
 
-Defined in: [src/managers/ConfigurationManager.ts:345](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ConfigurationManager.ts#L345)
+Defined in: [src/managers/ConfigurationManager.ts:345](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ConfigurationManager.ts#L345)
 
 Get directory paths
 
@@ -393,7 +393,7 @@ Directory configuration
 
 > **getEncoding**(): `string`
 
-Defined in: [src/managers/ConfigurationManager.ts:289](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ConfigurationManager.ts#L289)
+Defined in: [src/managers/ConfigurationManager.ts:289](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ConfigurationManager.ts#L289)
 
 Get encoding
 
@@ -409,7 +409,7 @@ Encoding
 
 > **getEngine**(): [`WikiEngine`](../../../types/WikiEngine/interfaces/WikiEngine.md)
 
-Defined in: [src/managers/BaseManager.ts:125](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L125)
+Defined in: [src/managers/BaseManager.ts:125](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L125)
 
 Get the wiki engine instance
 
@@ -435,7 +435,7 @@ const config = this.getEngine().getConfig();
 
 > **getFeatureConfig**(`featureName`): `object`
 
-Defined in: [src/managers/ConfigurationManager.ts:398](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ConfigurationManager.ts#L398)
+Defined in: [src/managers/ConfigurationManager.ts:398](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ConfigurationManager.ts#L398)
 
 Get feature configuration
 
@@ -463,7 +463,7 @@ Feature configuration
 
 > **getFrontPage**(): `string`
 
-Defined in: [src/managers/ConfigurationManager.ts:281](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ConfigurationManager.ts#L281)
+Defined in: [src/managers/ConfigurationManager.ts:281](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ConfigurationManager.ts#L281)
 
 Get front page name
 
@@ -479,7 +479,7 @@ Front page name (defaults to 'Welcome')
 
 > **getLoggingConfig**(): `object`
 
-Defined in: [src/managers/ConfigurationManager.ts:418](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ConfigurationManager.ts#L418)
+Defined in: [src/managers/ConfigurationManager.ts:418](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ConfigurationManager.ts#L418)
 
 Get logging configuration
 
@@ -511,7 +511,7 @@ Logging configuration
 
 > **getManagerConfig**(`managerName`): `object`
 
-Defined in: [src/managers/ConfigurationManager.ts:377](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ConfigurationManager.ts#L377)
+Defined in: [src/managers/ConfigurationManager.ts:377](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ConfigurationManager.ts#L377)
 
 Get manager-specific configuration
 
@@ -551,7 +551,7 @@ if (searchConfig.enabled) {
 
 > **getProperty**(`key`, `defaultValue?`): `unknown`
 
-Defined in: [src/managers/ConfigurationManager.ts:177](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ConfigurationManager.ts#L177)
+Defined in: [src/managers/ConfigurationManager.ts:177](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ConfigurationManager.ts#L177)
 
 Get a configuration property value
 
@@ -586,7 +586,7 @@ Configuration value or default
 #### Example
 
 ```ts
-const appName = configManager.getProperty('amdwiki.applicationName', 'MyWiki');
+const appName = configManager.getProperty('ngdpbase.applicationName', 'MyWiki');
 ```
 
 ***
@@ -595,7 +595,7 @@ const appName = configManager.getProperty('amdwiki.applicationName', 'MyWiki');
 
 > **getRSSConfig**(): `object`
 
-Defined in: [src/managers/ConfigurationManager.ts:519](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ConfigurationManager.ts#L519)
+Defined in: [src/managers/ConfigurationManager.ts:519](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ConfigurationManager.ts#L519)
 
 Get RSS settings
 
@@ -631,7 +631,7 @@ RSS configuration
 
 > **getSearchConfig**(): `object`
 
-Defined in: [src/managers/ConfigurationManager.ts:436](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ConfigurationManager.ts#L436)
+Defined in: [src/managers/ConfigurationManager.ts:436](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ConfigurationManager.ts#L436)
 
 Get search configuration
 
@@ -655,7 +655,7 @@ Search configuration
 
 > **getServerHost**(): `string`
 
-Defined in: [src/managers/ConfigurationManager.ts:305](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ConfigurationManager.ts#L305)
+Defined in: [src/managers/ConfigurationManager.ts:305](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ConfigurationManager.ts#L305)
 
 Get server host
 
@@ -671,7 +671,7 @@ Server host
 
 > **getServerPort**(): `number`
 
-Defined in: [src/managers/ConfigurationManager.ts:297](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ConfigurationManager.ts#L297)
+Defined in: [src/managers/ConfigurationManager.ts:297](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ConfigurationManager.ts#L297)
 
 Get server port
 
@@ -687,7 +687,7 @@ Server port
 
 > **getSessionHttpOnly**(): `boolean`
 
-Defined in: [src/managers/ConfigurationManager.ts:337](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ConfigurationManager.ts#L337)
+Defined in: [src/managers/ConfigurationManager.ts:337](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ConfigurationManager.ts#L337)
 
 Get session httpOnly flag
 
@@ -703,7 +703,7 @@ Session httpOnly flag
 
 > **getSessionMaxAge**(): `number`
 
-Defined in: [src/managers/ConfigurationManager.ts:321](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ConfigurationManager.ts#L321)
+Defined in: [src/managers/ConfigurationManager.ts:321](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ConfigurationManager.ts#L321)
 
 Get session max age in milliseconds
 
@@ -719,7 +719,7 @@ Session max age
 
 > **getSessionSecret**(): `string`
 
-Defined in: [src/managers/ConfigurationManager.ts:313](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ConfigurationManager.ts#L313)
+Defined in: [src/managers/ConfigurationManager.ts:313](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ConfigurationManager.ts#L313)
 
 Get session secret
 
@@ -735,7 +735,7 @@ Session secret
 
 > **getSessionSecure**(): `boolean`
 
-Defined in: [src/managers/ConfigurationManager.ts:329](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ConfigurationManager.ts#L329)
+Defined in: [src/managers/ConfigurationManager.ts:329](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ConfigurationManager.ts#L329)
 
 Get session secure flag
 
@@ -751,7 +751,7 @@ Session secure flag
 
 > **initialize**(`config`): `Promise`\<`void`\>
 
-Defined in: [src/managers/ConfigurationManager.ts:81](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ConfigurationManager.ts#L81)
+Defined in: [src/managers/ConfigurationManager.ts:81](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ConfigurationManager.ts#L81)
 
 Initialize the configuration manager
 
@@ -783,7 +783,7 @@ If default configuration file is not found
 
 > **isInitialized**(): `boolean`
 
-Defined in: [src/managers/BaseManager.ts:113](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L113)
+Defined in: [src/managers/BaseManager.ts:113](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L113)
 
 Check if manager has been initialized
 
@@ -811,7 +811,7 @@ if (manager.isInitialized()) {
 
 > **reload**(): `Promise`\<`void`\>
 
-Defined in: [src/managers/ConfigurationManager.ts:98](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ConfigurationManager.ts#L98)
+Defined in: [src/managers/ConfigurationManager.ts:98](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ConfigurationManager.ts#L98)
 
 Reload configuration from disk
 
@@ -825,7 +825,7 @@ Reload configuration from disk
 
 > **resetToDefaults**(): `Promise`\<`void`\>
 
-Defined in: [src/managers/ConfigurationManager.ts:548](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ConfigurationManager.ts#L548)
+Defined in: [src/managers/ConfigurationManager.ts:548](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ConfigurationManager.ts#L548)
 
 Reset configuration to defaults (admin only)
 
@@ -851,7 +851,7 @@ console.log('Configuration reset to defaults');
 
 > **restore**(`backupData`): `Promise`\<`void`\>
 
-Defined in: [src/managers/ConfigurationManager.ts:649](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ConfigurationManager.ts#L649)
+Defined in: [src/managers/ConfigurationManager.ts:649](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ConfigurationManager.ts#L649)
 
 Restore configuration from backup data
 
@@ -881,7 +881,7 @@ Backup data from backup() method
 
 > **setProperty**(`key`, `value`): `Promise`\<`void`\>
 
-Defined in: [src/managers/ConfigurationManager.ts:208](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ConfigurationManager.ts#L208)
+Defined in: [src/managers/ConfigurationManager.ts:208](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ConfigurationManager.ts#L208)
 
 Set a configuration property (updates custom config)
 
@@ -911,7 +911,7 @@ Configuration value to set
 #### Example
 
 ```ts
-await configManager.setProperty('amdwiki.applicationName', 'My Custom Wiki');
+await configManager.setProperty('ngdpbase.applicationName', 'My Custom Wiki');
 ```
 
 ***
@@ -920,7 +920,7 @@ await configManager.setProperty('amdwiki.applicationName', 'My Custom Wiki');
 
 > **shutdown**(): `Promise`\<`void`\>
 
-Defined in: [src/managers/BaseManager.ts:143](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L143)
+Defined in: [src/managers/BaseManager.ts:143](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L143)
 
 Shutdown the manager and cleanup resources
 

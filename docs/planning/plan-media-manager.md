@@ -159,7 +159,7 @@ On request:
 ## Testing
 
 - Unit tests: FileSystemMediaProvider (mock fs + exiftool)
-- Manual: enable `amdwiki.media.enabled: true`, configure `amdwiki.media.folders`, trigger `/admin/media/rescan`
+- Manual: enable `ngdpbase.media.enabled: true`, configure `ngdpbase.media.folders`, trigger `/admin/media/rescan`
 
 ---
 

@@ -1,12 +1,12 @@
-[**amdWiki API v1.5.0**](../../../../README.md)
+[**ngdpbase API v1.5.0**](../../../../README.md)
 
 ***
 
-[amdWiki API](../../../../README.md) / [src/managers/ValidationManager](../README.md) / default
+[ngdpbase API](../../../../README.md) / [src/managers/ValidationManager](../README.md) / default
 
 # Class: default
 
-Defined in: [src/managers/ValidationManager.ts:126](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ValidationManager.ts#L126)
+Defined in: [src/managers/ValidationManager.ts:126](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ValidationManager.ts#L126)
 
 ValidationManager - Ensures all files follow UUID naming and metadata conventions
 
@@ -37,7 +37,7 @@ if (!result.valid) console.error(result.errors);
 
 > **new default**(`engine`): `ValidationManager`
 
-Defined in: [src/managers/ValidationManager.ts:139](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ValidationManager.ts#L139)
+Defined in: [src/managers/ValidationManager.ts:139](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ValidationManager.ts#L139)
 
 Creates a new ValidationManager instance
 
@@ -63,7 +63,7 @@ The wiki engine instance
 
 > `protected` `optional` **config**: `Record`\<`string`, `unknown`\>
 
-Defined in: [src/managers/BaseManager.ts:61](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L61)
+Defined in: [src/managers/BaseManager.ts:61](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L61)
 
 Configuration passed during initialization
 
@@ -77,7 +77,7 @@ Configuration passed during initialization
 
 > `protected` **engine**: [`WikiEngine`](../../../types/WikiEngine/interfaces/WikiEngine.md)
 
-Defined in: [src/managers/BaseManager.ts:54](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L54)
+Defined in: [src/managers/BaseManager.ts:54](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L54)
 
 Reference to the wiki engine
 
@@ -91,7 +91,7 @@ Reference to the wiki engine
 
 > `protected` **initialized**: `boolean`
 
-Defined in: [src/managers/BaseManager.ts:57](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L57)
+Defined in: [src/managers/BaseManager.ts:57](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L57)
 
 Initialization status flag
 
@@ -105,7 +105,7 @@ Initialization status flag
 
 > **backup**(): `Promise`\<[`BackupData`](../../BaseManager/interfaces/BackupData.md)\>
 
-Defined in: [src/managers/BaseManager.ts:169](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L169)
+Defined in: [src/managers/BaseManager.ts:169](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L169)
 
 Backup manager data
 
@@ -147,7 +147,7 @@ async backup(): Promise<BackupData> {
 
 > **generateFilename**(`metadata`): `string`
 
-Defined in: [src/managers/ValidationManager.ts:538](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ValidationManager.ts#L538)
+Defined in: [src/managers/ValidationManager.ts:538](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ValidationManager.ts#L538)
 
 Generate UUID-based filename from metadata
 
@@ -171,7 +171,7 @@ Filename in UUID.md format
 
 > **generateFixSuggestions**(`filename`, `metadata`): [`FixSuggestions`](../interfaces/FixSuggestions.md)
 
-Defined in: [src/managers/ValidationManager.ts:569](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ValidationManager.ts#L569)
+Defined in: [src/managers/ValidationManager.ts:569](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ValidationManager.ts#L569)
 
 Generate suggestions to fix validation issues
 
@@ -201,7 +201,7 @@ Fix suggestions
 
 > **generateSlug**(`title`): `string`
 
-Defined in: [src/managers/ValidationManager.ts:525](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ValidationManager.ts#L525)
+Defined in: [src/managers/ValidationManager.ts:525](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ValidationManager.ts#L525)
 
 Generate URL-safe slug from title
 
@@ -225,7 +225,7 @@ URL-safe slug
 
 > **generateValidMetadata**(`title`, `options`): [`PageMetadata`](../interfaces/PageMetadata.md)
 
-Defined in: [src/managers/ValidationManager.ts:499](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ValidationManager.ts#L499)
+Defined in: [src/managers/ValidationManager.ts:499](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ValidationManager.ts#L499)
 
 Generate properly formatted metadata for a new page
 
@@ -255,7 +255,7 @@ Complete metadata object with all required fields
 
 > **getAllSystemCategories**(): [`CategoryConfig`](../interfaces/CategoryConfig.md)[]
 
-Defined in: [src/managers/ValidationManager.ts:246](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ValidationManager.ts#L246)
+Defined in: [src/managers/ValidationManager.ts:246](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ValidationManager.ts#L246)
 
 Get all enabled system categories
 
@@ -271,7 +271,7 @@ Array of category configurations
 
 > **getCategoryConfig**(`label`): [`CategoryConfig`](../interfaces/CategoryConfig.md) \| `null`
 
-Defined in: [src/managers/ValidationManager.ts:217](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ValidationManager.ts#L217)
+Defined in: [src/managers/ValidationManager.ts:217](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ValidationManager.ts#L217)
 
 Get system category configuration by label
 
@@ -295,7 +295,7 @@ Category configuration or null if not found
 
 > **getCategoryStorageLocation**(`category`): `string`
 
-Defined in: [src/managers/ValidationManager.ts:237](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ValidationManager.ts#L237)
+Defined in: [src/managers/ValidationManager.ts:237](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ValidationManager.ts#L237)
 
 Get storage location for a category
 
@@ -319,7 +319,7 @@ Storage location ('regular' or 'required')
 
 > **getDefaultSystemCategory**(): `string`
 
-Defined in: [src/managers/ValidationManager.ts:267](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ValidationManager.ts#L267)
+Defined in: [src/managers/ValidationManager.ts:267](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ValidationManager.ts#L267)
 
 Get the default system category
 
@@ -335,7 +335,7 @@ Default category label
 
 > **getEngine**(): [`WikiEngine`](../../../types/WikiEngine/interfaces/WikiEngine.md)
 
-Defined in: [src/managers/BaseManager.ts:125](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L125)
+Defined in: [src/managers/BaseManager.ts:125](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L125)
 
 Get the wiki engine instance
 
@@ -361,7 +361,7 @@ const config = this.getEngine().getConfig();
 
 > **initialize**(`config?`): `Promise`\<`void`\>
 
-Defined in: [src/managers/ValidationManager.ts:154](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ValidationManager.ts#L154)
+Defined in: [src/managers/ValidationManager.ts:154](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ValidationManager.ts#L154)
 
 Initialize the ValidationManager
 
@@ -389,7 +389,7 @@ Configuration object
 
 > **isInitialized**(): `boolean`
 
-Defined in: [src/managers/BaseManager.ts:113](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L113)
+Defined in: [src/managers/BaseManager.ts:113](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L113)
 
 Check if manager has been initialized
 
@@ -417,7 +417,7 @@ if (manager.isInitialized()) {
 
 > **isValidSlug**(`slug`): `boolean`
 
-Defined in: [src/managers/ValidationManager.ts:406](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ValidationManager.ts#L406)
+Defined in: [src/managers/ValidationManager.ts:406](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ValidationManager.ts#L406)
 
 Validate slug format (URL-safe)
 
@@ -441,7 +441,7 @@ True if valid
 
 > **loadSystemCategories**(`configManager`): `void`
 
-Defined in: [src/managers/ValidationManager.ts:175](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ValidationManager.ts#L175)
+Defined in: [src/managers/ValidationManager.ts:175](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ValidationManager.ts#L175)
 
 Load system categories from ConfigurationManager
 
@@ -463,7 +463,7 @@ Configuration manager instance
 
 > **restore**(`backupData`): `Promise`\<`void`\>
 
-Defined in: [src/managers/BaseManager.ts:198](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L198)
+Defined in: [src/managers/BaseManager.ts:198](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L198)
 
 Restore manager data from backup
 
@@ -508,7 +508,7 @@ async restore(backupData: BackupData): Promise<void> {
 
 > **shutdown**(): `Promise`\<`void`\>
 
-Defined in: [src/managers/BaseManager.ts:143](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L143)
+Defined in: [src/managers/BaseManager.ts:143](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L143)
 
 Shutdown the manager and cleanup resources
 
@@ -539,7 +539,7 @@ async shutdown(): Promise<void> {
 
 > **validateContent**(`content`): [`ContentValidationResult`](../interfaces/ContentValidationResult.md)
 
-Defined in: [src/managers/ValidationManager.ts:472](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ValidationManager.ts#L472)
+Defined in: [src/managers/ValidationManager.ts:472](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ValidationManager.ts#L472)
 
 Validate page content (optional checks)
 
@@ -563,7 +563,7 @@ Content validation result
 
 > **validateExistingFile**(`filePath`, `fileData`): [`PageValidationResult`](../interfaces/PageValidationResult.md)
 
-Defined in: [src/managers/ValidationManager.ts:551](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ValidationManager.ts#L551)
+Defined in: [src/managers/ValidationManager.ts:551](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ValidationManager.ts#L551)
 
 Validate and fix an existing page file
 
@@ -593,7 +593,7 @@ Validation result with fix suggestions
 
 > **validateFilename**(`filename`): [`ValidationResult`](../interfaces/ValidationResult.md)
 
-Defined in: [src/managers/ValidationManager.ts:293](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ValidationManager.ts#L293)
+Defined in: [src/managers/ValidationManager.ts:293](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ValidationManager.ts#L293)
 
 Validate that a filename follows UUID naming convention
 
@@ -617,7 +617,7 @@ Validation result with success and error properties
 
 > **validateMetadata**(`metadata`): [`MetadataValidationResult`](../interfaces/MetadataValidationResult.md)
 
-Defined in: [src/managers/ValidationManager.ts:321](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ValidationManager.ts#L321)
+Defined in: [src/managers/ValidationManager.ts:321](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ValidationManager.ts#L321)
 
 Validate page metadata contains all required fields with proper values
 
@@ -641,7 +641,7 @@ Validation result with success, error, and warnings properties
 
 > **validatePage**(`filename`, `metadata`, `content`): [`PageValidationResult`](../interfaces/PageValidationResult.md)
 
-Defined in: [src/managers/ValidationManager.ts:418](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ValidationManager.ts#L418)
+Defined in: [src/managers/ValidationManager.ts:418](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ValidationManager.ts#L418)
 
 Validate a complete page before saving
 

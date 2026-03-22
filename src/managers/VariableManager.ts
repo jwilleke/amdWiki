@@ -114,16 +114,16 @@ class VariableManager extends BaseManager {
 
     // Application info
     this.registerVariable('appName', (_context) => {
-      return configManager?.getProperty('amdwiki.applicationName', 'amdWiki') as string ?? 'amdWiki';
+      return configManager?.getProperty('ngdpbase.applicationName', 'ngdpbase') as string ?? 'ngdpbase';
     });
     this.registerVariable('applicationname', (_context) => {
-      return configManager?.getProperty('amdwiki.applicationName', 'amdWiki') as string ?? 'amdWiki';
+      return configManager?.getProperty('ngdpbase.applicationName', 'ngdpbase') as string ?? 'ngdpbase';
     });
     this.registerVariable('version', (_context) => {
-      return configManager?.getProperty('amdwiki.version', '1.0.0') as string ?? '1.0.0';
+      return configManager?.getProperty('ngdpbase.version', '1.0.0') as string ?? '1.0.0';
     });
     this.registerVariable('baseurl', (_context) => {
-      return configManager?.getProperty('amdwiki.baseURL', 'http://localhost:3000') as string ?? 'http://localhost:3000';
+      return configManager?.getProperty('ngdpbase.baseURL', 'http://localhost:3000') as string ?? 'http://localhost:3000';
     });
 
     // Page context - ParseContext has pageName directly

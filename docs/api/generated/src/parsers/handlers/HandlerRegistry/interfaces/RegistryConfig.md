@@ -1,12 +1,12 @@
-[**amdWiki API v1.5.0**](../../../../../README.md)
+[**ngdpbase API v1.5.0**](../../../../../README.md)
 
 ***
 
-[amdWiki API](../../../../../README.md) / [src/parsers/handlers/HandlerRegistry](../README.md) / RegistryConfig
+[ngdpbase API](../../../../../README.md) / [src/parsers/handlers/HandlerRegistry](../README.md) / RegistryConfig
 
 # Interface: RegistryConfig
 
-Defined in: [src/parsers/handlers/HandlerRegistry.ts:21](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/HandlerRegistry.ts#L21)
+Defined in: [src/parsers/handlers/HandlerRegistry.ts:21](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/HandlerRegistry.ts#L21)
 
 Handler registry configuration
 
@@ -16,7 +16,7 @@ Handler registry configuration
 
 > **allowDuplicatePriorities**: `boolean`
 
-Defined in: [src/parsers/handlers/HandlerRegistry.ts:23](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/HandlerRegistry.ts#L23)
+Defined in: [src/parsers/handlers/HandlerRegistry.ts:23](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/HandlerRegistry.ts#L23)
 
 ***
 
@@ -24,7 +24,7 @@ Defined in: [src/parsers/handlers/HandlerRegistry.ts:23](https://github.com/jwil
 
 > **defaultTimeout**: `number`
 
-Defined in: [src/parsers/handlers/HandlerRegistry.ts:26](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/HandlerRegistry.ts#L26)
+Defined in: [src/parsers/handlers/HandlerRegistry.ts:26](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/HandlerRegistry.ts#L26)
 
 ***
 
@@ -32,7 +32,7 @@ Defined in: [src/parsers/handlers/HandlerRegistry.ts:26](https://github.com/jwil
 
 > **enableConflictDetection**: `boolean`
 
-Defined in: [src/parsers/handlers/HandlerRegistry.ts:25](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/HandlerRegistry.ts#L25)
+Defined in: [src/parsers/handlers/HandlerRegistry.ts:25](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/HandlerRegistry.ts#L25)
 
 ***
 
@@ -40,7 +40,7 @@ Defined in: [src/parsers/handlers/HandlerRegistry.ts:25](https://github.com/jwil
 
 > **enableDependencyResolution**: `boolean`
 
-Defined in: [src/parsers/handlers/HandlerRegistry.ts:24](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/HandlerRegistry.ts#L24)
+Defined in: [src/parsers/handlers/HandlerRegistry.ts:24](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/HandlerRegistry.ts#L24)
 
 ***
 
@@ -48,4 +48,4 @@ Defined in: [src/parsers/handlers/HandlerRegistry.ts:24](https://github.com/jwil
 
 > **maxHandlers**: `number`
 
-Defined in: [src/parsers/handlers/HandlerRegistry.ts:22](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/HandlerRegistry.ts#L22)
+Defined in: [src/parsers/handlers/HandlerRegistry.ts:22](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/HandlerRegistry.ts#L22)

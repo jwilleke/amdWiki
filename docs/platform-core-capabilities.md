@@ -1,6 +1,6 @@
-# amdWiki Core Platform Capabilities
+# ngdpbase Core Platform Capabilities
 
-This document describes what amdWiki provides **out of the box** to anyone who clones and extends it.
+This document describes what ngdpbase provides **out of the box** to anyone who clones and extends it.
 These are things you do **not** need to build — they are fully implemented, tested, and production-ready.
 
 ## Content Management
@@ -150,7 +150,7 @@ These are things you do **not** need to build — they are fully implemented, te
 ### Configuration
 
 - `ConfigurationManager` — layered config (defaults → environment → instance overrides)
-- All settings under `amdwiki.*` namespace
+- All settings under `ngdpbase.*` namespace
 - Runtime overrides persist across restarts via `app-custom-config.json`
 - `configManager.setProperty(key, value)` — change config at runtime (e.g., from admin UI)
 - Type-safe config keys via `src/types/Config.ts`
@@ -185,7 +185,7 @@ These are things you do **not** need to build — they are fully implemented, te
 
 ## Extension Points Summary
 
-These are the four ways to extend amdWiki without modifying core:
+These are the four ways to extend ngdpbase without modifying core:
 
 | Extension Point | Where | What it enables |
 |-----------------|-------|-----------------|
@@ -206,5 +206,5 @@ These are explicitly **not** in core — they are the things add-on developers b
 - Bulk data importers
 - Role seed scripts (you define which roles your app needs)
 
-See also: `docs/amdWiki-as-platform.md` for use-case analysis (Fairways Gen2, Volcano Wiki)
+See also: `docs/ngdpbase-as-platform.md` for use-case analysis (Fairways Gen2, Volcano Wiki)
 Last updated: 2026-03-22

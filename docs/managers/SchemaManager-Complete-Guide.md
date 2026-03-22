@@ -53,7 +53,7 @@ async initialize() {
     throw new Error('SchemaManager requires ConfigurationManager to be initialized.');
   }
 
-  const schemasDir = configManager.getProperty('amdwiki.directories.schemas');
+  const schemasDir = configManager.getProperty('ngdpbase.directories.schemas');
 
   const files = await fs.readdir(schemasDir);
   for (const file of files) {
@@ -82,7 +82,7 @@ async initialize() {
 
 | Property | Type | Description |
 | ---------- | ------ | ------------- |
-| `amdwiki.directories.schemas` | string | Directory containing schema files |
+| `ngdpbase.directories.schemas` | string | Directory containing schema files |
 
 Default location: `./schemas`
 
@@ -112,7 +112,7 @@ Schema files must:
 ```json
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://amdwiki.org/schemas/page.schema.json",
+  "$id": "https://ngdpbase.org/schemas/page.schema.json",
   "title": "Wiki Page",
   "type": "object",
   "required": ["title", "content"],
@@ -192,7 +192,7 @@ const names = schemaManager.getAllSchemaNames();
 
 ### JSON Schema Basics
 
-amdWiki uses JSON Schema Draft-07. Key properties:
+ngdpbase uses JSON Schema Draft-07. Key properties:
 
 ```json
 {

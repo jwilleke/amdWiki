@@ -1,12 +1,12 @@
-[**amdWiki API v1.5.0**](../../../../../README.md)
+[**ngdpbase API v1.5.0**](../../../../../README.md)
 
 ***
 
-[amdWiki API](../../../../../README.md) / [src/parsers/dom/DOMParser](../README.md) / WarningInfo
+[ngdpbase API](../../../../../README.md) / [src/parsers/dom/DOMParser](../README.md) / WarningInfo
 
 # Interface: WarningInfo
 
-Defined in: [src/parsers/dom/DOMParser.ts:134](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/DOMParser.ts#L134)
+Defined in: [src/parsers/dom/DOMParser.ts:134](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/DOMParser.ts#L134)
 
 Warning information
 
@@ -16,7 +16,7 @@ Warning information
 
 > `optional` **column**: `number`
 
-Defined in: [src/parsers/dom/DOMParser.ts:140](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/DOMParser.ts#L140)
+Defined in: [src/parsers/dom/DOMParser.ts:140](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/DOMParser.ts#L140)
 
 Column number
 
@@ -26,7 +26,7 @@ Column number
 
 > `optional` **line**: `number`
 
-Defined in: [src/parsers/dom/DOMParser.ts:138](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/DOMParser.ts#L138)
+Defined in: [src/parsers/dom/DOMParser.ts:138](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/DOMParser.ts#L138)
 
 Line number
 
@@ -36,6 +36,6 @@ Line number
 
 > **message**: `string`
 
-Defined in: [src/parsers/dom/DOMParser.ts:136](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/DOMParser.ts#L136)
+Defined in: [src/parsers/dom/DOMParser.ts:136](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/DOMParser.ts#L136)
 
 Warning message

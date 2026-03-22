@@ -1,4 +1,4 @@
-# amdWiki Glossary
+# ngdpbase Glossary
 
 Canonical definitions for terms used in code, docs, logs, and agent sessions.
 When in doubt, use the term in the "Preferred" column.
@@ -44,28 +44,28 @@ Always use `server.sh`. Never use `kill`, `node app.js`, or direct PM2 commands.
 
 ## Storage Layout
 
-amdWiki splits data across two volumes for performance. All config keys are **all lowercase**.
+ngdpbase splits data across two volumes for performance. All config keys are **all lowercase**.
 
 | Term | Env Var | Path (dev) | Contents |
 |---|---|---|---|
 | Fast Storage | `FAST_STORAGE` | `/Volumes/hd2/jimstest-wiki/data` | users, sessions, logs, config, Page Index, Search Index, Media Index, media thumbnails |
 | Slow Storage | `SLOW_STORAGE` | `/Volumes/hd2A/jimstest-wiki/data` | pages (`*.md`), attachments, attachment metadata |
-| `dist/` | — | `…/amdWiki/dist/` | compiled JS (output of Build) |
-| `src/` | — | `…/amdWiki/src/` | TypeScript source |
-| `plugins/` | — | `…/amdWiki/plugins/` | wiki plugin source (compiled to `dist/plugins/`) |
-| `config/` | — | `…/amdWiki/config/` | default config (`app-default-config.json`) |
+| `dist/` | — | `…/ngdpbase/dist/` | compiled JS (output of Build) |
+| `src/` | — | `…/ngdpbase/src/` | TypeScript source |
+| `plugins/` | — | `…/ngdpbase/plugins/` | wiki plugin source (compiled to `dist/plugins/`) |
+| `config/` | — | `…/ngdpbase/config/` | default config (`app-default-config.json`) |
 
 Key config paths (resolved via `ConfigurationManager.getResolvedDataPath()`):
 
 | Config Key | Default Value | Description |
 |---|---|---|
-| `amdwiki.page.provider.filesystem.storagedir` | `${SLOW_STORAGE}/pages` | wiki page `.md` files |
-| `amdwiki.attachment.provider.basic.storagedir` | `${SLOW_STORAGE}/attachments` | attachment binary files |
-| `amdwiki.attachment.metadatafile` | `${SLOW_STORAGE}/attachments/attachment-metadata.json` | attachment metadata |
-| `amdwiki.page.provider.versioning.indexfile` | `${FAST_STORAGE}/page-index.json` | Page Index |
-| `amdwiki.search.provider.lunr.indexdir` | `${FAST_STORAGE}/search-index/` | Search Index |
-| `amdwiki.media.index.file` | `${FAST_STORAGE}/media-index.json` | Media Index |
-| `amdwiki.managers.pluginManager.searchPaths` | `["./dist/plugins"]` | plugin search paths |
+| `ngdpbase.page.provider.filesystem.storagedir` | `${SLOW_STORAGE}/pages` | wiki page `.md` files |
+| `ngdpbase.attachment.provider.basic.storagedir` | `${SLOW_STORAGE}/attachments` | attachment binary files |
+| `ngdpbase.attachment.metadatafile` | `${SLOW_STORAGE}/attachments/attachment-metadata.json` | attachment metadata |
+| `ngdpbase.page.provider.versioning.indexfile` | `${FAST_STORAGE}/page-index.json` | Page Index |
+| `ngdpbase.search.provider.lunr.indexdir` | `${FAST_STORAGE}/search-index/` | Search Index |
+| `ngdpbase.media.index.file` | `${FAST_STORAGE}/media-index.json` | Media Index |
+| `ngdpbase.managers.pluginManager.searchPaths` | `["./dist/plugins"]` | plugin search paths |
 
 ---
 
@@ -221,12 +221,12 @@ Preferred: **Media Index Rebuild** or **media rescan**
 Avoid: "rebuild image index", "rescan photos"
 
 Triggers a full re-scan of configured media folders and rewrites
-`media-index.json`. Config keys: `amdwiki.media.folders` (paths to scan),
-`amdwiki.media.maxdepth` (default 5), `amdwiki.media.ignoredirs`,
-`amdwiki.media.ignorefiles`.
+`media-index.json`. Config keys: `ngdpbase.media.folders` (paths to scan),
+`ngdpbase.media.maxdepth` (default 5), `ngdpbase.media.ignoredirs`,
+`ngdpbase.media.ignorefiles`.
 
 **Manual:** `POST /admin/media/rescan` (admin UI: `/admin/media`)
-**Automatic:** background timer every `amdwiki.media.scaninterval` ms (default 3600000 = 1 hour)
+**Automatic:** background timer every `ngdpbase.media.scaninterval` ms (default 3600000 = 1 hour)
 
 Internally calls `mediaManager.scanFolders(true)` → `FileSystemMediaProvider.scan(force=true)`.
 
@@ -243,7 +243,7 @@ A module that extends wiki rendering via JSPWiki-style syntax:
 `[{PluginName param='value'}]`
 
 Plugins are loaded from directories listed in
-`amdwiki.managers.pluginManager.searchPaths` (default `["./dist/plugins"]`)
+`ngdpbase.managers.pluginManager.searchPaths` (default `["./dist/plugins"]`)
 and compiled from `plugins/*.ts` source. Plugin discovery is case-insensitive;
 `[{Image}]` and `[{ImagePlugin}]` both resolve to `ImagePlugin`.
 
@@ -406,4 +406,4 @@ Key providers: `BasicAttachmentProvider` (attachments), `VersioningFileProvider`
 | Render an image with layout control | Plugin: Image | `[{Image src='img.jpg' align='left' display='float'}]` |
 | Resolve an attachment src to a URL | resolveAttachmentSrc | `AttachmentManager.resolveAttachmentSrc(src, pageName)` |
 | Add a new wiki plugin | Plugin | add `*.ts` to `plugins/`, build, configure search path |
-| Check configured storage paths | ConfigurationManager | `amdwiki.attachment.provider.basic.storagedir`, etc. |
+| Check configured storage paths | ConfigurationManager | `ngdpbase.attachment.provider.basic.storagedir`, etc. |

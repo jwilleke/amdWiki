@@ -7,7 +7,7 @@
 
 ## Overview
 
-BaseManager is the abstract base class that all amdWiki managers extend. It provides common functionality for initialization, lifecycle management, and backup/restore operations following JSPWiki's modular manager pattern.
+BaseManager is the abstract base class that all ngdpbase managers extend. It provides common functionality for initialization, lifecycle management, and backup/restore operations following JSPWiki's modular manager pattern.
 
 ## Key Features
 

@@ -4,7 +4,7 @@
 **Last Updated:** 2025-12-10
 **Status:** Production Ready
 
-This comprehensive guide covers everything about WikiDocument in the amdWiki project, including its purpose, implementation, usage, and the DOM extraction pipeline that uses it.
+This comprehensive guide covers everything about WikiDocument in the ngdpbase project, including its purpose, implementation, usage, and the DOM extraction pipeline that uses it.
 
 ---
 
@@ -65,7 +65,7 @@ This separation of concerns ensures that the markdown parser and the JSPWiki syn
 The design is modeled after JSPWiki's `WikiDocument`, which extends a JDOM2 `Document` in Java.
 
 - **JSPWiki:** Uses `org.jdom2.Document` and the JDOM2 API.
-- **amdWiki:** Uses `linkedom` to provide a W3C-compliant DOM API, which is more familiar to JavaScript developers.
+- **ngdpbase:** Uses `linkedom` to provide a W3C-compliant DOM API, which is more familiar to JavaScript developers.
 
 ---
 
@@ -73,7 +73,7 @@ The design is modeled after JSPWiki's `WikiDocument`, which extends a JDOM2 `Doc
 
 ### The Problem: String-Based Parsing
 
-The original amdWiki parser processed content as strings through 7 sequential phases. This was fragile and prone to errors. For example, an "escape" syntax like `[[` to prevent a link from being rendered could be broken by a later phase that processed variables.
+The original ngdpbase parser processed content as strings through 7 sequential phases. This was fragile and prone to errors. For example, an "escape" syntax like `[[` to prevent a link from being rendered could be broken by a later phase that processed variables.
 
 **The core problem was order-dependency.** The output would change drastically if you re-ordered the parsing phases, and it was impossible to find an order that worked for all edge cases.
 
@@ -81,7 +81,7 @@ The original amdWiki parser processed content as strings through 7 sequential ph
 
 The `WikiDocument` class enables a modern, robust parsing architecture that separates concerns, inspired by the discovery that JSPWiki itself doesn't parse markdown but delegates it to a specialized library (FlexMark).
 
-**amdWiki now follows the same pattern:**
+**ngdpbase now follows the same pattern:**
 
 - **Markdown Syntax** (`##`, `*`, etc.) is handled exclusively by the **Showdown parser**.
 - **JSPWiki Syntax** (`[{$var}]`, `[{Plugin}]`, `[Link]`) is handled by the **DOM Extraction Pipeline**, which uses `WikiDocument`.

@@ -20,9 +20,9 @@ const mockUserManager = {
 const mockConfigManager = {
   getProperty: jest.fn((key, defaultValue) => {
     const config = {
-      "amdwiki.features.images.maxUploadSize": 10 * 1024 * 1024,
-      "amdwiki.features.images.defaultAlt": "Uploaded image",
-      "amdwiki.features.images.defaultClass": "wiki-image",
+      "ngdpbase.features.images.maxUploadSize": 10 * 1024 * 1024,
+      "ngdpbase.features.images.defaultAlt": "Uploaded image",
+      "ngdpbase.features.images.defaultClass": "wiki-image",
     };
     return config[key] || defaultValue;
   }),

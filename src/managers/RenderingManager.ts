@@ -151,8 +151,8 @@ class RenderingManager extends BaseManager {
 
     const configManager = this.engine.getManager<ConfigurationManager>('ConfigurationManager');
     if (configManager) {
-      const matchEnglishPlurals = configManager.getProperty('amdwiki.translator-reader.match-english-plurals', true) as boolean;
-      const matchCamelCase = configManager.getProperty('amdwiki.translator-reader.camel-case-links', false) as boolean;
+      const matchEnglishPlurals = configManager.getProperty('ngdpbase.translator-reader.match-english-plurals', true) as boolean;
+      const matchCamelCase = configManager.getProperty('ngdpbase.translator-reader.camel-case-links', false) as boolean;
       this.pageNameMatcher = new PageNameMatcher(matchEnglishPlurals, matchCamelCase);
     }
 
@@ -237,15 +237,15 @@ class RenderingManager extends BaseManager {
     // Load from configuration if available
     if (configManager) {
       try {
-        this.renderingConfig.useAdvancedParser = configManager.getProperty('amdwiki.markup.useAdvancedParser', this.renderingConfig.useAdvancedParser) as boolean;
+        this.renderingConfig.useAdvancedParser = configManager.getProperty('ngdpbase.markup.useAdvancedParser', this.renderingConfig.useAdvancedParser) as boolean;
 
-        this.renderingConfig.fallbackToLegacy = configManager.getProperty('amdwiki.markup.fallbackToLegacy', this.renderingConfig.fallbackToLegacy) as boolean;
+        this.renderingConfig.fallbackToLegacy = configManager.getProperty('ngdpbase.markup.fallbackToLegacy', this.renderingConfig.fallbackToLegacy) as boolean;
 
-        this.renderingConfig.integration = configManager.getProperty('amdwiki.markup.integration.renderingManager', this.renderingConfig.integration) as boolean;
+        this.renderingConfig.integration = configManager.getProperty('ngdpbase.markup.integration.renderingManager', this.renderingConfig.integration) as boolean;
 
-        this.renderingConfig.performanceComparison = configManager.getProperty('amdwiki.markup.performanceComparison', this.renderingConfig.performanceComparison) as boolean;
+        this.renderingConfig.performanceComparison = configManager.getProperty('ngdpbase.markup.performanceComparison', this.renderingConfig.performanceComparison) as boolean;
 
-        this.renderingConfig.logParsingMethod = configManager.getProperty('amdwiki.markup.logParsingMethod', this.renderingConfig.logParsingMethod) as boolean;
+        this.renderingConfig.logParsingMethod = configManager.getProperty('ngdpbase.markup.logParsingMethod', this.renderingConfig.logParsingMethod) as boolean;
       } catch (error) {
         logger.warn('Failed to load RenderingManager configuration, using defaults:', getErrorMessage(error));
       }
@@ -817,7 +817,7 @@ class RenderingManager extends BaseManager {
       case '$uptime':
         return this.formatUptime(this.getUptime());
       case '$applicationname':
-        return 'amdWiki';
+        return 'ngdpbase';
       case '$version':
         return this.getApplicationVersion();
       case '$baseurl':
@@ -917,7 +917,7 @@ class RenderingManager extends BaseManager {
       let expandedContent = content;
       expandedContent = expandedContent.replace(/\[\{\$totalpages\}\]/g, totalPages.toString());
       expandedContent = expandedContent.replace(/\[\{\$uptime\}\]/g, uptimeFormatted);
-      expandedContent = expandedContent.replace(/\[\{\$applicationname\}\]/g, 'amdWiki');
+      expandedContent = expandedContent.replace(/\[\{\$applicationname\}\]/g, 'ngdpbase');
       expandedContent = expandedContent.replace(/\[\{\$baseurl\}\]/g, this.getBaseUrl());
       expandedContent = expandedContent.replace(/\[\{\$timestamp\}\]/g, new Date().toISOString());
       expandedContent = expandedContent.replace(/\[\{\$date\}\]/g, new Date().toLocaleDateString());

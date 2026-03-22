@@ -1,12 +1,12 @@
-[**amdWiki API v1.5.0**](../../../../README.md)
+[**ngdpbase API v1.5.0**](../../../../README.md)
 
 ***
 
-[amdWiki API](../../../../README.md) / [src/managers/BackupManager](../README.md) / RestoreResults
+[ngdpbase API](../../../../README.md) / [src/managers/BackupManager](../README.md) / RestoreResults
 
 # Interface: RestoreResults
 
-Defined in: [src/managers/BackupManager.ts:42](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BackupManager.ts#L42)
+Defined in: [src/managers/BackupManager.ts:42](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BackupManager.ts#L42)
 
 Restore results
 
@@ -16,7 +16,7 @@ Restore results
 
 > **failed**: `object`[]
 
-Defined in: [src/managers/BackupManager.ts:44](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BackupManager.ts#L44)
+Defined in: [src/managers/BackupManager.ts:44](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BackupManager.ts#L44)
 
 #### error
 
@@ -32,7 +32,7 @@ Defined in: [src/managers/BackupManager.ts:44](https://github.com/jwilleke/amdWi
 
 > **skipped**: `string`[]
 
-Defined in: [src/managers/BackupManager.ts:45](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BackupManager.ts#L45)
+Defined in: [src/managers/BackupManager.ts:45](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BackupManager.ts#L45)
 
 ***
 
@@ -40,4 +40,4 @@ Defined in: [src/managers/BackupManager.ts:45](https://github.com/jwilleke/amdWi
 
 > **success**: `string`[]
 
-Defined in: [src/managers/BackupManager.ts:43](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BackupManager.ts#L43)
+Defined in: [src/managers/BackupManager.ts:43](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BackupManager.ts#L43)

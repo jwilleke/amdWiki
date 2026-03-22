@@ -62,14 +62,14 @@ describe('UserManager', () => {
     mockConfigManager = {
       getProperty: jest.fn((key, defaultValue) => {
         const config = {
-          'amdwiki.user.provider.default': 'fileuserprovider',
-          'amdwiki.user.provider': 'fileuserprovider',
-          'amdwiki.user.provider.storagedir': './data/users',
-          'amdwiki.user.security.passwordsalt': 'test-salt',
-          'amdwiki.user.security.defaultpassword': 'admin123',
-          'amdwiki.user.security.sessionexpiration': 86400000,
-          'amdwiki.user.defaults.timezone': 'utc',
-          'amdwiki.roles.definitions': {
+          'ngdpbase.user.provider.default': 'fileuserprovider',
+          'ngdpbase.user.provider': 'fileuserprovider',
+          'ngdpbase.user.provider.storagedir': './data/users',
+          'ngdpbase.user.security.passwordsalt': 'test-salt',
+          'ngdpbase.user.security.defaultpassword': 'admin123',
+          'ngdpbase.user.security.sessionexpiration': 86400000,
+          'ngdpbase.user.defaults.timezone': 'utc',
+          'ngdpbase.roles.definitions': {
             admin: { name: 'admin', displayName: 'Administrator', permissions: ['*'] },
             reader: { name: 'reader', displayName: 'Reader', permissions: ['page:read'] }
           }
@@ -113,7 +113,7 @@ describe('UserManager', () => {
       await userManager.initialize();
 
       expect(mockEngine.getManager).toHaveBeenCalledWith('ConfigurationManager');
-      expect(mockConfigManager.getProperty).toHaveBeenCalledWith('amdwiki.user.provider.default', 'fileuserprovider');
+      expect(mockConfigManager.getProperty).toHaveBeenCalledWith('ngdpbase.user.provider.default', 'fileuserprovider');
       expect(userManager.providerClass).toBe('FileUserProvider');
     });
 
@@ -253,9 +253,9 @@ describe('UserManager', () => {
     test('should normalize provider name to PascalCase', async () => {
       // Test with lowercase
       mockConfigManager.getProperty.mockImplementation((key, defaultValue) => {
-        if (key === 'amdwiki.user.provider') return 'fileuserprovider';
-        if (key === 'amdwiki.user.provider.default') return 'fileuserprovider';
-        if (key === 'amdwiki.roles.definitions') return {};
+        if (key === 'ngdpbase.user.provider') return 'fileuserprovider';
+        if (key === 'ngdpbase.user.provider.default') return 'fileuserprovider';
+        if (key === 'ngdpbase.roles.definitions') return {};
         return defaultValue;
       });
 
@@ -359,8 +359,8 @@ describe('UserManager', () => {
   describe('error handling', () => {
     test('should handle provider initialization failure', async () => {
       mockConfigManager.getProperty.mockImplementation((key, defaultValue) => {
-        if (key === 'amdwiki.user.provider') return 'nonexistentprovider';
-        if (key === 'amdwiki.user.provider.default') return 'nonexistentprovider';
+        if (key === 'ngdpbase.user.provider') return 'nonexistentprovider';
+        if (key === 'ngdpbase.user.provider.default') return 'nonexistentprovider';
         return defaultValue;
       });
 

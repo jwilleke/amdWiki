@@ -1,12 +1,12 @@
-[**amdWiki API v1.5.0**](../../../../../README.md)
+[**ngdpbase API v1.5.0**](../../../../../README.md)
 
 ***
 
-[amdWiki API](../../../../../README.md) / [src/parsers/handlers/BaseSyntaxHandler](../README.md) / InitializationContext
+[ngdpbase API](../../../../../README.md) / [src/parsers/handlers/BaseSyntaxHandler](../README.md) / InitializationContext
 
 # Interface: InitializationContext
 
-Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:143](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L143)
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:143](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L143)
 
 Initialization context (minimal interface for unconverted dependencies)
 
@@ -16,7 +16,7 @@ Initialization context (minimal interface for unconverted dependencies)
 
 > `optional` **engine**: `object`
 
-Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:144](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L144)
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:144](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L144)
 
 #### getManager()
 
@@ -38,7 +38,7 @@ Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:144](https://github.com/j
 
 > `optional` **handlerRegistry**: `object`
 
-Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:147](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L147)
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:147](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L147)
 
 #### getHandler()
 

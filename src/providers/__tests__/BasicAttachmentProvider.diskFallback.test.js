@@ -19,14 +19,14 @@ const BasicAttachmentProvider = require('../BasicAttachmentProvider');
 function makeEngine(storageDir) {
   const configManager = {
     getProperty: jest.fn().mockImplementation((key, defaultValue) => {
-      if (key === 'amdwiki.attachment.maxsize') return 10485760;
-      if (key === 'amdwiki.attachment.allowedtypes') return '';
-      if (key === 'amdwiki.attachment.provider.basic.hashmethod') return 'sha256';
+      if (key === 'ngdpbase.attachment.maxsize') return 10485760;
+      if (key === 'ngdpbase.attachment.allowedtypes') return '';
+      if (key === 'ngdpbase.attachment.provider.basic.hashmethod') return 'sha256';
       return defaultValue;
     }),
     getResolvedDataPath: jest.fn().mockImplementation((key, defaultValue) => {
-      if (key === 'amdwiki.attachment.provider.basic.storagedir') return storageDir;
-      if (key === 'amdwiki.attachment.metadatafile') return path.join(storageDir, 'attachment-metadata.json');
+      if (key === 'ngdpbase.attachment.provider.basic.storagedir') return storageDir;
+      if (key === 'ngdpbase.attachment.metadatafile') return path.join(storageDir, 'attachment-metadata.json');
       return defaultValue;
     }),
   };

@@ -20,7 +20,7 @@
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <div>
                     <h1><i class="fas fa-cogs"></i> Configuration Management</h1>
-                    <p class="lead">Manage amdWiki configuration properties</p>
+                    <p class="lead">Manage ngdpbase configuration properties</p>
                 </div>
                 <a href="/admin" class="btn" style="background-color: var(--btn-secondary-bg); color: var(--btn-secondary-text); border-color: var(--btn-secondary-border);">
                     <i class="fas fa-arrow-left"></i> Back to Dashboard
@@ -198,7 +198,7 @@
                     <div class="card mt-3">
                         <div class="card-header">
                             <h5><i class="fas fa-plus"></i> Add New Configuration Property</h5>
-                            <small class="text-muted">Add custom amdWiki configuration</small>
+                            <small class="text-muted">Add custom ngdpbase configuration</small>
                         </div>
                         <div class="card-body">
                             <form method="POST" action="/admin/configuration">
@@ -206,8 +206,8 @@
 
                                 <div class="mb-3">
                                     <label for="newProperty" class="form-label">Property Name</label>
-                                    <input type="text" class="form-control" id="newProperty" name="property" placeholder="amdwiki.property.name" required>
-                                    <div class="form-text">Property name must start with 'amdwiki.' or 'log4j.'</div>
+                                    <input type="text" class="form-control" id="newProperty" name="property" placeholder="ngdpbase.property.name" required>
+                                    <div class="form-text">Property name must start with 'ngdpbase.' or 'log4j.'</div>
                                 </div>
 
                                 <div class="mb-3">

@@ -8,11 +8,11 @@
 
 ## Overview
 
-The **PolicyManager** manages the lifecycle of access control policies in amdWiki. It loads policies from ConfigurationManager, stores them in memory, and provides access to all defined policies for evaluation by PolicyEvaluator.
+The **PolicyManager** manages the lifecycle of access control policies in ngdpbase. It loads policies from ConfigurationManager, stores them in memory, and provides access to all defined policies for evaluation by PolicyEvaluator.
 
 ### Key Features
 
-- ✅ **Config-Driven:** Loads policies from `amdwiki.access.policies` in configuration
+- ✅ **Config-Driven:** Loads policies from `ngdpbase.access.policies` in configuration
 - ✅ **Priority Sorting:** Automatically sorts policies by priority (descending)
 - ✅ **Centralized Storage:** Single source of truth for all access policies
 - ✅ **Fast Retrieval:** In-memory Map storage for O(1) policy lookup
@@ -22,7 +22,7 @@ The **PolicyManager** manages the lifecycle of access control policies in amdWik
 
 ## Purpose
 
-PolicyManager serves as the **policy repository** in amdWiki's access control system. It doesn't make access decisions itself—that's the job of PolicyEvaluator. Instead, it:
+PolicyManager serves as the **policy repository** in ngdpbase's access control system. It doesn't make access decisions itself—that's the job of PolicyEvaluator. Instead, it:
 
 1. **Loads** policies from configuration
 2. **Stores** policies in memory for fast access
@@ -44,13 +44,13 @@ PolicyManager serves as the **policy repository** in amdWiki's access control sy
 ┌─────────────────────────────────────────────────────┐
 │ Get ConfigurationManager                            │
 │ - Check if policies enabled                         │
-│ - Get amdwiki.access.policies.enabled               │
+│ - Get ngdpbase.access.policies.enabled               │
 └────────────────────┬────────────────────────────────┘
                      │
                      ▼
 ┌─────────────────────────────────────────────────────┐
 │ Load Policies from Config                           │
-│ - Get amdwiki.access.policies array                 │
+│ - Get ngdpbase.access.policies array                 │
 │ - Store each policy by ID in Map                    │
 └────────────────────┬────────────────────────────────┘
                      │
@@ -66,7 +66,7 @@ PolicyManager serves as the **policy repository** in amdWiki's access control sy
 ```text
 ┌───────────────────────┐
 │ ConfigurationManager  │
-│ - amdwiki.access.     │
+│ - ngdpbase.access.     │
 │   policies            │
 └──────────┬────────────┘
            │
@@ -97,9 +97,9 @@ PolicyManager serves as the **policy repository** in amdWiki's access control sy
 ```json
 {
   "_comment_access_policies": "Access control policies - Role-based with specific action permissions",
-  "amdwiki.access.policies.defaultPolicy": "deny",
-  "amdwiki.access.policies.enabled": true,
-  "amdwiki.access.policies": [
+  "ngdpbase.access.policies.defaultPolicy": "deny",
+  "ngdpbase.access.policies.enabled": true,
+  "ngdpbase.access.policies": [
     {
       "id": "admin-full-access",
       "name": "Administrator Full Access",
@@ -145,7 +145,7 @@ Add custom policies in `data/config/app-custom-config.json`:
 
 ```json
 {
-  "amdwiki.access.policies": [
+  "ngdpbase.access.policies": [
     {
       "id": "moderator-permissions",
       "name": "Moderator Permissions",
@@ -188,8 +188,8 @@ Initializes PolicyManager by loading policies from ConfigurationManager.
 **Process:**
 
 1. Gets ConfigurationManager instance
-2. Checks if policies are enabled via `amdwiki.access.policies.enabled`
-3. Loads policies array from `amdwiki.access.policies`
+2. Checks if policies are enabled via `ngdpbase.access.policies.enabled`
+3. Loads policies array from `ngdpbase.access.policies`
 4. Validates each policy has an `id` field
 5. Stores policies in Map by ID
 6. Logs number of policies loaded
@@ -443,7 +443,7 @@ function displayPolicyDetails(policyId) {
 
 ## Built-in Policies
 
-### Default Policies in amdWiki
+### Default Policies in ngdpbase
 
 | Policy ID | Priority | Roles | Description |
 | ----------- | ---------- | ------- | ------------- |
@@ -475,28 +475,28 @@ if (!configManager) {
 ### Policies Disabled
 
 ```javascript
-const policiesEnabled = configManager.getProperty('amdwiki.access.policies.enabled', false);
+const policiesEnabled = configManager.getProperty('ngdpbase.access.policies.enabled', false);
 if (!policiesEnabled) {
   logger.info('PolicyManager is disabled via configuration.');
   return;
 }
 ```
 
-**Solution:** Set `amdwiki.access.policies.enabled: true` in config.
+**Solution:** Set `ngdpbase.access.policies.enabled: true` in config.
 
 ---
 
 ### Invalid Policies Array
 
 ```javascript
-const policies = configManager.getProperty('amdwiki.access.policies', []);
+const policies = configManager.getProperty('ngdpbase.access.policies', []);
 if (!Array.isArray(policies)) {
-  logger.error('Policies configuration (amdwiki.access.policies) is invalid or not an array.');
+  logger.error('Policies configuration (ngdpbase.access.policies) is invalid or not an array.');
   return;
 }
 ```
 
-**Solution:** Ensure `amdwiki.access.policies` is an array in config.
+**Solution:** Ensure `ngdpbase.access.policies` is an array in config.
 
 ---
 
@@ -667,8 +667,8 @@ validateAllPolicies() {
 
 **Solution:**
 
-1. Check `amdwiki.access.policies.enabled: true`
-2. Verify `amdwiki.access.policies` array exists
+1. Check `ngdpbase.access.policies.enabled: true`
+2. Verify `ngdpbase.access.policies` array exists
 3. Ensure policies have `id` fields
 
 ---

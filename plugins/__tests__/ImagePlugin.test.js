@@ -76,8 +76,8 @@ describe("Image (via PluginManager)", () => {
     const mockConfigManager = {
       getProperty: jest.fn().mockImplementation((key, def) => {
         const configMap = {
-          "amdwiki.features.images.defaultAlt": "Uploaded image",
-          "amdwiki.features.images.defaultClass": "wiki-image",
+          "ngdpbase.features.images.defaultAlt": "Uploaded image",
+          "ngdpbase.features.images.defaultClass": "wiki-image",
         };
         return key in configMap ? configMap[key] : def;
       }),
@@ -379,8 +379,8 @@ describe("Image (via PluginManager)", () => {
     it("uses ConfigurationManager values when available", async () => {
       const customConfigManager = {
         getProperty: jest.fn().mockImplementation((key, def) => {
-          if (key === "amdwiki.features.images.defaultAlt") return "Custom Alt";
-          if (key === "amdwiki.features.images.defaultClass")
+          if (key === "ngdpbase.features.images.defaultAlt") return "Custom Alt";
+          if (key === "ngdpbase.features.images.defaultClass")
             return "custom-class";
           return def;
         }),
@@ -621,8 +621,8 @@ describe("Image (via PluginManager)", () => {
               return {
                 getProperty: jest.fn().mockImplementation((key, def) => {
                   const configMap = {
-                    "amdwiki.features.images.defaultAlt": "Uploaded image",
-                    "amdwiki.features.images.defaultClass": "wiki-image",
+                    "ngdpbase.features.images.defaultAlt": "Uploaded image",
+                    "ngdpbase.features.images.defaultClass": "wiki-image",
                   };
                   return key in configMap ? configMap[key] : def;
                 }),

@@ -1,5 +1,5 @@
 /**
- * User type definitions for amdWiki
+ * User type definitions for ngdpbase
  *
  * This module defines types for users, authentication, roles, and permissions
  * used by UserManager and authorization systems.

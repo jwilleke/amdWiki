@@ -1,15 +1,15 @@
-[**amdWiki API v1.5.0**](../README.md)
+[**ngdpbase API v1.5.0**](../README.md)
 
 ***
 
-[amdWiki API](../README.md) / types
+[ngdpbase API](../README.md) / types
 
 # types
 
-amdWiki Type Definitions
+ngdpbase Type Definitions
 
 Central export point for all TypeScript type definitions used throughout
-the amdWiki application. Import types from this module to ensure consistency.
+the ngdpbase application. Import types from this module to ensure consistency.
 
 ## Example
 

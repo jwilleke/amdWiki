@@ -32,9 +32,9 @@ const createMockEngine = () => {
       if (name === 'ConfigurationManager') {
         return {
           getProperty: jest.fn((key, defaultValue) => {
-            if (key === 'amdwiki.translator-reader.match-english-plurals') return true;
-            if (key === 'amdwiki.interwiki.enabled') return true;
-            if (key === 'amdwiki.interwiki.sites') {
+            if (key === 'ngdpbase.translator-reader.match-english-plurals') return true;
+            if (key === 'ngdpbase.interwiki.enabled') return true;
+            if (key === 'ngdpbase.interwiki.sites') {
               return {
                 Wikipedia: { url: 'https://en.wikipedia.org/wiki/%s', enabled: true, openInNewWindow: true },
                 JSPWiki: { url: 'https://jspwiki-wiki.apache.org/Wiki.jsp?page=%s', enabled: true, openInNewWindow: true }

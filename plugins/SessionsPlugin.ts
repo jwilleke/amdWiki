@@ -47,13 +47,13 @@ const SessionsPlugin: SimplePlugin = {
         ) as ConfigManager | undefined;
 
         if (cfgMgr?.getProperty) {
-          host = cfgMgr.getProperty('amdwiki.server.host', host) as string;
-          port = cfgMgr.getProperty('amdwiki.server.port', port) as number;
+          host = cfgMgr.getProperty('ngdpbase.server.host', host) as string;
+          port = cfgMgr.getProperty('ngdpbase.server.port', port) as number;
         } else if (typeof context.engine?.getConfig === 'function') {
           const config = context.engine.getConfig() as { get?: (key: string, defaultValue: unknown) => unknown } | undefined;
           if (config?.get) {
-            host = config.get('amdwiki.server.host', host) as string;
-            port = config.get('amdwiki.server.port', port) as number;
+            host = config.get('ngdpbase.server.host', host) as string;
+            port = config.get('ngdpbase.server.port', port) as number;
           }
         }
       } catch {

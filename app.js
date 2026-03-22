@@ -1,6 +1,6 @@
 /**
  * @file app.js
- * @description Main application file for the amdWiki Engine.
+ * @description Main application file for the ngdpbase Engine.
  */
 
 const path = require('path');
@@ -18,7 +18,7 @@ const InstallRoutes = require('./dist/src/routes/InstallRoutes');
 const { ThemeManager } = require('./dist/src/managers/ThemeManager');
 
 // --- PID File Lock to Prevent Multiple Instances ---
-const PID_FILE = path.join(__dirname, '.amdwiki.pid');
+const PID_FILE = path.join(__dirname, '.ngdpbase.pid');
 
 function checkAndCreatePidLock() {
   try {
@@ -29,7 +29,7 @@ function checkAndCreatePidLock() {
       // Check if the process is actually running
       try {
         process.kill(existingPid, 0); // Signal 0 checks if process exists
-        console.error('❌ FATAL: Another instance of amdWiki is already running (PID: ' + existingPid + ')');
+        console.error('❌ FATAL: Another instance of ngdpbase is already running (PID: ' + existingPid + ')');
         console.error('   If you believe this is an error, delete: ' + PID_FILE);
         process.exit(1);
       } catch (e) {
@@ -142,13 +142,13 @@ checkAndCreatePidLock();
 
   // 4. Initialize the WikiEngine in the background
   try {
-    console.log('🚀 Initializing amdWiki Engine...');
+    console.log('🚀 Initializing ngdpbase Engine...');
     engine = new WikiEngine();
     await engine.initialize();
     engineRef = engine; // expose to graceful-shutdown SIGTERM handler
-    console.log('✅ amdWiki Engine initialized successfully.');
+    console.log('✅ ngdpbase Engine initialized successfully.');
   } catch (error) {
-    console.error('🔥🔥🔥 FATAL: Failed to initialize amdWiki Engine.');
+    console.error('🔥🔥🔥 FATAL: Failed to initialize ngdpbase Engine.');
     console.error(error);
     process.exit(1);
   }
@@ -214,35 +214,35 @@ checkAndCreatePidLock();
   const configManager = engine.getManager('ConfigurationManager');
 
   // Initialise ThemeManager and inject theme paths into all template locals
-  const activeThemeName = configManager.getProperty('amdwiki.theme.active', 'default');
+  const activeThemeName = configManager.getProperty('ngdpbase.theme.active', 'default');
   const themesDir = path.join(__dirname, 'themes');
   const themeManager = new ThemeManager(activeThemeName, themesDir);
   app.use((req, res, next) => {
     Object.assign(res.locals, themeManager.paths);
     next();
   });
-  const sessionPath = configManager.getResolvedDataPath('amdwiki.session.storagedir', './data/sessions');
+  const sessionPath = configManager.getResolvedDataPath('ngdpbase.session.storagedir', './data/sessions');
   await fs.ensureDir(sessionPath);
 
   app.use(session({
     store: new FileStore({
       path: sessionPath,
-      ttl: configManager.getProperty('amdwiki.session.maxAge', 24 * 60 * 60 * 1000) / 1000, // Convert to seconds
+      ttl: configManager.getProperty('ngdpbase.session.maxAge', 24 * 60 * 60 * 1000) / 1000, // Convert to seconds
       retries: 0,
       reapInterval: 3600 // Clean up expired sessions every hour
     }),
-    secret: configManager.getProperty('amdwiki.session.secret', 'amdwiki-session-secret-change-in-production'),
+    secret: configManager.getProperty('ngdpbase.session.secret', 'ngdpbase-session-secret-change-in-production'),
     resave: false,
     saveUninitialized: false,
     cookie: {
       secure: false, // Set to true in production with HTTPS
       httpOnly: true,
-      maxAge: configManager.getProperty('amdwiki.session.maxAge', 24 * 60 * 60 * 1000) // 24 hours
+      maxAge: configManager.getProperty('ngdpbase.session.maxAge', 24 * 60 * 60 * 1000) // 24 hours
     }
   }));
 
   // Middleware to attach user context from session
-  const debugSession = configManager.getProperty('amdwiki.logging.debug.session', false);
+  const debugSession = configManager.getProperty('ngdpbase.logging.debug.session', false);
 
   app.use(async (req, res, next) => {
     // Log all incoming requests for debugging
@@ -361,8 +361,8 @@ checkAndCreatePidLock();
   // Read configured port/hostname now that config is available
   const port = process.env.PORT
     ? parseInt(process.env.PORT, 10)
-    : configManager.getProperty('amdwiki.server.port', 3000);
-  const hostname = configManager.getProperty('amdwiki.server.host', 'localhost');
+    : configManager.getProperty('ngdpbase.server.port', 3000);
+  const hostname = configManager.getProperty('ngdpbase.server.host', 'localhost');
 
   const externalPort = process.env.EXTERNAL_PORT ? parseInt(process.env.EXTERNAL_PORT) : port;
   const displayPort = externalPort !== port ? externalPort : port;
@@ -370,10 +370,10 @@ checkAndCreatePidLock();
 
   console.log('\n' + '='.repeat(60));
   if (externalPort !== port) {
-    console.log(`🚀 Running amdWiki on port ${port} (container internal)`);
+    console.log(`🚀 Running ngdpbase on port ${port} (container internal)`);
     console.log(`🌐 External port: ${externalPort}`);
   } else {
-    console.log(`🚀 amdWiki Engine ready on port ${port}`);
+    console.log(`🚀 ngdpbase Engine ready on port ${port}`);
   }
   console.log(`🌐 Visit: ${baseURL}`);
 
@@ -381,7 +381,7 @@ checkAndCreatePidLock();
   const userManager = engine.getManager('UserManager');
   const isDefaultPassword = await userManager.isAdminUsingDefaultPassword();
   if (isDefaultPassword) {
-    const defaultPassword = configManager.getProperty('amdwiki.user.security.defaultpassword', 'admin123');
+    const defaultPassword = configManager.getProperty('ngdpbase.user.security.defaultpassword', 'admin123');
     console.log(`⚠️  Use user 'admin' and password '${defaultPassword}' to login.`);
     console.log(`⚠️  SECURITY WARNING: Change the admin password immediately!`);
   }

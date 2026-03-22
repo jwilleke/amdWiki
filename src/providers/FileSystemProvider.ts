@@ -59,10 +59,10 @@ interface BackupData {
  * - Configurable encoding support
  *
  * Configuration keys (all lowercase):
- * - amdwiki.page.provider.filesystem.storagedir - Main pages directory
- * - amdwiki.page.provider.filesystem.requiredpagesdir - Required pages directory
- * - amdwiki.page.provider.filesystem.encoding - File encoding (default: utf-8)
- * - amdwiki.translator-reader.match-english-plurals - Enable plural matching
+ * - ngdpbase.page.provider.filesystem.storagedir - Main pages directory
+ * - ngdpbase.page.provider.filesystem.requiredpagesdir - Required pages directory
+ * - ngdpbase.page.provider.filesystem.encoding - File encoding (default: utf-8)
+ * - ngdpbase.translator-reader.match-english-plurals - Enable plural matching
  *
  * @class FileSystemProvider
  * @extends BasePageProvider
@@ -140,26 +140,26 @@ class FileSystemProvider extends BasePageProvider {
     // Get directory configuration (ALL LOWERCASE with provider-specific keys)
     // pagesDirectory uses getResolvedDataPath to support INSTANCE_DATA_FOLDER
     this.pagesDirectory = configManager.getResolvedDataPath(
-      'amdwiki.page.provider.filesystem.storagedir',
+      'ngdpbase.page.provider.filesystem.storagedir',
       './data/pages'
     );
 
     // requiredPagesDirectory is NOT under data folder, resolve manually
     const reqCfgPath = configManager.getProperty(
-      'amdwiki.page.provider.filesystem.requiredpagesdir',
+      'ngdpbase.page.provider.filesystem.requiredpagesdir',
       './required-pages'
     ) as string;
     this.requiredPagesDirectory = path.isAbsolute(reqCfgPath) ? reqCfgPath : path.join(process.cwd(), reqCfgPath);
 
     // Get encoding configuration (ALL LOWERCASE)
     this.encoding = configManager.getProperty(
-      'amdwiki.page.provider.filesystem.encoding',
+      'ngdpbase.page.provider.filesystem.encoding',
       'utf-8'
     ) as BufferEncoding;
 
     // Initialize PageNameMatcher with plural matching and CamelCase config
-    const matchEnglishPlurals = configManager.getProperty('amdwiki.translator-reader.match-english-plurals', true) as boolean;
-    const matchCamelCase = configManager.getProperty('amdwiki.translator-reader.camel-case-links', false) as boolean;
+    const matchEnglishPlurals = configManager.getProperty('ngdpbase.translator-reader.match-english-plurals', true) as boolean;
+    const matchCamelCase = configManager.getProperty('ngdpbase.translator-reader.camel-case-links', false) as boolean;
     this.pageNameMatcher = new PageNameMatcher(matchEnglishPlurals, matchCamelCase);
     logger.info(`[FileSystemProvider] Plural matching: ${matchEnglishPlurals ? 'enabled' : 'disabled'}, CamelCase matching: ${matchCamelCase ? 'enabled' : 'disabled'}`);
 

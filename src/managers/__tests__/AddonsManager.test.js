@@ -8,13 +8,13 @@ describe('AddonsManager', () => {
 
   const makeConfigManager = (overrides = {}) => ({
     getProperty: jest.fn((key, defaultValue) => {
-      if (key === 'amdwiki.managers.addonsManager.enabled') {
+      if (key === 'ngdpbase.managers.addonsManager.enabled') {
         return overrides.enabled ?? true;
       }
-      if (key === 'amdwiki.managers.addonsManager.addonsPath') {
+      if (key === 'ngdpbase.managers.addonsManager.addonsPath') {
         return overrides.addonsPath ?? tmpDir;
       }
-      if (key.startsWith('amdwiki.addons.')) {
+      if (key.startsWith('ngdpbase.addons.')) {
         const parts = key.split('.');
         const addonName = parts[2];
         const prop = parts[3];
@@ -24,7 +24,7 @@ describe('AddonsManager', () => {
         }
         return defaultValue;
       }
-      if (key === 'amdwiki.addons') {
+      if (key === 'ngdpbase.addons') {
         return overrides.addonsConfig ?? {};
       }
       return defaultValue;

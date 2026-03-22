@@ -1,5 +1,5 @@
 /**
- * Version type definitions for amdWiki
+ * Version type definitions for ngdpbase
  *
  * This module defines types for page versioning, including version metadata,
  * manifests, and version history structures used by VersioningFileProvider.

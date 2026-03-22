@@ -1,12 +1,12 @@
-[**amdWiki API v1.5.0**](../../../../README.md)
+[**ngdpbase API v1.5.0**](../../../../README.md)
 
 ***
 
-[amdWiki API](../../../../README.md) / [src/context/WikiContext](../README.md) / default
+[ngdpbase API](../../../../README.md) / [src/context/WikiContext](../README.md) / default
 
 # Class: default
 
-Defined in: [src/context/WikiContext.ts:137](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/context/WikiContext.ts#L137)
+Defined in: [src/context/WikiContext.ts:137](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/context/WikiContext.ts#L137)
 
 WikiContext - Encapsulates the context of a single request or rendering operation
 
@@ -27,7 +27,7 @@ current page, user, request/response objects, and manager references.
 
 > **new default**(`engine`, `options?`): `WikiContext`
 
-Defined in: [src/context/WikiContext.ts:215](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/context/WikiContext.ts#L215)
+Defined in: [src/context/WikiContext.ts:215](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/context/WikiContext.ts#L215)
 
 Creates a new WikiContext instance
 
@@ -71,7 +71,7 @@ const context = new WikiContext(engine, {
 
 > `readonly` **aclManager**: [`export=`](../../../managers/ACLManager/classes/export=.md)
 
-Defined in: [src/context/WikiContext.ts:193](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/context/WikiContext.ts#L193)
+Defined in: [src/context/WikiContext.ts:193](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/context/WikiContext.ts#L193)
 
 Reference to ACLManager
 
@@ -81,7 +81,7 @@ Reference to ACLManager
 
 > `readonly` **content**: `string` \| `null`
 
-Defined in: [src/context/WikiContext.ts:169](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/context/WikiContext.ts#L169)
+Defined in: [src/context/WikiContext.ts:169](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/context/WikiContext.ts#L169)
 
 Page content (markdown)
 
@@ -91,7 +91,7 @@ Page content (markdown)
 
 > `readonly` **context**: `string`
 
-Defined in: [src/context/WikiContext.ts:163](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/context/WikiContext.ts#L163)
+Defined in: [src/context/WikiContext.ts:163](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/context/WikiContext.ts#L163)
 
 The rendering context (VIEW, EDIT, PREVIEW, etc.)
 
@@ -101,7 +101,7 @@ The rendering context (VIEW, EDIT, PREVIEW, etc.)
 
 > `readonly` `static` **CONTEXT**: [`ContextTypes`](../interfaces/ContextTypes.md)
 
-Defined in: [src/context/WikiContext.ts:144](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/context/WikiContext.ts#L144)
+Defined in: [src/context/WikiContext.ts:144](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/context/WikiContext.ts#L144)
 
 Context type constants for different rendering modes
 
@@ -113,7 +113,7 @@ Context type constants for different rendering modes
 
 > `readonly` **engine**: [`WikiEngine`](../../../types/WikiEngine/interfaces/WikiEngine.md)
 
-Defined in: [src/context/WikiContext.ts:160](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/context/WikiContext.ts#L160)
+Defined in: [src/context/WikiContext.ts:160](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/context/WikiContext.ts#L160)
 
 The wiki engine instance
 
@@ -123,7 +123,7 @@ The wiki engine instance
 
 > `readonly` **pageManager**: [`export=`](../../../managers/PageManager/classes/export=.md)
 
-Defined in: [src/context/WikiContext.ts:181](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/context/WikiContext.ts#L181)
+Defined in: [src/context/WikiContext.ts:181](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/context/WikiContext.ts#L181)
 
 Reference to PageManager
 
@@ -133,7 +133,7 @@ Reference to PageManager
 
 > `readonly` **pageName**: `string` \| `null`
 
-Defined in: [src/context/WikiContext.ts:166](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/context/WikiContext.ts#L166)
+Defined in: [src/context/WikiContext.ts:166](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/context/WikiContext.ts#L166)
 
 Name of the current page
 
@@ -143,7 +143,7 @@ Name of the current page
 
 > `readonly` **pluginManager**: [`default`](../../../managers/PluginManager/classes/default.md)
 
-Defined in: [src/context/WikiContext.ts:187](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/context/WikiContext.ts#L187)
+Defined in: [src/context/WikiContext.ts:187](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/context/WikiContext.ts#L187)
 
 Reference to PluginManager
 
@@ -153,7 +153,7 @@ Reference to PluginManager
 
 > `readonly` **renderingManager**: [`export=`](../../../managers/RenderingManager/classes/export=.md)
 
-Defined in: [src/context/WikiContext.ts:184](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/context/WikiContext.ts#L184)
+Defined in: [src/context/WikiContext.ts:184](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/context/WikiContext.ts#L184)
 
 Reference to RenderingManager
 
@@ -163,7 +163,7 @@ Reference to RenderingManager
 
 > `readonly` **request**: `Request`\<`ParamsDictionary`, `any`, `any`, `ParsedQs`, `Record`\<`string`, `any`\>\> \| `null`
 
-Defined in: [src/context/WikiContext.ts:175](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/context/WikiContext.ts#L175)
+Defined in: [src/context/WikiContext.ts:175](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/context/WikiContext.ts#L175)
 
 Express request object
 
@@ -173,7 +173,7 @@ Express request object
 
 > `readonly` **response**: `Response`\<`any`, `Record`\<`string`, `any`\>\> \| `null`
 
-Defined in: [src/context/WikiContext.ts:178](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/context/WikiContext.ts#L178)
+Defined in: [src/context/WikiContext.ts:178](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/context/WikiContext.ts#L178)
 
 Express response object
 
@@ -183,7 +183,7 @@ Express response object
 
 > `readonly` **userContext**: [`UserContext`](../interfaces/UserContext.md) \| `null`
 
-Defined in: [src/context/WikiContext.ts:172](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/context/WikiContext.ts#L172)
+Defined in: [src/context/WikiContext.ts:172](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/context/WikiContext.ts#L172)
 
 Current user context/session
 
@@ -193,7 +193,7 @@ Current user context/session
 
 > `readonly` **variableManager**: [`default`](../../../managers/VariableManager/classes/default.md)
 
-Defined in: [src/context/WikiContext.ts:190](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/context/WikiContext.ts#L190)
+Defined in: [src/context/WikiContext.ts:190](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/context/WikiContext.ts#L190)
 
 Reference to VariableManager
 
@@ -203,7 +203,7 @@ Reference to VariableManager
 
 > **getContext**(): `string`
 
-Defined in: [src/context/WikiContext.ts:248](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/context/WikiContext.ts#L248)
+Defined in: [src/context/WikiContext.ts:248](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/context/WikiContext.ts#L248)
 
 Returns the current rendering context type
 
@@ -227,7 +227,7 @@ if (context.getContext() === WikiContext.CONTEXT.EDIT) {
 
 > **renderMarkdown**(`content?`): `Promise`\<`string`\>
 
-Defined in: [src/context/WikiContext.ts:272](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/context/WikiContext.ts#L272)
+Defined in: [src/context/WikiContext.ts:272](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/context/WikiContext.ts#L272)
 
 Renders the provided markdown content through the full rendering pipeline
 
@@ -270,7 +270,7 @@ const html = await context.renderMarkdown('[{CurrentTimePlugin}]');
 
 > **toParseOptions**(): [`ParseOptions`](../interfaces/ParseOptions.md)
 
-Defined in: [src/context/WikiContext.ts:315](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/context/WikiContext.ts#L315)
+Defined in: [src/context/WikiContext.ts:315](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/context/WikiContext.ts#L315)
 
 Creates the options object needed for the MarkupParser
 

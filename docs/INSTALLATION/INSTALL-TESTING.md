@@ -103,12 +103,12 @@ After form submission, the following should be created:
 
 ```json
 {
-  "amdwiki.applicationName": "Test Wiki",
-  "amdwiki.baseURL": "http://localhost:3000",
-  "amdwiki.session.secret": "[64-char hex string]",
-  "amdwiki.install.organization.name": "Test Organization",
-  "amdwiki.install.organization.description": "Testing the install system",
-  "amdwiki.install.organization.contactEmail": "admin@test.com",
+  "ngdpbase.applicationName": "Test Wiki",
+  "ngdpbase.baseURL": "http://localhost:3000",
+  "ngdpbase.session.secret": "[64-char hex string]",
+  "ngdpbase.install.organization.name": "Test Organization",
+  "ngdpbase.install.organization.description": "Testing the install system",
+  "ngdpbase.install.organization.contactEmail": "admin@test.com",
   ...
 }
 ```
@@ -120,7 +120,7 @@ After form submission, the following should be created:
   {
     "@context": "https://schema.org",
     "@type": "Organization",
-    "identifier": "amdwiki-platform",
+    "identifier": "ngdpbase-platform",
     "name": "Test Organization",
     "description": "Testing the install system",
     "url": "http://localhost:3000",
@@ -273,7 +273,7 @@ ls -la users/
 ./server.sh logs
 
 # Check PM2 error log
-cat ~/.pm2/logs/amdWiki-error.log
+cat ~/.pm2/logs/ngdpbase-error.log
 ```
 
 ### Issue: Pages Not Copied

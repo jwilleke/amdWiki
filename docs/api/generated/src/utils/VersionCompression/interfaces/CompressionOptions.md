@@ -1,12 +1,12 @@
-[**amdWiki API v1.5.0**](../../../../README.md)
+[**ngdpbase API v1.5.0**](../../../../README.md)
 
 ***
 
-[amdWiki API](../../../../README.md) / [src/utils/VersionCompression](../README.md) / CompressionOptions
+[ngdpbase API](../../../../README.md) / [src/utils/VersionCompression](../README.md) / CompressionOptions
 
 # Interface: CompressionOptions
 
-Defined in: [src/utils/VersionCompression.ts:7](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/VersionCompression.ts#L7)
+Defined in: [src/utils/VersionCompression.ts:7](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/VersionCompression.ts#L7)
 
 Compression options
 
@@ -20,6 +20,6 @@ Compression options
 
 > `optional` **level**: `number`
 
-Defined in: [src/utils/VersionCompression.ts:9](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/VersionCompression.ts#L9)
+Defined in: [src/utils/VersionCompression.ts:9](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/VersionCompression.ts#L9)
 
 Compression level (1-9, default 6)

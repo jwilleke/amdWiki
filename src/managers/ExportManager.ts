@@ -129,7 +129,7 @@ class ExportManager extends BaseManager {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>${pageName} - amdWiki Export</title>
+    <title>${pageName} - ngdpbase Export</title>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -189,7 +189,7 @@ class ExportManager extends BaseManager {
     ${renderedContent}
 
     <div class="export-meta">
-        <p>Exported from amdWiki on ${this.getFormattedTimestamp(user)}</p>
+        <p>Exported from ngdpbase on ${this.getFormattedTimestamp(user)}</p>
         <p>Last modified: ${page.lastModified || 'Unknown'}</p>
     ${page['system-category'] ? `<p>System Category: ${page['system-category']}</p>` : ''}
     ${page['user-keywords'] && page['user-keywords'].length > 0 ? `<p>User Keywords: ${page['user-keywords'].join(', ')}</p>` : ''}
@@ -240,7 +240,7 @@ class ExportManager extends BaseManager {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>amdWiki Export - ${validPages.length} Pages</title>
+    <title>ngdpbase Export - ${validPages.length} Pages</title>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -328,7 +328,7 @@ class ExportManager extends BaseManager {
     ${combinedContent}
 
     <div class="export-meta">
-        <p>Exported from amdWiki on ${this.getFormattedTimestamp(user)}</p>
+        <p>Exported from ngdpbase on ${this.getFormattedTimestamp(user)}</p>
         <p>Total pages: ${validPages.length}</p>
     </div>
 </body>
@@ -353,7 +353,7 @@ class ExportManager extends BaseManager {
     let markdown = '';
 
     if (names.length > 1) {
-      markdown += '# amdWiki Export\n\n';
+      markdown += '# ngdpbase Export\n\n';
       markdown += `*Exported on ${this.getFormattedTimestamp(user)}*\n\n`;
       markdown += '## Table of Contents\n\n';
 

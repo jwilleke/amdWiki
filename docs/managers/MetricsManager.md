@@ -15,7 +15,7 @@ MetricsManager provides application-level observability using [OpenTelemetry](ht
 - 7 counters and 7 histograms covering page operations, search, HTTP requests, and engine init
 - Prometheus pull-based export on a dedicated port (no auth required for scraping)
 - Optional OTLP HTTP push export to a remote OpenTelemetry collector
-- Dynamic metric prefix derived from `amdwiki.applicationName`
+- Dynamic metric prefix derived from `ngdpbase.applicationName`
 - Authenticated `/metrics` endpoint on the main app port for browser access
 - Fully disabled mode: no SDK initialization, no ports opened, no overhead
 
@@ -31,7 +31,7 @@ metrics?.recordHttpRequest?.(durationMs, { method: 'GET', route: '/wiki/:page', 
 
 ## Metrics Reference
 
-All metric names are prefixed with the sanitized `amdwiki.applicationName` value (default: `amdwiki_`).
+All metric names are prefixed with the sanitized `ngdpbase.applicationName` value (default: `ngdpbase_`).
 
 ### Counters
 

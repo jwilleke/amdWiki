@@ -38,39 +38,39 @@ class ComprehensiveMockEngine {
       getProperty: (key, defaultValue) => {
         const config = {
           // MarkupParser configuration
-          'amdwiki.markup.enabled': true,
-          'amdwiki.markup.caching': true,
-          'amdwiki.markup.cacheTTL': 300,
+          'ngdpbase.markup.enabled': true,
+          'ngdpbase.markup.caching': true,
+          'ngdpbase.markup.cacheTTL': 300,
           
           // All handlers enabled for testing
-          'amdwiki.markup.handlers.plugin.enabled': true,
-          'amdwiki.markup.handlers.wikitag.enabled': true,
-          'amdwiki.markup.handlers.form.enabled': true,
-          'amdwiki.markup.handlers.interwiki.enabled': true,
-          'amdwiki.markup.handlers.attachment.enabled': true,
-          'amdwiki.markup.handlers.style.enabled': true,
+          'ngdpbase.markup.handlers.plugin.enabled': true,
+          'ngdpbase.markup.handlers.wikitag.enabled': true,
+          'ngdpbase.markup.handlers.form.enabled': true,
+          'ngdpbase.markup.handlers.interwiki.enabled': true,
+          'ngdpbase.markup.handlers.attachment.enabled': true,
+          'ngdpbase.markup.handlers.style.enabled': true,
           
           // Filter configuration
-          'amdwiki.markup.filters.enabled': true,
-          'amdwiki.markup.filters.security.enabled': true,
-          'amdwiki.markup.filters.spam.enabled': true,
-          'amdwiki.markup.filters.validation.enabled': true,
+          'ngdpbase.markup.filters.enabled': true,
+          'ngdpbase.markup.filters.security.enabled': true,
+          'ngdpbase.markup.filters.spam.enabled': true,
+          'ngdpbase.markup.filters.validation.enabled': true,
           
           // Security configuration
-          'amdwiki.markup.filters.security.preventXSS': true,
-          'amdwiki.markup.filters.security.allowedTags': 'p,div,span,strong,em,h1,h2,h3,a,img',
+          'ngdpbase.markup.filters.security.preventXSS': true,
+          'ngdpbase.markup.filters.security.allowedTags': 'p,div,span,strong,em,h1,h2,h3,a,img',
           
           // Spam configuration
-          'amdwiki.markup.filters.spam.maxLinks': 10,
-          'amdwiki.markup.filters.spam.blacklistWords': 'spam,casino',
+          'ngdpbase.markup.filters.spam.maxLinks': 10,
+          'ngdpbase.markup.filters.spam.blacklistWords': 'spam,casino',
           
           // InterWiki sites
-          'amdwiki.interwiki.sites.Wikipedia': 'https://en.wikipedia.org/wiki/%s',
-          'amdwiki.interwiki.sites.JSPWiki': 'https://jspwiki-wiki.apache.org/Wiki.jsp?page=%s',
+          'ngdpbase.interwiki.sites.Wikipedia': 'https://en.wikipedia.org/wiki/%s',
+          'ngdpbase.interwiki.sites.JSPWiki': 'https://jspwiki-wiki.apache.org/Wiki.jsp?page=%s',
           
           // Style configuration
-          'amdwiki.style.predefined.text': 'text-primary,text-success,text-danger',
-          'amdwiki.style.security.allowInlineCSS': false
+          'ngdpbase.style.predefined.text': 'text-primary,text-success,text-danger',
+          'ngdpbase.style.security.allowInlineCSS': false
         };
         
         return config[key] !== undefined ? config[key] : defaultValue;
@@ -772,12 +772,12 @@ Links: [Wikipedia:Section${i}] and [JSPWiki:Test${i}].
       const securityEngine = new ComprehensiveMockEngine();
       securityEngine.managers.get('ConfigurationManager').getProperty = (key, defaultValue) => {
         const securityConfig = {
-          'amdwiki.markup.handlers.form.enabled': false,           // No forms
-          'amdwiki.markup.handlers.attachment.enabled': false,     // No attachments
-          'amdwiki.style.security.allowInlineCSS': false,         // No inline CSS
-          'amdwiki.markup.filters.security.preventXSS': true,     // Max security
-          'amdwiki.markup.filters.spam.autoBlock': true,          // Auto-block spam
-          'amdwiki.markup.filters.validation.failOnValidationError': true
+          'ngdpbase.markup.handlers.form.enabled': false,           // No forms
+          'ngdpbase.markup.handlers.attachment.enabled': false,     // No attachments
+          'ngdpbase.style.security.allowInlineCSS': false,         // No inline CSS
+          'ngdpbase.markup.filters.security.preventXSS': true,     // Max security
+          'ngdpbase.markup.filters.spam.autoBlock': true,          // Auto-block spam
+          'ngdpbase.markup.filters.validation.failOnValidationError': true
         };
         return securityConfig[key] !== undefined ? securityConfig[key] : defaultValue;
       };
@@ -807,11 +807,11 @@ Links: [Wikipedia:Section${i}] and [JSPWiki:Test${i}].
       const devEngine = new ComprehensiveMockEngine();
       devEngine.managers.get('ConfigurationManager').getProperty = (key, defaultValue) => {
         const devConfig = {
-          'amdwiki.markup.cache.parseResults.ttl': 60,            // Short cache
-          'amdwiki.style.security.allowInlineCSS': true,         // Allow for testing
-          'amdwiki.markup.filters.spam.autoBlock': false,        // Don't auto-block
-          'amdwiki.markup.performance.monitoring': true,         // Monitor closely
-          'amdwiki.markup.logParsingMethod': true               // Debug logging
+          'ngdpbase.markup.cache.parseResults.ttl': 60,            // Short cache
+          'ngdpbase.style.security.allowInlineCSS': true,         // Allow for testing
+          'ngdpbase.markup.filters.spam.autoBlock': false,        // Don't auto-block
+          'ngdpbase.markup.performance.monitoring': true,         // Monitor closely
+          'ngdpbase.markup.logParsingMethod': true               // Debug logging
         };
         return devConfig[key] !== undefined ? devConfig[key] : defaultValue;
       };

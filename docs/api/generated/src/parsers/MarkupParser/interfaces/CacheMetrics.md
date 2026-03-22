@@ -1,12 +1,12 @@
-[**amdWiki API v1.5.0**](../../../../README.md)
+[**ngdpbase API v1.5.0**](../../../../README.md)
 
 ***
 
-[amdWiki API](../../../../README.md) / [src/parsers/MarkupParser](../README.md) / CacheMetrics
+[ngdpbase API](../../../../README.md) / [src/parsers/MarkupParser](../README.md) / CacheMetrics
 
 # Interface: CacheMetrics
 
-Defined in: [src/parsers/MarkupParser.ts:242](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L242)
+Defined in: [src/parsers/MarkupParser.ts:242](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L242)
 
 Cache metrics for a strategy
 
@@ -16,7 +16,7 @@ Cache metrics for a strategy
 
 > **hits**: `number`
 
-Defined in: [src/parsers/MarkupParser.ts:244](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L244)
+Defined in: [src/parsers/MarkupParser.ts:244](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L244)
 
 Number of cache hits
 
@@ -26,7 +26,7 @@ Number of cache hits
 
 > **misses**: `number`
 
-Defined in: [src/parsers/MarkupParser.ts:246](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L246)
+Defined in: [src/parsers/MarkupParser.ts:246](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L246)
 
 Number of cache misses
 
@@ -36,6 +36,6 @@ Number of cache misses
 
 > **sets**: `number`
 
-Defined in: [src/parsers/MarkupParser.ts:248](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L248)
+Defined in: [src/parsers/MarkupParser.ts:248](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L248)
 
 Number of cache sets

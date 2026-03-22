@@ -2,7 +2,7 @@
 
 ## Overview
 
-amdWiki implements JSPWiki-compatible table styles with extensions for modern web applications. Tables support visual styling, interactive features, and custom colors with automatic text contrast.
+ngdpbase implements JSPWiki-compatible table styles with extensions for modern web applications. Tables support visual styling, interactive features, and custom colors with automatic text contrast.
 
 ## Table of Contents
 
@@ -459,7 +459,7 @@ textColor = luminance > 0.5 ? 'black' : 'white'
 
 ### Automatic Theme Switching
 
-amdWiki supports three dark mode approaches:
+ngdpbase supports three dark mode approaches:
 
 1. **Manual toggle:** `[data-theme="dark"]`
 2. **System preference:** `@media (prefers-color-scheme: dark)`
@@ -840,4 +840,4 @@ Simple, clean architecture
 
 **Last Updated:** 2025-10-07
 **Version:** 1.0.0
-**Maintainer:** amdWiki Development Team
+**Maintainer:** ngdpbase Development Team

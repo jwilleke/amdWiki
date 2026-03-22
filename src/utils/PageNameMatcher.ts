@@ -93,7 +93,7 @@ export default class PageNameMatcher {
     // [A-Z][a-z]+          — CamelCase word with at least one lowercase (e.g. "Health")
     // [A-Z]+               — standalone acronym/abbreviation (e.g. "BCE", "USA")
     // [0-9]+[a-z]*         — numeric/ordinal token (e.g. "5th", "10th", "550")
-    // [a-z]+               — all-lowercase run (e.g. "amd" in "amdWiki")
+    // [a-z]+               — all-lowercase run (e.g. "amd" in "ngdpbase")
     return name.match(/[A-Z]+(?=[A-Z][a-z])|[A-Z][a-z]+|[A-Z]+|[0-9]+[a-z]*|[a-z]+/g) || [name];
   }
 

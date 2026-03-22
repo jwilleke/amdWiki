@@ -1,12 +1,12 @@
-[**amdWiki API v1.5.0**](../../../../../README.md)
+[**ngdpbase API v1.5.0**](../../../../../README.md)
 
 ***
 
-[amdWiki API](../../../../../README.md) / [src/parsers/dom/DOMParser](../README.md) / DOMParser
+[ngdpbase API](../../../../../README.md) / [src/parsers/dom/DOMParser](../README.md) / DOMParser
 
 # Class: DOMParser
 
-Defined in: [src/parsers/dom/DOMParser.ts:170](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/DOMParser.ts#L170)
+Defined in: [src/parsers/dom/DOMParser.ts:170](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/DOMParser.ts#L170)
 
 DOMParser class
 
@@ -16,7 +16,7 @@ DOMParser class
 
 > **new DOMParser**(`options`): `DOMParser`
 
-Defined in: [src/parsers/dom/DOMParser.ts:182](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/DOMParser.ts#L182)
+Defined in: [src/parsers/dom/DOMParser.ts:182](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/DOMParser.ts#L182)
 
 Creates a new DOMParser
 
@@ -38,7 +38,7 @@ Parser options
 
 > **checkForWarnings**(`tokens`, `result`): `void`
 
-Defined in: [src/parsers/dom/DOMParser.ts:408](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/DOMParser.ts#L408)
+Defined in: [src/parsers/dom/DOMParser.ts:408](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/DOMParser.ts#L408)
 
 Checks tokens for common warnings
 
@@ -66,7 +66,7 @@ Result object to add warnings to
 
 > **createErrorDocument**(`content`, `context`, `error`): [`default`](../../WikiDocument/classes/default.md)
 
-Defined in: [src/parsers/dom/DOMParser.ts:317](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/DOMParser.ts#L317)
+Defined in: [src/parsers/dom/DOMParser.ts:317](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/DOMParser.ts#L317)
 
 Creates an error document when parsing fails
 
@@ -105,7 +105,7 @@ Error document
 
 > **getStatistics**(): [`ExtendedStatistics`](../interfaces/ExtendedStatistics.md)
 
-Defined in: [src/parsers/dom/DOMParser.ts:434](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/DOMParser.ts#L434)
+Defined in: [src/parsers/dom/DOMParser.ts:434](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/DOMParser.ts#L434)
 
 Gets parser statistics
 
@@ -121,7 +121,7 @@ Parser statistics
 
 > **log**(`message`): `void`
 
-Defined in: [src/parsers/dom/DOMParser.ts:464](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/DOMParser.ts#L464)
+Defined in: [src/parsers/dom/DOMParser.ts:464](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/DOMParser.ts#L464)
 
 Logs debug message if debug mode enabled
 
@@ -143,7 +143,7 @@ Message to log
 
 > **parse**(`content`, `context`): [`default`](../../WikiDocument/classes/default.md)
 
-Defined in: [src/parsers/dom/DOMParser.ts:210](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/DOMParser.ts#L210)
+Defined in: [src/parsers/dom/DOMParser.ts:210](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/DOMParser.ts#L210)
 
 Parses wiki markup content into a WikiDocument
 
@@ -180,7 +180,7 @@ ParseError if throwOnError is true and parsing fails
 
 > **resetStatistics**(): `void`
 
-Defined in: [src/parsers/dom/DOMParser.ts:449](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/DOMParser.ts#L449)
+Defined in: [src/parsers/dom/DOMParser.ts:449](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/DOMParser.ts#L449)
 
 Resets parser statistics
 
@@ -194,7 +194,7 @@ Resets parser statistics
 
 > **validate**(`content`): [`ValidationResult`](../interfaces/ValidationResult.md)
 
-Defined in: [src/parsers/dom/DOMParser.ts:372](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/DOMParser.ts#L372)
+Defined in: [src/parsers/dom/DOMParser.ts:372](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/DOMParser.ts#L372)
 
 Validates wiki markup without building full DOM
 

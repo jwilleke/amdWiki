@@ -2,14 +2,14 @@
 
 ## Overview
 
-This document provides a comprehensive guide to the amdWiki project structure, explaining the purpose and organization of each directory and key file.
+This document provides a comprehensive guide to the ngdpbase project structure, explaining the purpose and organization of each directory and key file.
 
 ## Directory Structure
 
 ### Core Application Structure
 
 ```bash
-amdWiki/
+ngdpbase/
 ├── src/                    # Source code directory
 ├── config/                 # Application configuration
 ├── public/                 # Static web assets
@@ -249,4 +249,4 @@ node_modules/
 - [ARCHITECTURE-PAGE-CLASSIFICATION.md](ARCHITECTURE-PAGE-CLASSIFICATION.md) - Page classification system
 - [ROADMAP.md](../planning/ROADMAP.md) - Project planning and vision
 - [CHANGELOG.md](../CHANGELOG.md) - Version history and changes```</content>
-<parameter name="filePath">```/Volumes/hd3/GitHub/amdWiki/docs/architecture/PROJECT-STRUCTURE.md
+<parameter name="filePath">```/Volumes/hd3/GitHub/ngdpbase/docs/architecture/PROJECT-STRUCTURE.md

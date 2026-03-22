@@ -2,7 +2,7 @@
 
 ## Executive Summary
 
-This document outlines the architecture for implementing a comprehensive MarkupParser in amdWiki to achieve full JSPWiki enhancement compatibility while maintaining modern JavaScript architecture principles.
+This document outlines the architecture for implementing a comprehensive MarkupParser in ngdpbase to achieve full JSPWiki enhancement compatibility while maintaining modern JavaScript architecture principles.
 
 ## Current State Analysis
 
@@ -335,7 +335,7 @@ class SpamFilter extends BaseFilter {
 
 ### Syntax Compatibility Matrix
 
-| JSPWiki Enhancement | amdWiki Handler | Implementation Status |
+| JSPWiki Enhancement | ngdpbase Handler | Implementation Status |
 | --------------------- | ----------------- | ---------------------- |
 | `[{PluginName}]` | PluginSyntaxHandler | ✅ Enhanced |
 | `<wiki:If>` | WikiTagHandler | 🚧 New |
@@ -353,21 +353,21 @@ class SpamFilter extends BaseFilter {
 ```javascript
 // config/markup-parser.json
 {
-  "amdwiki.markup.enabled": true,
-  "amdwiki.markup.caching": true,
-  "amdwiki.markup.cacheTTL": 300,
-  "amdwiki.markup.handlers": {
+  "ngdpbase.markup.enabled": true,
+  "ngdpbase.markup.caching": true,
+  "ngdpbase.markup.cacheTTL": 300,
+  "ngdpbase.markup.handlers": {
     "plugin": { "enabled": true, "priority": 90 },
     "wikitag": { "enabled": true, "priority": 95 },
     "form": { "enabled": true, "priority": 85 },
     "interwiki": { "enabled": true, "priority": 80 }
   },
-  "amdwiki.markup.filters": [
+  "ngdpbase.markup.filters": [
     "SpamFilter",
     "SecurityFilter",
     "ValidationFilter"
   ],
-  "amdwiki.markup.interwiki": {
+  "ngdpbase.markup.interwiki": {
     "Wikipedia": "https://en.wikipedia.org/wiki/%s",
     "JSPWiki": "https://jspwiki-wiki.apache.org/Wiki.jsp?page=%s"
   }
@@ -498,7 +498,7 @@ class SpamFilter extends BaseFilter {
 
 ## Conclusion
 
-The MarkupParser architecture will transform amdWiki from a basic wiki with limited enhancements to a fully JSPWiki-compatible system with modern architecture. This design provides:
+The MarkupParser architecture will transform ngdpbase from a basic wiki with limited enhancements to a fully JSPWiki-compatible system with modern architecture. This design provides:
 
 1. **Complete Enhancement Support**: All JSPWiki syntax patterns
 2. **Extensible Architecture**: Easy addition of new features

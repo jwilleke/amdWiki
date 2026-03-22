@@ -1,8 +1,8 @@
-# amdWiki Startup Process
+# ngdpbase Startup Process
 
-How amdWiki starts, loads configuration, and begins serving requests.
+How ngdpbase starts, loads configuration, and begins serving requests.
 
-Related: [INSTALLATION-SYSTEM.md](./INSTALLATION-SYSTEM.md) | [Issue #253](https://github.com/jwilleke/amdWiki/issues/253)
+Related: [INSTALLATION-SYSTEM.md](./INSTALLATION-SYSTEM.md) | [Issue #253](https://github.com/jwilleke/ngdpbase/issues/253)
 
 ## Startup Sequence Overview
 
@@ -10,7 +10,7 @@ Related: [INSTALLATION-SYSTEM.md](./INSTALLATION-SYSTEM.md) | [Issue #253](https
 server.sh start [env]
     │
     ├── 1. Ensure single PM2 daemon
-    ├── 2. Check PID lock (.amdwiki.pid)
+    ├── 2. Check PID lock (.ngdpbase.pid)
     ├── 3. Check port 3000 availability
     ├── 4. Clean orphaned Node processes
     ├── 5. Clean stale PID files
@@ -18,7 +18,7 @@ server.sh start [env]
     ├── 7. Start via PM2: ecosystem.config.js
     │       └── Sets NODE_ENV, launches app.js
     ├── 8. Wait for server (up to 30s)
-    ├── 9. Verify PID and write .amdwiki.pid
+    ├── 9. Verify PID and write .ngdpbase.pid
     └── 10. Clean PM2-generated PID files
               │
               ▼
@@ -70,12 +70,12 @@ These environment variables override the corresponding config file properties at
 
 | Environment Variable       | Config Property              | Default     |
 | -------------------------- | ---------------------------- | ----------- |
-| `AMDWIKI_BASE_URL`         | `amdwiki.baseURL`            | (from config) |
-| `AMDWIKI_HOSTNAME`         | `amdwiki.hostname`           | (from config) |
-| `AMDWIKI_HOST`             | `amdwiki.server.host`        | `localhost` |
-| `AMDWIKI_PORT`             | `amdwiki.server.port`        | `3000`      |
-| `AMDWIKI_SESSION_SECRET`   | `amdwiki.session.secret`     | (from config) |
-| `AMDWIKI_APP_NAME`         | `amdwiki.applicationName`    | `amdWiki`   |
+| `AMDWIKI_BASE_URL`         | `ngdpbase.baseURL`            | (from config) |
+| `AMDWIKI_HOSTNAME`         | `ngdpbase.hostname`           | (from config) |
+| `AMDWIKI_HOST`             | `ngdpbase.server.host`        | `localhost` |
+| `AMDWIKI_PORT`             | `ngdpbase.server.port`        | `3000`      |
+| `AMDWIKI_SESSION_SECRET`   | `ngdpbase.session.secret`     | (from config) |
+| `AMDWIKI_APP_NAME`         | `ngdpbase.applicationName`    | `ngdpbase`   |
 
 ### Instance Management Variables
 
@@ -93,7 +93,7 @@ These environment variables override the corresponding config file properties at
 
 - PM2 environment selection in `ecosystem.config.js` (sets env vars for the process)
 - Display messages in `server.sh`
-- `development` mode defaults logging level to `debug` (unless `amdwiki.logging.level` is set in custom config)
+- `development` mode defaults logging level to `debug` (unless `ngdpbase.logging.level` is set in custom config)
 
 `NODE_ENV` does **not**:
 
@@ -108,7 +108,7 @@ The app always loads `app-default-config.json` + the instance custom config, reg
 
 `server.sh` is a process management wrapper around PM2. It handles:
 
-- Starting/stopping/restarting the amdWiki Node.js process via PM2
+- Starting/stopping/restarting the ngdpbase Node.js process via PM2
 - PID file locking to prevent multiple instances
 - Port conflict detection
 - Orphaned process cleanup
@@ -144,7 +144,7 @@ env_production: { NODE_ENV: 'production' }
 
 ```bash
 # .env file (sourced automatically by server.sh)
-INSTANCE_DATA_FOLDER=/var/lib/amdwiki/data
+INSTANCE_DATA_FOLDER=/var/lib/ngdpbase/data
 NODE_ENV=production
 PM2_MAX_MEMORY=4G
 
@@ -160,7 +160,7 @@ The `.env` file is gitignored. The app does not use `dotenv` at runtime — only
 
 ### Step 1: PID Lock
 
-Creates `.amdwiki.pid` with the current process ID. If a PID file already exists and the process is running, the app exits with an error.
+Creates `.ngdpbase.pid` with the current process ID. If a PID file already exists and the process is running, the app exits with an error.
 
 ### Step 2: Express Setup (Pre-Engine)
 
@@ -217,7 +217,7 @@ After the engine is ready, the remaining middleware is registered:
 
 - JSON/URL-encoded body parsing, cookie parser
 - **Installation check middleware**: If `INSTANCE_DATA_FOLDER/.install-complete` is missing → redirect to `/install`. If `HEADLESS_INSTALL=true` → auto-configure without the wizard.
-- **Session setup**: Storage path and options from ConfigurationManager (`amdwiki.session.storagedir`, `amdwiki.session.secret`, `amdwiki.session.maxAge`)
+- **Session setup**: Storage path and options from ConfigurationManager (`ngdpbase.session.storagedir`, `ngdpbase.session.secret`, `ngdpbase.session.maxAge`)
 - **User context middleware**: Attaches user info from session to each request
 - **Admin maintenance mode middleware**: When `engine.config.features.maintenance.enabled` is true, returns 503 to non-admin users (allows admin/login/logout routes through so admins can disable it)
 
@@ -296,13 +296,13 @@ data/                              # INSTANCE_DATA_FOLDER (default: ./data)
 ### Custom Instance Data Folder
 
 ```bash
-INSTANCE_DATA_FOLDER=/var/lib/amdwiki/data ./server.sh start
+INSTANCE_DATA_FOLDER=/var/lib/ngdpbase/data ./server.sh start
 ```
 
 ### Custom Config File
 
 ```bash
-INSTANCE_DATA_FOLDER=/var/lib/amdwiki/data \
+INSTANCE_DATA_FOLDER=/var/lib/ngdpbase/data \
 INSTANCE_CONFIG_FILE=my-wiki-config.json \
 ./server.sh start
 ```
@@ -315,7 +315,7 @@ docker run -d \
   -e AMDWIKI_BASE_URL="https://wiki.example.com" \
   -e AMDWIKI_SESSION_SECRET="your-secret" \
   -v $(pwd)/data:/app/data \
-  ghcr.io/jwilleke/amdwiki:latest
+  ghcr.io/jwilleke/ngdpbase:latest
 ```
 
 In Docker, `INSTANCE_DATA_FOLDER` defaults to `/app/data` (set in the Dockerfile).

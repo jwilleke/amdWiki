@@ -25,11 +25,11 @@ VersioningFileProvider extends FileSystemProvider with full version history trac
 
 ```javascript
 // All FileSystemProvider config, plus:
-'amdwiki.page.provider.versioning.enabled'        // Enable versioning (default: true)
-'amdwiki.page.provider.versioning.storagedir'     // Versions directory (default: ./data/versions)
-'amdwiki.page.provider.versioning.metadatafile'   // Metadata file (default: versions-metadata.json)
-'amdwiki.page.provider.versioning.maxversions'    // Max versions per page (default: 100)
-'amdwiki.page.provider.versioning.compression'    // Enable compression (default: true)
+'ngdpbase.page.provider.versioning.enabled'        // Enable versioning (default: true)
+'ngdpbase.page.provider.versioning.storagedir'     // Versions directory (default: ./data/versions)
+'ngdpbase.page.provider.versioning.metadatafile'   // Metadata file (default: versions-metadata.json)
+'ngdpbase.page.provider.versioning.maxversions'    // Max versions per page (default: 100)
+'ngdpbase.page.provider.versioning.compression'    // Enable compression (default: true)
 ```
 
 ## Basic Usage
@@ -246,11 +246,11 @@ VersioningFileProvider is a drop-in replacement:
 
 ```javascript
 // Before (in config)
-'amdwiki.page.provider': 'filesystemprovider'
+'ngdpbase.page.provider': 'filesystemprovider'
 
 // After (enable versioning)
-'amdwiki.page.provider': 'versioningfileprovider'
-'amdwiki.page.provider.versioning.enabled': true
+'ngdpbase.page.provider': 'versioningfileprovider'
+'ngdpbase.page.provider.versioning.enabled': true
 ```
 
 All existing pages work immediately. Versions are created starting from first edit.

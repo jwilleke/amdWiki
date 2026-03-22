@@ -1,5 +1,5 @@
 /**
- * Page type definitions for amdWiki
+ * Page type definitions for ngdpbase
  *
  * This module defines the core types for wiki pages, including frontmatter
  * metadata, page content, and page information structures used throughout

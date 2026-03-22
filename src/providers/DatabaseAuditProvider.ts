@@ -21,10 +21,10 @@ interface DatabaseConfig {
  * Suitable for high-volume auditing, compliance, and long-term retention.
  *
  * Configuration keys (all lowercase):
- * - amdwiki.audit.provider.database.type - Database type (postgresql, mysql, mongodb)
- * - amdwiki.audit.provider.database.connectionstring - Database connection string
- * - amdwiki.audit.provider.database.tablename - Table/collection name
- * - amdwiki.audit.provider.database.maxconnections - Maximum database connections
+ * - ngdpbase.audit.provider.database.type - Database type (postgresql, mysql, mongodb)
+ * - ngdpbase.audit.provider.database.connectionstring - Database connection string
+ * - ngdpbase.audit.provider.database.tablename - Table/collection name
+ * - ngdpbase.audit.provider.database.maxconnections - Maximum database connections
  *
  * TODO: Implement database integration using appropriate client library
  * TODO: Add connection pooling
@@ -56,19 +56,19 @@ class DatabaseAuditProvider extends BaseAuditProvider {
     // Load provider-specific settings (ALL LOWERCASE)
     this._config = {
       type: configManager.getProperty(
-        'amdwiki.audit.provider.database.type',
+        'ngdpbase.audit.provider.database.type',
         'postgresql'
       ) as string,
       connectionString: configManager.getProperty(
-        'amdwiki.audit.provider.database.connectionstring',
+        'ngdpbase.audit.provider.database.connectionstring',
         ''
       ) as string,
       tableName: configManager.getProperty(
-        'amdwiki.audit.provider.database.tablename',
+        'ngdpbase.audit.provider.database.tablename',
         'audit_logs'
       ) as string,
       maxConnections: configManager.getProperty(
-        'amdwiki.audit.provider.database.maxconnections',
+        'ngdpbase.audit.provider.database.maxconnections',
         10
       ) as number
     };

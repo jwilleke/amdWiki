@@ -1,12 +1,12 @@
-[**amdWiki API v1.5.0**](../../../../../README.md)
+[**ngdpbase API v1.5.0**](../../../../../README.md)
 
 ***
 
-[amdWiki API](../../../../../README.md) / [src/parsers/handlers/HandlerRegistry](../README.md) / RegistrationOptions
+[ngdpbase API](../../../../../README.md) / [src/parsers/handlers/HandlerRegistry](../README.md) / RegistrationOptions
 
 # Interface: RegistrationOptions
 
-Defined in: [src/parsers/handlers/HandlerRegistry.ts:44](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/HandlerRegistry.ts#L44)
+Defined in: [src/parsers/handlers/HandlerRegistry.ts:44](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/HandlerRegistry.ts#L44)
 
 Handler registration options
 
@@ -20,4 +20,4 @@ Handler registration options
 
 > `optional` **forceRegister**: `boolean`
 
-Defined in: [src/parsers/handlers/HandlerRegistry.ts:45](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/HandlerRegistry.ts#L45)
+Defined in: [src/parsers/handlers/HandlerRegistry.ts:45](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/HandlerRegistry.ts#L45)

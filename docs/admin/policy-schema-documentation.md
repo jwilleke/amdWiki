@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document provides comprehensive documentation for the amdWiki Policy-Based Access Control (PBAC) JSON schema. Understanding the schema structure is essential for creating effective policies and integrating with external systems.
+This document provides comprehensive documentation for the ngdpbase Policy-Based Access Control (PBAC) JSON schema. Understanding the schema structure is essential for creating effective policies and integrating with external systems.
 
 ## Schema Structure
 
@@ -848,4 +848,4 @@ ajv validate -s policy-schema.json -d my-policy.json
 
 ---
 
-*This schema documentation covers amdWiki Policy-Based Access Control version 1.0. For the latest schema updates and additional examples, check the official documentation.*
+*This schema documentation covers ngdpbase Policy-Based Access Control version 1.0. For the latest schema updates and additional examples, check the official documentation.*

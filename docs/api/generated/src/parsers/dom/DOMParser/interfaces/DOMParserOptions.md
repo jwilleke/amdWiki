@@ -1,12 +1,12 @@
-[**amdWiki API v1.5.0**](../../../../../README.md)
+[**ngdpbase API v1.5.0**](../../../../../README.md)
 
 ***
 
-[amdWiki API](../../../../../README.md) / [src/parsers/dom/DOMParser](../README.md) / DOMParserOptions
+[ngdpbase API](../../../../../README.md) / [src/parsers/dom/DOMParser](../README.md) / DOMParserOptions
 
 # Interface: DOMParserOptions
 
-Defined in: [src/parsers/dom/DOMParser.ts:68](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/DOMParser.ts#L68)
+Defined in: [src/parsers/dom/DOMParser.ts:68](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/DOMParser.ts#L68)
 
 DOMParser options
 
@@ -16,7 +16,7 @@ DOMParser options
 
 > `optional` **debug**: `boolean`
 
-Defined in: [src/parsers/dom/DOMParser.ts:70](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/DOMParser.ts#L70)
+Defined in: [src/parsers/dom/DOMParser.ts:70](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/DOMParser.ts#L70)
 
 Enable debug logging
 
@@ -26,7 +26,7 @@ Enable debug logging
 
 > `optional` **onError**: (`error`) => `void` \| `null`
 
-Defined in: [src/parsers/dom/DOMParser.ts:74](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/DOMParser.ts#L74)
+Defined in: [src/parsers/dom/DOMParser.ts:74](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/DOMParser.ts#L74)
 
 Error callback
 
@@ -36,7 +36,7 @@ Error callback
 
 > `optional` **onWarning**: (`warning`) => `void` \| `null`
 
-Defined in: [src/parsers/dom/DOMParser.ts:76](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/DOMParser.ts#L76)
+Defined in: [src/parsers/dom/DOMParser.ts:76](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/DOMParser.ts#L76)
 
 Warning callback
 
@@ -46,6 +46,6 @@ Warning callback
 
 > `optional` **throwOnError**: `boolean`
 
-Defined in: [src/parsers/dom/DOMParser.ts:72](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/DOMParser.ts#L72)
+Defined in: [src/parsers/dom/DOMParser.ts:72](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/DOMParser.ts#L72)
 
 Throw on parse errors instead of creating error document

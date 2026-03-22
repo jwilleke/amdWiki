@@ -22,7 +22,7 @@ The TotalPagesPlugin provides a simple count of all wiki pages. It's useful for 
 | Property | Value |
 | ---------- | ------- |
 | Name | TotalPagesPlugin |
-| Author | amdWiki |
+| Author | ngdpbase |
 | Version | 1.0.0 |
 | JSPWiki Compatible | Yes |
 
@@ -65,7 +65,7 @@ This wiki contains [{TotalPagesPlugin}] pages.
 ### Example 3: Dashboard
 
 ```wiki
-!! Welcome to amdWiki
+!! Welcome to ngdpbase
 
 Browse our [{TotalPagesPlugin}] pages of documentation, or use the search
 to find specific topics.
@@ -98,7 +98,7 @@ Returns a plain number string (e.g., `"247"`), making it easy to embed inline.
 
 ## JSPWiki Compatibility
 
-| Feature | JSPWiki | amdWiki | Notes |
+| Feature | JSPWiki | ngdpbase | Notes |
 | --------- | --------- | --------- | ------- |
 | Basic syntax | Yes | Yes | Identical behavior |
 | Output format | Yes | Yes | Plain number |

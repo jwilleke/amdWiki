@@ -5,15 +5,15 @@
  * Suitable for small to medium-sized wikis (<10,000 pages).
  *
  * Configuration keys (all lowercase):
- * - amdwiki.search.provider.lunr.indexdir - Directory for persisted index
- * - amdwiki.search.provider.lunr.stemming - Enable/disable stemming
- * - amdwiki.search.provider.lunr.boost.title - Title field boost factor
- * - amdwiki.search.provider.lunr.boost.systemcategory - System category boost
- * - amdwiki.search.provider.lunr.boost.userkeywords - User keywords boost
- * - amdwiki.search.provider.lunr.boost.tags - Tags boost
- * - amdwiki.search.provider.lunr.maxresults - Maximum results to return
- * - amdwiki.search.provider.lunr.snippetlength - Snippet length in characters
- * - amdwiki.search.provider.lunr.flushinterval - Document persistence flush interval (ms)
+ * - ngdpbase.search.provider.lunr.indexdir - Directory for persisted index
+ * - ngdpbase.search.provider.lunr.stemming - Enable/disable stemming
+ * - ngdpbase.search.provider.lunr.boost.title - Title field boost factor
+ * - ngdpbase.search.provider.lunr.boost.systemcategory - System category boost
+ * - ngdpbase.search.provider.lunr.boost.userkeywords - User keywords boost
+ * - ngdpbase.search.provider.lunr.boost.tags - Tags boost
+ * - ngdpbase.search.provider.lunr.maxresults - Maximum results to return
+ * - ngdpbase.search.provider.lunr.snippetlength - Snippet length in characters
+ * - ngdpbase.search.provider.lunr.flushinterval - Document persistence flush interval (ms)
  *
  * Related: GitHub Issue #102 - Configuration reorganization
  * Related: GitHub Issue #267 - Incremental search index + document persistence
@@ -129,7 +129,7 @@ class LunrSearchProvider extends BaseSearchProvider {
 
     // indexDir uses getResolvedDataPath to support INSTANCE_DATA_FOLDER
     const indexDir = configManager.getResolvedDataPath(
-      'amdwiki.search.provider.lunr.indexdir',
+      'ngdpbase.search.provider.lunr.indexdir',
       './search-index'
     );
 
@@ -137,37 +137,37 @@ class LunrSearchProvider extends BaseSearchProvider {
     this.config = {
       indexDir,
       stemming: configManager.getProperty<boolean>(
-        'amdwiki.search.provider.lunr.stemming',
+        'ngdpbase.search.provider.lunr.stemming',
         true
       ),
       boost: {
         title: configManager.getProperty<number>(
-          'amdwiki.search.provider.lunr.boost.title',
+          'ngdpbase.search.provider.lunr.boost.title',
           10
         ),
         systemCategory: configManager.getProperty<number>(
-          'amdwiki.search.provider.lunr.boost.systemcategory',
+          'ngdpbase.search.provider.lunr.boost.systemcategory',
           8
         ),
         userKeywords: configManager.getProperty<number>(
-          'amdwiki.search.provider.lunr.boost.userkeywords',
+          'ngdpbase.search.provider.lunr.boost.userkeywords',
           6
         ),
         tags: configManager.getProperty<number>(
-          'amdwiki.search.provider.lunr.boost.tags',
+          'ngdpbase.search.provider.lunr.boost.tags',
           5
         ),
         keywords: configManager.getProperty<number>(
-          'amdwiki.search.provider.lunr.boost.keywords',
+          'ngdpbase.search.provider.lunr.boost.keywords',
           4
         )
       },
       maxResults: configManager.getProperty<number>(
-        'amdwiki.search.provider.lunr.maxresults',
+        'ngdpbase.search.provider.lunr.maxresults',
         50
       ),
       snippetLength: configManager.getProperty<number>(
-        'amdwiki.search.provider.lunr.snippetlength',
+        'ngdpbase.search.provider.lunr.snippetlength',
         200
       )
     };
@@ -179,7 +179,7 @@ class LunrSearchProvider extends BaseSearchProvider {
 
     // Set up periodic flush (default 5 minutes)
     const intervalMs = configManager.getProperty<number>(
-      'amdwiki.search.provider.lunr.flushinterval',
+      'ngdpbase.search.provider.lunr.flushinterval',
       300000
     );
     this.flushInterval = setInterval(() => { void this.persistDocuments(); }, intervalMs).unref();

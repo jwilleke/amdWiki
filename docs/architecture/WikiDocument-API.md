@@ -4,7 +4,7 @@
 
 **Version:** 1.0.0
 **Status:** Implemented (Phase 1 Complete)
-**Related:** [GitHub Issue #93](https://github.com/jwilleke/amdWiki/issues/93)
+**Related:** [GitHub Issue #93](https://github.com/jwilleke/ngdpbase/issues/93)
 
 ## Overview
 
@@ -963,7 +963,7 @@ doc.root.innerHTML = items.map(item => `<p>${item}</p>`).join('');
 - [WikiDocument-DOM-Architecture.md](./WikiDocument-DOM-Architecture.md) - Architecture overview
 - [WikiDocument-Migration-TODO.md](./WikiDocument-Migration-TODO.md) - Migration plan
 - [WikiDocument-DOM-Library-Evaluation.md](./WikiDocument-DOM-Library-Evaluation.md) - Library selection
-- [GitHub Issue #93](https://github.com/jwilleke/amdWiki/issues/93) - Epic tracking
+- [GitHub Issue #93](https://github.com/jwilleke/ngdpbase/issues/93) - Epic tracking
 
 ## Version History
 

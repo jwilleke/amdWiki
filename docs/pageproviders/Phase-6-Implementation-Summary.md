@@ -311,7 +311,7 @@ No additional configuration required. Versioning UI automatically enables when:
 
 ```json
 {
-  "amdwiki.page.provider": "versioningfileprovider"
+  "ngdpbase.page.provider": "versioningfileprovider"
 }
 ```
 

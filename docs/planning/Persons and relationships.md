@@ -166,9 +166,9 @@ Semantic Clarity: It forces you to decide: Is this phone number attached to the 
 
 ## Further Discussions
 
-The "amdWiki" would be an Organization as defined in users/organizations.json.
+The "ngdpbase" would be an Organization as defined in users/organizations.json.
 
-Most implementations of amdWiki woulld be
+Most implementations of ngdpbase woulld be
 
 Example Core Person Identity (Immutable)
 
@@ -216,7 +216,7 @@ Member Role (Church/Association Membership)
 {
   "@context": "https://schema.org",
   "@type": "OrganizationRole",
-  "@id": "urn:amdwiki:role:member:testuser-001",
+  "@id": "urn:ngdpbase:role:member:testuser-001",
   "identifier": "MEMBER-testuser-001",
   "roleName": "Platform Member",
   "startDate": "2025-09-09T09:45:58.487Z",
@@ -229,8 +229,8 @@ Member Role (Church/Association Membership)
   
   "memberOf": {
     "@type": "Organization",
-    "@id": "amdwiki-platform",
-    "name": "amdWiki Platform"
+    "@id": "ngdpbase-platform",
+    "name": "ngdpbase Platform"
   },
   
   "additionalProperty": [
@@ -275,7 +275,7 @@ Authentication or interaction or transaction data Should stored be out side obje
 {
   "@context": "https://schema.org",
   "@type": "Order",
-  "@id": "urn:amdwiki:order:2025-001",
+  "@id": "urn:ngdpbase:order:2025-001",
   "orderNumber": "ORD-2025-001",
   "orderDate": "2025-11-24T10:15:00Z",
   "orderStatus": "OrderProcessing",
@@ -289,8 +289,8 @@ Authentication or interaction or transaction data Should stored be out side obje
   
   "seller": {
     "@type": "Organization",
-    "@id": "amdwiki-platform",
-    "name": "amdWiki Platform"
+    "@id": "ngdpbase-platform",
+    "name": "ngdpbase Platform"
   },
   
   "orderedItem": [
@@ -343,7 +343,7 @@ Authentication or interaction or transaction data Should stored be out side obje
 {
   "@context": "https://schema.org",
   "@type": "Invoice",
-  "@id": "urn:amdwiki:invoice:INV-2025-001",
+  "@id": "urn:ngdpbase:invoice:INV-2025-001",
   "identifier": "INV-2025-001",
   "description": "Annual Premium Subscription",
   
@@ -354,12 +354,12 @@ Authentication or interaction or transaction data Should stored be out side obje
   
   "provider": {
     "@type": "Organization",
-    "@id": "amdwiki-platform"
+    "@id": "ngdpbase-platform"
   },
   
   "referencesOrder": {
     "@type": "Order",
-    "@id": "urn:amdwiki:order:2025-001"
+    "@id": "urn:ngdpbase:order:2025-001"
   },
   
   "totalPaymentDue": {
@@ -388,7 +388,7 @@ Authentication or interaction or transaction data Should stored be out side obje
 {
   "@context": "https://schema.org",
   "@type": "MoneyTransfer",
-  "@id": "urn:amdwiki:transfer:TXN-2025-001",
+  "@id": "urn:ngdpbase:transfer:TXN-2025-001",
   "identifier": "TXN-2025-001",
   
   "amount": {
@@ -404,7 +404,7 @@ Authentication or interaction or transaction data Should stored be out side obje
   
   "recipient": {
     "@type": "Organization",
-    "@id": "amdwiki-platform"
+    "@id": "ngdpbase-platform"
   },
   
   "beneficiaryBank": {

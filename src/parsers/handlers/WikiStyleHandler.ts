@@ -140,9 +140,9 @@ class WikiStyleHandler extends BaseSyntaxHandler {
     if (configManager) {
       try {
         // Main style configuration (modular)
-        this.styleConfig.customClasses = configManager.getProperty('amdwiki.style.customClasses.enabled', this.styleConfig.customClasses);
-        this.styleConfig.bootstrap = configManager.getProperty('amdwiki.style.bootstrap.integration', this.styleConfig.bootstrap);
-        this.styleConfig.allowInlineCSS = configManager.getProperty('amdwiki.style.security.allowInlineCSS', this.styleConfig.allowInlineCSS);
+        this.styleConfig.customClasses = configManager.getProperty('ngdpbase.style.customClasses.enabled', this.styleConfig.customClasses);
+        this.styleConfig.bootstrap = configManager.getProperty('ngdpbase.style.bootstrap.integration', this.styleConfig.bootstrap);
+        this.styleConfig.allowInlineCSS = configManager.getProperty('ngdpbase.style.security.allowInlineCSS', this.styleConfig.allowInlineCSS);
 
         // Load predefined class sets (modular class definitions)
         this.loadPredefinedClasses(configManager);
@@ -166,19 +166,19 @@ class WikiStyleHandler extends BaseSyntaxHandler {
    */
   private loadPredefinedClasses(configManager: ConfigManager): void {
     // Load text styling classes
-    const textClasses = configManager.getProperty('amdwiki.style.predefined.text', '').split(',');
+    const textClasses = configManager.getProperty('ngdpbase.style.predefined.text', '').split(',');
     textClasses.forEach((cls: string) => cls.trim() && this.predefinedClasses.add(cls.trim()));
 
     // Load background classes
-    const backgroundClasses = configManager.getProperty('amdwiki.style.predefined.background', '').split(',');
+    const backgroundClasses = configManager.getProperty('ngdpbase.style.predefined.background', '').split(',');
     backgroundClasses.forEach((cls: string) => cls.trim() && this.predefinedClasses.add(cls.trim()));
 
     // Load layout classes
-    const layoutClasses = configManager.getProperty('amdwiki.style.predefined.layout', '').split(',');
+    const layoutClasses = configManager.getProperty('ngdpbase.style.predefined.layout', '').split(',');
     layoutClasses.forEach((cls: string) => cls.trim() && this.predefinedClasses.add(cls.trim()));
 
     // Load any custom predefined classes
-    const customClasses = configManager.getProperty('amdwiki.style.predefined.custom', '').split(',');
+    const customClasses = configManager.getProperty('ngdpbase.style.predefined.custom', '').split(',');
     customClasses.forEach((cls: string) => cls.trim() && this.predefinedClasses.add(cls.trim()));
   }
 
@@ -187,7 +187,7 @@ class WikiStyleHandler extends BaseSyntaxHandler {
    * @param configManager - Configuration manager
    */
   private loadAllowedCSSProperties(configManager: ConfigManager): void {
-    const allowedProps = configManager.getProperty('amdwiki.style.security.allowedProperties', '').split(',');
+    const allowedProps = configManager.getProperty('ngdpbase.style.security.allowedProperties', '').split(',');
     allowedProps.forEach((prop: string) => prop.trim() && this.allowedCSSProperties.add(prop.trim()));
 
     // Add default safe properties if none configured

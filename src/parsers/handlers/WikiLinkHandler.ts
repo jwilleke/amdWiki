@@ -37,7 +37,7 @@ interface WikiEngine {
 /**
  * WikiLinkHandler - Internal wiki link processing (CRITICAL for basic functionality)
  *
- * Supports JSPWiki/amdWiki link syntax:
+ * Supports JSPWiki/ngdpbase link syntax:
  * - [PageName] - Simple internal links
  * - [DisplayText|TargetPage] - Links with custom display text
  * - [DisplayText|TargetPage|target=_blank] - Links with parameters

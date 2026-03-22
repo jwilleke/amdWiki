@@ -2,7 +2,7 @@
 
 ## Problem Statement
 
-amdWiki needs a comprehensive page classification system that serves multiple purposes:
+ngdpbase needs a comprehensive page classification system that serves multiple purposes:
 
 1. **Operational Safety**: Distinguish app-managed vs user-managed content for safe upgrades
 2. **Content Organization**: Logical categorization for navigation and search

@@ -1,6 +1,6 @@
 # Installation System - Complete Documentation
 
-Complete implementation of JSPWiki-style first-run installation wizard for amdWiki (Issue #153).
+Complete implementation of JSPWiki-style first-run installation wizard for ngdpbase (Issue #153).
 
 Status: ✅ IMPLEMENTED - READY FOR BROWSER TESTING
 Last Updated: 2026-01-25
@@ -141,12 +141,12 @@ These override the corresponding config file properties at runtime:
 
 | Environment Variable | Config Property | Description | Default |
 | --- | --- | --- | --- |
-| `AMDWIKI_BASE_URL` | `amdwiki.baseURL` | Base URL for the wiki (e.g., `https://wiki.example.com`) | (empty) |
-| `AMDWIKI_HOSTNAME` | `amdwiki.hostname` | Server hostname | (from config) |
-| `AMDWIKI_HOST` | `amdwiki.server.host` | Server bind address | `localhost` |
-| `AMDWIKI_PORT` | `amdwiki.server.port` | Server port | `3000` |
-| `AMDWIKI_SESSION_SECRET` | `amdwiki.session.secret` | Session encryption key | (from config) |
-| `AMDWIKI_APP_NAME` | `amdwiki.applicationName` | Application display name | `amdWiki` |
+| `AMDWIKI_BASE_URL` | `ngdpbase.baseURL` | Base URL for the wiki (e.g., `https://wiki.example.com`) | (empty) |
+| `AMDWIKI_HOSTNAME` | `ngdpbase.hostname` | Server hostname | (from config) |
+| `AMDWIKI_HOST` | `ngdpbase.server.host` | Server bind address | `localhost` |
+| `AMDWIKI_PORT` | `ngdpbase.server.port` | Server port | `3000` |
+| `AMDWIKI_SESSION_SECRET` | `ngdpbase.session.secret` | Session encryption key | (from config) |
+| `AMDWIKI_APP_NAME` | `ngdpbase.applicationName` | Application display name | `ngdpbase` |
 
 These overrides are implemented in `src/managers/ConfigurationManager.ts:173-180`.
 
@@ -172,22 +172,22 @@ These control which config files and data directories are used:
 
 ```bash
 docker run -d \
-  --name amdwiki \
+  --name ngdpbase \
   -p 3000:3000 \
   -e AMDWIKI_APP_NAME="My Company Wiki" \
   -e AMDWIKI_BASE_URL="https://wiki.example.com" \
   -e AMDWIKI_SESSION_SECRET="your-secure-secret-here" \
   -e AMDWIKI_HOST="0.0.0.0" \
   -v $(pwd)/data:/app/data \
-  ghcr.io/jwilleke/amdwiki:latest
+  ghcr.io/jwilleke/ngdpbase:latest
 ```
 
 #### Docker Compose with env overrides
 
 ```yaml
 services:
-  amdwiki:
-    image: ghcr.io/jwilleke/amdwiki:latest
+  ngdpbase:
+    image: ghcr.io/jwilleke/ngdpbase:latest
     ports:
       - "3000:3000"
     environment:
@@ -214,13 +214,13 @@ You can mount a custom config file for most settings and use environment variabl
 
 ```bash
 docker run -d \
-  --name amdwiki \
+  --name ngdpbase \
   -p 3000:3000 \
   -e AMDWIKI_SESSION_SECRET="production-secret-from-vault" \
   -e AMDWIKI_BASE_URL="https://wiki.prod.example.com" \
   -v $(pwd)/data:/app/data \
   -v $(pwd)/my-config.json:/app/data/config/app-custom-config.json \
-  ghcr.io/jwilleke/amdwiki:latest
+  ghcr.io/jwilleke/ngdpbase:latest
 ```
 
 In this example, most settings come from `my-config.json`, but the session secret and base URL are overridden by environment variables (useful for keeping secrets out of config files).
@@ -284,8 +284,8 @@ The Kubernetes manifests (`docker/k8s/`) provide:
 data:
   app-custom-config.json: |
     {
-      "amdwiki.applicationName": "My Wiki",
-      "amdwiki.baseURL": "https://wiki.example.com"
+      "ngdpbase.applicationName": "My Wiki",
+      "ngdpbase.baseURL": "https://wiki.example.com"
     }
 ```
 
@@ -452,7 +452,7 @@ data/                          # INSTANCE_DATA_FOLDER (default: ./data)
 - Process validation before startup
 - Port availability checking
 - Orphaned process cleanup
-- Single `.amdwiki.pid` enforcement
+- Single `.ngdpbase.pid` enforcement
 - Tested and verified working correctly
 
 Pre-existing Issues (Not Installation-Related):
@@ -509,8 +509,8 @@ Recovery Features:
 
 Docker/Kubernetes Testing:
 
-- [ ] Build Docker image: `docker build -f docker/Dockerfile -t amdwiki .`
-- [ ] Run container: `docker run -p 3000:3000 -v ./data:/app/data amdwiki`
+- [ ] Build Docker image: `docker build -f docker/Dockerfile -t ngdpbase .`
+- [ ] Run container: `docker run -p 3000:3000 -v ./data:/app/data ngdpbase`
 - [ ] Verify installation wizard appears on first access
 - [ ] Complete installation
 - [ ] Verify `.install-complete` created in mounted volume
@@ -606,7 +606,7 @@ Startup Pages:
 #### GitHub Issue #167 ✅ - FIXED
 
 - 7-step validation and cleanup implemented in server.sh
-- Single `.amdwiki.pid` enforcement verified
+- Single `.ngdpbase.pid` enforcement verified
 - Duplicate process startup prevented
 - Stale PID files cleaned up on startup
 - Tested and working correctly
@@ -654,8 +654,8 @@ Startup Pages:
 
 ## References
 
-- Issue #153: <https://github.com/jwilleke/amdWiki/issues/153>
-- Issue #167: <https://github.com/jwilleke/amdWiki/issues/167>
-- Issue #168: <https://github.com/jwilleke/amdWiki/issues/168> (Docker/K8s)
+- Issue #153: <https://github.com/jwilleke/ngdpbase/issues/153>
+- Issue #167: <https://github.com/jwilleke/ngdpbase/issues/167>
+- Issue #168: <https://github.com/jwilleke/ngdpbase/issues/168> (Docker/K8s)
 - JSPWiki Install: <https://github.com/apache/jspwiki>
 - Schema.org Organization: <https://schema.org/Organization>

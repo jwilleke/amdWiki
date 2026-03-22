@@ -1,12 +1,12 @@
-[**amdWiki API v1.5.0**](../../../../README.md)
+[**ngdpbase API v1.5.0**](../../../../README.md)
 
 ***
 
-[amdWiki API](../../../../README.md) / [src/parsers/LinkParser](../README.md) / LinkData
+[ngdpbase API](../../../../README.md) / [src/parsers/LinkParser](../README.md) / LinkData
 
 # Interface: LinkData
 
-Defined in: [src/parsers/LinkParser.ts:146](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/LinkParser.ts#L146)
+Defined in: [src/parsers/LinkParser.ts:146](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/LinkParser.ts#L146)
 
 Link data structure for Link constructor
 
@@ -16,7 +16,7 @@ Link data structure for Link constructor
 
 > `optional` **attributes**: [`LinkAttributes`](LinkAttributes.md)
 
-Defined in: [src/parsers/LinkParser.ts:156](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/LinkParser.ts#L156)
+Defined in: [src/parsers/LinkParser.ts:156](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/LinkParser.ts#L156)
 
 Parsed attributes object
 
@@ -26,7 +26,7 @@ Parsed attributes object
 
 > `optional` **attributesString**: `string` \| `null`
 
-Defined in: [src/parsers/LinkParser.ts:154](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/LinkParser.ts#L154)
+Defined in: [src/parsers/LinkParser.ts:154](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/LinkParser.ts#L154)
 
 Raw attributes string
 
@@ -36,7 +36,7 @@ Raw attributes string
 
 > `optional` **endIndex**: `number`
 
-Defined in: [src/parsers/LinkParser.ts:160](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/LinkParser.ts#L160)
+Defined in: [src/parsers/LinkParser.ts:160](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/LinkParser.ts#L160)
 
 End index in content
 
@@ -46,7 +46,7 @@ End index in content
 
 > `optional` **originalText**: `string`
 
-Defined in: [src/parsers/LinkParser.ts:148](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/LinkParser.ts#L148)
+Defined in: [src/parsers/LinkParser.ts:148](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/LinkParser.ts#L148)
 
 Original text from content
 
@@ -56,7 +56,7 @@ Original text from content
 
 > `optional` **startIndex**: `number`
 
-Defined in: [src/parsers/LinkParser.ts:158](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/LinkParser.ts#L158)
+Defined in: [src/parsers/LinkParser.ts:158](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/LinkParser.ts#L158)
 
 Start index in content
 
@@ -66,7 +66,7 @@ Start index in content
 
 > `optional` **target**: `string` \| `null`
 
-Defined in: [src/parsers/LinkParser.ts:152](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/LinkParser.ts#L152)
+Defined in: [src/parsers/LinkParser.ts:152](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/LinkParser.ts#L152)
 
 Target page or URL
 
@@ -76,6 +76,6 @@ Target page or URL
 
 > `optional` **text**: `string`
 
-Defined in: [src/parsers/LinkParser.ts:150](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/LinkParser.ts#L150)
+Defined in: [src/parsers/LinkParser.ts:150](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/LinkParser.ts#L150)
 
 Display text for the link

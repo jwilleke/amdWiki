@@ -1,13 +1,13 @@
 ---
 name: Documentation Standards
-description: Standards and conventions for amdWiki documentation
+description: Standards and conventions for ngdpbase documentation
 dateModified: 2025-12-18
 category: standards
 ---
 
 # Documentation Standards
 
-This document defines the standards and conventions for all amdWiki documentation.
+This document defines the standards and conventions for all ngdpbase documentation.
 
 ## Front Matter Schema
 

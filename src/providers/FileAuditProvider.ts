@@ -57,11 +57,11 @@ interface FileAuditConfig {
  * Suitable for single-instance deployments and development.
  *
  * Configuration keys (all lowercase):
- * - amdwiki.audit.provider.file.logdirectory - Directory for audit log files
- * - amdwiki.audit.provider.file.auditfilename - Main audit log filename
- * - amdwiki.audit.provider.file.archivefilename - Archive log filename
- * - amdwiki.audit.provider.file.maxfilesize - Maximum file size
- * - amdwiki.audit.provider.file.maxfiles - Maximum number of archived files
+ * - ngdpbase.audit.provider.file.logdirectory - Directory for audit log files
+ * - ngdpbase.audit.provider.file.auditfilename - Main audit log filename
+ * - ngdpbase.audit.provider.file.archivefilename - Archive log filename
+ * - ngdpbase.audit.provider.file.maxfilesize - Maximum file size
+ * - ngdpbase.audit.provider.file.maxfiles - Maximum number of archived files
  */
 class FileAuditProvider extends BaseAuditProvider {
   private auditLogs: ExtendedAuditEvent[];
@@ -90,31 +90,31 @@ class FileAuditProvider extends BaseAuditProvider {
     }
 
     // Load shared audit settings (ALL LOWERCASE)
-    const logLevel = configManager.getProperty('amdwiki.audit.loglevel', 'info') as string;
-    const maxQueueSize = configManager.getProperty('amdwiki.audit.maxqueuesize', 1000) as number;
-    const flushInterval = configManager.getProperty('amdwiki.audit.flushinterval', 30000) as number;
-    const retentionDays = configManager.getProperty('amdwiki.audit.retentiondays', 90) as number;
+    const logLevel = configManager.getProperty('ngdpbase.audit.loglevel', 'info') as string;
+    const maxQueueSize = configManager.getProperty('ngdpbase.audit.maxqueuesize', 1000) as number;
+    const flushInterval = configManager.getProperty('ngdpbase.audit.flushinterval', 30000) as number;
+    const retentionDays = configManager.getProperty('ngdpbase.audit.retentiondays', 90) as number;
 
     // Load provider-specific settings (ALL LOWERCASE)
     // logDirectory uses getResolvedDataPath to support INSTANCE_DATA_FOLDER
     const logDirectory = configManager.getResolvedDataPath(
-      'amdwiki.audit.provider.file.logdirectory',
+      'ngdpbase.audit.provider.file.logdirectory',
       './data/logs'
     );
     const auditFileName = configManager.getProperty(
-      'amdwiki.audit.provider.file.auditfilename',
+      'ngdpbase.audit.provider.file.auditfilename',
       'audit.log'
     ) as string;
     const archiveFileName = configManager.getProperty(
-      'amdwiki.audit.provider.file.archivefilename',
+      'ngdpbase.audit.provider.file.archivefilename',
       'audit-archive.log'
     ) as string;
     const maxFileSize = configManager.getProperty(
-      'amdwiki.audit.provider.file.maxfilesize',
+      'ngdpbase.audit.provider.file.maxfilesize',
       '10MB'
     ) as string;
     const maxFiles = configManager.getProperty(
-      'amdwiki.audit.provider.file.maxfiles',
+      'ngdpbase.audit.provider.file.maxfiles',
       10
     ) as number;
 

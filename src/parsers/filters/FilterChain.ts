@@ -255,19 +255,19 @@ class FilterChain {
     if (configManager) {
       try {
         // Filter pipeline configuration (modular)
-        this.config.enabled = configManager.getProperty('amdwiki.markup.filters.enabled', this.config.enabled) as boolean;
-        this.config.maxFilters = configManager.getProperty('amdwiki.markup.filters.pipeline.maxFilters', this.config.maxFilters) as number;
-        this.config.timeout = configManager.getProperty('amdwiki.markup.filters.pipeline.timeout', this.config.timeout) as number;
-        this.config.enableProfiling = configManager.getProperty('amdwiki.markup.filters.pipeline.enableProfiling', this.config.enableProfiling) as boolean;
-        this.config.failOnError = configManager.getProperty('amdwiki.markup.filters.pipeline.failOnError', this.config.failOnError) as boolean;
+        this.config.enabled = configManager.getProperty('ngdpbase.markup.filters.enabled', this.config.enabled) as boolean;
+        this.config.maxFilters = configManager.getProperty('ngdpbase.markup.filters.pipeline.maxFilters', this.config.maxFilters) as number;
+        this.config.timeout = configManager.getProperty('ngdpbase.markup.filters.pipeline.timeout', this.config.timeout) as number;
+        this.config.enableProfiling = configManager.getProperty('ngdpbase.markup.filters.pipeline.enableProfiling', this.config.enableProfiling) as boolean;
+        this.config.failOnError = configManager.getProperty('ngdpbase.markup.filters.pipeline.failOnError', this.config.failOnError) as boolean;
 
         // Cache configuration (modular)
-        this.config.cacheResults = configManager.getProperty('amdwiki.markup.filters.cacheResults', this.config.cacheResults) as boolean;
-        this.config.cacheTTL = configManager.getProperty('amdwiki.markup.filters.cacheTTL', this.config.cacheTTL) as number;
+        this.config.cacheResults = configManager.getProperty('ngdpbase.markup.filters.cacheResults', this.config.cacheResults) as boolean;
+        this.config.cacheTTL = configManager.getProperty('ngdpbase.markup.filters.cacheTTL', this.config.cacheTTL) as number;
 
         // Performance configuration (modular)
-        this.config.enableParallelExecution = configManager.getProperty('amdwiki.markup.filters.enableParallelExecution', this.config.enableParallelExecution) as boolean;
-        this.config.maxConcurrentFilters = configManager.getProperty('amdwiki.markup.filters.maxConcurrentFilters', this.config.maxConcurrentFilters) as number;
+        this.config.enableParallelExecution = configManager.getProperty('ngdpbase.markup.filters.enableParallelExecution', this.config.enableParallelExecution) as boolean;
+        this.config.maxConcurrentFilters = configManager.getProperty('ngdpbase.markup.filters.maxConcurrentFilters', this.config.maxConcurrentFilters) as number;
 
       } catch (error) {
         logger.warn('⚠️  Failed to load FilterChain configuration, using defaults:', (error as Error).message);

@@ -1,14 +1,14 @@
-[**amdWiki API v1.5.0**](../README.md)
+[**ngdpbase API v1.5.0**](../README.md)
 
 ***
 
-[amdWiki API](../README.md) / logger
+[ngdpbase API](../README.md) / logger
 
 # logger
 
 Simple logging framework using winston
 
-Provides centralized logging for the entire amdWiki application with
+Provides centralized logging for the entire ngdpbase application with
 file rotation, console output, and configurable log levels.
 
 ## Example

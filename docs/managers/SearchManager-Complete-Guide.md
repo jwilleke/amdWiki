@@ -8,7 +8,7 @@
 
 ## Overview
 
-The `SearchManager` is responsible for full-text search indexing and querying in amdWiki. It provides a centralized system for searching wiki content, suggesting similar pages, autocomplete functionality, and filtering by categories and keywords. The SearchManager uses a **provider pattern** to support multiple search backends, making it flexible for different deployment scenarios from small wikis to large-scale enterprise deployments.
+The `SearchManager` is responsible for full-text search indexing and querying in ngdpbase. It provides a centralized system for searching wiki content, suggesting similar pages, autocomplete functionality, and filtering by categories and keywords. The SearchManager uses a **provider pattern** to support multiple search backends, making it flexible for different deployment scenarios from small wikis to large-scale enterprise deployments.
 
 **Key Features:**
 
@@ -82,14 +82,14 @@ All configuration keys use **lowercase** format per Issue #102 refactoring.
 ```json
 {
   "_comment_search_storage": "Search indexing configuration (ALL LOWERCASE)",
-  "amdwiki.search.enabled": true,
-  "amdwiki.search.provider.default": "lunrsearchprovider",
-  "amdwiki.search.provider": "lunrsearchprovider",
-  "amdwiki.search.maxresults": 50,
-  "amdwiki.search.autocomplete.enabled": true,
-  "amdwiki.search.autocomplete.minlength": 2,
-  "amdwiki.search.suggestions.enabled": true,
-  "amdwiki.search.suggestions.maxitems": 10
+  "ngdpbase.search.enabled": true,
+  "ngdpbase.search.provider.default": "lunrsearchprovider",
+  "ngdpbase.search.provider": "lunrsearchprovider",
+  "ngdpbase.search.maxresults": 50,
+  "ngdpbase.search.autocomplete.enabled": true,
+  "ngdpbase.search.autocomplete.minlength": 2,
+  "ngdpbase.search.suggestions.enabled": true,
+  "ngdpbase.search.suggestions.maxitems": 10
 }
 ```
 
@@ -97,14 +97,14 @@ All configuration keys use **lowercase** format per Issue #102 refactoring.
 
 | Configuration Key | Type | Default | Description |
 | ------------------ | ------ | --------- | ------------- |
-| `amdwiki.search.enabled` | boolean | `true` | Enable/disable search functionality |
-| `amdwiki.search.provider.default` | string | `"lunrsearchprovider"` | Fallback provider if primary fails |
-| `amdwiki.search.provider` | string | `"lunrsearchprovider"` | Active search provider |
-| `amdwiki.search.maxresults` | number | `50` | Maximum search results to return |
-| `amdwiki.search.autocomplete.enabled` | boolean | `true` | Enable autocomplete suggestions |
-| `amdwiki.search.autocomplete.minlength` | number | `2` | Minimum characters for autocomplete |
-| `amdwiki.search.suggestions.enabled` | boolean | `true` | Enable search suggestions |
-| `amdwiki.search.suggestions.maxitems` | number | `10` | Maximum suggestion items |
+| `ngdpbase.search.enabled` | boolean | `true` | Enable/disable search functionality |
+| `ngdpbase.search.provider.default` | string | `"lunrsearchprovider"` | Fallback provider if primary fails |
+| `ngdpbase.search.provider` | string | `"lunrsearchprovider"` | Active search provider |
+| `ngdpbase.search.maxresults` | number | `50` | Maximum search results to return |
+| `ngdpbase.search.autocomplete.enabled` | boolean | `true` | Enable autocomplete suggestions |
+| `ngdpbase.search.autocomplete.minlength` | number | `2` | Minimum characters for autocomplete |
+| `ngdpbase.search.suggestions.enabled` | boolean | `true` | Enable search suggestions |
+| `ngdpbase.search.suggestions.maxitems` | number | `10` | Maximum suggestion items |
 
 ### Provider-Specific Configuration
 
@@ -113,15 +113,15 @@ All configuration keys use **lowercase** format per Issue #102 refactoring.
 ```json
 {
   "_comment_search_provider_lunr": "LunrSearchProvider settings",
-  "amdwiki.search.provider.lunr.indexdir": "./search-index",
-  "amdwiki.search.provider.lunr.stemming": true,
-  "amdwiki.search.provider.lunr.boost.title": 10,
-  "amdwiki.search.provider.lunr.boost.systemcategory": 8,
-  "amdwiki.search.provider.lunr.boost.userkeywords": 6,
-  "amdwiki.search.provider.lunr.boost.tags": 5,
-  "amdwiki.search.provider.lunr.boost.keywords": 4,
-  "amdwiki.search.provider.lunr.maxresults": 50,
-  "amdwiki.search.provider.lunr.snippetlength": 200
+  "ngdpbase.search.provider.lunr.indexdir": "./search-index",
+  "ngdpbase.search.provider.lunr.stemming": true,
+  "ngdpbase.search.provider.lunr.boost.title": 10,
+  "ngdpbase.search.provider.lunr.boost.systemcategory": 8,
+  "ngdpbase.search.provider.lunr.boost.userkeywords": 6,
+  "ngdpbase.search.provider.lunr.boost.tags": 5,
+  "ngdpbase.search.provider.lunr.boost.keywords": 4,
+  "ngdpbase.search.provider.lunr.maxresults": 50,
+  "ngdpbase.search.provider.lunr.snippetlength": 200
 }
 ```
 
@@ -151,10 +151,10 @@ All configuration keys use **lowercase** format per Issue #102 refactoring.
 ```json
 {
   "_comment_search_provider_elasticsearch": "ElasticsearchProvider settings (future)",
-  "amdwiki.search.provider.elasticsearch.url": "http://localhost:9200",
-  "amdwiki.search.provider.elasticsearch.indexname": "amdwiki",
-  "amdwiki.search.provider.elasticsearch.connecttimeout": 5000,
-  "amdwiki.search.provider.elasticsearch.requesttimeout": 30000
+  "ngdpbase.search.provider.elasticsearch.url": "http://localhost:9200",
+  "ngdpbase.search.provider.elasticsearch.indexname": "ngdpbase",
+  "ngdpbase.search.provider.elasticsearch.connecttimeout": 5000,
+  "ngdpbase.search.provider.elasticsearch.requesttimeout": 30000
 }
 ```
 
@@ -760,11 +760,11 @@ The LunrSearchProvider uses field boosting to improve search relevance:
 
 ```json
 {
-  "amdwiki.search.provider.lunr.boost.title": 15,
-  "amdwiki.search.provider.lunr.boost.systemcategory": 10,
-  "amdwiki.search.provider.lunr.boost.userkeywords": 8,
-  "amdwiki.search.provider.lunr.boost.tags": 6,
-  "amdwiki.search.provider.lunr.boost.keywords": 5
+  "ngdpbase.search.provider.lunr.boost.title": 15,
+  "ngdpbase.search.provider.lunr.boost.systemcategory": 10,
+  "ngdpbase.search.provider.lunr.boost.userkeywords": 8,
+  "ngdpbase.search.provider.lunr.boost.tags": 6,
+  "ngdpbase.search.provider.lunr.boost.keywords": 5
 }
 ```
 
@@ -813,7 +813,7 @@ including creating pages, editing content...
 
 ```json
 {
-  "amdwiki.search.provider.lunr.snippetlength": 200
+  "ngdpbase.search.provider.lunr.snippetlength": 200
 }
 ```
 
@@ -983,8 +983,8 @@ await searchManager.rebuildIndex();
    ```json
    // Fine-tune boost values for your content
    {
-     "amdwiki.search.provider.lunr.boost.title": 15,
-     "amdwiki.search.provider.lunr.boost.content": 1
+     "ngdpbase.search.provider.lunr.boost.title": 15,
+     "ngdpbase.search.provider.lunr.boost.content": 1
    }
    ```
 
@@ -1044,7 +1044,7 @@ Error: Failed to load search provider: Cannot find module '../providers/LunrSear
 
    ```json
    {
-     "amdwiki.search.provider": "lunrsearchprovider"
+     "ngdpbase.search.provider": "lunrsearchprovider"
    }
    ```
 
@@ -1184,7 +1184,7 @@ const results = await searchManager.search('query');
 
 ```json
 {
-  "amdwiki.searchProvider": "LunrSearchProvider"
+  "ngdpbase.searchProvider": "LunrSearchProvider"
 }
 ```
 
@@ -1192,9 +1192,9 @@ const results = await searchManager.search('query');
 
 ```json
 {
-  "amdwiki.search.enabled": true,
-  "amdwiki.search.provider": "lunrsearchprovider",
-  "amdwiki.search.provider.lunr.stemming": true
+  "ngdpbase.search.enabled": true,
+  "ngdpbase.search.provider": "lunrsearchprovider",
+  "ngdpbase.search.provider.lunr.stemming": true
 }
 ```
 
@@ -1205,7 +1205,7 @@ const results = await searchManager.search('query');
 - [PageManager](./PageManager.md) - Page content management
 - [CacheManager](./CacheManager.md) - Similar provider pattern
 - [AuditManager](./AuditManager.md) - Similar provider pattern
-- [GitHub Issue #102](https://github.com/jwilleke/amdWiki/issues/102) - Configuration reorganization
+- [GitHub Issue #102](https://github.com/jwilleke/ngdpbase/issues/102) - Configuration reorganization
 
 ## Version History
 

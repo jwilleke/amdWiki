@@ -234,7 +234,7 @@ const RecentChangesPlugin: SimplePlugin = {
 
       // Get page index path from config
       const configManager = context?.engine?.getManager?.('ConfigurationManager') as { getResolvedDataPath?: (key: string, fallback: string) => string } | undefined;
-      const pageIndexPath = configManager?.getResolvedDataPath?.('amdwiki.page.provider.versioning.indexfile', './data/page-index.json');
+      const pageIndexPath = configManager?.getResolvedDataPath?.('ngdpbase.page.provider.versioning.indexfile', './data/page-index.json');
 
       // Load page-index.json for version information
       const pageIndex = await loadPageIndex(pageIndexPath);

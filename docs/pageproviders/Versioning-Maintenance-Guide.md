@@ -1,6 +1,6 @@
 # Versioning Maintenance Guide
 
-Complete guide to maintaining and optimizing VersioningFileProvider storage in amdWiki.
+Complete guide to maintaining and optimizing VersioningFileProvider storage in ngdpbase.
 
 ## Table of Contents
 
@@ -68,7 +68,7 @@ When retrieving v18, the system:
 
 ```json
 {
-  "amdwiki.page.provider.versioning.checkpointinterval": 10
+  "ngdpbase.page.provider.versioning.checkpointinterval": 10
 }
 ```
 
@@ -93,7 +93,7 @@ Recently accessed versions are cached in memory using an LRU (Least Recently Use
 
 ```json
 {
-  "amdwiki.page.provider.versioning.cachesize": 50
+  "ngdpbase.page.provider.versioning.cachesize": 50
 }
 ```
 
@@ -130,8 +130,8 @@ Configure automatic cleanup thresholds in `app-custom-config.json`:
 
 ```json
 {
-  "amdwiki.page.provider.versioning.maxversions": 50,
-  "amdwiki.page.provider.versioning.retentiondays": 365
+  "ngdpbase.page.provider.versioning.maxversions": 50,
+  "ngdpbase.page.provider.versioning.retentiondays": 365
 }
 ```
 
@@ -477,7 +477,7 @@ npm run maintain:analyze
 
 ```text
 ═══════════════════════════════════════════════════════════════════
-  amdWiki Version Maintenance Tool
+  ngdpbase Version Maintenance Tool
 ═══════════════════════════════════════════════════════════════════
 
 ℹ Loading VersioningFileProvider...
@@ -513,10 +513,10 @@ Run maintenance operations on a schedule:
 
 ```bash
 # Cron job example (weekly cleanup and compression)
-0 2 * * 0 cd /path/to/amdwiki && npm run maintain:full
+0 2 * * 0 cd /path/to/ngdpbase && npm run maintain:full
 
 # Monthly analytics report
-0 3 1 * * cd /path/to/amdwiki && npm run maintain:analyze
+0 3 1 * * cd /path/to/ngdpbase && npm run maintain:analyze
 ```
 
 ### Before Major Operations
@@ -612,15 +612,15 @@ Consider creating page-specific retention policies in future versions.
 
 ```json
 {
-  "amdwiki.page.provider": "VersioningFileProvider",
+  "ngdpbase.page.provider": "VersioningFileProvider",
 
-  "amdwiki.page.provider.versioning.indexfile": "./data/page-index.json",
-  "amdwiki.page.provider.versioning.maxversions": 50,
-  "amdwiki.page.provider.versioning.retentiondays": 365,
-  "amdwiki.page.provider.versioning.compression": "gzip",
-  "amdwiki.page.provider.versioning.deltastorage": true,
-  "amdwiki.page.provider.versioning.checkpointinterval": 10,
-  "amdwiki.page.provider.versioning.cachesize": 50
+  "ngdpbase.page.provider.versioning.indexfile": "./data/page-index.json",
+  "ngdpbase.page.provider.versioning.maxversions": 50,
+  "ngdpbase.page.provider.versioning.retentiondays": 365,
+  "ngdpbase.page.provider.versioning.compression": "gzip",
+  "ngdpbase.page.provider.versioning.deltastorage": true,
+  "ngdpbase.page.provider.versioning.checkpointinterval": 10,
+  "ngdpbase.page.provider.versioning.cachesize": 50
 }
 ```
 
@@ -663,7 +663,7 @@ du -sh data/pages/versions
 1. Reduce cache size:
 
    ```json
-   {"amdwiki.page.provider.versioning.cachesize": 20}
+   {"ngdpbase.page.provider.versioning.cachesize": 20}
    ```
 
 2. Restart application to clear cache
@@ -687,13 +687,13 @@ du -sh data/pages/versions
 1. Reduce checkpoint interval:
 
    ```json
-   {"amdwiki.page.provider.versioning.checkpointinterval": 5}
+   {"ngdpbase.page.provider.versioning.checkpointinterval": 5}
    ```
 
 2. Increase cache size:
 
    ```json
-   {"amdwiki.page.provider.versioning.cachesize": 100}
+   {"ngdpbase.page.provider.versioning.cachesize": 100}
    ```
 
 3. Run cleanup to reduce version count
@@ -758,7 +758,7 @@ await provider.rebuildManifest('page-uuid');
 
 For issues or questions:
 
-- GitHub Issues: [amdWiki Issues](https://github.com/your-repo/amdWiki/issues)
+- GitHub Issues: [ngdpbase Issues](https://github.com/your-repo/ngdpbase/issues)
 - Documentation: [docs/README.md](./README.md)
 
 ---

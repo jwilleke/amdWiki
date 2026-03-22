@@ -1,4 +1,4 @@
-# amdWiki Project Log
+# ngdpbase Project Log
 
 AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version history.
 
@@ -31,7 +31,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 - Agent: Claude Sonnet 4.6
 - Subject: Core Theming System — all phases (#350, #352–#356)
 - Key Decisions:
-  - Config namespace: `amdwiki.theme.active` (site skin) + `amdwiki.theme.defaults.mode` (light/dark) replacing `amdwiki.user.defaults.theme`
+  - Config namespace: `ngdpbase.theme.active` (site skin) + `ngdpbase.theme.defaults.mode` (light/dark) replacing `ngdpbase.user.defaults.theme`
   - `themes/` at project root; `public/css/` assets moved into `themes/`
   - JSPWiki-inspired split: `themes/core.css` (structural, shared) + `themes/<name>/css/variables.css` (CSS custom properties per theme)
   - `themes/default/assets/` holds logo and favicon; `themes/plugins/location.css` (also fixes pre-existing bug — was never loaded)
@@ -248,16 +248,16 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 ## 2026-03-16-01
 
 - Agent: Claude Sonnet 4.6
-- Subject: Replace plexignore sentinel with .amdwikiignore pattern file and amdwikiignore EXIF keyword (#342)
-- Key Decision: Drop `.plexignore`/`.photoviewignore` directory-sentinel approach entirely; introduce `.amdwikiignore` (gitignore-style pattern file, applied before ExifTool — zero overhead for excluded items) and `amdwikiignore` EXIF keyword (checked after ExifTool read, evicts previously-indexed files). Both increment `ScanResult.excluded`. Add user-facing Media documentation required-page.
+- Subject: Replace plexignore sentinel with .ngdpbaseignore pattern file and ngdpbaseignore EXIF keyword (#342)
+- Key Decision: Drop `.plexignore`/`.photoviewignore` directory-sentinel approach entirely; introduce `.ngdpbaseignore` (gitignore-style pattern file, applied before ExifTool — zero overhead for excluded items) and `ngdpbaseignore` EXIF keyword (checked after ExifTool read, evicts previously-indexed files). Both increment `ScanResult.excluded`. Add user-facing Media documentation required-page.
 - Current Issue: #342
 - Testing:
   - npm test: 75 suites passed, 1915 tests passed
 - Work Done:
-  - Removed `ignoreFiles` from `FileSystemMediaProviderConfig` and `amdwiki.media.ignorefiles` from default config
+  - Removed `ignoreFiles` from `FileSystemMediaProviderConfig` and `ngdpbase.media.ignorefiles` from default config
   - Removed sentinel-file check and `isConfiguredRoot` parameter from `walkDirectory()`
-  - Added `loadIgnorePatterns()` helper (reads/parses `.amdwikiignore`) and `matchesIgnorePattern()` helper (minimatch-based)
-  - Added `amdwikiignore` EXIF keyword check in `processFile()` with `delete this.index[id]` eviction
+  - Added `loadIgnorePatterns()` helper (reads/parses `.ngdpbaseignore`) and `matchesIgnorePattern()` helper (minimatch-based)
+  - Added `ngdpbaseignore` EXIF keyword check in `processFile()` with `delete this.index[id]` eviction
   - Added `excluded` field to `ScanCounters` and `ScanResult`
   - Updated `MediaManager.ts` to remove `ignoreFiles` config read and provider arg
   - Updated `FileSystemMediaProvider.extractYear.test.js` minimalConfig
@@ -444,8 +444,8 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 - Testing:
   - npm test: 73 suites passed, 1874 tests passed
 - Work Done:
-  - Removed deprecated `amdwiki.interWikiRef.N` keys from `app-default-config.json` (dead config, nothing read them)
-  - Added GVP and GVP-COUNTRY sites to `amdwiki.interwiki.sites`
+  - Removed deprecated `ngdpbase.interWikiRef.N` keys from `app-default-config.json` (dead config, nothing read them)
+  - Added GVP and GVP-COUNTRY sites to `ngdpbase.interwiki.sites`
   - Created `views/admin-interwiki.ejs` — 3-tab UI: Sites table (inline edit/delete), Add Site form, Global Options
   - Added 4 route handlers to `WikiRoutes.ts`: GET page, POST save-site, POST delete-site, POST save-options
   - Added InterWiki link to admin dashboard System Settings section
@@ -461,7 +461,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 ## 2026-03-13-01
 
 - Agent: Claude Sonnet 4.6
-- Subject: Fix amdwiki.media.folders stored as string instead of JSON array via admin UI
+- Subject: Fix ngdpbase.media.folders stored as string instead of JSON array via admin UI
 - Key Decision: JSON.parse incoming config values in the route so arrays round-trip correctly; defensive comma-split in MediaManager for legacy data
 - Current Issue: n/a
 - Testing:
@@ -554,7 +554,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - `MediaManager`: `listByKeyword(keyword, wikiContext?)` with private filtering
   - `MediaPlugin`: `keyword=` param (resolves 'current' to pageName); list format uses `item.filename` only (no eventName)
   - `header.ejs`: `showPageInfo()` delegates to `showMediaInfoModal()` on `/media/item/` pages; modal shows Item ID, URL, per-keyword plugin syntax (correct quoting), file path, dimensions, file size
-  - `media-item.ejs`: `window.amdwikiMediaItem` includes keywords; collapsible panel plugin syntax shows one row per keyword with correct single/double-quote form; removed eventName Event row
+  - `media-item.ejs`: `window.ngdpbaseMediaItem` includes keywords; collapsible panel plugin syntax shows one row per keyword with correct single/double-quote form; removed eventName Event row
   - `media-search.ejs`, `media-year.ejs`: removed eventName badge
 - Commits: 3786dd7
 - Files Modified:
@@ -601,7 +601,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - npm test: 72 suites passed, 1855 tests passed
 - Work Done:
   - `required-pages/e36d72ac` (Media Management): added Browsing by Keyword section, MediaPlugin embedding section (all formats + params + apostrophe quoting), video playback note, keyword wiki links, Page Info media modal, extensions config in Config Reference
-  - `docs/managers/MediaManager.md`: added `listByKeyword()`, `/media/keyword/:keyword` route, `amdwiki.media.extensions`, removed `eventName`; bumped v1.2.0
+  - `docs/managers/MediaManager.md`: added `listByKeyword()`, `/media/keyword/:keyword` route, `ngdpbase.media.extensions`, removed `eventName`; bumped v1.2.0
   - `docs/managers/MediaManager-Complete-Guide.md`: added Keyword Browsing and MediaPlugin Integration sections; updated `MediaItem` (no `eventName`); new troubleshooting entries; updated roadmap; bumped v1.2.0
 - Commits: 439095a
 - Files Modified:
@@ -614,15 +614,15 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 ## 2026-03-11-04
 
 - Agent: Claude Sonnet 4.6
-- Subject: Make indexed media file extensions configurable via amdwiki.media.extensions (#325)
+- Subject: Make indexed media file extensions configurable via ngdpbase.media.extensions (#325)
 - Key Decision: DEFAULT_MEDIA_EXTENSIONS exported from FileSystemMediaProvider so MediaManager can use it as fallback; Set<string> passed into provider config; leading dots stripped for safety; no behaviour change for existing installs
 - Current Issue: #325
 - Testing:
   - npm test: 72 suites passed, 1855 tests passed
 - Work Done:
   - `src/providers/FileSystemMediaProvider.ts`: replaced hardcoded `MEDIA_EXTENSIONS` const with `extensions: Set<string>` in config interface; exported `DEFAULT_MEDIA_EXTENSIONS` array
-  - `src/managers/MediaManager.ts`: reads `amdwiki.media.extensions` config key, normalises entries, passes `Set` to provider
-  - `config/app-default-config.json`: added `amdwiki.media.extensions` with full default list
+  - `src/managers/MediaManager.ts`: reads `ngdpbase.media.extensions` config key, normalises entries, passes `Set` to provider
+  - `config/app-default-config.json`: added `ngdpbase.media.extensions` with full default list
 - Issues Closed:
   - #325 — configurable media extensions
 - Commits: b9809b6
@@ -642,10 +642,10 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 - Testing:
   - npm test: 72 suites passed, 1855 tests passed
 - Work Done:
-  - `BackupManager`: auto-backup scheduler (`setInterval` every 60s); `checkAndRunScheduledBackup()` checks HH:MM + day; `updateAutoBackupConfig()` persists via configManager and restarts scheduler; `getAutoBackupStatus()` returns config + last backup date; new config keys: `amdwiki.backup.autoBackupTime` ("02:00"), `amdwiki.backup.autoBackupDays` ("daily")
+  - `BackupManager`: auto-backup scheduler (`setInterval` every 60s); `checkAndRunScheduledBackup()` checks HH:MM + day; `updateAutoBackupConfig()` persists via configManager and restarts scheduler; `getAutoBackupStatus()` returns config + last backup date; new config keys: `ngdpbase.backup.autoBackupTime` ("02:00"), `ngdpbase.backup.autoBackupDays` ("daily")
   - `WikiRoutes.ts`: `GET /admin/backup` → `adminBackupPage()`; `POST /admin/backup/create` → `adminBackup()` (download); `POST /admin/backup/config` → `adminBackupConfig()`
   - `views/admin-backup.ejs`: Manual Backup section (what's included/not, recent backups table); Auto Backup section (status table, collapsible Configure form with on/off, time, day checkboxes + Daily/Monthly/Custom radio, maxBackups, directory)
-  - `config/app-default-config.json`: added `amdwiki.backup.autoBackupTime` and `amdwiki.backup.autoBackupDays`
+  - `config/app-default-config.json`: added `ngdpbase.backup.autoBackupTime` and `ngdpbase.backup.autoBackupDays`
   - `required-pages/Backup`: full rewrite — what IS/isn't backed up (tables), filesystem paths, media note, auto backup section with ConfigAccessorPlugin, 3-step recommended process, restore guide (structured + filesystem + new machine)
   - `docs/user-guide/Backups.md`: new user-facing backup guide
 - Commits: b1dd152, 2a1e624
@@ -874,7 +874,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - npm test: 72 suites passed, 1855 tests passed
 - Work Done:
   - Root cause: `BasicAttachmentProvider.getAttachment()` read files using `metadata.storageLocation` which retained old NAS path (`/Volumes/jims/...`) after data migration; NAS not mounted so all attachment reads failed
-  - Fix: use `this.storageDirectory` (from `amdwiki.attachment.provider.basic.storagedir` via ConfigurationManager) + basename of stored file; private attachments use `privateStorageDir + creator + basename`
+  - Fix: use `this.storageDirectory` (from `ngdpbase.attachment.provider.basic.storagedir` via ConfigurationManager) + basename of stored file; private attachments use `privateStorageDir + creator + basename`
   - Added tests for stale-path fallback (public and private) in `BasicAttachmentProvider.diskFallback.test.js`
 - Commits: 04c891a
 - Files Modified:
@@ -935,7 +935,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - config/app-default-config.json: remove empty-string media path keys so fallbacks apply
   - admin-dashboard.ejs: add Media link to quick-actions row
   - admin-media.ejs: show elapsed time and ms/file rate in rescan result
-  - instance config: set amdwiki.media.enabled=true, folders=[/Volumes/hd2A/media/photos/2020s]
+  - instance config: set ngdpbase.media.enabled=true, folders=[/Volumes/hd2A/media/photos/2020s]
 - Commits: e4dc7bb
 - Files Modified:
   - src/providers/FileSystemMediaProvider.ts
@@ -980,7 +980,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 - Agent: Claude Sonnet 4.6
 - Subject: Implement MediaManager stub Phase 3 (#273)
-- Key Decision: MediaManager disabled by default (`amdwiki.media.enabled: false`); all routes return 503 when disabled; stub providers use `Promise.resolve()` not `async` to satisfy `require-await` ESLint; `checkPrivatePageAccess()` mirrors WikiRoutes pattern with eslint-disable for untyped manager access
+- Key Decision: MediaManager disabled by default (`ngdpbase.media.enabled: false`); all routes return 503 when disabled; stub providers use `Promise.resolve()` not `async` to satisfy `require-await` ESLint; `checkPrivatePageAccess()` mirrors WikiRoutes pattern with eslint-disable for untyped manager access
 - Current Issue: #273
 - Testing:
   - npm test: 9 skipped suites, 72 passed, 1853 tests passed
@@ -990,9 +990,9 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - NEW: FileSystemMediaProvider stub (all methods return empty/null via Promise.resolve)
   - NEW: MediaManager — config-driven init, periodic rescan timer, private-page access guard, shutdown
   - NEW: Stub plugins MediaGallery, MediaSearch, MediaItem (return placeholder HTML)
-  - WikiEngine: conditionally register MediaManager when `amdwiki.media.enabled`
+  - WikiEngine: conditionally register MediaManager when `ngdpbase.media.enabled`
   - WikiRoutes: 9 `/media/*` and `/admin/media` routes (503 when disabled)
-  - config/app-default-config.json: all `amdwiki.media.*` defaults (enabled: false)
+  - config/app-default-config.json: all `ngdpbase.media.*` defaults (enabled: false)
 - Commits: a284673
 - Files Modified:
   - src/managers/MediaManager.ts (NEW)
@@ -1042,7 +1042,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - PageManager: detect `storageLocation:'private'` on user-keywords; inject system-location/page-creator; skip for required pages; fix undefined YAML serialization bug
   - WikiRoutes: `checkPrivatePageAccess()` 403 guard on view/edit/history/delete; 400 guard preventing required pages from being marked private
   - SearchManager + LunrSearchProvider: `isPrivate`/`creator` on search docs; filter for non-admin non-creator users
-  - Config: `storageLocation:'private'` on `amdwiki.user-keywords.private`
+  - Config: `storageLocation:'private'` on `ngdpbase.user-keywords.private`
   - required-pages: `Private` doc page moved from data/pages/ with system category
   - plan-private-folder.md: owner→creator throughout; sections 1.1a, 1.9 added
   - Commented on #122 and #232
@@ -1347,8 +1347,8 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - `views/header.ejs` — added Editor row to Page Information dialog Classification section
   - `views/header.ejs` `copyPageInfo()` — added User Keywords and Editor lines to copied text
   - GitHub: commented on #300 with need for developer script to promote pages to required-pages/
-  - GitHub: created [#301](https://github.com/jwilleke/amdWiki/issues/301) [FEATURE] for dialog improvements (closed by this commit)
-  - GitHub: created and closed [#302](https://github.com/jwilleke/amdWiki/issues/302) [BUG] for stub metadata bug (already fixed in da8f5d1)
+  - GitHub: created [#301](https://github.com/jwilleke/ngdpbase/issues/301) [FEATURE] for dialog improvements (closed by this commit)
+  - GitHub: created and closed [#302](https://github.com/jwilleke/ngdpbase/issues/302) [BUG] for stub metadata bug (already fixed in da8f5d1)
 
 - Commits: 522c8dc
 - Files Modified:
@@ -1367,7 +1367,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 - Work Done:
   - Fixed `src/providers/FileSystemProvider.ts` `getPage()` — update `pageCache` with full parsed metadata alongside `contentCache` after disk read
   - Root cause diagnosed via log analysis: `characterCount: 5180` vs `fileSize: 5410` confirmed cache was stale; metadata API returning `category: general`, `keywords: []`, `slug: "Wiki Documentation"` all traced to missing `pageCache` update
-  - Filed GitHub issue [#300](https://github.com/jwilleke/amdWiki/issues/300) for the related required-pages edit-migration bug
+  - Filed GitHub issue [#300](https://github.com/jwilleke/ngdpbase/issues/300) for the related required-pages edit-migration bug
 
 - Files Modified:
   - `src/providers/FileSystemProvider.ts`
@@ -1397,10 +1397,10 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 - Work Done:
   - Drafted `docs/planning/plan-private-folder.md` — 3-phase plan covering:
-    - Phase 1: private page storage (`pages/private/{owner}/{uuid}.md`), config-driven via `amdwiki.user-keywords.private.storageLocation`, `WikiContext`-based ACL, search exclusion, file move on keyword change (1.8), admin visibility deferred (1.11)
+    - Phase 1: private page storage (`pages/private/{owner}/{uuid}.md`), config-driven via `ngdpbase.user-keywords.private.storageLocation`, `WikiContext`-based ACL, search exclusion, file move on keyword change (1.8), admin visibility deferred (1.11)
     - Phase 2: private attachment storage (`attachments/private/{owner}/`), single `checkPrivatePageAccess(WikiContext)` helper reused across pages, attachments, and MediaManager
     - Phase 3: MediaManager stub — `BaseMediaProvider`, `FileSystemMediaProvider` (exiftool-vendored + Sharp, incremental scan, media-index.json), metadata-only grouping by year (no pre-built albums), clean boundary from AttachmentManager
-  - Clarified `amdwiki.user-keywords` vs `amdwiki.system-category` vs `amdwiki.system-keywords` distinction in plan
+  - Clarified `ngdpbase.user-keywords` vs `ngdpbase.system-category` vs `ngdpbase.system-keywords` distinction in plan
   - Fixed CONTRIBUTING.md: `getManager<T>()` generics ARE supported; `UserContext.authenticated` vs `isAuthenticated` note; migration status "Manager Methods (In Progress)"
   - Rewrote `docs/WikiContext-Complete-Guide.md` to reflect actual TypeScript code: correct file extensions (.ts), `createWikiContext()` factory as primary pattern, `getTemplateDataFromContext()` in pipeline, full `UserContext` typed interface, `ACLManager.checkPagePermissionWithContext(wikiContext)` correct signature, immutability note, updated date/line count
   - Trimmed CONTRIBUTING.md WikiContext section to essentials + link to complete guide
@@ -1783,7 +1783,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 - Agent: Claude Sonnet 4.6
 - Subject: Use user-modified flag for Required Pages Sync status (#293)
-- Key Decision: storageLocation from amdwiki.system-category config drives all category protection decisions — replaces every hardcoded ['System', 'System/Admin', 'Documentation'] list. Auto-heal rewrites legacy System/Admin → system on admin page visit.
+- Key Decision: storageLocation from ngdpbase.system-category config drives all category protection decisions — replaces every hardcoded ['System', 'System/Admin', 'Documentation'] list. Auto-heal rewrites legacy System/Admin → system on admin page visit.
 - Current Issue: Closes #293
 - Testing:
   - UndefinedPagesPlugin unit tests: 53 passed
@@ -2017,7 +2017,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 - Work Done:
   - Investigated missing pages reported after 2026-02-24 NAS-to-hd2A pages folder move
-  - Compared backup `2026-02-16T15-03-57-593Z-amdwiki-backup-2.json.gz` (14,352 pages) against current wiki (16,521 pages)
+  - Compared backup `2026-02-16T15-03-57-593Z-ngdpbase-backup-2.json.gz` (14,352 pages) against current wiki (16,521 pages)
   - Found 119 missing UUIDs; filtered to 3 genuinely missing content pages (rest were LocationTest E2E artifacts and intentionally-removed old-UUID required pages)
   - Restored `Language` (e9e305b4-170f-440a-875b-7a50837767ca) — confirmed missing from current instance
   - `Wuhan Institute of Virology` — found to already exist under new UUID (457cd98e), no action needed
@@ -2336,7 +2336,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - Replaced updatePageInIndex() full rebuild (16,872 NAS reads) with incremental update + persist
   - Replaced removePageFromIndex() full rebuild with rebuildLunrFromDocuments() + persist
   - Added private helpers: loadPersistedDocuments(), persistDocuments(), rebuildLunrFromDocuments(), buildDocumentFromPageData()
-  - Added setInterval(.unref()) for 5-minute periodic flush (config: amdwiki.search.provider.lunr.flushinterval)
+  - Added setInterval(.unref()) for 5-minute periodic flush (config: ngdpbase.search.provider.lunr.flushinterval)
   - Switched indexDir to use getResolvedDataPath (consistent with INSTANCE_DATA_FOLDER)
   - Fixed @typescript-eslint/no-base-to-string lint errors with safe toStr() helper
 - Commits: 3cd1a27
@@ -2474,7 +2474,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - `NODE_ENV=development` now defaults logging to debug unless custom config overrides
   - Added 4 unit tests for NODE_ENV logging level override
   - Fixed `version.ts` project root resolution (dynamic lookup instead of relative path)
-  - Fixed ImportManager using wrong config key (`amdwiki.paths.pages` → `amdwiki.page.provider.filesystem.storagedir`)
+  - Fixed ImportManager using wrong config key (`ngdpbase.paths.pages` → `ngdpbase.page.provider.filesystem.storagedir`)
   - Updated `STARTUP-PROCESS.md` for .env sourcing and dev logging
   - Set `INSTANCE_DATA_FOLDER=/Volumes/hd2/jimstest-wiki` in `.env` for this instance
   - Bumped version to 1.5.12
@@ -2504,7 +2504,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - npm test: 67 suites passed, 1690 tests passed
 - Work Done:
   - Fixed OTLP init failure: `exportIntervalMillis (15000) < exportTimeoutMillis (30000)` — SDK requires interval >= timeout
-  - Changed `amdwiki.telemetry.otlp.interval` default from 15000 to 30000 (matches mj-infra-flux recommendation)
+  - Changed `ngdpbase.telemetry.otlp.interval` default from 15000 to 30000 (matches mj-infra-flux recommendation)
   - Verified OTLP export initializes: logs show `OTLP metric export enabled → https://otel.nerdsbythehour.com/v1/metrics (interval: 30000ms)`
   - Verified `service_name="jimstest-wiki"` appears in Prometheus output
   - Cleaned up 191 junk pages from NAS: 30 numeric-titled (121-152), 44 numeric-titled (300-343), 7 DELETEME-tagged, 110 LocationTest-* E2E leftovers
@@ -2526,7 +2526,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 - Work Done:
   - Installed `@opentelemetry/exporter-metrics-otlp-http` dependency
   - MetricsManager conditionally creates `PeriodicExportingMetricReader` with `OTLPMetricExporter` alongside Prometheus
-  - Added `resourceFromAttributes` with `service.name` to `MeterProvider` (configurable via `amdwiki.telemetry.serviceName`)
+  - Added `resourceFromAttributes` with `service.name` to `MeterProvider` (configurable via `ngdpbase.telemetry.serviceName`)
   - 6 new config defaults: `telemetry.serviceName`, `otlp.enabled`, `otlp.endpoint`, `otlp.headers`, `otlp.interval`, `otlp.timeout`
   - Custom config sets `serviceName: jimstest-wiki`, OTLP endpoint to `https://otel.nerdsbythehour.com/v1/metrics`
   - 6 new unit tests (4 OTLP + 2 service.name)
@@ -2547,14 +2547,14 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 - Agent: Claude Opus 4.6
 - Subject: Dynamic metric prefix from applicationName (#256)
-- Key Decision: Derive metric name prefix from `amdwiki.applicationName` config
+- Key Decision: Derive metric name prefix from `ngdpbase.applicationName` config
 - Current Issue: #256
 - Testing:
   - npm test: 67 suites passed, 1684 tests passed (13 MetricsManager tests)
 - Work Done:
-  - MetricsManager reads `amdwiki.applicationName`, sanitizes for Prometheus (lowercase, underscores)
+  - MetricsManager reads `ngdpbase.applicationName`, sanitizes for Prometheus (lowercase, underscores)
   - All metric names and meter name use dynamic prefix (e.g., `jimstest_page_views_total`)
-  - Falls back to `amdwiki_` when applicationName is not set
+  - Falls back to `ngdpbase_` when applicationName is not set
   - Added unit test for custom prefix derivation
   - Updated Telemetry.md to document dynamic prefix behavior
 - Files Modified:
@@ -2736,7 +2736,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - Server: running on PID 16379 at <http://localhost:3000>
 - Work Done:
   - Reinstalled sharp module for darwin-arm64 (fixed 13 test suite failures and server crash)
-  - Fixed localhost IPv6 issue by setting amdwiki.server.host to 0.0.0.0 in custom config
+  - Fixed localhost IPv6 issue by setting ngdpbase.server.host to 0.0.0.0 in custom config
   - Created missing .install-complete marker in ./data/
   - Diagnosed slow startup (~2 min) caused by stale page index UUIDs triggering NAS directory scan
   - Commented on issue #253 with startup verification results
@@ -2792,7 +2792,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - npm test: 65 suites passed, 1663 tests passed (308 skipped)
   - Build successful
 - Work Done:
-  - Changed backup filename from `amdwiki-backup-{timestamp}.json.gz` to `{timestamp}-amdwiki-backup.json.gz`
+  - Changed backup filename from `ngdpbase-backup-{timestamp}.json.gz` to `{timestamp}-ngdpbase-backup.json.gz`
   - Added backward compatibility to recognize old format when listing backups
 - Commits: 08c3127
 - Files Modified:
@@ -2908,7 +2908,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - Created CSS styling with dark mode support
   - Created developer documentation (docs/plugins/LocationPlugin.md)
   - Created end-user wiki page documentation
-  - Added amdwiki.location.defaultProvider config option
+  - Added ngdpbase.location.defaultProvider config option
 - Testing:
   - npm test: 65 suites passed, 1663 tests passed (308 skipped)
   - Build successful
@@ -3295,7 +3295,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 - Files Modified:
   - src/managers/ImportManager.ts
 - Related Issues:
-  - #244 - ConfigurationManager should deep-merge amdwiki.user-keywords
+  - #244 - ConfigurationManager should deep-merge ngdpbase.user-keywords
 
 ## 2026-02-08-01
 
@@ -3325,7 +3325,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 - Agent: Claude Opus 4.5
 - Subject: Strip page paths from Image src during JSPWiki import (#123)
 - Current Issue: #123
-- Key Decision: Strip page path components from `[{Image src='...'}]` during import since amdWiki uses flat attachment storage
+- Key Decision: Strip page path components from `[{Image src='...'}]` during import since ngdpbase uses flat attachment storage
 - Work Done:
   - Added `convertImagePaths()` method to `JSPWikiConverter`
   - Strips page paths from Image plugin src attributes (e.g., `'PageName/file.png'` → `'file.png'`)
@@ -3366,7 +3366,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - Fixed config path in 6 docs: `config/app-custom-config.json` → `data/config/app-custom-config.json`
   - Cleaned up leftover VersioningFileProvider data from `required-pages/versions/`
   - Updated `.gitignore` to ignore versioning runtime files (`pages/versions/`, `required-pages/versions/`, `data/page-index.json`)
-  - Fixed `adminRestart()` to detect PM2 app name dynamically (was hardcoded to "amdWiki", now queries `pm2 jlist`)
+  - Fixed `adminRestart()` to detect PM2 app name dynamically (was hardcoded to "ngdpbase", now queries `pm2 jlist`)
   - Fixed `simpleLinkRegex` in `RenderingManager.buildLinkGraph()` — added `()` to character class so page names with parentheses are indexed (#239)
   - Deleted stale `./logs/` directory (Winston now writes to `./data/logs/`)
 - Testing:
@@ -3661,7 +3661,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 - Key Decision: Delete all PM2 apps before killing node processes to prevent autorestart respawn; move version.js to scripts/ directory
 - Current Issue: #231
 - Work Done:
-  - Rewrote `kill_all_amdwiki()` in server.sh: added `pm2 stop all` / `pm2 delete all` fallback after named stop/delete to handle PM2 name mismatches; node processes are now killed only after PM2 apps are deleted so autorestart cannot respawn them
+  - Rewrote `kill_all_ngdpbase()` in server.sh: added `pm2 stop all` / `pm2 delete all` fallback after named stop/delete to handle PM2 name mismatches; node processes are now killed only after PM2 apps are deleted so autorestart cannot respawn them
   - Added retry loop (up to 3 attempts) in `stop` command to handle the race condition where PM2 respawns a process between stop and delete; reports error with guidance to use `./server.sh unlock` if all retries fail
   - Added `pm2 delete all` to `unlock` command before `pm2 kill` so apps are explicitly removed before the daemon is destroyed
   - Updated docs/SERVER-MANAGEMENT.md: revised stop procedure code examples, updated unlock/reset examples, added #231 to testing checklist and references, clarified that Docker and K8s deployments are unaffected (they run `node app.js` directly without PM2)
@@ -3745,8 +3745,8 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 - Testing:
   - npm test: 62 suites passed, 1478 tests passed, 308 skipped
 - Work Done:
-  - Fixed stale amdwiki.version in config/app-default-config.json (was 1.5.1, updated to 1.5.3)
-  - Updated version.js to automatically sync amdwiki.version in app-default-config.json on every bump
+  - Fixed stale ngdpbase.version in config/app-default-config.json (was 1.5.1, updated to 1.5.3)
+  - Updated version.js to automatically sync ngdpbase.version in app-default-config.json on every bump
   - Bumped to v1.5.4, tagged and pushed to trigger Docker build to ghcr.io
   - Added "Pre-built Image from GHCR" section to docker/DOCKER.md (tags, pull, run, compose, update)
   - Added cross-references from docker/README.md, docker/DEPLOYMENT.md, docker/k8s/README.md
@@ -3776,7 +3776,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - Bumped version 1.5.1 → 1.5.2, updated CHANGELOG with fixes #225 #226 #227
   - Enabled Docker workflow (renamed from .disabled), set tag-only + workflow_dispatch triggers
   - Changed Docker platform to linux/amd64 only, removed PR test job
-  - Tagged v1.5.2 and pushed — Docker image built and pushed to ghcr.io/jwilleke/amdwiki
+  - Tagged v1.5.2 and pushed — Docker image built and pushed to ghcr.io/jwilleke/ngdpbase
   - Fixed missing `security-events: write` permission for Trivy SARIF upload
   - Added `ENV HEADLESS_INSTALL=true` to Dockerfile runtime stage
   - Triggered manual workflow_dispatch rebuild with Dockerfile + permission fixes
@@ -3927,16 +3927,16 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 - Agent: Claude Opus 4.5
 - Subject: Fix JSPWikiConverter link conversion — preserve native wiki link syntax
-- Key Decision: amdWiki uses the same link/variable/plugin syntax as JSPWiki; converter should not transform them
+- Key Decision: ngdpbase uses the same link/variable/plugin syntax as JSPWiki; converter should not transform them
 - Current Issue: #123 (continued)
 - Testing:
   - npm test: 62 suites passed, 1478 tests passed
   - TypeScript: No errors
   - Build: Successful
 - Bug Fixed:
-  - Converter was wrapping wiki links in double brackets `[[PageName]]` but amdWiki uses single `[PageName]`
-  - Converter was reordering piped links `[text|Page]` → `[[Page|text]]` but amdWiki uses JSPWiki order
-  - Variables `[{$pagename}]` and plugins `[{ReferringPagesPlugin ...}]` are native amdWiki syntax — left as-is
+  - Converter was wrapping wiki links in double brackets `[[PageName]]` but ngdpbase uses single `[PageName]`
+  - Converter was reordering piped links `[text|Page]` → `[[Page|text]]` but ngdpbase uses JSPWiki order
+  - Variables `[{$pagename}]` and plugins `[{ReferringPagesPlugin ...}]` are native ngdpbase syntax — left as-is
 - Work Done:
   - Simplified `convertLinks` to only convert external links to Markdown format
   - Removed wiki link, piped link, and literal bracket transformations
@@ -4066,7 +4066,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
     - Added reconfigureLogger call in WikiEngine after ConfigurationManager initializes
     - Fixed audit-config.json and docker/.env.example log paths
   - __Issue #217 - Remove deprecated config property__:
-    - Removed `'amdwiki.install.completed'` from InstallConfig interface
+    - Removed `'ngdpbase.install.completed'` from InstallConfig interface
     - Updated test mocks in FileSystemProvider.test.js and PageManager-Storage.test.js
     - Updated documentation to reference `.install-complete` marker file
   - __Issue #222 - Broken Search Page__:
@@ -4120,8 +4120,8 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - Added `markHeadlessInstallationComplete()` helper method
   - Modified app.js install middleware to check `HEADLESS_INSTALL=true`
   - Extended ConfigurationManager env var support:
-    - `AMDWIKI_SESSION_SECRET` → `amdwiki.session.secret`
-    - `AMDWIKI_APP_NAME` → `amdwiki.applicationName`
+    - `AMDWIKI_SESSION_SECRET` → `ngdpbase.session.secret`
+    - `AMDWIKI_APP_NAME` → `ngdpbase.applicationName`
   - Consolidated docker/.env.example with Traefik and headless sections
   - Updated docker/TRAEFIK-DEPLOYMENT.md reference to .env.example
   - Added "Headless Installation" section to docker/DOCKER.md
@@ -4129,8 +4129,8 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - Added "Automated Installation" section to SETUP.md
   - Full verification testing:
     - Docker: env var overrides, idempotency, pre-mounted config
-    - K8s: deployed to amdwiki-test namespace with ConfigMap
-  - Published test image: `ghcr.io/jwilleke/amdwiki:headless-test`
+    - K8s: deployed to ngdpbase-test namespace with ConfigMap
+  - Published test image: `ghcr.io/jwilleke/ngdpbase:headless-test`
 - Commits: fc442dd, 6cdf1de, 29724e9
 - Files Modified:
   - src/services/InstallService.ts
@@ -4222,7 +4222,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
     - File operations only: create dirs, copy pages, mark install complete
     - WikiEngine creates default admin (admin/admin123) automatically
     - No manual password hashing or user structure needed
-  - Created GitHub issue #217 for `amdwiki.install.completed` cleanup
+  - Created GitHub issue #217 for `ngdpbase.install.completed` cleanup
 - Commits: 148d3fc, 6a779f2, e2aff14, bd112fd, 9d08a17, 33387f1
 - Files Modified:
   - .github/workflows/ci.yml
@@ -4286,7 +4286,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
     - `INSTANCE_DATA_FOLDER/.install-complete` marker file (not config property)
     - Added `getInstallCompleteFilePath()`, `isInstallComplete()` to InstallService
     - Updated FileSystemProvider to check .install-complete file
-    - Removed `amdwiki.install.completed` from app-default-config.json
+    - Removed `ngdpbase.install.completed` from app-default-config.json
   - Config file separation:
     - `./config/app-default-config.json` - base defaults (repo, code level)
     - `./config/app-custom-config.example` - template (repo)
@@ -4404,7 +4404,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - npm run test:e2e: 25 passed, 3 skipped
 - Work Done:
   - Updated `.env.example` with INSTANCE_DATA_FOLDER documentation
-  - Fixed `amdwiki.notifications.dir` path (`./data` → `./data/notifications`)
+  - Fixed `ngdpbase.notifications.dir` path (`./data` → `./data/notifications`)
   - Updated 6 providers/managers to use `getResolvedDataPath()`:
     - BasicAttachmentProvider (storageDirectory, metadataFile)
     - VersioningFileProvider (pageIndexPath)
@@ -4460,7 +4460,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
     - `INSTANCE_DATA_FOLDER/app-custom-config.json` (fallback)
 - Remaining Work:
   - Update `.env.example` with `INSTANCE_DATA_FOLDER`
-  - Fix `amdwiki.notifications.dir` in `app-default-config.json`
+  - Fix `ngdpbase.notifications.dir` in `app-default-config.json`
   - Update providers to use `resolveDataPath()`
   - Add unit tests for path resolution
 - Commits: None yet (work in progress)
@@ -4485,11 +4485,11 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
       1. augmentUserContext() method in AddonsManager
       2. Middleware registration via engine.app.use()
       3. AddonModule interface extension
-    - Configuration approach via amdwiki.addons.schema-rbac.*
+    - Configuration approach via ngdpbase.addons.schema-rbac.*
     - Implementation phases recommendation
 - Commits: None (GitHub comment only)
 - Files Modified: None
-- [View the full comment](https://github.com/jwilleke/amdWiki/issues/154#issuecomment-3771992703)
+- [View the full comment](https://github.com/jwilleke/ngdpbase/issues/154#issuecomment-3771992703)
 
 ---
 
@@ -4750,11 +4750,11 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 - Agent: jim
 - Subject: Fix content in several pages
 - Created:
-  - [BUG] Error loading user management #209 In jwilleke/amdWiki
-  - [BUG] /export #208 In jwilleke/amdWiki
-  - [BUG] /admin/logs #207 In jwilleke/amdWiki
-  - [BUG] /admin/backup #206 In jwilleke/amdWiki
-  - [FEATURE] UndefinedPagesPlugin #205 In jwilleke/amdWiki;
+  - [BUG] Error loading user management #209 In jwilleke/ngdpbase
+  - [BUG] /export #208 In jwilleke/ngdpbase
+  - [BUG] /admin/logs #207 In jwilleke/ngdpbase
+  - [BUG] /admin/backup #206 In jwilleke/ngdpbase
+  - [FEATURE] UndefinedPagesPlugin #205 In jwilleke/ngdpbase;
 - Work Done:
   - Moved and worked on pages and content
   - User Testing on many pages and admin dasboard
@@ -5131,8 +5131,8 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 - Agent: Claude Opus 4.5
 - Subject: Remove @ts-nocheck from WikiRoutes.ts (#204)
-- Current Issue: [#204](https://github.com/jwilleke/amdWiki/issues/204) - Convert WikiRoutes.ts to proper TypeScript
-- Related: [#202](https://github.com/jwilleke/amdWiki/issues/202) - TypeScript ESLint Cleanup
+- Current Issue: [#204](https://github.com/jwilleke/ngdpbase/issues/204) - Convert WikiRoutes.ts to proper TypeScript
+- Related: [#202](https://github.com/jwilleke/ngdpbase/issues/202) - TypeScript ESLint Cleanup
 - Key Decision: Keep documented file-level disables for getManager() returns (typing 23+ managers would be massive undertaking)
 - Testing:
   - npm run typecheck: passes
@@ -5167,7 +5167,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 - Agent: Claude Opus 4.5
 - Subject: Remove eslint-disable from versioning files (#202)
-- Current Issue: [#202](https://github.com/jwilleke/amdWiki/issues/202) - TypeScript ESLint Cleanup
+- Current Issue: [#202](https://github.com/jwilleke/ngdpbase/issues/202) - TypeScript ESLint Cleanup
 - Key Decision: Add ExtendedMetadata interface; use typed JSON.parse with proper interfaces
 - Testing:
   - npm run typecheck: passes
@@ -5198,7 +5198,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 - Agent: Claude Opus 4.5
 - Subject: Remove eslint-disable from types and utils (#202)
-- Current Issue: [#202](https://github.com/jwilleke/amdWiki/issues/202) - TypeScript ESLint Cleanup
+- Current Issue: [#202](https://github.com/jwilleke/ngdpbase/issues/202) - TypeScript ESLint Cleanup
 - Key Decision: Replace any with unknown in type definitions; add explanatory comments to justified disables
 - Testing:
   - npm run typecheck: passes
@@ -5226,7 +5226,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 - Agent: Claude Opus 4.5
 - Subject: Continue file-level eslint-disable cleanup (#202)
-- Current Issue: [#202](https://github.com/jwilleke/amdWiki/issues/202) - TypeScript ESLint Cleanup
+- Current Issue: [#202](https://github.com/jwilleke/ngdpbase/issues/202) - TypeScript ESLint Cleanup
 - Key Decision: Use typed provider constructors and proper getManager generics
 - Testing:
   - npm run typecheck: passes
@@ -5253,7 +5253,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 - Agent: Claude Opus 4.5
 - Subject: Remove file-level eslint-disable comments from managers (#202)
-- Current Issue: [#202](https://github.com/jwilleke/amdWiki/issues/202) - TypeScript ESLint Cleanup
+- Current Issue: [#202](https://github.com/jwilleke/ngdpbase/issues/202) - TypeScript ESLint Cleanup
 - Key Decision: Use type guards and proper generics instead of file-level eslint-disable
 - Testing:
   - npm run typecheck: passes
@@ -5284,7 +5284,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 - Agent: Claude Opus 4.5
 - Subject: Reduce no-explicit-any and remaining no-unsafe-* disables (#202)
-- Current Issue: [#202](https://github.com/jwilleke/amdWiki/issues/202) - TypeScript ESLint Cleanup
+- Current Issue: [#202](https://github.com/jwilleke/ngdpbase/issues/202) - TypeScript ESLint Cleanup
 - Testing:
   - npm run eslint: passes for modified files
 - Work Done:
@@ -5305,7 +5305,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 - Agent: Claude Opus 4.5
 - Subject: Reduce no-unsafe-* eslint disables with typed generics (#202)
-- Current Issue: [#202](https://github.com/jwilleke/amdWiki/issues/202) - TypeScript ESLint Cleanup
+- Current Issue: [#202](https://github.com/jwilleke/ngdpbase/issues/202) - TypeScript ESLint Cleanup
 - Testing:
   - npm run eslint: passes for modified files
 - Work Done:
@@ -5332,7 +5332,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 - Agent: Claude Opus 4.5
 - Subject: Convert file-level require-await disables to line-level (#202)
-- Current Issue: [#202](https://github.com/jwilleke/amdWiki/issues/202) - TypeScript ESLint Cleanup
+- Current Issue: [#202](https://github.com/jwilleke/ngdpbase/issues/202) - TypeScript ESLint Cleanup
 - Testing:
   - npm run eslint: passes for modified files
 - Work Done:
@@ -5353,7 +5353,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 - Agent: Claude Opus 4.5
 - Subject: Complete logger migration for Issue #202
-- Current Issue: [#202](https://github.com/jwilleke/amdWiki/issues/202) - TypeScript ESLint Cleanup
+- Current Issue: [#202](https://github.com/jwilleke/ngdpbase/issues/202) - TypeScript ESLint Cleanup
 - Testing:
   - npm run typecheck: passed (no errors)
 - Work Done:
@@ -5385,7 +5385,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 - Agent: Claude Opus 4.5
 - Subject: Fix all 27 no-explicit-any ESLint warnings (Issue #184)
-- Current Issue: [#184](https://github.com/jwilleke/amdWiki/issues/184) - Extensive Code Errors from npm run lint:code
+- Current Issue: [#184](https://github.com/jwilleke/ngdpbase/issues/184) - Extensive Code Errors from npm run lint:code
 - Testing:
   - npm run lint:code: 0 errors, 0 warnings
   - npm test: 1239 passed, 308 skipped, 4 failed (pre-existing)
@@ -5417,7 +5417,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 - Agent: Claude Opus 4.5
 - Subject: Add typed getManager calls to RenderingManager (Issue #184)
-- Current Issue: [#184](https://github.com/jwilleke/amdWiki/issues/184) - Extensive Code Errors from npm run lint:code
+- Current Issue: [#184](https://github.com/jwilleke/ngdpbase/issues/184) - Extensive Code Errors from npm run lint:code
 - Testing:
   - npm run lint:code: 0 errors, 27 warnings
   - npm test: RenderingManager 25 passed, 5 skipped
@@ -5461,7 +5461,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 - Agent: jwilleke
 - Subject: npm run lint:code:fix
-- Current Issue: [\[issue\]](https://github.com/jwilleke/amdWiki/issues/184)
+- Current Issue: [\[issue\]](https://github.com/jwilleke/ngdpbase/issues/184)
 - Testing:
   - Tests: 4 failed, 308 skipped, 1376 passed, 1688 total
 - commits: c99cff3..c80dc31
@@ -6200,7 +6200,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 - Testing:
   - npm test: 58 suites passed, 1380 tests passed
   - curl `http://localhost:3000/wiki/Administrator`: 200 OK
-  - pm2 list: amdWiki-amdWiki online
+  - pm2 list: ngdpbase-ngdpbase online
 - Files Modified:
   - tsconfig.json (rootDir: "./src")
   - app.js (requires from ./dist/)
@@ -6316,7 +6316,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - Add frontmatter to README.md in data/pages
   - Relax LunrSearchProvider health check (empty index is valid at startup)
 - Work Done:
-  - Added `amdwiki.directories.schemas` to app-default-config.json (was null causing schema load error)
+  - Added `ngdpbase.directories.schemas` to app-default-config.json (was null causing schema load error)
   - Created data/schemas directory
   - Added YAML frontmatter to data/pages/README.md (was causing FileSystemProvider warning)
   - Updated LunrSearchProvider.isHealthy() to not require documents (JS and TS versions)
@@ -9073,7 +9073,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - __Root cause identified__: Multiple PM2 daemons can spawn and persist in `~/.pm2/`
   - __Bug fixed__: Double `npx --no -- npx --no --` on line 93 (was `npx --no -- npx --no -- pm2 start`)
   - Added `ensure_single_pm2_daemon()` function - detects/kills multiple PM2 daemons
-  - Added `kill_all_amdwiki()` function - comprehensive process cleanup
+  - Added `kill_all_ngdpbase()` function - comprehensive process cleanup
   - Improved `start` command:
     - Now checks for multiple PM2 daemons before starting
     - Deletes existing PM2 app entry before starting (prevents duplicates)
@@ -9154,7 +9154,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 - Work Done:
   - __Issue #174__: Fixed required-pages showing in operating wiki
     - Modified FileSystemProvider to only load from required-pages during installation
-    - Added `installationComplete` flag checked from `amdwiki.install.completed` config
+    - Added `installationComplete` flag checked from `ngdpbase.install.completed` config
     - Updated VersioningFileProvider to match parent behavior
     - Fixed RenderingManager.getTotalPagesCount() to use provider cache
     - Extended WikiRoutes.isRequiredPage() to protect system/documentation pages (Admin-only edit)
@@ -9244,13 +9244,13 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - Created branch `feature/docker-data-consolidation`
   - Analyzed all config properties and their usage in codebase
   - Updated 6 provider-specific paths in `app-default-config.json`:
-    - `amdwiki.page.provider.filesystem.storagedir`: `./pages` → `./data/pages`
-    - `amdwiki.user.provider.storagedir`: `./users` → `./data/users`
-    - `amdwiki.search.provider.lunr.indexdir`: `./search-index` → `./data/search-index`
-    - `amdwiki.logging.dir`: `./logs` → `./data/logs`
-    - `amdwiki.audit.provider.file.logdirectory`: `./logs` → `./data/logs`
-    - `amdwiki.backup.directory`: `./backups` → `./data/backups`
-  - Marked legacy/unused properties with comments (e.g., `amdwiki.jsonuserdatabase`, `amdwiki.directories.*`)
+    - `ngdpbase.page.provider.filesystem.storagedir`: `./pages` → `./data/pages`
+    - `ngdpbase.user.provider.storagedir`: `./users` → `./data/users`
+    - `ngdpbase.search.provider.lunr.indexdir`: `./search-index` → `./data/search-index`
+    - `ngdpbase.logging.dir`: `./logs` → `./data/logs`
+    - `ngdpbase.audit.provider.file.logdirectory`: `./logs` → `./data/logs`
+    - `ngdpbase.backup.directory`: `./backups` → `./data/backups`
+  - Marked legacy/unused properties with comments (e.g., `ngdpbase.jsonuserdatabase`, `ngdpbase.directories.*`)
   - Created GitHub Issue #169 - LoggingProvider pattern (for future)
   - Created GitHub Issue #170 - BackupProvider pattern (for future)
   - Updated Dockerfile with consolidated data structure
@@ -9268,7 +9268,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - `docker/README.md` - Updated for new structure
   - `docker/DOCKER.md` - Updated volume documentation
   - `AGENTS.md` - Session status
-- PR: #171 - <https://github.com/jwilleke/amdWiki/pull/171>
+- PR: #171 - <https://github.com/jwilleke/ngdpbase/pull/171>
 - Issues Created:
   - #169 - LoggingProvider pattern
   - #170 - BackupProvider pattern
@@ -10409,7 +10409,7 @@ Subject: Fix installation flow - create default admin account early
 Requirements:
 
 - Admin account "admin" created automatically on system initialization (not during install)
-- Default password: "admin123" (from config: amdwiki.user.security.defaultpassword)
+- Default password: "admin123" (from config: ngdpbase.user.security.defaultpassword)
 - Admin email: "admin@localhost" (FIXED, not editable) - fallback for OIDC users
 - Install form shows: username "admin" (fixed), email "admin@localhost" (fixed), password (changeable)
 - Admin username is NOT editable in install form - fixed to "admin"
@@ -10513,11 +10513,11 @@ Subject: AGENTS.md implementation and project_log.md creation
   - PID file management cleaned up and consolidated
 - Key Decisions:
   - Confirmed PM2 usage: PM2 is a declared dependency and provides production-grade process management (auto-restart, log rotation, clustering). Kept as primary process manager.
-  - Consolidated PID management: Single `.amdwiki.pid` file managed exclusively by `server.sh` (removed PM2's auto-generated `.amdwiki-*.pid` files)
+  - Consolidated PID management: Single `.ngdpbase.pid` file managed exclusively by `server.sh` (removed PM2's auto-generated `.ngdpbase-*.pid` files)
   - Verified form security: Admin username and email are display-only (non-editable) in install form, hardcoded in route handler
   - Confirmed server startup: Server runs properly via `./server.sh start [env]` with PM2
 - Work Done:
-  - Process cleanup: Killed stray direct Node process (PID 44543), removed stale PID files (`.amdwiki-1.pid`)
+  - Process cleanup: Killed stray direct Node process (PID 44543), removed stale PID files (`.ngdpbase-1.pid`)
   - PM2 initialization: Started server fresh via `./server.sh start prod`, confirmed PM2 daemon spawned
   - Installation form verification: Confirmed install.ejs shows correct read-only display for admin fields
   - Route validation: Verified InstallRoutes.js hardcodes admin credentials (lines 85, 88)
@@ -10529,7 +10529,7 @@ Subject: AGENTS.md implementation and project_log.md creation
   - `IMPLEMENTATION-COMPLETE.md` - Added PM2 management, admin account, and server status sections
 - Testing Results:
   - Server starts cleanly via PM2
-  - Single `.amdwiki.pid` file created correctly
+  - Single `.ngdpbase.pid` file created correctly
   - Install endpoint responds with proper HTML
   - Admin username/email display as read-only in form
   - No stale PID files remain after cleanup
@@ -10559,16 +10559,16 @@ Subject: AGENTS.md implementation and project_log.md creation
   - Race condition: kill → PM2 respawn → kill → PM2 respawn
 
 - Root Cause:
-  - `kill_all_amdwiki()` was killing processes BEFORE removing from PM2
+  - `kill_all_ngdpbase()` was killing processes BEFORE removing from PM2
   - PM2 detected "crash" and respawned, defeating the stop
 
 - Solution:
-  - Reordered `kill_all_amdwiki()` to delete from PM2 FIRST
+  - Reordered `kill_all_ngdpbase()` to delete from PM2 FIRST
   - Added `npx --no pm2 delete all` as fallback for name mismatches
   - Added `is_container()` function for future Docker/K8s support
 
 - Work Done:
-  - Modified `kill_all_amdwiki()` in server.sh
+  - Modified `kill_all_ngdpbase()` in server.sh
   - Step 1: Delete from PM2 (disables autorestart)
   - Step 2: Wait for PM2 to process
   - Step 3: Now safe to kill processes
@@ -10611,7 +10611,7 @@ Subject: AGENTS.md implementation and project_log.md creation
   - AttachmentHandler.createThumbnail() now fully functional
   - Resizes images maintaining aspect ratio
   - Stores thumbnails via AttachmentManager
-  - Configuration: amdwiki.attachment.enhanced.thumbnails
+  - Configuration: ngdpbase.attachment.enhanced.thumbnails
 
 - Files Modified:
   - server.sh - PM2 race condition fix
@@ -10652,9 +10652,9 @@ Subject: AGENTS.md implementation and project_log.md creation
 
 ## 2026-03-22-06
 
-### Platform Vision: amdWiki as a Base Platform
+### Platform Vision: ngdpbase as a Base Platform
 
-- Explored and documented the architecture for using amdWiki as a "clone and extend" base platform
+- Explored and documented the architecture for using ngdpbase as a "clone and extend" base platform
 - Analyzed two concrete use cases: Fairways Gen2 (condo association website) and Volcano Wiki (#357)
 - Referenced existing `jwilleke/fairways-gen2-website` and `jwilleke/volcano-lists` repos
 - Identified two core gaps blocking add-on development:
@@ -10663,7 +10663,7 @@ Subject: AGENTS.md implementation and project_log.md creation
 - Created full phased implementation plan (Phase 0–4)
 
 - Files Added:
-  - `docs/amdWiki-as-platform.md` — use-case analysis, extension architecture, gap table, recommended next steps
+  - `docs/ngdpbase-as-platform.md` — use-case analysis, extension architecture, gap table, recommended next steps
   - `docs/platform-core-capabilities.md` — complete reference of what core provides out of the box for add-on developers
 
 - Issues Filed:
@@ -10677,8 +10677,8 @@ Subject: AGENTS.md implementation and project_log.md creation
 
 - Work Done:
   - Added attachment upload tools to MCP server
-  - amdwiki_upload_attachment: single file upload
-  - amdwiki_bulk_upload_attachments: directory upload with glob patterns
+  - ngdpbase_upload_attachment: single file upload
+  - ngdpbase_bulk_upload_attachments: directory upload with glob patterns
   - MIME type detection for 30+ file types
   - Fixed ESLint issues in mcp-server.ts
   - Added mcp-server.ts to tsconfig.json include

@@ -1,12 +1,12 @@
-[**amdWiki API v1.5.0**](../../../../README.md)
+[**ngdpbase API v1.5.0**](../../../../README.md)
 
 ***
 
-[amdWiki API](../../../../README.md) / [src/providers/BaseCacheProvider](../README.md) / default
+[ngdpbase API](../../../../README.md) / [src/providers/BaseCacheProvider](../README.md) / default
 
 # Abstract Class: default
 
-Defined in: [src/providers/BaseCacheProvider.ts:63](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/BaseCacheProvider.ts#L63)
+Defined in: [src/providers/BaseCacheProvider.ts:63](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/BaseCacheProvider.ts#L63)
 
 BaseCacheProvider - Base class for all cache providers
 
@@ -35,7 +35,7 @@ Cache providers implement different storage backends (node-cache, Redis, etc.)
 
 > **new default**(`engine`): `BaseCacheProvider`
 
-Defined in: [src/providers/BaseCacheProvider.ts:80](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/BaseCacheProvider.ts#L80)
+Defined in: [src/providers/BaseCacheProvider.ts:80](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/BaseCacheProvider.ts#L80)
 
 Creates a new cache provider
 
@@ -57,7 +57,7 @@ The wiki engine instance
 
 > `protected` **engine**: [`WikiEngine`](../../../types/WikiEngine/interfaces/WikiEngine.md)
 
-Defined in: [src/providers/BaseCacheProvider.ts:67](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/BaseCacheProvider.ts#L67)
+Defined in: [src/providers/BaseCacheProvider.ts:67](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/BaseCacheProvider.ts#L67)
 
 Reference to the wiki engine
 
@@ -67,7 +67,7 @@ Reference to the wiki engine
 
 > `protected` **initialized**: `boolean`
 
-Defined in: [src/providers/BaseCacheProvider.ts:72](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/BaseCacheProvider.ts#L72)
+Defined in: [src/providers/BaseCacheProvider.ts:72](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/BaseCacheProvider.ts#L72)
 
 Whether provider has been initialized
 
@@ -77,7 +77,7 @@ Whether provider has been initialized
 
 > **backup**(): `Promise`\<[`BackupData`](../interfaces/BackupData.md)\>
 
-Defined in: [src/providers/BaseCacheProvider.ts:166](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/BaseCacheProvider.ts#L166)
+Defined in: [src/providers/BaseCacheProvider.ts:166](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/BaseCacheProvider.ts#L166)
 
 Backup cache configuration and state (optional)
 
@@ -93,7 +93,7 @@ Backup data
 
 > `abstract` **clear**(`pattern?`): `Promise`\<`void`\>
 
-Defined in: [src/providers/BaseCacheProvider.ts:135](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/BaseCacheProvider.ts#L135)
+Defined in: [src/providers/BaseCacheProvider.ts:135](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/BaseCacheProvider.ts#L135)
 
 Clear cache entries
 
@@ -115,7 +115,7 @@ Optional pattern to match keys (e.g., 'user:*')
 
 > `abstract` **close**(): `Promise`\<`void`\>
 
-Defined in: [src/providers/BaseCacheProvider.ts:160](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/BaseCacheProvider.ts#L160)
+Defined in: [src/providers/BaseCacheProvider.ts:160](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/BaseCacheProvider.ts#L160)
 
 Close/cleanup the cache provider
 
@@ -129,7 +129,7 @@ Close/cleanup the cache provider
 
 > `abstract` **del**(`keys`): `Promise`\<`void`\>
 
-Defined in: [src/providers/BaseCacheProvider.ts:128](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/BaseCacheProvider.ts#L128)
+Defined in: [src/providers/BaseCacheProvider.ts:128](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/BaseCacheProvider.ts#L128)
 
 Delete one or more keys from the cache
 
@@ -151,7 +151,7 @@ Single key or array of keys to delete
 
 > `abstract` **get**\<`T`\>(`key`): `Promise`\<`T` \| `undefined`\>
 
-Defined in: [src/providers/BaseCacheProvider.ts:111](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/BaseCacheProvider.ts#L111)
+Defined in: [src/providers/BaseCacheProvider.ts:111](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/BaseCacheProvider.ts#L111)
 
 Get a value from the cache
 
@@ -181,7 +181,7 @@ The cached value or undefined if not found
 
 > **getProviderInfo**(): [`ProviderInfo`](../interfaces/ProviderInfo.md)
 
-Defined in: [src/providers/BaseCacheProvider.ts:96](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/BaseCacheProvider.ts#L96)
+Defined in: [src/providers/BaseCacheProvider.ts:96](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/BaseCacheProvider.ts#L96)
 
 Get provider information
 
@@ -197,7 +197,7 @@ Provider metadata
 
 > `abstract` **initialize**(): `Promise`\<`void`\>
 
-Defined in: [src/providers/BaseCacheProvider.ts:90](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/BaseCacheProvider.ts#L90)
+Defined in: [src/providers/BaseCacheProvider.ts:90](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/BaseCacheProvider.ts#L90)
 
 Initialize the cache provider
 Implementations should load configuration from ConfigurationManager
@@ -212,7 +212,7 @@ Implementations should load configuration from ConfigurationManager
 
 > `abstract` **isHealthy**(): `Promise`\<`boolean`\>
 
-Defined in: [src/providers/BaseCacheProvider.ts:154](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/BaseCacheProvider.ts#L154)
+Defined in: [src/providers/BaseCacheProvider.ts:154](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/BaseCacheProvider.ts#L154)
 
 Check if the cache provider is healthy/connected
 
@@ -228,7 +228,7 @@ True if healthy
 
 > `abstract` **keys**(`pattern?`): `Promise`\<`string`[]\>
 
-Defined in: [src/providers/BaseCacheProvider.ts:142](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/BaseCacheProvider.ts#L142)
+Defined in: [src/providers/BaseCacheProvider.ts:142](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/BaseCacheProvider.ts#L142)
 
 Get keys matching a pattern
 
@@ -252,7 +252,7 @@ Array of matching keys
 
 > **restore**(`_backupData`): `Promise`\<`void`\>
 
-Defined in: [src/providers/BaseCacheProvider.ts:179](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/BaseCacheProvider.ts#L179)
+Defined in: [src/providers/BaseCacheProvider.ts:179](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/BaseCacheProvider.ts#L179)
 
 Restore cache from backup (optional)
 
@@ -274,7 +274,7 @@ Backup data
 
 > `abstract` **set**\<`T`\>(`key`, `value`, `ttlSec?`): `Promise`\<`void`\>
 
-Defined in: [src/providers/BaseCacheProvider.ts:121](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/BaseCacheProvider.ts#L121)
+Defined in: [src/providers/BaseCacheProvider.ts:121](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/BaseCacheProvider.ts#L121)
 
 Set a value in the cache
 
@@ -314,7 +314,7 @@ Time to live in seconds
 
 > `abstract` **stats**(): `Promise`\<[`CacheStats`](../interfaces/CacheStats.md)\>
 
-Defined in: [src/providers/BaseCacheProvider.ts:148](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/BaseCacheProvider.ts#L148)
+Defined in: [src/providers/BaseCacheProvider.ts:148](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/BaseCacheProvider.ts#L148)
 
 Get cache statistics
 

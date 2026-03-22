@@ -1,16 +1,16 @@
-[**amdWiki API v1.5.0**](../../../../README.md)
+[**ngdpbase API v1.5.0**](../../../../README.md)
 
 ***
 
-[amdWiki API](../../../../README.md) / [src/utils/VersioningMigration](../README.md) / default
+[ngdpbase API](../../../../README.md) / [src/utils/VersioningMigration](../README.md) / default
 
 # Class: default
 
-Defined in: [src/utils/VersioningMigration.ts:112](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/VersioningMigration.ts#L112)
+Defined in: [src/utils/VersioningMigration.ts:112](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/VersioningMigration.ts#L112)
 
 VersioningMigration - Utility for migrating FileSystemProvider to VersioningFileProvider
 
-Provides safe migration of existing amdWiki pages to versioned format with:
+Provides safe migration of existing ngdpbase pages to versioned format with:
 - Full data preservation and validation
 - Rollback capability
 - Progress tracking
@@ -36,7 +36,7 @@ console.log(`Migrated ${report.pagesProcessed} pages`);
 
 > **new default**(`options`): `VersioningMigration`
 
-Defined in: [src/utils/VersioningMigration.ts:133](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/VersioningMigration.ts#L133)
+Defined in: [src/utils/VersioningMigration.ts:133](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/VersioningMigration.ts#L133)
 
 Create a new VersioningMigration instance
 
@@ -58,7 +58,7 @@ Migration options
 
 > **migrateFromFileSystemProvider**(): `Promise`\<`MigrationReport`\>
 
-Defined in: [src/utils/VersioningMigration.ts:164](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/VersioningMigration.ts#L164)
+Defined in: [src/utils/VersioningMigration.ts:164](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/VersioningMigration.ts#L164)
 
 Migrate existing pages from FileSystemProvider to VersioningFileProvider
 
@@ -89,7 +89,7 @@ If migration fails critically
 
 > **rollbackMigration**(): `Promise`\<`RollbackResult`\>
 
-Defined in: [src/utils/VersioningMigration.ts:582](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/VersioningMigration.ts#L582)
+Defined in: [src/utils/VersioningMigration.ts:582](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/VersioningMigration.ts#L582)
 
 Rollback migration (remove all versioning artifacts)
 
@@ -108,7 +108,7 @@ Rollback result
 
 > **validateMigration**(): `Promise`\<`ValidationResult`\>
 
-Defined in: [src/utils/VersioningMigration.ts:478](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/VersioningMigration.ts#L478)
+Defined in: [src/utils/VersioningMigration.ts:478](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/VersioningMigration.ts#L478)
 
 Validate migration integrity
 

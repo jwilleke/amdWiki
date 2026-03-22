@@ -61,7 +61,7 @@ describe('Location (via PluginManager)', () => {
     const mockConfigManager = {
       getProperty: jest.fn().mockImplementation((key, def) => {
         const configMap = {
-          'amdwiki.location.defaultProvider': 'osm',
+          'ngdpbase.location.defaultProvider': 'osm',
         };
         return key in configMap ? configMap[key] : def;
       }),
@@ -468,7 +468,7 @@ describe('Location (via PluginManager)', () => {
     it('uses default provider from config', () => {
       const customConfigManager = {
         getProperty: jest.fn().mockImplementation((key, def) => {
-          if (key === 'amdwiki.location.defaultProvider') return 'google';
+          if (key === 'ngdpbase.location.defaultProvider') return 'google';
           return def;
         }),
       };
@@ -501,7 +501,7 @@ describe('Location (via PluginManager)', () => {
     it('explicit provider overrides config default', () => {
       const customConfigManager = {
         getProperty: jest.fn().mockImplementation((key, def) => {
-          if (key === 'amdwiki.location.defaultProvider') return 'google';
+          if (key === 'ngdpbase.location.defaultProvider') return 'google';
           return def;
         }),
       };

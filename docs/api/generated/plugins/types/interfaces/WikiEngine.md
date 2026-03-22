@@ -1,12 +1,12 @@
-[**amdWiki API v1.5.0**](../../../README.md)
+[**ngdpbase API v1.5.0**](../../../README.md)
 
 ***
 
-[amdWiki API](../../../README.md) / [plugins/types](../README.md) / WikiEngine
+[ngdpbase API](../../../README.md) / [plugins/types](../README.md) / WikiEngine
 
 # Interface: WikiEngine
 
-Defined in: [plugins/types.ts:11](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/plugins/types.ts#L11)
+Defined in: [plugins/types.ts:11](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/plugins/types.ts#L11)
 
 Wiki engine interface for plugins
 
@@ -16,7 +16,7 @@ Wiki engine interface for plugins
 
 > `optional` **logger**: `object`
 
-Defined in: [plugins/types.ts:14](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/plugins/types.ts#L14)
+Defined in: [plugins/types.ts:14](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/plugins/types.ts#L14)
 
 #### error()
 
@@ -38,7 +38,7 @@ Defined in: [plugins/types.ts:14](https://github.com/jwilleke/amdWiki/blob/b6a85
 
 > `optional` **startTime**: `number`
 
-Defined in: [plugins/types.ts:13](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/plugins/types.ts#L13)
+Defined in: [plugins/types.ts:13](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/plugins/types.ts#L13)
 
 ## Methods
 
@@ -46,7 +46,7 @@ Defined in: [plugins/types.ts:13](https://github.com/jwilleke/amdWiki/blob/b6a85
 
 > `optional` **getConfig**(): `object`
 
-Defined in: [plugins/types.ts:17](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/plugins/types.ts#L17)
+Defined in: [plugins/types.ts:17](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/plugins/types.ts#L17)
 
 #### Returns
 
@@ -76,7 +76,7 @@ Defined in: [plugins/types.ts:17](https://github.com/jwilleke/amdWiki/blob/b6a85
 
 > **getManager**(`name`): `unknown`
 
-Defined in: [plugins/types.ts:12](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/plugins/types.ts#L12)
+Defined in: [plugins/types.ts:12](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/plugins/types.ts#L12)
 
 #### Parameters
 

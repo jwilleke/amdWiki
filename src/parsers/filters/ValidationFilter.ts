@@ -176,17 +176,17 @@ class ValidationFilter extends BaseFilter {
     if (configManager) {
       try {
         // Validation feature configuration (modular)
-        this.validationConfig.validateMarkup = configManager.getProperty('amdwiki.markup.filters.validation.validateMarkup', this.validationConfig.validateMarkup) as boolean;
-        this.validationConfig.validateLinks = configManager.getProperty('amdwiki.markup.filters.validation.validateLinks', this.validationConfig.validateLinks) as boolean;
-        this.validationConfig.validateImages = configManager.getProperty('amdwiki.markup.filters.validation.validateImages', this.validationConfig.validateImages) as boolean;
-        this.validationConfig.maxContentLength = configManager.getProperty('amdwiki.markup.filters.validation.maxContentLength', this.validationConfig.maxContentLength) as number;
-        this.validationConfig.reportErrors = configManager.getProperty('amdwiki.markup.filters.validation.reportErrors', this.validationConfig.reportErrors) as boolean;
+        this.validationConfig.validateMarkup = configManager.getProperty('ngdpbase.markup.filters.validation.validateMarkup', this.validationConfig.validateMarkup) as boolean;
+        this.validationConfig.validateLinks = configManager.getProperty('ngdpbase.markup.filters.validation.validateLinks', this.validationConfig.validateLinks) as boolean;
+        this.validationConfig.validateImages = configManager.getProperty('ngdpbase.markup.filters.validation.validateImages', this.validationConfig.validateImages) as boolean;
+        this.validationConfig.maxContentLength = configManager.getProperty('ngdpbase.markup.filters.validation.maxContentLength', this.validationConfig.maxContentLength) as number;
+        this.validationConfig.reportErrors = configManager.getProperty('ngdpbase.markup.filters.validation.reportErrors', this.validationConfig.reportErrors) as boolean;
 
         // Advanced validation settings (configurable)
-        this.validationConfig.failOnValidationError = configManager.getProperty('amdwiki.markup.filters.validation.failOnValidationError', this.validationConfig.failOnValidationError) as boolean;
-        this.validationConfig.logValidationErrors = configManager.getProperty('amdwiki.markup.filters.validation.logValidationErrors', this.validationConfig.logValidationErrors) as boolean;
-        this.validationConfig.minWordCount = configManager.getProperty('amdwiki.markup.filters.validation.minWordCount', this.validationConfig.minWordCount) as number;
-        this.validationConfig.maxLineLength = configManager.getProperty('amdwiki.markup.filters.validation.maxLineLength', this.validationConfig.maxLineLength) as number;
+        this.validationConfig.failOnValidationError = configManager.getProperty('ngdpbase.markup.filters.validation.failOnValidationError', this.validationConfig.failOnValidationError) as boolean;
+        this.validationConfig.logValidationErrors = configManager.getProperty('ngdpbase.markup.filters.validation.logValidationErrors', this.validationConfig.logValidationErrors) as boolean;
+        this.validationConfig.minWordCount = configManager.getProperty('ngdpbase.markup.filters.validation.minWordCount', this.validationConfig.minWordCount) as number;
+        this.validationConfig.maxLineLength = configManager.getProperty('ngdpbase.markup.filters.validation.maxLineLength', this.validationConfig.maxLineLength) as number;
 
       } catch (error) {
         const err = error as Error;

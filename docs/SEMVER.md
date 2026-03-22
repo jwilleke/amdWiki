@@ -1,6 +1,6 @@
 # Semantic Versioning Implementation
 
-This document outlines the semantic versioning implementation for amdWiki.
+This document outlines the semantic versioning implementation for ngdpbase.
 
 ## Overview
 

@@ -1,8 +1,8 @@
-[**amdWiki API v1.5.0**](../../../README.md)
+[**ngdpbase API v1.5.0**](../../../README.md)
 
 ***
 
-[amdWiki API](../../../README.md) / src/managers/BackupManager
+[ngdpbase API](../../../README.md) / src/managers/BackupManager
 
 # src/managers/BackupManager
 

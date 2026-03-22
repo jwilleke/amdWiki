@@ -28,11 +28,11 @@ export interface DiffStats {
  * - text: the text content
  *
  * @example
- * const diff = DeltaStorage.createDiff("Hello world", "Hello amdWiki");
- * // Returns: [[0, "Hello "], [-1, "world"], [1, "amdWiki"]]
+ * const diff = DeltaStorage.createDiff("Hello world", "Hello ngdpbase");
+ * // Returns: [[0, "Hello "], [-1, "world"], [1, "ngdpbase"]]
  *
  * const reconstructed = DeltaStorage.applyDiff("Hello world", diff);
- * // Returns: "Hello amdWiki"
+ * // Returns: "Hello ngdpbase"
  */
 export default class DeltaStorage {
   /**
@@ -68,9 +68,9 @@ export default class DeltaStorage {
    * @throws {TypeError} If inputs are invalid
    * @example
    * const base = "Hello world";
-   * const diff: DiffTuple[] = [[0, "Hello "], [-1, "world"], [1, "amdWiki"]];
+   * const diff: DiffTuple[] = [[0, "Hello "], [-1, "world"], [1, "ngdpbase"]];
    * const result = DeltaStorage.applyDiff(base, diff);
-   * // Returns: "Hello amdWiki"
+   * // Returns: "Hello ngdpbase"
    */
   static applyDiff(baseContent: string, diff: DiffTuple[]): string {
     if (typeof baseContent !== 'string') {

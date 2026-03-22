@@ -1,7 +1,7 @@
-[**amdWiki API v1.5.0**](../../README.md)
+[**ngdpbase API v1.5.0**](../../README.md)
 
 ***
 
-[amdWiki API](../../README.md) / plugins/RecentChangesPlugin
+[ngdpbase API](../../README.md) / plugins/RecentChangesPlugin
 
 # plugins/RecentChangesPlugin

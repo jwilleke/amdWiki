@@ -1,12 +1,12 @@
-[**amdWiki API v1.5.0**](../../../../../../README.md)
+[**ngdpbase API v1.5.0**](../../../../../../README.md)
 
 ***
 
-[amdWiki API](../../../../../../README.md) / [src/parsers/dom/handlers/DOMLinkHandler](../README.md) / LinkTypeStats
+[ngdpbase API](../../../../../../README.md) / [src/parsers/dom/handlers/DOMLinkHandler](../README.md) / LinkTypeStats
 
 # Interface: LinkTypeStats
 
-Defined in: [src/parsers/dom/handlers/DOMLinkHandler.ts:132](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMLinkHandler.ts#L132)
+Defined in: [src/parsers/dom/handlers/DOMLinkHandler.ts:132](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMLinkHandler.ts#L132)
 
 Link statistics by type
 
@@ -16,7 +16,7 @@ Link statistics by type
 
 > **anchor**: `number`
 
-Defined in: [src/parsers/dom/handlers/DOMLinkHandler.ts:142](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMLinkHandler.ts#L142)
+Defined in: [src/parsers/dom/handlers/DOMLinkHandler.ts:142](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMLinkHandler.ts#L142)
 
 Number of anchor links
 
@@ -26,7 +26,7 @@ Number of anchor links
 
 > **email**: `number`
 
-Defined in: [src/parsers/dom/handlers/DOMLinkHandler.ts:140](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMLinkHandler.ts#L140)
+Defined in: [src/parsers/dom/handlers/DOMLinkHandler.ts:140](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMLinkHandler.ts#L140)
 
 Number of email links
 
@@ -36,7 +36,7 @@ Number of email links
 
 > **error**: `number`
 
-Defined in: [src/parsers/dom/handlers/DOMLinkHandler.ts:144](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMLinkHandler.ts#L144)
+Defined in: [src/parsers/dom/handlers/DOMLinkHandler.ts:144](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMLinkHandler.ts#L144)
 
 Number of error links
 
@@ -46,7 +46,7 @@ Number of error links
 
 > **external**: `number`
 
-Defined in: [src/parsers/dom/handlers/DOMLinkHandler.ts:136](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMLinkHandler.ts#L136)
+Defined in: [src/parsers/dom/handlers/DOMLinkHandler.ts:136](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMLinkHandler.ts#L136)
 
 Number of external links
 
@@ -56,7 +56,7 @@ Number of external links
 
 > **internal**: `number`
 
-Defined in: [src/parsers/dom/handlers/DOMLinkHandler.ts:134](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMLinkHandler.ts#L134)
+Defined in: [src/parsers/dom/handlers/DOMLinkHandler.ts:134](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMLinkHandler.ts#L134)
 
 Number of internal links
 
@@ -66,6 +66,6 @@ Number of internal links
 
 > **interwiki**: `number`
 
-Defined in: [src/parsers/dom/handlers/DOMLinkHandler.ts:138](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMLinkHandler.ts#L138)
+Defined in: [src/parsers/dom/handlers/DOMLinkHandler.ts:138](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMLinkHandler.ts#L138)
 
 Number of InterWiki links

@@ -1,8 +1,8 @@
-# amdWiki System Managers Overview
+# ngdpbase System Managers Overview
 
 ## Overview
 
-amdWiki follows a modular manager pattern where each manager handles a specific aspect of the wiki's functionality. All managers extend the `BaseManager` class and are registered with the `WikiEngine` during initialization.
+ngdpbase follows a modular manager pattern where each manager handles a specific aspect of the wiki's functionality. All managers extend the `BaseManager` class and are registered with the `WikiEngine` during initialization.
 
 ## Core Managers (18 total)
 
@@ -132,4 +132,4 @@ src/managers/
 - **Plugins** - Can extend or modify manager behavior
 - **Audit System** - Tracks manager operations for security and debugging
 
-This modular architecture ensures maintainability, testability, and extensibility of the amdWiki system.
+This modular architecture ensures maintainability, testability, and extensibility of the ngdpbase system.

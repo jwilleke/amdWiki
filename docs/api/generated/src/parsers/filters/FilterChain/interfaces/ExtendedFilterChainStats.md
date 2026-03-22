@@ -1,12 +1,12 @@
-[**amdWiki API v1.5.0**](../../../../../README.md)
+[**ngdpbase API v1.5.0**](../../../../../README.md)
 
 ***
 
-[amdWiki API](../../../../../README.md) / [src/parsers/filters/FilterChain](../README.md) / ExtendedFilterChainStats
+[ngdpbase API](../../../../../README.md) / [src/parsers/filters/FilterChain](../README.md) / ExtendedFilterChainStats
 
 # Interface: ExtendedFilterChainStats
 
-Defined in: [src/parsers/filters/FilterChain.ts:131](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/FilterChain.ts#L131)
+Defined in: [src/parsers/filters/FilterChain.ts:131](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/FilterChain.ts#L131)
 
 Extended filter chain statistics
 
@@ -16,7 +16,7 @@ Extended filter chain statistics
 
 > **chain**: [`ChainStatsSummary`](ChainStatsSummary.md)
 
-Defined in: [src/parsers/filters/FilterChain.ts:132](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/FilterChain.ts#L132)
+Defined in: [src/parsers/filters/FilterChain.ts:132](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/FilterChain.ts#L132)
 
 ***
 
@@ -24,7 +24,7 @@ Defined in: [src/parsers/filters/FilterChain.ts:132](https://github.com/jwilleke
 
 > **configuration**: `object`
 
-Defined in: [src/parsers/filters/FilterChain.ts:134](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/FilterChain.ts#L134)
+Defined in: [src/parsers/filters/FilterChain.ts:134](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/FilterChain.ts#L134)
 
 #### enabled
 
@@ -52,7 +52,7 @@ Defined in: [src/parsers/filters/FilterChain.ts:134](https://github.com/jwilleke
 
 > **filters**: `Record`\<`string`, [`FilterExecutionStats`](FilterExecutionStats.md) & `object`\>
 
-Defined in: [src/parsers/filters/FilterChain.ts:133](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/FilterChain.ts#L133)
+Defined in: [src/parsers/filters/FilterChain.ts:133](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/FilterChain.ts#L133)
 
 ***
 
@@ -60,4 +60,4 @@ Defined in: [src/parsers/filters/FilterChain.ts:133](https://github.com/jwilleke
 
 > **performance**: \{ `alertThresholds`: [`AlertThresholds`](AlertThresholds.md); `recentExecutionCount`: `number`; \} \| `null`
 
-Defined in: [src/parsers/filters/FilterChain.ts:141](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/FilterChain.ts#L141)
+Defined in: [src/parsers/filters/FilterChain.ts:141](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/FilterChain.ts#L141)

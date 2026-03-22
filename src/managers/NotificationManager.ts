@@ -116,11 +116,11 @@ class NotificationManager extends BaseManager {
 
     // Use getResolvedDataPath to support INSTANCE_DATA_FOLDER
     const dataDirAbs = cfgMgr?.getResolvedDataPath?.(
-      'amdwiki.notifications.dir',
+      'ngdpbase.notifications.dir',
       './data/notifications'
     ) ?? path.resolve(process.cwd(), process.env.FAST_STORAGE || process.env.INSTANCE_DATA_FOLDER || './data', 'notifications');
-    const fileNameCfg = (cfgMgr?.getProperty?.('amdwiki.notifications.file', 'notifications.json') as string | null) ?? 'notifications.json';
-    const intervalCfg = Number(cfgMgr?.getProperty?.('amdwiki.notifications.autoSaveInterval') ?? 5 * 60 * 1000);
+    const fileNameCfg = (cfgMgr?.getProperty?.('ngdpbase.notifications.file', 'notifications.json') as string | null) ?? 'notifications.json';
+    const intervalCfg = Number(cfgMgr?.getProperty?.('ngdpbase.notifications.autoSaveInterval') ?? 5 * 60 * 1000);
 
     // Build storage path from resolved directory
     this.storagePath = path.join(dataDirAbs, String(fileNameCfg));

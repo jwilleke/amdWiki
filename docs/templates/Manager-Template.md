@@ -13,7 +13,7 @@ Brief overview of the manager's purpose and responsibility.
 
 ## Overview
 
-Detailed description of what this manager handles within the amdWiki system.
+Detailed description of what this manager handles within the ngdpbase system.
 
 **Key Responsibilities:**
 
@@ -53,8 +53,8 @@ Configuration options that affect this manager's behavior.
 
 | Property | Type | Default | Description |
 | ---------- | ------ | --------- | ------------- |
-| `amdwiki.manager.option1` | string | "default" | Description |
-| `amdwiki.manager.option2` | boolean | true | Description |
+| `ngdpbase.manager.option1` | string | "default" | Description |
+| `ngdpbase.manager.option2` | boolean | true | Description |
 
 ## API Methods
 

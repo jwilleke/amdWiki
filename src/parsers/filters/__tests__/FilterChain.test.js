@@ -39,11 +39,11 @@ class ErrorFilter extends BaseFilter {
 class MockConfigurationManager {
   constructor(config = {}) {
     this.config = {
-      'amdwiki.markup.filters.enabled': true,
-      'amdwiki.markup.filters.pipeline.maxFilters': 50,
-      'amdwiki.markup.filters.pipeline.timeout': 10000,
-      'amdwiki.markup.filters.pipeline.enableProfiling': true,
-      'amdwiki.markup.filters.pipeline.failOnError': false,
+      'ngdpbase.markup.filters.enabled': true,
+      'ngdpbase.markup.filters.pipeline.maxFilters': 50,
+      'ngdpbase.markup.filters.pipeline.timeout': 10000,
+      'ngdpbase.markup.filters.pipeline.enableProfiling': true,
+      'ngdpbase.markup.filters.pipeline.failOnError': false,
       ...config
     };
   }
@@ -89,9 +89,9 @@ describe('FilterChain Modular Configuration', () => {
 
     test('should override with app-custom-config.json values', async () => {
       const customConfig = {
-        'amdwiki.markup.filters.pipeline.maxFilters': 25,
-        'amdwiki.markup.filters.pipeline.timeout': 5000,
-        'amdwiki.markup.filters.pipeline.failOnError': true
+        'ngdpbase.markup.filters.pipeline.maxFilters': 25,
+        'ngdpbase.markup.filters.pipeline.timeout': 5000,
+        'ngdpbase.markup.filters.pipeline.failOnError': true
       };
       
       const customEngine = createMockEngine(customConfig);
@@ -292,7 +292,7 @@ describe('FilterChain Modular Configuration', () => {
 
     test('should disable performance monitoring when configured', async () => {
       const noPerfConfig = {
-        'amdwiki.markup.filters.pipeline.enableProfiling': false
+        'ngdpbase.markup.filters.pipeline.enableProfiling': false
       };
 
       const customEngine = createMockEngine(noPerfConfig);
@@ -319,8 +319,8 @@ describe('FilterChain Modular Configuration', () => {
   describe('Configuration Flexibility', () => {
     test('should support different filter limits per deployment', async () => {
       const prodConfig = {
-        'amdwiki.markup.filters.pipeline.maxFilters': 100,
-        'amdwiki.markup.filters.pipeline.timeout': 15000
+        'ngdpbase.markup.filters.pipeline.maxFilters': 100,
+        'ngdpbase.markup.filters.pipeline.timeout': 15000
       };
       
       const prodEngine = createMockEngine(prodConfig);
@@ -335,7 +335,7 @@ describe('FilterChain Modular Configuration', () => {
 
     test('should disable entire filter system when configured', async () => {
       const disabledConfig = {
-        'amdwiki.markup.filters.enabled': false
+        'ngdpbase.markup.filters.enabled': false
       };
       
       const disabledEngine = createMockEngine(disabledConfig);

@@ -100,7 +100,7 @@ In JSPWiki, these `protected static final int` constants represent **link types*
 So the system works like this:
 
 1. The spefic User roles (like admin, reader, editor) that are assigned to a user are stored in users/users.json
-2. Policies define what actions those roles can perform, stored in config/app-default-config.json under amdwiki.access.policies form src/managers/ConfigurationManager.js
+2. Policies define what actions those roles can perform, stored in config/app-default-config.json under ngdpbase.access.policies form src/managers/ConfigurationManager.js
 3. PolicyEvaluator evaluates whether a role has permission to perform an action
 
 | Constant Name | Value | Meaning/Role in JSPWiki |

@@ -52,10 +52,10 @@ interface NodeCacheBackupData extends BackupData {
  * Suitable for single-instance deployments and development.
  *
  * Configuration keys (all lowercase):
- * - amdwiki.cache.provider.nodecache.stdttl - Default TTL in seconds
- * - amdwiki.cache.provider.nodecache.checkperiod - Check for expired keys interval
- * - amdwiki.cache.provider.nodecache.maxkeys - Maximum number of keys
- * - amdwiki.cache.provider.nodecache.useclones - Whether to clone objects
+ * - ngdpbase.cache.provider.nodecache.stdttl - Default TTL in seconds
+ * - ngdpbase.cache.provider.nodecache.checkperiod - Check for expired keys interval
+ * - ngdpbase.cache.provider.nodecache.maxkeys - Maximum number of keys
+ * - ngdpbase.cache.provider.nodecache.useclones - Whether to clone objects
  */
 class NodeCacheProvider extends BaseCacheProvider {
   private cache: NodeCache | null;
@@ -87,19 +87,19 @@ class NodeCacheProvider extends BaseCacheProvider {
 
     // Load provider-specific settings (ALL LOWERCASE)
     const stdTTL = configManager.getProperty(
-      'amdwiki.cache.provider.nodecache.stdttl',
+      'ngdpbase.cache.provider.nodecache.stdttl',
       300
     ) as number;
     const checkperiod = configManager.getProperty(
-      'amdwiki.cache.provider.nodecache.checkperiod',
+      'ngdpbase.cache.provider.nodecache.checkperiod',
       120
     ) as number;
     const maxKeys = configManager.getProperty(
-      'amdwiki.cache.provider.nodecache.maxkeys',
+      'ngdpbase.cache.provider.nodecache.maxkeys',
       1000
     ) as number;
     const useClones = configManager.getProperty(
-      'amdwiki.cache.provider.nodecache.useclones',
+      'ngdpbase.cache.provider.nodecache.useclones',
       true
     ) as boolean;
 

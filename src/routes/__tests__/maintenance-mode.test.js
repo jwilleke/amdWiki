@@ -95,12 +95,12 @@ jest.mock('../../WikiEngine', () => {
 
   const mockConfigManager = {
     getProperty: jest.fn().mockImplementation((key, defaultValue) => {
-      if (key === 'amdwiki.maintenance.enabled') return maintenanceModeEnabled;
-      if (key === 'amdwiki.maintenance.message') return 'Site is under maintenance';
+      if (key === 'ngdpbase.maintenance.enabled') return maintenanceModeEnabled;
+      if (key === 'ngdpbase.maintenance.message') return 'Site is under maintenance';
       return defaultValue;
     }),
     setProperty: jest.fn().mockImplementation((key, value) => {
-      if (key === 'amdwiki.maintenance.enabled') maintenanceModeEnabled = value;
+      if (key === 'ngdpbase.maintenance.enabled') maintenanceModeEnabled = value;
       return true;
     })
   };

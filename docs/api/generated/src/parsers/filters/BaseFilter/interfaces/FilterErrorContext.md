@@ -1,12 +1,12 @@
-[**amdWiki API v1.5.0**](../../../../../README.md)
+[**ngdpbase API v1.5.0**](../../../../../README.md)
 
 ***
 
-[amdWiki API](../../../../../README.md) / [src/parsers/filters/BaseFilter](../README.md) / FilterErrorContext
+[ngdpbase API](../../../../../README.md) / [src/parsers/filters/BaseFilter](../README.md) / FilterErrorContext
 
 # Interface: FilterErrorContext
 
-Defined in: [src/parsers/filters/BaseFilter.ts:81](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/BaseFilter.ts#L81)
+Defined in: [src/parsers/filters/BaseFilter.ts:81](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/BaseFilter.ts#L81)
 
 Filter error context
 
@@ -16,7 +16,7 @@ Filter error context
 
 > **contentLength**: `number`
 
-Defined in: [src/parsers/filters/BaseFilter.ts:85](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/BaseFilter.ts#L85)
+Defined in: [src/parsers/filters/BaseFilter.ts:85](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/BaseFilter.ts#L85)
 
 ***
 
@@ -24,7 +24,7 @@ Defined in: [src/parsers/filters/BaseFilter.ts:85](https://github.com/jwilleke/a
 
 > **contentPreview**: `string`
 
-Defined in: [src/parsers/filters/BaseFilter.ts:86](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/BaseFilter.ts#L86)
+Defined in: [src/parsers/filters/BaseFilter.ts:86](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/BaseFilter.ts#L86)
 
 ***
 
@@ -32,7 +32,7 @@ Defined in: [src/parsers/filters/BaseFilter.ts:86](https://github.com/jwilleke/a
 
 > **context**: `object`
 
-Defined in: [src/parsers/filters/BaseFilter.ts:87](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/BaseFilter.ts#L87)
+Defined in: [src/parsers/filters/BaseFilter.ts:87](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/BaseFilter.ts#L87)
 
 #### pageName?
 
@@ -48,7 +48,7 @@ Defined in: [src/parsers/filters/BaseFilter.ts:87](https://github.com/jwilleke/a
 
 > **error**: `string`
 
-Defined in: [src/parsers/filters/BaseFilter.ts:83](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/BaseFilter.ts#L83)
+Defined in: [src/parsers/filters/BaseFilter.ts:83](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/BaseFilter.ts#L83)
 
 ***
 
@@ -56,7 +56,7 @@ Defined in: [src/parsers/filters/BaseFilter.ts:83](https://github.com/jwilleke/a
 
 > **filterId**: `string`
 
-Defined in: [src/parsers/filters/BaseFilter.ts:82](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/BaseFilter.ts#L82)
+Defined in: [src/parsers/filters/BaseFilter.ts:82](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/BaseFilter.ts#L82)
 
 ***
 
@@ -64,7 +64,7 @@ Defined in: [src/parsers/filters/BaseFilter.ts:82](https://github.com/jwilleke/a
 
 > `optional` **stack**: `string`
 
-Defined in: [src/parsers/filters/BaseFilter.ts:84](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/BaseFilter.ts#L84)
+Defined in: [src/parsers/filters/BaseFilter.ts:84](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/BaseFilter.ts#L84)
 
 ***
 
@@ -72,7 +72,7 @@ Defined in: [src/parsers/filters/BaseFilter.ts:84](https://github.com/jwilleke/a
 
 > **stats**: [`FilterStats`](FilterStats.md)
 
-Defined in: [src/parsers/filters/BaseFilter.ts:91](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/BaseFilter.ts#L91)
+Defined in: [src/parsers/filters/BaseFilter.ts:91](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/BaseFilter.ts#L91)
 
 ***
 
@@ -80,4 +80,4 @@ Defined in: [src/parsers/filters/BaseFilter.ts:91](https://github.com/jwilleke/a
 
 > **timestamp**: `string`
 
-Defined in: [src/parsers/filters/BaseFilter.ts:92](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/BaseFilter.ts#L92)
+Defined in: [src/parsers/filters/BaseFilter.ts:92](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/BaseFilter.ts#L92)

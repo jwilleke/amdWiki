@@ -1,12 +1,12 @@
-[**amdWiki API v1.5.0**](../../../../README.md)
+[**ngdpbase API v1.5.0**](../../../../README.md)
 
 ***
 
-[amdWiki API](../../../../README.md) / [src/managers/CacheManager](../README.md) / CacheOptions
+[ngdpbase API](../../../../README.md) / [src/managers/CacheManager](../README.md) / CacheOptions
 
 # Interface: CacheOptions
 
-Defined in: [src/managers/CacheManager.ts:12](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/CacheManager.ts#L12)
+Defined in: [src/managers/CacheManager.ts:12](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/CacheManager.ts#L12)
 
 Cache options for set operations
 
@@ -16,4 +16,4 @@ Cache options for set operations
 
 > `optional` **ttl**: `number`
 
-Defined in: [src/managers/CacheManager.ts:13](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/CacheManager.ts#L13)
+Defined in: [src/managers/CacheManager.ts:13](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/CacheManager.ts#L13)

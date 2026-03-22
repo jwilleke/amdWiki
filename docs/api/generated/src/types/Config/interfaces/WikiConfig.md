@@ -1,12 +1,12 @@
-[**amdWiki API v1.5.0**](../../../../README.md)
+[**ngdpbase API v1.5.0**](../../../../README.md)
 
 ***
 
-[amdWiki API](../../../../README.md) / [src/types/Config](../README.md) / WikiConfig
+[ngdpbase API](../../../../README.md) / [src/types/Config](../README.md) / WikiConfig
 
 # Interface: WikiConfig
 
-Defined in: [src/types/Config.ts:15](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Config.ts#L15)
+Defined in: [src/types/Config.ts:15](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Config.ts#L15)
 
 Wiki configuration object
 
@@ -22,460 +22,460 @@ Additional configuration properties
 
 ## Properties
 
-### amdwiki.application.category
+### ngdpbase.application.category
 
-> **amdwiki.application.category**: `string`
+> **ngdpbase.application.category**: `string`
 
-Defined in: [src/types/Config.ts:23](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Config.ts#L23)
+Defined in: [src/types/Config.ts:23](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Config.ts#L23)
 
 Application category
 
 ***
 
-### amdwiki.applicationName
+### ngdpbase.applicationName
 
-> **amdwiki.applicationName**: `string`
+> **ngdpbase.applicationName**: `string`
 
-Defined in: [src/types/Config.ts:17](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Config.ts#L17)
+Defined in: [src/types/Config.ts:17](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Config.ts#L17)
 
 Application name
 
 ***
 
-### amdwiki.attachment.allowedtypes
+### ngdpbase.attachment.allowedtypes
 
-> **amdwiki.attachment.allowedtypes**: `string`
+> **ngdpbase.attachment.allowedtypes**: `string`
 
-Defined in: [src/types/Config.ts:101](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Config.ts#L101)
+Defined in: [src/types/Config.ts:101](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Config.ts#L101)
 
 Allowed attachment MIME types
 
 ***
 
-### amdwiki.attachment.enabled
+### ngdpbase.attachment.enabled
 
-> **amdwiki.attachment.enabled**: `boolean`
+> **ngdpbase.attachment.enabled**: `boolean`
 
-Defined in: [src/types/Config.ts:89](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Config.ts#L89)
+Defined in: [src/types/Config.ts:89](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Config.ts#L89)
 
 Attachment provider enabled
 
 ***
 
-### amdwiki.attachment.forcedownload
+### ngdpbase.attachment.forcedownload
 
-> **amdwiki.attachment.forcedownload**: `boolean`
+> **ngdpbase.attachment.forcedownload**: `boolean`
 
-Defined in: [src/types/Config.ts:104](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Config.ts#L104)
+Defined in: [src/types/Config.ts:104](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Config.ts#L104)
 
 Force download for attachments
 
 ***
 
-### amdwiki.attachment.maxsize
+### ngdpbase.attachment.maxsize
 
-> **amdwiki.attachment.maxsize**: `number`
+> **ngdpbase.attachment.maxsize**: `number`
 
-Defined in: [src/types/Config.ts:98](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Config.ts#L98)
+Defined in: [src/types/Config.ts:98](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Config.ts#L98)
 
 Maximum attachment size (bytes)
 
 ***
 
-### amdwiki.attachment.metadatafile
+### ngdpbase.attachment.metadatafile
 
-> **amdwiki.attachment.metadatafile**: `string`
+> **ngdpbase.attachment.metadatafile**: `string`
 
-Defined in: [src/types/Config.ts:107](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Config.ts#L107)
+Defined in: [src/types/Config.ts:107](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Config.ts#L107)
 
 Attachment metadata file
 
 ***
 
-### amdwiki.attachment.provider
+### ngdpbase.attachment.provider
 
-> **amdwiki.attachment.provider**: `string`
+> **ngdpbase.attachment.provider**: `string`
 
-Defined in: [src/types/Config.ts:95](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Config.ts#L95)
+Defined in: [src/types/Config.ts:95](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Config.ts#L95)
 
 Active attachment provider
 
 ***
 
-### amdwiki.attachment.provider.default
+### ngdpbase.attachment.provider.default
 
-> **amdwiki.attachment.provider.default**: `string`
+> **ngdpbase.attachment.provider.default**: `string`
 
-Defined in: [src/types/Config.ts:92](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Config.ts#L92)
+Defined in: [src/types/Config.ts:92](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Config.ts#L92)
 
 Default attachment provider
 
 ***
 
-### amdwiki.audit.provider
+### ngdpbase.audit.provider
 
-> **amdwiki.audit.provider**: `string`
+> **ngdpbase.audit.provider**: `string`
 
-Defined in: [src/types/Config.ts:149](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Config.ts#L149)
+Defined in: [src/types/Config.ts:149](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Config.ts#L149)
 
 Audit provider
 
 ***
 
-### amdwiki.audit.provider.default
+### ngdpbase.audit.provider.default
 
-> **amdwiki.audit.provider.default**: `string`
+> **ngdpbase.audit.provider.default**: `string`
 
-Defined in: [src/types/Config.ts:152](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Config.ts#L152)
+Defined in: [src/types/Config.ts:152](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Config.ts#L152)
 
 Audit provider default
 
 ***
 
-### amdwiki.baseURL
+### ngdpbase.baseURL
 
-> **amdwiki.baseURL**: `string`
+> **ngdpbase.baseURL**: `string`
 
-Defined in: [src/types/Config.ts:29](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Config.ts#L29)
+Defined in: [src/types/Config.ts:29](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Config.ts#L29)
 
 Base URL
 
 ***
 
-### amdwiki.cache.provider
+### ngdpbase.cache.provider
 
-> **amdwiki.cache.provider**: `string`
+> **ngdpbase.cache.provider**: `string`
 
-Defined in: [src/types/Config.ts:143](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Config.ts#L143)
+Defined in: [src/types/Config.ts:143](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Config.ts#L143)
 
 Cache provider
 
 ***
 
-### amdwiki.cache.provider.default
+### ngdpbase.cache.provider.default
 
-> **amdwiki.cache.provider.default**: `string`
+> **ngdpbase.cache.provider.default**: `string`
 
-Defined in: [src/types/Config.ts:146](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Config.ts#L146)
+Defined in: [src/types/Config.ts:146](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Config.ts#L146)
 
 Cache provider default
 
 ***
 
-### amdwiki.encoding
+### ngdpbase.encoding
 
-> **amdwiki.encoding**: `string`
+> **ngdpbase.encoding**: `string`
 
-Defined in: [src/types/Config.ts:32](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Config.ts#L32)
+Defined in: [src/types/Config.ts:32](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Config.ts#L32)
 
 Character encoding
 
 ***
 
-### amdwiki.faviconPath
+### ngdpbase.faviconPath
 
-> **amdwiki.faviconPath**: `string`
+> **ngdpbase.faviconPath**: `string`
 
-Defined in: [src/types/Config.ts:20](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Config.ts#L20)
+Defined in: [src/types/Config.ts:20](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Config.ts#L20)
 
 Favicon path
 
 ***
 
-### amdwiki.frontPage
+### ngdpbase.frontPage
 
-> **amdwiki.frontPage**: `string`
+> **ngdpbase.frontPage**: `string`
 
-Defined in: [src/types/Config.ts:35](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Config.ts#L35)
+Defined in: [src/types/Config.ts:35](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Config.ts#L35)
 
 Front page name
 
 ***
 
-### amdwiki.page.enabled
+### ngdpbase.page.enabled
 
-> **amdwiki.page.enabled**: `boolean`
+> **ngdpbase.page.enabled**: `boolean`
 
-Defined in: [src/types/Config.ts:68](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Config.ts#L68)
+Defined in: [src/types/Config.ts:68](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Config.ts#L68)
 
 Page provider enabled
 
 ***
 
-### amdwiki.page.provider
+### ngdpbase.page.provider
 
-> **amdwiki.page.provider**: `string`
+> **ngdpbase.page.provider**: `string`
 
-Defined in: [src/types/Config.ts:74](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Config.ts#L74)
+Defined in: [src/types/Config.ts:74](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Config.ts#L74)
 
 Active page provider
 
 ***
 
-### amdwiki.page.provider.default
+### ngdpbase.page.provider.default
 
-> **amdwiki.page.provider.default**: `string`
+> **ngdpbase.page.provider.default**: `string`
 
-Defined in: [src/types/Config.ts:71](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Config.ts#L71)
+Defined in: [src/types/Config.ts:71](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Config.ts#L71)
 
 Default page provider
 
 ***
 
-### amdwiki.page.provider.filesystem.autosave
+### ngdpbase.page.provider.filesystem.autosave
 
-> **amdwiki.page.provider.filesystem.autosave**: `boolean`
+> **ngdpbase.page.provider.filesystem.autosave**: `boolean`
 
-Defined in: [src/types/Config.ts:86](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Config.ts#L86)
+Defined in: [src/types/Config.ts:86](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Config.ts#L86)
 
 Auto-save enabled
 
 ***
 
-### amdwiki.page.provider.filesystem.encoding
+### ngdpbase.page.provider.filesystem.encoding
 
-> **amdwiki.page.provider.filesystem.encoding**: `string`
+> **ngdpbase.page.provider.filesystem.encoding**: `string`
 
-Defined in: [src/types/Config.ts:83](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Config.ts#L83)
+Defined in: [src/types/Config.ts:83](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Config.ts#L83)
 
 File encoding for pages
 
 ***
 
-### amdwiki.page.provider.filesystem.requiredpagesdir
+### ngdpbase.page.provider.filesystem.requiredpagesdir
 
-> **amdwiki.page.provider.filesystem.requiredpagesdir**: `string`
+> **ngdpbase.page.provider.filesystem.requiredpagesdir**: `string`
 
-Defined in: [src/types/Config.ts:80](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Config.ts#L80)
+Defined in: [src/types/Config.ts:80](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Config.ts#L80)
 
 Required pages directory
 
 ***
 
-### amdwiki.page.provider.filesystem.storagedir
+### ngdpbase.page.provider.filesystem.storagedir
 
-> **amdwiki.page.provider.filesystem.storagedir**: `string`
+> **ngdpbase.page.provider.filesystem.storagedir**: `string`
 
-Defined in: [src/types/Config.ts:77](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Config.ts#L77)
+Defined in: [src/types/Config.ts:77](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Config.ts#L77)
 
 Page storage directory
 
 ***
 
-### amdwiki.search.autocomplete.enabled
+### ngdpbase.search.autocomplete.enabled
 
-> **amdwiki.search.autocomplete.enabled**: `boolean`
+> **ngdpbase.search.autocomplete.enabled**: `boolean`
 
-Defined in: [src/types/Config.ts:122](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Config.ts#L122)
+Defined in: [src/types/Config.ts:122](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Config.ts#L122)
 
 Autocomplete enabled
 
 ***
 
-### amdwiki.search.autocomplete.minlength
+### ngdpbase.search.autocomplete.minlength
 
-> **amdwiki.search.autocomplete.minlength**: `number`
+> **ngdpbase.search.autocomplete.minlength**: `number`
 
-Defined in: [src/types/Config.ts:125](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Config.ts#L125)
+Defined in: [src/types/Config.ts:125](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Config.ts#L125)
 
 Autocomplete minimum length
 
 ***
 
-### amdwiki.search.enabled
+### ngdpbase.search.enabled
 
-> **amdwiki.search.enabled**: `boolean`
+> **ngdpbase.search.enabled**: `boolean`
 
-Defined in: [src/types/Config.ts:110](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Config.ts#L110)
+Defined in: [src/types/Config.ts:110](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Config.ts#L110)
 
 Search enabled
 
 ***
 
-### amdwiki.search.maxresults
+### ngdpbase.search.maxresults
 
-> **amdwiki.search.maxresults**: `number`
+> **ngdpbase.search.maxresults**: `number`
 
-Defined in: [src/types/Config.ts:119](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Config.ts#L119)
+Defined in: [src/types/Config.ts:119](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Config.ts#L119)
 
 Maximum search results
 
 ***
 
-### amdwiki.search.provider
+### ngdpbase.search.provider
 
-> **amdwiki.search.provider**: `string`
+> **ngdpbase.search.provider**: `string`
 
-Defined in: [src/types/Config.ts:116](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Config.ts#L116)
+Defined in: [src/types/Config.ts:116](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Config.ts#L116)
 
 Active search provider
 
 ***
 
-### amdwiki.search.provider.default
+### ngdpbase.search.provider.default
 
-> **amdwiki.search.provider.default**: `string`
+> **ngdpbase.search.provider.default**: `string`
 
-Defined in: [src/types/Config.ts:113](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Config.ts#L113)
+Defined in: [src/types/Config.ts:113](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Config.ts#L113)
 
 Default search provider
 
 ***
 
-### amdwiki.search.suggestions.enabled
+### ngdpbase.search.suggestions.enabled
 
-> **amdwiki.search.suggestions.enabled**: `boolean`
+> **ngdpbase.search.suggestions.enabled**: `boolean`
 
-Defined in: [src/types/Config.ts:128](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Config.ts#L128)
+Defined in: [src/types/Config.ts:128](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Config.ts#L128)
 
 Search suggestions enabled
 
 ***
 
-### amdwiki.search.suggestions.maxitems
+### ngdpbase.search.suggestions.maxitems
 
-> **amdwiki.search.suggestions.maxitems**: `number`
+> **ngdpbase.search.suggestions.maxitems**: `number`
 
-Defined in: [src/types/Config.ts:131](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Config.ts#L131)
+Defined in: [src/types/Config.ts:131](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Config.ts#L131)
 
 Maximum suggestion items
 
 ***
 
-### amdwiki.server.host
+### ngdpbase.server.host
 
-> **amdwiki.server.host**: `string`
+> **ngdpbase.server.host**: `string`
 
-Defined in: [src/types/Config.ts:41](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Config.ts#L41)
+Defined in: [src/types/Config.ts:41](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Config.ts#L41)
 
 Server host
 
 ***
 
-### amdwiki.server.port
+### ngdpbase.server.port
 
-> **amdwiki.server.port**: `number`
+> **ngdpbase.server.port**: `number`
 
-Defined in: [src/types/Config.ts:38](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Config.ts#L38)
+Defined in: [src/types/Config.ts:38](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Config.ts#L38)
 
 Server port
 
 ***
 
-### amdwiki.session.httpOnly
+### ngdpbase.session.httpOnly
 
-> **amdwiki.session.httpOnly**: `boolean`
+> **ngdpbase.session.httpOnly**: `boolean`
 
-Defined in: [src/types/Config.ts:53](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Config.ts#L53)
+Defined in: [src/types/Config.ts:53](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Config.ts#L53)
 
 Session HTTP only flag
 
 ***
 
-### amdwiki.session.maxAge
+### ngdpbase.session.maxAge
 
-> **amdwiki.session.maxAge**: `number`
+> **ngdpbase.session.maxAge**: `number`
 
-Defined in: [src/types/Config.ts:47](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Config.ts#L47)
+Defined in: [src/types/Config.ts:47](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Config.ts#L47)
 
 Session max age (milliseconds)
 
 ***
 
-### amdwiki.session.secret
+### ngdpbase.session.secret
 
-> **amdwiki.session.secret**: `string`
+> **ngdpbase.session.secret**: `string`
 
-Defined in: [src/types/Config.ts:44](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Config.ts#L44)
+Defined in: [src/types/Config.ts:44](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Config.ts#L44)
 
 Session secret
 
 ***
 
-### amdwiki.session.secure
+### ngdpbase.session.secure
 
-> **amdwiki.session.secure**: `boolean`
+> **ngdpbase.session.secure**: `boolean`
 
-Defined in: [src/types/Config.ts:50](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Config.ts#L50)
+Defined in: [src/types/Config.ts:50](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Config.ts#L50)
 
 Session secure flag (HTTPS only)
 
 ***
 
-### amdwiki.translator-reader.allow-html
+### ngdpbase.translator-reader.allow-html
 
-> **amdwiki.translator-reader.allow-html**: `boolean`
+> **ngdpbase.translator-reader.allow-html**: `boolean`
 
-Defined in: [src/types/Config.ts:62](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Config.ts#L62)
+Defined in: [src/types/Config.ts:62](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Config.ts#L62)
 
 Translator reader - allow HTML
 
 ***
 
-### amdwiki.translator-reader.camel-case-links
+### ngdpbase.translator-reader.camel-case-links
 
-> **amdwiki.translator-reader.camel-case-links**: `boolean`
+> **ngdpbase.translator-reader.camel-case-links**: `boolean`
 
-Defined in: [src/types/Config.ts:59](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Config.ts#L59)
+Defined in: [src/types/Config.ts:59](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Config.ts#L59)
 
 Translator reader - camel case links
 
 ***
 
-### amdwiki.translator-reader.match-english-plurals
+### ngdpbase.translator-reader.match-english-plurals
 
-> **amdwiki.translator-reader.match-english-plurals**: `boolean`
+> **ngdpbase.translator-reader.match-english-plurals**: `boolean`
 
-Defined in: [src/types/Config.ts:56](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Config.ts#L56)
+Defined in: [src/types/Config.ts:56](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Config.ts#L56)
 
 Translator reader - match English plurals
 
 ***
 
-### amdwiki.translator-reader.plain-uris
+### ngdpbase.translator-reader.plain-uris
 
-> **amdwiki.translator-reader.plain-uris**: `boolean`
+> **ngdpbase.translator-reader.plain-uris**: `boolean`
 
-Defined in: [src/types/Config.ts:65](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Config.ts#L65)
+Defined in: [src/types/Config.ts:65](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Config.ts#L65)
 
 Translator reader - plain URIs
 
 ***
 
-### amdwiki.user.provider
+### ngdpbase.user.provider
 
-> **amdwiki.user.provider**: `string`
+> **ngdpbase.user.provider**: `string`
 
-Defined in: [src/types/Config.ts:134](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Config.ts#L134)
+Defined in: [src/types/Config.ts:134](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Config.ts#L134)
 
 User provider
 
 ***
 
-### amdwiki.user.provider.default
+### ngdpbase.user.provider.default
 
-> **amdwiki.user.provider.default**: `string`
+> **ngdpbase.user.provider.default**: `string`
 
-Defined in: [src/types/Config.ts:137](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Config.ts#L137)
+Defined in: [src/types/Config.ts:137](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Config.ts#L137)
 
 User provider default
 
 ***
 
-### amdwiki.user.provider.storagedir
+### ngdpbase.user.provider.storagedir
 
-> **amdwiki.user.provider.storagedir**: `string`
+> **ngdpbase.user.provider.storagedir**: `string`
 
-Defined in: [src/types/Config.ts:140](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Config.ts#L140)
+Defined in: [src/types/Config.ts:140](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Config.ts#L140)
 
 User storage directory
 
 ***
 
-### amdwiki.version
+### ngdpbase.version
 
-> **amdwiki.version**: `string`
+> **ngdpbase.version**: `string`
 
-Defined in: [src/types/Config.ts:26](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Config.ts#L26)
+Defined in: [src/types/Config.ts:26](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Config.ts#L26)
 
 Application version

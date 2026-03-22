@@ -1,8 +1,8 @@
-# amdWiki as a Base Platform
+# ngdpbase as a Base Platform
 
-This document explores using amdWiki as a foundation for building next-generation digital sites — beyond a simple wiki — using its Manager, Plugin, and Add-on extension model.
+This document explores using ngdpbase as a foundation for building next-generation digital sites — beyond a simple wiki — using its Manager, Plugin, and Add-on extension model.
 
-## What amdWiki Provides Out of the Box
+## What ngdpbase Provides Out of the Box
 
 ### Content & Storage
 
@@ -50,7 +50,7 @@ This document explores using amdWiki as a foundation for building next-generatio
 
 ## Extension Architecture
 
-amdWiki has four extension points, ranging from lightweight to full application-level:
+ngdpbase has four extension points, ranging from lightweight to full application-level:
 
 ```
 ┌────────────────────────────────────────────────────────┐
@@ -92,7 +92,7 @@ export default {
 [{MyPlugin id='42' style='compact'}]
 ```
 
-**Config key:** `amdwiki.managers.pluginManager.searchPaths`
+**Config key:** `ngdpbase.managers.pluginManager.searchPaths`
 
 ### Add-ons — Application Modules
 
@@ -117,8 +117,8 @@ export const myAddon: AddonModule = {
 **Config (app-custom-config.json):**
 
 ```json
-"amdwiki.addons.my-addon.enabled": true,
-"amdwiki.addons.my-addon.dataPath": "./data/my-addon"
+"ngdpbase.addons.my-addon.enabled": true,
+"ngdpbase.addons.my-addon.dataPath": "./data/my-addon"
 ```
 
 ### Providers — Swappable Implementations
@@ -136,7 +136,7 @@ Defined interfaces: `PageProvider`, `SearchProvider`, `UserProvider`, `AuditProv
 **Repo:** [jwilleke/fairways-gen2-website](https://github.com/jwilleke/fairways-gen2-website)
 **Goal:** Replace a static site with a dynamic wiki — role-based access per condo unit, private unit folders, contact tracking, Google embeds.
 
-| Need | amdWiki Mechanism | Notes |
+| Need | ngdpbase Mechanism | Notes |
 |------|------------------|-------|
 | Dynamic wiki pages | Core (PageManager) | Markdown + versioning included |
 | Role per unit (unit-01..unit-99) | Core (UserManager + ACL roles) | Roles already support per-page ACL |
@@ -147,7 +147,7 @@ Defined interfaces: `PageProvider`, `SearchProvider`, `UserProvider`, `AuditProv
 | Content migration | Import scripts (ImportManager) | Markdown conversion from static HTML |
 | Low-cost hosting | No changes needed | Render/Fly.io with pm2 + file storage |
 
-**Verdict:** amdWiki is a near-perfect fit. Only the unit contact/address tracking requires a small custom add-on. Everything else uses existing core features.
+**Verdict:** ngdpbase is a near-perfect fit. Only the unit contact/address tracking requires a small custom add-on. Everything else uses existing core features.
 
 **Minimal custom code needed:**
 
@@ -159,11 +159,11 @@ Defined interfaces: `PageProvider`, `SearchProvider`, `UserProvider`, `AuditProv
 
 ### Use Case 2: Volcano Wiki — Scientific Data + Community Wiki
 
-**Issue:** [amdWiki #357](https://github.com/jwilleke/amdWiki/issues/357)
+**Issue:** [ngdpbase #357](https://github.com/jwilleke/ngdpbase/issues/357)
 **Data source:** [volcano-lists](https://github.com/jwilleke/volcano-lists) — GVP API importer, 2,661 volcanoes, eruptions, activity data
 **Goal:** Volcano data platform comparable to volcano.si.edu
 
-| Need | amdWiki Mechanism | Notes |
+| Need | ngdpbase Mechanism | Notes |
 |------|------------------|-------|
 | 2,661 structured volcano pages | Core (PageManager) | YAML frontmatter links to GVP ID |
 | Structured data queries | Add-on (VolcanoDataManager) | Loads `volcanoes.json` into memory |
@@ -206,13 +206,13 @@ addons/volcano-wiki/
     └── VolcanoMapPlugin.ts
 ```
 
-**Verdict:** amdWiki handles all structural concerns (page storage, search, auth, rendering). The volcano domain logic is fully encapsulated in the add-on. No core modifications required.
+**Verdict:** ngdpbase handles all structural concerns (page storage, search, auth, rendering). The volcano domain logic is fully encapsulated in the add-on. No core modifications required.
 
 ---
 
 ## What "Base Platform" Means in Practice
 
-The key insight: **amdWiki provides the horizontal infrastructure; add-ons provide vertical domain logic.**
+The key insight: **ngdpbase provides the horizontal infrastructure; add-ons provide vertical domain logic.**
 
 ```
 ┌──────────────────────────────────────────────────────┐
@@ -222,12 +222,12 @@ The key insight: **amdWiki provides the horizontal infrastructure; add-ons provi
 │  Presentation Layer (Plugins + Themes)                │
 │  VolcanoInfobox   EmbedPlugin   fairways-theme        │
 ├──────────────────────────────────────────────────────┤
-│  Platform Layer (amdWiki Core)                        │
+│  Platform Layer (ngdpbase Core)                        │
 │  Pages · Users · ACL · Search · Versioning · Admin   │
 └──────────────────────────────────────────────────────┘
 ```
 
-**What you get for free when building on amdWiki:**
+**What you get for free when building on ngdpbase:**
 
 - Page storage and versioning
 - User auth + role-based permissions
@@ -254,7 +254,7 @@ The key insight: **amdWiki provides the horizontal infrastructure; add-ons provi
 
 - **Self-contained add-ons**: all domain code under `addons/<name>/`, no core pollution
 - **Plugin registration from add-on**: an add-on can register its own plugins at startup (`PluginManager.registerPlugin(...)`)
-- **Config isolation**: `amdwiki.addons.<name>.*` namespace prevents key collisions
+- **Config isolation**: `ngdpbase.addons.<name>.*` namespace prevents key collisions
 - **Dependency resolution**: add-ons declare `dependencies[]`; engine loads in correct order
 
 ### Current Gaps / Future Work

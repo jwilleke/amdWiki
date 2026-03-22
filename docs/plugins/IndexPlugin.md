@@ -22,7 +22,7 @@ The IndexPlugin creates a navigable alphabetical index of wiki pages, similar to
 | Property | Value |
 | ---------- | ------- |
 | Name | IndexPlugin |
-| Author | amdWiki |
+| Author | ngdpbase |
 | Version | 1.0.0 |
 | JSPWiki Compatible | Yes |
 
@@ -159,7 +159,7 @@ async execute(context, params) {
 
 ## JSPWiki Compatibility
 
-| Feature | JSPWiki | amdWiki | Notes |
+| Feature | JSPWiki | ngdpbase | Notes |
 | --------- | --------- | --------- | ------- |
 | Basic syntax | Yes | Yes | Fully compatible |
 | include filter | Yes | Yes | Same regex syntax |

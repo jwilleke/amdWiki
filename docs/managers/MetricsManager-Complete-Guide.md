@@ -72,7 +72,7 @@ await metricsManager.initialize();   // ← here
 // ... other managers
 ```
 
-When `amdwiki.telemetry.enabled` is `false`:
+When `ngdpbase.telemetry.enabled` is `false`:
 
 - No OpenTelemetry SDK is created
 - No HTTP servers are opened
@@ -95,21 +95,21 @@ All settings come from ConfigurationManager. See [Telemetry.md](../admin/Telemet
 
 | Property | Type | Default | Description |
 | -------- | ---- | ------- | ----------- |
-| `amdwiki.telemetry.enabled` | boolean | `false` | Enable metrics collection |
-| `amdwiki.telemetry.serviceName` | string | `""` | OTLP `service.name` resource attribute |
-| `amdwiki.telemetry.metrics.port` | number | `9464` | Prometheus exporter port |
-| `amdwiki.telemetry.metrics.host` | string | `"0.0.0.0"` | Prometheus exporter bind address |
-| `amdwiki.telemetry.metrics.path` | string | `"/metrics"` | Prometheus scrape path |
-| `amdwiki.telemetry.metrics.interval` | number | `15000` | Collection interval (ms) |
-| `amdwiki.telemetry.otlp.enabled` | boolean | `false` | Enable OTLP push export |
-| `amdwiki.telemetry.otlp.endpoint` | string | `""` | OTLP collector URL |
-| `amdwiki.telemetry.otlp.headers` | object | `{}` | Auth headers for OTLP requests |
-| `amdwiki.telemetry.otlp.interval` | number | `30000` | OTLP push interval (ms) |
-| `amdwiki.telemetry.otlp.timeout` | number | `30000` | OTLP export timeout (ms) |
+| `ngdpbase.telemetry.enabled` | boolean | `false` | Enable metrics collection |
+| `ngdpbase.telemetry.serviceName` | string | `""` | OTLP `service.name` resource attribute |
+| `ngdpbase.telemetry.metrics.port` | number | `9464` | Prometheus exporter port |
+| `ngdpbase.telemetry.metrics.host` | string | `"0.0.0.0"` | Prometheus exporter bind address |
+| `ngdpbase.telemetry.metrics.path` | string | `"/metrics"` | Prometheus scrape path |
+| `ngdpbase.telemetry.metrics.interval` | number | `15000` | Collection interval (ms) |
+| `ngdpbase.telemetry.otlp.enabled` | boolean | `false` | Enable OTLP push export |
+| `ngdpbase.telemetry.otlp.endpoint` | string | `""` | OTLP collector URL |
+| `ngdpbase.telemetry.otlp.headers` | object | `{}` | Auth headers for OTLP requests |
+| `ngdpbase.telemetry.otlp.interval` | number | `30000` | OTLP push interval (ms) |
+| `ngdpbase.telemetry.otlp.timeout` | number | `30000` | OTLP export timeout (ms) |
 
 ### Metric Prefix
 
-The metric prefix is derived from `amdwiki.applicationName`:
+The metric prefix is derived from `ngdpbase.applicationName`:
 
 - Value is lowercased
 - Non-alphanumeric characters are replaced with underscores
@@ -119,13 +119,13 @@ Examples:
 
 | applicationName | Metric prefix |
 | --------------- | ------------- |
-| `amdWiki` | `amdwiki_` |
+| `ngdpbase` | `ngdpbase_` |
 | `jimstest` | `jimstest_` |
 | `My Wiki` | `my_wiki_` |
 
 ### Service Name
 
-`amdwiki.telemetry.serviceName` sets the `service.name` [resource attribute](https://opentelemetry.io/docs/specs/semconv/resource/#service) on all exported metrics. This is what appears in Grafana's "Job" or "Service" filter when querying OTLP data. If empty, the metric prefix is used as a fallback.
+`ngdpbase.telemetry.serviceName` sets the `service.name` [resource attribute](https://opentelemetry.io/docs/specs/semconv/resource/#service) on all exported metrics. This is what appears in Grafana's "Job" or "Service" filter when querying OTLP data. If empty, the metric prefix is used as a fallback.
 
 ---
 
@@ -282,7 +282,7 @@ async shutdown(): Promise<void>
 
 ## Disabled Mode
 
-When `amdwiki.telemetry.enabled` is `false`:
+When `ngdpbase.telemetry.enabled` is `false`:
 
 - `initialize()` exits after reading config, before creating any SDK objects
 - All `record*()` methods check `this.enabled` at the top and return immediately

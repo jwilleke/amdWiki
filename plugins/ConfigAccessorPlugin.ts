@@ -3,12 +3,12 @@
  * Displays configuration values including roles, features, and system settings
  *
  * Usage:
- *   [{ConfigAccessor key='amdwiki.server.port'}]                                - Display single config value (formatted)
- *   [{ConfigAccessor key='amdwiki.server.*'}]                                   - Display matching config values with wildcard (formatted)
- *   [{ConfigAccessor key='amdwiki.server.port' valueonly='true'}]               - Return only the value (inline, no trailing content by default)
- *   [{ConfigAccessor key='amdwiki.server.port' valueonly='true' after='\n'}]    - Return value with trailing newline
- *   [{ConfigAccessor key='amdwiki.server.*' valueonly='true'}]                  - Return matching values, one per line (default)
- *   [{ConfigAccessor key='amdwiki.server.*' valueonly='true' before='* '}]      - Return as bulleted list
+ *   [{ConfigAccessor key='ngdpbase.server.port'}]                                - Display single config value (formatted)
+ *   [{ConfigAccessor key='ngdpbase.server.*'}]                                   - Display matching config values with wildcard (formatted)
+ *   [{ConfigAccessor key='ngdpbase.server.port' valueonly='true'}]               - Return only the value (inline, no trailing content by default)
+ *   [{ConfigAccessor key='ngdpbase.server.port' valueonly='true' after='\n'}]    - Return value with trailing newline
+ *   [{ConfigAccessor key='ngdpbase.server.*' valueonly='true'}]                  - Return matching values, one per line (default)
+ *   [{ConfigAccessor key='ngdpbase.server.*' valueonly='true' before='* '}]      - Return as bulleted list
  *   [{ConfigAccessor type='roles'}]                                             - Display all roles (formatted)
  *   [{ConfigAccessor type='permissions'}]                                       - Display Security Policy Summary (permissions matrix)
  *   [{ConfigAccessor type='policy-summary'}]                                    - Alias for permissions type
@@ -460,7 +460,7 @@ function displayActions(
 ): string {
   try {
     // Get access policies from configuration
-    const policies = configManager.getProperty('amdwiki.access.policies', []) as AccessPolicy[];
+    const policies = configManager.getProperty('ngdpbase.access.policies', []) as AccessPolicy[];
 
     if (!Array.isArray(policies) || policies.length === 0) {
       if (valueonly) {
@@ -577,7 +577,7 @@ function displayUserKeywords(
 ): string {
   try {
     // Get userKeywords from configuration
-    const userKeywordsRaw = configManager.getProperty('amdwiki.user-keywords', {}) as Record<string, Omit<UserKeyword, 'label'>>;
+    const userKeywordsRaw = configManager.getProperty('ngdpbase.user-keywords', {}) as Record<string, Omit<UserKeyword, 'label'>>;
 
     if (!userKeywordsRaw || typeof userKeywordsRaw !== 'object' || Object.keys(userKeywordsRaw).length === 0) {
       if (valueonly) {
@@ -737,7 +737,7 @@ function displaySystemKeywords(
 ): string {
   try {
     // Get systemKeywords from configuration
-    const systemKeywordsRaw = configManager.getProperty('amdwiki.system-keywords', {}) as Record<string, Omit<SystemKeyword, 'label'>>;
+    const systemKeywordsRaw = configManager.getProperty('ngdpbase.system-keywords', {}) as Record<string, Omit<SystemKeyword, 'label'>>;
 
     if (!systemKeywordsRaw || typeof systemKeywordsRaw !== 'object' || Object.keys(systemKeywordsRaw).length === 0) {
       if (valueonly) {
@@ -890,7 +890,7 @@ function displaySystemCategories(
 ): string {
   try {
     // Get systemCategories from configuration
-    const systemCategoriesRaw = configManager.getProperty('amdwiki.system-category', {}) as Record<string, Omit<SystemCategory, 'label'>>;
+    const systemCategoriesRaw = configManager.getProperty('ngdpbase.system-category', {}) as Record<string, Omit<SystemCategory, 'label'>>;
 
     if (!systemCategoriesRaw || typeof systemCategoriesRaw !== 'object' || Object.keys(systemCategoriesRaw).length === 0) {
       if (valueonly) {
@@ -1043,7 +1043,7 @@ function displayConfigValue(
   after: string | undefined = undefined
 ): string {
   if (!key) {
-    return '<p class="error">Missing required parameter: key</p><p class="text-muted">Usage: [{ConfigAccessor key=\'amdwiki.some.key\'}]</p>';
+    return '<p class="error">Missing required parameter: key</p><p class="text-muted">Usage: [{ConfigAccessor key=\'ngdpbase.some.key\'}]</p>';
   }
 
   // Check if key contains wildcard

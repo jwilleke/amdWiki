@@ -11,7 +11,7 @@ lastModified: '2025-10-19T00:00:00.000Z'
 slug: typescript-migration-plan
 ---
 
-# TypeScript Migration Plan for amdWiki
+# TypeScript Migration Plan for ngdpbase
 
 **Created**: October 19, 2025
 **Status**: 📋 Planning Phase
@@ -21,7 +21,7 @@ slug: typescript-migration-plan
 
 ## Executive Summary
 
-This document outlines a comprehensive plan to migrate amdWiki from JavaScript to TypeScript. The migration will be **incremental** to minimize disruption and allow for continuous deployment.
+This document outlines a comprehensive plan to migrate ngdpbase from JavaScript to TypeScript. The migration will be **incremental** to minimize disruption and allow for continuous deployment.
 
 **Key Statistics**:
 
@@ -58,7 +58,7 @@ This document outlines a comprehensive plan to migrate amdWiki from JavaScript t
 5. **Growing Ecosystem**: Most modern Node.js projects use TypeScript
 6. **Team Scalability**: Easier onboarding for new developers
 
-### Current Pain Points in amdWiki
+### Current Pain Points in ngdpbase
 
 - **Implicit interfaces**: Classes like `BasePageProvider` have undocumented contracts
 - **Configuration typing**: `ConfigurationManager` returns `any` for config properties
@@ -710,7 +710,7 @@ export class ConfigurationManager {
 
   // Type-safe getters
   get applicationName(): string {
-    return this.getProperty('applicationName', 'amdWiki');
+    return this.getProperty('applicationName', 'ngdpbase');
   }
 
   get port(): number {

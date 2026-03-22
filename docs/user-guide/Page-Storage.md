@@ -1,4 +1,4 @@
-# Page Storage in amdWiki
+# Page Storage in ngdpbase
 
 User Guide: Understanding Where and How Wiki Pages are Stored**
 
@@ -25,7 +25,7 @@ Audience: Wiki Users, Administrators, Content Managers
 
 ## Overview
 
-amdWiki uses a **two-tier storage system** for wiki pages, separating system/documentation pages from regular user content. This design provides clear organization, better security, and easier management of different types of content.
+ngdpbase uses a **two-tier storage system** for wiki pages, separating system/documentation pages from regular user content. This design provides clear organization, better security, and easier management of different types of content.
 
 ### Key Concepts
 
@@ -41,7 +41,7 @@ amdWiki uses a **two-tier storage system** for wiki pages, separating system/doc
 ### Directory Structure
 
 ```
-amdWiki/
+ngdpbase/
 ├── pages/                      # Regular user content
 │   ├── 1a2b3c4d-5e6f-7890.md  # General articles
 │   ├── 2b3c4d5e-6f78-9012.md  # User-created pages
@@ -128,7 +128,7 @@ Storage location is **automatically determined** by the `system-category` field 
 
 ### Automatic Routing
 
-When you save a page, amdWiki:
+When you save a page, ngdpbase:
 
 1. **Reads** the `system-category` from page frontmatter
 2. **Looks up** the category in configuration
@@ -265,7 +265,7 @@ lastModified: '2025-10-16T19:56:00.000Z'  # ISO 8601 timestamp
 #### `author` (Optional)
 
 - **Purpose:** Track page creator
-- **Format:** Username or "amdWiki Team"
+- **Format:** Username or "ngdpbase Team"
 - **Display:** In page metadata sidebar
 
 #### `lastModified` (Automatic)
@@ -280,7 +280,7 @@ lastModified: '2025-10-16T19:56:00.000Z'  # ISO 8601 timestamp
 ---
 title: Markdown Footnotes Guide
 uuid: 443c95f1-0b21-494a-b712-08ce0dc933e1
-author: amdWiki Team
+author: ngdpbase Team
 system-category: documentation  # ← Routes to required-pages/
 user-keywords:
   - documentation
@@ -293,7 +293,7 @@ lastModified: '2025-10-16T19:56:00.000Z'
 
 # Markdown Footnotes Guide
 
-This guide explains how to use footnotes in amdWiki...
+This guide explains how to use footnotes in ngdpbase...
 ```
 
 **Storage Result:** `required-pages/443c95f1-0b21-494a-b712-08ce0dc933e1.md`
@@ -490,7 +490,7 @@ title: Page
 
 ```bash
 # Find pages in wrong directory
-cd amdWiki
+cd ngdpbase
 grep -r "system-category: documentation" pages/
 # Should return no results - all documentation should be in required-pages/
 ```
@@ -512,13 +512,13 @@ find required-pages/ -name "*.md" | wc -l
 
 ```json
 {
-  "amdwiki.backup.required-pages": {
+  "ngdpbase.backup.required-pages": {
     "enabled": true,
     "frequency": "hourly",
     "retention": "90d",
     "priority": "high"
   },
-  "amdwiki.backup.pages": {
+  "ngdpbase.backup.pages": {
     "enabled": true,
     "frequency": "6h",
     "retention": "30d",
@@ -704,7 +704,7 @@ system-category: nonexistent-category
 
 ```json
 {
-  "amdwiki.system-category": {
+  "ngdpbase.system-category": {
     "my-custom-category": {
       "label": "my-custom-category",
       "description": "My custom content type",
@@ -740,7 +740,7 @@ system-category: nonexistent-category
 #### Method 2: Via Search**
 
 ```bash
-cd amdWiki
+cd ngdpbase
 grep -r "title: Your Page Title" pages/ required-pages/
 ```
 
@@ -922,7 +922,7 @@ Located in: `config/app-default-config.json`
 ```json
 {
   "_comment_system_category": "System category definitions with storage location mapping",
-  "amdwiki.system-category": {
+  "ngdpbase.system-category": {
     "general": {
       "label": "general",
       "description": "General wiki pages",
@@ -953,8 +953,8 @@ Located in: `config/app-default-config.json`
 
 ```json
 {
-  "amdwiki.page.provider.filesystem.storagedir": "./pages",
-  "amdwiki.page.provider.filesystem.requiredpagesdir": "./required-pages"
+  "ngdpbase.page.provider.filesystem.storagedir": "./pages",
+  "ngdpbase.page.provider.filesystem.requiredpagesdir": "./required-pages"
 }
 ```
 
@@ -962,7 +962,7 @@ Located in: `config/app-default-config.json`
 
 ```json
 {
-  "amdwiki.access.policies": [
+  "ngdpbase.access.policies": [
     {
       "id": "admin-full-access",
       "subjects": [{"type": "role", "value": "admin"}],
@@ -996,10 +996,10 @@ Located in: `config/app-default-config.json`
 
 - Check the [Troubleshooting](#troubleshooting) section
 - Visit the [Forum](http://localhost:3000/wiki/Forum)
-- Contact support: <support@amdwiki.com>
+- Contact support: <support@ngdpbase.com>
 
 ---
 
 **Last Updated:** 2025-10-16
-**Maintained By:** amdWiki Documentation Team
+**Maintained By:** ngdpbase Documentation Team
 **Status:** Current ✅

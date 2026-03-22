@@ -3,7 +3,7 @@
 **Last Updated:** 2025-12-27
 **Version:** 1.5.0
 
-This guide consolidates all testing documentation for amdWiki into a single comprehensive reference.
+This guide consolidates all testing documentation for ngdpbase into a single comprehensive reference.
 
 ## Table of Contents
 
@@ -209,8 +209,8 @@ describe('UserManager', () => {
     mockConfigManager = {
       getProperty: jest.fn((key, defaultValue) => {
         const config = {
-          'amdwiki.user.provider': 'fileuserprovider',
-          'amdwiki.user.security.passwordsalt': 'test-salt'
+          'ngdpbase.user.provider': 'fileuserprovider',
+          'ngdpbase.user.security.passwordsalt': 'test-salt'
         };
         return config[key] !== undefined ? config[key] : defaultValue;
       })

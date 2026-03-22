@@ -1,12 +1,12 @@
-[**amdWiki API v1.5.0**](../../../../README.md)
+[**ngdpbase API v1.5.0**](../../../../README.md)
 
 ***
 
-[amdWiki API](../../../../README.md) / [src/utils/VersioningAnalytics](../README.md) / default
+[ngdpbase API](../../../../README.md) / [src/utils/VersioningAnalytics](../README.md) / default
 
 # Class: default
 
-Defined in: [src/utils/VersioningAnalytics.ts:182](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/VersioningAnalytics.ts#L182)
+Defined in: [src/utils/VersioningAnalytics.ts:182](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/VersioningAnalytics.ts#L182)
 
 VersioningAnalytics - Storage analytics and reporting for VersioningFileProvider
 
@@ -34,7 +34,7 @@ console.log(`Total storage: ${report.totalStorageMB} MB`);
 
 > **new default**(`options`): `VersioningAnalytics`
 
-Defined in: [src/utils/VersioningAnalytics.ts:189](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/VersioningAnalytics.ts#L189)
+Defined in: [src/utils/VersioningAnalytics.ts:189](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/VersioningAnalytics.ts#L189)
 
 Create a new VersioningAnalytics instance
 
@@ -56,7 +56,7 @@ Analytics options
 
 > **generateStorageReport**(): `Promise`\<`StorageReport`\>
 
-Defined in: [src/utils/VersioningAnalytics.ts:205](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/VersioningAnalytics.ts#L205)
+Defined in: [src/utils/VersioningAnalytics.ts:205](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/VersioningAnalytics.ts#L205)
 
 Generate comprehensive storage report
 
@@ -74,7 +74,7 @@ Storage report
 
 > **getPageStorageDetails**(`identifier`): `Promise`\<`PageStorageDetails`\>
 
-Defined in: [src/utils/VersioningAnalytics.ts:482](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/VersioningAnalytics.ts#L482)
+Defined in: [src/utils/VersioningAnalytics.ts:482](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/VersioningAnalytics.ts#L482)
 
 Get storage usage for a specific page
 

@@ -1,12 +1,12 @@
-[**amdWiki API v1.5.0**](../../../../README.md)
+[**ngdpbase API v1.5.0**](../../../../README.md)
 
 ***
 
-[amdWiki API](../../../../README.md) / [src/managers/ValidationManager](../README.md) / PageMetadata
+[ngdpbase API](../../../../README.md) / [src/managers/ValidationManager](../README.md) / PageMetadata
 
 # Interface: PageMetadata
 
-Defined in: [src/managers/ValidationManager.ts:95](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ValidationManager.ts#L95)
+Defined in: [src/managers/ValidationManager.ts:95](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ValidationManager.ts#L95)
 
 Page metadata interface
 
@@ -20,7 +20,7 @@ Page metadata interface
 
 > **lastModified**: `string`
 
-Defined in: [src/managers/ValidationManager.ts:101](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ValidationManager.ts#L101)
+Defined in: [src/managers/ValidationManager.ts:101](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ValidationManager.ts#L101)
 
 ***
 
@@ -28,7 +28,7 @@ Defined in: [src/managers/ValidationManager.ts:101](https://github.com/jwilleke/
 
 > **slug**: `string`
 
-Defined in: [src/managers/ValidationManager.ts:98](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ValidationManager.ts#L98)
+Defined in: [src/managers/ValidationManager.ts:98](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ValidationManager.ts#L98)
 
 ***
 
@@ -36,7 +36,7 @@ Defined in: [src/managers/ValidationManager.ts:98](https://github.com/jwilleke/a
 
 > **system-category**: `string`
 
-Defined in: [src/managers/ValidationManager.ts:99](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ValidationManager.ts#L99)
+Defined in: [src/managers/ValidationManager.ts:99](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ValidationManager.ts#L99)
 
 ***
 
@@ -44,7 +44,7 @@ Defined in: [src/managers/ValidationManager.ts:99](https://github.com/jwilleke/a
 
 > **title**: `string`
 
-Defined in: [src/managers/ValidationManager.ts:96](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ValidationManager.ts#L96)
+Defined in: [src/managers/ValidationManager.ts:96](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ValidationManager.ts#L96)
 
 ***
 
@@ -52,7 +52,7 @@ Defined in: [src/managers/ValidationManager.ts:96](https://github.com/jwilleke/a
 
 > **user-keywords**: `string`[]
 
-Defined in: [src/managers/ValidationManager.ts:100](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ValidationManager.ts#L100)
+Defined in: [src/managers/ValidationManager.ts:100](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ValidationManager.ts#L100)
 
 ***
 
@@ -60,4 +60,4 @@ Defined in: [src/managers/ValidationManager.ts:100](https://github.com/jwilleke/
 
 > **uuid**: `string`
 
-Defined in: [src/managers/ValidationManager.ts:97](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ValidationManager.ts#L97)
+Defined in: [src/managers/ValidationManager.ts:97](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ValidationManager.ts#L97)

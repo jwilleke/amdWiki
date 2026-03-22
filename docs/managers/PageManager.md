@@ -80,11 +80,11 @@ await pageManager.deletePage('My Page');
 
 ```json
 {
-  "amdwiki.page.enabled": true,
-  "amdwiki.page.provider": "filesystemprovider",
-  "amdwiki.page.provider.filesystem.storagedir": "./pages",
-  "amdwiki.page.provider.filesystem.requiredpagesdir": "./required-pages",
-  "amdwiki.page.provider.filesystem.encoding": "utf-8"
+  "ngdpbase.page.enabled": true,
+  "ngdpbase.page.provider": "filesystemprovider",
+  "ngdpbase.page.provider.filesystem.storagedir": "./pages",
+  "ngdpbase.page.provider.filesystem.requiredpagesdir": "./required-pages",
+  "ngdpbase.page.provider.filesystem.encoding": "utf-8"
 }
 ```
 

@@ -79,7 +79,7 @@ Shows only registered plugins in a single table.
 Variables that don't require user or page context:
 
 - `applicationname` / `appname` - Application name from configuration
-- `version` - amdWiki version number
+- `version` - ngdpbase version number
 - `baseurl` - Base URL for the wiki
 - `uptime` - Server uptime
 - `totalpages` - Total number of pages in wiki

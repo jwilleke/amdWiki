@@ -1,12 +1,12 @@
-[**amdWiki API v1.5.0**](../../../../README.md)
+[**ngdpbase API v1.5.0**](../../../../README.md)
 
 ***
 
-[amdWiki API](../../../../README.md) / [src/managers/AttachmentManager](../README.md) / AttachmentBackupData
+[ngdpbase API](../../../../README.md) / [src/managers/AttachmentManager](../README.md) / AttachmentBackupData
 
 # Interface: AttachmentBackupData
 
-Defined in: [src/managers/AttachmentManager.ts:100](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/AttachmentManager.ts#L100)
+Defined in: [src/managers/AttachmentManager.ts:100](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/AttachmentManager.ts#L100)
 
 Attachment backup data
 
@@ -26,7 +26,7 @@ Allow additional properties
 
 > `optional` **data**: `null`
 
-Defined in: [src/managers/AttachmentManager.ts:103](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/AttachmentManager.ts#L103)
+Defined in: [src/managers/AttachmentManager.ts:103](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/AttachmentManager.ts#L103)
 
 Manager-specific backup data
 
@@ -40,7 +40,7 @@ Manager-specific backup data
 
 > **managerName**: `string`
 
-Defined in: [src/managers/BaseManager.ts:25](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L25)
+Defined in: [src/managers/BaseManager.ts:25](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L25)
 
 Name of the manager that created this backup
 
@@ -54,7 +54,7 @@ Name of the manager that created this backup
 
 > `optional` **note**: `string`
 
-Defined in: [src/managers/BaseManager.ts:40](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L40)
+Defined in: [src/managers/BaseManager.ts:40](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L40)
 
 Optional note about the backup
 
@@ -68,7 +68,7 @@ Optional note about the backup
 
 > `optional` **providerBackup**: `unknown`
 
-Defined in: [src/managers/AttachmentManager.ts:102](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/AttachmentManager.ts#L102)
+Defined in: [src/managers/AttachmentManager.ts:102](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/AttachmentManager.ts#L102)
 
 Provider-specific backup data
 
@@ -82,7 +82,7 @@ Provider-specific backup data
 
 > **providerClass**: `string` \| `null`
 
-Defined in: [src/managers/AttachmentManager.ts:101](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/AttachmentManager.ts#L101)
+Defined in: [src/managers/AttachmentManager.ts:101](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/AttachmentManager.ts#L101)
 
 Provider class name (for managers with providers)
 
@@ -96,7 +96,7 @@ Provider class name (for managers with providers)
 
 > **timestamp**: `string`
 
-Defined in: [src/managers/BaseManager.ts:28](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L28)
+Defined in: [src/managers/BaseManager.ts:28](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L28)
 
 ISO timestamp when backup was created
 

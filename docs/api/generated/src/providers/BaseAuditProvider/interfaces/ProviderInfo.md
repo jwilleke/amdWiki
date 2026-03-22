@@ -1,12 +1,12 @@
-[**amdWiki API v1.5.0**](../../../../README.md)
+[**ngdpbase API v1.5.0**](../../../../README.md)
 
 ***
 
-[amdWiki API](../../../../README.md) / [src/providers/BaseAuditProvider](../README.md) / ProviderInfo
+[ngdpbase API](../../../../README.md) / [src/providers/BaseAuditProvider](../README.md) / ProviderInfo
 
 # Interface: ProviderInfo
 
-Defined in: [src/providers/BaseAuditProvider.ts:7](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/BaseAuditProvider.ts#L7)
+Defined in: [src/providers/BaseAuditProvider.ts:7](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/BaseAuditProvider.ts#L7)
 
 Provider information
 
@@ -16,7 +16,7 @@ Provider information
 
 > **description**: `string`
 
-Defined in: [src/providers/BaseAuditProvider.ts:10](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/BaseAuditProvider.ts#L10)
+Defined in: [src/providers/BaseAuditProvider.ts:10](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/BaseAuditProvider.ts#L10)
 
 ***
 
@@ -24,7 +24,7 @@ Defined in: [src/providers/BaseAuditProvider.ts:10](https://github.com/jwilleke/
 
 > **features**: `string`[]
 
-Defined in: [src/providers/BaseAuditProvider.ts:11](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/BaseAuditProvider.ts#L11)
+Defined in: [src/providers/BaseAuditProvider.ts:11](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/BaseAuditProvider.ts#L11)
 
 ***
 
@@ -32,7 +32,7 @@ Defined in: [src/providers/BaseAuditProvider.ts:11](https://github.com/jwilleke/
 
 > **name**: `string`
 
-Defined in: [src/providers/BaseAuditProvider.ts:8](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/BaseAuditProvider.ts#L8)
+Defined in: [src/providers/BaseAuditProvider.ts:8](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/BaseAuditProvider.ts#L8)
 
 ***
 
@@ -40,4 +40,4 @@ Defined in: [src/providers/BaseAuditProvider.ts:8](https://github.com/jwilleke/a
 
 > **version**: `string`
 
-Defined in: [src/providers/BaseAuditProvider.ts:9](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/BaseAuditProvider.ts#L9)
+Defined in: [src/providers/BaseAuditProvider.ts:9](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/BaseAuditProvider.ts#L9)

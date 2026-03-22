@@ -24,7 +24,7 @@
 
 ## Overview
 
-The AttachmentManager is responsible for managing file attachments in amdWiki. It provides a high-level interface for uploading, downloading, deleting, and managing attachments while delegating actual storage to pluggable attachment providers.
+The AttachmentManager is responsible for managing file attachments in ngdpbase. It provides a high-level interface for uploading, downloading, deleting, and managing attachments while delegating actual storage to pluggable attachment providers.
 
 ### Key Features
 
@@ -109,29 +109,29 @@ AttachmentManager uses a hierarchical configuration structure with all lowercase
 ```json
 {
   "_comment_attachment_storage": "Attachment storage configuration",
-  "amdwiki.attachment.enabled": true,
+  "ngdpbase.attachment.enabled": true,
 
   "_comment_attachment_provider": "Provider fallback pattern",
-  "amdwiki.attachment.provider.default": "basicattachmentprovider",
-  "amdwiki.attachment.provider": "basicattachmentprovider",
+  "ngdpbase.attachment.provider.default": "basicattachmentprovider",
+  "ngdpbase.attachment.provider": "basicattachmentprovider",
 
   "_comment_attachment_shared": "Shared settings (all providers)",
-  "amdwiki.attachment.maxsize": 10485760,
-  "amdwiki.attachment.allowedtypes": "image/*,text/*,application/pdf",
-  "amdwiki.attachment.forcedownload": false,
-  "amdwiki.attachment.metadatafile": "./data/attachments/attachment-metadata.json",
+  "ngdpbase.attachment.maxsize": 10485760,
+  "ngdpbase.attachment.allowedtypes": "image/*,text/*,application/pdf",
+  "ngdpbase.attachment.forcedownload": false,
+  "ngdpbase.attachment.metadatafile": "./data/attachments/attachment-metadata.json",
 
   "_comment_attachment_provider_basic": "BasicAttachmentProvider settings",
-  "amdwiki.attachment.provider.basic.storagedir": "./data/attachments",
-  "amdwiki.attachment.provider.basic.hashcontent": true,
-  "amdwiki.attachment.provider.basic.hashmethod": "sha256",
+  "ngdpbase.attachment.provider.basic.storagedir": "./data/attachments",
+  "ngdpbase.attachment.provider.basic.hashcontent": true,
+  "ngdpbase.attachment.provider.basic.hashmethod": "sha256",
 
   "_comment_attachment_enhanced": "Enhanced attachment features",
-  "amdwiki.attachment.enhanced.enabled": true,
-  "amdwiki.attachment.enhanced.thumbnails": true,
-  "amdwiki.attachment.enhanced.thumbnailsizes": "150x150,300x300",
-  "amdwiki.attachment.enhanced.metadata": true,
-  "amdwiki.attachment.enhanced.cachemetadata": true
+  "ngdpbase.attachment.enhanced.enabled": true,
+  "ngdpbase.attachment.enhanced.thumbnails": true,
+  "ngdpbase.attachment.enhanced.thumbnailsizes": "150x150,300x300",
+  "ngdpbase.attachment.enhanced.metadata": true,
+  "ngdpbase.attachment.enhanced.cachemetadata": true
 }
 ```
 
@@ -141,38 +141,38 @@ AttachmentManager uses a hierarchical configuration structure with all lowercase
 
 | Key | Type | Default | Description |
 | ----- | ------ | --------- | ------------- |
-| `amdwiki.attachment.enabled` | boolean | `true` | Enable/disable attachment system |
-| `amdwiki.attachment.provider.default` | string | `"basicattachmentprovider"` | Default provider fallback |
-| `amdwiki.attachment.provider` | string | `"basicattachmentprovider"` | Current active provider |
-| `amdwiki.attachment.maxsize` | number | `10485760` | Max file size in bytes (10MB) |
-| `amdwiki.attachment.allowedtypes` | string | `"image/*,text/*,application/pdf"` | Allowed MIME types |
-| `amdwiki.attachment.forcedownload` | boolean | `false` | Force download vs inline display |
-| `amdwiki.attachment.metadatafile` | string | `"./data/attachments/attachment-metadata.json"` | Metadata file location |
+| `ngdpbase.attachment.enabled` | boolean | `true` | Enable/disable attachment system |
+| `ngdpbase.attachment.provider.default` | string | `"basicattachmentprovider"` | Default provider fallback |
+| `ngdpbase.attachment.provider` | string | `"basicattachmentprovider"` | Current active provider |
+| `ngdpbase.attachment.maxsize` | number | `10485760` | Max file size in bytes (10MB) |
+| `ngdpbase.attachment.allowedtypes` | string | `"image/*,text/*,application/pdf"` | Allowed MIME types |
+| `ngdpbase.attachment.forcedownload` | boolean | `false` | Force download vs inline display |
+| `ngdpbase.attachment.metadatafile` | string | `"./data/attachments/attachment-metadata.json"` | Metadata file location |
 
 #### BasicAttachmentProvider Settings
 
 | Key | Type | Default | Description |
 | ----- | ------ | --------- | ------------- |
-| `amdwiki.attachment.provider.basic.storagedir` | string | `"./data/attachments"` | Filesystem storage directory |
-| `amdwiki.attachment.provider.basic.hashcontent` | boolean | `true` | Enable content-based hashing |
-| `amdwiki.attachment.provider.basic.hashmethod` | string | `"sha256"` | Hash algorithm (sha256, md5) |
+| `ngdpbase.attachment.provider.basic.storagedir` | string | `"./data/attachments"` | Filesystem storage directory |
+| `ngdpbase.attachment.provider.basic.hashcontent` | boolean | `true` | Enable content-based hashing |
+| `ngdpbase.attachment.provider.basic.hashmethod` | string | `"sha256"` | Hash algorithm (sha256, md5) |
 
 #### Enhanced Features
 
 | Key | Type | Default | Description |
 | ----- | ------ | --------- | ------------- |
-| `amdwiki.attachment.enhanced.enabled` | boolean | `true` | Enable enhanced features |
-| `amdwiki.attachment.enhanced.thumbnails` | boolean | `true` | Generate thumbnails for images |
-| `amdwiki.attachment.enhanced.thumbnailsizes` | string | `"150x150,300x300"` | Thumbnail sizes |
-| `amdwiki.attachment.enhanced.metadata` | boolean | `true` | Extract file metadata |
-| `amdwiki.attachment.enhanced.cachemetadata` | boolean | `true` | Cache metadata in memory |
+| `ngdpbase.attachment.enhanced.enabled` | boolean | `true` | Enable enhanced features |
+| `ngdpbase.attachment.enhanced.thumbnails` | boolean | `true` | Generate thumbnails for images |
+| `ngdpbase.attachment.enhanced.thumbnailsizes` | string | `"150x150,300x300"` | Thumbnail sizes |
+| `ngdpbase.attachment.enhanced.metadata` | boolean | `true` | Extract file metadata |
+| `ngdpbase.attachment.enhanced.cachemetadata` | boolean | `true` | Cache metadata in memory |
 
 ### Provider Fallback Pattern
 
 The provider fallback pattern ensures reliability:
 
-1. **Check active provider**: `amdwiki.attachment.provider`
-2. **Fallback to default**: `amdwiki.attachment.provider.default`
+1. **Check active provider**: `ngdpbase.attachment.provider`
+2. **Fallback to default**: `ngdpbase.attachment.provider.default`
 3. **Hardcoded fallback**: `"basicattachmentprovider"`
 
 This allows administrators to change providers without breaking the system.
@@ -210,10 +210,10 @@ Provider names follow lowercase convention in configuration but are normalized t
 
 ```json
 {
-  "amdwiki.attachment.provider": "basicattachmentprovider",
-  "amdwiki.attachment.provider.basic.storagedir": "./data/attachments",
-  "amdwiki.attachment.provider.basic.hashcontent": true,
-  "amdwiki.attachment.provider.basic.hashmethod": "sha256"
+  "ngdpbase.attachment.provider": "basicattachmentprovider",
+  "ngdpbase.attachment.provider.basic.storagedir": "./data/attachments",
+  "ngdpbase.attachment.provider.basic.hashcontent": true,
+  "ngdpbase.attachment.provider.basic.hashmethod": "sha256"
 }
 ```
 
@@ -251,11 +251,11 @@ data/attachments/
 
 ```json
 {
-  "amdwiki.attachment.provider": "databaseattachmentprovider",
-  "amdwiki.attachment.provider.database.connectionstring": "postgresql://user:pass@localhost/amdwiki",
-  "amdwiki.attachment.provider.database.tablename": "attachments",
-  "amdwiki.attachment.provider.database.poolsize": 10,
-  "amdwiki.attachment.provider.database.timeout": 30000
+  "ngdpbase.attachment.provider": "databaseattachmentprovider",
+  "ngdpbase.attachment.provider.database.connectionstring": "postgresql://user:pass@localhost/ngdpbase",
+  "ngdpbase.attachment.provider.database.tablename": "attachments",
+  "ngdpbase.attachment.provider.database.poolsize": 10,
+  "ngdpbase.attachment.provider.database.timeout": 30000
 }
 ```
 
@@ -281,13 +281,13 @@ data/attachments/
 
 ```json
 {
-  "amdwiki.attachment.provider": "s3attachmentprovider",
-  "amdwiki.attachment.provider.s3.bucket": "my-amdwiki-attachments",
-  "amdwiki.attachment.provider.s3.region": "us-east-1",
-  "amdwiki.attachment.provider.s3.accesskey": "${AWS_ACCESS_KEY}",
-  "amdwiki.attachment.provider.s3.secretkey": "${AWS_SECRET_KEY}",
-  "amdwiki.attachment.provider.s3.encryption": "AES256",
-  "amdwiki.attachment.provider.s3.storageclass": "STANDARD"
+  "ngdpbase.attachment.provider": "s3attachmentprovider",
+  "ngdpbase.attachment.provider.s3.bucket": "my-ngdpbase-attachments",
+  "ngdpbase.attachment.provider.s3.region": "us-east-1",
+  "ngdpbase.attachment.provider.s3.accesskey": "${AWS_ACCESS_KEY}",
+  "ngdpbase.attachment.provider.s3.secretkey": "${AWS_SECRET_KEY}",
+  "ngdpbase.attachment.provider.s3.encryption": "AES256",
+  "ngdpbase.attachment.provider.s3.storageclass": "STANDARD"
 }
 ```
 
@@ -313,12 +313,12 @@ data/attachments/
 
 ```json
 {
-  "amdwiki.attachment.provider": "azureblobattachmentprovider",
-  "amdwiki.attachment.provider.azure.accountname": "myamdwiki",
-  "amdwiki.attachment.provider.azure.accountkey": "${AZURE_STORAGE_KEY}",
-  "amdwiki.attachment.provider.azure.containername": "attachments",
-  "amdwiki.attachment.provider.azure.redundancy": "GRS",
-  "amdwiki.attachment.provider.azure.tier": "Hot"
+  "ngdpbase.attachment.provider": "azureblobattachmentprovider",
+  "ngdpbase.attachment.provider.azure.accountname": "myngdpbase",
+  "ngdpbase.attachment.provider.azure.accountkey": "${AZURE_STORAGE_KEY}",
+  "ngdpbase.attachment.provider.azure.containername": "attachments",
+  "ngdpbase.attachment.provider.azure.redundancy": "GRS",
+  "ngdpbase.attachment.provider.azure.tier": "Hot"
 }
 ```
 
@@ -837,11 +837,11 @@ class CustomAttachmentProvider extends BaseAttachmentProvider {
 
     // Load configuration (ALL LOWERCASE)
     const endpoint = configManager.getProperty(
-      'amdwiki.attachment.provider.custom.endpoint',
+      'ngdpbase.attachment.provider.custom.endpoint',
       'http://localhost:8080'
     );
     const apiKey = configManager.getProperty(
-      'amdwiki.attachment.provider.custom.apikey',
+      'ngdpbase.attachment.provider.custom.apikey',
       ''
     );
 
@@ -880,11 +880,11 @@ module.exports = CustomAttachmentProvider;
 
 ```json
 {
-  "amdwiki.attachment.provider": "customattachmentprovider",
-  "amdwiki.attachment.provider.custom.endpoint": "http://storage.example.com",
-  "amdwiki.attachment.provider.custom.apikey": "${STORAGE_API_KEY}",
-  "amdwiki.attachment.provider.custom.timeout": 30000,
-  "amdwiki.attachment.provider.custom.retries": 3
+  "ngdpbase.attachment.provider": "customattachmentprovider",
+  "ngdpbase.attachment.provider.custom.endpoint": "http://storage.example.com",
+  "ngdpbase.attachment.provider.custom.apikey": "${STORAGE_API_KEY}",
+  "ngdpbase.attachment.provider.custom.timeout": 30000,
+  "ngdpbase.attachment.provider.custom.retries": 3
 }
 ```
 
@@ -967,7 +967,7 @@ if (!configManager) {
 }
 
 // Verify provider name is lowercase
-const providerName = configManager.getProperty('amdwiki.attachment.provider');
+const providerName = configManager.getProperty('ngdpbase.attachment.provider');
 console.log(`Provider: ${providerName}`); // Should be lowercase
 
 // Check if provider file exists
@@ -1036,7 +1036,7 @@ if (!exists) {
 
 ```json
 {
-  "amdwiki.attachment.maxsize": 52428800  // 50MB
+  "ngdpbase.attachment.maxsize": 52428800  // 50MB
 }
 ```
 
@@ -1075,5 +1075,5 @@ chmod 755 ./data/attachments
 ---
 
 **Last Updated:** 2025-12-20
-**Maintainer:** amdWiki Team
-**Issues:** <https://github.com/jwilleke/amdWiki/issues>
+**Maintainer:** ngdpbase Team
+**Issues:** <https://github.com/jwilleke/ngdpbase/issues>

@@ -1,6 +1,6 @@
-# amdWiki vs Apache JSPWiki Architecture Comparison
+# ngdpbase vs Apache JSPWiki Architecture Comparison
 
-This document compares the rendering pipeline architecture of amdWiki (Node.js) with Apache JSPWiki (Java), highlighting similarities, differences, and implementation approaches.
+This document compares the rendering pipeline architecture of ngdpbase (Node.js) with Apache JSPWiki (Java), highlighting similarities, differences, and implementation approaches.
 
 ## Architecture Overview Comparison
 
@@ -21,7 +21,7 @@ Java Web Application (Servlet API 3.1)
 └── Configuration: jspwiki-custom.properties
 ```
 
-### amdWiki (Node.js/Express)
+### ngdpbase (Node.js/Express)
 
 ```text
 Node.js Web Application (Express Framework)
@@ -42,7 +42,7 @@ Node.js Web Application (Express Framework)
 
 ### 1. Core Engine Architecture
 
-| Aspect | Apache JSPWiki | amdWiki |
+| Aspect | Apache JSPWiki | ngdpbase |
 | -------- | ---------------- | --------- |
 | **Language** | Java | Node.js/JavaScript |
 | **Runtime** | JVM (JDK 11+) | Node.js Runtime |
@@ -74,7 +74,7 @@ Security Filtering (JAAS)
 Final HTML Output
 ```
 
-#### amdWiki 7-Phase Pipeline
+#### ngdpbase 7-Phase Pipeline
 
 ```text
 Raw Wiki Content
@@ -112,7 +112,7 @@ Final HTML Output
   - `WeblogPlugin`
   - `TableOfContents`
 
-#### amdWiki Plugins
+#### ngdpbase Plugins
 
 - **Interface**: JavaScript module exports (`execute` method)
 - **Manager**: `PluginManager.js` with dynamic loading
@@ -137,7 +137,7 @@ JAAS (Java Authentication & Authorization)
 └── Type-safe Java security model
 ```
 
-#### amdWiki Security
+#### ngdpbase Security
 
 ```text
 Multi-layered Node.js Security
@@ -151,7 +151,7 @@ Multi-layered Node.js Security
 
 ### 5. Configuration Management
 
-| Aspect | Apache JSPWiki | amdWiki |
+| Aspect | Apache JSPWiki | ngdpbase |
 | -------- | ---------------- | --------- |
 | **Primary Config** | `jspwiki-custom.properties` | `app-custom-config.json` |
 | **Format** | Java Properties | Hierarchical JSON |
@@ -170,7 +170,7 @@ Multi-layered Node.js Security
 - **Extensibility**: Add new renderers by implementing renderer interface
 - **Focus**: Format-specific rendering strategies
 
-#### amdWiki: Pipeline Processing
+#### ngdpbase: Pipeline Processing
 
 - **Single Pipeline**: One 7-phase pipeline handles all processing
 - **Handler Priority**: Ordered handler execution within phases
@@ -193,7 +193,7 @@ public interface WikiPlugin {
 - **Exception Handling**: Typed exception handling
 - **Performance**: Compiled Java performance
 
-#### amdWiki
+#### ngdpbase
 
 ```javascript
 module.exports = {
@@ -218,7 +218,7 @@ module.exports = {
 - **Policy Files**: Declarative security policies
 - **Type Safety**: Compile-time security contract validation
 
-#### amdWiki: Layered Web Security
+#### ngdpbase: Layered Web Security
 
 - **Filter Chain**: Multiple security filters in processing pipeline
 - **HTML Protection**: Prevents double-encoding vulnerabilities
@@ -227,7 +227,7 @@ module.exports = {
 
 ### 4. Performance Characteristics
 
-| Aspect | Apache JSPWiki | amdWiki |
+| Aspect | Apache JSPWiki | ngdpbase |
 | -------- | ---------------- | --------- |
 | **Startup Time** | Slower (JVM warmup) | Faster (Node.js startup) |
 | **Runtime Performance** | Optimized JVM execution | V8 JavaScript optimization |
@@ -249,7 +249,7 @@ Both systems support identical JSPWiki markup:
 
 ### Plugin Compatibility
 
-| Plugin | JSPWiki | amdWiki | Compatibility |
+| Plugin | JSPWiki | ngdpbase | Compatibility |
 | -------- | --------- | --------- | --------------- |
 | ReferringPages | ✅ | ✅ | Full |
 | CurrentTime | ✅ | ⚠️ (as UptimePlugin) | Functional |
@@ -259,9 +259,9 @@ Both systems support identical JSPWiki markup:
 
 ## Migration Considerations
 
-### From JSPWiki to amdWiki
+### From JSPWiki to ngdpbase
 
-**Advantages of amdWiki:**
+**Advantages of ngdpbase:**
 
 - **Faster Development**: JavaScript ecosystem and npm packages
 - **Modern Web Stack**: Express.js, modern frontend integration
@@ -278,22 +278,22 @@ Both systems support identical JSPWiki markup:
 
 ### Recommended Migration Path
 
-1. **Content Migration**: Export JSPWiki pages → Import to amdWiki
+1. **Content Migration**: Export JSPWiki pages → Import to ngdpbase
 2. **Plugin Assessment**: Inventory existing plugins → Rewrite in JavaScript
-3. **Security Mapping**: JAAS policies → amdWiki ACL configuration
+3. **Security Mapping**: JAAS policies → ngdpbase ACL configuration
 4. **Testing**: Comprehensive rendering compatibility testing
 5. **Performance Tuning**: Node.js optimization for production load
 
 ## Conclusion
 
-Both Apache JSPWiki and amdWiki provide robust wiki processing capabilities with different architectural approaches:
+Both Apache JSPWiki and ngdpbase provide robust wiki processing capabilities with different architectural approaches:
 
 - **Apache JSPWiki**: Mature, enterprise-focused Java platform with proven scalability
-- **amdWiki**: Modern, flexible Node.js platform with enhanced security and web-native features
+- **ngdpbase**: Modern, flexible Node.js platform with enhanced security and web-native features
 
 The choice depends on organizational requirements:
 
 - Choose **JSPWiki** for enterprise Java environments with existing infrastructure
-- Choose **amdWiki** for modern web applications requiring flexibility and rapid development
+- Choose **ngdpbase** for modern web applications requiring flexibility and rapid development
 
 Both maintain excellent JSPWiki markup compatibility while offering unique architectural advantages suited to their respective ecosystems.

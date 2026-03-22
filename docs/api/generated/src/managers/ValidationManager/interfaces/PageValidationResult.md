@@ -1,12 +1,12 @@
-[**amdWiki API v1.5.0**](../../../../README.md)
+[**ngdpbase API v1.5.0**](../../../../README.md)
 
 ***
 
-[amdWiki API](../../../../README.md) / [src/managers/ValidationManager](../README.md) / PageValidationResult
+[ngdpbase API](../../../../README.md) / [src/managers/ValidationManager](../README.md) / PageValidationResult
 
 # Interface: PageValidationResult
 
-Defined in: [src/managers/ValidationManager.ts:34](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ValidationManager.ts#L34)
+Defined in: [src/managers/ValidationManager.ts:34](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ValidationManager.ts#L34)
 
 Page validation result interface
 
@@ -20,7 +20,7 @@ Page validation result interface
 
 > **error**: `string` \| `null`
 
-Defined in: [src/managers/ValidationManager.ts:21](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ValidationManager.ts#L21)
+Defined in: [src/managers/ValidationManager.ts:21](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ValidationManager.ts#L21)
 
 #### Inherited from
 
@@ -32,7 +32,7 @@ Defined in: [src/managers/ValidationManager.ts:21](https://github.com/jwilleke/a
 
 > **filenameValid**: `boolean`
 
-Defined in: [src/managers/ValidationManager.ts:35](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ValidationManager.ts#L35)
+Defined in: [src/managers/ValidationManager.ts:35](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ValidationManager.ts#L35)
 
 ***
 
@@ -40,7 +40,7 @@ Defined in: [src/managers/ValidationManager.ts:35](https://github.com/jwilleke/a
 
 > `optional` **fixes**: [`FixSuggestions`](FixSuggestions.md)
 
-Defined in: [src/managers/ValidationManager.ts:37](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ValidationManager.ts#L37)
+Defined in: [src/managers/ValidationManager.ts:37](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ValidationManager.ts#L37)
 
 ***
 
@@ -48,7 +48,7 @@ Defined in: [src/managers/ValidationManager.ts:37](https://github.com/jwilleke/a
 
 > **metadataValid**: `boolean`
 
-Defined in: [src/managers/ValidationManager.ts:36](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ValidationManager.ts#L36)
+Defined in: [src/managers/ValidationManager.ts:36](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ValidationManager.ts#L36)
 
 ***
 
@@ -56,7 +56,7 @@ Defined in: [src/managers/ValidationManager.ts:36](https://github.com/jwilleke/a
 
 > **success**: `boolean`
 
-Defined in: [src/managers/ValidationManager.ts:20](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ValidationManager.ts#L20)
+Defined in: [src/managers/ValidationManager.ts:20](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ValidationManager.ts#L20)
 
 #### Inherited from
 
@@ -68,7 +68,7 @@ Defined in: [src/managers/ValidationManager.ts:20](https://github.com/jwilleke/a
 
 > `optional` **warnings**: `string`[]
 
-Defined in: [src/managers/ValidationManager.ts:28](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ValidationManager.ts#L28)
+Defined in: [src/managers/ValidationManager.ts:28](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ValidationManager.ts#L28)
 
 #### Inherited from
 

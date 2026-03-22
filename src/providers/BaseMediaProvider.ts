@@ -46,7 +46,7 @@ export interface ScanResult {
   updated: number;
   /** Number of files that could not be processed */
   errors: number;
-  /** Number of files skipped by .amdwikiignore patterns or the amdwikiignore EXIF keyword */
+  /** Number of files skipped by .ngdpbaseignore patterns or the ngdpbaseignore EXIF keyword */
   excluded?: number;
   /** Total elapsed time in milliseconds */
   elapsedMs?: number;

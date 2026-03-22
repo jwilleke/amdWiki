@@ -1,6 +1,6 @@
-# amdWiki Add-ons
+# ngdpbase Add-ons
 
-This directory contains optional add-on modules that extend amdWiki functionality.
+This directory contains optional add-on modules that extend ngdpbase functionality.
 
 ## Creating an Add-on
 
@@ -68,8 +68,8 @@ Add-ons are configured in `config/app-custom-config.json`:
 
 ```json
 {
-  "amdwiki.addons.your-addon.enabled": true,
-  "amdwiki.addons.your-addon.customSetting": "value"
+  "ngdpbase.addons.your-addon.enabled": true,
+  "ngdpbase.addons.your-addon.customSetting": "value"
 }
 ```
 
@@ -77,7 +77,7 @@ By default, all add-ons are **disabled**. You must explicitly enable each add-on
 
 ## Accessing Configuration
 
-In your `register()` function, the `config` parameter contains all settings under `amdwiki.addons.your-addon.*`:
+In your `register()` function, the `config` parameter contains all settings under `ngdpbase.addons.your-addon.*`:
 
 ```javascript
 async register(engine, config) {
@@ -106,7 +106,7 @@ The AddonsManager will:
 
 ## Security Notes
 
-- Add-ons run in the same Node.js process as amdWiki
+- Add-ons run in the same Node.js process as ngdpbase
 - Only install add-ons from trusted sources
 - Review add-on code before installation
 - Add-on databases should be stored in `./data/addons/` or within the add-on directory
@@ -121,5 +121,5 @@ See the [fairways-gen2-website](https://github.com/jwilleke/fairways-gen2-websit
 
 ## Related Documentation
 
-- [Issue #158](https://github.com/jwilleke/amdWiki/issues/158) - AddonsManager specification
+- [Issue #158](https://github.com/jwilleke/ngdpbase/issues/158) - AddonsManager specification
 - [Business Add-on MVP](../docs/planning/Business-packages/business-addon-mvp.md) - Planning docs

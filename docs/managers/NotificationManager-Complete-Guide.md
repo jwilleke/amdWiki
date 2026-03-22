@@ -59,10 +59,10 @@ async initialize(config = {}) {
   const cfgMgr = this.engine?.getManager?.('ConfigurationManager');
 
   // Configuration from ConfigurationManager
-  const defaultDir = cfgMgr?.getProperty?.('amdwiki.directories.data', './data');
-  const dataDirCfg = cfgMgr?.getProperty?.('amdwiki.notifications.dir', defaultDir);
-  const fileNameCfg = cfgMgr?.getProperty?.('amdwiki.notifications.file', 'notifications.json');
-  const intervalCfg = cfgMgr?.getProperty?.('amdwiki.notifications.autoSaveInterval');
+  const defaultDir = cfgMgr?.getProperty?.('ngdpbase.directories.data', './data');
+  const dataDirCfg = cfgMgr?.getProperty?.('ngdpbase.notifications.dir', defaultDir);
+  const fileNameCfg = cfgMgr?.getProperty?.('ngdpbase.notifications.file', 'notifications.json');
+  const intervalCfg = cfgMgr?.getProperty?.('ngdpbase.notifications.autoSaveInterval');
 
   this.storagePath = path.resolve(dataDirCfg, fileNameCfg);
 
@@ -83,10 +83,10 @@ All settings come from ConfigurationManager:
 
 | Property | Type | Default | Description |
 | ---------- | ------ | --------- | ------------- |
-| `amdwiki.directories.data` | string | `./data` | Base data directory |
-| `amdwiki.notifications.dir` | string | (data dir) | Notifications directory |
-| `amdwiki.notifications.file` | string | `notifications.json` | Storage filename |
-| `amdwiki.notifications.autoSaveInterval` | number | `300000` | Auto-save interval (ms) |
+| `ngdpbase.directories.data` | string | `./data` | Base data directory |
+| `ngdpbase.notifications.dir` | string | (data dir) | Notifications directory |
+| `ngdpbase.notifications.file` | string | `notifications.json` | Storage filename |
+| `ngdpbase.notifications.autoSaveInterval` | number | `300000` | Auto-save interval (ms) |
 
 ---
 
@@ -313,7 +313,7 @@ async saveNotifications()
       "id": "notification_1",
       "type": "system",
       "title": "Welcome",
-      "message": "Welcome to amdWiki!",
+      "message": "Welcome to ngdpbase!",
       "level": "info",
       "targetUsers": [],
       "createdAt": "2025-12-19T10:00:00.000Z",

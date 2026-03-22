@@ -1,12 +1,12 @@
-[**amdWiki API v1.5.0**](../../../../README.md)
+[**ngdpbase API v1.5.0**](../../../../README.md)
 
 ***
 
-[amdWiki API](../../../../README.md) / [src/managers/ExportManager](../README.md) / UserPreferences
+[ngdpbase API](../../../../README.md) / [src/managers/ExportManager](../README.md) / UserPreferences
 
 # Interface: UserPreferences
 
-Defined in: [src/managers/ExportManager.ts:31](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ExportManager.ts#L31)
+Defined in: [src/managers/ExportManager.ts:31](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ExportManager.ts#L31)
 
 User preferences interface (for locale support)
 
@@ -16,4 +16,4 @@ User preferences interface (for locale support)
 
 > `optional` **locale**: `string`
 
-Defined in: [src/managers/ExportManager.ts:32](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ExportManager.ts#L32)
+Defined in: [src/managers/ExportManager.ts:32](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ExportManager.ts#L32)

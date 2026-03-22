@@ -58,7 +58,7 @@ Examples:
 
 ```json
 {
-  "amdwiki.managers.pluginManager.searchPaths": ["./plugins"]
+  "ngdpbase.managers.pluginManager.searchPaths": ["./plugins"]
 }
 ```
 

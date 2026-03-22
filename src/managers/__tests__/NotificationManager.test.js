@@ -17,20 +17,20 @@ jest.mock('../../utils/logger', () => ({
 function createMockEngine(dataDir) {
   const mockConfigManager = {
     getProperty: jest.fn((key, defaultValue) => {
-      if (key === 'amdwiki.directories.data' || key === 'amdwiki.notifications.dir') {
+      if (key === 'ngdpbase.directories.data' || key === 'ngdpbase.notifications.dir') {
         return dataDir;
       }
-      if (key === 'amdwiki.notifications.file') {
+      if (key === 'ngdpbase.notifications.file') {
         return 'notifications.json';
       }
-      if (key === 'amdwiki.notifications.autoSaveInterval') {
+      if (key === 'ngdpbase.notifications.autoSaveInterval') {
         return 60000; // 1 minute for tests
       }
       return defaultValue;
     }),
     // Support INSTANCE_DATA_FOLDER feature
     getResolvedDataPath: jest.fn((key, defaultValue) => {
-      if (key === 'amdwiki.notifications.dir') {
+      if (key === 'ngdpbase.notifications.dir') {
         return dataDir;
       }
       return defaultValue;

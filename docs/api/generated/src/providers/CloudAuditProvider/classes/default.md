@@ -1,12 +1,12 @@
-[**amdWiki API v1.5.0**](../../../../README.md)
+[**ngdpbase API v1.5.0**](../../../../README.md)
 
 ***
 
-[amdWiki API](../../../../README.md) / [src/providers/CloudAuditProvider](../README.md) / default
+[ngdpbase API](../../../../README.md) / [src/providers/CloudAuditProvider](../README.md) / default
 
 # Class: default
 
-Defined in: [src/providers/CloudAuditProvider.ts:36](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/CloudAuditProvider.ts#L36)
+Defined in: [src/providers/CloudAuditProvider.ts:36](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/CloudAuditProvider.ts#L36)
 
 CloudAuditProvider - Cloud logging service integration (FUTURE IMPLEMENTATION)
 
@@ -14,10 +14,10 @@ Stores audit logs in cloud logging services for enterprise cloud deployments.
 Suitable for AWS CloudWatch, Azure Monitor, Google Cloud Logging.
 
 Configuration keys (all lowercase):
-- amdwiki.audit.provider.cloud.service - Cloud service (cloudwatch, azuremonitor, stackdriver)
-- amdwiki.audit.provider.cloud.region - Cloud region
-- amdwiki.audit.provider.cloud.loggroup - Log group/namespace
-- amdwiki.audit.provider.cloud.logstream - Log stream name
+- ngdpbase.audit.provider.cloud.service - Cloud service (cloudwatch, azuremonitor, stackdriver)
+- ngdpbase.audit.provider.cloud.region - Cloud region
+- ngdpbase.audit.provider.cloud.loggroup - Log group/namespace
+- ngdpbase.audit.provider.cloud.logstream - Log stream name
 
 TODO: Implement AWS CloudWatch Logs integration
 TODO: Implement Azure Monitor Logs integration
@@ -36,7 +36,7 @@ TODO: Add retry logic with exponential backoff
 
 > **new default**(`engine`): `CloudAuditProvider`
 
-Defined in: [src/providers/CloudAuditProvider.ts:41](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/CloudAuditProvider.ts#L41)
+Defined in: [src/providers/CloudAuditProvider.ts:41](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/CloudAuditProvider.ts#L41)
 
 #### Parameters
 
@@ -58,7 +58,7 @@ Defined in: [src/providers/CloudAuditProvider.ts:41](https://github.com/jwilleke
 
 > `protected` **engine**: [`WikiEngine`](../../../types/WikiEngine/interfaces/WikiEngine.md)
 
-Defined in: [src/providers/BaseAuditProvider.ts:156](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/BaseAuditProvider.ts#L156)
+Defined in: [src/providers/BaseAuditProvider.ts:156](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/BaseAuditProvider.ts#L156)
 
 Reference to the wiki engine
 
@@ -72,7 +72,7 @@ Reference to the wiki engine
 
 > **initialized**: `boolean`
 
-Defined in: [src/providers/BaseAuditProvider.ts:159](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/BaseAuditProvider.ts#L159)
+Defined in: [src/providers/BaseAuditProvider.ts:159](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/BaseAuditProvider.ts#L159)
 
 Whether provider has been initialized
 
@@ -86,7 +86,7 @@ Whether provider has been initialized
 
 > **backup**(): `Promise`\<[`AuditBackupData`](../../BaseAuditProvider/interfaces/AuditBackupData.md)\>
 
-Defined in: [src/providers/BaseAuditProvider.ts:307](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/BaseAuditProvider.ts#L307)
+Defined in: [src/providers/BaseAuditProvider.ts:307](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/BaseAuditProvider.ts#L307)
 
 Backup audit configuration and state (optional)
 
@@ -111,7 +111,7 @@ Backup data
 
 > **cleanup**(): `Promise`\<`void`\>
 
-Defined in: [src/providers/CloudAuditProvider.ts:177](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/CloudAuditProvider.ts#L177)
+Defined in: [src/providers/CloudAuditProvider.ts:177](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/CloudAuditProvider.ts#L177)
 
 Clean up old audit logs (cloud services often handle retention automatically)
 
@@ -129,7 +129,7 @@ Clean up old audit logs (cloud services often handle retention automatically)
 
 > **close**(): `Promise`\<`void`\>
 
-Defined in: [src/providers/CloudAuditProvider.ts:197](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/CloudAuditProvider.ts#L197)
+Defined in: [src/providers/CloudAuditProvider.ts:197](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/CloudAuditProvider.ts#L197)
 
 Close/cleanup the audit provider
 
@@ -147,7 +147,7 @@ Close/cleanup the audit provider
 
 > **exportAuditLogs**(`_filters`, `_format`): `Promise`\<`string`\>
 
-Defined in: [src/providers/CloudAuditProvider.ts:157](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/CloudAuditProvider.ts#L157)
+Defined in: [src/providers/CloudAuditProvider.ts:157](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/CloudAuditProvider.ts#L157)
 
 Export audit logs
 
@@ -181,7 +181,7 @@ Exported data
 
 > **flush**(): `Promise`\<`void`\>
 
-Defined in: [src/providers/CloudAuditProvider.ts:167](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/CloudAuditProvider.ts#L167)
+Defined in: [src/providers/CloudAuditProvider.ts:167](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/CloudAuditProvider.ts#L167)
 
 Flush pending audit events
 
@@ -199,7 +199,7 @@ Flush pending audit events
 
 > **getAuditStats**(`_filters`): `Promise`\<[`AuditStats`](../../BaseAuditProvider/interfaces/AuditStats.md)\>
 
-Defined in: [src/providers/CloudAuditProvider.ts:146](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/CloudAuditProvider.ts#L146)
+Defined in: [src/providers/CloudAuditProvider.ts:146](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/CloudAuditProvider.ts#L146)
 
 Get audit statistics
 
@@ -227,7 +227,7 @@ Audit statistics
 
 > **getProviderInfo**(): `object`
 
-Defined in: [src/providers/CloudAuditProvider.ts:94](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/CloudAuditProvider.ts#L94)
+Defined in: [src/providers/CloudAuditProvider.ts:94](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/CloudAuditProvider.ts#L94)
 
 Get provider information
 
@@ -263,7 +263,7 @@ Provider metadata
 
 > **initialize**(): `Promise`\<`void`\>
 
-Defined in: [src/providers/CloudAuditProvider.ts:51](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/CloudAuditProvider.ts#L51)
+Defined in: [src/providers/CloudAuditProvider.ts:51](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/CloudAuditProvider.ts#L51)
 
 Initialize the cloud audit provider
 
@@ -281,7 +281,7 @@ Initialize the cloud audit provider
 
 > **isHealthy**(): `Promise`\<`boolean`\>
 
-Defined in: [src/providers/CloudAuditProvider.ts:187](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/CloudAuditProvider.ts#L187)
+Defined in: [src/providers/CloudAuditProvider.ts:187](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/CloudAuditProvider.ts#L187)
 
 Check if the audit provider is healthy
 
@@ -301,7 +301,7 @@ True if healthy
 
 > **logAuditEvent**(`_auditEvent`): `Promise`\<`string`\>
 
-Defined in: [src/providers/CloudAuditProvider.ts:108](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/CloudAuditProvider.ts#L108)
+Defined in: [src/providers/CloudAuditProvider.ts:108](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/CloudAuditProvider.ts#L108)
 
 Log an audit event
 
@@ -329,7 +329,7 @@ Event ID
 
 > **restore**(`_backupData`): `Promise`\<`void`\>
 
-Defined in: [src/providers/BaseAuditProvider.ts:325](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/BaseAuditProvider.ts#L325)
+Defined in: [src/providers/BaseAuditProvider.ts:325](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/BaseAuditProvider.ts#L325)
 
 Restore audit from backup (optional)
 
@@ -360,7 +360,7 @@ Backup data
 
 > **searchAuditLogs**(`_filters`, `_options`): `Promise`\<[`AuditSearchResults`](../../BaseAuditProvider/interfaces/AuditSearchResults.md)\>
 
-Defined in: [src/providers/CloudAuditProvider.ts:128](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/CloudAuditProvider.ts#L128)
+Defined in: [src/providers/CloudAuditProvider.ts:128](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/CloudAuditProvider.ts#L128)
 
 Search audit logs
 

@@ -66,7 +66,7 @@ describe("SchemaManager", () => {
 
       await schemaManager.initialize({});
 
-      expect(mockCfgMgr.getResolvedDataPath).toHaveBeenCalledWith('amdwiki.directories.schemas', './data/schemas');
+      expect(mockCfgMgr.getResolvedDataPath).toHaveBeenCalledWith('ngdpbase.directories.schemas', './data/schemas');
       expect(fs.readdir).toHaveBeenCalledWith('/custom/schemas');
     });
   });

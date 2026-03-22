@@ -1,6 +1,6 @@
 # Versioning Migration Guide
 
-Complete guide for migrating existing amdWiki installations from FileSystemProvider to VersioningFileProvider.
+Complete guide for migrating existing ngdpbase installations from FileSystemProvider to VersioningFileProvider.
 
 ## Table of Contents
 
@@ -15,7 +15,7 @@ Complete guide for migrating existing amdWiki installations from FileSystemProvi
 
 ## Prerequisites
 
-- **amdWiki version**: 1.3.2 or higher
+- **ngdpbase version**: 1.3.2 or higher
 - **Node.js version**: 14.x or higher
 - **Disk space**: At least 2x your current pages directory size (for safety margin)
 - **Backup**: Complete backup of your wiki data (mandatory)
@@ -51,7 +51,7 @@ The migration process converts your existing pages to versioned format without m
 
 ```bash
 # Example backup command (adjust paths as needed)
-tar -czf amdwiki-backup-$(date +%Y%m%d-%H%M%S).tar.gz \
+tar -czf ngdpbase-backup-$(date +%Y%m%d-%H%M%S).tar.gz \
   ./pages \
   ./required-pages \
   ./app-custom-config.json \
@@ -62,11 +62,11 @@ Verify your backup:
 
 ```bash
 # Check backup file size is reasonable
-ls -lh amdwiki-backup-*.tar.gz
+ls -lh ngdpbase-backup-*.tar.gz
 
 # Test extraction (in a temp directory)
 mkdir /tmp/backup-test
-tar -xzf amdwiki-backup-*.tar.gz -C /tmp/backup-test
+tar -xzf ngdpbase-backup-*.tar.gz -C /tmp/backup-test
 rm -rf /tmp/backup-test
 ```
 
@@ -88,8 +88,8 @@ Check your `app-custom-config.json` or `app-default-config.json`:
 
 ```json
 {
-  "amdwiki.page.provider.filesystem.storagedir": "./pages",
-  "amdwiki.page.provider.filesystem.requiredpagesdir": "./required-pages"
+  "ngdpbase.page.provider.filesystem.storagedir": "./pages",
+  "ngdpbase.page.provider.filesystem.requiredpagesdir": "./required-pages"
 }
 ```
 
@@ -129,14 +129,14 @@ node scripts/migrate-to-versioning.js --dry-run --verbose
 
 ### Step 2: Stop Your Wiki
 
-**IMPORTANT**: Stop your amdWiki application before migration.
+**IMPORTANT**: Stop your ngdpbase application before migration.
 
 ```bash
 # If using PM2
-pm2 stop amdWiki
+pm2 stop ngdpbase
 
 # If running directly
-# Press Ctrl+C in the terminal where amdWiki is running
+# Press Ctrl+C in the terminal where ngdpbase is running
 
 # Verify it's stopped
 ps aux | grep node
@@ -158,7 +158,7 @@ npm run migrate:versioning
 
 ```
 ═══════════════════════════════════════════════════════════════════
-  amdWiki Migration Tool
+  ngdpbase Migration Tool
 ═══════════════════════════════════════════════════════════════════
 
 ℹ Loading configuration...
@@ -205,8 +205,8 @@ Statistics:
 Next Steps:
 ──────────────────────────────────────────────────────────────────
   1. Update app-custom-config.json:
-     "amdwiki.page.provider": "VersioningFileProvider"
-  2. Restart your amdWiki application
+     "ngdpbase.page.provider": "VersioningFileProvider"
+  2. Restart your ngdpbase application
   3. Test page editing and version history
   4. Verify all pages are accessible
 ──────────────────────────────────────────────────────────────────
@@ -220,12 +220,12 @@ Edit your `app-custom-config.json`:
 
 ```json
 {
-  "amdwiki.page.provider": "VersioningFileProvider",
-  "amdwiki.page.provider.versioning.deltastorage": true,
-  "amdwiki.page.provider.versioning.compression": "gzip",
-  "amdwiki.page.provider.versioning.maxversions": 50,
-  "amdwiki.page.provider.versioning.retentiondays": 365,
-  "amdwiki.page.provider.versioning.indexfile": "./data/page-index.json"
+  "ngdpbase.page.provider": "VersioningFileProvider",
+  "ngdpbase.page.provider.versioning.deltastorage": true,
+  "ngdpbase.page.provider.versioning.compression": "gzip",
+  "ngdpbase.page.provider.versioning.maxversions": 50,
+  "ngdpbase.page.provider.versioning.retentiondays": 365,
+  "ngdpbase.page.provider.versioning.indexfile": "./data/page-index.json"
 }
 ```
 
@@ -233,18 +233,18 @@ Edit your `app-custom-config.json`:
 
 | Option | Default | Description |
 | -------- | --------- | ------------- |
-| `amdwiki.page.provider` | `FileSystemProvider` | Set to `VersioningFileProvider` to enable versioning |
-| `amdwiki.page.provider.versioning.deltastorage` | `true` | Enable delta storage (v1=full, v2+=diffs) |
-| `amdwiki.page.provider.versioning.compression` | `gzip` | Compression algorithm for old versions |
-| `amdwiki.page.provider.versioning.maxversions` | `50` | Maximum versions to keep per page |
-| `amdwiki.page.provider.versioning.retentiondays` | `365` | Days to retain old versions |
-| `amdwiki.page.provider.versioning.indexfile` | `./data/page-index.json` | Path to centralized page index |
+| `ngdpbase.page.provider` | `FileSystemProvider` | Set to `VersioningFileProvider` to enable versioning |
+| `ngdpbase.page.provider.versioning.deltastorage` | `true` | Enable delta storage (v1=full, v2+=diffs) |
+| `ngdpbase.page.provider.versioning.compression` | `gzip` | Compression algorithm for old versions |
+| `ngdpbase.page.provider.versioning.maxversions` | `50` | Maximum versions to keep per page |
+| `ngdpbase.page.provider.versioning.retentiondays` | `365` | Days to retain old versions |
+| `ngdpbase.page.provider.versioning.indexfile` | `./data/page-index.json` | Path to centralized page index |
 
 ### Step 5: Restart Your Wiki
 
 ```bash
 # If using PM2
-pm2 start amdWiki
+pm2 start ngdpbase
 
 # If running directly
 npm start
@@ -254,7 +254,7 @@ Watch the logs for any errors:
 
 ```bash
 # If using PM2
-pm2 logs amdWiki
+pm2 logs ngdpbase
 
 # Check application log
 tail -f logs/app.log
@@ -364,7 +364,7 @@ du -sh ./pages/versions/
 tail -f logs/app.log | grep -i error
 
 # Check PM2 error log
-pm2 logs amdWiki --err
+pm2 logs ngdpbase --err
 ```
 
 #### Common Post-Migration Issues
@@ -509,7 +509,7 @@ rollback();
 
 ```bash
 # Stop wiki
-pm2 stop amdWiki
+pm2 stop ngdpbase
 
 # Remove version directories
 rm -rf ./pages/versions
@@ -520,12 +520,12 @@ rm -f ./data/page-index.json
 
 # Revert configuration
 # Edit app-custom-config.json and remove:
-# - "amdwiki.page.provider": "VersioningFileProvider"
+# - "ngdpbase.page.provider": "VersioningFileProvider"
 # Or change back to:
-# - "amdwiki.page.provider": "FileSystemProvider"
+# - "ngdpbase.page.provider": "FileSystemProvider"
 
 # Restart wiki
-pm2 start amdWiki
+pm2 start ngdpbase
 ```
 
 **Note**: Rollback removes version history but preserves all original page files.
@@ -580,7 +580,7 @@ pm2 start amdWiki
 
 ### Q: Can I disable delta storage after migration?
 
-**A**: Yes. Set `amdwiki.page.provider.versioning.deltastorage: false` in config. New versions will store full content, but existing diffs remain.
+**A**: Yes. Set `ngdpbase.page.provider.versioning.deltastorage: false` in config. New versions will store full content, but existing diffs remain.
 
 ### Q: How do I access old versions?
 
@@ -610,24 +610,24 @@ const diff = await provider.compareVersions('PageName', 1, 3);
 ## Additional Resources
 
 - [VersioningFileProvider API Documentation](../architecture/VersioningFileProvider-API.md)
-- [Phase 4 Implementation Details](https://github.com/jwilleke/amdWiki/issues/128)
-- [Epic: VersioningFileProvider Implementation](https://github.com/jwilleke/amdWiki/issues/124)
+- [Phase 4 Implementation Details](https://github.com/jwilleke/ngdpbase/issues/128)
+- [Epic: VersioningFileProvider Implementation](https://github.com/jwilleke/ngdpbase/issues/124)
 - [CONTRIBUTING.md - Versioning Section](../../CONTRIBUTING.md#versioning-implementation)
 
 ## Support
 
 If you encounter issues not covered in this guide:
 
-1. Check the GitHub issues: <https://github.com/jwilleke/amdWiki/issues>
+1. Check the GitHub issues: <https://github.com/jwilleke/ngdpbase/issues>
 2. Review application logs: `./data/logs/app.log`
 3. Enable verbose logging: `--verbose` flag
 4. Create a new issue with:
    - Migration report output
    - Error messages
    - Configuration file
-   - amdWiki version
+   - ngdpbase version
 
 ---
 
 **Last Updated**: January 2025
-**amdWiki Version**: 1.3.2+
+**ngdpbase Version**: 1.3.2+

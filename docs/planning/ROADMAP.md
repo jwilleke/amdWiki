@@ -3,14 +3,14 @@ project_state: "Platform Roadmap"
 lastModified: 2026-01-04-11:38:04'
 ---
 
-# amdWiki Digital Platform Roadmap
+# ngdpbase Digital Platform Roadmap
 
 Last Updated: 2026-01-04
 Current Version: 1.5.x+
 
 ## Platform Vision
 
-amdWiki is evolving from a JSPWiki-inspired wiki into a comprehensive digital platform for personal and organizational use. The goal is to create a modular, standards-based ecosystem that can be hosted locally or on the internet.
+ngdpbase is evolving from a JSPWiki-inspired wiki into a comprehensive digital platform for personal and organizational use. The goal is to create a modular, standards-based ecosystem that can be hosted locally or on the internet.
 
 ### Core Philosophy
 
@@ -370,7 +370,7 @@ amdWiki is evolving from a JSPWiki-inspired wiki into a comprehensive digital pl
 
 ## Technical Details
 
-Repository: <https://github.com/jwilleke/amdWiki>
+Repository: <https://github.com/jwilleke/ngdpbase>
 Technology Stack:
 
 * Node.js + Express.js

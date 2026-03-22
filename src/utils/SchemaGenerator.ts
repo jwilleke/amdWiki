@@ -125,7 +125,7 @@ interface ParsedACL {
 
 /**
  * SchemaGenerator - Generates Schema.org JSON-LD markup from page metadata
- * Provides SEO and semantic web benefits for amdWiki platform
+ * Provides SEO and semantic web benefits for ngdpbase platform
  */
 class SchemaGenerator {
   /**
@@ -146,7 +146,7 @@ class SchemaGenerator {
       'inLanguage': 'en-US',
       'isPartOf': {
         '@type': 'WebSite',
-        'name': 'amdWiki Platform',
+        'name': 'ngdpbase Platform',
         'url': options.baseUrl || '/'
       }
     };
@@ -169,7 +169,7 @@ class SchemaGenerator {
           'name': category,
           'inDefinedTermSet': {
             '@type': 'DefinedTermSet',
-            'name': 'amdWiki Categories'
+            'name': 'ngdpbase Categories'
           }
         }));
       } else {
@@ -189,7 +189,7 @@ class SchemaGenerator {
     // Add author information
     baseSchema.author = {
       '@type': 'Organization',
-      'name': 'amdWiki Platform'
+      'name': 'ngdpbase Platform'
     };
 
     // Add DigitalDocumentPermission objects if engine is available
@@ -273,7 +273,7 @@ class SchemaGenerator {
     if (pageData.userKeywords?.includes('plugins')) {
       schema.about = [{
         '@type': 'SoftwareApplication',
-        'name': 'amdWiki Plugin System'
+        'name': 'ngdpbase Plugin System'
       }];
     }
 
@@ -289,7 +289,7 @@ class SchemaGenerator {
       schema.genre = 'Project Planning';
       schema.about = {
         '@type': 'SoftwareProject',
-        'name': 'amdWiki Platform Development'
+        'name': 'ngdpbase Platform Development'
       };
     }
 
@@ -324,7 +324,7 @@ class SchemaGenerator {
     if (pageData.title?.toLowerCase().includes('categories')) {
       schema.mainEntity = {
         '@type': 'DefinedTermSet', 
-        'name': 'amdWiki Content Categories',
+        'name': 'ngdpbase Content Categories',
         'description': 'Available categories for organizing wiki content'
       };
     }
@@ -332,7 +332,7 @@ class SchemaGenerator {
     if (pageData.title?.toLowerCase().includes('keywords')) {
       schema.mainEntity = {
         '@type': 'DefinedTermSet',
-        'name': 'amdWiki User Keywords', 
+        'name': 'ngdpbase User Keywords', 
         'description': 'Available user-defined keywords for content tagging'
       };
     }
@@ -414,7 +414,7 @@ class SchemaGenerator {
     const schema: BaseSchema = {
       '@context': 'https://schema.org',
       '@type': 'SoftwareApplication',
-      'name': configData.application?.name || configData.applicationName || 'amdWiki',
+      'name': configData.application?.name || configData.applicationName || 'ngdpbase',
       'version': configData.application?.version || configData.version,
       'applicationCategory': configData.application?.applicationCategory || 'Wiki Software',
       'operatingSystem': 'Cross-platform'
@@ -451,7 +451,7 @@ class SchemaGenerator {
     } else {
       schema.author = {
         '@type': 'Organization',
-        'name': options.organizationName || 'amdWiki Platform'
+        'name': options.organizationName || 'ngdpbase Platform'
       };
     }
 

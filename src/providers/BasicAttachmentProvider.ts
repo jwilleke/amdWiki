@@ -168,26 +168,26 @@ class BasicAttachmentProvider extends BaseAttachmentProvider {
     // Get storage directory configuration (ALL LOWERCASE)
     // Uses getResolvedDataPath to support INSTANCE_DATA_FOLDER
     this.storageDirectory = configManager.getResolvedDataPath(
-      'amdwiki.attachment.provider.basic.storagedir',
+      'ngdpbase.attachment.provider.basic.storagedir',
       './data/attachments'
     );
 
     // Get metadata file location (ALL LOWERCASE)
     // Uses getResolvedDataPath to support INSTANCE_DATA_FOLDER
     this.metadataFile = configManager.getResolvedDataPath(
-      'amdwiki.attachment.metadatafile',
+      'ngdpbase.attachment.metadatafile',
       './data/attachments/attachment-metadata.json'
     );
 
     // Get size limits and allowed types from shared config (ALL LOWERCASE)
     const maxSizeBytes: number = configManager.getProperty(
-      'amdwiki.attachment.maxsize',
+      'ngdpbase.attachment.maxsize',
       10485760
     ) as number;
     this.maxFileSize = maxSizeBytes;
 
     const allowedTypesStr: string = configManager.getProperty(
-      'amdwiki.attachment.allowedtypes',
+      'ngdpbase.attachment.allowedtypes',
       ''
     ) as string;
     this.allowedMimeTypes = allowedTypesStr
@@ -196,7 +196,7 @@ class BasicAttachmentProvider extends BaseAttachmentProvider {
 
     // Get provider-specific settings (ALL LOWERCASE)
     this.hashMethod = configManager.getProperty(
-      'amdwiki.attachment.provider.basic.hashmethod',
+      'ngdpbase.attachment.provider.basic.hashmethod',
       'sha256'
     ) as string;
 
@@ -290,7 +290,7 @@ class BasicAttachmentProvider extends BaseAttachmentProvider {
       const json: MetadataFile = {
         '@context': 'https://schema.org',
         '@type': 'ItemList',
-        'name': 'amdWiki Attachments',
+        'name': 'ngdpbase Attachments',
         'description': 'Metadata for all attachments in the wiki',
         'attachments': Array.from(this.attachmentMetadata.values())
       };

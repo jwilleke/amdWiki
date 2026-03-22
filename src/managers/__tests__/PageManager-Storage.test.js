@@ -30,19 +30,19 @@ let TEST_REQUIRED_DIR;
 const createMockConfigManager = () => ({
   getProperty: jest.fn((key, defaultValue) => {
     const config = {
-      'amdwiki.page.enabled': true,
-      'amdwiki.page.provider': 'filesystemprovider',
-      'amdwiki.page.provider.default': 'filesystemprovider',
-      'amdwiki.page.provider.filesystem.storagedir': TEST_PAGES_DIR,
-      'amdwiki.page.provider.filesystem.requiredpagesdir': TEST_REQUIRED_DIR,
-      'amdwiki.page.provider.filesystem.encoding': 'utf-8',
-      'amdwiki.translator-reader.match-english-plurals': true
+      'ngdpbase.page.enabled': true,
+      'ngdpbase.page.provider': 'filesystemprovider',
+      'ngdpbase.page.provider.default': 'filesystemprovider',
+      'ngdpbase.page.provider.filesystem.storagedir': TEST_PAGES_DIR,
+      'ngdpbase.page.provider.filesystem.requiredpagesdir': TEST_REQUIRED_DIR,
+      'ngdpbase.page.provider.filesystem.encoding': 'utf-8',
+      'ngdpbase.translator-reader.match-english-plurals': true
     };
     return config[key] !== undefined ? config[key] : defaultValue;
   }),
   // Support INSTANCE_DATA_FOLDER feature
   getResolvedDataPath: jest.fn((key, defaultValue) => {
-    if (key === 'amdwiki.page.provider.filesystem.storagedir') {
+    if (key === 'ngdpbase.page.provider.filesystem.storagedir') {
       return TEST_PAGES_DIR;
     }
     return defaultValue;

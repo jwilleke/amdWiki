@@ -73,13 +73,13 @@ Plugin search paths come from ConfigurationManager:
 
 ```json
 {
-  "amdwiki.managers.pluginManager.searchPaths": ["./plugins"]
+  "ngdpbase.managers.pluginManager.searchPaths": ["./plugins"]
 }
 ```
 
 | Property | Type | Description |
 | ---------- | ------ | --------- |
-| `amdwiki.managers.pluginManager.searchPaths` | string[] \| string | Directories to search for plugins |
+| `ngdpbase.managers.pluginManager.searchPaths` | string[] \| string | Directories to search for plugins |
 
 **Note:** No hardcoded fallbacks. If not configured, no plugins are loaded.
 
@@ -248,7 +248,7 @@ getPluginInfo(pluginName)
 {
   name: 'SearchPlugin',
   description: 'Search wiki pages',
-  author: 'amdWiki',
+  author: 'ngdpbase',
   version: '1.0.0'
 }
 ```

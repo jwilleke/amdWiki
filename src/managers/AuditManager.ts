@@ -215,7 +215,7 @@ class AuditManager extends BaseManager {
     }
 
     // Check if audit is enabled (ALL LOWERCASE)
-    const auditEnabled = configManager.getProperty('amdwiki.audit.enabled', true) as boolean;
+    const auditEnabled = configManager.getProperty('ngdpbase.audit.enabled', true) as boolean;
     if (!auditEnabled) {
       logger.info('📋 AuditManager: Auditing disabled by configuration');
       // Load NullAuditProvider when disabled
@@ -225,8 +225,8 @@ class AuditManager extends BaseManager {
     }
 
     // Load provider with fallback (ALL LOWERCASE)
-    const defaultProvider = configManager.getProperty('amdwiki.audit.provider.default', 'fileauditprovider') as string;
-    const providerName = configManager.getProperty('amdwiki.audit.provider', defaultProvider) as string;
+    const defaultProvider = configManager.getProperty('ngdpbase.audit.provider.default', 'fileauditprovider') as string;
+    const providerName = configManager.getProperty('ngdpbase.audit.provider', defaultProvider) as string;
 
     // Normalize provider name to PascalCase for class loading
     // fileauditprovider -> FileAuditProvider

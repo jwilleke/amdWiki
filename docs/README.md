@@ -1,10 +1,10 @@
-# amdWiki Documentation
+# ngdpbase Documentation
 
-Welcome to the comprehensive documentation for amdWiki, a file-based wiki application built with Node.js.
+Welcome to the comprehensive documentation for ngdpbase, a file-based wiki application built with Node.js.
 
 ## 📚 Documentation Overview
 
-This documentation is organized into several key areas to help you understand, develop, and maintain amdWiki.
+This documentation is organized into several key areas to help you understand, develop, and maintain ngdpbase.
 
 ## 🏗️ Architecture & Design
 
@@ -116,7 +116,7 @@ This documentation is organized into several key areas to help you understand, d
 - API endpoint documentation
 - Customization and performance guide
 - **Quick Reference:** [One-page cheat sheet](features/PageLinkAutocomplete-QuickReference.md)
-- **Related Issue:** [#90 - TypeDown for Internal Page Links](https://github.com/jwilleke/amdWiki/issues/90)
+- **Related Issue:** [#90 - TypeDown for Internal Page Links](https://github.com/jwilleke/ngdpbase/issues/90)
 
 ### [Table Styles](features/TableStyles.md)
 

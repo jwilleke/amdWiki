@@ -1,12 +1,12 @@
-[**amdWiki API v1.5.0**](../../../../README.md)
+[**ngdpbase API v1.5.0**](../../../../README.md)
 
 ***
 
-[amdWiki API](../../../../README.md) / [src/types/Provider](../README.md) / UserProvider
+[ngdpbase API](../../../../README.md) / [src/types/Provider](../README.md) / UserProvider
 
 # Interface: UserProvider
 
-Defined in: [src/types/Provider.ts:211](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Provider.ts#L211)
+Defined in: [src/types/Provider.ts:211](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Provider.ts#L211)
 
 User provider interface
 
@@ -22,7 +22,7 @@ Defines the contract for user storage backends.
 
 > **engine**: [`WikiEngine`](../../WikiEngine/interfaces/WikiEngine.md)
 
-Defined in: [src/types/Provider.ts:37](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Provider.ts#L37)
+Defined in: [src/types/Provider.ts:37](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Provider.ts#L37)
 
 Reference to WikiEngine
 
@@ -36,7 +36,7 @@ Reference to WikiEngine
 
 > **initialized**: `boolean`
 
-Defined in: [src/types/Provider.ts:40](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Provider.ts#L40)
+Defined in: [src/types/Provider.ts:40](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Provider.ts#L40)
 
 Whether provider has been initialized
 
@@ -50,7 +50,7 @@ Whether provider has been initialized
 
 > `optional` **backup**(): `Promise`\<`Record`\<`string`, `unknown`\>\>
 
-Defined in: [src/types/Provider.ts:64](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Provider.ts#L64)
+Defined in: [src/types/Provider.ts:64](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Provider.ts#L64)
 
 Backup provider data
 
@@ -70,7 +70,7 @@ Promise resolving to backup data
 
 > **cleanupExpiredSessions**(): `Promise`\<`number`\>
 
-Defined in: [src/types/Provider.ts:288](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Provider.ts#L288)
+Defined in: [src/types/Provider.ts:288](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Provider.ts#L288)
 
 Clean up expired sessions
 
@@ -86,7 +86,7 @@ Number of sessions deleted
 
 > **createSession**(`sessionId`, `sessionData`): `Promise`\<`void`\>
 
-Defined in: [src/types/Provider.ts:268](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Provider.ts#L268)
+Defined in: [src/types/Provider.ts:268](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Provider.ts#L268)
 
 Create session
 
@@ -116,7 +116,7 @@ Promise that resolves when session is created
 
 > **createUser**(`userData`): `Promise`\<[`User`](../../User/interfaces/User.md)\>
 
-Defined in: [src/types/Provider.ts:237](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Provider.ts#L237)
+Defined in: [src/types/Provider.ts:237](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Provider.ts#L237)
 
 Create new user
 
@@ -140,7 +140,7 @@ Created user object
 
 > **deleteSession**(`sessionId`): `Promise`\<`boolean`\>
 
-Defined in: [src/types/Provider.ts:282](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Provider.ts#L282)
+Defined in: [src/types/Provider.ts:282](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Provider.ts#L282)
 
 Delete session
 
@@ -164,7 +164,7 @@ True if deleted, false if not found
 
 > **deleteUser**(`username`): `Promise`\<`boolean`\>
 
-Defined in: [src/types/Provider.ts:252](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Provider.ts#L252)
+Defined in: [src/types/Provider.ts:252](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Provider.ts#L252)
 
 Delete user
 
@@ -188,7 +188,7 @@ True if deleted, false if not found
 
 > **getAllSessions**(): `Promise`\<`Map`\<`string`, [`UserSession`](../../User/interfaces/UserSession.md)\>\>
 
-Defined in: [src/types/Provider.ts:307](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Provider.ts#L307)
+Defined in: [src/types/Provider.ts:307](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Provider.ts#L307)
 
 Get all active sessions
 
@@ -204,7 +204,7 @@ Map of session ID to session data
 
 > **getAllUsernames**(): `Promise`\<`string`[]\>
 
-Defined in: [src/types/Provider.ts:301](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Provider.ts#L301)
+Defined in: [src/types/Provider.ts:301](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Provider.ts#L301)
 
 Get all usernames
 
@@ -220,7 +220,7 @@ Array of usernames
 
 > **getAllUsers**(): `Promise`\<`Map`\<`string`, [`User`](../../User/interfaces/User.md)\>\>
 
-Defined in: [src/types/Provider.ts:230](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Provider.ts#L230)
+Defined in: [src/types/Provider.ts:230](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Provider.ts#L230)
 
 Get all users
 
@@ -236,7 +236,7 @@ Map of username to user objects
 
 > `optional` **getProviderInfo**(): [`ProviderInfo`](ProviderInfo.md)
 
-Defined in: [src/types/Provider.ts:58](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Provider.ts#L58)
+Defined in: [src/types/Provider.ts:58](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Provider.ts#L58)
 
 Get provider information
 
@@ -256,7 +256,7 @@ Provider metadata
 
 > **getSession**(`sessionId`): `Promise`\<[`UserSession`](../../User/interfaces/UserSession.md) \| `null`\>
 
-Defined in: [src/types/Provider.ts:275](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Provider.ts#L275)
+Defined in: [src/types/Provider.ts:275](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Provider.ts#L275)
 
 Get session
 
@@ -280,7 +280,7 @@ Session object or null if not found/expired
 
 > **getUser**(`username`): `Promise`\<[`User`](../../User/interfaces/User.md) \| `null`\>
 
-Defined in: [src/types/Provider.ts:217](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Provider.ts#L217)
+Defined in: [src/types/Provider.ts:217](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Provider.ts#L217)
 
 Get user by username
 
@@ -304,7 +304,7 @@ User object or null if not found
 
 > **getUserByEmail**(`email`): `Promise`\<[`User`](../../User/interfaces/User.md) \| `null`\>
 
-Defined in: [src/types/Provider.ts:224](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Provider.ts#L224)
+Defined in: [src/types/Provider.ts:224](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Provider.ts#L224)
 
 Get user by email
 
@@ -328,7 +328,7 @@ User object or null if not found
 
 > **initialize**(): `Promise`\<`void`\>
 
-Defined in: [src/types/Provider.ts:46](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Provider.ts#L46)
+Defined in: [src/types/Provider.ts:46](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Provider.ts#L46)
 
 Initialize the provider
 
@@ -348,7 +348,7 @@ Promise that resolves when initialization is complete
 
 > `optional` **restore**(`backupData`): `Promise`\<`void`\>
 
-Defined in: [src/types/Provider.ts:71](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Provider.ts#L71)
+Defined in: [src/types/Provider.ts:71](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Provider.ts#L71)
 
 Restore provider data from backup
 
@@ -376,7 +376,7 @@ Promise that resolves when restore is complete
 
 > `optional` **shutdown**(): `Promise`\<`void`\>
 
-Defined in: [src/types/Provider.ts:52](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Provider.ts#L52)
+Defined in: [src/types/Provider.ts:52](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Provider.ts#L52)
 
 Shutdown the provider (optional)
 
@@ -396,7 +396,7 @@ Promise that resolves when shutdown is complete
 
 > **updateUser**(`username`, `updates`): `Promise`\<[`User`](../../User/interfaces/User.md)\>
 
-Defined in: [src/types/Provider.ts:245](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Provider.ts#L245)
+Defined in: [src/types/Provider.ts:245](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Provider.ts#L245)
 
 Update user
 
@@ -426,7 +426,7 @@ Updated user object
 
 > **userExists**(`username`): `Promise`\<`boolean`\>
 
-Defined in: [src/types/Provider.ts:295](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Provider.ts#L295)
+Defined in: [src/types/Provider.ts:295](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Provider.ts#L295)
 
 Check if user exists
 
@@ -450,7 +450,7 @@ True if user exists
 
 > **validateCredentials**(`username`, `password`): `Promise`\<[`User`](../../User/interfaces/User.md) \| `null`\>
 
-Defined in: [src/types/Provider.ts:260](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Provider.ts#L260)
+Defined in: [src/types/Provider.ts:260](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Provider.ts#L260)
 
 Validate user credentials
 

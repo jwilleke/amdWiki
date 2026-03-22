@@ -2,7 +2,7 @@
 
 ## Overview
 
-amdWiki provides intelligent autocomplete functionality for internal page links. As you type page names in the editor or search boxes, the system suggests matching pages with real-time dropdown menus and keyboard navigation.
+ngdpbase provides intelligent autocomplete functionality for internal page links. As you type page names in the editor or search boxes, the system suggests matching pages with real-time dropdown menus and keyboard navigation.
 
 **Related:** GitHub Issue #90 - TypeDown for Internal Page Links
 
@@ -678,7 +678,7 @@ JSPWiki has autocomplete for plugin insertion:
 - Shows available plugins
 - Manual trigger required
 
-**amdWiki improvements:**
+**ngdpbase improvements:**
 
 - ✅ Automatic triggering (no hotkey needed)
 - ✅ Works for page links (not just plugins)

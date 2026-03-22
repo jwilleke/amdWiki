@@ -10,7 +10,7 @@
 
 1. **Multiple server instances** running at once (PIDs 45254, 5754, 9905, etc.)
 2. **No proper process validation** before starting new server
-3. **Stale PID files** not cleaned up (`.amdwiki.pid` becomes outdated)
+3. **Stale PID files** not cleaned up (`.ngdpbase.pid` becomes outdated)
 4. **PM2 and server.sh managing independently** - not coordinated
 5. **Old processes** continue serving cached responses after restart
 6. **Form changes** not reflected (old process still running old code)
@@ -41,7 +41,7 @@ kill 45254
 ./server.sh start
     ↓
 STEP 1: Validate existing PID file
-    ├─ Check if .amdwiki.pid exists
+    ├─ Check if .ngdpbase.pid exists
     ├─ If yes: Is process alive?
     │   ├─ YES → ERROR: Server already running, suggest stop/unlock
     │   └─ NO → Remove stale PID, continue
@@ -57,7 +57,7 @@ STEP 3: Kill orphaned Node processes
     └─ Sleep 1 second for cleanup
     ↓
 STEP 4: Remove legacy PID files
-    ├─ rm -f .amdwiki-*.pid (PM2 artifacts)
+    ├─ rm -f .ngdpbase-*.pid (PM2 artifacts)
     ├─ rm -f server.pid (deprecated format)
     └─ Continue
     ↓
@@ -65,19 +65,19 @@ STEP 5: Start via PM2
     ├─ npx pm2 start ecosystem.config.js --env {environment}
     └─ Sleep 1 second for startup
     ↓
-STEP 6: Write .amdwiki.pid (single source of truth)
+STEP 6: Write .ngdpbase.pid (single source of truth)
     ├─ Get PM2 process ID
-    ├─ Write to .amdwiki.pid
+    ├─ Write to .ngdpbase.pid
     └─ Report success with PID
     ↓
 STEP 7: Clean PM2 artifacts
-    ├─ rm -f .amdwiki-*.pid (remove any PM2-generated files)
-    └─ Ensures ONLY .amdwiki.pid exists
+    ├─ rm -f .ngdpbase-*.pid (remove any PM2-generated files)
+    └─ Ensures ONLY .ngdpbase.pid exists
 ```
 
 ### Testing Results ✅
 
-- ✅ Single instance enforcement: ONE `.amdwiki.pid`, ONE Node process
+- ✅ Single instance enforcement: ONE `.ngdpbase.pid`, ONE Node process
 - ✅ Duplicate prevention: Second start blocks with helpful error
 - ✅ Graceful shutdown: Stop command works with force-kill fallback
 - ✅ Clean restart: Process replaced with new PID
@@ -122,8 +122,8 @@ start_server() {
   sleep 1
 
   # 4. Start via PM2
-  echo "🚀 Starting amdWiki in $ENV mode..."
-  pm2 start app.js --name "amdWiki-amdWiki" ...
+  echo "🚀 Starting ngdpbase in $ENV mode..."
+  pm2 start app.js --name "ngdpbase-ngdpbase" ...
 
   # 5. Store PID
   echo $! > "$PID_FILE"
@@ -141,7 +141,7 @@ PM2's `autorestart: true` will respawn killed processes unless the app is delete
 before any kills happen, preventing the respawn race condition.
 
 ```bash
-kill_all_amdwiki() {
+kill_all_ngdpbase() {
   # STEP 1: Delete ALL PM2 apps FIRST (disables autorestart before we kill anything)
   # This must happen before any kill commands to prevent respawn race condition
   echo "   Removing from PM2 (disabling autorestart)..."
@@ -162,7 +162,7 @@ kill_all_amdwiki() {
   # ... (lsof check with $SCRIPT_DIR ownership verification)
 
   # STEP 4: Remove all PID files
-  rm -f "$PID_FILE" "$SCRIPT_DIR"/.amdwiki-*.pid "$SCRIPT_DIR"/server.pid
+  rm -f "$PID_FILE" "$SCRIPT_DIR"/.ngdpbase-*.pid "$SCRIPT_DIR"/server.pid
 }
 ```
 
@@ -177,7 +177,7 @@ Otherwise `autorestart: true` immediately respawns what you just killed.
 
 ```bash
 status_check() {
-  # 1. Check .amdwiki.pid
+  # 1. Check .ngdpbase.pid
   if [ -f "$PID_FILE" ]; then
     PID=$(cat "$PID_FILE")
     if ps -p "$PID" > /dev/null 2>&1; then
@@ -193,7 +193,7 @@ status_check() {
   # 2. Check PM2
   echo ""
   echo "PM2 Status:"
-  pm2 list | grep amdWiki
+  pm2 list | grep ngdpbase
 
   # 3. Check port
   echo ""
@@ -214,7 +214,7 @@ unlock_server() {
   echo "🔓 Unlocking server..."
 
   # 1. Run comprehensive kill (stops PM2 apps, kills processes, cleans PIDs)
-  kill_all_amdwiki
+  kill_all_ngdpbase
 
   # 2. Delete all PM2 apps then kill daemon
   npx --no pm2 delete all 2>/dev/null || true
@@ -233,12 +233,12 @@ unlock_server() {
 
 ## Single PID File Standard
 
-**Decision:** Use ONLY `.amdwiki.pid`
+**Decision:** Use ONLY `.ngdpbase.pid`
 
 **Never create:**
 
 - `server.pid`
-- `.amdwiki-*.pid`
+- `.ngdpbase-*.pid`
 - Any PM2 generated PID files
 
 **Rules:**
@@ -246,7 +246,7 @@ unlock_server() {
 1. PID file contains: single integer (the process ID)
 2. Only written by server.sh during startup
 3. Only removed by server.sh during shutdown
-4. Readable by: `cat .amdwiki.pid` to get the PID
+4. Readable by: `cat .ngdpbase.pid` to get the PID
 5. Cleaned up on crash: `./server.sh unlock`
 
 ## PM2 Configuration
@@ -258,7 +258,7 @@ unlock_server() {
 module.exports = {
   apps: [
     {
-      name: "amdWiki-amdWiki",
+      name: "ngdpbase-ngdpbase",
       script: "app.js",
       env: {
         NODE_ENV: "production"
@@ -287,7 +287,7 @@ module.exports = {
 
 ```bash
 restart_server() {
-  echo "🔄 Restarting amdWiki..."
+  echo "🔄 Restarting ngdpbase..."
 
   # Stop gracefully
   ./server.sh stop
@@ -321,7 +321,7 @@ Before starting server, `./server.sh start` should verify:
 4. ✅ **PM2 daemon is running** (or can be started)
 5. ✅ **Configuration files exist** (default + environment)
 6. ✅ **Logs directory exists** (./data/logs/)
-7. ✅ **Permission to write PID file** (.amdwiki.pid)
+7. ✅ **Permission to write PID file** (.ngdpbase.pid)
 
 ## Error Messages (User-Friendly)
 
@@ -357,14 +357,14 @@ More info:
 This means another process has claimed port 3000.
 
 Options:
-1. If it's an old amdWiki process:
+1. If it's an old ngdpbase process:
    → Kill it with: kill -9 12345
    → Or: ./server.sh force-unlock
 
 2. If it's a different application:
    → Either stop that application
-   → Or change amdWiki port in config
-   → Restart amdWiki
+   → Or change ngdpbase port in config
+   → Restart ngdpbase
 
 Check what's using port 3000:
   lsof -i :3000
@@ -381,7 +381,7 @@ Check what's using port 3000:
 - [ ] Restart: `./server.sh restart dev` → stops old, starts new
 - [ ] Unlock: `./server.sh unlock` → clears all locks
 - [ ] Status: `./server.sh status` → accurate info
-- [ ] PM2 name mismatch: `pm2 start app.js --name amdWiki` then `./server.sh stop` → still stops (#231)
+- [ ] PM2 name mismatch: `pm2 start app.js --name ngdpbase` then `./server.sh stop` → still stops (#231)
 - [ ] Stop retry: verify port 3000 is free after `./server.sh stop` (no PM2 respawn race)
 
 ## Documentation Updates Needed
@@ -403,7 +403,7 @@ Check what's using port 3000:
 
 - Existing `./server.sh` commands work unchanged
 - New error messages are user-friendly
-- `.amdwiki.pid` location unchanged
+- `.ngdpbase.pid` location unchanged
 - PM2 ecosystem file unchanged
 - Configuration files unchanged
 
@@ -437,7 +437,7 @@ Check what's using port 3000:
 ## Success Criteria
 
 ✅ Only ONE Node.js process running at any time
-✅ Only ONE `.amdwiki.pid` file exists
+✅ Only ONE `.ngdpbase.pid` file exists
 ✅ Stale processes cleaned up on start
 ✅ Clear error messages for conflicts
 ✅ Graceful stop/restart works reliably
@@ -457,7 +457,7 @@ Check what's using port 3000:
   - Log rotation
   - Single instance mode (instances: 1)
   - Graceful shutdown timeout
-- **Coordinator:** `server.sh` manages PM2, enforces single instance via `.amdwiki.pid`
+- **Coordinator:** `server.sh` manages PM2, enforces single instance via `.ngdpbase.pid`
 - **Stop strategy (fix for #231):** Delete PM2 app entries *before* killing node processes.
   This prevents PM2's `autorestart` from respawning killed processes. The stop command
   includes a `pm2 stop all` / `pm2 delete all` fallback to handle PM2 name mismatches,
@@ -509,8 +509,8 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \
 ```yaml
 version: '3.8'
 services:
-  amdwiki:
-    image: amdwiki:latest
+  ngdpbase:
+    image: ngdpbase:latest
     ports:
       - "3000:3000"
     environment:
@@ -559,22 +559,22 @@ services:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: amdwiki
+  name: ngdpbase
   labels:
-    app: amdwiki
+    app: ngdpbase
 spec:
   replicas: 2  # Or 1 if you want single instance
   selector:
     matchLabels:
-      app: amdwiki
+      app: ngdpbase
   template:
     metadata:
       labels:
-        app: amdwiki
+        app: ngdpbase
     spec:
       containers:
-      - name: amdwiki
-        image: amdwiki:latest
+      - name: ngdpbase
+        image: ngdpbase:latest
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 3000
@@ -615,22 +615,22 @@ spec:
       volumes:
       - name: pages
         persistentVolumeClaim:
-          claimName: amdwiki-pages
+          claimName: ngdpbase-pages
       - name: users
         persistentVolumeClaim:
-          claimName: amdwiki-users
+          claimName: ngdpbase-users
       - name: attachments
         persistentVolumeClaim:
-          claimName: amdwiki-attachments
+          claimName: ngdpbase-attachments
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: amdwiki
+  name: ngdpbase
 spec:
   type: LoadBalancer
   selector:
-    app: amdwiki
+    app: ngdpbase
   ports:
   - protocol: TCP
     port: 80
@@ -640,7 +640,7 @@ spec:
 
 **Important Notes for Kubernetes:**
 
-- Each Pod gets its own `.amdwiki.pid` (isolated file system)
+- Each Pod gets its own `.ngdpbase.pid` (isolated file system)
 - Single instance per Pod enforced automatically
 - Use `replicas: 1` to enforce single instance globally (or use StatefulSet)
 - Stateless design allows horizontal scaling if needed
@@ -652,7 +652,7 @@ spec:
 2. **Next (Docker):** Remove PM2, use simple Node in containers
 3. **Future (K8s):** Standard K8s Deployment with PersistentVolumes
 
-All strategies keep `.amdwiki.pid` locking mechanism:
+All strategies keep `.ngdpbase.pid` locking mechanism:
 
 - **Bare Metal:** Enforces single instance per machine
 - **Docker:** Enforces single instance per container

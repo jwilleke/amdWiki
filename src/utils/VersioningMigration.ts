@@ -92,7 +92,7 @@ interface ValidationResult {
 /**
  * VersioningMigration - Utility for migrating FileSystemProvider to VersioningFileProvider
  *
- * Provides safe migration of existing amdWiki pages to versioned format with:
+ * Provides safe migration of existing ngdpbase pages to versioned format with:
  * - Full data preservation and validation
  * - Rollback capability
  * - Progress tracking

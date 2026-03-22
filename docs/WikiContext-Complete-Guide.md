@@ -5,7 +5,7 @@
 **Status:** Production Ready
 **Source:** `src/context/WikiContext.ts`
 
-This guide covers everything about WikiContext in amdWiki — its purpose, TypeScript API, usage patterns, and role as the central rendering orchestrator.
+This guide covers everything about WikiContext in ngdpbase — its purpose, TypeScript API, usage patterns, and role as the central rendering orchestrator.
 
 ---
 
@@ -28,7 +28,7 @@ This guide covers everything about WikiContext in amdWiki — its purpose, TypeS
 
 ## Overview
 
-**`WikiContext` is the central orchestrator for content rendering in amdWiki.** For each page request, a `WikiContext` instance is created to act as a request-scoped container, bundling all information related to the request — page details, user info, HTTP request, and manager references.
+**`WikiContext` is the central orchestrator for content rendering in ngdpbase.** For each page request, a `WikiContext` instance is created to act as a request-scoped container, bundling all information related to the request — page details, user info, HTTP request, and manager references.
 
 Inspired by JSPWiki's architectural patterns, `WikiContext` solves "parameter explosion" by providing a single, consistent object to the upper levels of the application, while keeping lower-level components decoupled and reusable.
 
@@ -69,7 +69,7 @@ Instead of passing multiple parameters through the rendering pipeline, WikiConte
 ### JSPWiki Inspiration
 
 ```typescript
-// JSPWiki (Java concept → amdWiki TypeScript)
+// JSPWiki (Java concept → ngdpbase TypeScript)
 class WikiContext {
   constructor(engine: WikiEngine, options: WikiContextOptions) {
     this.engine = engine;
@@ -731,7 +731,7 @@ if (wikiContext.userContext?.authenticated) { ... }
 - [WikiContext.md](WikiContext.md) — original shorter reference
 - [CONTRIBUTING.md](../CONTRIBUTING.md#wikicontext---single-source-of-truth) — contributing guidelines for WikiContext usage
 - [docs/architecture/Current-Rendering-Pipeline.md](architecture/Current-Rendering-Pipeline.md) — rendering pipeline detail
-- [ARCHITECTURE.md](../ARCHITECTURE.md) — overall amdWiki architecture
+- [ARCHITECTURE.md](../ARCHITECTURE.md) — overall ngdpbase architecture
 - [docs/WikiDocument-Complete-Guide.md](WikiDocument-Complete-Guide.md) — WikiDocument (used internally by MarkupParser)
 
 ### Relationship with WikiDocument
@@ -755,4 +755,4 @@ if (wikiContext.userContext?.authenticated) { ... }
 ---
 
 **Last Updated:** 2026-02-27
-**Maintained By:** amdWiki Development Team
+**Maintained By:** ngdpbase Development Team

@@ -21,7 +21,7 @@ Detailed description of what this provider implements and its role in the system
 
 ## Provider Pattern Context
 
-This provider is part of the amdWiki provider pattern which allows swapping storage backends without changing manager code.
+This provider is part of the ngdpbase provider pattern which allows swapping storage backends without changing manager code.
 
 ```
 Manager → Provider Interface → Concrete Provider → Storage
@@ -41,8 +41,8 @@ Methods implemented from the base provider interface:
 
 | Property | Type | Default | Description |
 | ---------- | ------ | --------- | ------------- |
-| `amdwiki.provider.option1` | string | "default" | Description |
-| `amdwiki.provider.storagePath` | string | "./data" | Storage location |
+| `ngdpbase.provider.option1` | string | "default" | Description |
+| `ngdpbase.provider.storagePath` | string | "./data" | Storage location |
 
 ## Storage Details
 

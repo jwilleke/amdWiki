@@ -2,7 +2,7 @@
 
 ## Overview
 
-The VariableManager is amdWiki's central system for managing and expanding variables in content, similar to JSPWiki's DefaultVariableManager. It provides a comprehensive variable expansion system that supports both system variables (like `[{$applicationname}]`) and contextual variables (like `[{$username}]`).
+The VariableManager is ngdpbase's central system for managing and expanding variables in content, similar to JSPWiki's DefaultVariableManager. It provides a comprehensive variable expansion system that supports both system variables (like `[{$applicationname}]`) and contextual variables (like `[{$username}]`).
 
 ## Architecture
 
@@ -25,7 +25,7 @@ These variables provide application and runtime information without requiring us
 - `[{$baseurl}]` - Base URL for the wiki
 - `[{$encoding}]` - Character encoding (UTF-8)
 - `[{$frontpage}]` - Front page name from configuration
-- `[{$version}]` / `[{$amdwikiversion}]` - amdWiki version number
+- `[{$version}]` / `[{$ngdpbaseversion}]` - ngdpbase version number
 
 #### Configuration Variables
 
@@ -258,7 +258,7 @@ The VariableManager protects certain content from variable expansion:
 
 The VariableManager maintains compatibility with JSPWiki patterns:
 
-| Feature | JSPWiki | amdWiki |
+| Feature | JSPWiki | ngdpbase |
 | --------- | --------- | ---------- |
 | Variable Format | `[{$variable}]` | `[{$variable}]` ✓ |
 | System Variables | Yes | Yes ✓ |

@@ -1,12 +1,12 @@
-[**amdWiki API v1.5.0**](../../../../../README.md)
+[**ngdpbase API v1.5.0**](../../../../../README.md)
 
 ***
 
-[amdWiki API](../../../../../README.md) / [src/parsers/handlers/BaseSyntaxHandler](../README.md) / DependencySpec
+[ngdpbase API](../../../../../README.md) / [src/parsers/handlers/BaseSyntaxHandler](../README.md) / DependencySpec
 
 # Interface: DependencySpec
 
-Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:32](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L32)
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:32](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L32)
 
 Specific dependency specification
 
@@ -16,7 +16,7 @@ Specific dependency specification
 
 > **name**: `string`
 
-Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:34](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L34)
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:34](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L34)
 
 ***
 
@@ -24,7 +24,7 @@ Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:34](https://github.com/jw
 
 > `optional` **optional**: `boolean`
 
-Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:36](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L36)
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:36](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L36)
 
 ***
 
@@ -32,7 +32,7 @@ Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:36](https://github.com/jw
 
 > **type**: `"manager"` \| `"handler"`
 
-Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:33](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L33)
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:33](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L33)
 
 ***
 
@@ -40,4 +40,4 @@ Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:33](https://github.com/jw
 
 > `optional` **version**: `string`
 
-Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:35](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L35)
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:35](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L35)

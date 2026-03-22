@@ -32,7 +32,7 @@
 
 ## Overview
 
-FileSystemProvider is the default page storage provider for amdWiki, implementing file-based storage using Markdown files with YAML frontmatter metadata. It provides a robust, performant, and extensible foundation for page management.
+FileSystemProvider is the default page storage provider for ngdpbase, implementing file-based storage using Markdown files with YAML frontmatter metadata. It provides a robust, performant, and extensible foundation for page management.
 
 ### Design Philosophy
 
@@ -153,13 +153,13 @@ All configuration accessed via ConfigurationManager (lowercase keys):
 
 ```javascript
 // Main pages directory
-'amdwiki.page.provider.filesystem.storagedir'
+'ngdpbase.page.provider.filesystem.storagedir'
   Default: './data/pages'
   Type: String (absolute or relative path)
   Purpose: Primary wiki content storage
 
 // Required pages directory (installation only)
-'amdwiki.page.provider.filesystem.requiredpagesdir'
+'ngdpbase.page.provider.filesystem.requiredpagesdir'
   Default: './required-pages'
   Type: String (absolute or relative path)
   Purpose: System pages copied during installation
@@ -168,7 +168,7 @@ All configuration accessed via ConfigurationManager (lowercase keys):
 ### Encoding
 
 ```javascript
-'amdwiki.page.provider.filesystem.encoding'
+'ngdpbase.page.provider.filesystem.encoding'
   Default: 'utf-8'
   Type: String
   Values: 'utf-8', 'utf-16', 'ascii', etc.
@@ -178,7 +178,7 @@ All configuration accessed via ConfigurationManager (lowercase keys):
 ### Plural Matching
 
 ```javascript
-'amdwiki.translator-reader.match-english-plurals'
+'ngdpbase.translator-reader.match-english-plurals'
   Default: true
   Type: Boolean
   Purpose: Enable fuzzy matching (e.g., "Page" matches "Pages")
@@ -194,7 +194,7 @@ required-pages are loaded (incomplete = load, complete = skip).
 
 ```json
 {
-  "amdwiki": {
+  "ngdpbase": {
     "page": {
       "provider": {
         "filesystem": {
@@ -260,7 +260,7 @@ async initialize() {
 
   // 2. Load storage directories
   const cfgPath = configManager.getProperty(
-    'amdwiki.page.provider.filesystem.storagedir',
+    'ngdpbase.page.provider.filesystem.storagedir',
     './pages'
   );
   this.pagesDirectory = path.isAbsolute(cfgPath)
@@ -272,7 +272,7 @@ async initialize() {
 
   // 4. Initialize PageNameMatcher
   const matchPlurals = configManager.getProperty(
-    'amdwiki.translator-reader.match-english-plurals',
+    'ngdpbase.translator-reader.match-english-plurals',
     true
   );
   this.pageNameMatcher = new PageNameMatcher(matchPlurals);
@@ -584,7 +584,7 @@ FileSystemProvider integrates with PageNameMatcher for fuzzy matching:
 ```javascript
 // Initialize with configuration
 const matchPlurals = configManager.getProperty(
-  'amdwiki.translator-reader.match-english-plurals',
+  'ngdpbase.translator-reader.match-english-plurals',
   true
 );
 this.pageNameMatcher = new PageNameMatcher(matchPlurals);
@@ -1071,7 +1071,7 @@ To migrate to database provider:
 
 **Symptom:** "Page" doesn't match "Pages"
 
-**Solution:** Verify `amdwiki.translator-reader.match-english-plurals: true`
+**Solution:** Verify `ngdpbase.translator-reader.match-english-plurals: true`
 
 ---
 

@@ -4,7 +4,7 @@ This directory contains **startup pages** that are copied to the wiki when first
 
 ## What Are Startup Pages?
 
-Startup pages provide a functioning wiki with essential system pages and user documentation out of the box. When you first run amdWiki with an empty `pages/` directory, these files are copied over to give you a working system immediately.
+Startup pages provide a functioning wiki with essential system pages and user documentation out of the box. When you first run ngdpbase with an empty `pages/` directory, these files are copied over to give you a working system immediately.
 
 ## Page Categories
 
@@ -44,7 +44,7 @@ User-facing documentation and help pages:
 ## Directory Structure
 
 ```
-amdWiki/
+ngdpbase/
 ├── required-pages/         # Startup pages (this directory)
 │   ├── [system pages]      # Core functionality
 │   └── [documentation]     # User help
@@ -57,7 +57,7 @@ amdWiki/
 
 ## When Pages Are Updated
 
-When amdWiki releases updates to startup pages:
+When ngdpbase releases updates to startup pages:
 
 - You'll be prompted about changes
 - System will show a diff of what changed
@@ -70,4 +70,4 @@ Pages marked with `system-category: system` should generally not be deleted, as 
 
 ## More Information
 
-See [Issue #153](https://github.com/jwilleke/amdWiki/issues/153) for the architectural decisions behind this structure.
+See [Issue #153](https://github.com/jwilleke/ngdpbase/issues/153) for the architectural decisions behind this structure.

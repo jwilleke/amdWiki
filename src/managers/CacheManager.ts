@@ -51,7 +51,7 @@ interface BaseCacheProvider {
 }
 
 /**
- * CacheManager - Centralized cache management for amdWiki
+ * CacheManager - Centralized cache management for ngdpbase
  *
  * Provides a unified interface for caching across all managers with support for:
  * - Multiple cache backends via provider pattern (NodeCache, Redis, Null)
@@ -61,11 +61,11 @@ interface BaseCacheProvider {
  * - Provider fallback pattern following #102, #104, #105, #106
  *
  * Configuration (all lowercase):
- * - amdwiki.cache.enabled - Enable/disable caching
- * - amdwiki.cache.provider.default - Default provider name
- * - amdwiki.cache.provider - Active provider name
- * - amdwiki.cache.defaultttl - Default TTL in seconds
- * - amdwiki.cache.maxkeys - Maximum cache keys
+ * - ngdpbase.cache.enabled - Enable/disable caching
+ * - ngdpbase.cache.provider.default - Default provider name
+ * - ngdpbase.cache.provider - Active provider name
+ * - ngdpbase.cache.defaultttl - Default TTL in seconds
+ * - ngdpbase.cache.maxkeys - Maximum cache keys
  *
  * @class CacheManager
  * @extends BaseManager
@@ -120,7 +120,7 @@ class CacheManager extends BaseManager {
     }
 
     // Check if cache is enabled (ALL LOWERCASE)
-    const cacheEnabled = configManager.getProperty('amdwiki.cache.enabled', true) as boolean;
+    const cacheEnabled = configManager.getProperty('ngdpbase.cache.enabled', true) as boolean;
     if (!cacheEnabled) {
       logger.info('🗄️  CacheManager: Caching disabled by configuration');
       // Load NullCacheProvider when disabled
@@ -130,17 +130,17 @@ class CacheManager extends BaseManager {
     }
 
     // Load provider with fallback (ALL LOWERCASE)
-    const defaultProvider = configManager.getProperty('amdwiki.cache.provider.default', 'nodecacheprovider') as string;
-    const providerName = configManager.getProperty('amdwiki.cache.provider', defaultProvider) as string;
+    const defaultProvider = configManager.getProperty('ngdpbase.cache.provider.default', 'nodecacheprovider') as string;
+    const providerName = configManager.getProperty('ngdpbase.cache.provider', defaultProvider) as string;
 
     // Normalize provider name to PascalCase for class loading
     // nodecacheprovider -> NodeCacheProvider
     this.providerClass = this.normalizeProviderName(providerName);
 
     // Load shared cache settings (ALL LOWERCASE)
-    this.defaultTTL = configManager.getProperty('amdwiki.cache.defaultttl', 300) as number;
-    this.maxKeys = configManager.getProperty('amdwiki.cache.maxkeys', 1000) as number;
-    this.checkPeriod = configManager.getProperty('amdwiki.cache.checkperiod', 120) as number;
+    this.defaultTTL = configManager.getProperty('ngdpbase.cache.defaultttl', 300) as number;
+    this.maxKeys = configManager.getProperty('ngdpbase.cache.maxkeys', 1000) as number;
+    this.checkPeriod = configManager.getProperty('ngdpbase.cache.checkperiod', 120) as number;
 
     logger.info(`🗄️  Loading cache provider: ${providerName} (${this.providerClass})`);
 

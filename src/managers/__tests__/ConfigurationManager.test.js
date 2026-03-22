@@ -43,9 +43,9 @@ describe('ConfigurationManager', () => {
 
     // Create minimal default config
     const defaultConfig = {
-      'amdwiki.applicationName': 'TestWiki',
-      'amdwiki.page.provider.filesystem.storagedir': './data/pages',
-      'amdwiki.directories.data': './data'
+      'ngdpbase.applicationName': 'TestWiki',
+      'ngdpbase.page.provider.filesystem.storagedir': './data/pages',
+      'ngdpbase.directories.data': './data'
     };
     await fs.writeJson(path.join(tempDir, 'config', 'app-default-config.json'), defaultConfig, { spaces: 2 });
 
@@ -173,7 +173,7 @@ describe('ConfigurationManager', () => {
 
     test('should resolve data path from config', () => {
       const result = configManager.getResolvedDataPath(
-        'amdwiki.page.provider.filesystem.storagedir',
+        'ngdpbase.page.provider.filesystem.storagedir',
         './data/pages'
       );
 
@@ -216,7 +216,7 @@ describe('ConfigurationManager', () => {
       const instanceConfigDir = path.join(instanceDataFolder, 'config');
       await fs.ensureDir(instanceConfigDir);
       const customConfig = {
-        'amdwiki.applicationName': 'CustomFromData'
+        'ngdpbase.applicationName': 'CustomFromData'
       };
       await fs.writeJson(path.join(instanceConfigDir, 'app-custom-config.json'), customConfig, { spaces: 2 });
 
@@ -224,7 +224,7 @@ describe('ConfigurationManager', () => {
       const newConfigManager = new ConfigurationManager(mockEngine);
       await newConfigManager.initialize();
 
-      const appName = newConfigManager.getProperty('amdwiki.applicationName');
+      const appName = newConfigManager.getProperty('ngdpbase.applicationName');
 
       expect(appName).toBe('CustomFromData');
     });
@@ -240,14 +240,14 @@ describe('ConfigurationManager', () => {
       // This should be ignored - custom config in code dir
       await fs.writeJson(
         path.join(configDir, 'app-custom-config.json'),
-        { 'amdwiki.applicationName': 'FromConfigDir' },
+        { 'ngdpbase.applicationName': 'FromConfigDir' },
         { spaces: 2 }
       );
 
       // This should be used - custom config in instance data dir
       await fs.writeJson(
         path.join(instanceConfigDir, 'app-custom-config.json'),
-        { 'amdwiki.applicationName': 'FromDataDir' },
+        { 'ngdpbase.applicationName': 'FromDataDir' },
         { spaces: 2 }
       );
 
@@ -255,7 +255,7 @@ describe('ConfigurationManager', () => {
       const newConfigManager = new ConfigurationManager(mockEngine);
       await newConfigManager.initialize();
 
-      const appName = newConfigManager.getProperty('amdwiki.applicationName');
+      const appName = newConfigManager.getProperty('ngdpbase.applicationName');
 
       // Should use instance data folder config, NOT code config dir
       expect(appName).toBe('FromDataDir');
@@ -266,8 +266,8 @@ describe('ConfigurationManager', () => {
     test('should deep-merge object-type properties', async () => {
       // Default config with user-keywords
       const defaultConfig = {
-        'amdwiki.applicationName': 'TestWiki',
-        'amdwiki.user-keywords': {
+        'ngdpbase.applicationName': 'TestWiki',
+        'ngdpbase.user-keywords': {
           'default': {
             'label': 'default',
             'description': 'Default keyword',
@@ -290,7 +290,7 @@ describe('ConfigurationManager', () => {
       const instanceConfigDir = path.join(tempDir, 'data', 'config');
       await fs.ensureDir(instanceConfigDir);
       const customConfig = {
-        'amdwiki.user-keywords': {
+        'ngdpbase.user-keywords': {
           'immigration': {
             'label': 'immigration',
             'description': 'Immigration content',
@@ -307,7 +307,7 @@ describe('ConfigurationManager', () => {
       const newConfigManager = new ConfigurationManager(mockEngine);
       await newConfigManager.initialize();
 
-      const keywords = newConfigManager.getProperty('amdwiki.user-keywords');
+      const keywords = newConfigManager.getProperty('ngdpbase.user-keywords');
 
       // Should have all three keywords: default, draft, and immigration
       expect(keywords).toHaveProperty('default');
@@ -320,8 +320,8 @@ describe('ConfigurationManager', () => {
 
     test('should allow custom to override default object properties', async () => {
       const defaultConfig = {
-        'amdwiki.applicationName': 'TestWiki',
-        'amdwiki.user-keywords': {
+        'ngdpbase.applicationName': 'TestWiki',
+        'ngdpbase.user-keywords': {
           'draft': {
             'label': 'draft',
             'description': 'Default description',
@@ -338,7 +338,7 @@ describe('ConfigurationManager', () => {
       const instanceConfigDir = path.join(tempDir, 'data', 'config');
       await fs.ensureDir(instanceConfigDir);
       const customConfig = {
-        'amdwiki.user-keywords': {
+        'ngdpbase.user-keywords': {
           'draft': {
             'label': 'draft',
             'description': 'Custom description override',
@@ -355,7 +355,7 @@ describe('ConfigurationManager', () => {
       const newConfigManager = new ConfigurationManager(mockEngine);
       await newConfigManager.initialize();
 
-      const keywords = newConfigManager.getProperty('amdwiki.user-keywords');
+      const keywords = newConfigManager.getProperty('ngdpbase.user-keywords');
 
       // Custom should override default with same key
       expect(keywords.draft.description).toBe('Custom description override');
@@ -364,8 +364,8 @@ describe('ConfigurationManager', () => {
 
     test('should deep-merge nested objects', async () => {
       const defaultConfig = {
-        'amdwiki.applicationName': 'TestWiki',
-        'amdwiki.interwiki.sites': {
+        'ngdpbase.applicationName': 'TestWiki',
+        'ngdpbase.interwiki.sites': {
           'Wikipedia': {
             'url': 'https://en.wikipedia.org/wiki/%s',
             'enabled': true
@@ -381,7 +381,7 @@ describe('ConfigurationManager', () => {
       const instanceConfigDir = path.join(tempDir, 'data', 'config');
       await fs.ensureDir(instanceConfigDir);
       const customConfig = {
-        'amdwiki.interwiki.sites': {
+        'ngdpbase.interwiki.sites': {
           'GitHub': {
             'url': 'https://github.com/%s',
             'enabled': true
@@ -397,7 +397,7 @@ describe('ConfigurationManager', () => {
       const newConfigManager = new ConfigurationManager(mockEngine);
       await newConfigManager.initialize();
 
-      const sites = newConfigManager.getProperty('amdwiki.interwiki.sites');
+      const sites = newConfigManager.getProperty('ngdpbase.interwiki.sites');
 
       // Should have both Wikipedia and GitHub
       expect(sites).toHaveProperty('Wikipedia');
@@ -406,8 +406,8 @@ describe('ConfigurationManager', () => {
 
     test('should merge arrays with id-based objects', async () => {
       const defaultConfig = {
-        'amdwiki.applicationName': 'TestWiki',
-        'amdwiki.access.policies': [
+        'ngdpbase.applicationName': 'TestWiki',
+        'ngdpbase.access.policies': [
           { 'id': 'admin-full-access', 'name': 'Admin Access', 'priority': 100 },
           { 'id': 'reader-permissions', 'name': 'Reader', 'priority': 60 }
         ]
@@ -421,7 +421,7 @@ describe('ConfigurationManager', () => {
       const instanceConfigDir = path.join(tempDir, 'data', 'config');
       await fs.ensureDir(instanceConfigDir);
       const customConfig = {
-        'amdwiki.access.policies': [
+        'ngdpbase.access.policies': [
           { 'id': 'custom-policy', 'name': 'Custom Policy', 'priority': 50 },
           { 'id': 'reader-permissions', 'name': 'Custom Reader', 'priority': 65 }
         ]
@@ -435,7 +435,7 @@ describe('ConfigurationManager', () => {
       const newConfigManager = new ConfigurationManager(mockEngine);
       await newConfigManager.initialize();
 
-      const policies = newConfigManager.getProperty('amdwiki.access.policies');
+      const policies = newConfigManager.getProperty('ngdpbase.access.policies');
 
       // Should have admin-full-access from default, custom-policy from custom,
       // and reader-permissions overridden by custom
@@ -452,8 +452,8 @@ describe('ConfigurationManager', () => {
 
     test('should replace arrays without id fields', async () => {
       const defaultConfig = {
-        'amdwiki.applicationName': 'TestWiki',
-        'amdwiki.managers.pluginManager.searchPaths': ['./dist/plugins']
+        'ngdpbase.applicationName': 'TestWiki',
+        'ngdpbase.managers.pluginManager.searchPaths': ['./dist/plugins']
       };
       await fs.writeJson(
         path.join(tempDir, 'config', 'app-default-config.json'),
@@ -464,7 +464,7 @@ describe('ConfigurationManager', () => {
       const instanceConfigDir = path.join(tempDir, 'data', 'config');
       await fs.ensureDir(instanceConfigDir);
       const customConfig = {
-        'amdwiki.managers.pluginManager.searchPaths': ['./custom-plugins', './more-plugins']
+        'ngdpbase.managers.pluginManager.searchPaths': ['./custom-plugins', './more-plugins']
       };
       await fs.writeJson(
         path.join(instanceConfigDir, 'app-custom-config.json'),
@@ -475,7 +475,7 @@ describe('ConfigurationManager', () => {
       const newConfigManager = new ConfigurationManager(mockEngine);
       await newConfigManager.initialize();
 
-      const searchPaths = newConfigManager.getProperty('amdwiki.managers.pluginManager.searchPaths');
+      const searchPaths = newConfigManager.getProperty('ngdpbase.managers.pluginManager.searchPaths');
 
       // Arrays without id should be replaced entirely
       expect(searchPaths).toEqual(['./custom-plugins', './more-plugins']);
@@ -483,8 +483,8 @@ describe('ConfigurationManager', () => {
 
     test('should handle primitives being overridden by custom', async () => {
       const defaultConfig = {
-        'amdwiki.applicationName': 'DefaultWiki',
-        'amdwiki.server.port': 3000
+        'ngdpbase.applicationName': 'DefaultWiki',
+        'ngdpbase.server.port': 3000
       };
       await fs.writeJson(
         path.join(tempDir, 'config', 'app-default-config.json'),
@@ -495,8 +495,8 @@ describe('ConfigurationManager', () => {
       const instanceConfigDir = path.join(tempDir, 'data', 'config');
       await fs.ensureDir(instanceConfigDir);
       const customConfig = {
-        'amdwiki.applicationName': 'CustomWiki',
-        'amdwiki.server.port': 8080
+        'ngdpbase.applicationName': 'CustomWiki',
+        'ngdpbase.server.port': 8080
       };
       await fs.writeJson(
         path.join(instanceConfigDir, 'app-custom-config.json'),
@@ -507,14 +507,14 @@ describe('ConfigurationManager', () => {
       const newConfigManager = new ConfigurationManager(mockEngine);
       await newConfigManager.initialize();
 
-      expect(newConfigManager.getProperty('amdwiki.applicationName')).toBe('CustomWiki');
-      expect(newConfigManager.getProperty('amdwiki.server.port')).toBe(8080);
+      expect(newConfigManager.getProperty('ngdpbase.applicationName')).toBe('CustomWiki');
+      expect(newConfigManager.getProperty('ngdpbase.server.port')).toBe(8080);
     });
 
     test('should preserve defaults when custom config is empty', async () => {
       const defaultConfig = {
-        'amdwiki.applicationName': 'TestWiki',
-        'amdwiki.user-keywords': {
+        'ngdpbase.applicationName': 'TestWiki',
+        'ngdpbase.user-keywords': {
           'default': { 'label': 'default', 'enabled': true },
           'draft': { 'label': 'draft', 'enabled': true }
         }
@@ -530,7 +530,7 @@ describe('ConfigurationManager', () => {
       const newConfigManager = new ConfigurationManager(mockEngine);
       await newConfigManager.initialize();
 
-      const keywords = newConfigManager.getProperty('amdwiki.user-keywords');
+      const keywords = newConfigManager.getProperty('ngdpbase.user-keywords');
 
       expect(keywords).toHaveProperty('default');
       expect(keywords).toHaveProperty('draft');
@@ -542,8 +542,8 @@ describe('ConfigurationManager', () => {
       process.env.NODE_ENV = 'development';
 
       const defaultConfig = {
-        'amdwiki.applicationName': 'TestWiki',
-        'amdwiki.logging.level': 'info'
+        'ngdpbase.applicationName': 'TestWiki',
+        'ngdpbase.logging.level': 'info'
       };
       await fs.writeJson(
         path.join(tempDir, 'config', 'app-default-config.json'),
@@ -554,15 +554,15 @@ describe('ConfigurationManager', () => {
       const newConfigManager = new ConfigurationManager(mockEngine);
       await newConfigManager.initialize();
 
-      expect(newConfigManager.getProperty('amdwiki.logging.level')).toBe('debug');
+      expect(newConfigManager.getProperty('ngdpbase.logging.level')).toBe('debug');
     });
 
     test('development mode with custom logging.level preserves custom value', async () => {
       process.env.NODE_ENV = 'development';
 
       const defaultConfig = {
-        'amdwiki.applicationName': 'TestWiki',
-        'amdwiki.logging.level': 'info'
+        'ngdpbase.applicationName': 'TestWiki',
+        'ngdpbase.logging.level': 'info'
       };
       await fs.writeJson(
         path.join(tempDir, 'config', 'app-default-config.json'),
@@ -574,22 +574,22 @@ describe('ConfigurationManager', () => {
       await fs.ensureDir(instanceConfigDir);
       await fs.writeJson(
         path.join(instanceConfigDir, 'app-custom-config.json'),
-        { 'amdwiki.logging.level': 'warn' },
+        { 'ngdpbase.logging.level': 'warn' },
         { spaces: 2 }
       );
 
       const newConfigManager = new ConfigurationManager(mockEngine);
       await newConfigManager.initialize();
 
-      expect(newConfigManager.getProperty('amdwiki.logging.level')).toBe('warn');
+      expect(newConfigManager.getProperty('ngdpbase.logging.level')).toBe('warn');
     });
 
     test('production mode without custom logging.level uses default (info)', async () => {
       process.env.NODE_ENV = 'production';
 
       const defaultConfig = {
-        'amdwiki.applicationName': 'TestWiki',
-        'amdwiki.logging.level': 'info'
+        'ngdpbase.applicationName': 'TestWiki',
+        'ngdpbase.logging.level': 'info'
       };
       await fs.writeJson(
         path.join(tempDir, 'config', 'app-default-config.json'),
@@ -600,15 +600,15 @@ describe('ConfigurationManager', () => {
       const newConfigManager = new ConfigurationManager(mockEngine);
       await newConfigManager.initialize();
 
-      expect(newConfigManager.getProperty('amdwiki.logging.level')).toBe('info');
+      expect(newConfigManager.getProperty('ngdpbase.logging.level')).toBe('info');
     });
 
     test('production mode does not override logging level', async () => {
       process.env.NODE_ENV = 'production';
 
       const defaultConfig = {
-        'amdwiki.applicationName': 'TestWiki',
-        'amdwiki.logging.level': 'info'
+        'ngdpbase.applicationName': 'TestWiki',
+        'ngdpbase.logging.level': 'info'
       };
       await fs.writeJson(
         path.join(tempDir, 'config', 'app-default-config.json'),
@@ -620,14 +620,14 @@ describe('ConfigurationManager', () => {
       await fs.ensureDir(instanceConfigDir);
       await fs.writeJson(
         path.join(instanceConfigDir, 'app-custom-config.json'),
-        { 'amdwiki.logging.level': 'error' },
+        { 'ngdpbase.logging.level': 'error' },
         { spaces: 2 }
       );
 
       const newConfigManager = new ConfigurationManager(mockEngine);
       await newConfigManager.initialize();
 
-      expect(newConfigManager.getProperty('amdwiki.logging.level')).toBe('error');
+      expect(newConfigManager.getProperty('ngdpbase.logging.level')).toBe('error');
     });
   });
 });

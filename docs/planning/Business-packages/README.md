@@ -38,4 +38,4 @@ All business have
 - Contact List of persons
 - Finacial transations
 
-We want to make these add-on packages to <https://github.com/jwilleke/amdWiki>
+We want to make these add-on packages to <https://github.com/jwilleke/ngdpbase>

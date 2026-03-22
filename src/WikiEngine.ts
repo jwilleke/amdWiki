@@ -151,10 +151,10 @@ class WikiEngine extends Engine {
     // Reconfigure logger with settings from ConfigurationManager
     // Logger starts with defaults, then reconfigures here after config is available
     reconfigureLogger({
-      level: configManager.getProperty('amdwiki.logging.level', 'info') as string,
-      dir: configManager.getResolvedDataPath('amdwiki.logging.dir', './data/logs'),
-      maxSize: configManager.getProperty('amdwiki.logging.maxSize', '1MB') as string,
-      maxFiles: configManager.getProperty('amdwiki.logging.maxFiles', 5) as number
+      level: configManager.getProperty('ngdpbase.logging.level', 'info') as string,
+      dir: configManager.getResolvedDataPath('ngdpbase.logging.dir', './data/logs'),
+      maxSize: configManager.getProperty('ngdpbase.logging.maxSize', '1MB') as string,
+      maxFiles: configManager.getProperty('ngdpbase.logging.maxFiles', 5) as number
     });
     logger.info('Logger reconfigured from ConfigurationManager');
 
@@ -255,8 +255,8 @@ class WikiEngine extends Engine {
     this.registerManager('AttachmentManager', attachmentManager);
     await attachmentManager.initialize();
 
-    // Conditionally register MediaManager when amdwiki.media.enabled is true
-    const mediaEnabled = configManager.getProperty('amdwiki.media.enabled', false) as boolean;
+    // Conditionally register MediaManager when ngdpbase.media.enabled is true
+    const mediaEnabled = configManager.getProperty('ngdpbase.media.enabled', false) as boolean;
     if (mediaEnabled) {
       const mediaManager = new MediaManager(this);
       this.registerManager('MediaManager', mediaManager);
@@ -309,22 +309,22 @@ class WikiEngine extends Engine {
    *
    * Uses ConfigurationManager to retrieve the application name.
    *
-   * @returns {string} Application name (defaults to 'amdWiki')
+   * @returns {string} Application name (defaults to 'ngdpbase')
    *
    * @example
-   * const name = engine.getApplicationName(); // 'amdWiki'
+   * const name = engine.getApplicationName(); // 'ngdpbase'
    */
   getApplicationName(): string {
     try {
       const configManager = this.getManager<ConfigurationManager>('ConfigurationManager');
       if (configManager) {
-        const name = configManager.getProperty('amdwiki.applicationName', 'amdWiki') as string;
-        return name || 'amdWiki';
+        const name = configManager.getProperty('ngdpbase.applicationName', 'ngdpbase') as string;
+        return name || 'ngdpbase';
       }
-      return 'amdWiki';
+      return 'ngdpbase';
     } catch {
       // ConfigurationManager not yet initialized
-      return 'amdWiki';
+      return 'ngdpbase';
     }
   }
 
@@ -341,7 +341,7 @@ class WikiEngine extends Engine {
    *
    * // NEW (use this instead):
    * const configManager = engine.getManager('ConfigurationManager');
-   * const value = configManager.getProperty('amdwiki.key', 'default');
+   * const value = configManager.getProperty('ngdpbase.key', 'default');
    */
   getConfig(): never {
     throw new Error(

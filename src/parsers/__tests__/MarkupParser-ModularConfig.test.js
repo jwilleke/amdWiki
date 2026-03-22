@@ -10,51 +10,51 @@ class ModularConfigurationManager {
   constructor(customOverrides = {}) {
     // Simulate app-default-config.json values
     this.defaultConfig = {
-      'amdwiki.markup.enabled': true,
-      'amdwiki.markup.caching': true,
-      'amdwiki.markup.cacheTTL': 300,
+      'ngdpbase.markup.enabled': true,
+      'ngdpbase.markup.caching': true,
+      'ngdpbase.markup.cacheTTL': 300,
       
       // Handler enable/disable (modular)
-      'amdwiki.markup.handlers.plugin.enabled': true,
-      'amdwiki.markup.handlers.plugin.priority': 90,
-      'amdwiki.markup.handlers.wikitag.enabled': true,
-      'amdwiki.markup.handlers.wikitag.priority': 95,
-      'amdwiki.markup.handlers.form.enabled': true,
-      'amdwiki.markup.handlers.form.priority': 85,
-      'amdwiki.markup.handlers.interwiki.enabled': true,
-      'amdwiki.markup.handlers.interwiki.priority': 80,
-      'amdwiki.markup.handlers.attachment.enabled': true,
-      'amdwiki.markup.handlers.attachment.priority': 75,
-      'amdwiki.markup.handlers.attachment.enhanced': true,
-      'amdwiki.markup.handlers.attachment.thumbnails': true,
-      'amdwiki.markup.handlers.attachment.metadata': true,
-      'amdwiki.markup.handlers.style.enabled': true,
-      'amdwiki.markup.handlers.style.priority': 70,
+      'ngdpbase.markup.handlers.plugin.enabled': true,
+      'ngdpbase.markup.handlers.plugin.priority': 90,
+      'ngdpbase.markup.handlers.wikitag.enabled': true,
+      'ngdpbase.markup.handlers.wikitag.priority': 95,
+      'ngdpbase.markup.handlers.form.enabled': true,
+      'ngdpbase.markup.handlers.form.priority': 85,
+      'ngdpbase.markup.handlers.interwiki.enabled': true,
+      'ngdpbase.markup.handlers.interwiki.priority': 80,
+      'ngdpbase.markup.handlers.attachment.enabled': true,
+      'ngdpbase.markup.handlers.attachment.priority': 75,
+      'ngdpbase.markup.handlers.attachment.enhanced': true,
+      'ngdpbase.markup.handlers.attachment.thumbnails': true,
+      'ngdpbase.markup.handlers.attachment.metadata': true,
+      'ngdpbase.markup.handlers.style.enabled': true,
+      'ngdpbase.markup.handlers.style.priority': 70,
       
       // Attachment configuration (modular)
-      'amdwiki.attachment.enhanced.thumbnailSizes': '150x150,300x300',
-      'amdwiki.attachment.enhanced.showMetadata': true,
-      'amdwiki.attachment.enhanced.showFileSize': true,
-      'amdwiki.attachment.enhanced.iconPath': '/icons/filetypes',
-      'amdwiki.attachment.enhanced.generateThumbnails': true,
+      'ngdpbase.attachment.enhanced.thumbnailSizes': '150x150,300x300',
+      'ngdpbase.attachment.enhanced.showMetadata': true,
+      'ngdpbase.attachment.enhanced.showFileSize': true,
+      'ngdpbase.attachment.enhanced.iconPath': '/icons/filetypes',
+      'ngdpbase.attachment.enhanced.generateThumbnails': true,
       
       // Style configuration (modular)
-      'amdwiki.style.customClasses.enabled': true,
-      'amdwiki.style.bootstrap.integration': true,
-      'amdwiki.style.security.allowInlineCSS': false,
-      'amdwiki.style.security.allowedProperties': 'color,background-color,font-weight',
-      'amdwiki.style.predefined.text': 'text-primary,text-success,text-danger',
-      'amdwiki.style.predefined.background': 'bg-primary,bg-light,bg-dark',
+      'ngdpbase.style.customClasses.enabled': true,
+      'ngdpbase.style.bootstrap.integration': true,
+      'ngdpbase.style.security.allowInlineCSS': false,
+      'ngdpbase.style.security.allowedProperties': 'color,background-color,font-weight',
+      'ngdpbase.style.predefined.text': 'text-primary,text-success,text-danger',
+      'ngdpbase.style.predefined.background': 'bg-primary,bg-light,bg-dark',
       
       // Cache configuration (modular)
-      'amdwiki.markup.cache.parseResults.enabled': true,
-      'amdwiki.markup.cache.parseResults.ttl': 300,
-      'amdwiki.markup.cache.handlerResults.enabled': true,
-      'amdwiki.markup.cache.handlerResults.ttl': 600,
+      'ngdpbase.markup.cache.parseResults.enabled': true,
+      'ngdpbase.markup.cache.parseResults.ttl': 300,
+      'ngdpbase.markup.cache.handlerResults.enabled': true,
+      'ngdpbase.markup.cache.handlerResults.ttl': 600,
       
       // Performance configuration (modular)
-      'amdwiki.markup.performance.monitoring': true,
-      'amdwiki.markup.performance.alertThresholds.parseTime': 100
+      'ngdpbase.markup.performance.monitoring': true,
+      'ngdpbase.markup.performance.alertThresholds.parseTime': 100
     };
     
     // Simulate app-custom-config.json overrides
@@ -172,10 +172,10 @@ describe.skip('MarkupParser Modular Configuration System', () => {
     test('should override with app-custom-config.json values', async () => {
       // Simulate app-custom-config.json overrides
       const customOverrides = {
-        'amdwiki.markup.cacheTTL': 600,                    // Override default 300
-        'amdwiki.markup.handlers.plugin.priority': 95,     // Override default 90
-        'amdwiki.markup.handlers.attachment.thumbnails': false, // Override default true
-        'amdwiki.style.security.allowInlineCSS': true      // Override default false
+        'ngdpbase.markup.cacheTTL': 600,                    // Override default 300
+        'ngdpbase.markup.handlers.plugin.priority': 95,     // Override default 90
+        'ngdpbase.markup.handlers.attachment.thumbnails': false, // Override default true
+        'ngdpbase.style.security.allowInlineCSS': true      // Override default false
       };
       
       const engine = new ModularMockEngine(customOverrides);
@@ -197,8 +197,8 @@ describe.skip('MarkupParser Modular Configuration System', () => {
     test('should support partial configuration overrides', async () => {
       // Override only specific attachment settings
       const partialOverrides = {
-        'amdwiki.attachment.enhanced.showFileSize': false,
-        'amdwiki.attachment.enhanced.iconPath': '/custom/icons'
+        'ngdpbase.attachment.enhanced.showFileSize': false,
+        'ngdpbase.attachment.enhanced.iconPath': '/custom/icons'
       };
       
       const engine = new ModularMockEngine(partialOverrides);
@@ -220,11 +220,11 @@ describe.skip('MarkupParser Modular Configuration System', () => {
   describe('Handler-Specific Modular Configuration', () => {
     test('should configure AttachmentHandler features individually', async () => {
       const customConfig = {
-        'amdwiki.markup.handlers.attachment.enhanced': true,
-        'amdwiki.markup.handlers.attachment.thumbnails': false,  // Disable thumbnails
-        'amdwiki.markup.handlers.attachment.metadata': true,
-        'amdwiki.attachment.enhanced.showFileSize': false,       // Disable file size
-        'amdwiki.attachment.enhanced.iconPath': '/custom/icons'  // Custom icon path
+        'ngdpbase.markup.handlers.attachment.enhanced': true,
+        'ngdpbase.markup.handlers.attachment.thumbnails': false,  // Disable thumbnails
+        'ngdpbase.markup.handlers.attachment.metadata': true,
+        'ngdpbase.attachment.enhanced.showFileSize': false,       // Disable file size
+        'ngdpbase.attachment.enhanced.iconPath': '/custom/icons'  // Custom icon path
       };
       
       const engine = new ModularMockEngine(customConfig);
@@ -245,10 +245,10 @@ describe.skip('MarkupParser Modular Configuration System', () => {
 
     test('should configure WikiStyleHandler security settings', async () => {
       const securityConfig = {
-        'amdwiki.style.security.allowInlineCSS': true,    // Enable inline CSS
-        'amdwiki.style.security.allowedProperties': 'color,font-weight,text-align', // Custom properties
-        'amdwiki.style.customClasses.enabled': false,     // Disable custom classes
-        'amdwiki.style.predefined.text': 'text-primary,text-warning' // Custom predefined
+        'ngdpbase.style.security.allowInlineCSS': true,    // Enable inline CSS
+        'ngdpbase.style.security.allowedProperties': 'color,font-weight,text-align', // Custom properties
+        'ngdpbase.style.customClasses.enabled': false,     // Disable custom classes
+        'ngdpbase.style.predefined.text': 'text-primary,text-warning' // Custom predefined
       };
       
       const engine = new ModularMockEngine(securityConfig);
@@ -268,9 +268,9 @@ describe.skip('MarkupParser Modular Configuration System', () => {
 
     test('should allow complete handler disable via configuration', async () => {
       const disabledConfig = {
-        'amdwiki.markup.handlers.attachment.enabled': false,
-        'amdwiki.markup.handlers.style.enabled': false,
-        'amdwiki.markup.handlers.form.enabled': false
+        'ngdpbase.markup.handlers.attachment.enabled': false,
+        'ngdpbase.markup.handlers.style.enabled': false,
+        'ngdpbase.markup.handlers.form.enabled': false
       };
       
       const engine = new ModularMockEngine(disabledConfig);
@@ -297,10 +297,10 @@ describe.skip('MarkupParser Modular Configuration System', () => {
   describe('Priority Configuration Modularity', () => {
     test('should respect custom handler priorities', async () => {
       const priorityConfig = {
-        'amdwiki.markup.handlers.plugin.priority': 100,      // Increase from 90
-        'amdwiki.markup.handlers.wikitag.priority': 85,      // Decrease from 95
-        'amdwiki.markup.handlers.attachment.priority': 95,   // Increase from 75
-        'amdwiki.markup.handlers.style.priority': 80        // Increase from 70
+        'ngdpbase.markup.handlers.plugin.priority': 100,      // Increase from 90
+        'ngdpbase.markup.handlers.wikitag.priority': 85,      // Decrease from 95
+        'ngdpbase.markup.handlers.attachment.priority': 95,   // Increase from 75
+        'ngdpbase.markup.handlers.style.priority': 80        // Increase from 70
       };
       
       const engine = new ModularMockEngine(priorityConfig);
@@ -330,9 +330,9 @@ describe.skip('MarkupParser Modular Configuration System', () => {
 
     test('should handle priority conflicts gracefully', async () => {
       const conflictConfig = {
-        'amdwiki.markup.handlers.plugin.priority': 90,
-        'amdwiki.markup.handlers.wikitag.priority': 90,  // Same priority
-        'amdwiki.markup.handlers.form.priority': 90      // Same priority
+        'ngdpbase.markup.handlers.plugin.priority': 90,
+        'ngdpbase.markup.handlers.wikitag.priority': 90,  // Same priority
+        'ngdpbase.markup.handlers.form.priority': 90      // Same priority
       };
       
       const engine = new ModularMockEngine(conflictConfig);
@@ -352,12 +352,12 @@ describe.skip('MarkupParser Modular Configuration System', () => {
   describe('Feature Flag Configuration Modularity', () => {
     test('should configure attachment features individually', async () => {
       const featureConfig = {
-        'amdwiki.markup.handlers.attachment.enabled': true,
-        'amdwiki.markup.handlers.attachment.enhanced': true,
-        'amdwiki.markup.handlers.attachment.thumbnails': false,    // Disable thumbnails only
-        'amdwiki.markup.handlers.attachment.metadata': true,
-        'amdwiki.attachment.enhanced.showFileSize': false,        // Disable file size only
-        'amdwiki.attachment.enhanced.showModified': true
+        'ngdpbase.markup.handlers.attachment.enabled': true,
+        'ngdpbase.markup.handlers.attachment.enhanced': true,
+        'ngdpbase.markup.handlers.attachment.thumbnails': false,    // Disable thumbnails only
+        'ngdpbase.markup.handlers.attachment.metadata': true,
+        'ngdpbase.attachment.enhanced.showFileSize': false,        // Disable file size only
+        'ngdpbase.attachment.enhanced.showModified': true
       };
       
       const engine = new ModularMockEngine(featureConfig);
@@ -376,10 +376,10 @@ describe.skip('MarkupParser Modular Configuration System', () => {
 
     test('should configure style security settings individually', async () => {
       const securityConfig = {
-        'amdwiki.style.security.allowInlineCSS': true,           // Enable inline CSS
-        'amdwiki.style.security.allowedProperties': 'color,font-size', // Specific properties
-        'amdwiki.style.customClasses.enabled': false,           // Disable custom classes
-        'amdwiki.style.bootstrap.integration': true             // Keep Bootstrap
+        'ngdpbase.style.security.allowInlineCSS': true,           // Enable inline CSS
+        'ngdpbase.style.security.allowedProperties': 'color,font-size', // Specific properties
+        'ngdpbase.style.customClasses.enabled': false,           // Disable custom classes
+        'ngdpbase.style.bootstrap.integration': true             // Keep Bootstrap
       };
       
       const engine = new ModularMockEngine(securityConfig);
@@ -401,12 +401,12 @@ describe.skip('MarkupParser Modular Configuration System', () => {
   describe('Cache Configuration Modularity', () => {
     test('should configure cache strategies individually', async () => {
       const cacheConfig = {
-        'amdwiki.markup.cache.parseResults.enabled': true,
-        'amdwiki.markup.cache.parseResults.ttl': 900,           // Custom TTL
-        'amdwiki.markup.cache.handlerResults.enabled': false,   // Disable handler cache
-        'amdwiki.markup.cache.patterns.enabled': true,
-        'amdwiki.markup.cache.variables.enabled': false,       // Disable variable cache
-        'amdwiki.markup.cache.enableWarmup': false              // Disable warmup
+        'ngdpbase.markup.cache.parseResults.enabled': true,
+        'ngdpbase.markup.cache.parseResults.ttl': 900,           // Custom TTL
+        'ngdpbase.markup.cache.handlerResults.enabled': false,   // Disable handler cache
+        'ngdpbase.markup.cache.patterns.enabled': true,
+        'ngdpbase.markup.cache.variables.enabled': false,       // Disable variable cache
+        'ngdpbase.markup.cache.enableWarmup': false              // Disable warmup
       };
       
       const engine = new ModularMockEngine(cacheConfig);
@@ -427,7 +427,7 @@ describe.skip('MarkupParser Modular Configuration System', () => {
 
     test('should support complete cache disable', async () => {
       const noCacheConfig = {
-        'amdwiki.markup.caching': false  // Master cache disable
+        'ngdpbase.markup.caching': false  // Master cache disable
       };
       
       const engine = new ModularMockEngine(noCacheConfig);
@@ -445,10 +445,10 @@ describe.skip('MarkupParser Modular Configuration System', () => {
   describe('Performance Configuration Modularity', () => {
     test('should configure performance thresholds individually', async () => {
       const perfConfig = {
-        'amdwiki.markup.performance.monitoring': true,
-        'amdwiki.markup.performance.alertThresholds.parseTime': 50,    // Custom threshold
-        'amdwiki.markup.performance.alertThresholds.cacheHitRatio': 0.8, // Custom threshold
-        'amdwiki.markup.performance.alertThresholds.errorRate': 0.02    // Custom threshold
+        'ngdpbase.markup.performance.monitoring': true,
+        'ngdpbase.markup.performance.alertThresholds.parseTime': 50,    // Custom threshold
+        'ngdpbase.markup.performance.alertThresholds.cacheHitRatio': 0.8, // Custom threshold
+        'ngdpbase.markup.performance.alertThresholds.errorRate': 0.02    // Custom threshold
       };
       
       const engine = new ModularMockEngine(perfConfig);
@@ -465,7 +465,7 @@ describe.skip('MarkupParser Modular Configuration System', () => {
 
     test('should disable performance monitoring when configured', async () => {
       const noPerfConfig = {
-        'amdwiki.markup.performance.monitoring': false
+        'ngdpbase.markup.performance.monitoring': false
       };
       
       const engine = new ModularMockEngine(noPerfConfig);
@@ -481,10 +481,10 @@ describe.skip('MarkupParser Modular Configuration System', () => {
   describe('Deployment Scenario Configurations', () => {
     test('should support development environment configuration', async () => {
       const devConfig = {
-        'amdwiki.markup.cache.parseResults.ttl': 60,        // Short cache for development
-        'amdwiki.markup.performance.monitoring': true,      // Enable monitoring
-        'amdwiki.style.security.allowInlineCSS': true,      // Allow for testing
-        'amdwiki.attachment.enhanced.generateThumbnails': false // Disable for dev speed
+        'ngdpbase.markup.cache.parseResults.ttl': 60,        // Short cache for development
+        'ngdpbase.markup.performance.monitoring': true,      // Enable monitoring
+        'ngdpbase.style.security.allowInlineCSS': true,      // Allow for testing
+        'ngdpbase.attachment.enhanced.generateThumbnails': false // Disable for dev speed
       };
       
       const engine = new ModularMockEngine(devConfig);
@@ -505,12 +505,12 @@ describe.skip('MarkupParser Modular Configuration System', () => {
 
     test('should support production environment configuration', async () => {
       const prodConfig = {
-        'amdwiki.markup.cache.parseResults.ttl': 1800,      // Long cache for production
-        'amdwiki.markup.performance.monitoring': true,      // Enable monitoring
-        'amdwiki.style.security.allowInlineCSS': false,     // Security lockdown
-        'amdwiki.attachment.enhanced.generateThumbnails': true, // Enable for UX
-        'amdwiki.markup.handlers.form.enabled': true,       // Enable forms
-        'amdwiki.style.customClasses.enabled': false        // Only predefined classes
+        'ngdpbase.markup.cache.parseResults.ttl': 1800,      // Long cache for production
+        'ngdpbase.markup.performance.monitoring': true,      // Enable monitoring
+        'ngdpbase.style.security.allowInlineCSS': false,     // Security lockdown
+        'ngdpbase.attachment.enhanced.generateThumbnails': true, // Enable for UX
+        'ngdpbase.markup.handlers.form.enabled': true,       // Enable forms
+        'ngdpbase.style.customClasses.enabled': false        // Only predefined classes
       };
       
       const engine = new ModularMockEngine(prodConfig);
@@ -532,12 +532,12 @@ describe.skip('MarkupParser Modular Configuration System', () => {
 
     test('should support high-security environment configuration', async () => {
       const securityConfig = {
-        'amdwiki.markup.handlers.form.enabled': false,      // Disable forms
-        'amdwiki.markup.handlers.attachment.enabled': false, // Disable attachments
-        'amdwiki.style.security.allowInlineCSS': false,     // No inline CSS
-        'amdwiki.style.customClasses.enabled': false,       // No custom classes
-        'amdwiki.style.predefined.text': 'text-muted',      // Minimal styling
-        'amdwiki.markup.cache.handlerResults.enabled': false // No handler caching
+        'ngdpbase.markup.handlers.form.enabled': false,      // Disable forms
+        'ngdpbase.markup.handlers.attachment.enabled': false, // Disable attachments
+        'ngdpbase.style.security.allowInlineCSS': false,     // No inline CSS
+        'ngdpbase.style.customClasses.enabled': false,       // No custom classes
+        'ngdpbase.style.predefined.text': 'text-muted',      // Minimal styling
+        'ngdpbase.markup.cache.handlerResults.enabled': false // No handler caching
       };
       
       const engine = new ModularMockEngine(securityConfig);

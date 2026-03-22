@@ -133,10 +133,10 @@ interface BaseSearchProvider {
  * CacheManager, and AuditManager for pluggable search backends.
  *
  * Configuration (all lowercase):
- * - amdwiki.search.enabled - Enable/disable search
- * - amdwiki.search.provider.default - Default provider name
- * - amdwiki.search.provider - Active provider name
- * - amdwiki.search.provider.lunr.* - LunrSearchProvider settings
+ * - ngdpbase.search.enabled - Enable/disable search
+ * - ngdpbase.search.provider.default - Default provider name
+ * - ngdpbase.search.provider - Active provider name
+ * - ngdpbase.search.provider.lunr.* - LunrSearchProvider settings
  *
  * @class SearchManager
  * @extends BaseManager
@@ -194,7 +194,7 @@ class SearchManager extends BaseManager {
     }
 
     // Check if search is enabled (ALL LOWERCASE)
-    const searchEnabled = configManager.getProperty('amdwiki.search.enabled', true) as boolean;
+    const searchEnabled = configManager.getProperty('ngdpbase.search.enabled', true) as boolean;
     if (!searchEnabled) {
       logger.info('🔍 SearchManager: Search disabled by configuration');
       // Could load a NullSearchProvider when disabled
@@ -202,8 +202,8 @@ class SearchManager extends BaseManager {
     }
 
     // Load provider with fallback (ALL LOWERCASE)
-    const defaultProvider = configManager.getProperty('amdwiki.search.provider.default', 'lunrsearchprovider') as string;
-    const providerName = configManager.getProperty('amdwiki.search.provider', defaultProvider) as string;
+    const defaultProvider = configManager.getProperty('ngdpbase.search.provider.default', 'lunrsearchprovider') as string;
+    const providerName = configManager.getProperty('ngdpbase.search.provider', defaultProvider) as string;
 
     // Normalize provider name to PascalCase for class loading
     // lunrsearchprovider -> LunrSearchProvider

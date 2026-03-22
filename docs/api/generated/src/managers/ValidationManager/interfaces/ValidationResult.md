@@ -1,12 +1,12 @@
-[**amdWiki API v1.5.0**](../../../../README.md)
+[**ngdpbase API v1.5.0**](../../../../README.md)
 
 ***
 
-[amdWiki API](../../../../README.md) / [src/managers/ValidationManager](../README.md) / ValidationResult
+[ngdpbase API](../../../../README.md) / [src/managers/ValidationManager](../README.md) / ValidationResult
 
 # Interface: ValidationResult
 
-Defined in: [src/managers/ValidationManager.ts:19](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ValidationManager.ts#L19)
+Defined in: [src/managers/ValidationManager.ts:19](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ValidationManager.ts#L19)
 
 Validation result interface
 
@@ -20,7 +20,7 @@ Validation result interface
 
 > **error**: `string` \| `null`
 
-Defined in: [src/managers/ValidationManager.ts:21](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ValidationManager.ts#L21)
+Defined in: [src/managers/ValidationManager.ts:21](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ValidationManager.ts#L21)
 
 ***
 
@@ -28,4 +28,4 @@ Defined in: [src/managers/ValidationManager.ts:21](https://github.com/jwilleke/a
 
 > **success**: `boolean`
 
-Defined in: [src/managers/ValidationManager.ts:20](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ValidationManager.ts#L20)
+Defined in: [src/managers/ValidationManager.ts:20](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ValidationManager.ts#L20)

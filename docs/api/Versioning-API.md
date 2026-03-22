@@ -1,6 +1,6 @@
 # Version Management API Reference
 
-Complete REST API reference for amdWiki's version management system.
+Complete REST API reference for ngdpbase's version management system.
 
 ## Overview
 
@@ -47,7 +47,7 @@ All API requests use session-based authentication via cookies.
 
 ### Checking Authentication
 
-The API uses the existing amdWiki session system. Ensure you have a valid session cookie.
+The API uses the existing ngdpbase session system. Ensure you have a valid session cookie.
 
 ---
 
@@ -797,4 +797,4 @@ For issues or questions:
 
 **Last Updated**: 2024-10-16
 **API Version**: 1.0
-**Applies to**: amdWiki 1.3.2+
+**Applies to**: ngdpbase 1.3.2+

@@ -2,7 +2,7 @@
 
 ## Current State Analysis
 
-The amdWiki already has a solid foundation for time-based permissions:
+The ngdpbase already has a solid foundation for time-based permissions:
 
 ### ✅ Existing Infrastructure
 

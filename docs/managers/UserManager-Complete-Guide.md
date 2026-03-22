@@ -9,7 +9,7 @@
 
 ## Overview
 
-The **UserManager** handles user authentication, authorization, role management, and session management in amdWiki. It provides a centralized system for managing user accounts, authenticating credentials, and determining user permissions through integration with the policy system.
+The **UserManager** handles user authentication, authorization, role management, and session management in ngdpbase. It provides a centralized system for managing user accounts, authenticating credentials, and determining user permissions through integration with the policy system.
 
 ### Key Features
 
@@ -36,11 +36,11 @@ The **UserManager** handles user authentication, authorization, role management,
 ┌─────────────────────────────────────────────────────────┐
 │ 2. Load Configuration (ALL LOWERCASE)                   │
 │    - ConfigurationManager.getProperty()                 │
-│    - amdwiki.user.provider.storagedir                   │
-│    - amdwiki.user.security.passwordsalt                 │
-│    - amdwiki.user.security.defaultpassword              │
-│    - amdwiki.user.defaults.timezone                     │
-│    - amdwiki.roles.definitions (role metadata)          │
+│    - ngdpbase.user.provider.storagedir                   │
+│    - ngdpbase.user.security.passwordsalt                 │
+│    - ngdpbase.user.security.defaultpassword              │
+│    - ngdpbase.user.defaults.timezone                     │
+│    - ngdpbase.roles.definitions (role metadata)          │
 └───────────────────┬─────────────────────────────────────┘
                     │
                     ▼
@@ -98,12 +98,12 @@ The **UserManager** handles user authentication, authorization, role management,
 ```json
 {
   "_comment_user_storage": "User authentication and storage configuration (ALL LOWERCASE)",
-  "amdwiki.user.enabled": true,
-  "amdwiki.user.provider.default": "jsonuserprovider",
-  "amdwiki.user.provider": "jsonuserprovider",
-  "amdwiki.user.provider.storagedir": "./users",
-  "amdwiki.user.provider.files.users": "users.json",
-  "amdwiki.user.provider.files.sessions": "sessions.json"
+  "ngdpbase.user.enabled": true,
+  "ngdpbase.user.provider.default": "jsonuserprovider",
+  "ngdpbase.user.provider": "jsonuserprovider",
+  "ngdpbase.user.provider.storagedir": "./users",
+  "ngdpbase.user.provider.files.users": "users.json",
+  "ngdpbase.user.provider.files.sessions": "sessions.json"
 }
 ```
 
@@ -112,9 +112,9 @@ The **UserManager** handles user authentication, authorization, role management,
 ```json
 {
   "_comment_user_security": "User security settings (ALL LOWERCASE)",
-  "amdwiki.user.security.passwordsalt": "amdwiki-salt",
-  "amdwiki.user.security.defaultpassword": "admin123",
-  "amdwiki.user.security.sessionexpiration": 86400000
+  "ngdpbase.user.security.passwordsalt": "ngdpbase-salt",
+  "ngdpbase.user.security.defaultpassword": "admin123",
+  "ngdpbase.user.security.sessionexpiration": 86400000
 }
 ```
 
@@ -123,9 +123,9 @@ The **UserManager** handles user authentication, authorization, role management,
 ```json
 {
   "_comment_user_defaults": "Default user settings (ALL LOWERCASE)",
-  "amdwiki.user.defaults.timezone": "utc",
-  "amdwiki.user.defaults.locale": "en-us",
-  "amdwiki.user.defaults.theme": "light"
+  "ngdpbase.user.defaults.timezone": "utc",
+  "ngdpbase.user.defaults.locale": "en-us",
+  "ngdpbase.user.defaults.theme": "light"
 }
 ```
 
@@ -134,7 +134,7 @@ The **UserManager** handles user authentication, authorization, role management,
 ```json
 {
   "_comment_roles": "Role definitions - metadata only, permissions defined via policies",
-  "amdwiki.roles.definitions": {
+  "ngdpbase.roles.definitions": {
     "admin": {
       "name": "admin",
       "displayname": "Administrator",
@@ -671,8 +671,8 @@ These methods now throw errors with migration instructions:
 
 #### ✅ New Behavior
 
-- All configuration keys are now **lowercase** (`amdwiki.user.provider.storagedir`)
-- Roles loaded from `amdwiki.roles.definitions` in config
+- All configuration keys are now **lowercase** (`ngdpbase.user.provider.storagedir`)
+- Roles loaded from `ngdpbase.roles.definitions` in config
 - Permissions queried from PolicyManager (not hardcoded in roles)
 - Custom roles added via `app-custom-config.json` (auto-merged by ConfigurationManager)
 
@@ -713,7 +713,7 @@ await userManager.createRole({ name: 'moderator', ... });
 
 ```json
 {
-  "amdwiki.roles.definitions": {
+  "ngdpbase.roles.definitions": {
     "moderator": {
       "name": "moderator",
       "displayname": "Moderator",
@@ -764,14 +764,14 @@ const user = await userManager.createOrUpdateExternalUser({
 ### Password Hashing
 
 - Uses SHA-256 with configurable salt
-- Salt configured in `amdwiki.user.security.passwordsalt`
+- Salt configured in `ngdpbase.user.security.passwordsalt`
 - Never stores plain text passwords
 - External OAuth users have `password: null`
 
 ### Session Security
 
 - Sessions stored in file system (not in-memory)
-- Configurable expiration (`amdwiki.user.security.sessionexpiration`)
+- Configurable expiration (`ngdpbase.user.security.sessionexpiration`)
 - Expired sessions auto-cleaned on load
 - Cryptographically random session IDs (16 bytes)
 
@@ -798,7 +798,7 @@ const user = await userManager.createOrUpdateExternalUser({
 
 **Cause:** PolicyManager not initialized or disabled
 
-**Solution:** Check `amdwiki.access.policies.enabled` is `true` in config
+**Solution:** Check `ngdpbase.access.policies.enabled` is `true` in config
 
 ---
 
@@ -832,7 +832,7 @@ const user = await userManager.createOrUpdateExternalUser({
 
 - ✅ Refactored to use ConfigurationManager for all settings
 - ✅ All configuration keys now lowercase
-- ✅ Roles loaded from config (`amdwiki.roles.definitions`)
+- ✅ Roles loaded from config (`ngdpbase.roles.definitions`)
 - ✅ Permissions queried from PolicyManager
 - ❌ Removed hardcoded role/permission initialization
 - ⚠️ Deprecated `createRole()`, `deleteRole()`, `updateRolePermissions()`

@@ -23,7 +23,7 @@ The **PolicyEvaluator** evaluates access control policies against a given contex
 
 ## Purpose
 
-PolicyEvaluator is the **decision engine** in amdWiki's access control system. It:
+PolicyEvaluator is the **decision engine** in ngdpbase's access control system. It:
 
 1. **Receives** access requests (who wants to do what to which resource)
 2. **Retrieves** all policies from PolicyManager

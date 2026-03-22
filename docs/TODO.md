@@ -1,5 +1,5 @@
 ---
-title: amdWiki Development TODO
+title: ngdpbase Development TODO
 category: System
 user-keywords:
 - todo
@@ -7,18 +7,18 @@ user-keywords:
 - roadmap
 uuid: 124f3d52-75a0-4e61-8008-de37d1da4ef6
 lastModified: '2026-02-10T00:00:00.000Z'
-slug: amdwiki-todo
+slug: ngdpbase-todo
 ---
 
 # Project Development TODO
 
-No active tasks. See [GitHub Issues](https://github.com/jwilleke/amdWiki/issues) for open items.
+No active tasks. See [GitHub Issues](https://github.com/jwilleke/ngdpbase/issues) for open items.
 
-<https://github.com/jwilleke/amdWiki/issues/250>
+<https://github.com/jwilleke/ngdpbase/issues/250>
 
 Also I want backups names as with conical dates first.
-amdwiki-backup-2025-10-14T12-34-37-814Z.json.gz becomes
-2025-10-14T12-34-37-814Z-amdwiki-backup.json.gz
+ngdpbase-backup-2025-10-14T12-34-37-814Z.json.gz becomes
+2025-10-14T12-34-37-814Z-ngdpbase-backup.json.gz
 
 How can we transform this instance:
 My fast disk: /Volumes/hd1/jimstest-wiki/
@@ -31,7 +31,7 @@ How do we make this transition?
 
 ## Goal
 
-Migrate amdWiki data to use:
+Migrate ngdpbase data to use:
 
 - **Fast SSD** (`/Volumes/hd1/jimstest-wiki/`) for high-I/O files
 - **NAS** (`/Volumes/jims/data/systems/wikis/jimstest-wiki/`) for main data
@@ -130,22 +130,22 @@ Create/update `config/app-production-config.json`:
   "_comment_hybrid_storage": "Hybrid SSD + NAS storage configuration",
 
   "_comment_ssd_high_io": "High I/O files on fast SSD",
-  "amdwiki.session.storagedir": "/Volumes/hd1/jimstest-wiki/sessions",
-  "amdwiki.page.provider.versioning.indexfile": "/Volumes/hd1/jimstest-wiki/page-index.json",
-  "amdwiki.search.provider.lunr.indexdir": "/Volumes/hd1/jimstest-wiki/search-index",
+  "ngdpbase.session.storagedir": "/Volumes/hd1/jimstest-wiki/sessions",
+  "ngdpbase.page.provider.versioning.indexfile": "/Volumes/hd1/jimstest-wiki/page-index.json",
+  "ngdpbase.search.provider.lunr.indexdir": "/Volumes/hd1/jimstest-wiki/search-index",
 
   "_comment_nas_main_data": "Main data on NAS",
-  "amdwiki.page.provider.filesystem.storagedir": "/Volumes/jims/data/systems/wikis/jimstest-wiki/pages",
-  "amdwiki.attachment.provider.basic.storagedir": "/Volumes/jims/data/systems/wikis/jimstest-wiki/attachments",
-  "amdwiki.attachment.metadatafile": "/Volumes/jims/data/systems/wikis/jimstest-wiki/attachments/attachment-metadata.json",
-  "amdwiki.user.provider.storagedir": "/Volumes/jims/data/systems/wikis/jimstest-wiki/users",
-  "amdwiki.audit.provider.file.logdirectory": "/Volumes/jims/data/systems/wikis/jimstest-wiki/logs",
-  "amdwiki.logging.dir": "/Volumes/jims/data/systems/wikis/jimstest-wiki/logs",
-  "amdwiki.notifications.dir": "/Volumes/jims/data/systems/wikis/jimstest-wiki/notifications",
-  "amdwiki.directories.schemas": "/Volumes/jims/data/systems/wikis/jimstest-wiki/schemas",
+  "ngdpbase.page.provider.filesystem.storagedir": "/Volumes/jims/data/systems/wikis/jimstest-wiki/pages",
+  "ngdpbase.attachment.provider.basic.storagedir": "/Volumes/jims/data/systems/wikis/jimstest-wiki/attachments",
+  "ngdpbase.attachment.metadatafile": "/Volumes/jims/data/systems/wikis/jimstest-wiki/attachments/attachment-metadata.json",
+  "ngdpbase.user.provider.storagedir": "/Volumes/jims/data/systems/wikis/jimstest-wiki/users",
+  "ngdpbase.audit.provider.file.logdirectory": "/Volumes/jims/data/systems/wikis/jimstest-wiki/logs",
+  "ngdpbase.logging.dir": "/Volumes/jims/data/systems/wikis/jimstest-wiki/logs",
+  "ngdpbase.notifications.dir": "/Volumes/jims/data/systems/wikis/jimstest-wiki/notifications",
+  "ngdpbase.directories.schemas": "/Volumes/jims/data/systems/wikis/jimstest-wiki/schemas",
 
   "_comment_backups": "Backups on NAS backup location",
-  "amdwiki.backup.directory": "/Volumes/jims/data/systems/wikis/backup-wikis"
+  "ngdpbase.backup.directory": "/Volumes/jims/data/systems/wikis/backup-wikis"
 }
 ```
 

@@ -1,12 +1,12 @@
-[**amdWiki API v1.5.0**](../../../../../../README.md)
+[**ngdpbase API v1.5.0**](../../../../../../README.md)
 
 ***
 
-[amdWiki API](../../../../../../README.md) / [src/parsers/dom/handlers/DOMPluginHandler](../README.md) / PluginContext
+[ngdpbase API](../../../../../../README.md) / [src/parsers/dom/handlers/DOMPluginHandler](../README.md) / PluginContext
 
 # Interface: PluginContext
 
-Defined in: [src/parsers/dom/handlers/DOMPluginHandler.ts:23](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMPluginHandler.ts#L23)
+Defined in: [src/parsers/dom/handlers/DOMPluginHandler.ts:23](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMPluginHandler.ts#L23)
 
 Plugin execution context
 
@@ -22,7 +22,7 @@ Additional context properties
 
 > **bodyContent**: `string` \| `null`
 
-Defined in: [src/parsers/dom/handlers/DOMPluginHandler.ts:50](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMPluginHandler.ts#L50)
+Defined in: [src/parsers/dom/handlers/DOMPluginHandler.ts:50](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMPluginHandler.ts#L50)
 
 Plugin body content (for body plugins)
 
@@ -32,7 +32,7 @@ Plugin body content (for body plugins)
 
 > **engine**: `unknown`
 
-Defined in: [src/parsers/dom/handlers/DOMPluginHandler.ts:44](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMPluginHandler.ts#L44)
+Defined in: [src/parsers/dom/handlers/DOMPluginHandler.ts:44](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMPluginHandler.ts#L44)
 
 WikiEngine reference
 
@@ -42,7 +42,7 @@ WikiEngine reference
 
 > `optional` **linkGraph**: `Record`\<`string`, `unknown`\>
 
-Defined in: [src/parsers/dom/handlers/DOMPluginHandler.ts:58](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMPluginHandler.ts#L58)
+Defined in: [src/parsers/dom/handlers/DOMPluginHandler.ts:58](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMPluginHandler.ts#L58)
 
 Link graph for plugins like ReferringPagesPlugin
 
@@ -52,7 +52,7 @@ Link graph for plugins like ReferringPagesPlugin
 
 > `optional` **pageContext**: `object`
 
-Defined in: [src/parsers/dom/handlers/DOMPluginHandler.ts:60](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMPluginHandler.ts#L60)
+Defined in: [src/parsers/dom/handlers/DOMPluginHandler.ts:60](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMPluginHandler.ts#L60)
 
 Page context (nested structure)
 
@@ -70,7 +70,7 @@ Page context (nested structure)
 
 > **pageName**: `string`
 
-Defined in: [src/parsers/dom/handlers/DOMPluginHandler.ts:25](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMPluginHandler.ts#L25)
+Defined in: [src/parsers/dom/handlers/DOMPluginHandler.ts:25](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMPluginHandler.ts#L25)
 
 Page name
 
@@ -80,7 +80,7 @@ Page name
 
 > **parameters**: `Record`\<`string`, `string`\>
 
-Defined in: [src/parsers/dom/handlers/DOMPluginHandler.ts:48](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMPluginHandler.ts#L48)
+Defined in: [src/parsers/dom/handlers/DOMPluginHandler.ts:48](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMPluginHandler.ts#L48)
 
 Plugin parameters
 
@@ -90,7 +90,7 @@ Plugin parameters
 
 > `optional` **pluginElement**: `Element` \| `null`
 
-Defined in: [src/parsers/dom/handlers/DOMPluginHandler.ts:56](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMPluginHandler.ts#L56)
+Defined in: [src/parsers/dom/handlers/DOMPluginHandler.ts:56](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMPluginHandler.ts#L56)
 
 Plugin DOM element
 
@@ -100,7 +100,7 @@ Plugin DOM element
 
 > **pluginName**: `string`
 
-Defined in: [src/parsers/dom/handlers/DOMPluginHandler.ts:52](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMPluginHandler.ts#L52)
+Defined in: [src/parsers/dom/handlers/DOMPluginHandler.ts:52](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMPluginHandler.ts#L52)
 
 Plugin name
 
@@ -110,7 +110,7 @@ Plugin name
 
 > `optional` **requestInfo**: `object`
 
-Defined in: [src/parsers/dom/handlers/DOMPluginHandler.ts:37](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMPluginHandler.ts#L37)
+Defined in: [src/parsers/dom/handlers/DOMPluginHandler.ts:37](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMPluginHandler.ts#L37)
 
 Request information
 
@@ -136,7 +136,7 @@ Request information
 
 > `optional` **userContext**: `object`
 
-Defined in: [src/parsers/dom/handlers/DOMPluginHandler.ts:29](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMPluginHandler.ts#L29)
+Defined in: [src/parsers/dom/handlers/DOMPluginHandler.ts:29](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMPluginHandler.ts#L29)
 
 User context information
 
@@ -166,7 +166,7 @@ User context information
 
 > **userName**: `string`
 
-Defined in: [src/parsers/dom/handlers/DOMPluginHandler.ts:27](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMPluginHandler.ts#L27)
+Defined in: [src/parsers/dom/handlers/DOMPluginHandler.ts:27](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMPluginHandler.ts#L27)
 
 User name
 
@@ -176,7 +176,7 @@ User name
 
 > `optional` **wikiContext**: `unknown`
 
-Defined in: [src/parsers/dom/handlers/DOMPluginHandler.ts:46](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMPluginHandler.ts#L46)
+Defined in: [src/parsers/dom/handlers/DOMPluginHandler.ts:46](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMPluginHandler.ts#L46)
 
 WikiContext reference
 
@@ -186,6 +186,6 @@ WikiContext reference
 
 > `optional` **wikiDocument**: [`default`](../../../WikiDocument/classes/default.md)
 
-Defined in: [src/parsers/dom/handlers/DOMPluginHandler.ts:54](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMPluginHandler.ts#L54)
+Defined in: [src/parsers/dom/handlers/DOMPluginHandler.ts:54](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMPluginHandler.ts#L54)
 
 WikiDocument reference

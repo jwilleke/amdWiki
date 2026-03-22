@@ -3,7 +3,7 @@
  *
  * Defines the contract that all content converters must implement.
  * This allows importing content from various wiki formats (JSPWiki, MediaWiki, etc.)
- * and converting them to Markdown format for amdWiki.
+ * and converting them to Markdown format for ngdpbase.
  *
  * @module IContentConverter
  *

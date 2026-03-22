@@ -1,12 +1,12 @@
-[**amdWiki API v1.5.0**](../../../../README.md)
+[**ngdpbase API v1.5.0**](../../../../README.md)
 
 ***
 
-[amdWiki API](../../../../README.md) / [src/types/Provider](../README.md) / ProviderInfo
+[ngdpbase API](../../../../README.md) / [src/types/Provider](../README.md) / ProviderInfo
 
 # Interface: ProviderInfo
 
-Defined in: [src/types/Provider.ts:16](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Provider.ts#L16)
+Defined in: [src/types/Provider.ts:16](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Provider.ts#L16)
 
 Provider information returned by getProviderInfo()
 
@@ -16,7 +16,7 @@ Provider information returned by getProviderInfo()
 
 > `optional` **description**: `string`
 
-Defined in: [src/types/Provider.ts:24](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Provider.ts#L24)
+Defined in: [src/types/Provider.ts:24](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Provider.ts#L24)
 
 Provider description
 
@@ -26,7 +26,7 @@ Provider description
 
 > `optional` **features**: `string`[]
 
-Defined in: [src/types/Provider.ts:27](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Provider.ts#L27)
+Defined in: [src/types/Provider.ts:27](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Provider.ts#L27)
 
 Provider features
 
@@ -36,7 +36,7 @@ Provider features
 
 > **name**: `string`
 
-Defined in: [src/types/Provider.ts:18](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Provider.ts#L18)
+Defined in: [src/types/Provider.ts:18](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Provider.ts#L18)
 
 Provider name
 
@@ -46,6 +46,6 @@ Provider name
 
 > **version**: `string`
 
-Defined in: [src/types/Provider.ts:21](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Provider.ts#L21)
+Defined in: [src/types/Provider.ts:21](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Provider.ts#L21)
 
 Provider version

@@ -24,10 +24,10 @@ FileSystemProvider implements file-based page storage using Markdown files with 
 
 ```javascript
 // All configuration via ConfigurationManager (lowercase keys)
-'amdwiki.page.provider.filesystem.storagedir'         // Main pages directory (default: ./data/pages)
-'amdwiki.page.provider.filesystem.requiredpagesdir'   // Required pages dir (default: ./required-pages)
-'amdwiki.page.provider.filesystem.encoding'           // File encoding (default: utf-8)
-'amdwiki.translator-reader.match-english-plurals'     // Enable plural matching (default: true)
+'ngdpbase.page.provider.filesystem.storagedir'         // Main pages directory (default: ./data/pages)
+'ngdpbase.page.provider.filesystem.requiredpagesdir'   // Required pages dir (default: ./required-pages)
+'ngdpbase.page.provider.filesystem.encoding'           // File encoding (default: utf-8)
+'ngdpbase.translator-reader.match-english-plurals'     // Enable plural matching (default: true)
 ```
 
 ## Basic Usage

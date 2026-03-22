@@ -69,7 +69,7 @@ Following JSPWiki's model:
 ``` javascript
 WikiEngine
   └── PageManager
-      └── FileSystemProvider (configurable via "amdwiki.pageProvider")
+      └── FileSystemProvider (configurable via "ngdpbase.pageProvider")
 ```
 
 ### Access Pattern
@@ -218,16 +218,16 @@ class FileSystemProvider extends BasePageProvider {
     const configManager = this.engine.getManager('ConfigurationManager');
 
     // Setup directories
-    const cfgPath = configManager.getProperty('amdwiki.directories.pages', './pages');
+    const cfgPath = configManager.getProperty('ngdpbase.directories.pages', './pages');
     this.pagesDirectory = path.isAbsolute(cfgPath) ? cfgPath : path.join(process.cwd(), cfgPath);
 
-    const reqCfgPath = configManager.getProperty('amdwiki.directories.required-pages', './required-pages');
+    const reqCfgPath = configManager.getProperty('ngdpbase.directories.required-pages', './required-pages');
     this.requiredPagesDirectory = path.isAbsolute(reqCfgPath) ? reqCfgPath : path.join(process.cwd(), reqCfgPath);
 
-    this.encoding = configManager.getProperty('amdwiki.encoding', 'UTF-8');
+    this.encoding = configManager.getProperty('ngdpbase.encoding', 'UTF-8');
 
     // Initialize PageNameMatcher with config
-    const matchEnglishPlurals = configManager.getProperty('amdwiki.translatorReader.matchEnglishPlurals', true);
+    const matchEnglishPlurals = configManager.getProperty('ngdpbase.translatorReader.matchEnglishPlurals', true);
     this.pageNameMatcher = new PageNameMatcher(matchEnglishPlurals);
 
     // Ensure directories exist and load pages
@@ -307,7 +307,7 @@ class PageManager extends BaseManager {
       throw new Error('PageManager requires ConfigurationManager to be initialized.');
     }
 
-    const providerName = configManager.getProperty('amdwiki.pageProvider', 'FileSystemProvider');
+    const providerName = configManager.getProperty('ngdpbase.pageProvider', 'FileSystemProvider');
 
     // Load provider based on configuration
     this.provider = this.#loadProvider(providerName);
@@ -377,9 +377,9 @@ class PageManager extends BaseManager {
 ```javascript
 // ✅ CORRECT - Always use ConfigurationManager
 const configManager = this.engine.getManager('ConfigurationManager');
-const providerName = configManager.getProperty('amdwiki.pageProvider', 'FileSystemProvider');
-const pagesDir = configManager.getProperty('amdwiki.directories.pages', './pages');
-const requiredPagesDir = configManager.getProperty('amdwiki.directories.required-pages', './required-pages');
+const providerName = configManager.getProperty('ngdpbase.pageProvider', 'FileSystemProvider');
+const pagesDir = configManager.getProperty('ngdpbase.directories.pages', './pages');
+const requiredPagesDir = configManager.getProperty('ngdpbase.directories.required-pages', './required-pages');
 
 // ❌ WRONG - Never access config files directly
 const config = require('../../config/app-default-config.json'); // DON'T DO THIS
@@ -391,12 +391,12 @@ const configData = JSON.parse(fs.readFileSync('config/app-default-config.json'))
 
 The provider pattern uses these existing configuration keys from ConfigurationManager:
 
-- `amdwiki.pageProvider` - Provider class name (default: "FileSystemProvider")
-- `amdwiki.directories.pages` - Regular pages directory (default: "./pages")
-- `amdwiki.directories.required-pages` - System pages directory (default: "./required-pages")
-- `amdwiki.encoding` - File encoding (default: "UTF-8")
-- `amdwiki.translatorReader.matchEnglishPlurals` - Enable plural matching (default: true)
-- `amdwiki.system-category` - Category-to-storage mapping
+- `ngdpbase.pageProvider` - Provider class name (default: "FileSystemProvider")
+- `ngdpbase.directories.pages` - Regular pages directory (default: "./pages")
+- `ngdpbase.directories.required-pages` - System pages directory (default: "./required-pages")
+- `ngdpbase.encoding` - File encoding (default: "UTF-8")
+- `ngdpbase.translatorReader.matchEnglishPlurals` - Enable plural matching (default: true)
+- `ngdpbase.system-category` - Category-to-storage mapping
 
 ## Migration Strategy
 
@@ -478,7 +478,7 @@ ALL providers and managers MUST access configuration exclusively through Configu
 
 ```javascript
 const configManager = this.engine.getManager('ConfigurationManager');
-const value = configManager.getProperty('amdwiki.some.key', 'defaultValue');
+const value = configManager.getProperty('ngdpbase.some.key', 'defaultValue');
 ```
 
 ❌ **NEVER DO THIS:**

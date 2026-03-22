@@ -1,6 +1,6 @@
 # VersioningFileProvider Deployment Guide
 
-Complete guide for administrators to deploy and configure page versioning in amdWiki.
+Complete guide for administrators to deploy and configure page versioning in ngdpbase.
 
 ## Overview
 
@@ -55,7 +55,7 @@ This guide covers:
 
 ### Software Dependencies
 
-All required dependencies are already included in amdWiki 1.3.2+:
+All required dependencies are already included in ngdpbase 1.3.2+:
 
 - ✅ `fast-diff` (v1.3.0+) - Diff algorithm
 - ✅ `pako` (v2.1.0+) - Compression
@@ -70,11 +70,11 @@ node --version
 # Should output: v14.x or higher
 
 # Check disk space
-df -h /path/to/amdwiki
+df -h /path/to/ngdpbase
 # Ensure at least 1GB free
 
 # Verify dependencies
-cd /path/to/amdwiki
+cd /path/to/ngdpbase
 npm list fast-diff pako fs-extra uuid
 # All should be installed
 ```
@@ -89,10 +89,10 @@ npm list fast-diff pako fs-extra uuid
 
 ```bash
 # Stop the wiki
-npm run stop  # or: pm2 stop amdwiki
+npm run stop  # or: pm2 stop ngdpbase
 
 # Create backup
-cd /path/to/amdwiki
+cd /path/to/ngdpbase
 tar -czf backup-before-versioning-$(date +%Y%m%d).tar.gz pages/ required-pages/ data/ config/
 
 # Verify backup
@@ -106,20 +106,20 @@ Edit `data/config/app-custom-config.json`:
 ```json
 {
   "_comment_versioning": "Enable page versioning",
-  "amdwiki.page.provider": "versioningfileprovider",
+  "ngdpbase.page.provider": "versioningfileprovider",
 
   "_comment_versioning_storage": "Storage configuration",
-  "amdwiki.page.provider.versioning.storagedir": "./pages",
-  "amdwiki.page.provider.versioning.requiredpagesdir": "./required-pages",
-  "amdwiki.page.provider.versioning.indexfile": "./data/page-index.json",
+  "ngdpbase.page.provider.versioning.storagedir": "./pages",
+  "ngdpbase.page.provider.versioning.requiredpagesdir": "./required-pages",
+  "ngdpbase.page.provider.versioning.indexfile": "./data/page-index.json",
 
   "_comment_versioning_settings": "Retention and optimization",
-  "amdwiki.page.provider.versioning.maxversions": 50,
-  "amdwiki.page.provider.versioning.retentiondays": 365,
-  "amdwiki.page.provider.versioning.compression": "gzip",
-  "amdwiki.page.provider.versioning.deltastorage": true,
-  "amdwiki.page.provider.versioning.checkpointinterval": 10,
-  "amdwiki.page.provider.versioning.cachesize": 50
+  "ngdpbase.page.provider.versioning.maxversions": 50,
+  "ngdpbase.page.provider.versioning.retentiondays": 365,
+  "ngdpbase.page.provider.versioning.compression": "gzip",
+  "ngdpbase.page.provider.versioning.deltastorage": true,
+  "ngdpbase.page.provider.versioning.checkpointinterval": 10,
+  "ngdpbase.page.provider.versioning.cachesize": 50
 }
 ```
 
@@ -171,7 +171,7 @@ Look for:
 
 ```json
 {
-  "amdwiki.page.provider": "versioningfileprovider"
+  "ngdpbase.page.provider": "versioningfileprovider"
 }
 ```
 
@@ -186,9 +186,9 @@ Look for:
 
 ```json
 {
-  "amdwiki.page.provider.versioning.storagedir": "./pages",
-  "amdwiki.page.provider.versioning.requiredpagesdir": "./required-pages",
-  "amdwiki.page.provider.versioning.indexfile": "./data/page-index.json"
+  "ngdpbase.page.provider.versioning.storagedir": "./pages",
+  "ngdpbase.page.provider.versioning.requiredpagesdir": "./required-pages",
+  "ngdpbase.page.provider.versioning.indexfile": "./data/page-index.json"
 }
 ```
 
@@ -202,8 +202,8 @@ Look for:
 
 ```json
 {
-  "amdwiki.page.provider.versioning.maxversions": 50,
-  "amdwiki.page.provider.versioning.retentiondays": 365
+  "ngdpbase.page.provider.versioning.maxversions": 50,
+  "ngdpbase.page.provider.versioning.retentiondays": 365
 }
 ```
 
@@ -220,9 +220,9 @@ Look for:
 
 ```json
 {
-  "amdwiki.page.provider.versioning.compression": "gzip",
-  "amdwiki.page.provider.versioning.deltastorage": true,
-  "amdwiki.page.provider.versioning.checkpointinterval": 10
+  "ngdpbase.page.provider.versioning.compression": "gzip",
+  "ngdpbase.page.provider.versioning.deltastorage": true,
+  "ngdpbase.page.provider.versioning.checkpointinterval": 10
 }
 ```
 
@@ -247,7 +247,7 @@ Look for:
 
 ```json
 {
-  "amdwiki.page.provider.versioning.cachesize": 50
+  "ngdpbase.page.provider.versioning.cachesize": 50
 }
 ```
 
@@ -439,7 +439,7 @@ Reduces storage by 40-60%:
 
 ```json
 {
-  "amdwiki.page.provider.versioning.compression": "gzip"
+  "ngdpbase.page.provider.versioning.compression": "gzip"
 }
 ```
 
@@ -449,7 +449,7 @@ Balance speed vs storage:
 
 ```json
 {
-  "amdwiki.page.provider.versioning.checkpointinterval": 5
+  "ngdpbase.page.provider.versioning.checkpointinterval": 5
 }
 ```
 
@@ -465,8 +465,8 @@ Reduce storage by lowering retention:
 
 ```json
 {
-  "amdwiki.page.provider.versioning.maxversions": 30,
-  "amdwiki.page.provider.versioning.retentiondays": 90
+  "ngdpbase.page.provider.versioning.maxversions": 30,
+  "ngdpbase.page.provider.versioning.retentiondays": 90
 }
 ```
 
@@ -476,7 +476,7 @@ Reduce storage by lowering retention:
 
 ```json
 {
-  "amdwiki.page.provider.versioning.cachesize": 100
+  "ngdpbase.page.provider.versioning.cachesize": 100
 }
 ```
 
@@ -508,7 +508,7 @@ In main app config:
 
 ```json
 {
-  "amdwiki.compression.enabled": true
+  "ngdpbase.compression.enabled": true
 }
 ```
 
@@ -574,8 +574,8 @@ find pages/versions -type d -empty
 
 ```json
 {
-  "amdwiki.logging.level": "debug",
-  "amdwiki.logging.debug.versioning": true
+  "ngdpbase.logging.level": "debug",
+  "ngdpbase.logging.debug.versioning": true
 }
 ```
 
@@ -584,7 +584,7 @@ find pages/versions -type d -empty
 ```bash
 # Configure in logger
 {
-  "amdwiki.logging.rotation": {
+  "ngdpbase.logging.rotation": {
     "enabled": true,
     "maxFiles": 10,
     "maxSize": "10m"
@@ -621,8 +621,8 @@ find pages/versions -type d -empty
 # backup-wiki-versions.sh
 
 DATE=$(date +%Y%m%d-%H%M%S)
-BACKUP_DIR="/backups/amdwiki"
-WIKI_DIR="/path/to/amdwiki"
+BACKUP_DIR="/backups/ngdpbase"
+WIKI_DIR="/path/to/ngdpbase"
 
 # Create backup directory
 mkdir -p "$BACKUP_DIR"
@@ -660,7 +660,7 @@ crontab -e
 npm run stop
 
 # Extract backup
-tar -xzf wiki-versions-20241016.tar.gz -C /path/to/amdwiki
+tar -xzf wiki-versions-20241016.tar.gz -C /path/to/ngdpbase
 
 # Verify restoration
 ls -la pages/ required-pages/ data/page-index.json
@@ -678,7 +678,7 @@ tar -xzf wiki-versions-20241016.tar.gz \
   --strip-components=2
 
 # Copy to production
-cp -r PAGE-UUID/ /path/to/amdwiki/pages/versions/
+cp -r PAGE-UUID/ /path/to/ngdpbase/pages/versions/
 ```
 
 ---
@@ -799,9 +799,9 @@ Enable verbose logging:
 
 ```json
 {
-  "amdwiki.logging.level": "debug",
-  "amdwiki.logging.debug.versioning": true,
-  "amdwiki.logging.debug.provider": true
+  "ngdpbase.logging.level": "debug",
+  "ngdpbase.logging.debug.versioning": true,
+  "ngdpbase.logging.debug.provider": true
 }
 ```
 
@@ -832,7 +832,7 @@ tar -czf version-data-backup-$(date +%Y%m%d).tar.gz \
 
 ```json
 {
-  "amdwiki.page.provider": "filesystemprovider"
+  "ngdpbase.page.provider": "filesystemprovider"
 }
 ```
 
@@ -923,23 +923,23 @@ Complete list of all versioning settings:
 
 ```json
 {
-  "amdwiki.page.provider": "versioningfileprovider",
-  "amdwiki.page.provider.versioning.storagedir": "./pages",
-  "amdwiki.page.provider.versioning.requiredpagesdir": "./required-pages",
-  "amdwiki.page.provider.versioning.indexfile": "./data/page-index.json",
-  "amdwiki.page.provider.versioning.maxversions": 50,
-  "amdwiki.page.provider.versioning.retentiondays": 365,
-  "amdwiki.page.provider.versioning.compression": "gzip",
-  "amdwiki.page.provider.versioning.deltastorage": true,
-  "amdwiki.page.provider.versioning.checkpointinterval": 10,
-  "amdwiki.page.provider.versioning.cachesize": 50
+  "ngdpbase.page.provider": "versioningfileprovider",
+  "ngdpbase.page.provider.versioning.storagedir": "./pages",
+  "ngdpbase.page.provider.versioning.requiredpagesdir": "./required-pages",
+  "ngdpbase.page.provider.versioning.indexfile": "./data/page-index.json",
+  "ngdpbase.page.provider.versioning.maxversions": 50,
+  "ngdpbase.page.provider.versioning.retentiondays": 365,
+  "ngdpbase.page.provider.versioning.compression": "gzip",
+  "ngdpbase.page.provider.versioning.deltastorage": true,
+  "ngdpbase.page.provider.versioning.checkpointinterval": 10,
+  "ngdpbase.page.provider.versioning.cachesize": 50
 }
 ```
 
 ### Directory Structure
 
 ```
-amdwiki/
+ngdpbase/
 ├── pages/
 │   ├── {uuid}.md                    # Current page content
 │   └── versions/
@@ -968,4 +968,4 @@ amdwiki/
 
 **Last Updated**: 2026-02-06
 **Version**: 1.0
-**Applies to**: amdWiki 1.3.2+
+**Applies to**: ngdpbase 1.3.2+

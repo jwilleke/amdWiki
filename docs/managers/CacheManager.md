@@ -8,7 +8,7 @@
 
 ## Overview
 
-CacheManager provides centralized cache management for amdWiki with pluggable cache providers, cache regions (namespaces), configurable TTL, and comprehensive statistics tracking.
+CacheManager provides centralized cache management for ngdpbase with pluggable cache providers, cache regions (namespaces), configurable TTL, and comprehensive statistics tracking.
 
 ## Key Features
 
@@ -111,12 +111,12 @@ await cacheManager.set('key', value, {
 
 ```json
 {
-  "amdwiki.cache.enabled": true,
-  "amdwiki.cache.provider.default": "nodecacheprovider",
-  "amdwiki.cache.provider": "nodecacheprovider",
-  "amdwiki.cache.defaultttl": 300,
-  "amdwiki.cache.maxkeys": 1000,
-  "amdwiki.cache.checkperiod": 120
+  "ngdpbase.cache.enabled": true,
+  "ngdpbase.cache.provider.default": "nodecacheprovider",
+  "ngdpbase.cache.provider": "nodecacheprovider",
+  "ngdpbase.cache.defaultttl": 300,
+  "ngdpbase.cache.maxkeys": 1000,
+  "ngdpbase.cache.checkperiod": 120
 }
 ```
 
@@ -212,7 +212,7 @@ class PageManager extends BaseManager {
 
 ```json
 {
-  "amdwiki.cache.enabled": false
+  "ngdpbase.cache.enabled": false
 }
 ```
 

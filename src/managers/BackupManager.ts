@@ -142,14 +142,14 @@ class BackupManager extends BaseManager {
 
     // Uses getResolvedDataPath to support INSTANCE_DATA_FOLDER
     this.backupDirectory = configManager.getResolvedDataPath(
-      'amdwiki.backup.directory',
+      'ngdpbase.backup.directory',
       './data/backups'
     );
 
-    this.maxBackups = configManager.getProperty('amdwiki.backup.maxBackups') as number;
-    this.autoBackupEnabled = configManager.getProperty('amdwiki.backup.autoBackup') as boolean ?? false;
-    this.autoBackupTime = configManager.getProperty('amdwiki.backup.autoBackupTime') as string ?? '02:00';
-    this.autoBackupDays = configManager.getProperty('amdwiki.backup.autoBackupDays') as string ?? 'daily';
+    this.maxBackups = configManager.getProperty('ngdpbase.backup.maxBackups') as number;
+    this.autoBackupEnabled = configManager.getProperty('ngdpbase.backup.autoBackup') as boolean ?? false;
+    this.autoBackupTime = configManager.getProperty('ngdpbase.backup.autoBackupTime') as string ?? '02:00';
+    this.autoBackupDays = configManager.getProperty('ngdpbase.backup.autoBackupDays') as string ?? 'daily';
 
     // Ensure backup directory exists
     await fs.ensureDir(this.backupDirectory);
@@ -223,14 +223,14 @@ class BackupManager extends BaseManager {
 
       // Generate filename with timestamp
       const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-      const filename = options.filename || `${timestamp}-amdwiki-backup.json.gz`;
+      const filename = options.filename || `${timestamp}-ngdpbase-backup.json.gz`;
       const backupPath = path.join(this.backupDirectory, filename);
 
       // Collect backup data from all managers
       const backupData: BackupData = {
         version: '1.0.0',
         timestamp: new Date().toISOString(),
-        application: 'amdWiki',
+        application: 'ngdpbase',
         managers: {}
       };
 
@@ -441,8 +441,8 @@ class BackupManager extends BaseManager {
       const files = await fs.readdir(this.backupDirectory);
 
       const backupFiles = files.filter((f: string) => {
-        // Support both old format (amdwiki-backup-{timestamp}) and new format ({timestamp}-amdwiki-backup)
-        return (f.startsWith('amdwiki-backup-') || f.endsWith('-amdwiki-backup.json.gz')) && f.endsWith('.json.gz');
+        // Support both old format (ngdpbase-backup-{timestamp}) and new format ({timestamp}-ngdpbase-backup)
+        return (f.startsWith('ngdpbase-backup-') || f.endsWith('-ngdpbase-backup.json.gz')) && f.endsWith('.json.gz');
       });
 
       const backupDir = this.backupDirectory;
@@ -533,23 +533,23 @@ class BackupManager extends BaseManager {
     if (!configManager) throw new Error('ConfigurationManager not available');
 
     if (config.enabled !== undefined) {
-      await configManager.setProperty('amdwiki.backup.autoBackup', config.enabled);
+      await configManager.setProperty('ngdpbase.backup.autoBackup', config.enabled);
       this.autoBackupEnabled = config.enabled;
     }
     if (config.time !== undefined) {
-      await configManager.setProperty('amdwiki.backup.autoBackupTime', config.time);
+      await configManager.setProperty('ngdpbase.backup.autoBackupTime', config.time);
       this.autoBackupTime = config.time;
     }
     if (config.days !== undefined) {
-      await configManager.setProperty('amdwiki.backup.autoBackupDays', config.days);
+      await configManager.setProperty('ngdpbase.backup.autoBackupDays', config.days);
       this.autoBackupDays = config.days;
     }
     if (config.maxBackups !== undefined) {
-      await configManager.setProperty('amdwiki.backup.maxBackups', config.maxBackups);
+      await configManager.setProperty('ngdpbase.backup.maxBackups', config.maxBackups);
       this.maxBackups = config.maxBackups;
     }
     if (config.directory !== undefined) {
-      await configManager.setProperty('amdwiki.backup.directory', config.directory);
+      await configManager.setProperty('ngdpbase.backup.directory', config.directory);
       this.backupDirectory = config.directory;
       await fs.ensureDir(this.backupDirectory);
     }

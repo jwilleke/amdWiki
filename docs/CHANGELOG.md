@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes to amdWiki are documented in this file.
+All notable changes to ngdpbase are documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) [CHANGELOG.md]
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
@@ -59,7 +59,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **Admin Configuration Interface**: Full web-based configuration management with validation
   - **Server Configuration**: Configurable port, host, session settings, and base URLs
   - **Runtime Updates**: Live configuration updates without server restart via admin interface
-  - **Property Validation**: Ensures proper amdwiki.*and log4j.* property naming
+  - **Property Validation**: Ensures proper ngdpbase.*and log4j.* property naming
   - **Configuration Export**: View and manage all configuration properties
   - **JSPWiki Compatibility**: Property naming and structure matches JSPWiki patterns
   - **Security Integration**: Proper session and security configuration management
@@ -84,7 +84,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Testing
 
 - **Comprehensive Route Testing Framework**: Major advancement in test coverage and reliability
-  - **45-route test suite**: Complete coverage of all amdWiki HTTP endpoints with authentication and security testing
+  - **45-route test suite**: Complete coverage of all ngdpbase HTTP endpoints with authentication and security testing
   - **CSRF Protection Validation**: Full CSRF token validation testing with security middleware verification
   - **Mock Engine Architecture**: Comprehensive mocking system for all WikiEngine managers and dependencies
   - **Security Testing**: Authentication, authorization, and access control validation across all routes

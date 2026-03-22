@@ -1,4 +1,4 @@
-# amdWiki
+# ngdpbase
 
 A file-based wiki application built with **Node.js**, **Express**, **TypeScript**, and **Markdown**, inspired by [JSPWiki](https://github.com/apache/jspwiki).
 
@@ -87,7 +87,7 @@ npm test                # Run all tests (supports .ts and .js)
 
 ### For AI Integration (MCP Server)
 
-amdWiki includes a Model Context Protocol (MCP) server for AI assistant integration:
+ngdpbase includes a Model Context Protocol (MCP) server for AI assistant integration:
 
 ```bash
 # Build TypeScript
@@ -103,10 +103,10 @@ Add to `~/Library/Application Support/Claude/claude_desktop_config.json`:
 ```json
 {
   "mcpServers": {
-    "amdwiki": {
+    "ngdpbase": {
       "command": "node",
-      "args": ["/path/to/amdWiki/dist/mcp-server.js"],
-      "cwd": "/path/to/amdWiki"
+      "args": ["/path/to/ngdpbase/dist/mcp-server.js"],
+      "cwd": "/path/to/ngdpbase"
     }
   }
 }
@@ -116,7 +116,7 @@ Add to `~/Library/Application Support/Claude/claude_desktop_config.json`:
 
 ## Configuration
 
-amdWiki uses a **hierarchical configuration system** with three layers (later overrides earlier):
+ngdpbase uses a **hierarchical configuration system** with three layers (later overrides earlier):
 
 1. `config/app-default-config.json` - Base defaults (required, ~1150 properties)
 2. `config/app-{environment}-config.json` - Environment-specific settings (optional)
@@ -144,12 +144,12 @@ amdWiki uses a **hierarchical configuration system** with three layers (later ov
 
 ```json
 {
-  "amdwiki.applicationName": "amdWiki",
-  "amdwiki.server.port": 3000,
-  "amdwiki.baseURL": "http://localhost:3000",
-  "amdwiki.frontPage": "Welcome",
-  "amdwiki.page.provider": "filesystemprovider",
-  "amdwiki.backup.autoBackup": true
+  "ngdpbase.applicationName": "ngdpbase",
+  "ngdpbase.server.port": 3000,
+  "ngdpbase.baseURL": "http://localhost:3000",
+  "ngdpbase.frontPage": "Welcome",
+  "ngdpbase.page.provider": "filesystemprovider",
+  "ngdpbase.backup.autoBackup": true
 }
 ```
 
@@ -158,7 +158,7 @@ amdWiki uses a **hierarchical configuration system** with three layers (later ov
 ## Project Structure
 
 ```bash
-amdWiki/
+ngdpbase/
 ├── src/                    # Source code
 │   ├── core/              # Core engine components
 │   ├── managers/          # Business logic managers
@@ -229,7 +229,7 @@ amdWiki/
 
 ## Parser Architecture
 
-amdWiki uses a **WikiDocument DOM extraction pipeline** that provides robust, conflict-free parsing of JSPWiki syntax and Markdown:
+ngdpbase uses a **WikiDocument DOM extraction pipeline** that provides robust, conflict-free parsing of JSPWiki syntax and Markdown:
 
 ### How It Works
 

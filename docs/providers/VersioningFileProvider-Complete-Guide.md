@@ -130,43 +130,43 @@ Inherits all FileSystemProvider configuration, plus:
 
 ```javascript
 // Enable/disable versioning
-'amdwiki.page.provider.versioning.enabled'
+'ngdpbase.page.provider.versioning.enabled'
   Default: true
   Type: Boolean
   Purpose: Enable version tracking
 
 // Versions storage directory
-'amdwiki.page.provider.versioning.storagedir'
+'ngdpbase.page.provider.versioning.storagedir'
   Default: './data/versions'
   Type: String
   Purpose: Base directory for version storage
 
 // Page index file
-'amdwiki.page.provider.versioning.pageindex'
+'ngdpbase.page.provider.versioning.pageindex'
   Default: './data/page-index.json'
   Type: String
   Purpose: Centralized page index location
 
 // Maximum versions per page
-'amdwiki.page.provider.versioning.maxversions'
+'ngdpbase.page.provider.versioning.maxversions'
   Default: 100
   Type: Number
   Purpose: Limit version count (0 = unlimited)
 
 // Enable delta compression
-'amdwiki.page.provider.versioning.compression'
+'ngdpbase.page.provider.versioning.compression'
   Default: true
   Type: Boolean
   Purpose: Gzip compress deltas
 
 // Checkpoint interval
-'amdwiki.page.provider.versioning.checkpointinterval'
+'ngdpbase.page.provider.versioning.checkpointinterval'
   Default: 10
   Type: Number
   Purpose: Store full snapshot every N versions (0 = disable)
 
 // Retention days
-'amdwiki.page.provider.versioning.retentiondays'
+'ngdpbase.page.provider.versioning.retentiondays'
   Default: 365
   Type: Number
   Purpose: Auto-delete versions older than N days (0 = keep all)
@@ -176,7 +176,7 @@ Inherits all FileSystemProvider configuration, plus:
 
 ```json
 {
-  "amdwiki": {
+  "ngdpbase": {
     "page": {
       "provider": {
         "filesystem": {
@@ -804,7 +804,7 @@ All FileSystemProvider methods available:
 
    ```javascript
    // Large documentation page with frequent edits
-   'amdwiki.page.provider.versioning.checkpointinterval': 5
+   'ngdpbase.page.provider.versioning.checkpointinterval': 5
    // Creates full snapshot every 5 versions
    ```
 
@@ -820,7 +820,7 @@ All FileSystemProvider methods available:
 3. **Limit Max Versions**
 
    ```javascript
-   'amdwiki.page.provider.versioning.maxversions': 100
+   'ngdpbase.page.provider.versioning.maxversions': 100
    // Auto-prunes when exceeding limit
    ```
 

@@ -8,7 +8,7 @@
 
 ## Overview
 
-SearchManager provides full-text search capabilities for amdWiki through a pluggable provider system. It supports automatic indexing, advanced queries, and multiple search backends (Lunr.js, Elasticsearch, etc.).
+SearchManager provides full-text search capabilities for ngdpbase through a pluggable provider system. It supports automatic indexing, advanced queries, and multiple search backends (Lunr.js, Elasticsearch, etc.).
 
 ## Key Features
 
@@ -123,13 +123,13 @@ await searchManager.advancedSearch({
 
 ```json
 {
-  "amdwiki.search.enabled": true,
-  "amdwiki.search.provider.default": "lunrsearchprovider",
-  "amdwiki.search.provider": "lunrsearchprovider",
-  "amdwiki.search.provider.lunr.indexdir": "./data/search-index",
-  "amdwiki.search.provider.lunr.language": "en",
-  "amdwiki.search.provider.lunr.stopwords": true,
-  "amdwiki.search.provider.lunr.stemming": true
+  "ngdpbase.search.enabled": true,
+  "ngdpbase.search.provider.default": "lunrsearchprovider",
+  "ngdpbase.search.provider": "lunrsearchprovider",
+  "ngdpbase.search.provider.lunr.indexdir": "./data/search-index",
+  "ngdpbase.search.provider.lunr.language": "en",
+  "ngdpbase.search.provider.lunr.stopwords": true,
+  "ngdpbase.search.provider.lunr.stemming": true
 }
 ```
 
@@ -241,7 +241,7 @@ class PageManager extends BaseManager {
 
 ```json
 {
-  "amdwiki.search.enabled": false
+  "ngdpbase.search.enabled": false
 }
 ```
 

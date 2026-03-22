@@ -283,15 +283,15 @@ class WikiRoutes {
       currentUser: userContext,
       user: userContext, // Add alias for consistency
       appName: configManager?.getProperty(
-        'amdwiki.applicationName',
-        'amdWiki'
+        'ngdpbase.applicationName',
+        'ngdpbase'
       ),
       applicationName: configManager?.getProperty(
-        'amdwiki.applicationName',
-        'amdWiki'
+        'ngdpbase.applicationName',
+        'ngdpbase'
       ),
       faviconPath: configManager?.getProperty(
-        'amdwiki.faviconPath',
+        'ngdpbase.faviconPath',
         '/favicon.ico'
       ),
       pages: await pageManager.getAllPages()
@@ -564,7 +564,7 @@ class WikiRoutes {
     const configManager = this.engine.getManager('ConfigurationManager');
     let defaultCategory = 'general';
     if (configManager) {
-      const systemCategoriesConfig = configManager.getProperty('amdwiki.system-category', null) as Record<string, { label: string; default?: boolean; enabled?: boolean }> | null;
+      const systemCategoriesConfig = configManager.getProperty('ngdpbase.system-category', null) as Record<string, { label: string; default?: boolean; enabled?: boolean }> | null;
       if (systemCategoriesConfig) {
         // Find category with default: true
         for (const config of Object.values(systemCategoriesConfig)) {
@@ -604,7 +604,7 @@ class WikiRoutes {
     try {
       const configManager = this.engine.getManager('ConfigurationManager');
       if (!configManager) return ['system', 'documentation'];
-      const systemCategories = configManager.getProperty('amdwiki.system-category', {}) as
+      const systemCategories = configManager.getProperty('ngdpbase.system-category', {}) as
         Record<string, { storageLocation?: string; label?: string; enabled?: boolean }>;
       const labels: string[] = [];
       for (const [key, cfg] of Object.entries(systemCategories)) {
@@ -629,7 +629,7 @@ class WikiRoutes {
       }
 
       // Load system categories from configuration
-      const systemCategories = configManager.getProperty('amdwiki.system-category', {});
+      const systemCategories = configManager.getProperty('ngdpbase.system-category', {});
 
       // Filter enabled categories and extract labels (case-insensitive)
       const categories: string[] = [];
@@ -663,7 +663,7 @@ class WikiRoutes {
 
       // Try to get user keywords from configuration first
       if (configManager) {
-        const userKeywordsConfig = configManager.getProperty('amdwiki.user-keywords', null);
+        const userKeywordsConfig = configManager.getProperty('ngdpbase.user-keywords', null);
 
         if (userKeywordsConfig && typeof userKeywordsConfig === 'object') {
           const keywords: string[] = [];
@@ -733,7 +733,7 @@ class WikiRoutes {
       const configManager = this.engine.getManager('ConfigurationManager');
 
       if (configManager) {
-        const userKeywordsConfig = configManager.getProperty('amdwiki.user-keywords', null);
+        const userKeywordsConfig = configManager.getProperty('ngdpbase.user-keywords', null);
 
         if (userKeywordsConfig && typeof userKeywordsConfig === 'object') {
           const keywords: Array<{ id: string; label: string; description: string }> = [];
@@ -830,16 +830,16 @@ class WikiRoutes {
 
         // Fallback to legacy data structure using ConfigurationManager
         const configData = {
-          applicationName: configManager.getProperty('amdwiki.applicationName', 'amdWiki'),
-          version: configManager.getProperty('amdwiki.version', '1.0.0'),
+          applicationName: configManager.getProperty('ngdpbase.applicationName', 'ngdpbase'),
+          version: configManager.getProperty('ngdpbase.version', '1.0.0'),
           server: {
-            port: configManager.getProperty('amdwiki.server.port', 3000),
-            host: configManager.getProperty('amdwiki.server.host', 'localhost')
+            port: configManager.getProperty('ngdpbase.server.port', 3000),
+            host: configManager.getProperty('ngdpbase.server.host', 'localhost')
           },
           features: {
-            export: { html: configManager.getProperty('amdwiki.features.export.html', true) },
-            attachments: { enabled: configManager.getProperty('amdwiki.attachment.enabled', true) },
-            llm: { enabled: configManager.getProperty('amdwiki.features.llm.enabled', false) }
+            export: { html: configManager.getProperty('ngdpbase.features.export.html', true) },
+            attachments: { enabled: configManager.getProperty('ngdpbase.attachment.enabled', true) },
+            llm: { enabled: configManager.getProperty('ngdpbase.features.llm.enabled', false) }
           }
         };
 
@@ -863,8 +863,8 @@ class WikiRoutes {
       const schemas = SchemaGenerator.generateComprehensiveSchema(siteData, {
         baseUrl: baseUrl,
         organizationName:
-          siteData.organizations?.[0]?.name || 'amdWiki Platform',
-        repository: 'https://github.com/jwilleke/amdWiki'
+          siteData.organizations?.[0]?.name || 'ngdpbase Platform',
+        repository: 'https://github.com/jwilleke/ngdpbase'
       });
 
       // Generate script tags for all schemas
@@ -1029,7 +1029,7 @@ class WikiRoutes {
     try {
       const configManager = this.engine.getManager('ConfigurationManager');
       const frontPage = configManager.getProperty(
-        'amdwiki.frontPage',
+        'ngdpbase.frontPage',
         'Welcome'
       );
       const pageName = (req.params.page || frontPage).trim();
@@ -1234,7 +1234,7 @@ class WikiRoutes {
 
       const configManager = this.engine.getManager('ConfigurationManager');
       const maxUserKeywords = configManager
-        ? configManager.getProperty('amdwiki.maximum.user-keywords', 5)
+        ? configManager.getProperty('ngdpbase.maximum.user-keywords', 5)
         : 5;
 
       // Get default system category from ValidationManager (falls back to config)
@@ -1606,7 +1606,7 @@ class WikiRoutes {
 
       const configManager = this.engine.getManager('ConfigurationManager');
       const maxUserKeywords = configManager
-        ? configManager.getProperty('amdwiki.maximum.user-keywords', 5)
+        ? configManager.getProperty('ngdpbase.maximum.user-keywords', 5)
         : 5;
 
       // Default system category — used when the page has no system-category in its metadata
@@ -1886,7 +1886,7 @@ class WikiRoutes {
       // Mark pages as user-modified based on their storageLocation in config
       const _catConfigManager = this.engine.getManager('ConfigurationManager');
       const _allCategoryConfig = (_catConfigManager
-        ? _catConfigManager.getProperty('amdwiki.system-category', {})
+        ? _catConfigManager.getProperty('ngdpbase.system-category', {})
         : {}) as Record<string, { storageLocation?: string; label?: string }>;
       const _catKey = Object.keys(_allCategoryConfig).find(
         k => (_allCategoryConfig[k].label || k).toLowerCase() === matchedCategory.toLowerCase()
@@ -2739,7 +2739,7 @@ class WikiRoutes {
       const userManager = this.engine.getManager('UserManager');
       const configManager = this.engine.getManager('ConfigurationManager');
       const debugLogin = configManager.getProperty(
-        'amdwiki.logging.debug.login',
+        'ngdpbase.logging.debug.login',
         false
       );
 
@@ -2941,7 +2941,7 @@ class WikiRoutes {
       // Get timezone and date format configuration
       const configManager = this.engine.getManager('ConfigurationManager');
       const availableTimezones = configManager
-        ? configManager.getProperty('amdwiki.timezones', [])
+        ? configManager.getProperty('ngdpbase.timezones', [])
         : [];
 
       // eslint-disable-next-line @typescript-eslint/no-require-imports -- dynamic import for profile page only
@@ -3265,14 +3265,14 @@ class WikiRoutes {
         const fse = require('fs-extra');
         const configManager = this.engine.getManager('ConfigurationManager');
         const requiredDirRaw: string = configManager.getProperty(
-          'amdwiki.page.provider.filesystem.requiredpagesdir',
+          'ngdpbase.page.provider.filesystem.requiredpagesdir',
           './required-pages'
         );
         const requiredDirResolved = path.isAbsolute(requiredDirRaw)
           ? requiredDirRaw
           : path.join(process.cwd(), requiredDirRaw);
         const pagesDirResolved: string = configManager.getResolvedDataPath(
-          'amdwiki.page.provider.filesystem.storagedir',
+          'ngdpbase.page.provider.filesystem.storagedir',
           './data/pages'
         );
 
@@ -4151,11 +4151,11 @@ class WikiRoutes {
         return res.status(400).json({ error: 'Property name is required' });
       }
 
-      // Validate property name (must start with amdwiki.)
-      if (!property.startsWith('amdwiki.') && !property.startsWith('log4j.')) {
+      // Validate property name (must start with ngdpbase.)
+      if (!property.startsWith('ngdpbase.') && !property.startsWith('log4j.')) {
         return res
           .status(400)
-          .json({ error: 'Property must start with amdwiki. or log4j.' });
+          .json({ error: 'Property must start with ngdpbase. or log4j.' });
       }
 
       // Attempt JSON parse so array/object values entered in the UI (e.g. ["/a","/b"]) are
@@ -4232,9 +4232,9 @@ class WikiRoutes {
       }
 
       const configManager = this.engine.getManager('ConfigurationManager');
-      const sites = configManager.getProperty('amdwiki.interwiki.sites', {}) as Record<string, Record<string, unknown>>;
-      const enabled = configManager.getProperty('amdwiki.interwiki.enabled', true) as boolean;
-      const options = configManager.getProperty('amdwiki.interwiki.options', {}) as Record<string, unknown>;
+      const sites = configManager.getProperty('ngdpbase.interwiki.sites', {}) as Record<string, Record<string, unknown>>;
+      const enabled = configManager.getProperty('ngdpbase.interwiki.enabled', true) as boolean;
+      const options = configManager.getProperty('ngdpbase.interwiki.options', {}) as Record<string, unknown>;
 
       const commonData = await this.getCommonTemplateData(req);
 
@@ -4284,7 +4284,7 @@ class WikiRoutes {
         return res.redirect('/admin/interwiki?error=URL must contain %25s as the page placeholder');
       }
 
-      const sites = configManager.getProperty('amdwiki.interwiki.sites', {}) as Record<string, Record<string, unknown>>;
+      const sites = configManager.getProperty('ngdpbase.interwiki.sites', {}) as Record<string, Record<string, unknown>>;
       const name = (siteName as string).trim();
 
       // If renaming, remove old key
@@ -4300,7 +4300,7 @@ class WikiRoutes {
         openInNewWindow: openInNewWindow === 'on' || openInNewWindow === 'true' || openInNewWindow === '1'
       };
 
-      await configManager.setProperty('amdwiki.interwiki.sites', sites);
+      await configManager.setProperty('ngdpbase.interwiki.sites', sites);
       return res.redirect('/admin/interwiki?success=Site saved. Restart required for changes to take effect.');
     } catch (err: unknown) {
       logger.error('Error saving interwiki site:', err);
@@ -4325,14 +4325,14 @@ class WikiRoutes {
 
       const configManager = this.engine.getManager('ConfigurationManager');
       const siteName = decodeURIComponent(req.params.siteName);
-      const sites = configManager.getProperty('amdwiki.interwiki.sites', {}) as Record<string, Record<string, unknown>>;
+      const sites = configManager.getProperty('ngdpbase.interwiki.sites', {}) as Record<string, Record<string, unknown>>;
 
       if (!sites[siteName]) {
         return res.redirect(`/admin/interwiki?error=Site not found: ${siteName}`);
       }
 
       delete sites[siteName];
-      await configManager.setProperty('amdwiki.interwiki.sites', sites);
+      await configManager.setProperty('ngdpbase.interwiki.sites', sites);
       return res.redirect('/admin/interwiki?success=Site deleted. Restart required for changes to take effect.');
     } catch (err: unknown) {
       logger.error('Error deleting interwiki site:', err);
@@ -4359,12 +4359,12 @@ class WikiRoutes {
       const { globalEnabled, openInNewWindow, addIconIndicator, caseSensitive, showTooltips } = req.body;
 
       await configManager.setProperty(
-        'amdwiki.interwiki.enabled',
+        'ngdpbase.interwiki.enabled',
         globalEnabled === 'on' || globalEnabled === 'true' || globalEnabled === '1'
       );
 
-      const currentOptions = configManager.getProperty('amdwiki.interwiki.options', {}) as Record<string, unknown>;
-      await configManager.setProperty('amdwiki.interwiki.options', {
+      const currentOptions = configManager.getProperty('ngdpbase.interwiki.options', {}) as Record<string, unknown>;
+      await configManager.setProperty('ngdpbase.interwiki.options', {
         ...currentOptions,
         openInNewWindow: openInNewWindow === 'on' || openInNewWindow === 'true' || openInNewWindow === '1',
         addIconIndicator: addIconIndicator === 'on' || addIconIndicator === 'true' || addIconIndicator === '1',
@@ -4517,19 +4517,19 @@ class WikiRoutes {
       const commonData = await this.getCommonTemplateData(req);
       const configManager = this.engine.getManager('ConfigurationManager');
 
-      const activeTheme = configManager?.getProperty('amdwiki.theme.active', 'default') as string;
+      const activeTheme = configManager?.getProperty('ngdpbase.theme.active', 'default') as string;
       const themesDir = path.join(__dirname, '../../../themes');
       const availableThemes = ThemeManager.listAvailable(themesDir);
       const themeManager = new ThemeManager(activeTheme, themesDir);
 
       const settings = {
-        systemName: configManager?.getProperty('amdwiki.applicationName', 'amdWiki'),
-        version: configManager?.getProperty('amdwiki.version', ''),
+        systemName: configManager?.getProperty('ngdpbase.applicationName', 'ngdpbase'),
+        version: configManager?.getProperty('ngdpbase.version', ''),
         activeTheme,
         availableThemes,
         themeInfo: themeManager.paths.themeInfo,
-        maxFileSize: configManager?.getProperty('amdwiki.attachment.maxsize', '10MB'),
-        allowRegistration: configManager?.getProperty('amdwiki.user.allowregistration', true),
+        maxFileSize: configManager?.getProperty('ngdpbase.attachment.maxsize', '10MB'),
+        allowRegistration: configManager?.getProperty('ngdpbase.user.allowregistration', true),
         sessionTimeout: '24 hours'
       };
 
@@ -4567,7 +4567,7 @@ class WikiRoutes {
       }
 
       const configManager = this.engine.getManager('ConfigurationManager');
-      await configManager.setProperty('amdwiki.theme.active', theme);
+      await configManager.setProperty('ngdpbase.theme.active', theme);
 
       logger.info(`Admin theme changed to "${theme}" by ${currentUser.username}`);
       return res.redirect('/admin/settings?success=Theme+updated+to+' + encodeURIComponent(theme) + '+%E2%80%94+restart+required');
@@ -4601,9 +4601,9 @@ class WikiRoutes {
       // eslint-disable-next-line @typescript-eslint/no-require-imports -- dynamic import for path
       const path = require('path');
 
-      // Detect PM2 app name dynamically (matches server.sh convention: amdWiki-$DIR_NAME)
+      // Detect PM2 app name dynamically (matches server.sh convention: ngdpbase-$DIR_NAME)
       const dirName = path.basename(process.cwd());
-      const expectedAppName = `amdWiki-${dirName}`;
+      const expectedAppName = `ngdpbase-${dirName}`;
 
       logger.info(`System restart requested by: ${currentUser.username}`);
 
@@ -4614,10 +4614,10 @@ class WikiRoutes {
         if (!listError && listStdout) {
           try {
             const apps = JSON.parse(listStdout);
-            // Find app matching our expected name or any amdWiki app
+            // Find app matching our expected name or any ngdpbase app
             const matchingApp = apps.find((app: { name: string }) =>
               app.name === expectedAppName ||
-              app.name.startsWith('amdWiki')
+              app.name.startsWith('ngdpbase')
             );
             if (matchingApp) {
               appName = matchingApp.name;
@@ -4737,14 +4737,14 @@ class WikiRoutes {
       const matter = require('gray-matter');
 
       const requiredDirRaw: string = configManager.getProperty(
-        'amdwiki.page.provider.filesystem.requiredpagesdir',
+        'ngdpbase.page.provider.filesystem.requiredpagesdir',
         './required-pages'
       );
       const requiredDirResolved = path.isAbsolute(requiredDirRaw)
         ? requiredDirRaw
         : path.join(process.cwd(), requiredDirRaw);
       const pagesDirResolved: string = configManager.getResolvedDataPath(
-        'amdwiki.page.provider.filesystem.storagedir',
+        'ngdpbase.page.provider.filesystem.storagedir',
         './data/pages'
       );
 
@@ -4863,14 +4863,14 @@ class WikiRoutes {
       const fse = require('fs-extra');
 
       const requiredDirRaw: string = configManager.getProperty(
-        'amdwiki.page.provider.filesystem.requiredpagesdir',
+        'ngdpbase.page.provider.filesystem.requiredpagesdir',
         './required-pages'
       );
       const requiredDirResolved = path.isAbsolute(requiredDirRaw)
         ? requiredDirRaw
         : path.join(process.cwd(), requiredDirRaw);
       const pagesDirResolved: string = configManager.getResolvedDataPath(
-        'amdwiki.page.provider.filesystem.storagedir',
+        'ngdpbase.page.provider.filesystem.storagedir',
         './data/pages'
       );
 
@@ -5041,14 +5041,14 @@ class WikiRoutes {
     const pageManager = this.engine.getManager('PageManager');
 
     const requiredDirRaw: string = configManager.getProperty(
-      'amdwiki.page.provider.filesystem.requiredpagesdir',
+      'ngdpbase.page.provider.filesystem.requiredpagesdir',
       './required-pages'
     );
     const requiredDirResolved = path.isAbsolute(requiredDirRaw)
       ? requiredDirRaw
       : path.join(process.cwd(), requiredDirRaw);
     const pagesDirResolved: string = configManager.getResolvedDataPath(
-      'amdwiki.page.provider.filesystem.storagedir',
+      'ngdpbase.page.provider.filesystem.storagedir',
       './data/pages'
     );
 
@@ -5708,7 +5708,7 @@ class WikiRoutes {
 
       // Read recent logs from configured directory
       const configManager = this.engine.getManager('ConfigurationManager');
-      const logDir = configManager.getResolvedDataPath('amdwiki.logging.dir', './data/logs');
+      const logDir = configManager.getResolvedDataPath('ngdpbase.logging.dir', './data/logs');
       let logContent = '';
       let logFiles: Array<{ name: string; mtime: Date; size: number }> = [];
       let selectedFile = '';
@@ -5824,8 +5824,8 @@ class WikiRoutes {
           {
             '@context': 'https://schema.org',
             '@type': 'Organization',
-            identifier: 'amdwiki-platform',
-            name: configManager.getProperty('amdwiki.applicationName', 'amdWiki Platform'),
+            identifier: 'ngdpbase-platform',
+            name: configManager.getProperty('ngdpbase.applicationName', 'ngdpbase Platform'),
             description:
               'Digital platform for wiki, document management, and modular content systems'
           }
@@ -7613,7 +7613,7 @@ class WikiRoutes {
       }
 
       // Get existing user-keywords
-      const existingKeywords = (configManager.getProperty('amdwiki.user-keywords') || {}) as Record<
+      const existingKeywords = (configManager.getProperty('ngdpbase.user-keywords') || {}) as Record<
         string,
         Record<string, unknown>
       >;
@@ -7638,7 +7638,7 @@ class WikiRoutes {
         }
       };
 
-      await configManager.setProperty('amdwiki.user-keywords', updatedKeywords);
+      await configManager.setProperty('ngdpbase.user-keywords', updatedKeywords);
 
       logger.info(`[WikiRoutes] User ${currentUser.username} created user-keyword: ${internalName}`);
 
@@ -7704,7 +7704,7 @@ ${trimmedDescription}
 
       // Get config manager and find the keyword
       const configManager = this.engine.getManager('ConfigurationManager');
-      const userKeywordsConfig = (configManager?.getProperty('amdwiki.user-keywords') || {}) as Record<
+      const userKeywordsConfig = (configManager?.getProperty('ngdpbase.user-keywords') || {}) as Record<
         string,
         Record<string, unknown>
       >;
@@ -7769,7 +7769,7 @@ ${description}
     try {
       const configManager = this.engine.getManager('ConfigurationManager');
       const pageManager = this.engine.getManager('PageManager');
-      const userKeywordsConfig = configManager?.getProperty('amdwiki.user-keywords', {}) as Record<
+      const userKeywordsConfig = configManager?.getProperty('ngdpbase.user-keywords', {}) as Record<
         string,
         Record<string, unknown>
       >;
@@ -7822,7 +7822,7 @@ ${description}
 
       const configManager = this.engine.getManager('ConfigurationManager');
       const pageManager = this.engine.getManager('PageManager');
-      const userKeywordsConfig = configManager?.getProperty('amdwiki.user-keywords', {}) as Record<
+      const userKeywordsConfig = configManager?.getProperty('ngdpbase.user-keywords', {}) as Record<
         string,
         Record<string, unknown>
       >;
@@ -7920,7 +7920,7 @@ ${description}
       }
 
       const configManager = this.engine.getManager('ConfigurationManager');
-      const userKeywordsConfig = configManager?.getProperty('amdwiki.user-keywords', {}) as Record<
+      const userKeywordsConfig = configManager?.getProperty('ngdpbase.user-keywords', {}) as Record<
         string,
         Record<string, unknown>
       >;
@@ -7940,7 +7940,7 @@ ${description}
         restrictEditing: restrictEditing === true
       };
 
-      await configManager.setProperty('amdwiki.user-keywords', userKeywordsConfig);
+      await configManager.setProperty('ngdpbase.user-keywords', userKeywordsConfig);
 
       res.json({
         success: true,
@@ -8015,7 +8015,7 @@ ${description}
       const { label, description, category, enabled, restrictEditing } = req.body;
 
       const configManager = this.engine.getManager('ConfigurationManager');
-      const userKeywordsConfig = configManager?.getProperty('amdwiki.user-keywords', {}) as Record<
+      const userKeywordsConfig = configManager?.getProperty('ngdpbase.user-keywords', {}) as Record<
         string,
         Record<string, unknown>
       >;
@@ -8035,7 +8035,7 @@ ${description}
         restrictEditing: restrictEditing !== undefined ? restrictEditing : userKeywordsConfig[keywordId].restrictEditing
       };
 
-      await configManager.setProperty('amdwiki.user-keywords', userKeywordsConfig);
+      await configManager.setProperty('ngdpbase.user-keywords', userKeywordsConfig);
 
       res.json({
         success: true,
@@ -8069,7 +8069,7 @@ ${description}
 
       const configManager = this.engine.getManager('ConfigurationManager');
       const pageManager = this.engine.getManager('PageManager');
-      const userKeywordsConfig = configManager?.getProperty('amdwiki.user-keywords', {}) as Record<
+      const userKeywordsConfig = configManager?.getProperty('ngdpbase.user-keywords', {}) as Record<
         string,
         Record<string, unknown>
       >;
@@ -8113,7 +8113,7 @@ ${description}
 
       // Delete the keyword from config
       delete userKeywordsConfig[keywordId];
-      await configManager.setProperty('amdwiki.user-keywords', userKeywordsConfig);
+      await configManager.setProperty('ngdpbase.user-keywords', userKeywordsConfig);
 
       res.json({
         success: true,
@@ -8156,7 +8156,7 @@ ${description}
 
       const configManager = this.engine.getManager('ConfigurationManager');
       const pageManager = this.engine.getManager('PageManager');
-      const userKeywordsConfig = configManager?.getProperty('amdwiki.user-keywords', {}) as Record<
+      const userKeywordsConfig = configManager?.getProperty('ngdpbase.user-keywords', {}) as Record<
         string,
         Record<string, unknown>
       >;
@@ -8196,7 +8196,7 @@ ${description}
       // Optionally delete the source keyword
       if (deleteSource) {
         delete userKeywordsConfig[sourceId];
-        await configManager.setProperty('amdwiki.user-keywords', userKeywordsConfig);
+        await configManager.setProperty('ngdpbase.user-keywords', userKeywordsConfig);
       }
 
       res.json({

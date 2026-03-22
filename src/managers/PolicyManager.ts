@@ -57,7 +57,7 @@ class PolicyManager extends BaseManager {
    * Initializes the PolicyManager by loading policies from the ConfigurationManager.
    *
    * Reads the policy configuration and loads all defined policies into memory.
-   * Policies must be enabled via 'amdwiki.access.policies.enabled' configuration.
+   * Policies must be enabled via 'ngdpbase.access.policies.enabled' configuration.
    *
    * @async
    * @returns {Promise<void>}
@@ -74,16 +74,16 @@ class PolicyManager extends BaseManager {
       throw new Error('PolicyManager requires ConfigurationManager to be initialized.');
     }
 
-    const policiesEnabled = configManager.getProperty('amdwiki.access.policies.enabled', false) as boolean;
+    const policiesEnabled = configManager.getProperty('ngdpbase.access.policies.enabled', false) as boolean;
     if (!policiesEnabled) {
       logger.info('PolicyManager is disabled via configuration.');
       return;
     }
 
     // Read policies directly from the config object, not a file
-    const policies = configManager.getProperty('amdwiki.access.policies', []);
+    const policies = configManager.getProperty('ngdpbase.access.policies', []);
     if (!Array.isArray(policies)) {
-      logger.error('Policies configuration (amdwiki.access.policies) is invalid or not an array.');
+      logger.error('Policies configuration (ngdpbase.access.policies) is invalid or not an array.');
       return;
     }
 

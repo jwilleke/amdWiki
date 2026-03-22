@@ -1,12 +1,12 @@
-[**amdWiki API v1.5.0**](../../../../README.md)
+[**ngdpbase API v1.5.0**](../../../../README.md)
 
 ***
 
-[amdWiki API](../../../../README.md) / [src/managers/ExportManager](../README.md) / PageForExport
+[ngdpbase API](../../../../README.md) / [src/managers/ExportManager](../README.md) / PageForExport
 
 # Interface: PageForExport
 
-Defined in: [src/managers/ExportManager.ts:45](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ExportManager.ts#L45)
+Defined in: [src/managers/ExportManager.ts:45](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ExportManager.ts#L45)
 
 Page object interface (minimal fields needed for export)
 
@@ -16,7 +16,7 @@ Page object interface (minimal fields needed for export)
 
 > **content**: `string`
 
-Defined in: [src/managers/ExportManager.ts:46](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ExportManager.ts#L46)
+Defined in: [src/managers/ExportManager.ts:46](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ExportManager.ts#L46)
 
 ***
 
@@ -24,7 +24,7 @@ Defined in: [src/managers/ExportManager.ts:46](https://github.com/jwilleke/amdWi
 
 > `optional` **lastModified**: `string`
 
-Defined in: [src/managers/ExportManager.ts:47](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ExportManager.ts#L47)
+Defined in: [src/managers/ExportManager.ts:47](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ExportManager.ts#L47)
 
 ***
 
@@ -32,7 +32,7 @@ Defined in: [src/managers/ExportManager.ts:47](https://github.com/jwilleke/amdWi
 
 > `optional` **name**: `string`
 
-Defined in: [src/managers/ExportManager.ts:50](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ExportManager.ts#L50)
+Defined in: [src/managers/ExportManager.ts:50](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ExportManager.ts#L50)
 
 ***
 
@@ -40,7 +40,7 @@ Defined in: [src/managers/ExportManager.ts:50](https://github.com/jwilleke/amdWi
 
 > `optional` **system-category**: `string`
 
-Defined in: [src/managers/ExportManager.ts:48](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ExportManager.ts#L48)
+Defined in: [src/managers/ExportManager.ts:48](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ExportManager.ts#L48)
 
 ***
 
@@ -48,4 +48,4 @@ Defined in: [src/managers/ExportManager.ts:48](https://github.com/jwilleke/amdWi
 
 > `optional` **user-keywords**: `string`[]
 
-Defined in: [src/managers/ExportManager.ts:49](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ExportManager.ts#L49)
+Defined in: [src/managers/ExportManager.ts:49](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ExportManager.ts#L49)

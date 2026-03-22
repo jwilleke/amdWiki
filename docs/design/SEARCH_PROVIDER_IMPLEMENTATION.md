@@ -64,15 +64,15 @@ Full-featured implementation using Lunr.js for client-side full-text search:
 **Configuration Keys:**
 
 ```
-amdwiki.search.provider.lunr.indexdir
-amdwiki.search.provider.lunr.stemming
-amdwiki.search.provider.lunr.boost.title
-amdwiki.search.provider.lunr.boost.systemcategory
-amdwiki.search.provider.lunr.boost.userkeywords
-amdwiki.search.provider.lunr.boost.tags
-amdwiki.search.provider.lunr.boost.keywords
-amdwiki.search.provider.lunr.maxresults
-amdwiki.search.provider.lunr.snippetlength
+ngdpbase.search.provider.lunr.indexdir
+ngdpbase.search.provider.lunr.stemming
+ngdpbase.search.provider.lunr.boost.title
+ngdpbase.search.provider.lunr.boost.systemcategory
+ngdpbase.search.provider.lunr.boost.userkeywords
+ngdpbase.search.provider.lunr.boost.tags
+ngdpbase.search.provider.lunr.boost.keywords
+ngdpbase.search.provider.lunr.maxresults
+ngdpbase.search.provider.lunr.snippetlength
 ```
 
 ### 3. Updated SearchManager
@@ -113,35 +113,35 @@ Added comprehensive search configuration following Issue #102 pattern:
 ```json
 {
   "_comment_search_storage": "Search indexing configuration (ALL LOWERCASE)",
-  "amdwiki.search.enabled": true,
+  "ngdpbase.search.enabled": true,
 
   "_comment_search_provider": "Search provider with fallback",
-  "amdwiki.search.provider.default": "lunrsearchprovider",
-  "amdwiki.search.provider": "lunrsearchprovider",
+  "ngdpbase.search.provider.default": "lunrsearchprovider",
+  "ngdpbase.search.provider": "lunrsearchprovider",
 
   "_comment_search_shared": "Shared search settings (all providers)",
-  "amdwiki.search.maxresults": 50,
-  "amdwiki.search.autocomplete.enabled": true,
-  "amdwiki.search.autocomplete.minlength": 2,
-  "amdwiki.search.suggestions.enabled": true,
-  "amdwiki.search.suggestions.maxitems": 10,
+  "ngdpbase.search.maxresults": 50,
+  "ngdpbase.search.autocomplete.enabled": true,
+  "ngdpbase.search.autocomplete.minlength": 2,
+  "ngdpbase.search.suggestions.enabled": true,
+  "ngdpbase.search.suggestions.maxitems": 10,
 
   "_comment_search_provider_lunr": "LunrSearchProvider settings",
-  "amdwiki.search.provider.lunr.indexdir": "./search-index",
-  "amdwiki.search.provider.lunr.stemming": true,
-  "amdwiki.search.provider.lunr.boost.title": 10,
-  "amdwiki.search.provider.lunr.boost.systemcategory": 8,
-  "amdwiki.search.provider.lunr.boost.userkeywords": 6,
-  "amdwiki.search.provider.lunr.boost.tags": 5,
-  "amdwiki.search.provider.lunr.boost.keywords": 4,
-  "amdwiki.search.provider.lunr.maxresults": 50,
-  "amdwiki.search.provider.lunr.snippetlength": 200,
+  "ngdpbase.search.provider.lunr.indexdir": "./search-index",
+  "ngdpbase.search.provider.lunr.stemming": true,
+  "ngdpbase.search.provider.lunr.boost.title": 10,
+  "ngdpbase.search.provider.lunr.boost.systemcategory": 8,
+  "ngdpbase.search.provider.lunr.boost.userkeywords": 6,
+  "ngdpbase.search.provider.lunr.boost.tags": 5,
+  "ngdpbase.search.provider.lunr.boost.keywords": 4,
+  "ngdpbase.search.provider.lunr.maxresults": 50,
+  "ngdpbase.search.provider.lunr.snippetlength": 200,
 
   "_comment_search_provider_elasticsearch": "ElasticsearchProvider settings (future)",
-  "amdwiki.search.provider.elasticsearch.url": "http://localhost:9200",
-  "amdwiki.search.provider.elasticsearch.indexname": "amdwiki",
-  "amdwiki.search.provider.elasticsearch.connecttimeout": 5000,
-  "amdwiki.search.provider.elasticsearch.requesttimeout": 30000
+  "ngdpbase.search.provider.elasticsearch.url": "http://localhost:9200",
+  "ngdpbase.search.provider.elasticsearch.indexname": "ngdpbase",
+  "ngdpbase.search.provider.elasticsearch.connecttimeout": 5000,
+  "ngdpbase.search.provider.elasticsearch.requesttimeout": 30000
 }
 ```
 
@@ -150,11 +150,11 @@ Added comprehensive search configuration following Issue #102 pattern:
 All configuration follows the hierarchical pattern from Issue #102:
 
 ```
-amdwiki.search.enabled                          → Enable/disable search
-amdwiki.search.provider.default                 → Default provider name
-amdwiki.search.provider                         → Active provider name
-amdwiki.search.{shared-setting}                 → Shared settings
-amdwiki.search.provider.{provider}.{setting}    → Provider-specific settings
+ngdpbase.search.enabled                          → Enable/disable search
+ngdpbase.search.provider.default                 → Default provider name
+ngdpbase.search.provider                         → Active provider name
+ngdpbase.search.{shared-setting}                 → Shared settings
+ngdpbase.search.provider.{provider}.{setting}    → Provider-specific settings
 ```
 
 ## Benefits
@@ -281,10 +281,10 @@ class NullSearchProvider extends BaseSearchProvider {
 └──────────────────┬──────────────────────────────────────┘
                    │
                    ├──► Configuration Pattern:
-                   │    amdwiki.search.enabled
-                   │    amdwiki.search.provider.default
-                   │    amdwiki.search.provider
-                   │    amdwiki.search.provider.{name}.*
+                   │    ngdpbase.search.enabled
+                   │    ngdpbase.search.provider.default
+                   │    ngdpbase.search.provider
+                   │    ngdpbase.search.provider.{name}.*
                    │
                    ▼
 ┌─────────────────────────────────────────────────────────┐
@@ -328,10 +328,10 @@ class NullSearchProvider extends BaseSearchProvider {
 
 ```json
 {
-  "amdwiki.search.enabled": true,
-  "amdwiki.search.provider": "lunrsearchprovider",
-  "amdwiki.search.provider.lunr.indexdir": "./search-index",
-  "amdwiki.search.provider.lunr.stemming": true
+  "ngdpbase.search.enabled": true,
+  "ngdpbase.search.provider": "lunrsearchprovider",
+  "ngdpbase.search.provider.lunr.indexdir": "./search-index",
+  "ngdpbase.search.provider.lunr.stemming": true
 }
 ```
 
@@ -340,21 +340,21 @@ class NullSearchProvider extends BaseSearchProvider {
 ```json
 {
   "_comment_search_storage": "Search indexing configuration",
-  "amdwiki.search.enabled": true,
+  "ngdpbase.search.enabled": true,
 
   "_comment_search_provider": "Search provider with fallback",
-  "amdwiki.search.provider.default": "lunrsearchprovider",
-  "amdwiki.search.provider": "lunrsearchprovider",
+  "ngdpbase.search.provider.default": "lunrsearchprovider",
+  "ngdpbase.search.provider": "lunrsearchprovider",
 
   "_comment_search_shared": "Shared search settings",
-  "amdwiki.search.maxresults": 50,
-  "amdwiki.search.autocomplete.enabled": true,
+  "ngdpbase.search.maxresults": 50,
+  "ngdpbase.search.autocomplete.enabled": true,
 
   "_comment_search_provider_lunr": "LunrSearchProvider settings",
-  "amdwiki.search.provider.lunr.indexdir": "./search-index",
-  "amdwiki.search.provider.lunr.stemming": true,
-  "amdwiki.search.provider.lunr.boost.title": 10,
-  "amdwiki.search.provider.lunr.maxresults": 50
+  "ngdpbase.search.provider.lunr.indexdir": "./search-index",
+  "ngdpbase.search.provider.lunr.stemming": true,
+  "ngdpbase.search.provider.lunr.boost.title": 10,
+  "ngdpbase.search.provider.lunr.maxresults": 50
 }
 ```
 

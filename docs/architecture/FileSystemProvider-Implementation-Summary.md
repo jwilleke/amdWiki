@@ -44,7 +44,7 @@ The FileSystemProvider pattern has been successfully implemented following the d
 - Reduced from 322 lines to 171 lines (47% reduction)
 - Now acts as thin coordinator/proxy
 - Responsibilities:
-  - Load provider based on `amdwiki.pageProvider` config
+  - Load provider based on `ngdpbase.pageProvider` config
   - Initialize provider
   - Proxy all method calls to provider
   - Expose `getCurrentPageProvider()` API
@@ -85,10 +85,10 @@ The FileSystemProvider pattern has been successfully implemented following the d
 
 ```javascript
 // From config
-"amdwiki.pageProvider": "FileSystemProvider"
+"ngdpbase.pageProvider": "FileSystemProvider"
 
 // In PageManager
-const providerName = configManager.getProperty('amdwiki.pageProvider', 'FileSystemProvider');
+const providerName = configManager.getProperty('ngdpbase.pageProvider', 'FileSystemProvider');
 this.provider = this.#loadProvider(providerName);
 ```
 
@@ -99,7 +99,7 @@ this.provider = this.#loadProvider(providerName);
 ```javascript
 // ✅ Correct pattern used throughout
 const configManager = this.engine.getManager('ConfigurationManager');
-const pagesDir = configManager.getProperty('amdwiki.directories.pages', './pages');
+const pagesDir = configManager.getProperty('ngdpbase.directories.pages', './pages');
 ```
 
 ### 3. Provider API
@@ -166,7 +166,7 @@ Adding a new provider is straightforward:
 class DatabaseProvider extends BasePageProvider {
   async initialize() {
     const configManager = this.engine.getManager('ConfigurationManager');
-    this.dbUrl = configManager.getProperty('amdwiki.db.url', 'postgresql://...');
+    this.dbUrl = configManager.getProperty('ngdpbase.db.url', 'postgresql://...');
     // ... initialize database connection
   }
 
@@ -182,7 +182,7 @@ case 'DatabaseProvider':
   return new DatabaseProvider(this.engine);
 
 // 3. Configure in app-default-config.json
-"amdwiki.pageProvider": "DatabaseProvider"
+"ngdpbase.pageProvider": "DatabaseProvider"
 ```
 
 ## Configuration Keys
@@ -191,12 +191,12 @@ Provider pattern uses these configuration keys:
 
 | Key | Default | Description |
 | ----- | --------- | ------------- |
-| `amdwiki.pageProvider` | `FileSystemProvider` | Provider class name |
-| `amdwiki.directories.pages` | `./pages` | Regular pages directory |
-| `amdwiki.directories.required-pages` | `./required-pages` | System pages directory |
-| `amdwiki.encoding` | `UTF-8` | File encoding |
-| `amdwiki.translatorReader.matchEnglishPlurals` | `true` | Enable plural matching |
-| `amdwiki.system-category` | `{...}` | Category-to-storage mapping |
+| `ngdpbase.pageProvider` | `FileSystemProvider` | Provider class name |
+| `ngdpbase.directories.pages` | `./pages` | Regular pages directory |
+| `ngdpbase.directories.required-pages` | `./required-pages` | System pages directory |
+| `ngdpbase.encoding` | `UTF-8` | File encoding |
+| `ngdpbase.translatorReader.matchEnglishPlurals` | `true` | Enable plural matching |
+| `ngdpbase.system-category` | `{...}` | Category-to-storage mapping |
 
 ## Access Patterns
 

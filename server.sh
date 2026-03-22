@@ -1,5 +1,5 @@
 #!/bin/bash
-# amdWiki Server Management Script
+# ngdpbase Server Management Script
 #
 # Configuration: Two-tier system
 # - Base defaults: config/app-default-config.json (always loaded)
@@ -12,7 +12,7 @@
 #   ./server.sh env                # Show config file paths
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PID_FILE="$SCRIPT_DIR/.amdwiki.pid"
+PID_FILE="$SCRIPT_DIR/.ngdpbase.pid"
 
 # Source .env if present (shell exports and CLI args still override)
 if [ -f "$SCRIPT_DIR/.env" ]; then
@@ -34,7 +34,7 @@ unset _FAST
 
 # Generate unique PM2 app name from directory name
 DIR_NAME=$(basename "$SCRIPT_DIR")
-APP_NAME="amdWiki-$DIR_NAME"
+APP_NAME="ngdpbase-$DIR_NAME"
 
 # Function to ensure PM2 daemon is healthy (only one running)
 ensure_single_pm2_daemon() {
@@ -58,9 +58,9 @@ is_container() {
   return 1
 }
 
-# Function to kill all amdWiki processes (nuclear option)
+# Function to kill all ngdpbase processes (nuclear option)
 # Key insight: DELETE from PM2 first to disable autorestart, THEN kill processes
-kill_all_amdwiki() {
+kill_all_ngdpbase() {
   # STEP 1: Delete ALL PM2 apps FIRST (disables autorestart before we kill anything)
   # This must happen before any kill commands to prevent respawn race condition
   echo "   Removing from PM2 (disabling autorestart)..."
@@ -90,7 +90,7 @@ kill_all_amdwiki() {
   fi
 
   # STEP 4: Remove all PID files
-  rm -f "$PID_FILE" "$SCRIPT_DIR"/.amdwiki-*.pid "$SCRIPT_DIR"/server.pid
+  rm -f "$PID_FILE" "$SCRIPT_DIR"/.ngdpbase-*.pid "$SCRIPT_DIR"/server.pid
 }
 
 # Determine environment from second argument or NODE_ENV
@@ -148,13 +148,13 @@ case "${1:-}" in
         # Check if it's OUR process (from this directory)
         PORT_CMD=$(ps -p "$PORT_PID" -o args= 2>/dev/null || true)
         if echo "$PORT_CMD" | grep -q "$SCRIPT_DIR"; then
-          echo "⚠️  Found orphaned amdWiki on port 3000 (PID $PORT_PID), killing..."
+          echo "⚠️  Found orphaned ngdpbase on port 3000 (PID $PORT_PID), killing..."
           kill -9 "$PORT_PID" 2>/dev/null || true
           sleep 1
         else
           echo "❌ ERROR: Port 3000 in use by another process (PID $PORT_PID)"
           echo ""
-          echo "This process is preventing amdWiki from starting:"
+          echo "This process is preventing ngdpbase from starting:"
           lsof -i :3000 2>/dev/null | grep LISTEN || true
           echo ""
           echo "Options:"
@@ -170,14 +170,14 @@ case "${1:-}" in
     pgrep -f "node.*$SCRIPT_DIR/app\.js" 2>/dev/null | xargs kill -9 2>/dev/null || true
     sleep 1
 
-    # STEP 5: Clean up any PM2-created PID files (.amdwiki-*.pid) and legacy files
-    rm -f "$SCRIPT_DIR"/.amdwiki-*.pid "$SCRIPT_DIR"/server.pid
+    # STEP 5: Clean up any PM2-created PID files (.ngdpbase-*.pid) and legacy files
+    rm -f "$SCRIPT_DIR"/.ngdpbase-*.pid "$SCRIPT_DIR"/server.pid
 
     # STEP 6: Delete any existing PM2 app entry (prevents duplicates)
     npx --no pm2 delete "$APP_NAME" 2>/dev/null || true
 
     # STEP 7: Start via PM2
-    echo "🚀 Starting amdWiki in $ENV_NAME mode..."
+    echo "🚀 Starting ngdpbase in $ENV_NAME mode..."
     echo "   Base config: config/app-default-config.json"
     echo "   Instance config: ${FAST_STORAGE:-${INSTANCE_DATA_FOLDER:-./data}}/config/${INSTANCE_CONFIG_FILE:-app-custom-config.json}"
     echo "   Logs: ${FAST_STORAGE:-${INSTANCE_DATA_FOLDER:-./data}}/logs/"
@@ -230,15 +230,15 @@ case "${1:-}" in
       exit 1
     fi
 
-    # STEP 10: Clean up PM2-generated PID files (keep only .amdwiki.pid as source of truth)
-    rm -f "$SCRIPT_DIR"/.amdwiki-*.pid
+    # STEP 10: Clean up PM2-generated PID files (keep only .ngdpbase.pid as source of truth)
+    rm -f "$SCRIPT_DIR"/.ngdpbase-*.pid
     ;;
 
   stop)
     echo "🛑 Stopping $APP_NAME..."
 
     # Use the comprehensive kill function
-    kill_all_amdwiki
+    kill_all_ngdpbase
     sleep 1
 
     # Verify nothing is left on port 3000 (retry up to 3 times for PM2 race condition)
@@ -293,7 +293,7 @@ case "${1:-}" in
     ;;
 
   status)
-    echo "📊 amdWiki Server Status"
+    echo "📊 ngdpbase Server Status"
     echo "========================"
     echo ""
 
@@ -342,11 +342,11 @@ case "${1:-}" in
     ps aux | grep "$SCRIPT_DIR/app\.js" | grep -v grep || echo "   None found"
 
     # Check for PID file duplicates
-    PID_COUNT=$(ls -1 "$SCRIPT_DIR"/.amdwiki*.pid 2>/dev/null | wc -l | tr -d ' ')
+    PID_COUNT=$(ls -1 "$SCRIPT_DIR"/.ngdpbase*.pid 2>/dev/null | wc -l | tr -d ' ')
     if [ "$PID_COUNT" -gt 1 ]; then
       echo ""
       echo "⚠️  WARNING: Multiple PID files found:"
-      ls -la "$SCRIPT_DIR"/.amdwiki*.pid 2>/dev/null
+      ls -la "$SCRIPT_DIR"/.ngdpbase*.pid 2>/dev/null
     fi
     ;;
 
@@ -374,9 +374,9 @@ case "${1:-}" in
   unlock)
     echo "🔓 Unlocking server (nuclear cleanup)..."
 
-    # 1. Kill all amdWiki processes
-    echo "   Stopping all amdWiki processes..."
-    kill_all_amdwiki
+    # 1. Kill all ngdpbase processes
+    echo "   Stopping all ngdpbase processes..."
+    kill_all_ngdpbase
 
     # 2. Delete all PM2 apps and kill daemons
     DAEMON_COUNT=$(pgrep -f "PM2.*God Daemon" 2>/dev/null | wc -l | tr -d ' ')
@@ -400,7 +400,7 @@ case "${1:-}" in
     ;;
 
   *)
-    echo "amdWiki Server Management"
+    echo "ngdpbase Server Management"
     echo ""
     echo "Usage: $0 {start|stop|restart|status|logs|env|unlock} [environment]"
     echo ""
@@ -420,7 +420,7 @@ case "${1:-}" in
     echo "                 Use if server crashed or stuck"
     echo ""
     echo "Process Management:"
-    echo "  • Single instance guaranteed via .amdwiki.pid lock"
+    echo "  • Single instance guaranteed via .ngdpbase.pid lock"
     echo "  • Automatic cleanup of orphaned Node processes on start"
     echo "  • Port conflict detection before startup"
     echo "  • Graceful stop with force-kill fallback"

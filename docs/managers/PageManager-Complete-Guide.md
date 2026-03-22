@@ -27,7 +27,7 @@
 
 ## Overview
 
-The **PageManager** is the central coordinator for all wiki page operations in amdWiki. It implements a **pluggable provider architecture** following the JSPWiki pattern, allowing different storage backends (filesystem, database, cloud) to be swapped via configuration without changing application code.
+The **PageManager** is the central coordinator for all wiki page operations in ngdpbase. It implements a **pluggable provider architecture** following the JSPWiki pattern, allowing different storage backends (filesystem, database, cloud) to be swapped via configuration without changing application code.
 
 ### Key Responsibilities
 
@@ -59,7 +59,7 @@ This architecture enables:
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                       amdWiki Engine                             │
+│                       ngdpbase Engine                             │
 │                                                                  │
 │  ┌────────────────────────────────────────────────────────────┐ │
 │  │                  PageManager                                │ │
@@ -105,9 +105,9 @@ This architecture enables:
                      │
 ┌────────────────────▼─────────────────────────────────────────────┐
 │  2. PageManager.initialize()                                      │
-│     ├─> getProperty('amdwiki.page.provider.default')             │
+│     ├─> getProperty('ngdpbase.page.provider.default')             │
 │     │   Returns: 'filesystemprovider'                            │
-│     ├─> getProperty('amdwiki.page.provider')                     │
+│     ├─> getProperty('ngdpbase.page.provider')                     │
 │     │   Returns: 'filesystemprovider' (with fallback)            │
 │     └─> #normalizeProviderName('filesystemprovider')             │
 │         Returns: 'FileSystemProvider' (PascalCase)               │
@@ -118,7 +118,7 @@ This architecture enables:
 │     ├─> require('../providers/FileSystemProvider')               │
 │     ├─> new FileSystemProvider(engine)                           │
 │     └─> provider.initialize()                                    │
-│         ├─> getProperty('amdwiki.page.provider.filesystem.*')    │
+│         ├─> getProperty('ngdpbase.page.provider.filesystem.*')    │
 │         ├─> Load page cache                                      │
 │         └─> Build indexes (title, UUID)                          │
 └──────────────────────────────────────────────────────────────────┘
@@ -173,13 +173,13 @@ All PageManager configuration keys use **lowercase** naming:
 ```json
 {
   "_comment_page_storage": "Page storage configuration (ALL LOWERCASE)",
-  "amdwiki.page.enabled": true,
-  "amdwiki.page.provider.default": "filesystemprovider",
-  "amdwiki.page.provider": "filesystemprovider",
-  "amdwiki.page.provider.filesystem.storagedir": "./pages",
-  "amdwiki.page.provider.filesystem.requiredpagesdir": "./required-pages",
-  "amdwiki.page.provider.filesystem.encoding": "utf-8",
-  "amdwiki.page.provider.filesystem.autosave": true
+  "ngdpbase.page.enabled": true,
+  "ngdpbase.page.provider.default": "filesystemprovider",
+  "ngdpbase.page.provider": "filesystemprovider",
+  "ngdpbase.page.provider.filesystem.storagedir": "./pages",
+  "ngdpbase.page.provider.filesystem.requiredpagesdir": "./required-pages",
+  "ngdpbase.page.provider.filesystem.encoding": "utf-8",
+  "ngdpbase.page.provider.filesystem.autosave": true
 }
 ```
 
@@ -189,28 +189,28 @@ All PageManager configuration keys use **lowercase** naming:
 
 | Key | Type | Default | Description |
 | ----- | ------ | --------- | ------------- |
-| `amdwiki.page.enabled` | boolean | `true` | Enable/disable page storage system |
-| `amdwiki.page.provider.default` | string | `"filesystemprovider"` | Default provider name (fallback) |
-| `amdwiki.page.provider` | string | `"filesystemprovider"` | Active provider name |
+| `ngdpbase.page.enabled` | boolean | `true` | Enable/disable page storage system |
+| `ngdpbase.page.provider.default` | string | `"filesystemprovider"` | Default provider name (fallback) |
+| `ngdpbase.page.provider` | string | `"filesystemprovider"` | Active provider name |
 
 **Provider Fallback Pattern:**
 
 ```javascript
 // 1. Try specific provider setting
-const providerName = getProperty('amdwiki.page.provider')
+const providerName = getProperty('ngdpbase.page.provider')
 
 // 2. Fall back to default if not set
-const defaultProvider = getProperty('amdwiki.page.provider.default')
+const defaultProvider = getProperty('ngdpbase.page.provider.default')
 ```
 
 #### FileSystemProvider Settings
 
 | Key | Type | Default | Description |
 | ----- | ------ | --------- | ------------- |
-| `amdwiki.page.provider.filesystem.storagedir` | string | `"./pages"` | Main pages directory |
-| `amdwiki.page.provider.filesystem.requiredpagesdir` | string | `"./required-pages"` | System pages directory |
-| `amdwiki.page.provider.filesystem.encoding` | string | `"utf-8"` | File encoding |
-| `amdwiki.page.provider.filesystem.autosave` | boolean | `true` | Enable autosave (future) |
+| `ngdpbase.page.provider.filesystem.storagedir` | string | `"./pages"` | Main pages directory |
+| `ngdpbase.page.provider.filesystem.requiredpagesdir` | string | `"./required-pages"` | System pages directory |
+| `ngdpbase.page.provider.filesystem.encoding` | string | `"utf-8"` | File encoding |
+| `ngdpbase.page.provider.filesystem.autosave` | boolean | `true` | Enable autosave (future) |
 
 ### Provider Name Normalization
 
@@ -245,13 +245,13 @@ Special JSP pages are mapped with lowercase keys:
 
 ```json
 {
-  "amdwiki.specialpage.login": "Login.jsp",
-  "amdwiki.specialpage.userpreferences": "UserPreferences.jsp",
-  "amdwiki.specialpage.search": "Search.jsp",
-  "amdwiki.specialpage.findpage": "FindPage.jsp",
-  "amdwiki.specialpage.diff": "Diff.jsp",
-  "amdwiki.specialpage.workflow": "Workflow.jsp",
-  "amdwiki.specialpage.upload": "Upload.jsp"
+  "ngdpbase.specialpage.login": "Login.jsp",
+  "ngdpbase.specialpage.userpreferences": "UserPreferences.jsp",
+  "ngdpbase.specialpage.search": "Search.jsp",
+  "ngdpbase.specialpage.findpage": "FindPage.jsp",
+  "ngdpbase.specialpage.diff": "Diff.jsp",
+  "ngdpbase.specialpage.workflow": "Workflow.jsp",
+  "ngdpbase.specialpage.upload": "Upload.jsp"
 }
 ```
 
@@ -364,7 +364,7 @@ The **FileSystemProvider** stores pages as Markdown files with YAML frontmatter.
 ### Storage Structure
 
 ```
-amdWiki/
+ngdpbase/
 ├── pages/                           # Regular user pages
 │   ├── 3463c02f-5c84-4a42-a574-a56077ff8162.md
 │   ├── 749e0fc7-0f71-483a-ab80-538d9c598352.md
@@ -391,7 +391,7 @@ keywords: ["welcome", "introduction"]
 systemCategory: "general"
 ---
 
-# Welcome to amdWiki
+# Welcome to ngdpbase
 
 This is the content of the page in Markdown format...
 ```
@@ -449,7 +449,7 @@ The FileSystemProvider uses `PageNameMatcher` for intelligent name matching:
 
 ```javascript
 // Configuration
-"amdwiki.translatorReader.matchEnglishPlurals": true
+"ngdpbase.translatorReader.matchEnglishPlurals": true
 
 // Examples of matches:
 "User" matches "Users"
@@ -478,7 +478,7 @@ const page = await pageManager.getPage('3463c02f-5c84-4a42-a574-a56077ff8162');
 
 // Result:
 {
-  content: '# Welcome to amdWiki\n\nThis is...',
+  content: '# Welcome to ngdpbase\n\nThis is...',
   metadata: { title, uuid, author, created, modified, ... },
   title: 'Welcome',
   uuid: '3463c02f-5c84-4a42-a574-a56077ff8162',
@@ -538,13 +538,13 @@ const deleted = await pageManager.deletePage('Old Page');
 
 ```json
 {
-  "amdwiki.page.enabled": true,
-  "amdwiki.page.provider.default": "filesystemprovider",
-  "amdwiki.page.provider": "filesystemprovider",
-  "amdwiki.page.provider.filesystem.storagedir": "./pages",
-  "amdwiki.page.provider.filesystem.requiredpagesdir": "./required-pages",
-  "amdwiki.page.provider.filesystem.encoding": "utf-8",
-  "amdwiki.page.provider.filesystem.autosave": true
+  "ngdpbase.page.enabled": true,
+  "ngdpbase.page.provider.default": "filesystemprovider",
+  "ngdpbase.page.provider": "filesystemprovider",
+  "ngdpbase.page.provider.filesystem.storagedir": "./pages",
+  "ngdpbase.page.provider.filesystem.requiredpagesdir": "./required-pages",
+  "ngdpbase.page.provider.filesystem.encoding": "utf-8",
+  "ngdpbase.page.provider.filesystem.autosave": true
 }
 ```
 
@@ -552,8 +552,8 @@ const deleted = await pageManager.deletePage('Old Page');
 
 ```json
 {
-  "amdwiki.page.provider.filesystem.storagedir": "/data/wiki/pages",
-  "amdwiki.page.provider.filesystem.requiredpagesdir": "/data/wiki/system"
+  "ngdpbase.page.provider.filesystem.storagedir": "/data/wiki/pages",
+  "ngdpbase.page.provider.filesystem.requiredpagesdir": "/data/wiki/system"
 }
 ```
 
@@ -561,7 +561,7 @@ const deleted = await pageManager.deletePage('Old Page');
 
 ```json
 {
-  "amdwiki.translatorReader.matchEnglishPlurals": false
+  "ngdpbase.translatorReader.matchEnglishPlurals": false
 }
 ```
 
@@ -580,16 +580,16 @@ Store pages in SQL or NoSQL databases for better scalability and transaction sup
 ```json
 {
   "_comment_page_storage": "Database page storage (FUTURE)",
-  "amdwiki.page.provider": "databaseprovider",
-  "amdwiki.page.provider.database.type": "postgresql",
-  "amdwiki.page.provider.database.host": "localhost",
-  "amdwiki.page.provider.database.port": 5432,
-  "amdwiki.page.provider.database.database": "amdwiki",
-  "amdwiki.page.provider.database.username": "amdwiki_user",
-  "amdwiki.page.provider.database.password": "${DB_PASSWORD}",
-  "amdwiki.page.provider.database.pool.min": 2,
-  "amdwiki.page.provider.database.pool.max": 10,
-  "amdwiki.page.provider.database.ssl": true
+  "ngdpbase.page.provider": "databaseprovider",
+  "ngdpbase.page.provider.database.type": "postgresql",
+  "ngdpbase.page.provider.database.host": "localhost",
+  "ngdpbase.page.provider.database.port": 5432,
+  "ngdpbase.page.provider.database.database": "ngdpbase",
+  "ngdpbase.page.provider.database.username": "ngdpbase_user",
+  "ngdpbase.page.provider.database.password": "${DB_PASSWORD}",
+  "ngdpbase.page.provider.database.pool.min": 2,
+  "ngdpbase.page.provider.database.pool.max": 10,
+  "ngdpbase.page.provider.database.ssl": true
 }
 ```
 
@@ -649,16 +649,16 @@ Store pages in cloud object storage (AWS S3, Azure Blob, Google Cloud Storage).
 ```json
 {
   "_comment_page_storage": "S3 page storage (FUTURE)",
-  "amdwiki.page.provider": "s3provider",
-  "amdwiki.page.provider.s3.region": "us-east-1",
-  "amdwiki.page.provider.s3.bucket": "amdwiki-pages",
-  "amdwiki.page.provider.s3.prefix": "pages/",
-  "amdwiki.page.provider.s3.accesskeyid": "${AWS_ACCESS_KEY_ID}",
-  "amdwiki.page.provider.s3.secretaccesskey": "${AWS_SECRET_ACCESS_KEY}",
-  "amdwiki.page.provider.s3.encryption": "AES256",
-  "amdwiki.page.provider.s3.storageclass": "STANDARD",
-  "amdwiki.page.provider.s3.cdnenabled": true,
-  "amdwiki.page.provider.s3.cdnurl": "https://cdn.example.com"
+  "ngdpbase.page.provider": "s3provider",
+  "ngdpbase.page.provider.s3.region": "us-east-1",
+  "ngdpbase.page.provider.s3.bucket": "ngdpbase-pages",
+  "ngdpbase.page.provider.s3.prefix": "pages/",
+  "ngdpbase.page.provider.s3.accesskeyid": "${AWS_ACCESS_KEY_ID}",
+  "ngdpbase.page.provider.s3.secretaccesskey": "${AWS_SECRET_ACCESS_KEY}",
+  "ngdpbase.page.provider.s3.encryption": "AES256",
+  "ngdpbase.page.provider.s3.storageclass": "STANDARD",
+  "ngdpbase.page.provider.s3.cdnenabled": true,
+  "ngdpbase.page.provider.s3.cdnurl": "https://cdn.example.com"
 }
 ```
 
@@ -675,7 +675,7 @@ Store pages in cloud object storage (AWS S3, Azure Blob, Google Cloud Storage).
 #### Storage Structure (S3)
 
 ```
-s3://amdwiki-pages/
+s3://ngdpbase-pages/
 ├── pages/
 │   ├── 3463c02f-5c84-4a42-a574-a56077ff8162.md
 │   ├── 749e0fc7-0f71-483a-ab80-538d9c598352.md
@@ -1241,15 +1241,15 @@ async function getCachedPage(pageName) {
 1. **Use Lowercase Keys**: All configuration keys should be lowercase
 
    ```json
-   "amdwiki.page.provider": "filesystemprovider"  ✅
-   "amdwiki.page.Provider": "FileSystemProvider"  ❌
+   "ngdpbase.page.provider": "filesystemprovider"  ✅
+   "ngdpbase.page.Provider": "FileSystemProvider"  ❌
    ```
 
 2. **Provider Fallback**: Always configure both default and active provider
 
    ```json
-   "amdwiki.page.provider.default": "filesystemprovider",
-   "amdwiki.page.provider": "filesystemprovider"
+   "ngdpbase.page.provider.default": "filesystemprovider",
+   "ngdpbase.page.provider": "filesystemprovider"
    ```
 
 3. **Never Modify app-default-config.json in Production**: Use `app-custom-config.json` for overrides
@@ -1257,7 +1257,7 @@ async function getCachedPage(pageName) {
    ```json
    // app-custom-config.json
    {
-     "amdwiki.page.provider.filesystem.storagedir": "/data/wiki/pages"
+     "ngdpbase.page.provider.filesystem.storagedir": "/data/wiki/pages"
    }
    ```
 
@@ -1379,7 +1379,7 @@ await this.registerManager('PageManager', ...);
 
 ```json
 {
-  "amdwiki.page.provider": "filesystemprovider"  // Lowercase
+  "ngdpbase.page.provider": "filesystemprovider"  // Lowercase
 }
 ```
 
@@ -1427,7 +1427,7 @@ Verify directory exists and contains `.md` files.
 
 ```json
 {
-  "amdwiki.translatorReader.matchEnglishPlurals": true
+  "ngdpbase.translatorReader.matchEnglishPlurals": true
 }
 ```
 
@@ -1464,10 +1464,10 @@ If you're upgrading from an older version with different configuration keys:
 
 ```json
 {
-  "amdwiki.pageProvider": "FileSystemProvider",
-  "amdwiki.directories.pages": "./pages",
-  "amdwiki.directories.required-pages": "./required-pages",
-  "amdwiki.encoding": "UTF-8"
+  "ngdpbase.pageProvider": "FileSystemProvider",
+  "ngdpbase.directories.pages": "./pages",
+  "ngdpbase.directories.required-pages": "./required-pages",
+  "ngdpbase.encoding": "UTF-8"
 }
 ```
 
@@ -1475,12 +1475,12 @@ If you're upgrading from an older version with different configuration keys:
 
 ```json
 {
-  "amdwiki.page.enabled": true,
-  "amdwiki.page.provider.default": "filesystemprovider",
-  "amdwiki.page.provider": "filesystemprovider",
-  "amdwiki.page.provider.filesystem.storagedir": "./pages",
-  "amdwiki.page.provider.filesystem.requiredpagesdir": "./required-pages",
-  "amdwiki.page.provider.filesystem.encoding": "utf-8"
+  "ngdpbase.page.enabled": true,
+  "ngdpbase.page.provider.default": "filesystemprovider",
+  "ngdpbase.page.provider": "filesystemprovider",
+  "ngdpbase.page.provider.filesystem.storagedir": "./pages",
+  "ngdpbase.page.provider.filesystem.requiredpagesdir": "./required-pages",
+  "ngdpbase.page.provider.filesystem.encoding": "utf-8"
 }
 ```
 
@@ -1516,7 +1516,7 @@ class CustomProvider extends BasePageProvider {
   async initialize() {
     const configManager = this.engine.getManager('ConfigurationManager');
     // Read configuration keys:
-    // amdwiki.page.provider.custom.*
+    // ngdpbase.page.provider.custom.*
 
     this.initialized = true;
   }
@@ -1554,9 +1554,9 @@ module.exports = CustomProvider;
 
 ```json
 {
-  "amdwiki.page.provider": "customprovider",
-  "amdwiki.page.provider.custom.option1": "value1",
-  "amdwiki.page.provider.custom.option2": "value2"
+  "ngdpbase.page.provider": "customprovider",
+  "ngdpbase.page.provider.custom.option1": "value1",
+  "ngdpbase.page.provider.custom.option2": "value2"
 }
 ```
 
@@ -1581,5 +1581,5 @@ For questions or issues, check the [Troubleshooting](#troubleshooting) section o
 ---
 
 **Document Version**: 1.0.0
-**amdWiki Version**: 1.3.2
+**ngdpbase Version**: 1.3.2
 **Last Updated**: 2025-10-12

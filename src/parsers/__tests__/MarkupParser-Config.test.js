@@ -5,15 +5,15 @@ const PluginSyntaxHandler = require('../handlers/PluginSyntaxHandler');
 class MockConfigurationManager {
   constructor(config = {}) {
     this.config = {
-      'amdwiki.markup.enabled': true,
-      'amdwiki.markup.caching': true,
-      'amdwiki.markup.cacheTTL': 300,
-      'amdwiki.markup.handlerRegistry.maxHandlers': 100,
-      'amdwiki.markup.handlerRegistry.enableConflictDetection': true,
-      'amdwiki.markup.handlers.plugin.enabled': true,
-      'amdwiki.markup.handlers.plugin.priority': 90,
-      'amdwiki.markup.handlers.wikitag.enabled': false,
-      'amdwiki.markup.filters.enabled': true,
+      'ngdpbase.markup.enabled': true,
+      'ngdpbase.markup.caching': true,
+      'ngdpbase.markup.cacheTTL': 300,
+      'ngdpbase.markup.handlerRegistry.maxHandlers': 100,
+      'ngdpbase.markup.handlerRegistry.enableConflictDetection': true,
+      'ngdpbase.markup.handlers.plugin.enabled': true,
+      'ngdpbase.markup.handlers.plugin.priority': 90,
+      'ngdpbase.markup.handlers.wikitag.enabled': false,
+      'ngdpbase.markup.filters.enabled': true,
       ...config
     };
   }
@@ -87,9 +87,9 @@ describe('MarkupParser Configuration Integration', () => {
 
     test('should load configuration from ConfigurationManager', async () => {
       // Configure custom values
-      mockConfigManager.config['amdwiki.markup.enabled'] = false;
-      mockConfigManager.config['amdwiki.markup.cacheTTL'] = 600;
-      mockConfigManager.config['amdwiki.markup.handlers.plugin.priority'] = 95;
+      mockConfigManager.config['ngdpbase.markup.enabled'] = false;
+      mockConfigManager.config['ngdpbase.markup.cacheTTL'] = 600;
+      mockConfigManager.config['ngdpbase.markup.handlers.plugin.priority'] = 95;
       
       await markupParser.initialize();
       
@@ -135,8 +135,8 @@ describe('MarkupParser Configuration Integration', () => {
     // NOTE: HandlerRegistry.config is private - cannot be configured from MarkupParser
     // HandlerRegistry uses sensible defaults: maxHandlers=100, enableConflictDetection=true
     test('should use HandlerRegistry default configuration', async () => {
-      mockConfigManager.config['amdwiki.markup.handlerRegistry.maxHandlers'] = 50;
-      mockConfigManager.config['amdwiki.markup.handlerRegistry.enableConflictDetection'] = false;
+      mockConfigManager.config['ngdpbase.markup.handlerRegistry.maxHandlers'] = 50;
+      mockConfigManager.config['ngdpbase.markup.handlerRegistry.enableConflictDetection'] = false;
 
       await markupParser.initialize();
 
@@ -147,7 +147,7 @@ describe('MarkupParser Configuration Integration', () => {
 
     test('should respect handler enable/disable configuration', async () => {
       // Disable plugin handler in config
-      mockConfigManager.config['amdwiki.markup.handlers.plugin.enabled'] = false;
+      mockConfigManager.config['ngdpbase.markup.handlers.plugin.enabled'] = false;
       
       await markupParser.initialize();
       
@@ -160,7 +160,7 @@ describe('MarkupParser Configuration Integration', () => {
 
     // Skipped: Handler priority configuration and registration may have changed
     test.skip('should use configured handler priorities', async () => {
-      mockConfigManager.config['amdwiki.markup.handlers.plugin.priority'] = 95;
+      mockConfigManager.config['ngdpbase.markup.handlers.plugin.priority'] = 95;
 
       await markupParser.initialize();
 
@@ -174,7 +174,7 @@ describe('MarkupParser Configuration Integration', () => {
 
   describe('Cache Configuration', () => {
     test('should respect cache configuration', async () => {
-      mockConfigManager.config['amdwiki.markup.caching'] = false;
+      mockConfigManager.config['ngdpbase.markup.caching'] = false;
       
       await markupParser.initialize();
       
@@ -182,7 +182,7 @@ describe('MarkupParser Configuration Integration', () => {
     });
 
     test('should use configured cache TTL', async () => {
-      mockConfigManager.config['amdwiki.markup.cacheTTL'] = 600;
+      mockConfigManager.config['ngdpbase.markup.cacheTTL'] = 600;
       
       await markupParser.initialize();
       
@@ -191,7 +191,7 @@ describe('MarkupParser Configuration Integration', () => {
 
     // Skipped: Cache TTL configuration propagation has changed
     test.skip('should use cache TTL in caching operations', async () => {
-      mockConfigManager.config['amdwiki.markup.cacheTTL'] = 900;
+      mockConfigManager.config['ngdpbase.markup.cacheTTL'] = 900;
 
       await markupParser.initialize();
 
@@ -212,7 +212,7 @@ describe('MarkupParser Configuration Integration', () => {
 
   describe('Disabled MarkupParser Behavior', () => {
     test('should fall back to basic rendering when disabled', async () => {
-      mockConfigManager.config['amdwiki.markup.enabled'] = false;
+      mockConfigManager.config['ngdpbase.markup.enabled'] = false;
       
       // Mock RenderingManager
       const mockRenderingManager = {
@@ -232,7 +232,7 @@ describe('MarkupParser Configuration Integration', () => {
     });
 
     test('should return original content when disabled and no RenderingManager', async () => {
-      mockConfigManager.config['amdwiki.markup.enabled'] = false;
+      mockConfigManager.config['ngdpbase.markup.enabled'] = false;
       
       const engineWithoutRendering = new MockWikiEngine({ 
         ConfigurationManager: mockConfigManager
@@ -252,9 +252,9 @@ describe('MarkupParser Configuration Integration', () => {
 
   describe('Filter Configuration', () => {
     test('should load filter configuration', async () => {
-      mockConfigManager.config['amdwiki.markup.filters.enabled'] = true;
-      mockConfigManager.config['amdwiki.markup.filters.spam.enabled'] = false;
-      mockConfigManager.config['amdwiki.markup.filters.security.enabled'] = true;
+      mockConfigManager.config['ngdpbase.markup.filters.enabled'] = true;
+      mockConfigManager.config['ngdpbase.markup.filters.spam.enabled'] = false;
+      mockConfigManager.config['ngdpbase.markup.filters.security.enabled'] = true;
       
       await markupParser.initialize();
       
@@ -266,8 +266,8 @@ describe('MarkupParser Configuration Integration', () => {
 
   describe('Configuration API', () => {
     test('should get handler configuration by type', async () => {
-      mockConfigManager.config['amdwiki.markup.handlers.plugin.enabled'] = true;
-      mockConfigManager.config['amdwiki.markup.handlers.plugin.priority'] = 95;
+      mockConfigManager.config['ngdpbase.markup.handlers.plugin.enabled'] = true;
+      mockConfigManager.config['ngdpbase.markup.handlers.plugin.priority'] = 95;
       
       await markupParser.initialize();
       

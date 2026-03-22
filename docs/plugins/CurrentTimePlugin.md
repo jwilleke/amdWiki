@@ -22,7 +22,7 @@ The CurrentTimePlugin provides JSPWiki-compatible date/time display functionalit
 | Property | Value |
 | ---------- | ------- |
 | Name | CurrentTimePlugin |
-| Author | amdWiki |
+| Author | ngdpbase |
 | Version | 1.0.0 |
 | JSPWiki Compatible | Yes |
 
@@ -149,7 +149,7 @@ execute(context, params) {
 
 ## JSPWiki Compatibility
 
-| Feature | JSPWiki | amdWiki | Notes |
+| Feature | JSPWiki | ngdpbase | Notes |
 | --------- | --------- | --------- | ------- |
 | Basic syntax | Yes | Yes | Fully compatible |
 | Format patterns | Yes | Yes | Java SimpleDateFormat-style |

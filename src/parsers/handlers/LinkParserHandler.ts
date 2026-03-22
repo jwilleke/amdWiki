@@ -131,10 +131,10 @@ class LinkParserHandler extends BaseSyntaxHandler {
         // Get plural matching and CamelCase configuration
         const configManager = this.engine?.getManager('ConfigurationManager') as ConfigManager | undefined;
         const matchEnglishPlurals = configManager ?
-          configManager.getProperty('amdwiki.translator-reader.match-english-plurals', true) as boolean :
+          configManager.getProperty('ngdpbase.translator-reader.match-english-plurals', true) as boolean :
           true;
         const matchCamelCase = configManager ?
-          configManager.getProperty('amdwiki.translator-reader.camel-case-links', false) as boolean :
+          configManager.getProperty('ngdpbase.translator-reader.camel-case-links', false) as boolean :
           false;
 
         // Store config for use in refreshPageNames()
@@ -171,11 +171,11 @@ class LinkParserHandler extends BaseSyntaxHandler {
   private async loadInterWikiConfiguration(): Promise<void> {
     try {
       const cfg = this.engine?.getManager?.('ConfigurationManager') as ConfigManager | undefined;
-      const globalEnabled = cfg?.getProperty?.('amdwiki.interwiki.enabled', true);
+      const globalEnabled = cfg?.getProperty?.('ngdpbase.interwiki.enabled', true);
       if (!globalEnabled) return;
 
       // Prefer ConfigurationManager (object of siteName -> siteObject)
-      const sitesFromCfg = cfg?.getProperty<Record<string, InterWikiSiteDef> | null>('amdwiki.interwiki.sites', null);
+      const sitesFromCfg = cfg?.getProperty<Record<string, InterWikiSiteDef> | null>('ngdpbase.interwiki.sites', null);
 
       let sites: Record<string, InterWikiSiteDef> | null = null;
       if (sitesFromCfg && typeof sitesFromCfg === 'object') {

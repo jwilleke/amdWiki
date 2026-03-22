@@ -145,8 +145,8 @@ class ConfigurationManager extends BaseManager {
     this.mergedConfig = this.deepMergeConfigs(this.defaultConfig, this.customConfig);
 
     // Development mode defaults to debug logging unless explicitly overridden
-    if (this.environment === 'development' && !this.customConfig?.['amdwiki.logging.level']) {
-      this.mergedConfig['amdwiki.logging.level'] = 'debug';
+    if (this.environment === 'development' && !this.customConfig?.['ngdpbase.logging.level']) {
+      this.mergedConfig['ngdpbase.logging.level'] = 'debug';
     }
   }
 
@@ -319,19 +319,19 @@ class ConfigurationManager extends BaseManager {
    * @returns {*} Configuration value or default
    *
    * @example
-   * const appName = configManager.getProperty('amdwiki.applicationName', 'MyWiki');
+   * const appName = configManager.getProperty('ngdpbase.applicationName', 'MyWiki');
    */
   getProperty(key: string, defaultValue: unknown = null): unknown {
     // Check environment variables for Docker/Traefik/K8s deployments
     // Allows dynamic configuration without editing config files
     // Used especially for headless installation mode (HEADLESS_INSTALL=true)
     const envOverrides: { [key: string]: string | undefined } = {
-      'amdwiki.baseURL': process.env.AMDWIKI_BASE_URL,
-      'amdwiki.hostname': process.env.AMDWIKI_HOSTNAME,
-      'amdwiki.server.host': process.env.AMDWIKI_HOST,
-      'amdwiki.server.port': process.env.AMDWIKI_PORT,
-      'amdwiki.session.secret': process.env.AMDWIKI_SESSION_SECRET,
-      'amdwiki.applicationName': process.env.AMDWIKI_APP_NAME
+      'ngdpbase.baseURL': process.env.AMDWIKI_BASE_URL,
+      'ngdpbase.hostname': process.env.AMDWIKI_HOSTNAME,
+      'ngdpbase.server.host': process.env.AMDWIKI_HOST,
+      'ngdpbase.server.port': process.env.AMDWIKI_PORT,
+      'ngdpbase.session.secret': process.env.AMDWIKI_SESSION_SECRET,
+      'ngdpbase.applicationName': process.env.AMDWIKI_APP_NAME
     };
 
     if (envOverrides[key]) {
@@ -364,7 +364,7 @@ class ConfigurationManager extends BaseManager {
    * @returns {Promise<void>}
    *
    * @example
-   * await configManager.setProperty('amdwiki.applicationName', 'My Custom Wiki');
+   * await configManager.setProperty('ngdpbase.applicationName', 'My Custom Wiki');
    */
   async setProperty(key: string, value: unknown): Promise<void> {
     if (!this.customConfig) {
@@ -416,13 +416,13 @@ class ConfigurationManager extends BaseManager {
   /**
    * Get application name
    *
-   * @returns {string} Application name (defaults to 'amdWiki')
+   * @returns {string} Application name (defaults to 'ngdpbase')
    *
    * @example
-   * const name = configManager.getApplicationName(); // 'amdWiki'
+   * const name = configManager.getApplicationName(); // 'ngdpbase'
    */
   getApplicationName(): string {
-    return this.getProperty('amdwiki.applicationName', 'amdWiki') as string;
+    return this.getProperty('ngdpbase.applicationName', 'ngdpbase') as string;
   }
 
   /**
@@ -431,7 +431,7 @@ class ConfigurationManager extends BaseManager {
    * @returns {string} Base URL (defaults to 'http://localhost:3000')
    */
   getBaseURL(): string {
-    return this.getProperty('amdwiki.baseURL', 'http://localhost:3000') as string;
+    return this.getProperty('ngdpbase.baseURL', 'http://localhost:3000') as string;
   }
 
   /**
@@ -440,7 +440,7 @@ class ConfigurationManager extends BaseManager {
    * @returns {string} Front page name (defaults to 'Welcome')
    */
   getFrontPage(): string {
-    return this.getProperty('amdwiki.frontPage', 'Welcome') as string;
+    return this.getProperty('ngdpbase.frontPage', 'Welcome') as string;
   }
 
   /**
@@ -448,7 +448,7 @@ class ConfigurationManager extends BaseManager {
    * @returns {string} Encoding
    */
   getEncoding(): string {
-    return this.getProperty('amdwiki.encoding', 'UTF-8') as string;
+    return this.getProperty('ngdpbase.encoding', 'UTF-8') as string;
   }
 
   /**
@@ -456,7 +456,7 @@ class ConfigurationManager extends BaseManager {
    * @returns {number} Server port
    */
   getServerPort(): number {
-    return parseInt(this.getProperty('amdwiki.server.port', '3000') as string);
+    return parseInt(this.getProperty('ngdpbase.server.port', '3000') as string);
   }
 
   /**
@@ -464,7 +464,7 @@ class ConfigurationManager extends BaseManager {
    * @returns {string} Server host
    */
   getServerHost(): string {
-    return this.getProperty('amdwiki.server.host', 'localhost') as string;
+    return this.getProperty('ngdpbase.server.host', 'localhost') as string;
   }
 
   /**
@@ -472,7 +472,7 @@ class ConfigurationManager extends BaseManager {
    * @returns {string} Session secret
    */
   getSessionSecret(): string {
-    return this.getProperty('amdwiki.session.secret', 'amdwiki-session-secret-change-in-production') as string;
+    return this.getProperty('ngdpbase.session.secret', 'ngdpbase-session-secret-change-in-production') as string;
   }
 
   /**
@@ -480,7 +480,7 @@ class ConfigurationManager extends BaseManager {
    * @returns {number} Session max age
    */
   getSessionMaxAge(): number {
-    return parseInt(this.getProperty('amdwiki.session.maxAge', '86400000') as string);
+    return parseInt(this.getProperty('ngdpbase.session.maxAge', '86400000') as string);
   }
 
   /**
@@ -488,7 +488,7 @@ class ConfigurationManager extends BaseManager {
    * @returns {boolean} Session secure flag
    */
   getSessionSecure(): boolean {
-    return this.getProperty('amdwiki.session.secure', 'false') === 'true';
+    return this.getProperty('ngdpbase.session.secure', 'false') === 'true';
   }
 
   /**
@@ -496,7 +496,7 @@ class ConfigurationManager extends BaseManager {
    * @returns {boolean} Session httpOnly flag
    */
   getSessionHttpOnly(): boolean {
-    return this.getProperty('amdwiki.session.httpOnly', 'true') === 'true';
+    return this.getProperty('ngdpbase.session.httpOnly', 'true') === 'true';
   }
 
   /**
@@ -511,11 +511,11 @@ class ConfigurationManager extends BaseManager {
     work: unknown;
     } {
     return {
-      pages: this.getProperty('amdwiki.directories.pages'),
-      templates: this.getProperty('amdwiki.directories.templates'),
-      resources: this.getProperty('amdwiki.directories.resources'),
-      data: this.getProperty('amdwiki.directories.data'),
-      work: this.getProperty('amdwiki.directories.work')
+      pages: this.getProperty('ngdpbase.directories.pages'),
+      templates: this.getProperty('ngdpbase.directories.templates'),
+      resources: this.getProperty('ngdpbase.directories.resources'),
+      data: this.getProperty('ngdpbase.directories.data'),
+      work: this.getProperty('ngdpbase.directories.work')
     };
   }
 
@@ -531,7 +531,7 @@ class ConfigurationManager extends BaseManager {
    *
    * @example
    * const dataFolder = configManager.getInstanceDataFolder();
-   * // Returns '/var/lib/amdwiki/data' if INSTANCE_DATA_FOLDER=/var/lib/amdwiki/data
+   * // Returns '/var/lib/ngdpbase/data' if INSTANCE_DATA_FOLDER=/var/lib/ngdpbase/data
    * // Returns resolved './data' path if not set
    */
   getInstanceDataFolder(): string {
@@ -549,11 +549,11 @@ class ConfigurationManager extends BaseManager {
    * @returns {string} Absolute resolved path under instance data folder
    *
    * @example
-   * // With INSTANCE_DATA_FOLDER=/var/lib/amdwiki/data
-   * configManager.resolveDataPath('./data/pages');     // '/var/lib/amdwiki/data/pages'
-   * configManager.resolveDataPath('data/users');       // '/var/lib/amdwiki/data/users'
-   * configManager.resolveDataPath('./data/logs/audit.log'); // '/var/lib/amdwiki/data/logs/audit.log'
-   * configManager.resolveDataPath('pages');            // '/var/lib/amdwiki/data/pages'
+   * // With INSTANCE_DATA_FOLDER=/var/lib/ngdpbase/data
+   * configManager.resolveDataPath('./data/pages');     // '/var/lib/ngdpbase/data/pages'
+   * configManager.resolveDataPath('data/users');       // '/var/lib/ngdpbase/data/users'
+   * configManager.resolveDataPath('./data/logs/audit.log'); // '/var/lib/ngdpbase/data/logs/audit.log'
+   * configManager.resolveDataPath('pages');            // '/var/lib/ngdpbase/data/pages'
    */
   resolveDataPath(relativePath: string): string {
     // Normalize the path by removing ./data/ or data/ prefix
@@ -588,7 +588,7 @@ class ConfigurationManager extends BaseManager {
    *
    * @example
    * const pagesDir = configManager.getResolvedDataPath(
-   *   'amdwiki.page.provider.filesystem.storagedir',
+   *   'ngdpbase.page.provider.filesystem.storagedir',
    *   './data/pages'
    * );
    */
@@ -630,15 +630,15 @@ class ConfigurationManager extends BaseManager {
    * }
    */
   getManagerConfig(managerName: string): { enabled: boolean; [key: string]: unknown } {
-    const enabled = this.getProperty(`amdwiki.managers.${managerName}.enabled`, true) as boolean;
+    const enabled = this.getProperty(`ngdpbase.managers.${managerName}.enabled`, true) as boolean;
     const config: { enabled: boolean; [key: string]: unknown } = { enabled };
 
     // Get manager-specific settings
     const allProps = this.mergedConfig || {};
-    const keys = Object.keys(allProps).filter((key) => key.startsWith(`amdwiki.managers.${managerName}.`) && !key.endsWith('.enabled'));
+    const keys = Object.keys(allProps).filter((key) => key.startsWith(`ngdpbase.managers.${managerName}.`) && !key.endsWith('.enabled'));
 
     keys.forEach((key) => {
-      const settingName = key.replace(`amdwiki.managers.${managerName}.`, '');
+      const settingName = key.replace(`ngdpbase.managers.${managerName}.`, '');
       config[settingName] = this.getProperty(key);
     });
 
@@ -651,15 +651,15 @@ class ConfigurationManager extends BaseManager {
    * @returns {Object} Feature configuration
    */
   getFeatureConfig(featureName: string): { enabled: boolean; [key: string]: unknown } {
-    const enabled = this.getProperty(`amdwiki.features.${featureName}.enabled`, false) as boolean;
+    const enabled = this.getProperty(`ngdpbase.features.${featureName}.enabled`, false) as boolean;
     const config: { enabled: boolean; [key: string]: unknown } = { enabled };
 
     // Get feature-specific settings
     const allProps = this.mergedConfig || {};
-    const keys = Object.keys(allProps).filter((key) => key.startsWith(`amdwiki.features.${featureName}.`) && !key.endsWith('.enabled'));
+    const keys = Object.keys(allProps).filter((key) => key.startsWith(`ngdpbase.features.${featureName}.`) && !key.endsWith('.enabled'));
 
     keys.forEach((key) => {
-      const settingName = key.replace(`amdwiki.features.${featureName}.`, '');
+      const settingName = key.replace(`ngdpbase.features.${featureName}.`, '');
       config[settingName] = this.getProperty(key);
     });
 
@@ -677,10 +677,10 @@ class ConfigurationManager extends BaseManager {
     maxFiles: number;
     } {
     return {
-      level: this.getProperty('amdwiki.logging.level'),
-      dir: this.getProperty('amdwiki.logging.dir'),
-      maxSize: this.getProperty('amdwiki.logging.maxSize'),
-      maxFiles: parseInt(this.getProperty('amdwiki.logging.maxFiles') as string)
+      level: this.getProperty('ngdpbase.logging.level'),
+      dir: this.getProperty('ngdpbase.logging.dir'),
+      maxSize: this.getProperty('ngdpbase.logging.maxSize'),
+      maxFiles: parseInt(this.getProperty('ngdpbase.logging.maxFiles') as string)
     };
   }
 
@@ -693,8 +693,8 @@ class ConfigurationManager extends BaseManager {
     enabled: boolean;
     } {
     return {
-      indexDir: this.getProperty('amdwiki.search.provider.lunr.indexdir'),
-      enabled: this.getProperty('amdwiki.search.enabled') === true
+      indexDir: this.getProperty('ngdpbase.search.provider.lunr.indexdir'),
+      enabled: this.getProperty('ngdpbase.search.enabled') === true
     };
   }
 
@@ -714,16 +714,16 @@ class ConfigurationManager extends BaseManager {
       days: unknown;
     };
     } {
-    const days = this.getProperty('amdwiki.accessControl.businessHours.days');
+    const days = this.getProperty('ngdpbase.accessControl.businessHours.days');
     return {
       contextAware: {
-        enabled: this.getProperty('amdwiki.accessControl.contextAware.enabled') === true,
-        timeZone: this.getProperty('amdwiki.accessControl.contextAware.timeZone')
+        enabled: this.getProperty('ngdpbase.accessControl.contextAware.enabled') === true,
+        timeZone: this.getProperty('ngdpbase.accessControl.contextAware.timeZone')
       },
       businessHours: {
-        enabled: this.getProperty('amdwiki.accessControl.businessHours.enabled') === true,
-        start: this.getProperty('amdwiki.accessControl.businessHours.start'),
-        end: this.getProperty('amdwiki.accessControl.businessHours.end'),
+        enabled: this.getProperty('ngdpbase.accessControl.businessHours.enabled') === true,
+        start: this.getProperty('ngdpbase.accessControl.businessHours.start'),
+        end: this.getProperty('ngdpbase.accessControl.businessHours.end'),
         days: typeof days === 'string' ? days.split(',') : days
       }
     };
@@ -750,19 +750,19 @@ class ConfigurationManager extends BaseManager {
     };
     } {
     return {
-      enabled: this.getProperty('amdwiki.audit.enabled') === true,
-      logDirectory: this.getProperty('amdwiki.audit.provider.file.logdirectory'),
-      logFile: this.getProperty('amdwiki.audit.provider.file.auditfilename'),
+      enabled: this.getProperty('ngdpbase.audit.enabled') === true,
+      logDirectory: this.getProperty('ngdpbase.audit.provider.file.logdirectory'),
+      logFile: this.getProperty('ngdpbase.audit.provider.file.auditfilename'),
       retention: {
-        maxFiles: parseInt(this.getProperty('amdwiki.audit.provider.file.maxfiles') as string),
-        maxAge: this.getProperty('amdwiki.audit.retentiondays')
+        maxFiles: parseInt(this.getProperty('ngdpbase.audit.provider.file.maxfiles') as string),
+        maxAge: this.getProperty('ngdpbase.audit.retentiondays')
       },
       includeContext: {
-        ip: this.getProperty('amdwiki.audit.includeContext.ip') === true,
-        userAgent: this.getProperty('amdwiki.audit.includeContext.userAgent') === true,
-        timestamp: this.getProperty('amdwiki.audit.includeContext.timestamp') === true,
-        decision: this.getProperty('amdwiki.audit.includeContext.decision') === true,
-        reason: this.getProperty('amdwiki.audit.includeContext.reason') === true
+        ip: this.getProperty('ngdpbase.audit.includeContext.ip') === true,
+        userAgent: this.getProperty('ngdpbase.audit.includeContext.userAgent') === true,
+        timestamp: this.getProperty('ngdpbase.audit.includeContext.timestamp') === true,
+        decision: this.getProperty('ngdpbase.audit.includeContext.decision') === true,
+        reason: this.getProperty('ngdpbase.audit.includeContext.reason') === true
       }
     };
   }
@@ -779,11 +779,11 @@ class ConfigurationManager extends BaseManager {
     channelDescription: unknown;
     } {
     return {
-      generate: this.getProperty('amdwiki.rss.generate', true),
-      fileName: this.getProperty('amdwiki.rss.fileName', 'rss.xml'),
-      interval: this.getProperty('amdwiki.rss.interval', 3600),
-      channelTitle: this.getProperty('amdwiki.rss.channelTitle', 'amdWiki RSS Feed'),
-      channelDescription: this.getProperty('amdwiki.rss.channelDescription', 'RSS feed for amdWiki updates')
+      generate: this.getProperty('ngdpbase.rss.generate', true),
+      fileName: this.getProperty('ngdpbase.rss.fileName', 'rss.xml'),
+      interval: this.getProperty('ngdpbase.rss.interval', 3600),
+      channelTitle: this.getProperty('ngdpbase.rss.channelTitle', 'ngdpbase RSS Feed'),
+      channelDescription: this.getProperty('ngdpbase.rss.channelDescription', 'RSS feed for ngdpbase updates')
     };
   }
 

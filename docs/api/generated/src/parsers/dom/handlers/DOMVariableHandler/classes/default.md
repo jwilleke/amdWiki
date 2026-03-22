@@ -1,12 +1,12 @@
-[**amdWiki API v1.5.0**](../../../../../../README.md)
+[**ngdpbase API v1.5.0**](../../../../../../README.md)
 
 ***
 
-[amdWiki API](../../../../../../README.md) / [src/parsers/dom/handlers/DOMVariableHandler](../README.md) / default
+[ngdpbase API](../../../../../../README.md) / [src/parsers/dom/handlers/DOMVariableHandler](../README.md) / default
 
 # Class: default
 
-Defined in: [src/parsers/dom/handlers/DOMVariableHandler.ts:121](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMVariableHandler.ts#L121)
+Defined in: [src/parsers/dom/handlers/DOMVariableHandler.ts:121](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMVariableHandler.ts#L121)
 
 DOMVariableHandler class
 
@@ -16,7 +16,7 @@ DOMVariableHandler class
 
 > **new default**(`engine`): `DOMVariableHandler`
 
-Defined in: [src/parsers/dom/handlers/DOMVariableHandler.ts:133](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMVariableHandler.ts#L133)
+Defined in: [src/parsers/dom/handlers/DOMVariableHandler.ts:133](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMVariableHandler.ts#L133)
 
 Creates a new DOMVariableHandler
 
@@ -38,7 +38,7 @@ WikiEngine instance
 
 > **createNodeFromExtract**(`element`, `context`, `wikiDocument`): `Promise`\<[`LinkedomElement`](../../../WikiDocument/interfaces/LinkedomElement.md)\>
 
-Defined in: [src/parsers/dom/handlers/DOMVariableHandler.ts:287](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMVariableHandler.ts#L287)
+Defined in: [src/parsers/dom/handlers/DOMVariableHandler.ts:287](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMVariableHandler.ts#L287)
 
 Creates a DOM node from an extracted variable element
 
@@ -86,7 +86,7 @@ const node = await handler.createNodeFromExtract(element, context, wikiDoc);
 
 > **getStatistics**(`wikiDocument`): [`VariableStatistics`](../interfaces/VariableStatistics.md)
 
-Defined in: [src/parsers/dom/handlers/DOMVariableHandler.ts:333](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMVariableHandler.ts#L333)
+Defined in: [src/parsers/dom/handlers/DOMVariableHandler.ts:333](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMVariableHandler.ts#L333)
 
 Gets statistics about variable processing
 
@@ -110,7 +110,7 @@ Statistics
 
 > **initialize**(): `Promise`\<`void`\>
 
-Defined in: [src/parsers/dom/handlers/DOMVariableHandler.ts:142](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMVariableHandler.ts#L142)
+Defined in: [src/parsers/dom/handlers/DOMVariableHandler.ts:142](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMVariableHandler.ts#L142)
 
 Initializes the handler
 
@@ -124,7 +124,7 @@ Initializes the handler
 
 > **processVariables**(`wikiDocument`, `context`): `Promise`\<[`default`](../../../WikiDocument/classes/default.md)\>
 
-Defined in: [src/parsers/dom/handlers/DOMVariableHandler.ts:158](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMVariableHandler.ts#L158)
+Defined in: [src/parsers/dom/handlers/DOMVariableHandler.ts:158](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMVariableHandler.ts#L158)
 
 Processes variables in a WikiDocument
 
@@ -157,7 +157,7 @@ Updated WikiDocument
 
 > **resolveVariable**(`varName`, `context`): `string` \| `number` \| `null`
 
-Defined in: [src/parsers/dom/handlers/DOMVariableHandler.ts:234](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMVariableHandler.ts#L234)
+Defined in: [src/parsers/dom/handlers/DOMVariableHandler.ts:234](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMVariableHandler.ts#L234)
 
 Resolves a variable name to its value
 

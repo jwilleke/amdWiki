@@ -1,5 +1,5 @@
 /**
- * LinkParser - Centralized link parsing for amdWiki
+ * LinkParser - Centralized link parsing for ngdpbase
  *
  * Inspired by JSPWiki's link parsing implementation, this class provides
  * a centralized, flexible, and maintainable approach to parsing various
@@ -33,9 +33,9 @@
  * linkParser.setPageNames(['Main', 'Help', 'About']);
  * const html = linkParser.parseLinks('[Main] and [Help|Documentation]');
  *
- * @author amdWiki
+ * @author ngdpbase
  * @version 1.0.0
- * @see https://github.com/jwilleke/amdWiki/issues/75
+ * @see https://github.com/jwilleke/ngdpbase/issues/75
  */
 
 import PageNameMatcher from '../utils/PageNameMatcher';

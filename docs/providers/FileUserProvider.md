@@ -23,9 +23,9 @@ FileUserProvider implements JSON file-based user and session storage. It's the d
 
 ```javascript
 // All configuration via ConfigurationManager (lowercase keys)
-'amdwiki.user.provider.storagedir'      // User directory (default: ./data/users)
-'amdwiki.user.provider.files.users'     // Users file (default: users.json)
-'amdwiki.user.provider.files.sessions'  // Sessions file (default: sessions.json)
+'ngdpbase.user.provider.storagedir'      // User directory (default: ./data/users)
+'ngdpbase.user.provider.files.users'     // Users file (default: users.json)
+'ngdpbase.user.provider.files.sessions'  // Sessions file (default: sessions.json)
 ```
 
 ## Basic Usage

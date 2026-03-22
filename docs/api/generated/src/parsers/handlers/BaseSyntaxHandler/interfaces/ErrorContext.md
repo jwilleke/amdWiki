@@ -1,12 +1,12 @@
-[**amdWiki API v1.5.0**](../../../../../README.md)
+[**ngdpbase API v1.5.0**](../../../../../README.md)
 
 ***
 
-[amdWiki API](../../../../../README.md) / [src/parsers/handlers/BaseSyntaxHandler](../README.md) / ErrorContext
+[ngdpbase API](../../../../../README.md) / [src/parsers/handlers/BaseSyntaxHandler](../README.md) / ErrorContext
 
 # Interface: ErrorContext
 
-Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:93](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L93)
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:93](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L93)
 
 Error context for debugging
 
@@ -16,7 +16,7 @@ Error context for debugging
 
 > **contentLength**: `number`
 
-Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:97](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L97)
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:97](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L97)
 
 ***
 
@@ -24,7 +24,7 @@ Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:97](https://github.com/jw
 
 > **contentPreview**: `string`
 
-Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:98](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L98)
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:98](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L98)
 
 ***
 
@@ -32,7 +32,7 @@ Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:98](https://github.com/jw
 
 > **context**: `object`
 
-Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:99](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L99)
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:99](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L99)
 
 #### pageName?
 
@@ -52,7 +52,7 @@ Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:99](https://github.com/jw
 
 > **error**: `string`
 
-Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:95](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L95)
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:95](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L95)
 
 ***
 
@@ -60,7 +60,7 @@ Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:95](https://github.com/jw
 
 > **handlerId**: `string`
 
-Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:94](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L94)
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:94](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L94)
 
 ***
 
@@ -68,7 +68,7 @@ Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:94](https://github.com/jw
 
 > `optional` **stack**: `string`
 
-Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:96](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L96)
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:96](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L96)
 
 ***
 
@@ -76,7 +76,7 @@ Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:96](https://github.com/jw
 
 > **stats**: [`HandlerStats`](HandlerStats.md)
 
-Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:104](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L104)
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:104](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L104)
 
 ***
 
@@ -84,4 +84,4 @@ Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:104](https://github.com/j
 
 > **timestamp**: `string`
 
-Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:105](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L105)
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:105](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L105)

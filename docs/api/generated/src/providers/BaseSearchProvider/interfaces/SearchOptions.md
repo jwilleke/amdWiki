@@ -1,12 +1,12 @@
-[**amdWiki API v1.5.0**](../../../../README.md)
+[**ngdpbase API v1.5.0**](../../../../README.md)
 
 ***
 
-[amdWiki API](../../../../README.md) / [src/providers/BaseSearchProvider](../README.md) / SearchOptions
+[ngdpbase API](../../../../README.md) / [src/providers/BaseSearchProvider](../README.md) / SearchOptions
 
 # Interface: SearchOptions
 
-Defined in: [src/providers/BaseSearchProvider.ts:56](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/BaseSearchProvider.ts#L56)
+Defined in: [src/providers/BaseSearchProvider.ts:56](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/BaseSearchProvider.ts#L56)
 
 Search options structure
 
@@ -16,7 +16,7 @@ Search options structure
 
 > `optional` **categories**: `string`[]
 
-Defined in: [src/providers/BaseSearchProvider.ts:64](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/BaseSearchProvider.ts#L64)
+Defined in: [src/providers/BaseSearchProvider.ts:64](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/BaseSearchProvider.ts#L64)
 
 Filter by categories
 
@@ -26,7 +26,7 @@ Filter by categories
 
 > `optional` **maxResults**: `number`
 
-Defined in: [src/providers/BaseSearchProvider.ts:58](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/BaseSearchProvider.ts#L58)
+Defined in: [src/providers/BaseSearchProvider.ts:58](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/BaseSearchProvider.ts#L58)
 
 Maximum number of results to return
 
@@ -36,7 +36,7 @@ Maximum number of results to return
 
 > `optional` **searchIn**: `string`[]
 
-Defined in: [src/providers/BaseSearchProvider.ts:61](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/BaseSearchProvider.ts#L61)
+Defined in: [src/providers/BaseSearchProvider.ts:61](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/BaseSearchProvider.ts#L61)
 
 Fields to search in
 
@@ -46,6 +46,6 @@ Fields to search in
 
 > `optional` **userKeywords**: `string`[]
 
-Defined in: [src/providers/BaseSearchProvider.ts:67](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/BaseSearchProvider.ts#L67)
+Defined in: [src/providers/BaseSearchProvider.ts:67](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/BaseSearchProvider.ts#L67)
 
 Filter by user keywords

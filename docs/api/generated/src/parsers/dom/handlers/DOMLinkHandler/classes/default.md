@@ -1,12 +1,12 @@
-[**amdWiki API v1.5.0**](../../../../../../README.md)
+[**ngdpbase API v1.5.0**](../../../../../../README.md)
 
 ***
 
-[amdWiki API](../../../../../../README.md) / [src/parsers/dom/handlers/DOMLinkHandler](../README.md) / default
+[ngdpbase API](../../../../../../README.md) / [src/parsers/dom/handlers/DOMLinkHandler](../README.md) / default
 
 # Class: default
 
-Defined in: [src/parsers/dom/handlers/DOMLinkHandler.ts:162](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMLinkHandler.ts#L162)
+Defined in: [src/parsers/dom/handlers/DOMLinkHandler.ts:162](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMLinkHandler.ts#L162)
 
 DOMLinkHandler class
 
@@ -16,7 +16,7 @@ DOMLinkHandler class
 
 > **new default**(`engine`): `DOMLinkHandler`
 
-Defined in: [src/parsers/dom/handlers/DOMLinkHandler.ts:183](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMLinkHandler.ts#L183)
+Defined in: [src/parsers/dom/handlers/DOMLinkHandler.ts:183](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMLinkHandler.ts#L183)
 
 Creates a new DOMLinkHandler
 
@@ -38,7 +38,7 @@ WikiEngine instance
 
 > **createNodeFromExtract**(`element`, `_context`, `wikiDocument`): `Promise`\<[`LinkedomElement`](../../../WikiDocument/interfaces/LinkedomElement.md)\>
 
-Defined in: [src/parsers/dom/handlers/DOMLinkHandler.ts:595](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMLinkHandler.ts#L595)
+Defined in: [src/parsers/dom/handlers/DOMLinkHandler.ts:595](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMLinkHandler.ts#L595)
 
 Creates a DOM node from an extracted link element
 
@@ -91,7 +91,7 @@ const node = await handler.createNodeFromExtract(element, context, wikiDoc);
 
 > **getStatistics**(`wikiDocument`): [`LinkStatistics`](../interfaces/LinkStatistics.md)
 
-Defined in: [src/parsers/dom/handlers/DOMLinkHandler.ts:755](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMLinkHandler.ts#L755)
+Defined in: [src/parsers/dom/handlers/DOMLinkHandler.ts:755](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMLinkHandler.ts#L755)
 
 Gets statistics about link processing
 
@@ -115,7 +115,7 @@ Statistics
 
 > **initialize**(): `Promise`\<`void`\>
 
-Defined in: [src/parsers/dom/handlers/DOMLinkHandler.ts:194](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMLinkHandler.ts#L194)
+Defined in: [src/parsers/dom/handlers/DOMLinkHandler.ts:194](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMLinkHandler.ts#L194)
 
 Initializes the handler
 
@@ -129,7 +129,7 @@ Initializes the handler
 
 > **loadInterWikiConfiguration**(): `void`
 
-Defined in: [src/parsers/dom/handlers/DOMLinkHandler.ts:247](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMLinkHandler.ts#L247)
+Defined in: [src/parsers/dom/handlers/DOMLinkHandler.ts:247](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMLinkHandler.ts#L247)
 
 Load InterWiki site configuration
 
@@ -143,7 +143,7 @@ Load InterWiki site configuration
 
 > **loadPageNames**(): `Promise`\<`void`\>
 
-Defined in: [src/parsers/dom/handlers/DOMLinkHandler.ts:217](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMLinkHandler.ts#L217)
+Defined in: [src/parsers/dom/handlers/DOMLinkHandler.ts:217](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMLinkHandler.ts#L217)
 
 Load page names from PageManager
 
@@ -157,7 +157,7 @@ Load page names from PageManager
 
 > **processAnchorLink**(`linkElement`, `linkInfo`, `_context`): `void`
 
-Defined in: [src/parsers/dom/handlers/DOMLinkHandler.ts:561](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMLinkHandler.ts#L561)
+Defined in: [src/parsers/dom/handlers/DOMLinkHandler.ts:561](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMLinkHandler.ts#L561)
 
 Process anchor link
 
@@ -191,7 +191,7 @@ Rendering context (unused)
 
 > **processEmailLink**(`linkElement`, `linkInfo`, `_context`): `void`
 
-Defined in: [src/parsers/dom/handlers/DOMLinkHandler.ts:542](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMLinkHandler.ts#L542)
+Defined in: [src/parsers/dom/handlers/DOMLinkHandler.ts:542](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMLinkHandler.ts#L542)
 
 Process email link
 
@@ -225,7 +225,7 @@ Rendering context (unused)
 
 > **processExternalLink**(`linkElement`, `linkInfo`, `_context`): `void`
 
-Defined in: [src/parsers/dom/handlers/DOMLinkHandler.ts:461](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMLinkHandler.ts#L461)
+Defined in: [src/parsers/dom/handlers/DOMLinkHandler.ts:461](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMLinkHandler.ts#L461)
 
 Process external link
 
@@ -259,7 +259,7 @@ Rendering context (unused)
 
 > **processInternalLink**(`linkElement`, `linkInfo`, `_context`): `void`
 
-Defined in: [src/parsers/dom/handlers/DOMLinkHandler.ts:417](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMLinkHandler.ts#L417)
+Defined in: [src/parsers/dom/handlers/DOMLinkHandler.ts:417](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMLinkHandler.ts#L417)
 
 Process internal wiki link
 
@@ -293,7 +293,7 @@ Rendering context (unused)
 
 > **processInterWikiLink**(`linkElement`, `linkInfo`, `_context`): `void`
 
-Defined in: [src/parsers/dom/handlers/DOMLinkHandler.ts:486](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMLinkHandler.ts#L486)
+Defined in: [src/parsers/dom/handlers/DOMLinkHandler.ts:486](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMLinkHandler.ts#L486)
 
 Process InterWiki link
 
@@ -327,7 +327,7 @@ Rendering context (unused)
 
 > **processLinkByType**(`linkElement`, `linkInfo`, `linkType`, `context`): `Promise`\<`void`\>
 
-Defined in: [src/parsers/dom/handlers/DOMLinkHandler.ts:388](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMLinkHandler.ts#L388)
+Defined in: [src/parsers/dom/handlers/DOMLinkHandler.ts:388](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMLinkHandler.ts#L388)
 
 Process a link element based on its type
 
@@ -367,7 +367,7 @@ Rendering context
 
 > **processLinks**(`wikiDocument`, `context`): `Promise`\<[`default`](../../../WikiDocument/classes/default.md)\>
 
-Defined in: [src/parsers/dom/handlers/DOMLinkHandler.ts:309](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMLinkHandler.ts#L309)
+Defined in: [src/parsers/dom/handlers/DOMLinkHandler.ts:309](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMLinkHandler.ts#L309)
 
 Processes links in a WikiDocument
 
@@ -400,7 +400,7 @@ Updated WikiDocument
 
 > **refreshPageNames**(): `Promise`\<`void`\>
 
-Defined in: [src/parsers/dom/handlers/DOMLinkHandler.ts:801](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMLinkHandler.ts#L801)
+Defined in: [src/parsers/dom/handlers/DOMLinkHandler.ts:801](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMLinkHandler.ts#L801)
 
 Refresh page names cache (called when pages are added/removed)
 

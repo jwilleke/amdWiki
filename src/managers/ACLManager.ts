@@ -176,7 +176,7 @@ class ACLManager extends BaseManager {
       throw new Error('ACLManager requires ConfigurationManager');
     }
 
-    const policies = configManager.getProperty('amdwiki.access.policies', []) as AccessPolicy[];
+    const policies = configManager.getProperty('ngdpbase.access.policies', []) as AccessPolicy[];
     this.accessPolicies = new Map(policies.map((p) => [p.id, p]));
     logger.info(`📋 Loaded ${this.accessPolicies.size} access policies from ConfigurationManager`);
 
@@ -196,10 +196,10 @@ class ACLManager extends BaseManager {
       return;
     }
 
-    const auditEnabled = configManager.getProperty('amdwiki.audit.enabled', true) as boolean;
+    const auditEnabled = configManager.getProperty('ngdpbase.audit.enabled', true) as boolean;
 
     if (auditEnabled) {
-      const logDir = configManager.getResolvedDataPath('amdwiki.audit.provider.file.logdirectory', './data/logs');
+      const logDir = configManager.getResolvedDataPath('ngdpbase.audit.provider.file.logdirectory', './data/logs');
       try {
         await fs.mkdir(logDir, { recursive: true });
         logger.info('📋 Audit logging initialized');
@@ -219,7 +219,7 @@ class ACLManager extends BaseManager {
       return;
     }
 
-    const policies = configManager.getProperty('amdwiki.access.policies', []) as AccessPolicy[];
+    const policies = configManager.getProperty('ngdpbase.access.policies', []) as AccessPolicy[];
 
     this.accessPolicies.clear();
     for (const policy of policies) {
@@ -597,7 +597,7 @@ class ACLManager extends BaseManager {
       return { allowed: true, reason: 'no_config' };
     }
 
-    const contextAwareEnabled = configManager.getProperty('amdwiki.accessControl.contextAware.enabled', true) as boolean;
+    const contextAwareEnabled = configManager.getProperty('ngdpbase.accessControl.contextAware.enabled', true) as boolean;
 
     if (!contextAwareEnabled) {
       return { allowed: true, reason: 'context_disabled' };
@@ -606,10 +606,10 @@ class ACLManager extends BaseManager {
     // Build context config object from ConfigurationManager properties
     const contextConfig: ContextConfig = {
       enabled: contextAwareEnabled,
-      timeZone: configManager.getProperty('amdwiki.accessControl.contextAware.timeZone', 'UTC') as string,
+      timeZone: configManager.getProperty('ngdpbase.accessControl.contextAware.timeZone', 'UTC') as string,
       maintenanceMode: {
-        enabled: configManager.getProperty('amdwiki.features.maintenance.enabled', false) as boolean,
-        allowAdmins: configManager.getProperty('amdwiki.features.maintenance.allowAdmins', true) as boolean
+        enabled: configManager.getProperty('ngdpbase.features.maintenance.enabled', false) as boolean,
+        allowAdmins: configManager.getProperty('ngdpbase.features.maintenance.allowAdmins', true) as boolean
       }
     };
 
@@ -731,14 +731,14 @@ class ACLManager extends BaseManager {
         throw new Error('ConfigurationManager not available');
       }
 
-      const enabled = cfg.getProperty('amdwiki.schedules.enabled', true);
+      const enabled = cfg.getProperty('ngdpbase.schedules.enabled', true);
       if (!enabled) {
         return { allowed: true, reason: 'schedules_disabled' };
       }
 
-      const schedulesRaw: unknown = cfg.getProperty('amdwiki.schedules', null);
+      const schedulesRaw: unknown = cfg.getProperty('ngdpbase.schedules', null);
       if (!schedulesRaw || typeof schedulesRaw !== 'object' || Object.keys(schedulesRaw).length === 0) {
-        await this.notify('ACLManager: amdwiki.schedules missing during check', 'error');
+        await this.notify('ACLManager: ngdpbase.schedules missing during check', 'error');
         throw new Error('Schedules configuration missing');
       }
       const schedules = schedulesRaw as SchedulesConfig;
@@ -746,7 +746,7 @@ class ACLManager extends BaseManager {
       const now = new Date();
       const currentDate = now.toISOString().split('T')[0]; // YYYY-MM-DD format
 
-      const timeZone = String(cfg.getProperty('amdwiki.timeZone', 'UTC'));
+      const timeZone = String(cfg.getProperty('ngdpbase.timeZone', 'UTC'));
       const currentTime = now.toLocaleTimeString('en-US', {
         timeZone,
         hour12: false,
@@ -806,15 +806,15 @@ class ACLManager extends BaseManager {
         throw new Error('Holiday checks require ConfigurationManager');
       }
 
-      const enabled = cfg.getProperty('amdwiki.holidays.enabled', false) as boolean;
+      const enabled = cfg.getProperty('ngdpbase.holidays.enabled', false) as boolean;
       if (!enabled) {
         return { allowed: true, reason: 'holidays_disabled' };
       }
 
-      const dates = cfg.getProperty('amdwiki.holidays.dates', null) as Record<string, { name?: string; message?: string }> | null;
-      const recurring = cfg.getProperty('amdwiki.holidays.recurring', null) as Record<string, { name?: string; message?: string }> | null;
+      const dates = cfg.getProperty('ngdpbase.holidays.dates', null) as Record<string, { name?: string; message?: string }> | null;
+      const recurring = cfg.getProperty('ngdpbase.holidays.recurring', null) as Record<string, { name?: string; message?: string }> | null;
       if (!dates || typeof dates !== 'object' || !recurring || typeof recurring !== 'object') {
-        await this.notify('Holiday configuration missing: amdwiki.holidays.dates/recurring', 'error');
+        await this.notify('Holiday configuration missing: ngdpbase.holidays.dates/recurring', 'error');
         throw new Error('Holiday configuration missing');
       }
 

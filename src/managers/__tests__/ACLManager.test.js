@@ -15,10 +15,10 @@ const ACLManager = require('../ACLManager');
 // Mock ConfigurationManager
 const mockConfigurationManager = {
   getProperty: jest.fn((key, defaultValue) => {
-    if (key === 'amdwiki.access.policies') {
+    if (key === 'ngdpbase.access.policies') {
       return [];  // Return empty array for policies
     }
-    if (key === 'amdwiki.access.audit') {
+    if (key === 'ngdpbase.access.audit') {
       return { enabled: false };
     }
     return defaultValue;
@@ -307,7 +307,7 @@ describe('ACLManager', () => {
       ];
 
       mockConfigurationManager.getProperty.mockImplementation((key, defaultValue) => {
-        if (key === 'amdwiki.access.policies') {
+        if (key === 'ngdpbase.access.policies') {
           return policiesArray;
         }
         return defaultValue;

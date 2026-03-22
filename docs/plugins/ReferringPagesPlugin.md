@@ -22,7 +22,7 @@ The ReferringPagesPlugin displays a list of pages that reference the current pag
 | Property | Value |
 | ---------- | ------- |
 | Name | ReferringPagesPlugin |
-| Author | amdWiki |
+| Author | ngdpbase |
 | Version | 1.0.0 |
 | JSPWiki Compatible | Yes |
 
@@ -154,7 +154,7 @@ The plugin receives a `linkGraph` object mapping pages to their referrers:
 
 ## JSPWiki Compatibility
 
-| Feature | JSPWiki | amdWiki | Notes |
+| Feature | JSPWiki | ngdpbase | Notes |
 | --------- | --------- | --------- | ------- |
 | Basic syntax | Yes | Yes | Fully compatible |
 | page parameter | Yes | Yes | Same behavior |

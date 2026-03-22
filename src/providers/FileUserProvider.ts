@@ -66,15 +66,15 @@ class FileUserProvider extends BaseUserProvider {
 
     // Load configuration - uses getResolvedDataPath to support INSTANCE_DATA_FOLDER
     this.usersDirectory = configManager.getResolvedDataPath(
-      'amdwiki.user.provider.storagedir',
+      'ngdpbase.user.provider.storagedir',
       './data/users'
     );
     this.usersFile = configManager.getProperty(
-      'amdwiki.user.provider.files.users',
+      'ngdpbase.user.provider.files.users',
       'users.json'
     ) as string;
     this.sessionsFile = configManager.getProperty(
-      'amdwiki.user.provider.files.sessions',
+      'ngdpbase.user.provider.files.sessions',
       'sessions.json'
     ) as string;
 

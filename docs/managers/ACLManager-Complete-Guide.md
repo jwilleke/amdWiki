@@ -52,7 +52,7 @@
 ```javascript
 async initialize() {
   const configManager = this.engine.getManager('ConfigurationManager');
-  const policies = configManager.getProperty('amdwiki.access.policies', []);
+  const policies = configManager.getProperty('ngdpbase.access.policies', []);
   this.accessPolicies = new Map(policies.map(p => [p.id, p]));
 
   this.policyEvaluator = this.engine.getManager('PolicyEvaluator');
@@ -72,7 +72,7 @@ All settings come from ConfigurationManager:
 
 ```json
 {
-  "amdwiki.access.policies": [
+  "ngdpbase.access.policies": [
     {
       "id": "admin-full-access",
       "roles": ["admin"],
@@ -80,20 +80,20 @@ All settings come from ConfigurationManager:
       "effect": "allow"
     }
   ],
-  "amdwiki.accessControl.contextAware.enabled": true,
-  "amdwiki.accessControl.contextAware.timeZone": "UTC",
-  "amdwiki.features.maintenance.enabled": false,
-  "amdwiki.features.maintenance.allowAdmins": true,
-  "amdwiki.schedules.enabled": true,
-  "amdwiki.schedules.businessHours": {
+  "ngdpbase.accessControl.contextAware.enabled": true,
+  "ngdpbase.accessControl.contextAware.timeZone": "UTC",
+  "ngdpbase.features.maintenance.enabled": false,
+  "ngdpbase.features.maintenance.allowAdmins": true,
+  "ngdpbase.schedules.enabled": true,
+  "ngdpbase.schedules.businessHours": {
     "enabled": false,
     "days": ["monday", "tuesday", "wednesday", "thursday", "friday"],
     "start": "09:00",
     "end": "17:00"
   },
-  "amdwiki.holidays.enabled": false,
-  "amdwiki.holidays.dates": {},
-  "amdwiki.holidays.recurring": {}
+  "ngdpbase.holidays.enabled": false,
+  "ngdpbase.holidays.dates": {},
+  "ngdpbase.holidays.recurring": {}
 }
 ```
 

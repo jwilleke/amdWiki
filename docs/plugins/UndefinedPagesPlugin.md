@@ -19,14 +19,14 @@ has been linked to but has never been created. Results are rendered as create li
 the page creation editor.
 
 **Source:** `plugins/UndefinedPagesPlugin.ts`
-**Shared utilities:** `src/utils/pluginFormatters.ts` (see [#238 Code Consolidation](https://github.com/jwilleke/amdWiki/issues/238))
+**Shared utilities:** `src/utils/pluginFormatters.ts` (see [#238 Code Consolidation](https://github.com/jwilleke/ngdpbase/issues/238))
 
 ## Plugin Metadata
 
 | Property | Value |
 | --- | --- |
 | Name | UndefinedPagesPlugin |
-| Author | amdWiki |
+| Author | ngdpbase |
 | Version | 1.2.0 |
 | JSPWiki Compatible | Yes |
 
@@ -461,17 +461,17 @@ Output is generated via `src/utils/pluginFormatters.ts`:
 
 ## JSPWiki Compatibility
 
-| Feature | JSPWiki | amdWiki | Notes |
+| Feature | JSPWiki | ngdpbase | Notes |
 | --- | --- | --- | --- |
 | Basic undefined page listing | Yes | Yes | Fully compatible |
 | `max` parameter | Yes | Yes | Same semantics |
 | `format='count'` | Yes | Yes | |
-| `include`/`exclude` filters | No | Yes | amdWiki extension |
-| `format='table'` | No | Yes | amdWiki extension |
-| `before`/`after` | No | Yes | amdWiki extension |
-| `showReferring` | No | Yes | amdWiki extension |
-| `sort` | No | Yes | amdWiki extension |
-| `pageSize`/`page` | No | Yes | amdWiki extension |
+| `include`/`exclude` filters | No | Yes | ngdpbase extension |
+| `format='table'` | No | Yes | ngdpbase extension |
+| `before`/`after` | No | Yes | ngdpbase extension |
+| `showReferring` | No | Yes | ngdpbase extension |
+| `sort` | No | Yes | ngdpbase extension |
+| `pageSize`/`page` | No | Yes | ngdpbase extension |
 
 ## Error Handling
 

@@ -1,5 +1,5 @@
 /**
- * Express type extensions for amdWiki
+ * Express type extensions for ngdpbase
  * Extends Express Request and Response with custom properties
  */
 

@@ -75,9 +75,9 @@ const ImagePlugin: SimplePlugin = {
 
       const configManager = context.engine?.getManager('ConfigurationManager') as ConfigManager | undefined;
       const defaultAlt =
-        configManager?.getProperty('amdwiki.features.images.defaultAlt', 'Uploaded image') || 'Uploaded image';
+        configManager?.getProperty('ngdpbase.features.images.defaultAlt', 'Uploaded image') || 'Uploaded image';
       const defaultClass =
-        configManager?.getProperty('amdwiki.features.images.defaultClass', 'wiki-image') || 'wiki-image';
+        configManager?.getProperty('ngdpbase.features.images.defaultClass', 'wiki-image') || 'wiki-image';
 
       if (!opts.src) {
         return '<span class="error">Image plugin: src attribute is required</span>';

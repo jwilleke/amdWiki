@@ -43,10 +43,10 @@ const port = configManager.getServerPort();
 const baseURL = configManager.getBaseURL();
 
 // Direct property access with default
-const customSetting = configManager.getProperty('amdwiki.myfeature.enabled', true);
+const customSetting = configManager.getProperty('ngdpbase.myfeature.enabled', true);
 
 // Set custom property (persisted to app-custom-config.json)
-await configManager.setProperty('amdwiki.applicationName', 'My Wiki');
+await configManager.setProperty('ngdpbase.applicationName', 'My Wiki');
 ```
 
 ## Core Methods
@@ -64,13 +64,13 @@ await configManager.setProperty('amdwiki.applicationName', 'My Wiki');
 
 | Method | Returns | Config Key |
 | -------- | --------- | ------------ |
-| `getApplicationName()` | `string` | `amdwiki.applicationName` |
-| `getBaseURL()` | `string` | `amdwiki.baseURL` |
-| `getFrontPage()` | `string` | `amdwiki.frontPage` |
-| `getServerPort()` | `number` | `amdwiki.server.port` |
-| `getServerHost()` | `string` | `amdwiki.server.host` |
-| `getSessionSecret()` | `string` | `amdwiki.session.secret` |
-| `getSessionMaxAge()` | `number` | `amdwiki.session.maxAge` |
+| `getApplicationName()` | `string` | `ngdpbase.applicationName` |
+| `getBaseURL()` | `string` | `ngdpbase.baseURL` |
+| `getFrontPage()` | `string` | `ngdpbase.frontPage` |
+| `getServerPort()` | `number` | `ngdpbase.server.port` |
+| `getServerHost()` | `string` | `ngdpbase.server.host` |
+| `getSessionSecret()` | `string` | `ngdpbase.session.secret` |
+| `getSessionMaxAge()` | `number` | `ngdpbase.session.maxAge` |
 
 ## Specialized Config Methods
 
@@ -99,10 +99,10 @@ For Docker/Traefik/Kubernetes deployments:
 | --- | --- |
 | `INSTANCE_DATA_FOLDER` | Base path for all instance data (default: `./data`) |
 | `INSTANCE_CONFIG_FILE` | Config filename to load (default: `app-custom-config.json`) |
-| `AMDWIKI_BASE_URL` | Overrides `amdwiki.baseURL` |
-| `AMDWIKI_HOSTNAME` | Overrides `amdwiki.hostname` |
-| `AMDWIKI_HOST` | Overrides `amdwiki.server.host` |
-| `AMDWIKI_PORT` | Overrides `amdwiki.server.port` |
+| `AMDWIKI_BASE_URL` | Overrides `ngdpbase.baseURL` |
+| `AMDWIKI_HOSTNAME` | Overrides `ngdpbase.hostname` |
+| `AMDWIKI_HOST` | Overrides `ngdpbase.server.host` |
+| `AMDWIKI_PORT` | Overrides `ngdpbase.server.port` |
 
 ## Admin Interface
 
@@ -117,8 +117,8 @@ Access `/admin/configuration` with admin privileges to:
 
 ```bash
 # Test configuration values
-node scripts/configurationmanage-get-config.js amdwiki.notifications.dir
-node scripts/configurationmanage-get-config.js amdwiki.notifications --prefix --pretty
+node scripts/configurationmanage-get-config.js ngdpbase.notifications.dir
+node scripts/configurationmanage-get-config.js ngdpbase.notifications --prefix --pretty
 ```
 
 ## Related Managers

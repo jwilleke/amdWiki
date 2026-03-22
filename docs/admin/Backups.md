@@ -1,4 +1,4 @@
-# Backing Up amdWiki
+# Backing Up ngdpbase
 
 ## Managers MUST incldue Backup
 
@@ -43,17 +43,17 @@ config/app-default-config.json - Added backup configuration properties
 
 ``` json
   "_comment_backup": "Backup and restore configuration for BackupManager",
-  "amdwiki.backup.directory": "./backups",
-  "amdwiki.backup.maxBackups": 10,
-  "amdwiki.backup.compress": true,
-  "amdwiki.backup.autoBackup": false,
-  "amdwiki.backup.autoBackupInterval": 86400000
+  "ngdpbase.backup.directory": "./backups",
+  "ngdpbase.backup.maxBackups": 10,
+  "ngdpbase.backup.compress": true,
+  "ngdpbase.backup.autoBackup": false,
+  "ngdpbase.backup.autoBackupInterval": 86400000
 ```
 
 ## BackupManger TODOs
 
-- src/managers/PageManager MUST have backup for regular "amdwiki.directories.pages": "./pages"
-- src/managers/PageManager SHOULD have backup for "amdwiki.directories.required-pages": "./required-pages",
+- src/managers/PageManager MUST have backup for regular "ngdpbase.directories.pages": "./pages"
+- src/managers/PageManager SHOULD have backup for "ngdpbase.directories.required-pages": "./required-pages",
 - src/managers/ConfigurationMaanger MUST have Backup for all Config data
 - src/managers/UserManager.js MUST have back for all USER data including Audit Data
 - /src/managers/TemplateManager.js MUST have Backup for all Template data
@@ -95,7 +95,7 @@ This relationship is determine by the src/managers/ConfigurationManager.js setti
 
 PageManager for instance
 
-- const providerName = configManager.getProperty('amdwiki.pageProvider', 'FileSystemProvider');
+- const providerName = configManager.getProperty('ngdpbase.pageProvider', 'FileSystemProvider');
 - then PageManager delegaates "Stoarge Media" calls to the providerName.
 - This requuires providerName to perform all interations with the "Stoarge Media" (which could bs a database)
 
@@ -108,10 +108,10 @@ The choice whould be based on src/managers/ConfigurationManager.js entries of
 
 ```json
 {
-  "amdwiki.backup.strategy": "auto",  // auto|inline|file
-  "amdwiki.backup.inlineThreshold": 100,  // Max items for inline
-  "amdwiki.backup.compressFolder": true,  // Create .tar.gz
-  "amdwiki.backup.parallelProviders": true  // Backup providers concurrently
+  "ngdpbase.backup.strategy": "auto",  // auto|inline|file
+  "ngdpbase.backup.inlineThreshold": 100,  // Max items for inline
+  "ngdpbase.backup.compressFolder": true,  // Create .tar.gz
+  "ngdpbase.backup.parallelProviders": true  // Backup providers concurrently
 }
 ```
 
@@ -242,7 +242,7 @@ The backup structure at BackupManager.js:88-93 is:
 {
   version: '1.0.0',
   timestamp: '2025-10-10T...',
-  application: 'amdWiki',
+  application: 'ngdpbase',
   managers: {
     'AttachmentManager': { ... },
     'PageManager': { ... },
@@ -425,8 +425,8 @@ Current Implementation: Single .gz File
 
 The BackupManager creates a single compressed file at BackupManager.js:77-157:
 ./backups/
-  ├── amdwiki-backup-2025-10-10T12-00-00-000Z.json.gz
-  ├── amdwiki-backup-2025-10-09T12-00-00-000Z.json.gz
+  ├── ngdpbase-backup-2025-10-10T12-00-00-000Z.json.gz
+  ├── ngdpbase-backup-2025-10-09T12-00-00-000Z.json.gz
   └── ...
 
 ### Contents
@@ -451,7 +451,7 @@ The real data stays in the filesystem:
 │   ├── roles.json
 │   └── sessions.json
 └── backups/                  # Backup files
-    └── amdwiki-backup-*.json.gz
+    └── ngdpbase-backup-*.json.gz
 
 ## Summary Table
 

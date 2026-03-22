@@ -2,7 +2,7 @@ const path = require('path');
 
 // Generate unique app name based on directory
 const dirName = path.basename(__dirname);
-const appName = `amdWiki-${dirName}`;
+const appName = `ngdpbase-${dirName}`;
 
 module.exports = {
   apps: [{

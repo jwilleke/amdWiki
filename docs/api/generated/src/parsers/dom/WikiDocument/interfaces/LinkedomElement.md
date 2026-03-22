@@ -1,12 +1,12 @@
-[**amdWiki API v1.5.0**](../../../../../README.md)
+[**ngdpbase API v1.5.0**](../../../../../README.md)
 
 ***
 
-[amdWiki API](../../../../../README.md) / [src/parsers/dom/WikiDocument](../README.md) / LinkedomElement
+[ngdpbase API](../../../../../README.md) / [src/parsers/dom/WikiDocument](../README.md) / LinkedomElement
 
 # Interface: LinkedomElement
 
-Defined in: [src/parsers/dom/WikiDocument.ts:36](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/WikiDocument.ts#L36)
+Defined in: [src/parsers/dom/WikiDocument.ts:36](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/WikiDocument.ts#L36)
 
 ## Properties
 
@@ -14,7 +14,7 @@ Defined in: [src/parsers/dom/WikiDocument.ts:36](https://github.com/jwilleke/amd
 
 > **childNodes**: [`LinkedomNodeList`](LinkedomNodeList.md)
 
-Defined in: [src/parsers/dom/WikiDocument.ts:42](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/WikiDocument.ts#L42)
+Defined in: [src/parsers/dom/WikiDocument.ts:42](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/WikiDocument.ts#L42)
 
 ***
 
@@ -22,7 +22,7 @@ Defined in: [src/parsers/dom/WikiDocument.ts:42](https://github.com/jwilleke/amd
 
 > **className**: `string`
 
-Defined in: [src/parsers/dom/WikiDocument.ts:39](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/WikiDocument.ts#L39)
+Defined in: [src/parsers/dom/WikiDocument.ts:39](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/WikiDocument.ts#L39)
 
 ***
 
@@ -30,7 +30,7 @@ Defined in: [src/parsers/dom/WikiDocument.ts:39](https://github.com/jwilleke/amd
 
 > **firstChild**: [`LinkedomNode`](../type-aliases/LinkedomNode.md) \| `null`
 
-Defined in: [src/parsers/dom/WikiDocument.ts:43](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/WikiDocument.ts#L43)
+Defined in: [src/parsers/dom/WikiDocument.ts:43](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/WikiDocument.ts#L43)
 
 ***
 
@@ -38,7 +38,7 @@ Defined in: [src/parsers/dom/WikiDocument.ts:43](https://github.com/jwilleke/amd
 
 > **innerHTML**: `string`
 
-Defined in: [src/parsers/dom/WikiDocument.ts:37](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/WikiDocument.ts#L37)
+Defined in: [src/parsers/dom/WikiDocument.ts:37](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/WikiDocument.ts#L37)
 
 ***
 
@@ -46,7 +46,7 @@ Defined in: [src/parsers/dom/WikiDocument.ts:37](https://github.com/jwilleke/amd
 
 > **lastChild**: [`LinkedomNode`](../type-aliases/LinkedomNode.md) \| `null`
 
-Defined in: [src/parsers/dom/WikiDocument.ts:44](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/WikiDocument.ts#L44)
+Defined in: [src/parsers/dom/WikiDocument.ts:44](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/WikiDocument.ts#L44)
 
 ***
 
@@ -54,7 +54,7 @@ Defined in: [src/parsers/dom/WikiDocument.ts:44](https://github.com/jwilleke/amd
 
 > **nodeType**: `number`
 
-Defined in: [src/parsers/dom/WikiDocument.ts:40](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/WikiDocument.ts#L40)
+Defined in: [src/parsers/dom/WikiDocument.ts:40](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/WikiDocument.ts#L40)
 
 ***
 
@@ -62,7 +62,7 @@ Defined in: [src/parsers/dom/WikiDocument.ts:40](https://github.com/jwilleke/amd
 
 > **tagName**: `string`
 
-Defined in: [src/parsers/dom/WikiDocument.ts:41](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/WikiDocument.ts#L41)
+Defined in: [src/parsers/dom/WikiDocument.ts:41](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/WikiDocument.ts#L41)
 
 ***
 
@@ -70,7 +70,7 @@ Defined in: [src/parsers/dom/WikiDocument.ts:41](https://github.com/jwilleke/amd
 
 > **textContent**: `string`
 
-Defined in: [src/parsers/dom/WikiDocument.ts:38](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/WikiDocument.ts#L38)
+Defined in: [src/parsers/dom/WikiDocument.ts:38](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/WikiDocument.ts#L38)
 
 ## Methods
 
@@ -78,7 +78,7 @@ Defined in: [src/parsers/dom/WikiDocument.ts:38](https://github.com/jwilleke/amd
 
 > **appendChild**(`node`): [`LinkedomNode`](../type-aliases/LinkedomNode.md)
 
-Defined in: [src/parsers/dom/WikiDocument.ts:47](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/WikiDocument.ts#L47)
+Defined in: [src/parsers/dom/WikiDocument.ts:47](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/WikiDocument.ts#L47)
 
 #### Parameters
 
@@ -96,7 +96,7 @@ Defined in: [src/parsers/dom/WikiDocument.ts:47](https://github.com/jwilleke/amd
 
 > **getAttribute**(`name`): `string` \| `null`
 
-Defined in: [src/parsers/dom/WikiDocument.ts:46](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/WikiDocument.ts#L46)
+Defined in: [src/parsers/dom/WikiDocument.ts:46](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/WikiDocument.ts#L46)
 
 #### Parameters
 
@@ -114,7 +114,7 @@ Defined in: [src/parsers/dom/WikiDocument.ts:46](https://github.com/jwilleke/amd
 
 > **getElementsByClassName**(`className`): [`LinkedomHTMLCollection`](LinkedomHTMLCollection.md)
 
-Defined in: [src/parsers/dom/WikiDocument.ts:55](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/WikiDocument.ts#L55)
+Defined in: [src/parsers/dom/WikiDocument.ts:55](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/WikiDocument.ts#L55)
 
 #### Parameters
 
@@ -132,7 +132,7 @@ Defined in: [src/parsers/dom/WikiDocument.ts:55](https://github.com/jwilleke/amd
 
 > **getElementsByTagName**(`tagName`): [`LinkedomHTMLCollection`](LinkedomHTMLCollection.md)
 
-Defined in: [src/parsers/dom/WikiDocument.ts:56](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/WikiDocument.ts#L56)
+Defined in: [src/parsers/dom/WikiDocument.ts:56](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/WikiDocument.ts#L56)
 
 #### Parameters
 
@@ -150,7 +150,7 @@ Defined in: [src/parsers/dom/WikiDocument.ts:56](https://github.com/jwilleke/amd
 
 > **insertBefore**(`newNode`, `referenceNode`): [`LinkedomNode`](../type-aliases/LinkedomNode.md)
 
-Defined in: [src/parsers/dom/WikiDocument.ts:48](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/WikiDocument.ts#L48)
+Defined in: [src/parsers/dom/WikiDocument.ts:48](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/WikiDocument.ts#L48)
 
 #### Parameters
 
@@ -172,7 +172,7 @@ Defined in: [src/parsers/dom/WikiDocument.ts:48](https://github.com/jwilleke/amd
 
 > **querySelector**(`selector`): `LinkedomElement` \| `null`
 
-Defined in: [src/parsers/dom/WikiDocument.ts:53](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/WikiDocument.ts#L53)
+Defined in: [src/parsers/dom/WikiDocument.ts:53](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/WikiDocument.ts#L53)
 
 #### Parameters
 
@@ -190,7 +190,7 @@ Defined in: [src/parsers/dom/WikiDocument.ts:53](https://github.com/jwilleke/amd
 
 > **querySelectorAll**(`selector`): [`LinkedomNodeList`](LinkedomNodeList.md)
 
-Defined in: [src/parsers/dom/WikiDocument.ts:54](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/WikiDocument.ts#L54)
+Defined in: [src/parsers/dom/WikiDocument.ts:54](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/WikiDocument.ts#L54)
 
 #### Parameters
 
@@ -208,7 +208,7 @@ Defined in: [src/parsers/dom/WikiDocument.ts:54](https://github.com/jwilleke/amd
 
 > **remove**(): `void`
 
-Defined in: [src/parsers/dom/WikiDocument.ts:52](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/WikiDocument.ts#L52)
+Defined in: [src/parsers/dom/WikiDocument.ts:52](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/WikiDocument.ts#L52)
 
 #### Returns
 
@@ -220,7 +220,7 @@ Defined in: [src/parsers/dom/WikiDocument.ts:52](https://github.com/jwilleke/amd
 
 > **removeChild**(`node`): [`LinkedomNode`](../type-aliases/LinkedomNode.md)
 
-Defined in: [src/parsers/dom/WikiDocument.ts:49](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/WikiDocument.ts#L49)
+Defined in: [src/parsers/dom/WikiDocument.ts:49](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/WikiDocument.ts#L49)
 
 #### Parameters
 
@@ -238,7 +238,7 @@ Defined in: [src/parsers/dom/WikiDocument.ts:49](https://github.com/jwilleke/amd
 
 > **replaceChild**(`newNode`, `oldNode`): [`LinkedomNode`](../type-aliases/LinkedomNode.md)
 
-Defined in: [src/parsers/dom/WikiDocument.ts:50](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/WikiDocument.ts#L50)
+Defined in: [src/parsers/dom/WikiDocument.ts:50](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/WikiDocument.ts#L50)
 
 #### Parameters
 
@@ -260,7 +260,7 @@ Defined in: [src/parsers/dom/WikiDocument.ts:50](https://github.com/jwilleke/amd
 
 > **replaceWith**(`node`): `void`
 
-Defined in: [src/parsers/dom/WikiDocument.ts:51](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/WikiDocument.ts#L51)
+Defined in: [src/parsers/dom/WikiDocument.ts:51](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/WikiDocument.ts#L51)
 
 #### Parameters
 
@@ -278,7 +278,7 @@ Defined in: [src/parsers/dom/WikiDocument.ts:51](https://github.com/jwilleke/amd
 
 > **setAttribute**(`name`, `value`): `void`
 
-Defined in: [src/parsers/dom/WikiDocument.ts:45](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/WikiDocument.ts#L45)
+Defined in: [src/parsers/dom/WikiDocument.ts:45](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/WikiDocument.ts#L45)
 
 #### Parameters
 

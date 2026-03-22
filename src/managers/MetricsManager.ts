@@ -28,7 +28,7 @@ class MetricsManager extends BaseManager {
   private prometheusExporter: PrometheusExporter | null = null;
   private otlpReader: PeriodicExportingMetricReader | null = null;
   private meter: Meter | null = null;
-  private prefix: string = 'amdwiki';
+  private prefix: string = 'ngdpbase';
 
   // Counters
   private pageViewsTotal: Counter | null = null;
@@ -61,7 +61,7 @@ class MetricsManager extends BaseManager {
       return;
     }
 
-    this.enabled = configManager.getProperty('amdwiki.telemetry.enabled', false) as boolean;
+    this.enabled = configManager.getProperty('ngdpbase.telemetry.enabled', false) as boolean;
 
     if (!this.enabled) {
       logger.info('[MetricsManager] Telemetry disabled by configuration');
@@ -69,14 +69,14 @@ class MetricsManager extends BaseManager {
     }
 
     // Derive metric prefix from applicationName (sanitized for Prometheus)
-    const appName = configManager.getProperty('amdwiki.applicationName', 'amdwiki') as string;
+    const appName = configManager.getProperty('ngdpbase.applicationName', 'ngdpbase') as string;
     this.prefix = appName.toLowerCase().replace(/[^a-z0-9]/g, '_').replace(/_+/g, '_').replace(/^_|_$/g, '');
 
     try {
-      const port = configManager.getProperty('amdwiki.telemetry.metrics.port', 9464) as number;
-      const host = configManager.getProperty('amdwiki.telemetry.metrics.host', '0.0.0.0') as string;
-      const metricsPath = configManager.getProperty('amdwiki.telemetry.metrics.path', '/metrics') as string;
-      const interval = configManager.getProperty('amdwiki.telemetry.metrics.interval', 15000) as number;
+      const port = configManager.getProperty('ngdpbase.telemetry.metrics.port', 9464) as number;
+      const host = configManager.getProperty('ngdpbase.telemetry.metrics.host', '0.0.0.0') as string;
+      const metricsPath = configManager.getProperty('ngdpbase.telemetry.metrics.path', '/metrics') as string;
+      const interval = configManager.getProperty('ngdpbase.telemetry.metrics.interval', 15000) as number;
 
       this.prometheusExporter = new PrometheusExporter({
         port,
@@ -87,13 +87,13 @@ class MetricsManager extends BaseManager {
       // Build readers array: always Prometheus, optionally OTLP
       const readers: (PrometheusExporter | PeriodicExportingMetricReader)[] = [this.prometheusExporter];
 
-      const otlpEnabled = configManager.getProperty('amdwiki.telemetry.otlp.enabled', false) as boolean;
-      const otlpEndpoint = configManager.getProperty('amdwiki.telemetry.otlp.endpoint', '') as string;
+      const otlpEnabled = configManager.getProperty('ngdpbase.telemetry.otlp.enabled', false) as boolean;
+      const otlpEndpoint = configManager.getProperty('ngdpbase.telemetry.otlp.endpoint', '') as string;
 
       if (otlpEnabled && otlpEndpoint) {
-        const otlpHeaders = configManager.getProperty('amdwiki.telemetry.otlp.headers', {}) as Record<string, string>;
-        const otlpInterval = configManager.getProperty('amdwiki.telemetry.otlp.interval', 15000) as number;
-        const otlpTimeout = configManager.getProperty('amdwiki.telemetry.otlp.timeout', 30000) as number;
+        const otlpHeaders = configManager.getProperty('ngdpbase.telemetry.otlp.headers', {}) as Record<string, string>;
+        const otlpInterval = configManager.getProperty('ngdpbase.telemetry.otlp.interval', 15000) as number;
+        const otlpTimeout = configManager.getProperty('ngdpbase.telemetry.otlp.timeout', 30000) as number;
 
         const otlpExporter = new OTLPMetricExporter({
           url: otlpEndpoint,
@@ -111,7 +111,7 @@ class MetricsManager extends BaseManager {
         logger.info(`[MetricsManager] OTLP metric export enabled → ${otlpEndpoint} (interval: ${otlpInterval}ms)`);
       }
 
-      const serviceName = configManager.getProperty('amdwiki.telemetry.serviceName', this.prefix) as string;
+      const serviceName = configManager.getProperty('ngdpbase.telemetry.serviceName', this.prefix) as string;
 
       this.meterProvider = new MeterProvider({
         resource: resourceFromAttributes({ [ATTR_SERVICE_NAME]: serviceName }),

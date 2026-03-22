@@ -1,12 +1,12 @@
-[**amdWiki API v1.5.0**](../../../../../README.md)
+[**ngdpbase API v1.5.0**](../../../../../README.md)
 
 ***
 
-[amdWiki API](../../../../../README.md) / [src/parsers/dom/WikiDocument](../README.md) / default
+[ngdpbase API](../../../../../README.md) / [src/parsers/dom/WikiDocument](../README.md) / default
 
 # Class: default
 
-Defined in: [src/parsers/dom/WikiDocument.ts:127](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/WikiDocument.ts#L127)
+Defined in: [src/parsers/dom/WikiDocument.ts:127](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/WikiDocument.ts#L127)
 
 WikiDocument - DOM-based representation of a wiki page
 
@@ -16,7 +16,7 @@ WikiDocument - DOM-based representation of a wiki page
 
 > **new default**(`pageData`, `context?`): `WikiDocument`
 
-Defined in: [src/parsers/dom/WikiDocument.ts:140](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/WikiDocument.ts#L140)
+Defined in: [src/parsers/dom/WikiDocument.ts:140](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/WikiDocument.ts#L140)
 
 Creates a new WikiDocument
 
@@ -44,7 +44,7 @@ Rendering context (stored as WeakRef)
 
 > **appendChild**(`node`): [`LinkedomNode`](../type-aliases/LinkedomNode.md)
 
-Defined in: [src/parsers/dom/WikiDocument.ts:290](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/WikiDocument.ts#L290)
+Defined in: [src/parsers/dom/WikiDocument.ts:290](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/WikiDocument.ts#L290)
 
 Appends a child to the root element
 
@@ -68,7 +68,7 @@ Appended node
 
 > **clear**(): `void`
 
-Defined in: [src/parsers/dom/WikiDocument.ts:449](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/WikiDocument.ts#L449)
+Defined in: [src/parsers/dom/WikiDocument.ts:449](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/WikiDocument.ts#L449)
 
 Clears all content from the document
 
@@ -82,7 +82,7 @@ Clears all content from the document
 
 > **createCommentNode**(`text`): [`LinkedomComment`](../interfaces/LinkedomComment.md)
 
-Defined in: [src/parsers/dom/WikiDocument.ts:276](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/WikiDocument.ts#L276)
+Defined in: [src/parsers/dom/WikiDocument.ts:276](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/WikiDocument.ts#L276)
 
 Creates a comment node
 
@@ -106,7 +106,7 @@ New comment node
 
 > **createElement**(`tag`, `attributes`): [`LinkedomElement`](../interfaces/LinkedomElement.md)
 
-Defined in: [src/parsers/dom/WikiDocument.ts:249](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/WikiDocument.ts#L249)
+Defined in: [src/parsers/dom/WikiDocument.ts:249](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/WikiDocument.ts#L249)
 
 Creates a new element
 
@@ -136,7 +136,7 @@ New element
 
 > **createTextNode**(`text`): [`LinkedomText`](../interfaces/LinkedomText.md)
 
-Defined in: [src/parsers/dom/WikiDocument.ts:266](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/WikiDocument.ts#L266)
+Defined in: [src/parsers/dom/WikiDocument.ts:266](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/WikiDocument.ts#L266)
 
 Creates a text node
 
@@ -160,7 +160,7 @@ New text node
 
 > `static` **fromJSON**(`json`, `context`): `WikiDocument`
 
-Defined in: [src/parsers/dom/WikiDocument.ts:426](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/WikiDocument.ts#L426)
+Defined in: [src/parsers/dom/WikiDocument.ts:426](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/WikiDocument.ts#L426)
 
 Deserializes from JSON (for cache restore)
 
@@ -190,7 +190,7 @@ Restored WikiDocument
 
 > **getChildCount**(): `number`
 
-Defined in: [src/parsers/dom/WikiDocument.ts:458](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/WikiDocument.ts#L458)
+Defined in: [src/parsers/dom/WikiDocument.ts:458](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/WikiDocument.ts#L458)
 
 Gets the number of child nodes in root
 
@@ -206,7 +206,7 @@ Number of children
 
 > **getContext**(): [`WikiContext`](../interfaces/WikiContext.md) \| `null`
 
-Defined in: [src/parsers/dom/WikiDocument.ts:193](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/WikiDocument.ts#L193)
+Defined in: [src/parsers/dom/WikiDocument.ts:193](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/WikiDocument.ts#L193)
 
 Gets the rendering context (if still alive)
 
@@ -224,7 +224,7 @@ Context object or null if garbage collected
 
 > **getElementById**(`id`): [`LinkedomElement`](../interfaces/LinkedomElement.md) \| `null`
 
-Defined in: [src/parsers/dom/WikiDocument.ts:356](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/WikiDocument.ts#L356)
+Defined in: [src/parsers/dom/WikiDocument.ts:356](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/WikiDocument.ts#L356)
 
 Gets element by ID
 
@@ -248,7 +248,7 @@ Element or null
 
 > **getElementsByClassName**(`className`): [`LinkedomHTMLCollection`](../interfaces/LinkedomHTMLCollection.md)
 
-Defined in: [src/parsers/dom/WikiDocument.ts:366](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/WikiDocument.ts#L366)
+Defined in: [src/parsers/dom/WikiDocument.ts:366](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/WikiDocument.ts#L366)
 
 Gets elements by class name
 
@@ -272,7 +272,7 @@ Elements with class
 
 > **getElementsByTagName**(`tagName`): [`LinkedomHTMLCollection`](../interfaces/LinkedomHTMLCollection.md)
 
-Defined in: [src/parsers/dom/WikiDocument.ts:376](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/WikiDocument.ts#L376)
+Defined in: [src/parsers/dom/WikiDocument.ts:376](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/WikiDocument.ts#L376)
 
 Gets elements by tag name
 
@@ -296,7 +296,7 @@ Elements with tag
 
 > **getMetadata**(): [`WikiDocumentMetadata`](../interfaces/WikiDocumentMetadata.md)
 
-Defined in: [src/parsers/dom/WikiDocument.ts:213](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/WikiDocument.ts#L213)
+Defined in: [src/parsers/dom/WikiDocument.ts:213](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/WikiDocument.ts#L213)
 
 Gets all metadata
 
@@ -312,7 +312,7 @@ Metadata object
 
 > **getMetadataValue**(`key`, `defaultValue`): `unknown`
 
-Defined in: [src/parsers/dom/WikiDocument.ts:234](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/WikiDocument.ts#L234)
+Defined in: [src/parsers/dom/WikiDocument.ts:234](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/WikiDocument.ts#L234)
 
 Gets a metadata value
 
@@ -342,7 +342,7 @@ Metadata value or default
 
 > **getPageData**(): `string`
 
-Defined in: [src/parsers/dom/WikiDocument.ts:171](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/WikiDocument.ts#L171)
+Defined in: [src/parsers/dom/WikiDocument.ts:171](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/WikiDocument.ts#L171)
 
 Gets the original wiki markup
 
@@ -360,7 +360,7 @@ Original page data
 
 > **getRootElement**(): [`LinkedomElement`](../interfaces/LinkedomElement.md)
 
-Defined in: [src/parsers/dom/WikiDocument.ts:160](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/WikiDocument.ts#L160)
+Defined in: [src/parsers/dom/WikiDocument.ts:160](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/WikiDocument.ts#L160)
 
 Gets the root element of the document
 
@@ -376,7 +376,7 @@ Root element (body)
 
 > **getStatistics**(): [`WikiDocumentStatistics`](../interfaces/WikiDocumentStatistics.md)
 
-Defined in: [src/parsers/dom/WikiDocument.ts:476](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/WikiDocument.ts#L476)
+Defined in: [src/parsers/dom/WikiDocument.ts:476](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/WikiDocument.ts#L476)
 
 Gets document statistics
 
@@ -392,7 +392,7 @@ Statistics
 
 > **insertBefore**(`newNode`, `referenceNode`): [`LinkedomNode`](../type-aliases/LinkedomNode.md)
 
-Defined in: [src/parsers/dom/WikiDocument.ts:301](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/WikiDocument.ts#L301)
+Defined in: [src/parsers/dom/WikiDocument.ts:301](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/WikiDocument.ts#L301)
 
 Inserts a node before a reference node in root
 
@@ -422,7 +422,7 @@ Inserted node
 
 > **isEmpty**(): `boolean`
 
-Defined in: [src/parsers/dom/WikiDocument.ts:467](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/WikiDocument.ts#L467)
+Defined in: [src/parsers/dom/WikiDocument.ts:467](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/WikiDocument.ts#L467)
 
 Checks if the document is empty
 
@@ -438,7 +438,7 @@ True if empty
 
 > **querySelector**(`selector`): [`LinkedomElement`](../interfaces/LinkedomElement.md) \| `null`
 
-Defined in: [src/parsers/dom/WikiDocument.ts:336](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/WikiDocument.ts#L336)
+Defined in: [src/parsers/dom/WikiDocument.ts:336](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/WikiDocument.ts#L336)
 
 Queries for a single element
 
@@ -462,7 +462,7 @@ First matching element or null
 
 > **querySelectorAll**(`selector`): [`LinkedomNodeList`](../interfaces/LinkedomNodeList.md)
 
-Defined in: [src/parsers/dom/WikiDocument.ts:346](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/WikiDocument.ts#L346)
+Defined in: [src/parsers/dom/WikiDocument.ts:346](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/WikiDocument.ts#L346)
 
 Queries for all matching elements
 
@@ -486,7 +486,7 @@ Matching elements
 
 > **removeChild**(`node`): [`LinkedomNode`](../type-aliases/LinkedomNode.md)
 
-Defined in: [src/parsers/dom/WikiDocument.ts:311](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/WikiDocument.ts#L311)
+Defined in: [src/parsers/dom/WikiDocument.ts:311](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/WikiDocument.ts#L311)
 
 Removes a child from the root element
 
@@ -510,7 +510,7 @@ Removed node
 
 > **replaceChild**(`newNode`, `oldNode`): [`LinkedomNode`](../type-aliases/LinkedomNode.md)
 
-Defined in: [src/parsers/dom/WikiDocument.ts:322](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/WikiDocument.ts#L322)
+Defined in: [src/parsers/dom/WikiDocument.ts:322](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/WikiDocument.ts#L322)
 
 Replaces a child in the root element
 
@@ -540,7 +540,7 @@ Replaced node
 
 > **setContext**(`context`): `void`
 
-Defined in: [src/parsers/dom/WikiDocument.ts:204](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/WikiDocument.ts#L204)
+Defined in: [src/parsers/dom/WikiDocument.ts:204](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/WikiDocument.ts#L204)
 
 Sets the rendering context
 
@@ -564,7 +564,7 @@ Rendering context
 
 > **setMetadata**(`key`, `value`): `void`
 
-Defined in: [src/parsers/dom/WikiDocument.ts:223](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/WikiDocument.ts#L223)
+Defined in: [src/parsers/dom/WikiDocument.ts:223](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/WikiDocument.ts#L223)
 
 Sets a metadata value
 
@@ -592,7 +592,7 @@ Metadata value
 
 > **setPageData**(`data`): `void`
 
-Defined in: [src/parsers/dom/WikiDocument.ts:182](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/WikiDocument.ts#L182)
+Defined in: [src/parsers/dom/WikiDocument.ts:182](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/WikiDocument.ts#L182)
 
 Sets the original wiki markup
 
@@ -616,7 +616,7 @@ Wiki markup
 
 > **toHTML**(): `string`
 
-Defined in: [src/parsers/dom/WikiDocument.ts:391](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/WikiDocument.ts#L391)
+Defined in: [src/parsers/dom/WikiDocument.ts:391](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/WikiDocument.ts#L391)
 
 Serializes the document to HTML string
 
@@ -634,7 +634,7 @@ HTML string
 
 > **toJSON**(): [`WikiDocumentJSON`](../interfaces/WikiDocumentJSON.md)
 
-Defined in: [src/parsers/dom/WikiDocument.ts:409](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/WikiDocument.ts#L409)
+Defined in: [src/parsers/dom/WikiDocument.ts:409](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/WikiDocument.ts#L409)
 
 Serializes to JSON (for caching)
 
@@ -650,7 +650,7 @@ JSON representation
 
 > **toString**(): `string`
 
-Defined in: [src/parsers/dom/WikiDocument.ts:400](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/WikiDocument.ts#L400)
+Defined in: [src/parsers/dom/WikiDocument.ts:400](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/WikiDocument.ts#L400)
 
 Serializes to string (for debugging)
 

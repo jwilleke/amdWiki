@@ -73,12 +73,12 @@ See the wiki page [Attachments](/wiki/Attachments) for end-user documentation.
 
 ```json
 {
-  "amdwiki.attachment.enabled": true,
-  "amdwiki.attachment.provider": "basicattachmentprovider",
-  "amdwiki.attachment.maxsize": 10485760,
-  "amdwiki.attachment.allowedtypes": "image/*,text/*,application/pdf",
-  "amdwiki.attachment.provider.basic.storagedir": "./data/attachments",
-  "amdwiki.attachment.provider.basic.hashcontent": true
+  "ngdpbase.attachment.enabled": true,
+  "ngdpbase.attachment.provider": "basicattachmentprovider",
+  "ngdpbase.attachment.maxsize": 10485760,
+  "ngdpbase.attachment.allowedtypes": "image/*,text/*,application/pdf",
+  "ngdpbase.attachment.provider.basic.storagedir": "./data/attachments",
+  "ngdpbase.attachment.provider.basic.hashcontent": true
 }
 ```
 

@@ -1,7 +1,7 @@
 /**
  * Simple logging framework using winston
  *
- * Provides centralized logging for the entire amdWiki application with
+ * Provides centralized logging for the entire ngdpbase application with
  * file rotation, console output, and configurable log levels.
  *
  * @module logger

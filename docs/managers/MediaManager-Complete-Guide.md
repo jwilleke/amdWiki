@@ -34,23 +34,23 @@
 
 ## Overview
 
-MediaManager is the high-level coordinator for amdWiki's media browsing feature. It:
+MediaManager is the high-level coordinator for ngdpbase's media browsing feature. It:
 
-- Reads config from `ConfigurationManager` (`amdwiki.media.*` keys)
+- Reads config from `ConfigurationManager` (`ngdpbase.media.*` keys)
 - Creates and owns a `FileSystemMediaProvider` instance
 - Exposes query methods (`getItem`, `listByYear`, `listByKeyword`, `listByPage`, `search`, `getYears`, `getThumbnailBuffer`) to WikiRoutes and plugins
 - Applies private-page access control before returning items to callers
 - Manages a periodic background rescan timer
 
 The manager is **opt-in**: it is only instantiated by `WikiEngine` when
-`amdwiki.media.enabled = true`. All HTTP routes return 503 when the manager
+`ngdpbase.media.enabled = true`. All HTTP routes return 503 when the manager
 is absent.
 
 ## Architecture
 
 ```text
 WikiEngine
-  └── MediaManager (conditional on amdwiki.media.enabled)
+  └── MediaManager (conditional on ngdpbase.media.enabled)
         ├── FileSystemMediaProvider
         │     ├── ExifTool worker  (exiftool-vendored)
         │     ├── media-index.json (persistent index)
@@ -76,28 +76,28 @@ MediaPlugin (wiki plugin)
 
 ## Configuration
 
-All keys are in `amdwiki.media.*`. Set them in your instance
+All keys are in `ngdpbase.media.*`. Set them in your instance
 `app-custom-config.json` (or environment-specific config).
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| `amdwiki.media.enabled` | boolean | `false` | Must be `true` to register the manager |
-| `amdwiki.media.folders` | string[] | `[]` | Absolute paths to scan |
-| `amdwiki.media.maxdepth` | number | `5` | Max recursion depth (0 = unlimited) |
-| `amdwiki.media.scaninterval` | number | `3600000` | Background rescan interval in ms; `0` = disabled |
-| `amdwiki.media.ignoredirs` | string[] | `[".dtrash", ".ts"]` | Directory names to skip unconditionally |
-| `amdwiki.media.extensions` | string[] | *(built-in list)* | File extensions to index; overrides `DEFAULT_MEDIA_EXTENSIONS` when non-empty |
-| `amdwiki.media.index.file` | string | *(FAST_STORAGE/media-index.json)* | Absolute path to index file |
-| `amdwiki.media.thumbnail.dir` | string | *(FAST_STORAGE/media/thumbs)* | Absolute path to thumbnail cache |
-| `amdwiki.media.thumbnail.sizes` | string | `"300x300,150x150"` | Comma-separated WxH specs |
-| `amdwiki.media.metadata.priority` | string[] | `["EXIF","IPTC","XMP"]` | Metadata source priority (reserved) |
+| `ngdpbase.media.enabled` | boolean | `false` | Must be `true` to register the manager |
+| `ngdpbase.media.folders` | string[] | `[]` | Absolute paths to scan |
+| `ngdpbase.media.maxdepth` | number | `5` | Max recursion depth (0 = unlimited) |
+| `ngdpbase.media.scaninterval` | number | `3600000` | Background rescan interval in ms; `0` = disabled |
+| `ngdpbase.media.ignoredirs` | string[] | `[".dtrash", ".ts"]` | Directory names to skip unconditionally |
+| `ngdpbase.media.extensions` | string[] | *(built-in list)* | File extensions to index; overrides `DEFAULT_MEDIA_EXTENSIONS` when non-empty |
+| `ngdpbase.media.index.file` | string | *(FAST_STORAGE/media-index.json)* | Absolute path to index file |
+| `ngdpbase.media.thumbnail.dir` | string | *(FAST_STORAGE/media/thumbs)* | Absolute path to thumbnail cache |
+| `ngdpbase.media.thumbnail.sizes` | string | `"300x300,150x150"` | Comma-separated WxH specs |
+| `ngdpbase.media.metadata.priority` | string[] | `["EXIF","IPTC","XMP"]` | Metadata source priority (reserved) |
 
 ### Minimal working configuration
 
 ```json
 {
-  "amdwiki.media.enabled": true,
-  "amdwiki.media.folders": ["/Volumes/hd2A/media/photos/2020s", "/Volumes/hd2A/media/photos/older"]
+  "ngdpbase.media.enabled": true,
+  "ngdpbase.media.folders": ["/Volumes/hd2A/media/photos/2020s", "/Volumes/hd2A/media/photos/older"]
 }
 ```
 
@@ -105,12 +105,12 @@ All keys are in `amdwiki.media.*`. Set them in your instance
 
 The built-in `DEFAULT_MEDIA_EXTENSIONS` covers common image and video formats
 (see [Thumbnail Generation](#thumbnail-generation)). To index only a subset or
-to add formats like `.webm` or `.flv`, set `amdwiki.media.extensions` to a
+to add formats like `.webm` or `.flv`, set `ngdpbase.media.extensions` to a
 complete replacement list:
 
 ```json
 {
-  "amdwiki.media.extensions": ["jpg", "jpeg", "png", "heic", "mp4", "mov", "webm"]
+  "ngdpbase.media.extensions": ["jpg", "jpeg", "png", "heic", "mp4", "mov", "webm"]
 }
 ```
 
@@ -120,8 +120,8 @@ Values are normalised to lowercase; a leading dot is stripped automatically.
 
 `MediaManager.initialize()` runs during engine startup (after `ConfigurationManager`):
 
-1. Reads all `amdwiki.media.*` keys from `ConfigurationManager`
-2. Reads `amdwiki.media.extensions`; falls back to `DEFAULT_MEDIA_EXTENSIONS` when the value is an empty array
+1. Reads all `ngdpbase.media.*` keys from `ConfigurationManager`
+2. Reads `ngdpbase.media.extensions`; falls back to `DEFAULT_MEDIA_EXTENSIONS` when the value is an empty array
 3. Calls `fs.ensureDir(thumbnailDir)` — creates thumbnail directory if absent
 4. Creates `new FileSystemMediaProvider({ ..., extensions })`
 5. Calls `provider.initialize()` — loads existing `media-index.json` into memory
@@ -162,9 +162,9 @@ interface ScanResult {
 
 Two complementary mechanisms allow files and folders to be excluded from the index.
 
-### `.amdwikiignore` pattern file
+### `.ngdpbaseignore` pattern file
 
-Place a `.amdwikiignore` file in any directory within a configured media folder. The scanner reads its contents and applies the patterns to files and subdirectories in that directory before calling ExifTool — excluded items incur no metadata-read overhead.
+Place a `.ngdpbaseignore` file in any directory within a configured media folder. The scanner reads its contents and applies the patterns to files and subdirectories in that directory before calling ExifTool — excluded items incur no metadata-read overhead.
 
 **Pattern syntax** (gitignore-compatible):
 
@@ -177,7 +177,7 @@ Place a `.amdwikiignore` file in any directory within a configured media folder.
 | *(blank line)* | Line is ignored |
 
 ```
-# /Volumes/photos/2023/.amdwikiignore
+# /Volumes/photos/2023/.ngdpbaseignore
 
 # skip raw unedited files
 *.orf
@@ -190,16 +190,16 @@ rejects/
 IMG_0001.jpg
 ```
 
-Patterns apply only to the directory containing the `.amdwikiignore` file, not recursively to all descendants. Place additional `.amdwikiignore` files in subdirectories as needed.
+Patterns apply only to the directory containing the `.ngdpbaseignore` file, not recursively to all descendants. Place additional `.ngdpbaseignore` files in subdirectories as needed.
 
-`amdwiki.media.ignoredirs` entries (e.g. `.dtrash`, `.ts`) are still applied unconditionally by directory name across the entire tree, independently of `.amdwikiignore`.
+`ngdpbase.media.ignoredirs` entries (e.g. `.dtrash`, `.ts`) are still applied unconditionally by directory name across the entire tree, independently of `.ngdpbaseignore`.
 
-### `amdwikiignore` EXIF keyword
+### `ngdpbaseignore` EXIF keyword
 
-Add the keyword `amdwikiignore` to a file's EXIF or XMP metadata using any photo management tool (Lightroom, Capture One, Bridge, or `exiftool` on the command line):
+Add the keyword `ngdpbaseignore` to a file's EXIF or XMP metadata using any photo management tool (Lightroom, Capture One, Bridge, or `exiftool` on the command line):
 
 ```bash
-exiftool -Keywords+=amdwikiignore /path/to/photo.jpg
+exiftool -Keywords+=ngdpbaseignore /path/to/photo.jpg
 ```
 
 On the next scan, the file is excluded from the index. If it was previously indexed it is evicted immediately. The keyword travels with the file if it is moved between indexed folders, and does not require any filesystem changes to the scan configuration.
@@ -651,7 +651,7 @@ this.scanTimer.unref(); // Won't prevent process exit
 The `unref()` call ensures the timer does not keep the process alive when
 everything else has shut down.
 
-Set `amdwiki.media.scaninterval = 0` to disable background scanning entirely.
+Set `ngdpbase.media.scaninterval = 0` to disable background scanning entirely.
 
 ## Shutdown
 
@@ -666,25 +666,25 @@ Set `amdwiki.media.scaninterval = 0` to disable background scanning entirely.
 
 ### 503 on all /media/* routes
 
-`amdwiki.media.enabled` is `false` (default). Set it to `true` and restart.
+`ngdpbase.media.enabled` is `false` (default). Set it to `true` and restart.
 
 ### Index is empty after scan
 
 Check the server log for `[FileSystemMediaProvider]` lines. Common causes:
 
-- Folders listed in `amdwiki.media.folders` do not exist or are not readable
+- Folders listed in `ngdpbase.media.folders` do not exist or are not readable
 - All files in the folder are excluded by `ignoredirs` or `ignorefiles`
-- File extensions are not in the indexed set — check `amdwiki.media.extensions`
+- File extensions are not in the indexed set — check `ngdpbase.media.extensions`
   (if set, only those extensions are indexed; if unset, `DEFAULT_MEDIA_EXTENSIONS` applies)
 
 ### File extensions not indexed
 
 If a file type you expect to see is missing from the index, verify that its
-extension is included in `amdwiki.media.extensions`. If the config key is not
+extension is included in `ngdpbase.media.extensions`. If the config key is not
 set, the built-in `DEFAULT_MEDIA_EXTENSIONS` list is used. To add `.webm`:
 
 ```json
-{ "amdwiki.media.extensions": ["jpg", "jpeg", "png", "mp4", "mov", "webm"] }
+{ "ngdpbase.media.extensions": ["jpg", "jpeg", "png", "mp4", "mov", "webm"] }
 ```
 
 ### Keyword album is empty
@@ -702,7 +702,7 @@ the files have valid EXIF data with `exiftool {filename}`.
 
 ### Thumbnails not generating
 
-- Verify `amdwiki.media.thumbnail.dir` is writable
+- Verify `ngdpbase.media.thumbnail.dir` is writable
 - Check Sharp is installed: `node -e "require('sharp')"` — if it errors, run
   `npm install --os=darwin --cpu=arm64 sharp` (macOS ARM)
 - Video files never get thumbnails (FFmpeg not installed)

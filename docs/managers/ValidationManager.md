@@ -2,7 +2,7 @@
 
 ## Overview
 
-The ValidationManager is amdWiki's central system for ensuring data integrity and consistency across the wiki's file-based storage. It enforces UUID-based naming conventions, validates YAML frontmatter metadata, and provides utilities for generating compliant files. This manager is crucial for maintaining architectural consistency and preventing malformed content from entering the system.
+The ValidationManager is ngdpbase's central system for ensuring data integrity and consistency across the wiki's file-based storage. It enforces UUID-based naming conventions, validates YAML frontmatter metadata, and provides utilities for generating compliant files. This manager is crucial for maintaining architectural consistency and preventing malformed content from entering the system.
 
 ## Architecture
 
@@ -46,7 +46,7 @@ Every page must include these YAML frontmatter fields:
 
 ### 3. System Categories
 
-System categories are now configurable via `app-default-config.json` under `amdwiki.system-category`. Each category has:
+System categories are now configurable via `app-default-config.json` under `ngdpbase.system-category`. Each category has:
 
 | Property | Type | Description |
 | ---------- | ------ | ------------- |
@@ -75,8 +75,8 @@ Configuration is loaded from ConfigurationManager via `config/app-default-config
 
 ```json
 {
-  "amdwiki.maximum.user-keywords": 5,
-  "amdwiki.default.system-category": "general"
+  "ngdpbase.maximum.user-keywords": 5,
+  "ngdpbase.default.system-category": "general"
 }
 ```
 
@@ -84,7 +84,7 @@ Configuration is loaded from ConfigurationManager via `config/app-default-config
 
 ```json
 {
-  "amdwiki.system-category": {
+  "ngdpbase.system-category": {
     "general": {
       "label": "General",
       "description": "General wiki pages",
@@ -123,7 +123,7 @@ To add a custom category, add it to `app-custom-config.json`:
 
 ```json
 {
-  "amdwiki.system-category": {
+  "ngdpbase.system-category": {
     "custom-category": {
       "label": "Custom Category",
       "description": "My custom category",
@@ -357,7 +357,7 @@ Array of standard system category values:
 
 ##### `maxUserKeywords: number`
 
-Maximum allowed user keywords per page (default: 5, configurable via `amdwiki.maximum.user-keywords`).
+Maximum allowed user keywords per page (default: 5, configurable via `ngdpbase.maximum.user-keywords`).
 
 ##### `maxCategories: number`
 
@@ -952,7 +952,7 @@ const configManager = engine.getManager('ConfigurationManager');
 
 // Configure in app-custom-config.json:
 {
-  "amdwiki": {
+  "ngdpbase": {
     "maximum": {
       "user-keywords": 10
     },

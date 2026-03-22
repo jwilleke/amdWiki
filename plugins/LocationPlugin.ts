@@ -110,7 +110,7 @@ const LocationPlugin: SimplePlugin = {
         'ConfigurationManager'
       ) as ConfigManager | undefined;
       const defaultProvider =
-        configManager?.getProperty('amdwiki.location.defaultProvider', 'osm') || 'osm';
+        configManager?.getProperty('ngdpbase.location.defaultProvider', 'osm') || 'osm';
 
       // Parse parameters
       const name = opts.name;

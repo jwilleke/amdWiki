@@ -31,7 +31,7 @@
 
 ## Overview
 
-FileUserProvider is the default user storage provider for amdWiki, implementing JSON file-based storage for users and sessions. It provides a simple, human-readable, and portable user database without requiring external database servers.
+FileUserProvider is the default user storage provider for ngdpbase, implementing JSON file-based storage for users and sessions. It provides a simple, human-readable, and portable user database without requiring external database servers.
 
 ### Design Philosophy
 
@@ -131,7 +131,7 @@ All configuration via ConfigurationManager (lowercase keys):
 ### Storage Directory
 
 ```javascript
-'amdwiki.user.provider.storagedir'
+'ngdpbase.user.provider.storagedir'
   Default: './data/users'
   Type: String
   Purpose: Directory for user and session files
@@ -140,7 +140,7 @@ All configuration via ConfigurationManager (lowercase keys):
 ### User File
 
 ```javascript
-'amdwiki.user.provider.files.users'
+'ngdpbase.user.provider.files.users'
   Default: 'users.json'
   Type: String
   Purpose: Filename for user database
@@ -149,7 +149,7 @@ All configuration via ConfigurationManager (lowercase keys):
 ### Session File
 
 ```javascript
-'amdwiki.user.provider.files.sessions'
+'ngdpbase.user.provider.files.sessions'
   Default: 'sessions.json'
   Type: String
   Purpose: Filename for session database
@@ -159,7 +159,7 @@ All configuration via ConfigurationManager (lowercase keys):
 
 ```json
 {
-  "amdwiki": {
+  "ngdpbase": {
     "user": {
       "provider": {
         "storagedir": "./data/users",
@@ -218,15 +218,15 @@ async initialize() {
 
   // 2. Load configuration
   this.usersDirectory = configManager.getProperty(
-    'amdwiki.user.provider.storagedir',
+    'ngdpbase.user.provider.storagedir',
     './users'
   );
   this.usersFile = configManager.getProperty(
-    'amdwiki.user.provider.files.users',
+    'ngdpbase.user.provider.files.users',
     'users.json'
   );
   this.sessionsFile = configManager.getProperty(
-    'amdwiki.user.provider.files.sessions',
+    'ngdpbase.user.provider.files.sessions',
     'sessions.json'
   );
 

@@ -8,7 +8,7 @@
 
 ## Overview
 
-BackupManager coordinates backup and restore operations across all registered managers in amdWiki. It provides centralized system-wide backups with compression, retention policies, and automatic cleanup.
+BackupManager coordinates backup and restore operations across all registered managers in ngdpbase. It provides centralized system-wide backups with compression, retention policies, and automatic cleanup.
 
 ## Key Features
 
@@ -88,10 +88,10 @@ await backupManager.restore(backupPath, {
 
 ```json
 {
-  "amdwiki.backup.directory": "./data/backups",
-  "amdwiki.backup.maxBackups": 10,
-  "amdwiki.backup.compression": true,
-  "amdwiki.backup.retention.days": 30
+  "ngdpbase.backup.directory": "./data/backups",
+  "ngdpbase.backup.maxBackups": 10,
+  "ngdpbase.backup.compression": true,
+  "ngdpbase.backup.retention.days": 30
 }
 ```
 

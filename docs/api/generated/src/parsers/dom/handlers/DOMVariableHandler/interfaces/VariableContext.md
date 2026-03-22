@@ -1,12 +1,12 @@
-[**amdWiki API v1.5.0**](../../../../../../README.md)
+[**ngdpbase API v1.5.0**](../../../../../../README.md)
 
 ***
 
-[amdWiki API](../../../../../../README.md) / [src/parsers/dom/handlers/DOMVariableHandler](../README.md) / VariableContext
+[ngdpbase API](../../../../../../README.md) / [src/parsers/dom/handlers/DOMVariableHandler](../README.md) / VariableContext
 
 # Interface: VariableContext
 
-Defined in: [src/parsers/dom/handlers/DOMVariableHandler.ts:23](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMVariableHandler.ts#L23)
+Defined in: [src/parsers/dom/handlers/DOMVariableHandler.ts:23](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMVariableHandler.ts#L23)
 
 Context for variable resolution
 
@@ -22,7 +22,7 @@ Additional context properties
 
 > `optional` **engine**: `unknown`
 
-Defined in: [src/parsers/dom/handlers/DOMVariableHandler.ts:44](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMVariableHandler.ts#L44)
+Defined in: [src/parsers/dom/handlers/DOMVariableHandler.ts:44](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMVariableHandler.ts#L44)
 
 WikiEngine reference
 
@@ -32,7 +32,7 @@ WikiEngine reference
 
 > `optional` **pageContext**: `VariableContext`
 
-Defined in: [src/parsers/dom/handlers/DOMVariableHandler.ts:42](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMVariableHandler.ts#L42)
+Defined in: [src/parsers/dom/handlers/DOMVariableHandler.ts:42](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMVariableHandler.ts#L42)
 
 Page context (nested structure from WikiContext)
 
@@ -42,7 +42,7 @@ Page context (nested structure from WikiContext)
 
 > `optional` **pageName**: `string`
 
-Defined in: [src/parsers/dom/handlers/DOMVariableHandler.ts:25](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMVariableHandler.ts#L25)
+Defined in: [src/parsers/dom/handlers/DOMVariableHandler.ts:25](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMVariableHandler.ts#L25)
 
 Page name
 
@@ -52,7 +52,7 @@ Page name
 
 > `optional` **requestInfo**: `object`
 
-Defined in: [src/parsers/dom/handlers/DOMVariableHandler.ts:35](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMVariableHandler.ts#L35)
+Defined in: [src/parsers/dom/handlers/DOMVariableHandler.ts:35](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMVariableHandler.ts#L35)
 
 Request information
 
@@ -78,7 +78,7 @@ Request information
 
 > `optional` **userContext**: `object`
 
-Defined in: [src/parsers/dom/handlers/DOMVariableHandler.ts:27](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMVariableHandler.ts#L27)
+Defined in: [src/parsers/dom/handlers/DOMVariableHandler.ts:27](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMVariableHandler.ts#L27)
 
 User context information
 

@@ -1,11 +1,11 @@
-# amdWiki Current Document Rendering Pipeline
+# ngdpbase Current Document Rendering Pipeline
 
 **Status**: Production Architecture (as of 2025-10-13)
 **Related**: [WikiDocument-DOM-Architecture.md](./WikiDocument-DOM-Architecture.md)
 
 ## Executive Summary
 
-amdWiki is currently in **transition** from a brittle 7-phase string-based parser to a robust WikiDocument DOM-based architecture. This document describes what's **actually running in production** today.
+ngdpbase is currently in **transition** from a brittle 7-phase string-based parser to a robust WikiDocument DOM-based architecture. This document describes what's **actually running in production** today.
 
 ### Current State
 
@@ -158,9 +158,9 @@ async renderMarkdown(content, pageName, userContext, requestInfo) {
 
 ```json
 {
-  "amdwiki.markup.useAdvancedParser": true,
-  "amdwiki.markup.fallbackToLegacy": true,
-  "amdwiki.markup.logParsingMethod": true
+  "ngdpbase.markup.useAdvancedParser": true,
+  "ngdpbase.markup.fallbackToLegacy": true,
+  "ngdpbase.markup.logParsingMethod": true
 }
 ```
 
@@ -431,10 +431,10 @@ async phaseFilterPipeline(content, context) {
 
 ```json
 {
-  "amdwiki.markup.filters.enabled": true,
-  "amdwiki.markup.filters.security.enabled": true,
-  "amdwiki.markup.filters.spam.enabled": true,
-  "amdwiki.markup.filters.validation.enabled": true
+  "ngdpbase.markup.filters.enabled": true,
+  "ngdpbase.markup.filters.security.enabled": true,
+  "ngdpbase.markup.filters.spam.enabled": true,
+  "ngdpbase.markup.filters.validation.enabled": true
 }
 ```
 
@@ -795,16 +795,16 @@ async phaseDOMParsing(content, context) {
 ```json
 {
   "_comment": "Use MarkupParser (7-phase) vs Legacy (5-step)",
-  "amdwiki.markup.useAdvancedParser": true,
+  "ngdpbase.markup.useAdvancedParser": true,
 
   "_comment": "Fallback to legacy if MarkupParser fails",
-  "amdwiki.markup.fallbackToLegacy": true,
+  "ngdpbase.markup.fallbackToLegacy": true,
 
   "_comment": "Log which parser was used",
-  "amdwiki.markup.logParsingMethod": true,
+  "ngdpbase.markup.logParsingMethod": true,
 
   "_comment": "Run both parsers for performance comparison",
-  "amdwiki.markup.performanceComparison": false
+  "ngdpbase.markup.performanceComparison": false
 }
 ```
 
@@ -812,11 +812,11 @@ async phaseDOMParsing(content, context) {
 
 ```json
 {
-  "amdwiki.markup.handlers.plugin.enabled": true,
-  "amdwiki.markup.handlers.wikitag.enabled": true,
-  "amdwiki.markup.handlers.form.enabled": true,
-  "amdwiki.markup.handlers.attachment.enabled": true,
-  "amdwiki.markup.handlers.linkparser.enabled": true
+  "ngdpbase.markup.handlers.plugin.enabled": true,
+  "ngdpbase.markup.handlers.wikitag.enabled": true,
+  "ngdpbase.markup.handlers.form.enabled": true,
+  "ngdpbase.markup.handlers.attachment.enabled": true,
+  "ngdpbase.markup.handlers.linkparser.enabled": true
 }
 ```
 
@@ -824,10 +824,10 @@ async phaseDOMParsing(content, context) {
 
 ```json
 {
-  "amdwiki.markup.filters.enabled": true,
-  "amdwiki.markup.filters.security.enabled": true,
-  "amdwiki.markup.filters.spam.enabled": true,
-  "amdwiki.markup.filters.validation.enabled": true
+  "ngdpbase.markup.filters.enabled": true,
+  "ngdpbase.markup.filters.security.enabled": true,
+  "ngdpbase.markup.filters.spam.enabled": true,
+  "ngdpbase.markup.filters.validation.enabled": true
 }
 ```
 
@@ -835,12 +835,12 @@ async phaseDOMParsing(content, context) {
 
 ```json
 {
-  "amdwiki.markup.cache.parseResults.enabled": true,
-  "amdwiki.markup.cache.parseResults.ttl": 300,
-  "amdwiki.markup.cache.handlerResults.enabled": true,
-  "amdwiki.markup.cache.handlerResults.ttl": 600,
-  "amdwiki.markup.cache.patterns.enabled": true,
-  "amdwiki.markup.cache.patterns.ttl": 3600
+  "ngdpbase.markup.cache.parseResults.enabled": true,
+  "ngdpbase.markup.cache.parseResults.ttl": 300,
+  "ngdpbase.markup.cache.handlerResults.enabled": true,
+  "ngdpbase.markup.cache.handlerResults.ttl": 600,
+  "ngdpbase.markup.cache.patterns.enabled": true,
+  "ngdpbase.markup.cache.patterns.ttl": 3600
 }
 ```
 
@@ -948,7 +948,7 @@ The **future/modern** architecture is:
 
 ## Conclusion
 
-**Production Reality**: amdWiki currently uses a **7-phase string-based MarkupParser** as the primary rendering engine, with WikiDocument DOM components fully implemented but not yet fully activated (Phase 0 disabled).
+**Production Reality**: ngdpbase currently uses a **7-phase string-based MarkupParser** as the primary rendering engine, with WikiDocument DOM components fully implemented but not yet fully activated (Phase 0 disabled).
 
 **No "Legacy" Rendering** in primary path - the 7-phase system IS the modern parser (relative to the old 5-step direct methods).
 
@@ -959,7 +959,7 @@ The **future/modern** architecture is:
 ## References
 
 - [WikiDocument-DOM-Architecture.md](./WikiDocument-DOM-Architecture.md) - Original migration plan
-- [amdWiki Rendering Pipeline.md](../planning/amdWiki%20Rendering%20Pipeline.md) - Detailed pipeline docs
+- [ngdpbase Rendering Pipeline.md](../planning/ngdpbase%20Rendering%20Pipeline.md) - Detailed pipeline docs
 - [RenderingManager Source](../../src/managers/RenderingManager.js)
 - [MarkupParser Source](../../src/parsers/MarkupParser.js)
 - [WikiDocument Source](../../src/parsers/dom/WikiDocument.js)

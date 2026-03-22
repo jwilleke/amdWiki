@@ -1,12 +1,12 @@
-[**amdWiki API v1.5.0**](../../../../../README.md)
+[**ngdpbase API v1.5.0**](../../../../../README.md)
 
 ***
 
-[amdWiki API](../../../../../README.md) / [src/parsers/handlers/BaseSyntaxHandler](../README.md) / HandlerExecutionError
+[ngdpbase API](../../../../../README.md) / [src/parsers/handlers/BaseSyntaxHandler](../README.md) / HandlerExecutionError
 
 # Class: HandlerExecutionError
 
-Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:738](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L738)
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:738](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L738)
 
 Custom error class for handler execution errors
 
@@ -20,7 +20,7 @@ Custom error class for handler execution errors
 
 > **new HandlerExecutionError**(`message`, `handlerId`, `context`): `HandlerExecutionError`
 
-Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:742](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L742)
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:742](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L742)
 
 #### Parameters
 
@@ -50,7 +50,7 @@ Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:742](https://github.com/j
 
 > `readonly` **context**: [`ErrorContext`](../interfaces/ErrorContext.md)
 
-Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:740](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L740)
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:740](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L740)
 
 ***
 
@@ -58,4 +58,4 @@ Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:740](https://github.com/j
 
 > `readonly` **handlerId**: `string`
 
-Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:739](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L739)
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:739](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L739)

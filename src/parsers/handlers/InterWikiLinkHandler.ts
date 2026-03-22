@@ -183,10 +183,10 @@ class InterWikiLinkHandler extends BaseSyntaxHandler {
 
     // Load from app-default-config.json format
     const sites: Record<string, string | undefined> = {
-      'Wikipedia': configManager.getProperty('amdwiki.interwiki.sites.Wikipedia'),
-      'JSPWiki': configManager.getProperty('amdwiki.interwiki.sites.JSPWiki'),
-      'MeatBall': configManager.getProperty('amdwiki.interwiki.sites.MeatBall'),
-      'C2': configManager.getProperty('amdwiki.interwiki.sites.C2')
+      'Wikipedia': configManager.getProperty('ngdpbase.interwiki.sites.Wikipedia'),
+      'JSPWiki': configManager.getProperty('ngdpbase.interwiki.sites.JSPWiki'),
+      'MeatBall': configManager.getProperty('ngdpbase.interwiki.sites.MeatBall'),
+      'C2': configManager.getProperty('ngdpbase.interwiki.sites.C2')
     };
 
     for (const [siteName, url] of Object.entries(sites)) {
@@ -195,7 +195,7 @@ class InterWikiLinkHandler extends BaseSyntaxHandler {
           url: url,
           description: `${siteName} Wiki`,
           enabled: true,
-          openInNewWindow: configManager.getProperty('amdwiki.interwiki.openInNewWindow', true)
+          openInNewWindow: configManager.getProperty('ngdpbase.interwiki.openInNewWindow', true)
         });
       }
     }

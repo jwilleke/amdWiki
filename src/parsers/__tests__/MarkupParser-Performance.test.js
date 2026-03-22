@@ -33,23 +33,23 @@ class MockAdvancedCacheManager {
 class MockAdvancedConfigurationManager {
   constructor(config = {}) {
     this.config = {
-      'amdwiki.markup.enabled': true,
-      'amdwiki.markup.caching': true,
-      'amdwiki.markup.cacheTTL': 300,
-      'amdwiki.markup.cache.parseResults.enabled': true,
-      'amdwiki.markup.cache.parseResults.ttl': 300,
-      'amdwiki.markup.cache.handlerResults.enabled': true,
-      'amdwiki.markup.cache.handlerResults.ttl': 600,
-      'amdwiki.markup.cache.patterns.enabled': true,
-      'amdwiki.markup.cache.patterns.ttl': 3600,
-      'amdwiki.markup.cache.variables.enabled': true,
-      'amdwiki.markup.cache.variables.ttl': 900,
-      'amdwiki.markup.cache.enableWarmup': true,
-      'amdwiki.markup.cache.metricsEnabled': true,
-      'amdwiki.markup.performance.monitoring': true,
-      'amdwiki.markup.performance.alertThresholds.parseTime': 100,
-      'amdwiki.markup.performance.alertThresholds.cacheHitRatio': 0.6,
-      'amdwiki.markup.performance.alertThresholds.errorRate': 0.05,
+      'ngdpbase.markup.enabled': true,
+      'ngdpbase.markup.caching': true,
+      'ngdpbase.markup.cacheTTL': 300,
+      'ngdpbase.markup.cache.parseResults.enabled': true,
+      'ngdpbase.markup.cache.parseResults.ttl': 300,
+      'ngdpbase.markup.cache.handlerResults.enabled': true,
+      'ngdpbase.markup.cache.handlerResults.ttl': 600,
+      'ngdpbase.markup.cache.patterns.enabled': true,
+      'ngdpbase.markup.cache.patterns.ttl': 3600,
+      'ngdpbase.markup.cache.variables.enabled': true,
+      'ngdpbase.markup.cache.variables.ttl': 900,
+      'ngdpbase.markup.cache.enableWarmup': true,
+      'ngdpbase.markup.cache.metricsEnabled': true,
+      'ngdpbase.markup.performance.monitoring': true,
+      'ngdpbase.markup.performance.alertThresholds.parseTime': 100,
+      'ngdpbase.markup.performance.alertThresholds.cacheHitRatio': 0.6,
+      'ngdpbase.markup.performance.alertThresholds.errorRate': 0.05,
       ...config
     };
   }
@@ -143,8 +143,8 @@ describe('MarkupParser Advanced Caching and Performance', () => {
 
     test('should respect individual cache strategy configuration', async () => {
       const configWithDisabledHandlers = new MockAdvancedConfigurationManager({
-        'amdwiki.markup.cache.handlerResults.enabled': false,
-        'amdwiki.markup.cache.patterns.enabled': false
+        'ngdpbase.markup.cache.handlerResults.enabled': false,
+        'ngdpbase.markup.cache.patterns.enabled': false
       });
       
       const customEngine = new MockAdvancedWikiEngine({
@@ -184,7 +184,7 @@ describe('MarkupParser Advanced Caching and Performance', () => {
 
     test('should disable performance monitoring when configured', async () => {
       const configWithoutMonitoring = new MockAdvancedConfigurationManager({
-        'amdwiki.markup.performance.monitoring': false
+        'ngdpbase.markup.performance.monitoring': false
       });
       
       const customEngine = new MockAdvancedWikiEngine({
@@ -267,7 +267,7 @@ describe('MarkupParser Advanced Caching and Performance', () => {
 
     test('should skip warmup when disabled', async () => {
       const configWithoutWarmup = new MockAdvancedConfigurationManager({
-        'amdwiki.markup.cache.enableWarmup': false
+        'ngdpbase.markup.cache.enableWarmup': false
       });
       
       const customEngine = new MockAdvancedWikiEngine({
@@ -405,10 +405,10 @@ describe('MarkupParser Advanced Caching and Performance', () => {
   describe('Configuration Flexibility', () => {
     test('should work with minimal cache configuration', async () => {
       const minimalConfig = new MockAdvancedConfigurationManager({
-        'amdwiki.markup.cache.parseResults.enabled': true,
-        'amdwiki.markup.cache.handlerResults.enabled': false,
-        'amdwiki.markup.cache.patterns.enabled': false,
-        'amdwiki.markup.cache.variables.enabled': false
+        'ngdpbase.markup.cache.parseResults.enabled': true,
+        'ngdpbase.markup.cache.handlerResults.enabled': false,
+        'ngdpbase.markup.cache.patterns.enabled': false,
+        'ngdpbase.markup.cache.variables.enabled': false
       });
       
       const customEngine = new MockAdvancedWikiEngine({
@@ -431,7 +431,7 @@ describe('MarkupParser Advanced Caching and Performance', () => {
 
     test('should work without any caching', async () => {
       const noCacheConfig = new MockAdvancedConfigurationManager({
-        'amdwiki.markup.caching': false
+        'ngdpbase.markup.caching': false
       });
       
       const customEngine = new MockAdvancedWikiEngine({
@@ -456,8 +456,8 @@ describe('MarkupParser Advanced Caching and Performance', () => {
   describe('Modular Design', () => {
     test('should allow custom cache TTL configuration', async () => {
       const customTTLConfig = new MockAdvancedConfigurationManager({
-        'amdwiki.markup.cache.parseResults.ttl': 1800,
-        'amdwiki.markup.cache.handlerResults.ttl': 3600
+        'ngdpbase.markup.cache.parseResults.ttl': 1800,
+        'ngdpbase.markup.cache.handlerResults.ttl': 3600
       });
       
       const customEngine = new MockAdvancedWikiEngine({
@@ -476,9 +476,9 @@ describe('MarkupParser Advanced Caching and Performance', () => {
 
     test('should support custom performance thresholds', async () => {
       const customThresholds = new MockAdvancedConfigurationManager({
-        'amdwiki.markup.performance.alertThresholds.parseTime': 50,
-        'amdwiki.markup.performance.alertThresholds.cacheHitRatio': 0.9,
-        'amdwiki.markup.performance.alertThresholds.errorRate': 0.01
+        'ngdpbase.markup.performance.alertThresholds.parseTime': 50,
+        'ngdpbase.markup.performance.alertThresholds.cacheHitRatio': 0.9,
+        'ngdpbase.markup.performance.alertThresholds.errorRate': 0.01
       });
       
       const customEngine = new MockAdvancedWikiEngine({
@@ -501,10 +501,10 @@ describe('MarkupParser Advanced Caching and Performance', () => {
     test('should override defaults with custom configuration', async () => {
       // Simulate custom configuration overrides
       const customConfig = new MockAdvancedConfigurationManager({
-        'amdwiki.markup.enabled': true,
-        'amdwiki.markup.cache.parseResults.ttl': 900, // Override default 300
-        'amdwiki.markup.handlerRegistry.maxHandlers': 50, // Override default 100
-        'amdwiki.markup.performance.monitoring': false // Override default true
+        'ngdpbase.markup.enabled': true,
+        'ngdpbase.markup.cache.parseResults.ttl': 900, // Override default 300
+        'ngdpbase.markup.handlerRegistry.maxHandlers': 50, // Override default 100
+        'ngdpbase.markup.performance.monitoring': false // Override default true
       });
       
       const customEngine = new MockAdvancedWikiEngine({

@@ -22,7 +22,7 @@ The SearchPlugin allows embedding search results within wiki content. It support
 | Property | Value |
 | ---------- | ------- |
 | Name | SearchPlugin |
-| Author | amdWiki |
+| Author | ngdpbase |
 | Version | 2.0.0 |
 | JSPWiki Compatible | Yes |
 
@@ -221,13 +221,13 @@ async execute(context, params) {
 
 ## JSPWiki Compatibility
 
-| Feature | JSPWiki | amdWiki | Notes |
+| Feature | JSPWiki | ngdpbase | Notes |
 | --------- | --------- | --------- | ------- |
 | query parameter | Yes | Yes | Same behavior |
 | max parameter | Yes | Yes | Same behavior |
 | Table output | Yes | Yes | Similar format |
-| system-category | No | Yes | amdWiki extension |
-| user-keywords | No | Yes | amdWiki extension |
+| system-category | No | Yes | ngdpbase extension |
+| user-keywords | No | Yes | ngdpbase extension |
 | format parameter | Partial | Yes | Extended options |
 
 ## Error Handling
@@ -256,7 +256,7 @@ async execute(context, params) {
 
 - [Plugin System Architecture](../architecture/Plugin-Architecture.md)
 - [SearchManager](../managers/SearchManager.md)
-- [GitHub Issue #111](https://github.com/jwilleke/amdWiki/issues/111)
+- [GitHub Issue #111](https://github.com/jwilleke/ngdpbase/issues/111)
 
 ## Version History
 

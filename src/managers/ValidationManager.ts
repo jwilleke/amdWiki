@@ -171,7 +171,7 @@ class ValidationManager extends BaseManager {
 
     // Load max keywords
     this.maxUserKeywords = configManager
-      ? (configManager.getProperty('amdwiki.maximum.user-keywords', 5) as number)
+      ? (configManager.getProperty('ngdpbase.maximum.user-keywords', 5) as number)
       : (config.maxUserKeywords as number) || 5;
 
     // Load system categories from configuration
@@ -194,7 +194,7 @@ class ValidationManager extends BaseManager {
 
     try {
       // Get system categories configuration
-      const systemCategoriesConfig = configManager.getProperty('amdwiki.system-category', null) as SystemCategoriesConfig | null;
+      const systemCategoriesConfig = configManager.getProperty('ngdpbase.system-category', null) as SystemCategoriesConfig | null;
 
       if (systemCategoriesConfig && typeof systemCategoriesConfig === 'object') {
         this.systemCategoriesConfig = systemCategoriesConfig;

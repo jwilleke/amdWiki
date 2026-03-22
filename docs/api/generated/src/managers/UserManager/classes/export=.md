@@ -1,12 +1,12 @@
-[**amdWiki API v1.5.0**](../../../../README.md)
+[**ngdpbase API v1.5.0**](../../../../README.md)
 
 ***
 
-[amdWiki API](../../../../README.md) / [src/managers/UserManager](../README.md) / export=
+[ngdpbase API](../../../../README.md) / [src/managers/UserManager](../README.md) / export=
 
 # Class: export=
 
-Defined in: [src/managers/UserManager.ts:157](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/UserManager.ts#L157)
+Defined in: [src/managers/UserManager.ts:157](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/UserManager.ts#L157)
 
 UserManager - Handles user authentication, authorization, and roles
 
@@ -51,7 +51,7 @@ if (user) logger.info('Logged in:', user.username);
 
 > **new export=**(`engine`): `UserManager`
 
-Defined in: [src/managers/UserManager.ts:171](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/UserManager.ts#L171)
+Defined in: [src/managers/UserManager.ts:171](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/UserManager.ts#L171)
 
 Creates a new UserManager instance
 
@@ -77,7 +77,7 @@ The wiki engine instance
 
 > `protected` `optional` **config**: `Record`\<`string`, `unknown`\>
 
-Defined in: [src/managers/BaseManager.ts:61](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L61)
+Defined in: [src/managers/BaseManager.ts:61](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L61)
 
 Configuration passed during initialization
 
@@ -91,7 +91,7 @@ Configuration passed during initialization
 
 > `protected` **engine**: [`WikiEngine`](../../../types/WikiEngine/interfaces/WikiEngine.md)
 
-Defined in: [src/managers/BaseManager.ts:54](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L54)
+Defined in: [src/managers/BaseManager.ts:54](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L54)
 
 Reference to the wiki engine
 
@@ -105,7 +105,7 @@ Reference to the wiki engine
 
 > `protected` **initialized**: `boolean`
 
-Defined in: [src/managers/BaseManager.ts:57](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L57)
+Defined in: [src/managers/BaseManager.ts:57](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L57)
 
 Initialization status flag
 
@@ -119,7 +119,7 @@ Initialization status flag
 
 > **assignRole**(`username`, `roleName`): `Promise`\<`boolean`\>
 
-Defined in: [src/managers/UserManager.ts:1099](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/UserManager.ts#L1099)
+Defined in: [src/managers/UserManager.ts:1099](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/UserManager.ts#L1099)
 
 #### Parameters
 
@@ -141,7 +141,7 @@ Defined in: [src/managers/UserManager.ts:1099](https://github.com/jwilleke/amdWi
 
 > **authenticateUser**(`username`, `password`): `Promise`\<`Omit`\<[`User`](../../../types/User/interfaces/User.md), `"password"`\> & `object` \| `null`\>
 
-Defined in: [src/managers/UserManager.ts:519](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/UserManager.ts#L519)
+Defined in: [src/managers/UserManager.ts:519](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/UserManager.ts#L519)
 
 Authenticate user with username/password
 
@@ -171,7 +171,7 @@ User object if authenticated
 
 > **backup**(): `Promise`\<[`BackupData`](../../BaseManager/interfaces/BackupData.md)\>
 
-Defined in: [src/managers/UserManager.ts:1199](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/UserManager.ts#L1199)
+Defined in: [src/managers/UserManager.ts:1199](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/UserManager.ts#L1199)
 
 Backup manager data
 
@@ -213,7 +213,7 @@ async backup(): Promise<BackupData> {
 
 > **checkDisplayNamePageConflict**(`displayName`, `excludeUsername`): `Promise`\<`boolean`\>
 
-Defined in: [src/managers/UserManager.ts:681](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/UserManager.ts#L681)
+Defined in: [src/managers/UserManager.ts:681](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/UserManager.ts#L681)
 
 Check if a display name conflicts with existing page names or other users
 
@@ -243,7 +243,7 @@ True if conflict exists
 
 > **createDefaultAdmin**(): `Promise`\<`void`\>
 
-Defined in: [src/managers/UserManager.ts:380](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/UserManager.ts#L380)
+Defined in: [src/managers/UserManager.ts:380](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/UserManager.ts#L380)
 
 Create default admin user
 
@@ -257,7 +257,7 @@ Create default admin user
 
 > **createOrUpdateExternalUser**(`externalUserData`): `Promise`\<`Omit`\<[`User`](../../../types/User/interfaces/User.md), `"password"`\>\>
 
-Defined in: [src/managers/UserManager.ts:468](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/UserManager.ts#L468)
+Defined in: [src/managers/UserManager.ts:468](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/UserManager.ts#L468)
 
 Create or update external user from OAuth/JWT token
 
@@ -281,7 +281,7 @@ User object
 
 > **createRole**(`roleData`): `never`
 
-Defined in: [src/managers/UserManager.ts:995](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/UserManager.ts#L995)
+Defined in: [src/managers/UserManager.ts:995](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/UserManager.ts#L995)
 
 #### Parameters
 
@@ -299,7 +299,7 @@ Defined in: [src/managers/UserManager.ts:995](https://github.com/jwilleke/amdWik
 
 > **createSession**(`username`, `additionalData`): `Promise`\<`string`\>
 
-Defined in: [src/managers/UserManager.ts:1151](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/UserManager.ts#L1151)
+Defined in: [src/managers/UserManager.ts:1151](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/UserManager.ts#L1151)
 
 #### Parameters
 
@@ -321,7 +321,7 @@ Defined in: [src/managers/UserManager.ts:1151](https://github.com/jwilleke/amdWi
 
 > **createUser**(`userData`): `Promise`\<`Omit`\<[`User`](../../../types/User/interfaces/User.md), `"password"`\>\>
 
-Defined in: [src/managers/UserManager.ts:773](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/UserManager.ts#L773)
+Defined in: [src/managers/UserManager.ts:773](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/UserManager.ts#L773)
 
 Create new user
 
@@ -345,7 +345,7 @@ Created user (without password)
 
 > **createUserPage**(`user`): `Promise`\<`boolean`\>
 
-Defined in: [src/managers/UserManager.ts:714](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/UserManager.ts#L714)
+Defined in: [src/managers/UserManager.ts:714](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/UserManager.ts#L714)
 
 Create a user page for a new user
 
@@ -369,7 +369,7 @@ True if user page was created successfully
 
 > **deleteRole**(`roleName`): `never`
 
-Defined in: [src/managers/UserManager.ts:1001](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/UserManager.ts#L1001)
+Defined in: [src/managers/UserManager.ts:1001](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/UserManager.ts#L1001)
 
 #### Parameters
 
@@ -387,7 +387,7 @@ Defined in: [src/managers/UserManager.ts:1001](https://github.com/jwilleke/amdWi
 
 > **deleteSession**(`sessionId`): `Promise`\<`void`\>
 
-Defined in: [src/managers/UserManager.ts:1178](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/UserManager.ts#L1178)
+Defined in: [src/managers/UserManager.ts:1178](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/UserManager.ts#L1178)
 
 #### Parameters
 
@@ -405,7 +405,7 @@ Defined in: [src/managers/UserManager.ts:1178](https://github.com/jwilleke/amdWi
 
 > **deleteUser**(`username`): `Promise`\<`boolean`\>
 
-Defined in: [src/managers/UserManager.ts:931](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/UserManager.ts#L931)
+Defined in: [src/managers/UserManager.ts:931](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/UserManager.ts#L931)
 
 Delete user
 
@@ -425,7 +425,7 @@ Delete user
 
 > **deleteUserSessions**(`username`): `Promise`\<`void`\>
 
-Defined in: [src/managers/UserManager.ts:1185](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/UserManager.ts#L1185)
+Defined in: [src/managers/UserManager.ts:1185](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/UserManager.ts#L1185)
 
 #### Parameters
 
@@ -443,7 +443,7 @@ Defined in: [src/managers/UserManager.ts:1185](https://github.com/jwilleke/amdWi
 
 > **ensureAuthenticated**(`req`, `res`, `next`): `void`
 
-Defined in: [src/managers/UserManager.ts:1040](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/UserManager.ts#L1040)
+Defined in: [src/managers/UserManager.ts:1040](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/UserManager.ts#L1040)
 
 #### Parameters
 
@@ -469,7 +469,7 @@ Defined in: [src/managers/UserManager.ts:1040](https://github.com/jwilleke/amdWi
 
 > **getAnonymousUser**(): `UserContext`
 
-Defined in: [src/managers/UserManager.ts:1069](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/UserManager.ts#L1069)
+Defined in: [src/managers/UserManager.ts:1069](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/UserManager.ts#L1069)
 
 #### Returns
 
@@ -481,7 +481,7 @@ Defined in: [src/managers/UserManager.ts:1069](https://github.com/jwilleke/amdWi
 
 > **getAssertedUser**(): `UserContext`
 
-Defined in: [src/managers/UserManager.ts:1078](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/UserManager.ts#L1078)
+Defined in: [src/managers/UserManager.ts:1078](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/UserManager.ts#L1078)
 
 #### Returns
 
@@ -493,7 +493,7 @@ Defined in: [src/managers/UserManager.ts:1078](https://github.com/jwilleke/amdWi
 
 > **getCurrentUser**(`req`): `Promise`\<`UserContext`\>
 
-Defined in: [src/managers/UserManager.ts:1011](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/UserManager.ts#L1011)
+Defined in: [src/managers/UserManager.ts:1011](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/UserManager.ts#L1011)
 
 #### Parameters
 
@@ -511,7 +511,7 @@ Defined in: [src/managers/UserManager.ts:1011](https://github.com/jwilleke/amdWi
 
 > **getCurrentUserProvider**(): [`UserProvider`](../../../types/Provider/interfaces/UserProvider.md) \| `null`
 
-Defined in: [src/managers/UserManager.ts:312](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/UserManager.ts#L312)
+Defined in: [src/managers/UserManager.ts:312](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/UserManager.ts#L312)
 
 Get the current user provider instance
 
@@ -527,7 +527,7 @@ The active provider
 
 > **getEngine**(): [`WikiEngine`](../../../types/WikiEngine/interfaces/WikiEngine.md)
 
-Defined in: [src/managers/BaseManager.ts:125](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L125)
+Defined in: [src/managers/BaseManager.ts:125](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L125)
 
 Get the wiki engine instance
 
@@ -553,7 +553,7 @@ const config = this.getEngine().getConfig();
 
 > **getJobTitleFromRoles**(`roles`): `string`
 
-Defined in: [src/managers/UserManager.ts:1144](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/UserManager.ts#L1144)
+Defined in: [src/managers/UserManager.ts:1144](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/UserManager.ts#L1144)
 
 #### Parameters
 
@@ -571,7 +571,7 @@ Defined in: [src/managers/UserManager.ts:1144](https://github.com/jwilleke/amdWi
 
 > **getPermissions**(): `Map`\<`string`, `string`\>
 
-Defined in: [src/managers/UserManager.ts:987](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/UserManager.ts#L987)
+Defined in: [src/managers/UserManager.ts:987](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/UserManager.ts#L987)
 
 #### Returns
 
@@ -583,7 +583,7 @@ Defined in: [src/managers/UserManager.ts:987](https://github.com/jwilleke/amdWik
 
 > **getRole**(`roleName`): [`Role`](../../../types/User/interfaces/Role.md) \| `null`
 
-Defined in: [src/managers/UserManager.ts:991](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/UserManager.ts#L991)
+Defined in: [src/managers/UserManager.ts:991](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/UserManager.ts#L991)
 
 #### Parameters
 
@@ -601,7 +601,7 @@ Defined in: [src/managers/UserManager.ts:991](https://github.com/jwilleke/amdWik
 
 > **getRoleCompetencies**(`role`): `string`[]
 
-Defined in: [src/managers/UserManager.ts:1135](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/UserManager.ts#L1135)
+Defined in: [src/managers/UserManager.ts:1135](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/UserManager.ts#L1135)
 
 #### Parameters
 
@@ -619,7 +619,7 @@ Defined in: [src/managers/UserManager.ts:1135](https://github.com/jwilleke/amdWi
 
 > **getRoles**(): [`Role`](../../../types/User/interfaces/Role.md)[]
 
-Defined in: [src/managers/UserManager.ts:983](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/UserManager.ts#L983)
+Defined in: [src/managers/UserManager.ts:983](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/UserManager.ts#L983)
 
 #### Returns
 
@@ -631,7 +631,7 @@ Defined in: [src/managers/UserManager.ts:983](https://github.com/jwilleke/amdWik
 
 > **getSession**(`sessionId`): `Promise`\<[`UserSession`](../../../types/User/interfaces/UserSession.md) \| `null`\>
 
-Defined in: [src/managers/UserManager.ts:1171](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/UserManager.ts#L1171)
+Defined in: [src/managers/UserManager.ts:1171](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/UserManager.ts#L1171)
 
 #### Parameters
 
@@ -649,7 +649,7 @@ Defined in: [src/managers/UserManager.ts:1171](https://github.com/jwilleke/amdWi
 
 > **getUser**(`username`): `Promise`\<`Omit`\<[`User`](../../../types/User/interfaces/User.md), `"password"`\> \| `undefined`\>
 
-Defined in: [src/managers/UserManager.ts:971](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/UserManager.ts#L971)
+Defined in: [src/managers/UserManager.ts:971](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/UserManager.ts#L971)
 
 #### Parameters
 
@@ -667,7 +667,7 @@ Defined in: [src/managers/UserManager.ts:971](https://github.com/jwilleke/amdWik
 
 > **getUserPermissions**(`username`): `Promise`\<`string`[]\>
 
-Defined in: [src/managers/UserManager.ts:606](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/UserManager.ts#L606)
+Defined in: [src/managers/UserManager.ts:606](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/UserManager.ts#L606)
 
 Get user's effective permissions from PolicyManager
 
@@ -691,7 +691,7 @@ Array of permission strings
 
 > **getUsers**(): `Promise`\<`Omit`\<[`User`](../../../types/User/interfaces/User.md), `"password"`\>[]\>
 
-Defined in: [src/managers/UserManager.ts:960](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/UserManager.ts#L960)
+Defined in: [src/managers/UserManager.ts:960](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/UserManager.ts#L960)
 
 #### Returns
 
@@ -703,7 +703,7 @@ Defined in: [src/managers/UserManager.ts:960](https://github.com/jwilleke/amdWik
 
 > **hashPassword**(`password`): `string`
 
-Defined in: [src/managers/UserManager.ts:338](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/UserManager.ts#L338)
+Defined in: [src/managers/UserManager.ts:338](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/UserManager.ts#L338)
 
 Simple password hashing using crypto
 
@@ -727,7 +727,7 @@ Hashed password
 
 > **hasPermission**(`username`, `action`): `Promise`\<`boolean`\>
 
-Defined in: [src/managers/UserManager.ts:554](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/UserManager.ts#L554)
+Defined in: [src/managers/UserManager.ts:554](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/UserManager.ts#L554)
 
 Check if user has permission using policy-based access control
 
@@ -757,7 +757,7 @@ True if user has permission via policies
 
 > **hasRole**(`username`, `roleName`): `Promise`\<`boolean`\>
 
-Defined in: [src/managers/UserManager.ts:1088](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/UserManager.ts#L1088)
+Defined in: [src/managers/UserManager.ts:1088](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/UserManager.ts#L1088)
 
 #### Parameters
 
@@ -779,7 +779,7 @@ Defined in: [src/managers/UserManager.ts:1088](https://github.com/jwilleke/amdWi
 
 > **initialize**(`config?`): `Promise`\<`void`\>
 
-Defined in: [src/managers/UserManager.ts:190](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/UserManager.ts#L190)
+Defined in: [src/managers/UserManager.ts:190](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/UserManager.ts#L190)
 
 Initialize the UserManager and load the configured provider
 
@@ -821,7 +821,7 @@ await userManager.initialize();
 
 > **isAdminUsingDefaultPassword**(): `Promise`\<`boolean`\>
 
-Defined in: [src/managers/UserManager.ts:360](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/UserManager.ts#L360)
+Defined in: [src/managers/UserManager.ts:360](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/UserManager.ts#L360)
 
 Check if admin user still has the default password
 
@@ -837,7 +837,7 @@ True if admin has default password
 
 > **isInitialized**(): `boolean`
 
-Defined in: [src/managers/BaseManager.ts:113](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L113)
+Defined in: [src/managers/BaseManager.ts:113](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L113)
 
 Check if manager has been initialized
 
@@ -865,7 +865,7 @@ if (manager.isInitialized()) {
 
 > **removeRole**(`username`, `roleName`): `Promise`\<`boolean`\>
 
-Defined in: [src/managers/UserManager.ts:1118](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/UserManager.ts#L1118)
+Defined in: [src/managers/UserManager.ts:1118](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/UserManager.ts#L1118)
 
 #### Parameters
 
@@ -887,7 +887,7 @@ Defined in: [src/managers/UserManager.ts:1118](https://github.com/jwilleke/amdWi
 
 > **requirePermissions**(`requiredPermissions`): (`req`, `res`, `next`) => `void`
 
-Defined in: [src/managers/UserManager.ts:1051](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/UserManager.ts#L1051)
+Defined in: [src/managers/UserManager.ts:1051](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/UserManager.ts#L1051)
 
 #### Parameters
 
@@ -923,7 +923,7 @@ Defined in: [src/managers/UserManager.ts:1051](https://github.com/jwilleke/amdWi
 
 > **restore**(`backupData`): `Promise`\<`void`\>
 
-Defined in: [src/managers/UserManager.ts:1229](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/UserManager.ts#L1229)
+Defined in: [src/managers/UserManager.ts:1229](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/UserManager.ts#L1229)
 
 Restore manager data from backup
 
@@ -968,7 +968,7 @@ async restore(backupData: BackupData): Promise<void> {
 
 > **shutdown**(): `Promise`\<`void`\>
 
-Defined in: [src/managers/BaseManager.ts:143](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L143)
+Defined in: [src/managers/BaseManager.ts:143](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L143)
 
 Shutdown the manager and cleanup resources
 
@@ -999,7 +999,7 @@ async shutdown(): Promise<void> {
 
 > **updateRolePermissions**(`_roleName`, `_updates`): `never`
 
-Defined in: [src/managers/UserManager.ts:1006](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/UserManager.ts#L1006)
+Defined in: [src/managers/UserManager.ts:1006](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/UserManager.ts#L1006)
 
 #### Parameters
 
@@ -1021,7 +1021,7 @@ Defined in: [src/managers/UserManager.ts:1006](https://github.com/jwilleke/amdWi
 
 > **updateUser**(`username`, `updates`): `Promise`\<[`User`](../../../types/User/interfaces/User.md)\>
 
-Defined in: [src/managers/UserManager.ts:872](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/UserManager.ts#L872)
+Defined in: [src/managers/UserManager.ts:872](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/UserManager.ts#L872)
 
 Update user
 
@@ -1045,7 +1045,7 @@ Update user
 
 > **verifyPassword**(`password`, `hash`): `boolean`
 
-Defined in: [src/managers/UserManager.ts:352](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/UserManager.ts#L352)
+Defined in: [src/managers/UserManager.ts:352](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/UserManager.ts#L352)
 
 Verify password against hash
 

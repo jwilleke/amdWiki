@@ -1,12 +1,12 @@
-[**amdWiki API v1.5.0**](../../../../../README.md)
+[**ngdpbase API v1.5.0**](../../../../../README.md)
 
 ***
 
-[amdWiki API](../../../../../README.md) / [src/parsers/handlers/HandlerRegistry](../README.md) / HandlerRegistry
+[ngdpbase API](../../../../../README.md) / [src/parsers/handlers/HandlerRegistry](../README.md) / HandlerRegistry
 
 # Class: HandlerRegistry
 
-Defined in: [src/parsers/handlers/HandlerRegistry.ts:111](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/HandlerRegistry.ts#L111)
+Defined in: [src/parsers/handlers/HandlerRegistry.ts:111](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/HandlerRegistry.ts#L111)
 
 HandlerRegistry - Advanced handler registration and management system
 
@@ -16,7 +16,7 @@ HandlerRegistry - Advanced handler registration and management system
 
 > **new HandlerRegistry**(`engine`): `HandlerRegistry`
 
-Defined in: [src/parsers/handlers/HandlerRegistry.ts:120](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/HandlerRegistry.ts#L120)
+Defined in: [src/parsers/handlers/HandlerRegistry.ts:120](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/HandlerRegistry.ts#L120)
 
 #### Parameters
 
@@ -34,7 +34,7 @@ Defined in: [src/parsers/handlers/HandlerRegistry.ts:120](https://github.com/jwi
 
 > **clearAll**(): `Promise`\<`void`\>
 
-Defined in: [src/parsers/handlers/HandlerRegistry.ts:623](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/HandlerRegistry.ts#L623)
+Defined in: [src/parsers/handlers/HandlerRegistry.ts:623](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/HandlerRegistry.ts#L623)
 
 Clear all handlers
 
@@ -48,7 +48,7 @@ Clear all handlers
 
 > **disableHandler**(`handlerId`): `boolean`
 
-Defined in: [src/parsers/handlers/HandlerRegistry.ts:484](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/HandlerRegistry.ts#L484)
+Defined in: [src/parsers/handlers/HandlerRegistry.ts:484](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/HandlerRegistry.ts#L484)
 
 Disable handler by ID
 
@@ -72,7 +72,7 @@ True if successful
 
 > **enableHandler**(`handlerId`): `boolean`
 
-Defined in: [src/parsers/handlers/HandlerRegistry.ts:469](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/HandlerRegistry.ts#L469)
+Defined in: [src/parsers/handlers/HandlerRegistry.ts:469](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/HandlerRegistry.ts#L469)
 
 Enable handler by ID
 
@@ -96,7 +96,7 @@ True if successful
 
 > **exportState**(): [`ExportedRegistryState`](../interfaces/ExportedRegistryState.md)
 
-Defined in: [src/parsers/handlers/HandlerRegistry.ts:647](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/HandlerRegistry.ts#L647)
+Defined in: [src/parsers/handlers/HandlerRegistry.ts:647](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/HandlerRegistry.ts#L647)
 
 Export registry state for persistence
 
@@ -112,7 +112,7 @@ Serializable registry state
 
 > **getHandler**(`handlerId`): [`default`](../../BaseSyntaxHandler/classes/default.md) \| `null`
 
-Defined in: [src/parsers/handlers/HandlerRegistry.ts:428](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/HandlerRegistry.ts#L428)
+Defined in: [src/parsers/handlers/HandlerRegistry.ts:428](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/HandlerRegistry.ts#L428)
 
 Get handler by ID
 
@@ -136,7 +136,7 @@ Handler or null if not found
 
 > **getHandlersByPattern**(`pattern`): [`default`](../../BaseSyntaxHandler/classes/default.md)[]
 
-Defined in: [src/parsers/handlers/HandlerRegistry.ts:451](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/HandlerRegistry.ts#L451)
+Defined in: [src/parsers/handlers/HandlerRegistry.ts:451](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/HandlerRegistry.ts#L451)
 
 Get handlers by pattern
 
@@ -160,7 +160,7 @@ Matching handlers
 
 > **getHandlersByPriority**(`enabledOnly`): [`default`](../../BaseSyntaxHandler/classes/default.md)[]
 
-Defined in: [src/parsers/handlers/HandlerRegistry.ts:437](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/HandlerRegistry.ts#L437)
+Defined in: [src/parsers/handlers/HandlerRegistry.ts:437](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/HandlerRegistry.ts#L437)
 
 Get all handlers sorted by priority
 
@@ -184,7 +184,7 @@ Handlers sorted by priority
 
 > **getInfo**(): [`RegistryInfo`](../interfaces/RegistryInfo.md)
 
-Defined in: [src/parsers/handlers/HandlerRegistry.ts:660](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/HandlerRegistry.ts#L660)
+Defined in: [src/parsers/handlers/HandlerRegistry.ts:660](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/HandlerRegistry.ts#L660)
 
 Get registry information
 
@@ -200,7 +200,7 @@ Registry information
 
 > **getStats**(): [`ExtendedRegistryStats`](../interfaces/ExtendedRegistryStats.md)
 
-Defined in: [src/parsers/handlers/HandlerRegistry.ts:498](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/HandlerRegistry.ts#L498)
+Defined in: [src/parsers/handlers/HandlerRegistry.ts:498](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/HandlerRegistry.ts#L498)
 
 Get registry statistics
 
@@ -216,7 +216,7 @@ Registry statistics
 
 > **registerHandler**(`handler`, `options`): `Promise`\<`boolean`\>
 
-Defined in: [src/parsers/handlers/HandlerRegistry.ts:153](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/HandlerRegistry.ts#L153)
+Defined in: [src/parsers/handlers/HandlerRegistry.ts:153](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/HandlerRegistry.ts#L153)
 
 Register a syntax handler with full validation and conflict detection
 
@@ -246,7 +246,7 @@ True if registration successful
 
 > **resetStats**(): `void`
 
-Defined in: [src/parsers/handlers/HandlerRegistry.ts:522](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/HandlerRegistry.ts#L522)
+Defined in: [src/parsers/handlers/HandlerRegistry.ts:522](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/HandlerRegistry.ts#L522)
 
 Reset all handler statistics
 
@@ -260,7 +260,7 @@ Reset all handler statistics
 
 > **resolveExecutionOrder**(): [`default`](../../BaseSyntaxHandler/classes/default.md)[]
 
-Defined in: [src/parsers/handlers/HandlerRegistry.ts:542](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/HandlerRegistry.ts#L542)
+Defined in: [src/parsers/handlers/HandlerRegistry.ts:542](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/HandlerRegistry.ts#L542)
 
 Resolve handler execution order considering dependencies
 
@@ -276,7 +276,7 @@ Handlers in dependency-resolved order
 
 > **unregisterHandler**(`handlerId`): `Promise`\<`boolean`\>
 
-Defined in: [src/parsers/handlers/HandlerRegistry.ts:225](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/HandlerRegistry.ts#L225)
+Defined in: [src/parsers/handlers/HandlerRegistry.ts:225](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/HandlerRegistry.ts#L225)
 
 Unregister a syntax handler
 
@@ -300,7 +300,7 @@ True if unregistration successful
 
 > **validateDependencies**(): [`DependencyValidationError`](../interfaces/DependencyValidationError.md)[]
 
-Defined in: [src/parsers/handlers/HandlerRegistry.ts:597](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/HandlerRegistry.ts#L597)
+Defined in: [src/parsers/handlers/HandlerRegistry.ts:597](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/HandlerRegistry.ts#L597)
 
 Validate all handler dependencies
 

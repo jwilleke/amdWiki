@@ -24,7 +24,7 @@ Sharp thumbnails are maintained in the configured data directory.
 - **Full-text search** — multi-token AND search across all metadata fields
 - **Private-page awareness** — items linked to private pages hidden from non-owners
 - **MediaPlugin integration** — `[{MediaPlugin}]` wiki plugin embeds counts, lists, and thumbnail albums in wiki pages
-- **Opt-in** — disabled by default (`amdwiki.media.enabled = false`)
+- **Opt-in** — disabled by default (`ngdpbase.media.enabled = false`)
 - **Background rescan** — configurable periodic timer
 
 ## Quick Example
@@ -86,34 +86,34 @@ const results = await mediaManager.search('birthday 2023', wikiContext);
 | `GET` | `/admin/media` | Admin: stats + rescan |
 | `POST` | `/admin/media/rescan` | Trigger full rescan (admin only) |
 
-All routes return **503** when `amdwiki.media.enabled = false`.
+All routes return **503** when `ngdpbase.media.enabled = false`.
 
 ## Configuration
 
 ```json
 {
-  "amdwiki.media.enabled": false,
-  "amdwiki.media.folders": [],
-  "amdwiki.media.maxdepth": 5,
-  "amdwiki.media.scaninterval": 3600000,
-  "amdwiki.media.ignoredirs": [".dtrash", ".ts"],
-  "amdwiki.media.extensions": [],
-  "amdwiki.media.index.file": "",
-  "amdwiki.media.thumbnail.dir": "",
-  "amdwiki.media.thumbnail.sizes": "300x300,150x150",
-  "amdwiki.media.metadata.priority": ["EXIF", "IPTC", "XMP"]
+  "ngdpbase.media.enabled": false,
+  "ngdpbase.media.folders": [],
+  "ngdpbase.media.maxdepth": 5,
+  "ngdpbase.media.scaninterval": 3600000,
+  "ngdpbase.media.ignoredirs": [".dtrash", ".ts"],
+  "ngdpbase.media.extensions": [],
+  "ngdpbase.media.index.file": "",
+  "ngdpbase.media.thumbnail.dir": "",
+  "ngdpbase.media.thumbnail.sizes": "300x300,150x150",
+  "ngdpbase.media.metadata.priority": ["EXIF", "IPTC", "XMP"]
 }
 ```
 
-Leave `amdwiki.media.extensions` empty (or omit it) to use the built-in default extension list. Provide a non-empty array to override it entirely.
+Leave `ngdpbase.media.extensions` empty (or omit it) to use the built-in default extension list. Provide a non-empty array to override it entirely.
 
 ## Excluding Files and Directories
 
 Two mechanisms are available to prevent specific files or folders from being indexed:
 
-### `.amdwikiignore` pattern file
+### `.ngdpbaseignore` pattern file
 
-Place a `.amdwikiignore` file in any media directory. Patterns follow gitignore syntax — blank lines and `#` comments are ignored, `*` is a wildcard, and a trailing `/` restricts the pattern to directories only. Patterns apply to files and subdirectories within the same directory.
+Place a `.ngdpbaseignore` file in any media directory. Patterns follow gitignore syntax — blank lines and `#` comments are ignored, `*` is a wildcard, and a trailing `/` restricts the pattern to directories only. Patterns apply to files and subdirectories within the same directory.
 
 ```
 # skip all Windows Media Video files
@@ -126,9 +126,9 @@ outtakes/
 vacation-embarrassing.jpg
 ```
 
-### `amdwikiignore` EXIF keyword
+### `ngdpbaseignore` EXIF keyword
 
-For image files that support EXIF/XMP metadata, add the keyword `amdwikiignore` using any photo management tool (Lightroom, Capture One, exiftool, etc.). On the next scan the file is excluded from the index and evicted if it was previously indexed. This mechanism requires no filesystem changes and travels with the file if it is moved between indexed folders.
+For image files that support EXIF/XMP metadata, add the keyword `ngdpbaseignore` using any photo management tool (Lightroom, Capture One, exiftool, etc.). On the next scan the file is excluded from the index and evicted if it was previously indexed. This mechanism requires no filesystem changes and travels with the file if it is moved between indexed folders.
 
 ## Provider
 

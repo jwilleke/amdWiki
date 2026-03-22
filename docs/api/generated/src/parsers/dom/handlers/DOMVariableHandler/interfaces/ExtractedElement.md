@@ -1,12 +1,12 @@
-[**amdWiki API v1.5.0**](../../../../../../README.md)
+[**ngdpbase API v1.5.0**](../../../../../../README.md)
 
 ***
 
-[amdWiki API](../../../../../../README.md) / [src/parsers/dom/handlers/DOMVariableHandler](../README.md) / ExtractedElement
+[ngdpbase API](../../../../../../README.md) / [src/parsers/dom/handlers/DOMVariableHandler](../README.md) / ExtractedElement
 
 # Interface: ExtractedElement
 
-Defined in: [src/parsers/dom/handlers/DOMVariableHandler.ts:77](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMVariableHandler.ts#L77)
+Defined in: [src/parsers/dom/handlers/DOMVariableHandler.ts:77](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMVariableHandler.ts#L77)
 
 Extracted element from JSPWiki syntax extraction
 
@@ -22,7 +22,7 @@ Additional properties
 
 > `optional` **endIndex**: `number`
 
-Defined in: [src/parsers/dom/handlers/DOMVariableHandler.ts:89](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMVariableHandler.ts#L89)
+Defined in: [src/parsers/dom/handlers/DOMVariableHandler.ts:89](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMVariableHandler.ts#L89)
 
 End index in content
 
@@ -32,7 +32,7 @@ End index in content
 
 > **id**: `number`
 
-Defined in: [src/parsers/dom/handlers/DOMVariableHandler.ts:83](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMVariableHandler.ts#L83)
+Defined in: [src/parsers/dom/handlers/DOMVariableHandler.ts:83](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMVariableHandler.ts#L83)
 
 Unique ID for tracking
 
@@ -42,7 +42,7 @@ Unique ID for tracking
 
 > `optional` **originalText**: `string`
 
-Defined in: [src/parsers/dom/handlers/DOMVariableHandler.ts:85](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMVariableHandler.ts#L85)
+Defined in: [src/parsers/dom/handlers/DOMVariableHandler.ts:85](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMVariableHandler.ts#L85)
 
 Original text
 
@@ -52,7 +52,7 @@ Original text
 
 > `optional` **startIndex**: `number`
 
-Defined in: [src/parsers/dom/handlers/DOMVariableHandler.ts:87](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMVariableHandler.ts#L87)
+Defined in: [src/parsers/dom/handlers/DOMVariableHandler.ts:87](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMVariableHandler.ts#L87)
 
 Start index in content
 
@@ -62,7 +62,7 @@ Start index in content
 
 > **type**: `string`
 
-Defined in: [src/parsers/dom/handlers/DOMVariableHandler.ts:79](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMVariableHandler.ts#L79)
+Defined in: [src/parsers/dom/handlers/DOMVariableHandler.ts:79](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMVariableHandler.ts#L79)
 
 Element type
 
@@ -72,6 +72,6 @@ Element type
 
 > **varName**: `string`
 
-Defined in: [src/parsers/dom/handlers/DOMVariableHandler.ts:81](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMVariableHandler.ts#L81)
+Defined in: [src/parsers/dom/handlers/DOMVariableHandler.ts:81](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMVariableHandler.ts#L81)
 
 Variable name (may include $ prefix)

@@ -9,9 +9,9 @@ Backup manager runs periodically and creates full backups of all files.
 Explore performing abstraction from existing code to FileSystemProvider for what we are doing now.
 
 We would use something like
-wikiContext.getEngine().getManager( PageManager.class ).getCurrentPageProvider(); would return the "amdwiki.pageProvider" we are using currently.
+wikiContext.getEngine().getManager( PageManager.class ).getCurrentPageProvider(); would return the "ngdpbase.pageProvider" we are using currently.
 
-All components for pages and page data should make all calls for retrieval and writes to the "amdwiki.pageProvider": "FileSystemProvider"
+All components for pages and page data should make all calls for retrieval and writes to the "ngdpbase.pageProvider": "FileSystemProvider"
 
 This would be in preparation to moving to different pageProviders in the future.
 
@@ -40,13 +40,13 @@ Leave FileSystemProvider as the stable default:
 ```json
 {
   "_comment_page_storage": "Page storage configuration (ALL LOWERCASE)",
-  "amdwiki.page.enabled": true,
-  "amdwiki.page.provider.default": "filesystemprovider",
-  "amdwiki.page.provider": "filesystemprovider",
-  "amdwiki.page.provider.filesystem.storagedir": "./pages",
-  "amdwiki.page.provider.filesystem.requiredpagesdir": "./required-pages",
-  "amdwiki.page.provider.filesystem.encoding": "utf-8",
-  "amdwiki.page.provider.filesystem.autosave": true
+  "ngdpbase.page.enabled": true,
+  "ngdpbase.page.provider.default": "filesystemprovider",
+  "ngdpbase.page.provider": "filesystemprovider",
+  "ngdpbase.page.provider.filesystem.storagedir": "./pages",
+  "ngdpbase.page.provider.filesystem.requiredpagesdir": "./required-pages",
+  "ngdpbase.page.provider.filesystem.encoding": "utf-8",
+  "ngdpbase.page.provider.filesystem.autosave": true
 }
 ```
 
@@ -57,20 +57,20 @@ To enable versioning, add to your custom config:
 ```json
 {
   "_comment_versioning": "Enable page versioning by switching provider",
-  "amdwiki.page.provider": "versioningfileprovider",
+  "ngdpbase.page.provider": "versioningfileprovider",
 
   "_comment_versioning_storage": "Versioning storage configuration (ALL LOWERCASE)",
-  "amdwiki.page.provider.versioning.storagedir": "./pages",
-  "amdwiki.page.provider.versioning.requiredpagesdir": "./required-pages",
-  "amdwiki.page.provider.versioning.indexfile": "./data/page-index.json",
-  "amdwiki.page.provider.versioning.encoding": "utf-8",
-  "amdwiki.page.provider.versioning.autosave": true,
+  "ngdpbase.page.provider.versioning.storagedir": "./pages",
+  "ngdpbase.page.provider.versioning.requiredpagesdir": "./required-pages",
+  "ngdpbase.page.provider.versioning.indexfile": "./data/page-index.json",
+  "ngdpbase.page.provider.versioning.encoding": "utf-8",
+  "ngdpbase.page.provider.versioning.autosave": true,
 
   "_comment_versioning_settings": "Version retention and optimization",
-  "amdwiki.page.provider.versioning.maxversions": 50,
-  "amdwiki.page.provider.versioning.retentiondays": 365,
-  "amdwiki.page.provider.versioning.compression": "gzip",
-  "amdwiki.page.provider.versioning.deltastorage": true
+  "ngdpbase.page.provider.versioning.maxversions": 50,
+  "ngdpbase.page.provider.versioning.retentiondays": 365,
+  "ngdpbase.page.provider.versioning.compression": "gzip",
+  "ngdpbase.page.provider.versioning.deltastorage": true
 }
 ```
 
@@ -80,9 +80,9 @@ For testing versioning in development:
 
 ```json
 {
-  "amdwiki.page.provider": "versioningfileprovider",
-  "amdwiki.page.provider.versioning.maxversions": 10,
-  "amdwiki.page.provider.versioning.compression": "none"
+  "ngdpbase.page.provider": "versioningfileprovider",
+  "ngdpbase.page.provider.versioning.maxversions": 10,
+  "ngdpbase.page.provider.versioning.compression": "none"
 }
 ```
 

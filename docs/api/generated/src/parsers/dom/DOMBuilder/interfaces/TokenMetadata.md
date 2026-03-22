@@ -1,12 +1,12 @@
-[**amdWiki API v1.5.0**](../../../../../README.md)
+[**ngdpbase API v1.5.0**](../../../../../README.md)
 
 ***
 
-[amdWiki API](../../../../../README.md) / [src/parsers/dom/DOMBuilder](../README.md) / TokenMetadata
+[ngdpbase API](../../../../../README.md) / [src/parsers/dom/DOMBuilder](../README.md) / TokenMetadata
 
 # Interface: TokenMetadata
 
-Defined in: [src/parsers/dom/DOMBuilder.ts:63](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/DOMBuilder.ts#L63)
+Defined in: [src/parsers/dom/DOMBuilder.ts:63](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/DOMBuilder.ts#L63)
 
 Token metadata interface
 
@@ -22,7 +22,7 @@ Additional metadata properties
 
 > `optional` **level**: `number`
 
-Defined in: [src/parsers/dom/DOMBuilder.ts:65](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/DOMBuilder.ts#L65)
+Defined in: [src/parsers/dom/DOMBuilder.ts:65](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/DOMBuilder.ts#L65)
 
 Heading level (for headings)
 
@@ -32,7 +32,7 @@ Heading level (for headings)
 
 > `optional` **link**: `string`
 
-Defined in: [src/parsers/dom/DOMBuilder.ts:69](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/DOMBuilder.ts#L69)
+Defined in: [src/parsers/dom/DOMBuilder.ts:69](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/DOMBuilder.ts#L69)
 
 Link target (for links)
 
@@ -42,7 +42,7 @@ Link target (for links)
 
 > `optional` **ordered**: `boolean`
 
-Defined in: [src/parsers/dom/DOMBuilder.ts:73](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/DOMBuilder.ts#L73)
+Defined in: [src/parsers/dom/DOMBuilder.ts:73](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/DOMBuilder.ts#L73)
 
 Whether list is ordered (for lists)
 
@@ -52,7 +52,7 @@ Whether list is ordered (for lists)
 
 > `optional` **text**: `string`
 
-Defined in: [src/parsers/dom/DOMBuilder.ts:71](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/DOMBuilder.ts#L71)
+Defined in: [src/parsers/dom/DOMBuilder.ts:71](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/DOMBuilder.ts#L71)
 
 Link text (for links)
 
@@ -62,6 +62,6 @@ Link text (for links)
 
 > `optional` **varName**: `string`
 
-Defined in: [src/parsers/dom/DOMBuilder.ts:67](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/DOMBuilder.ts#L67)
+Defined in: [src/parsers/dom/DOMBuilder.ts:67](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/DOMBuilder.ts#L67)
 
 Variable name (for variables)

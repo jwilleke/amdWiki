@@ -39,7 +39,7 @@ describe('WikiRoutes.buildNewPageMetadata()', () => {
     // Create mock ConfigurationManager with system-category config
     mockConfigurationManager = {
       getProperty: jest.fn((key, defaultVal) => {
-        if (key === 'amdwiki.system-category') {
+        if (key === 'ngdpbase.system-category') {
           return {
             general: { label: 'general', default: true, enabled: true },
             system: { label: 'system', default: false, enabled: true },
@@ -139,7 +139,7 @@ describe('WikiRoutes.buildNewPageMetadata()', () => {
       const result = wikiRoutes.buildNewPageMetadata('Test Page');
 
       expect(mockConfigurationManager.getProperty).toHaveBeenCalledWith(
-        'amdwiki.system-category',
+        'ngdpbase.system-category',
         null
       );
       expect(result['system-category']).toBe('general');

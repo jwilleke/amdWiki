@@ -20,10 +20,10 @@ interface RedisConfig {
  * Suitable for multi-instance deployments and production environments.
  *
  * Configuration keys (all lowercase):
- * - amdwiki.cache.provider.redis.url - Redis connection URL
- * - amdwiki.cache.provider.redis.keyprefix - Key prefix for all cache keys
- * - amdwiki.cache.provider.redis.enablecluster - Enable Redis Cluster support
- * - amdwiki.cache.provider.redis.connecttimeout - Connection timeout in ms
+ * - ngdpbase.cache.provider.redis.url - Redis connection URL
+ * - ngdpbase.cache.provider.redis.keyprefix - Key prefix for all cache keys
+ * - ngdpbase.cache.provider.redis.enablecluster - Enable Redis Cluster support
+ * - ngdpbase.cache.provider.redis.connecttimeout - Connection timeout in ms
  *
  * TODO: Implement Redis integration using 'redis' or 'ioredis' npm package
  * TODO: Add connection pooling support
@@ -54,19 +54,19 @@ class RedisCacheProvider extends BaseCacheProvider {
     // Load provider-specific settings (ALL LOWERCASE)
     this._config = {
       url: configManager.getProperty(
-        'amdwiki.cache.provider.redis.url',
+        'ngdpbase.cache.provider.redis.url',
         'redis://localhost:6379'
       ) as string,
       keyPrefix: configManager.getProperty(
-        'amdwiki.cache.provider.redis.keyprefix',
-        'amdwiki:'
+        'ngdpbase.cache.provider.redis.keyprefix',
+        'ngdpbase:'
       ) as string,
       enableCluster: configManager.getProperty(
-        'amdwiki.cache.provider.redis.enablecluster',
+        'ngdpbase.cache.provider.redis.enablecluster',
         false
       ) as boolean,
       connectTimeout: configManager.getProperty(
-        'amdwiki.cache.provider.redis.connecttimeout',
+        'ngdpbase.cache.provider.redis.connecttimeout',
         5000
       ) as number
     };

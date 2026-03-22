@@ -6,7 +6,7 @@
 
 ## Executive Summary
 
-The amdWiki installation system has been tested comprehensively across 7 major test scenarios. All critical functionality is working correctly:
+The ngdpbase installation system has been tested comprehensively across 7 major test scenarios. All critical functionality is working correctly:
 
 - ✅ Fresh installation completes successfully
 - ✅ All 42 startup pages copied correctly
@@ -244,17 +244,17 @@ Sample pages copied:
 
 ```json
 {
-  "amdwiki.applicationName": "TestWiki",
-  "amdwiki.baseURL": "http://localhost:3000",
-  "amdwiki.session.secret": "[generated random hex]",
-  "amdwiki.install.organization.name": "TestOrg",
-  "amdwiki.install.organization.legalName": "",
-  "amdwiki.install.organization.description": "Testing",
-  "amdwiki.install.organization.foundingDate": "",
-  "amdwiki.install.organization.contactEmail": "admin@localhost",
-  "amdwiki.install.organization.addressLocality": "",
-  "amdwiki.install.organization.addressRegion": "",
-  "amdwiki.install.organization.addressCountry": ""
+  "ngdpbase.applicationName": "TestWiki",
+  "ngdpbase.baseURL": "http://localhost:3000",
+  "ngdpbase.session.secret": "[generated random hex]",
+  "ngdpbase.install.organization.name": "TestOrg",
+  "ngdpbase.install.organization.legalName": "",
+  "ngdpbase.install.organization.description": "Testing",
+  "ngdpbase.install.organization.foundingDate": "",
+  "ngdpbase.install.organization.contactEmail": "admin@localhost",
+  "ngdpbase.install.organization.addressLocality": "",
+  "ngdpbase.install.organization.addressRegion": "",
+  "ngdpbase.install.organization.addressCountry": ""
 }
 ```
 
@@ -282,7 +282,7 @@ Sample pages copied:
 ```
 Process Status:
 - ✅ Only ONE Node process running: PID 36556
-- ✅ Single .amdwiki.pid file with valid PID
+- ✅ Single .ngdpbase.pid file with valid PID
 - ✅ PM2 reports process online
 - ✅ Port 3000 listening on single process
 - ✅ No orphaned processes detected
@@ -378,7 +378,7 @@ Manual browser testing should verify:
 
 ## Conclusion
 
-The amdWiki installation system is **fully functional and ready for deployment**. All major features work as designed:
+The ngdpbase installation system is **fully functional and ready for deployment**. All major features work as designed:
 
 - ✅ Fresh installation completes successfully
 - ✅ Admin account created securely

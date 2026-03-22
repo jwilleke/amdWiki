@@ -27,7 +27,7 @@
 
 ## Overview
 
-The **BackupManager** is responsible for coordinating backup and restore operations across all managers in amdWiki. It provides a centralized system for creating full-system backups and restoring data, ensuring data safety and disaster recovery capabilities.
+The **BackupManager** is responsible for coordinating backup and restore operations across all managers in ngdpbase. It provides a centralized system for creating full-system backups and restoring data, ensuring data safety and disaster recovery capabilities.
 
 ### Key Responsibilities
 
@@ -133,7 +133,7 @@ This architecture enables:
 │     ├─> Calculate backup size                                    │
 │     ├─> Compress using gzip                                      │
 │     ├─> Calculate compression ratio                              │
-│     └─> Write to: backups/amdwiki-backup-{timestamp}.json.gz    │
+│     └─> Write to: backups/ngdpbase-backup-{timestamp}.json.gz    │
 └────────────────────┬─────────────────────────────────────────────┘
                      │
 ┌────────────────────▼─────────────────────────────────────────────┐
@@ -185,11 +185,11 @@ By default, BackupManager is controled by values wihtin config/app-default-confi
 
 ```json
   "_comment_backup": "Backup and restore configuration for BackupManager",
-  "amdwiki.backup.directory": "./backups",
-  "amdwiki.backup.maxBackups": 10,
-  "amdwiki.backup.compress": true,
-  "amdwiki.backup.autoBackup": false,
-  "amdwiki.backup.autoBackupInterval": 86400000
+  "ngdpbase.backup.directory": "./backups",
+  "ngdpbase.backup.maxBackups": 10,
+  "ngdpbase.backup.compress": true,
+  "ngdpbase.backup.autoBackup": false,
+  "ngdpbase.backup.autoBackupInterval": 86400000
 ```
 
 ## Backup Coverage
@@ -232,12 +232,12 @@ ACLManager does **not** implement backup/restore because:
 ```json
 {
   "_comment_backup": "Backup system configuration",
-  "amdwiki.backup.enabled": true,
-  "amdwiki.backup.directory": "./backups",
-  "amdwiki.backup.maxBackups": 10,
-  "amdwiki.backup.compression": "gzip",
-  "amdwiki.backup.autoBackup.enabled": false,
-  "amdwiki.backup.autoBackup.schedule": "0 2 * * *"
+  "ngdpbase.backup.enabled": true,
+  "ngdpbase.backup.directory": "./backups",
+  "ngdpbase.backup.maxBackups": 10,
+  "ngdpbase.backup.compression": "gzip",
+  "ngdpbase.backup.autoBackup.enabled": false,
+  "ngdpbase.backup.autoBackup.schedule": "0 2 * * *"
 }
 ```
 
@@ -245,12 +245,12 @@ ACLManager does **not** implement backup/restore because:
 
 | Key | Type | Default | Description |
 | ----- | ------ | --------- | ------------- |
-| `amdwiki.backup.enabled` | boolean | `true` | Enable/disable backup system |
-| `amdwiki.backup.directory` | string | `"./backups"` | Directory for backup files |
-| `amdwiki.backup.maxBackups` | number | `10` | Maximum backups to retain |
-| `amdwiki.backup.compression` | string | `"gzip"` | Compression algorithm |
-| `amdwiki.backup.autoBackup.enabled` | boolean | `false` | Enable automatic backups |
-| `amdwiki.backup.autoBackup.schedule` | string | `"0 2 * * *"` | Cron schedule (daily at 2 AM) |
+| `ngdpbase.backup.enabled` | boolean | `true` | Enable/disable backup system |
+| `ngdpbase.backup.directory` | string | `"./backups"` | Directory for backup files |
+| `ngdpbase.backup.maxBackups` | number | `10` | Maximum backups to retain |
+| `ngdpbase.backup.compression` | string | `"gzip"` | Compression algorithm |
+| `ngdpbase.backup.autoBackup.enabled` | boolean | `false` | Enable automatic backups |
+| `ngdpbase.backup.autoBackup.schedule` | string | `"0 2 * * *"` | Cron schedule (daily at 2 AM) |
 
 ---
 
@@ -289,7 +289,7 @@ Create a full system backup of all registered managers.
 ```javascript
 const backupPath = await backupManager.backup();
 console.log(`Backup saved to: ${backupPath}`);
-// Output: backups/amdwiki-backup-2025-10-14T11-28-54-626Z.json.gz
+// Output: backups/ngdpbase-backup-2025-10-14T11-28-54-626Z.json.gz
 ```
 
 **Process:**
@@ -318,7 +318,7 @@ Restore system state from a backup file.
 **Example:**
 
 ```javascript
-await backupManager.restore('backups/amdwiki-backup-2025-10-14T11-28-54-626Z.json.gz');
+await backupManager.restore('backups/ngdpbase-backup-2025-10-14T11-28-54-626Z.json.gz');
 console.log('System restored successfully');
 ```
 
@@ -342,7 +342,7 @@ List all available backups in the backup directory.
 
 ```javascript
 {
-  filename: 'amdwiki-backup-2025-10-14T11-28-54-626Z.json.gz',
+  filename: 'ngdpbase-backup-2025-10-14T11-28-54-626Z.json.gz',
   path: '/absolute/path/to/backup.json.gz',
   size: 240750,  // bytes
   created: '2025-10-14T11:28:54.626Z',
@@ -739,7 +739,7 @@ class FileSystemProvider extends BasePageProvider {
 ### File Structure
 
 ```text
-Filename: amdwiki-backup-{ISO8601-timestamp}.json.gz
+Filename: ngdpbase-backup-{ISO8601-timestamp}.json.gz
 Format: Gzipped JSON
 Encoding: UTF-8
 ```
@@ -751,7 +751,7 @@ Encoding: UTF-8
   "metadata": {
     "version": "1.0.0",
     "timestamp": "2025-10-14T11:28:54.626Z",
-    "engine": "amdWiki",
+    "engine": "ngdpbase",
     "engineVersion": "1.3.2",
     "hostname": "localhost",
     "managersCount": 21
@@ -929,7 +929,7 @@ async function exportBackup(backupPath) {
 ### 4. Pre-Upgrade Backups
 
 ```javascript
-// Before upgrading amdWiki
+// Before upgrading ngdpbase
 async function preUpgradeBackup() {
   console.log('Creating pre-upgrade backup...');
   const backupPath = await backupManager.backup();
@@ -1052,7 +1052,7 @@ await manager.restore(backup);
 
 ## Summary
 
-The **BackupManager** provides comprehensive backup and restore capabilities for amdWiki:
+The **BackupManager** provides comprehensive backup and restore capabilities for ngdpbase:
 
 - ✅ **Full System Backups**: All managers backed up in single operation
 - ✅ **Provider Pattern Support**: Managers delegate to providers when appropriate
@@ -1075,5 +1075,5 @@ The **BackupManager** provides comprehensive backup and restore capabilities for
 ---
 
 **Document Version**: 1.0.0
-**amdWiki Version**: 1.3.2
+**ngdpbase Version**: 1.3.2
 **Last Updated**: 2025-10-14

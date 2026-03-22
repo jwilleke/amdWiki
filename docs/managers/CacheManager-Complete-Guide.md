@@ -24,7 +24,7 @@
 
 ## Overview
 
-The CacheManager provides centralized cache management for amdWiki with support for multiple cache backends through a pluggable provider system. It enables caching across all managers with configurable TTL, cache regions (namespaces), and comprehensive statistics.
+The CacheManager provides centralized cache management for ngdpbase with support for multiple cache backends through a pluggable provider system. It enables caching across all managers with configurable TTL, cache regions (namespaces), and comprehensive statistics.
 
 ### Key Features
 
@@ -34,7 +34,7 @@ The CacheManager provides centralized cache management for amdWiki with support 
 - **Health Monitoring**: Automatic health checks with fallback to NullCacheProvider
 - **Statistics**: Comprehensive cache statistics and hit rate tracking
 - **Pattern Matching**: Support for glob-style key patterns
-- **All Lowercase Config**: Follows amdWiki configuration standards (issue #102)
+- **All Lowercase Config**: Follows ngdpbase configuration standards (issue #102)
 
 ### Design Principles
 
@@ -127,28 +127,28 @@ All configuration keys follow the lowercase standard from issue #102:
 ```json
 {
   "_comment_cache_storage": "Cache storage configuration (ALL LOWERCASE)",
-  "amdwiki.cache.enabled": true,
+  "ngdpbase.cache.enabled": true,
 
   "_comment_cache_provider": "Cache provider with fallback",
-  "amdwiki.cache.provider.default": "nodecacheprovider",
-  "amdwiki.cache.provider": "nodecacheprovider",
+  "ngdpbase.cache.provider.default": "nodecacheprovider",
+  "ngdpbase.cache.provider": "nodecacheprovider",
 
   "_comment_cache_shared": "Shared cache settings (all providers)",
-  "amdwiki.cache.defaultttl": 300,
-  "amdwiki.cache.maxkeys": 1000,
-  "amdwiki.cache.checkperiod": 120,
+  "ngdpbase.cache.defaultttl": 300,
+  "ngdpbase.cache.maxkeys": 1000,
+  "ngdpbase.cache.checkperiod": 120,
 
   "_comment_cache_provider_nodecache": "NodeCacheProvider settings",
-  "amdwiki.cache.provider.nodecache.stdttl": 300,
-  "amdwiki.cache.provider.nodecache.checkperiod": 120,
-  "amdwiki.cache.provider.nodecache.maxkeys": 1000,
-  "amdwiki.cache.provider.nodecache.useclones": true,
+  "ngdpbase.cache.provider.nodecache.stdttl": 300,
+  "ngdpbase.cache.provider.nodecache.checkperiod": 120,
+  "ngdpbase.cache.provider.nodecache.maxkeys": 1000,
+  "ngdpbase.cache.provider.nodecache.useclones": true,
 
   "_comment_cache_provider_redis": "RedisCacheProvider settings (future)",
-  "amdwiki.cache.provider.redis.url": "redis://localhost:6379",
-  "amdwiki.cache.provider.redis.keyprefix": "amdwiki:",
-  "amdwiki.cache.provider.redis.enablecluster": false,
-  "amdwiki.cache.provider.redis.connecttimeout": 5000
+  "ngdpbase.cache.provider.redis.url": "redis://localhost:6379",
+  "ngdpbase.cache.provider.redis.keyprefix": "ngdpbase:",
+  "ngdpbase.cache.provider.redis.enablecluster": false,
+  "ngdpbase.cache.provider.redis.connecttimeout": 5000
 }
 ```
 
@@ -158,30 +158,30 @@ All configuration keys follow the lowercase standard from issue #102:
 
 | Key | Type | Default | Description |
 | ----- | ------ | --------- | ------------- |
-| `amdwiki.cache.enabled` | boolean | `true` | Enable/disable caching globally |
-| `amdwiki.cache.provider.default` | string | `nodecacheprovider` | Default provider name (fallback) |
-| `amdwiki.cache.provider` | string | `nodecacheprovider` | Active provider name |
-| `amdwiki.cache.defaultttl` | number | `300` | Default TTL in seconds (5 minutes) |
-| `amdwiki.cache.maxkeys` | number | `1000` | Maximum number of cache keys |
-| `amdwiki.cache.checkperiod` | number | `120` | Expiration check interval (seconds) |
+| `ngdpbase.cache.enabled` | boolean | `true` | Enable/disable caching globally |
+| `ngdpbase.cache.provider.default` | string | `nodecacheprovider` | Default provider name (fallback) |
+| `ngdpbase.cache.provider` | string | `nodecacheprovider` | Active provider name |
+| `ngdpbase.cache.defaultttl` | number | `300` | Default TTL in seconds (5 minutes) |
+| `ngdpbase.cache.maxkeys` | number | `1000` | Maximum number of cache keys |
+| `ngdpbase.cache.checkperiod` | number | `120` | Expiration check interval (seconds) |
 
 #### NodeCacheProvider Settings
 
 | Key | Type | Default | Description |
 | ----- | ------ | --------- | ------------- |
-| `amdwiki.cache.provider.nodecache.stdttl` | number | `300` | Standard TTL for cache entries |
-| `amdwiki.cache.provider.nodecache.checkperiod` | number | `120` | Check expired keys interval |
-| `amdwiki.cache.provider.nodecache.maxkeys` | number | `1000` | Maximum keys in cache |
-| `amdwiki.cache.provider.nodecache.useclones` | boolean | `true` | Clone objects on get/set |
+| `ngdpbase.cache.provider.nodecache.stdttl` | number | `300` | Standard TTL for cache entries |
+| `ngdpbase.cache.provider.nodecache.checkperiod` | number | `120` | Check expired keys interval |
+| `ngdpbase.cache.provider.nodecache.maxkeys` | number | `1000` | Maximum keys in cache |
+| `ngdpbase.cache.provider.nodecache.useclones` | boolean | `true` | Clone objects on get/set |
 
 #### RedisCacheProvider Settings (Future)
 
 | Key | Type | Default | Description |
 | ----- | ------ | --------- | ------------- |
-| `amdwiki.cache.provider.redis.url` | string | `redis://localhost:6379` | Redis connection URL |
-| `amdwiki.cache.provider.redis.keyprefix` | string | `amdwiki:` | Prefix for all cache keys |
-| `amdwiki.cache.provider.redis.enablecluster` | boolean | `false` | Enable Redis Cluster mode |
-| `amdwiki.cache.provider.redis.connecttimeout` | number | `5000` | Connection timeout (ms) |
+| `ngdpbase.cache.provider.redis.url` | string | `redis://localhost:6379` | Redis connection URL |
+| `ngdpbase.cache.provider.redis.keyprefix` | string | `ngdpbase:` | Prefix for all cache keys |
+| `ngdpbase.cache.provider.redis.enablecluster` | boolean | `false` | Enable Redis Cluster mode |
+| `ngdpbase.cache.provider.redis.connecttimeout` | number | `5000` | Connection timeout (ms) |
 
 ### Provider Fallback Pattern
 
@@ -192,10 +192,10 @@ CacheManager uses a two-tier fallback system:
 
 ```javascript
 // 1. Load default provider
-const defaultProvider = getProperty('amdwiki.cache.provider.default', 'nodecacheprovider');
+const defaultProvider = getProperty('ngdpbase.cache.provider.default', 'nodecacheprovider');
 
 // 2. Try to load active provider (falls back to default if not set)
-const providerName = getProperty('amdwiki.cache.provider', defaultProvider);
+const providerName = getProperty('ngdpbase.cache.provider', defaultProvider);
 
 // 3. Health check after initialization
 const isHealthy = await provider.isHealthy();
@@ -234,9 +234,9 @@ In-memory cache using the `node-cache` library. Best for single-instance deploym
 
 ```json
 {
-  "amdwiki.cache.provider": "nodecacheprovider",
-  "amdwiki.cache.provider.nodecache.stdttl": 300,
-  "amdwiki.cache.provider.nodecache.maxkeys": 1000
+  "ngdpbase.cache.provider": "nodecacheprovider",
+  "ngdpbase.cache.provider.nodecache.stdttl": 300,
+  "ngdpbase.cache.provider.nodecache.maxkeys": 1000
 }
 ```
 
@@ -248,7 +248,7 @@ No-op cache provider. All operations are no-ops.
 
 **Use Cases:**
 
-- Caching disabled (`amdwiki.cache.enabled: false`)
+- Caching disabled (`ngdpbase.cache.enabled: false`)
 - Testing environments
 - Automatic fallback when other providers fail
 
@@ -256,7 +256,7 @@ No-op cache provider. All operations are no-ops.
 
 ```json
 {
-  "amdwiki.cache.enabled": false
+  "ngdpbase.cache.enabled": false
 }
 ```
 
@@ -743,11 +743,11 @@ setInterval(async () => {
 
 ```json
 {
-  "amdwiki.cache.provider": "rediscacheprovider",
-  "amdwiki.cache.provider.redis.url": "redis://localhost:6379",
-  "amdwiki.cache.provider.redis.keyprefix": "amdwiki:",
-  "amdwiki.cache.provider.redis.enablecluster": false,
-  "amdwiki.cache.provider.redis.connecttimeout": 5000
+  "ngdpbase.cache.provider": "rediscacheprovider",
+  "ngdpbase.cache.provider.redis.url": "redis://localhost:6379",
+  "ngdpbase.cache.provider.redis.keyprefix": "ngdpbase:",
+  "ngdpbase.cache.provider.redis.enablecluster": false,
+  "ngdpbase.cache.provider.redis.connecttimeout": 5000
 }
 ```
 
@@ -947,8 +947,8 @@ console.log('Healthy:', isHealthy);
 
 ```json
 {
-  "amdwiki.cache.provider.nodecache.maxkeys": 500,
-  "amdwiki.cache.provider.nodecache.stdttl": 180
+  "ngdpbase.cache.provider.nodecache.maxkeys": 500,
+  "ngdpbase.cache.provider.nodecache.stdttl": 180
 }
 ```
 
@@ -1013,10 +1013,10 @@ npm install node-cache
 
 ```json
 {
-  "amdwiki.cache.enabled": true,
-  "amdwiki.cache.provider": "node-cache",
-  "amdwiki.cache.defaultTTL": 300,
-  "amdwiki.cache.node.stdTTL": 300
+  "ngdpbase.cache.enabled": true,
+  "ngdpbase.cache.provider": "node-cache",
+  "ngdpbase.cache.defaultTTL": 300,
+  "ngdpbase.cache.node.stdTTL": 300
 }
 ```
 
@@ -1024,11 +1024,11 @@ npm install node-cache
 
 ```json
 {
-  "amdwiki.cache.enabled": true,
-  "amdwiki.cache.provider.default": "nodecacheprovider",
-  "amdwiki.cache.provider": "nodecacheprovider",
-  "amdwiki.cache.defaultttl": 300,
-  "amdwiki.cache.provider.nodecache.stdttl": 300
+  "ngdpbase.cache.enabled": true,
+  "ngdpbase.cache.provider.default": "nodecacheprovider",
+  "ngdpbase.cache.provider": "nodecacheprovider",
+  "ngdpbase.cache.defaultttl": 300,
+  "ngdpbase.cache.provider.nodecache.stdttl": 300
 }
 ```
 

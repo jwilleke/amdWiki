@@ -1,12 +1,12 @@
-[**amdWiki API v1.5.0**](../../../../README.md)
+[**ngdpbase API v1.5.0**](../../../../README.md)
 
 ***
 
-[amdWiki API](../../../../README.md) / [src/managers/BaseManager](../README.md) / BackupData
+[ngdpbase API](../../../../README.md) / [src/managers/BaseManager](../README.md) / BackupData
 
 # Interface: BackupData
 
-Defined in: [src/managers/BaseManager.ts:23](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L23)
+Defined in: [src/managers/BaseManager.ts:23](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L23)
 
 Backup data structure returned by backup() method
 
@@ -26,7 +26,7 @@ Allow additional properties
 
 > `optional` **data**: `unknown`
 
-Defined in: [src/managers/BaseManager.ts:31](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L31)
+Defined in: [src/managers/BaseManager.ts:31](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L31)
 
 Manager-specific backup data
 
@@ -36,7 +36,7 @@ Manager-specific backup data
 
 > **managerName**: `string`
 
-Defined in: [src/managers/BaseManager.ts:25](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L25)
+Defined in: [src/managers/BaseManager.ts:25](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L25)
 
 Name of the manager that created this backup
 
@@ -46,7 +46,7 @@ Name of the manager that created this backup
 
 > `optional` **note**: `string`
 
-Defined in: [src/managers/BaseManager.ts:40](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L40)
+Defined in: [src/managers/BaseManager.ts:40](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L40)
 
 Optional note about the backup
 
@@ -56,7 +56,7 @@ Optional note about the backup
 
 > `optional` **providerBackup**: `unknown`
 
-Defined in: [src/managers/BaseManager.ts:37](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L37)
+Defined in: [src/managers/BaseManager.ts:37](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L37)
 
 Provider-specific backup data
 
@@ -66,7 +66,7 @@ Provider-specific backup data
 
 > `optional` **providerClass**: `string` \| `null`
 
-Defined in: [src/managers/BaseManager.ts:34](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L34)
+Defined in: [src/managers/BaseManager.ts:34](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L34)
 
 Provider class name (for managers with providers)
 
@@ -76,6 +76,6 @@ Provider class name (for managers with providers)
 
 > **timestamp**: `string`
 
-Defined in: [src/managers/BaseManager.ts:28](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L28)
+Defined in: [src/managers/BaseManager.ts:28](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L28)
 
 ISO timestamp when backup was created

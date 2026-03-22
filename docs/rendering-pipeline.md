@@ -1,6 +1,6 @@
-# amdWiki Rendering Pipeline
+# ngdpbase Rendering Pipeline
 
-The amdWiki rendering system uses a sophisticated 7-phase MarkupParser pipeline that provides 100% JSPWiki compatibility while maintaining extensibility and security.
+The ngdpbase rendering system uses a sophisticated 7-phase MarkupParser pipeline that provides 100% JSPWiki compatibility while maintaining extensibility and security.
 
 ## Overview
 
@@ -225,7 +225,7 @@ The rendering pipeline is configured through `app-default-config.json` and can b
 
 ```json
 {
-  "amdwiki": {
+  "ngdpbase": {
     "markup": {
       "enabled": true,
       "useAdvancedParser": true,

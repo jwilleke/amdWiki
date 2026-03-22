@@ -22,7 +22,7 @@ The SessionsPlugin provides real-time information about how many users are curre
 | Property | Value |
 | ---------- | ------- |
 | Name | SessionsPlugin |
-| Author | amdWiki |
+| Author | ngdpbase |
 | Version | 1.0.0 |
 | JSPWiki Compatible | Yes |
 
@@ -93,8 +93,8 @@ Currently [{SessionsPlugin}] active sessions.
 ```javascript
 async execute(context, params = {}) {
   const cfgMgr = context.engine?.getManager?.('ConfigurationManager');
-  const host = cfgMgr?.getProperty('amdwiki.server.host', 'localhost');
-  const port = cfgMgr?.getProperty('amdwiki.server.port', 3000);
+  const host = cfgMgr?.getProperty('ngdpbase.server.host', 'localhost');
+  const port = cfgMgr?.getProperty('ngdpbase.server.port', 3000);
 
   const resp = await fetch(`http://${host}:${port}/api/session-count`);
   const data = await resp.json();
@@ -121,12 +121,12 @@ The plugin calls `/api/session-count` which returns:
 
 | Property | Default | Description |
 | ---------- | --------- | ------------- |
-| `amdwiki.server.host` | localhost | Server hostname |
-| `amdwiki.server.port` | 3000 | Server port |
+| `ngdpbase.server.host` | localhost | Server hostname |
+| `ngdpbase.server.port` | 3000 | Server port |
 
 ## JSPWiki Compatibility
 
-| Feature | JSPWiki | amdWiki | Notes |
+| Feature | JSPWiki | ngdpbase | Notes |
 | --------- | --------- | --------- | ------- |
 | Basic syntax | Yes | Yes | Same behavior |
 | Session count | Yes | Yes | Via API call |

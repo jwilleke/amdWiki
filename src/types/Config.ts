@@ -1,5 +1,5 @@
 /**
- * Configuration type definitions for amdWiki
+ * Configuration type definitions for ngdpbase
  *
  * This module defines types for wiki configuration used by ConfigurationManager
  * and various components throughout the application.
@@ -14,148 +14,148 @@
  */
 export interface WikiConfig {
   /** Application name */
-  'amdwiki.applicationName': string;
+  'ngdpbase.applicationName': string;
 
   /** Favicon path */
-  'amdwiki.faviconPath': string;
+  'ngdpbase.faviconPath': string;
 
   /** Application category */
-  'amdwiki.application.category': string;
+  'ngdpbase.application.category': string;
 
   /** Application version */
-  'amdwiki.version': string;
+  'ngdpbase.version': string;
 
   /** Base URL */
-  'amdwiki.baseURL': string;
+  'ngdpbase.baseURL': string;
 
   /** Character encoding */
-  'amdwiki.encoding': string;
+  'ngdpbase.encoding': string;
 
   /** Front page name */
-  'amdwiki.frontPage': string;
+  'ngdpbase.frontPage': string;
 
   /** Server port */
-  'amdwiki.server.port': number;
+  'ngdpbase.server.port': number;
 
   /** Server host */
-  'amdwiki.server.host': string;
+  'ngdpbase.server.host': string;
 
   /** Session secret */
-  'amdwiki.session.secret': string;
+  'ngdpbase.session.secret': string;
 
   /** Session max age (milliseconds) */
-  'amdwiki.session.maxAge': number;
+  'ngdpbase.session.maxAge': number;
 
   /** Session secure flag (HTTPS only) */
-  'amdwiki.session.secure': boolean;
+  'ngdpbase.session.secure': boolean;
 
   /** Session HTTP only flag */
-  'amdwiki.session.httpOnly': boolean;
+  'ngdpbase.session.httpOnly': boolean;
 
   /** Translator reader - match English plurals */
-  'amdwiki.translator-reader.match-english-plurals': boolean;
+  'ngdpbase.translator-reader.match-english-plurals': boolean;
 
   /** Translator reader - camel case links */
-  'amdwiki.translator-reader.camel-case-links': boolean;
+  'ngdpbase.translator-reader.camel-case-links': boolean;
 
   /** Translator reader - allow HTML */
-  'amdwiki.translator-reader.allow-html': boolean;
+  'ngdpbase.translator-reader.allow-html': boolean;
 
   /** Translator reader - plain URIs */
-  'amdwiki.translator-reader.plain-uris': boolean;
+  'ngdpbase.translator-reader.plain-uris': boolean;
 
   /** Page provider enabled */
-  'amdwiki.page.enabled': boolean;
+  'ngdpbase.page.enabled': boolean;
 
   /** Default page provider */
-  'amdwiki.page.provider.default': string;
+  'ngdpbase.page.provider.default': string;
 
   /** Active page provider */
-  'amdwiki.page.provider': string;
+  'ngdpbase.page.provider': string;
 
   /** Page storage directory */
-  'amdwiki.page.provider.filesystem.storagedir': string;
+  'ngdpbase.page.provider.filesystem.storagedir': string;
 
   /** Required pages directory */
-  'amdwiki.page.provider.filesystem.requiredpagesdir': string;
+  'ngdpbase.page.provider.filesystem.requiredpagesdir': string;
 
   /** File encoding for pages */
-  'amdwiki.page.provider.filesystem.encoding': string;
+  'ngdpbase.page.provider.filesystem.encoding': string;
 
   /** Auto-save enabled */
-  'amdwiki.page.provider.filesystem.autosave': boolean;
+  'ngdpbase.page.provider.filesystem.autosave': boolean;
 
   /** Attachment provider enabled */
-  'amdwiki.attachment.enabled': boolean;
+  'ngdpbase.attachment.enabled': boolean;
 
   /** Default attachment provider */
-  'amdwiki.attachment.provider.default': string;
+  'ngdpbase.attachment.provider.default': string;
 
   /** Active attachment provider */
-  'amdwiki.attachment.provider': string;
+  'ngdpbase.attachment.provider': string;
 
   /** Maximum attachment size (bytes) */
-  'amdwiki.attachment.maxsize': number;
+  'ngdpbase.attachment.maxsize': number;
 
   /** Allowed attachment MIME types */
-  'amdwiki.attachment.allowedtypes': string;
+  'ngdpbase.attachment.allowedtypes': string;
 
   /** Force download for attachments */
-  'amdwiki.attachment.forcedownload': boolean;
+  'ngdpbase.attachment.forcedownload': boolean;
 
   /** Attachment metadata file */
-  'amdwiki.attachment.metadatafile': string;
+  'ngdpbase.attachment.metadatafile': string;
 
   /** Search enabled */
-  'amdwiki.search.enabled': boolean;
+  'ngdpbase.search.enabled': boolean;
 
   /** Default search provider */
-  'amdwiki.search.provider.default': string;
+  'ngdpbase.search.provider.default': string;
 
   /** Active search provider */
-  'amdwiki.search.provider': string;
+  'ngdpbase.search.provider': string;
 
   /** Maximum search results */
-  'amdwiki.search.maxresults': number;
+  'ngdpbase.search.maxresults': number;
 
   /** Autocomplete enabled */
-  'amdwiki.search.autocomplete.enabled': boolean;
+  'ngdpbase.search.autocomplete.enabled': boolean;
 
   /** Autocomplete minimum length */
-  'amdwiki.search.autocomplete.minlength': number;
+  'ngdpbase.search.autocomplete.minlength': number;
 
   /** Search suggestions enabled */
-  'amdwiki.search.suggestions.enabled': boolean;
+  'ngdpbase.search.suggestions.enabled': boolean;
 
   /** Maximum suggestion items */
-  'amdwiki.search.suggestions.maxitems': number;
+  'ngdpbase.search.suggestions.maxitems': number;
 
   /** User provider */
-  'amdwiki.user.provider': string;
+  'ngdpbase.user.provider': string;
 
   /** User provider default */
-  'amdwiki.user.provider.default': string;
+  'ngdpbase.user.provider.default': string;
 
   /** User storage directory */
-  'amdwiki.user.provider.storagedir': string;
+  'ngdpbase.user.provider.storagedir': string;
 
   /** Active site theme — folder name under themes/ (e.g. "default") */
-  'amdwiki.theme.active': string;
+  'ngdpbase.theme.active': string;
 
   /** Default light/dark mode for new users ("light" | "dark" | "system") */
-  'amdwiki.theme.defaults.mode': string;
+  'ngdpbase.theme.defaults.mode': string;
 
   /** Cache provider */
-  'amdwiki.cache.provider': string;
+  'ngdpbase.cache.provider': string;
 
   /** Cache provider default */
-  'amdwiki.cache.provider.default': string;
+  'ngdpbase.cache.provider.default': string;
 
   /** Audit provider */
-  'amdwiki.audit.provider': string;
+  'ngdpbase.audit.provider': string;
 
   /** Audit provider default */
-  'amdwiki.audit.provider.default': string;
+  'ngdpbase.audit.provider.default': string;
 
   /** Additional configuration properties */
   [key: string]: unknown;
@@ -168,25 +168,25 @@ export interface WikiConfig {
  */
 export interface VersioningConfig {
   /** Page index file location */
-  'amdwiki.page.provider.versioning.indexfile': string;
+  'ngdpbase.page.provider.versioning.indexfile': string;
 
   /** Maximum versions to keep per page */
-  'amdwiki.page.provider.versioning.maxversions': number;
+  'ngdpbase.page.provider.versioning.maxversions': number;
 
   /** Retention period in days */
-  'amdwiki.page.provider.versioning.retentiondays': number;
+  'ngdpbase.page.provider.versioning.retentiondays': number;
 
   /** Compression method (none, gzip) */
-  'amdwiki.page.provider.versioning.compression': string;
+  'ngdpbase.page.provider.versioning.compression': string;
 
   /** Delta storage enabled */
-  'amdwiki.page.provider.versioning.deltastorage': boolean;
+  'ngdpbase.page.provider.versioning.deltastorage': boolean;
 
   /** Checkpoint interval for full snapshots */
-  'amdwiki.page.provider.versioning.checkpointinterval': number;
+  'ngdpbase.page.provider.versioning.checkpointinterval': number;
 
   /** Version cache size */
-  'amdwiki.page.provider.versioning.cachesize': number;
+  'ngdpbase.page.provider.versioning.cachesize': number;
 }
 
 /**
@@ -196,31 +196,31 @@ export interface VersioningConfig {
  */
 export interface SearchProviderConfig {
   /** Index directory */
-  'amdwiki.search.provider.lunr.indexdir': string;
+  'ngdpbase.search.provider.lunr.indexdir': string;
 
   /** Enable stemming */
-  'amdwiki.search.provider.lunr.stemming': boolean;
+  'ngdpbase.search.provider.lunr.stemming': boolean;
 
   /** Title boost factor */
-  'amdwiki.search.provider.lunr.boost.title': number;
+  'ngdpbase.search.provider.lunr.boost.title': number;
 
   /** System category boost factor */
-  'amdwiki.search.provider.lunr.boost.systemcategory': number;
+  'ngdpbase.search.provider.lunr.boost.systemcategory': number;
 
   /** User keywords boost factor */
-  'amdwiki.search.provider.lunr.boost.userkeywords': number;
+  'ngdpbase.search.provider.lunr.boost.userkeywords': number;
 
   /** Tags boost factor */
-  'amdwiki.search.provider.lunr.boost.tags': number;
+  'ngdpbase.search.provider.lunr.boost.tags': number;
 
   /** Keywords boost factor */
-  'amdwiki.search.provider.lunr.boost.keywords': number;
+  'ngdpbase.search.provider.lunr.boost.keywords': number;
 
   /** Maximum results */
-  'amdwiki.search.provider.lunr.maxresults': number;
+  'ngdpbase.search.provider.lunr.maxresults': number;
 
   /** Snippet length */
-  'amdwiki.search.provider.lunr.snippetlength': number;
+  'ngdpbase.search.provider.lunr.snippetlength': number;
 }
 
 /**
@@ -230,37 +230,37 @@ export interface SearchProviderConfig {
  */
 export interface InstallConfig {
   /** Require setup on first run */
-  'amdwiki.install.requireSetup': boolean;
+  'ngdpbase.install.requireSetup': boolean;
 
   /** Copy startup pages */
-  'amdwiki.install.copyStartupPages': boolean;
+  'ngdpbase.install.copyStartupPages': boolean;
 
   /** Create admin user */
-  'amdwiki.install.createAdminUser': boolean;
+  'ngdpbase.install.createAdminUser': boolean;
 
   /** Organization name */
-  'amdwiki.install.organization.name': string;
+  'ngdpbase.install.organization.name': string;
 
   /** Organization legal name */
-  'amdwiki.install.organization.legalName': string;
+  'ngdpbase.install.organization.legalName': string;
 
   /** Organization description */
-  'amdwiki.install.organization.description': string;
+  'ngdpbase.install.organization.description': string;
 
   /** Founding date */
-  'amdwiki.install.organization.foundingDate': string;
+  'ngdpbase.install.organization.foundingDate': string;
 
   /** Contact email */
-  'amdwiki.install.organization.contactEmail': string;
+  'ngdpbase.install.organization.contactEmail': string;
 
   /** Address locality (city) */
-  'amdwiki.install.organization.addressLocality': string;
+  'ngdpbase.install.organization.addressLocality': string;
 
   /** Address region (state/province) */
-  'amdwiki.install.organization.addressRegion': string;
+  'ngdpbase.install.organization.addressRegion': string;
 
   /** Address country */
-  'amdwiki.install.organization.addressCountry': string;
+  'ngdpbase.install.organization.addressCountry': string;
 }
 
 /**

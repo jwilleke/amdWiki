@@ -52,7 +52,7 @@ describe('All Plugins (via PluginManager)', () => {
     // Setup mock configuration manager
     mockConfigManager = {
       getProperty: jest.fn().mockImplementation((key, defaultValue) => {
-        if (key === 'amdwiki.managers.pluginManager.searchPaths') {
+        if (key === 'ngdpbase.managers.pluginManager.searchPaths') {
           return [pluginsDir];
         }
         // Default configuration values for various plugins

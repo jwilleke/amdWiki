@@ -217,7 +217,7 @@ If no pages have been modified within the specified time period:
 
 This plugin provides similar functionality to JSPWiki's RecentChangesPlugin:
 
-| Feature | JSPWiki | amdWiki | Compatible |
+| Feature | JSPWiki | ngdpbase | Compatible |
 | --------- | --------- | --------- | ------------ |
 | Basic functionality | ✓ | ✓ | ✓ |
 | `since` parameter | ✓ | ✓ | ✓ |
@@ -229,8 +229,8 @@ This plugin provides similar functionality to JSPWiki's RecentChangesPlugin:
 
 ### Differences from JSPWiki
 
-- **Time formatting**: amdWiki uses relative time in compact format (e.g., "2 hours ago") for better UX
-- **Styling**: Uses Bootstrap classes for consistent appearance with amdWiki's design
+- **Time formatting**: ngdpbase uses relative time in compact format (e.g., "2 hours ago") for better UX
+- **Styling**: Uses Bootstrap classes for consistent appearance with ngdpbase's design
 - **Metadata**: Extracts author and version from page frontmatter metadata
 
 ## Use Cases

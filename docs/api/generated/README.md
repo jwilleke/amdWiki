@@ -1,8 +1,8 @@
-**amdWiki API v1.5.0**
+**ngdpbase API v1.5.0**
 
 ***
 
-# amdWiki API v1.5.0
+# ngdpbase API v1.5.0
 
 ## Modules
 

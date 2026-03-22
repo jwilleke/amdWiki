@@ -1,12 +1,12 @@
-[**amdWiki API v1.5.0**](../../../../../README.md)
+[**ngdpbase API v1.5.0**](../../../../../README.md)
 
 ***
 
-[amdWiki API](../../../../../README.md) / [src/parsers/dom/DOMParser](../README.md) / Token
+[ngdpbase API](../../../../../README.md) / [src/parsers/dom/DOMParser](../README.md) / Token
 
 # Interface: Token
 
-Defined in: [src/parsers/dom/DOMParser.ts:146](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/DOMParser.ts#L146)
+Defined in: [src/parsers/dom/DOMParser.ts:146](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/DOMParser.ts#L146)
 
 Token interface (from Tokenizer)
 
@@ -22,7 +22,7 @@ Additional properties
 
 > `optional` **column**: `number`
 
-Defined in: [src/parsers/dom/DOMParser.ts:154](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/DOMParser.ts#L154)
+Defined in: [src/parsers/dom/DOMParser.ts:154](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/DOMParser.ts#L154)
 
 Column number
 
@@ -32,7 +32,7 @@ Column number
 
 > `optional` **line**: `number`
 
-Defined in: [src/parsers/dom/DOMParser.ts:152](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/DOMParser.ts#L152)
+Defined in: [src/parsers/dom/DOMParser.ts:152](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/DOMParser.ts#L152)
 
 Line number
 
@@ -42,7 +42,7 @@ Line number
 
 > **type**: `string`
 
-Defined in: [src/parsers/dom/DOMParser.ts:148](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/DOMParser.ts#L148)
+Defined in: [src/parsers/dom/DOMParser.ts:148](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/DOMParser.ts#L148)
 
 Token type
 
@@ -52,6 +52,6 @@ Token type
 
 > **value**: `string`
 
-Defined in: [src/parsers/dom/DOMParser.ts:150](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/DOMParser.ts#L150)
+Defined in: [src/parsers/dom/DOMParser.ts:150](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/DOMParser.ts#L150)
 
 Token value

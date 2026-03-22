@@ -1,5 +1,5 @@
 /**
- * Provider type definitions for amdWiki
+ * Provider type definitions for ngdpbase
  *
  * This module defines interfaces for all provider types (page, user, attachment,
  * search, cache, audit) following JSPWiki's provider pattern for pluggable backends.

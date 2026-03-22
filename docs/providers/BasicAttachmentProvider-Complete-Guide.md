@@ -60,9 +60,9 @@ Automatticlly creates reference on the page used for upload:
 * Response format: Uses attachment metadata (attachmentId, url, Schema.org format)
 * Image syntax: [{Image src='/attachments/HASH' alt='filename'}]
 * The image will be:
-* Stored in /Volumes/hd3/GitHub/amdWiki/data/attachments/
+* Stored in /Volumes/hd3/GitHub/ngdpbase/data/attachments/
 * Content-hashed (SHA-256) for deduplication
-* Tracked in /Volumes/hd3/GitHub/amdWiki/data/attachments/BasicAttachmentProvider.json
+* Tracked in /Volumes/hd3/GitHub/ngdpbase/data/attachments/BasicAttachmentProvider.json
 * Associated with the "page" via the "mentions" array
 * Accessible at /attachments/{hash}
 * Image syntax will be:
@@ -105,30 +105,30 @@ All configuration MUST be from src/managers/ConfigurationManager.js
 
 SHOULD follow the basic functionality of <https://github.com/apache/jspwiki/blob/c31d4f284983fd25e37e7ec5682fe2bdfddc439b/jspwiki-main/src/main/java/org/apache/wiki/providers/BasicAttachmentProvider.java>
 
-SHOULD work with <https://github.com/jwilleke/amdWiki/issues/93>
+SHOULD work with <https://github.com/jwilleke/ngdpbase/issues/93>
 
-"Attachments" includes images or anything "amdwiki.features.attachments.allowedTypes".
+"Attachments" includes images or anything "ngdpbase.features.attachments.allowedTypes".
 
 Create a src/managers/BasicAttachmentProvider.js
 
 The current attachment provider is identified by:
-"amdwiki.attachment.provider": "BasicAttachmentProvider",
+"ngdpbase.attachment.provider": "BasicAttachmentProvider",
 
 The location to store attachments is is identified by:
-"amdwiki.basicAttachmentProvider.storageDir": "./data/attachments",
+"ngdpbase.basicAttachmentProvider.storageDir": "./data/attachments",
 
 BasicAttachmentProvider MUST be able to backup() and restore() for src/managers/BackupManager.js
 
 The following entries should be honored:
 
-* "amdwiki.features.attachments.enabled": true,
-* "amdwiki.features.attachments.maxSize": "10MB",
-* "amdwiki.features.attachments.allowedTypes": "image/*,text/*,application/pdf", <-- Should be an array of mimetypes -->
-* "amdwiki.features.attachments.metadatafile": "./data/attachments/BasicAttachmentProvider.json", (Matches "amdwiki.attachment.provider" name)
+* "ngdpbase.features.attachments.enabled": true,
+* "ngdpbase.features.attachments.maxSize": "10MB",
+* "ngdpbase.features.attachments.allowedTypes": "image/*,text/*,application/pdf", <-- Should be an array of mimetypes -->
+* "ngdpbase.features.attachments.metadatafile": "./data/attachments/BasicAttachmentProvider.json", (Matches "ngdpbase.attachment.provider" name)
 
 ## BasicAttachmentProvider.json
 
-In JSPWiki attachments were attached to individual pages but in amdWiki they are stored within a shared folder within the BasicAttachmentProvider.
+In JSPWiki attachments were attached to individual pages but in ngdpbase they are stored within a shared folder within the BasicAttachmentProvider.
 
 Which pages attchements are used it tracked within the associated "json" like BasicAttachmentProvider.json.
 

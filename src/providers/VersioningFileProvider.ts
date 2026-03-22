@@ -302,12 +302,12 @@ class VersioningFileProvider extends FileSystemProvider {
 
     // Set up directories (same as parent, but without calling refreshPageList)
     this.pagesDirectory = configManager.getResolvedDataPath(
-      'amdwiki.page.provider.filesystem.storagedir',
+      'ngdpbase.page.provider.filesystem.storagedir',
       './data/pages'
     );
 
     const reqCfgPath = configManager.getProperty(
-      'amdwiki.page.provider.filesystem.requiredpagesdir',
+      'ngdpbase.page.provider.filesystem.requiredpagesdir',
       './required-pages'
     ) as string;
     this.requiredPagesDirectory = path.isAbsolute(reqCfgPath)
@@ -315,13 +315,13 @@ class VersioningFileProvider extends FileSystemProvider {
       : path.join(process.cwd(), reqCfgPath);
 
     this.encoding = configManager.getProperty(
-      'amdwiki.page.provider.filesystem.encoding',
+      'ngdpbase.page.provider.filesystem.encoding',
       'utf-8'
     ) as BufferEncoding;
 
     // Initialize page name matcher
     const matchEnglishPlurals = configManager.getProperty(
-      'amdwiki.translator-reader.match-english-plurals',
+      'ngdpbase.translator-reader.match-english-plurals',
       true
     ) as boolean;
     this.pageNameMatcher = new PageNameMatcher(matchEnglishPlurals);
@@ -522,41 +522,41 @@ class VersioningFileProvider extends FileSystemProvider {
   private loadVersioningConfig(configManager: ConfigurationManager): Promise<void> {
     // Page index location - uses getResolvedDataPath to support INSTANCE_DATA_FOLDER
     this.pageIndexPath = configManager.getResolvedDataPath(
-      'amdwiki.page.provider.versioning.indexfile',
+      'ngdpbase.page.provider.versioning.indexfile',
       './data/page-index.json'
     );
 
     // Version retention settings
     this.maxVersions = configManager.getProperty(
-      'amdwiki.page.provider.versioning.maxversions',
+      'ngdpbase.page.provider.versioning.maxversions',
       50
     ) as number;
 
     this.retentionDays = configManager.getProperty(
-      'amdwiki.page.provider.versioning.retentiondays',
+      'ngdpbase.page.provider.versioning.retentiondays',
       365
     ) as number;
 
     // Storage optimization settings
     const compressionSetting = configManager.getProperty(
-      'amdwiki.page.provider.versioning.compression',
+      'ngdpbase.page.provider.versioning.compression',
       'gzip'
     ) as string;
     this.compressionEnabled = compressionSetting === 'gzip';
 
     this.deltaStorageEnabled = configManager.getProperty(
-      'amdwiki.page.provider.versioning.deltastorage',
+      'ngdpbase.page.provider.versioning.deltastorage',
       true
     ) as boolean;
 
     // Performance optimization settings
     this.checkpointInterval = configManager.getProperty(
-      'amdwiki.page.provider.versioning.checkpointinterval',
+      'ngdpbase.page.provider.versioning.checkpointinterval',
       10
     ) as number;
 
     this.versionCacheSize = configManager.getProperty(
-      'amdwiki.page.provider.versioning.cachesize',
+      'ngdpbase.page.provider.versioning.cachesize',
       50
     ) as number;
 
@@ -1070,7 +1070,7 @@ class VersioningFileProvider extends FileSystemProvider {
     } else {
       const systemCategory = (metadataRecord['system-category'] || metadataRecord.systemCategory || 'General') as string;
       const configManager = this.engine.getManager<ConfigurationManager>('ConfigurationManager');
-      const systemCategoriesConfig = configManager?.getProperty('amdwiki.system-category', null) as Record<string, { label?: string; storageLocation?: string }> | null;
+      const systemCategoriesConfig = configManager?.getProperty('ngdpbase.system-category', null) as Record<string, { label?: string; storageLocation?: string }> | null;
 
       if (systemCategoriesConfig) {
         for (const config of Object.values(systemCategoriesConfig)) {

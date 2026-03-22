@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes to amdWiki will be documented in this file.
+All notable changes to ngdpbase will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
@@ -79,12 +79,12 @@ data/
 
 | Property | Old Value | New Value |
 | ---------- | ----------- | ----------- |
-| `amdwiki.page.provider.filesystem.storagedir` | `./pages` | `./data/pages` |
-| `amdwiki.user.provider.storagedir` | `./users` | `./data/users` |
-| `amdwiki.search.provider.lunr.indexdir` | `./search-index` | `./data/search-index` |
-| `amdwiki.logging.dir` | `./logs` | `./data/logs` |
-| `amdwiki.audit.provider.file.logdirectory` | `./logs` | `./data/logs` |
-| `amdwiki.backup.directory` | `./backups` | `./data/backups` |
+| `ngdpbase.page.provider.filesystem.storagedir` | `./pages` | `./data/pages` |
+| `ngdpbase.user.provider.storagedir` | `./users` | `./data/users` |
+| `ngdpbase.search.provider.lunr.indexdir` | `./search-index` | `./data/search-index` |
+| `ngdpbase.logging.dir` | `./logs` | `./data/logs` |
+| `ngdpbase.audit.provider.file.logdirectory` | `./logs` | `./data/logs` |
+| `ngdpbase.backup.directory` | `./backups` | `./data/backups` |
 
 ### Added
 
@@ -97,7 +97,7 @@ data/
 
 ### Changed
 
-- Marked legacy config properties (`amdwiki.directories.*`, `amdwiki.jsonuserdatabase`, etc.)
+- Marked legacy config properties (`ngdpbase.directories.*`, `ngdpbase.jsonuserdatabase`, etc.)
 - Docker now requires only one volume mount instead of multiple
 
 ### Documentation
@@ -197,13 +197,13 @@ New versioning configuration options:
 
 ```json
 {
-  "amdwiki.page.provider": "versioningfileprovider",
-  "amdwiki.page.provider.versioning.maxversions": 50,
-  "amdwiki.page.provider.versioning.retentiondays": 365,
-  "amdwiki.page.provider.versioning.compression": "gzip",
-  "amdwiki.page.provider.versioning.deltastorage": true,
-  "amdwiki.page.provider.versioning.checkpointinterval": 10,
-  "amdwiki.page.provider.versioning.cachesize": 50
+  "ngdpbase.page.provider": "versioningfileprovider",
+  "ngdpbase.page.provider.versioning.maxversions": 50,
+  "ngdpbase.page.provider.versioning.retentiondays": 365,
+  "ngdpbase.page.provider.versioning.compression": "gzip",
+  "ngdpbase.page.provider.versioning.deltastorage": true,
+  "ngdpbase.page.provider.versioning.checkpointinterval": 10,
+  "ngdpbase.page.provider.versioning.cachesize": 50
 }
 ```
 
@@ -258,13 +258,13 @@ None. VersioningFileProvider is opt-in and fully backward compatible.
 
 To enable versioning:
 
-1. Update config: `"amdwiki.page.provider": "versioningfileprovider"`
+1. Update config: `"ngdpbase.page.provider": "versioningfileprovider"`
 2. Restart application
 3. Version history created automatically for all pages
 
 To disable versioning:
 
-1. Update config: `"amdwiki.page.provider": "filesystemprovider"`
+1. Update config: `"ngdpbase.page.provider": "filesystemprovider"`
 2. Restart application
 3. Version data preserved for future re-enabling
 
@@ -369,9 +369,9 @@ See issue #124 for planned Phase 7+ features.
 
 ## Links
 
-- [GitHub Repository](https://github.com/jwilleke/amdWiki)
+- [GitHub Repository](https://github.com/jwilleke/ngdpbase)
 - [Documentation](./docs/)
-- [Issue Tracker](https://github.com/jwilleke/amdWiki/issues)
+- [Issue Tracker](https://github.com/jwilleke/ngdpbase/issues)
 
 ---
 

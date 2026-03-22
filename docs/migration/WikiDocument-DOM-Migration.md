@@ -19,7 +19,7 @@ Good News: Most users don't need to do anything! The new pipeline is backward co
 - ✅ You only use standard JSPWiki syntax (variables, plugins, links)
 - ✅ You haven't created custom syntax handlers
 - ✅ You haven't modified the MarkupParser code
-- ✅ You use amdWiki's standard configuration
+- ✅ You use ngdpbase's standard configuration
 
 Action: None required. The new pipeline is active by default.
 
@@ -519,7 +519,7 @@ Restart server. Pages will use legacy parser.
    }
    ```
 
-2. Report issues on GitHub: <https://github.com/jwilleke/amdWiki/issues>
+2. Report issues on GitHub: <https://github.com/jwilleke/ngdpbase/issues>
 
 3. Include:
    - Error messages
@@ -588,14 +588,14 @@ async createNodeFromExtract(element, context, wikiDocument) {
 
 ### Support
 
-- GitHub Issues: <https://github.com/jwilleke/amdWiki/issues>
-- Documentation: <https://github.com/jwilleke/amdWiki/tree/master/docs>
+- GitHub Issues: <https://github.com/jwilleke/ngdpbase/issues>
+- Documentation: <https://github.com/jwilleke/ngdpbase/tree/master/docs>
 
 ### Reporting Issues
 
 Include:
 
-1. amdWiki version
+1. ngdpbase version
 2. Custom handler code
 3. Input content that fails
 4. Expected output

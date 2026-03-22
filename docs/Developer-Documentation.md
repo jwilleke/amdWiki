@@ -1,6 +1,6 @@
 # Developer Documentation
 
-Complete index of amdWiki developer documentation
+Complete index of ngdpbase developer documentation
 
 Last Updated: 2025-12-22
 
@@ -272,4 +272,4 @@ Before contributing, please review:
 - ✅ FileUserProvider (quick reference + complete guide)
 - ✅ VersioningFileProvider (quick reference + complete guide)
 
-See [Issue #178](https://github.com/jwilleke/amdWiki/issues/178) for documentation improvement tracking.
+See [Issue #178](https://github.com/jwilleke/ngdpbase/issues/178) for documentation improvement tracking.

@@ -12,16 +12,16 @@ Issue #122 requests per-user private folders where pages tagged with the `privat
 
 | Config key | Purpose | Who sets it |
 |---|---|---|
-| `amdwiki.system-category` | Admin-defined page categories that drive storage location (`regular`, `required`, `github`). VersioningFileProvider already reads `storageLocation` from these entries. | Admins/config |
-| `amdwiki.user-keywords` | User-applied content tags (`private`, `draft`, `review`, etc.). Currently metadata-only with no storage enforcement. | Users |
-| `amdwiki.system-keywords` | System-level controlled vocabulary (`general`). | System |
+| `ngdpbase.system-category` | Admin-defined page categories that drive storage location (`regular`, `required`, `github`). VersioningFileProvider already reads `storageLocation` from these entries. | Admins/config |
+| `ngdpbase.user-keywords` | User-applied content tags (`private`, `draft`, `review`, etc.). Currently metadata-only with no storage enforcement. | Users |
+| `ngdpbase.system-keywords` | System-level controlled vocabulary (`general`). | System |
 
-The `private` entry already exists in `amdwiki.user-keywords`. This plan adds `storageLocation: "private"` to that entry — mirroring the `system-category` pattern — and wires up the enforcement that `system-category` already has.
+The `private` entry already exists in `ngdpbase.user-keywords`. This plan adds `storageLocation: "private"` to that entry — mirroring the `system-category` pattern — and wires up the enforcement that `system-category` already has.
 
 ### Current state
 
 - All pages stored flat by UUID: `{pagesDirectory}/{uuid}.md`
-- `amdwiki.user-keywords.private` exists in config but has no storage enforcement code
+- `ngdpbase.user-keywords.private` exists in config but has no storage enforcement code
 - ACLManager supports page-level ACLs (`[{ALLOW}]` in content) but no metadata-based isolation
 - Attachments are content-addressed (SHA-256) in a single shared directory
 - MediaManager does not exist yet
@@ -110,11 +110,11 @@ Add `this.privateVersionsDir = path.join(this.versionsDirectory, 'private')` to 
 
 ### 1.4 — Detect "private" keyword in `PageManager.savePageWithContext()`
 
-In `PageManager.savePageWithContext()` (`src/managers/PageManager.ts` lines 274-293), use a **config-driven** check — read `storageLocation` from the keyword definition in `amdwiki.user-keywords`, mirroring how `amdwiki.system-category` drives location today:
+In `PageManager.savePageWithContext()` (`src/managers/PageManager.ts` lines 274-293), use a **config-driven** check — read `storageLocation` from the keyword definition in `ngdpbase.user-keywords`, mirroring how `ngdpbase.system-category` drives location today:
 
 ```typescript
 const configManager = this.engine.getManager<ConfigurationManager>('ConfigurationManager');
-const userKeywordDefs = configManager.getProperty<Record<string, { storageLocation?: string }>>('amdwiki.user-keywords', {});
+const userKeywordDefs = configManager.getProperty<Record<string, { storageLocation?: string }>>('ngdpbase.user-keywords', {});
 const userKeywords = (metadata['user-keywords'] || []) as string[];
 
 // Check if any applied user-keyword requests private storage
@@ -181,12 +181,12 @@ results = results.filter(doc => {
 });
 ```
 
-### 1.7 — Config: add `storageLocation` to the existing `amdwiki.user-keywords.private` entry
+### 1.7 — Config: add `storageLocation` to the existing `ngdpbase.user-keywords.private` entry
 
-The `private` entry already exists in `config/app-default-config.json` under `amdwiki.user-keywords`. Add `storageLocation: "private"` to it — the same field used by `amdwiki.system-category` entries to signal where pages should be stored:
+The `private` entry already exists in `config/app-default-config.json` under `ngdpbase.user-keywords`. Add `storageLocation: "private"` to it — the same field used by `ngdpbase.system-category` entries to signal where pages should be stored:
 
 ```json
-// config/app-default-config.json → amdwiki.user-keywords → private
+// config/app-default-config.json → ngdpbase.user-keywords → private
 "private": {
   "label": "private",
   "description": "Private content editable only by creator and admins",
@@ -333,7 +333,7 @@ These two managers are **kept separate** with no handoff between them:
 
 AttachmentProvider does **not** delegate to MediaManager for image/video uploads. The clean architectural separation is preserved.
 
-**Bridge without coupling**: if uploaded attachments should also appear in the media browser, add `${SLOW_STORAGE}/attachments` to `amdwiki.media.folders` in config. MediaManager will scan and index the directory with zero code coupling.
+**Bridge without coupling**: if uploaded attachments should also appear in the media browser, add `${SLOW_STORAGE}/attachments` to `ngdpbase.media.folders` in config. MediaManager will scan and index the directory with zero code coupling.
 
 ---
 
@@ -363,7 +363,7 @@ class MediaManager extends BaseManager {
 
 All public methods accept `WikiContext` (optional — admin/internal calls pass `undefined`). `WikiContext` is built once per request in the route handler and passed through.
 
-Register in `WikiEngine.ts` after `AttachmentManager` (line ~147), only when `amdwiki.media.enabled` is true.
+Register in `WikiEngine.ts` after `AttachmentManager` (line ~147), only when `ngdpbase.media.enabled` is true.
 
 ### 3.4 — BaseMediaProvider interface
 
@@ -387,19 +387,19 @@ abstract class BaseMediaProvider {
 - **Ignore config**:
 
   ```json
-  "amdwiki.media.ignoredirs": [".dtrash", ".ts"],
-  "amdwiki.media.ignorefiles": [".photoviewignore", ".plexignore"]
+  "ngdpbase.media.ignoredirs": [".dtrash", ".ts"],
+  "ngdpbase.media.ignorefiles": [".photoviewignore", ".plexignore"]
   ```
 
 - **Thumbnail generation**: lazy, on first request; stored in `${FAST_STORAGE}/media/thumbs/{sha256}.jpg`, **never** in source tree
-- **Read-only**: `amdwiki.media.readonly: true` — refuse to write to source media folders
+- **Read-only**: `ngdpbase.media.readonly: true` — refuse to write to source media folders
 
 ### 3.6 — Metadata extraction strategy (MWG priority model)
 
 Use `exiftool-vendored` with the MWG composite tag model, priority configurable via:
 
 ```json
-"amdwiki.media.metadata.priority": ["EXIF", "IPTC", "XMP"]
+"ngdpbase.media.metadata.priority": ["EXIF", "IPTC", "XMP"]
 ```
 
 Date resolution priority (per item):
@@ -450,17 +450,17 @@ if (item.linkedPageName && wikiContext) {
 ### 3.9 — Config keys (`config/app-default-config.json`)
 
 ```json
-"amdwiki.media.enabled": false,
-"amdwiki.media.folders": [],
-"amdwiki.media.maxdepth": 5,
-"amdwiki.media.scaninterval": 3600000,
-"amdwiki.media.readonly": true,
-"amdwiki.media.index.file": "${FAST_STORAGE}/media-index.json",
-"amdwiki.media.thumbnail.dir": "${FAST_STORAGE}/media/thumbs",
-"amdwiki.media.thumbnail.sizes": "300x300,150x150",
-"amdwiki.media.metadata.priority": ["EXIF", "IPTC", "XMP"],
-"amdwiki.media.ignoredirs": [".dtrash", ".ts"],
-"amdwiki.media.ignorefiles": [".photoviewignore", ".plexignore"]
+"ngdpbase.media.enabled": false,
+"ngdpbase.media.folders": [],
+"ngdpbase.media.maxdepth": 5,
+"ngdpbase.media.scaninterval": 3600000,
+"ngdpbase.media.readonly": true,
+"ngdpbase.media.index.file": "${FAST_STORAGE}/media-index.json",
+"ngdpbase.media.thumbnail.dir": "${FAST_STORAGE}/media/thumbs",
+"ngdpbase.media.thumbnail.sizes": "300x300,150x150",
+"ngdpbase.media.metadata.priority": ["EXIF", "IPTC", "XMP"],
+"ngdpbase.media.ignoredirs": [".dtrash", ".ts"],
+"ngdpbase.media.ignorefiles": [".photoviewignore", ".plexignore"]
 ```
 
 ### 3.10 — Routes (add to `WikiRoutes.ts`)
@@ -501,7 +501,7 @@ Parameter names follow #238 conventions: `max` not `limit`, `output` for mode. S
 | `src/managers/AttachmentManager.ts` | Resolve page privacy from PageManager, pass flags to provider |
 | `src/routes/WikiRoutes.ts` | `checkPrivatePageAccess()` guard on page/attachment routes; add `/media/*` routes |
 | `src/WikiEngine.ts` | Register MediaManager after AttachmentManager (conditional on config) |
-| `config/app-default-config.json` | Add `storageLocation: "private"` to existing `amdwiki.user-keywords.private` entry; add all `amdwiki.media.*` defaults |
+| `config/app-default-config.json` | Add `storageLocation: "private"` to existing `ngdpbase.user-keywords.private` entry; add all `ngdpbase.media.*` defaults |
 | `src/managers/MediaManager.ts` | **NEW** |
 | `src/providers/BaseMediaProvider.ts` | **NEW** |
 | `src/providers/FileSystemMediaProvider.ts` | **NEW** |
@@ -616,7 +616,7 @@ The zip must include a `key-params.json` file with the PBKDF2 salt and parameter
 
 **What this enables:**
 
-- Alice can restore her encrypted backup to any amdWiki instance using the same key derivation
+- Alice can restore her encrypted backup to any ngdpbase instance using the same key derivation
 - If Alice loses her wiki password she cannot recover on the server, but a local backup + her original password restores everything — the "lost password = lost data" liability becomes "lost password AND lost backup = lost data"
 - Alice owns her data in a meaningful sense; the server is a convenience, not the custodian
 - A small standalone decrypt tool (trivial Node.js or Python script using the same PBKDF2 + AES-256-GCM parameters) lets Alice read her pages locally without the wiki server
@@ -666,6 +666,6 @@ Per-instance encryption may be appropriate for simpler deployments where admin a
 3. **Anonymous access**: unauthenticated request to a private page → 403
 4. **Search exclusion**: search for content from alice's private page as `bob` → no results; as `alice` → result appears
 5. **Private attachments**: upload file to a private page → verify stored in `attachments/private/alice/{hash}.ext`; direct `GET /attachments/{id}` as `bob` → 403
-6. **MediaManager startup**: set `amdwiki.media.enabled: true`, configure a folder → verify `media-index.json` created at `FAST_STORAGE`, no files written to source folder
+6. **MediaManager startup**: set `ngdpbase.media.enabled: true`, configure a folder → verify `media-index.json` created at `FAST_STORAGE`, no files written to source folder
 7. **Thumbnail route**: `GET /media/thumb/{id}?size=300` → 200 JPEG, thumbnail appears in `data/media/thumbs/`, source folder unchanged
 8. **E2E tests**: Playwright tests for private page create/view/403 denial — serial mode, separate test project to avoid toggling shared server state

@@ -1,12 +1,12 @@
-[**amdWiki API v1.5.0**](../../../../../README.md)
+[**ngdpbase API v1.5.0**](../../../../../README.md)
 
 ***
 
-[amdWiki API](../../../../../README.md) / [src/parsers/filters/FilterChain](../README.md) / ExportedFilterInfo
+[ngdpbase API](../../../../../README.md) / [src/parsers/filters/FilterChain](../README.md) / ExportedFilterInfo
 
 # Interface: ExportedFilterInfo
 
-Defined in: [src/parsers/filters/FilterChain.ts:150](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/FilterChain.ts#L150)
+Defined in: [src/parsers/filters/FilterChain.ts:150](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/FilterChain.ts#L150)
 
 Exported filter info
 
@@ -16,7 +16,7 @@ Exported filter info
 
 > **description**: `string`
 
-Defined in: [src/parsers/filters/FilterChain.ts:154](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/FilterChain.ts#L154)
+Defined in: [src/parsers/filters/FilterChain.ts:154](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/FilterChain.ts#L154)
 
 ***
 
@@ -24,7 +24,7 @@ Defined in: [src/parsers/filters/FilterChain.ts:154](https://github.com/jwilleke
 
 > **enabled**: `boolean`
 
-Defined in: [src/parsers/filters/FilterChain.ts:153](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/FilterChain.ts#L153)
+Defined in: [src/parsers/filters/FilterChain.ts:153](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/FilterChain.ts#L153)
 
 ***
 
@@ -32,7 +32,7 @@ Defined in: [src/parsers/filters/FilterChain.ts:153](https://github.com/jwilleke
 
 > **filterId**: `string`
 
-Defined in: [src/parsers/filters/FilterChain.ts:151](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/FilterChain.ts#L151)
+Defined in: [src/parsers/filters/FilterChain.ts:151](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/FilterChain.ts#L151)
 
 ***
 
@@ -40,4 +40,4 @@ Defined in: [src/parsers/filters/FilterChain.ts:151](https://github.com/jwilleke
 
 > **priority**: `number`
 
-Defined in: [src/parsers/filters/FilterChain.ts:152](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/FilterChain.ts#L152)
+Defined in: [src/parsers/filters/FilterChain.ts:152](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/FilterChain.ts#L152)

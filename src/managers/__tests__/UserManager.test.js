@@ -12,13 +12,13 @@ const UserManager = require('../UserManager');
 const mockConfigurationManager = {
   getProperty: jest.fn((key, defaultValue) => {
     const config = {
-      'amdwiki.user.provider.default': 'fileuserprovider',
-      'amdwiki.user.provider': 'fileuserprovider',
-      'amdwiki.user.defaultPassword': 'admin',
-      'amdwiki.user.passwordSalt': 'test-salt',
-      'amdwiki.user.sessionExpiration': 3600000,
-      'amdwiki.user.defaultTimezone': 'UTC',
-      'amdwiki.directories.users': './users'
+      'ngdpbase.user.provider.default': 'fileuserprovider',
+      'ngdpbase.user.provider': 'fileuserprovider',
+      'ngdpbase.user.defaultPassword': 'admin',
+      'ngdpbase.user.passwordSalt': 'test-salt',
+      'ngdpbase.user.sessionExpiration': 3600000,
+      'ngdpbase.user.defaultTimezone': 'UTC',
+      'ngdpbase.directories.users': './users'
     };
     return config[key] !== undefined ? config[key] : defaultValue;
   })
@@ -42,13 +42,13 @@ describe('UserManager', () => {
     // Reset mock implementation to default behavior
     mockConfigurationManager.getProperty.mockImplementation((key, defaultValue) => {
       const config = {
-        'amdwiki.user.provider.default': 'fileuserprovider',
-        'amdwiki.user.provider': 'fileuserprovider',
-        'amdwiki.user.defaultPassword': 'admin',
-        'amdwiki.user.passwordSalt': 'test-salt',
-        'amdwiki.user.sessionExpiration': 3600000,
-        'amdwiki.user.defaultTimezone': 'UTC',
-        'amdwiki.directories.users': './users'
+        'ngdpbase.user.provider.default': 'fileuserprovider',
+        'ngdpbase.user.provider': 'fileuserprovider',
+        'ngdpbase.user.defaultPassword': 'admin',
+        'ngdpbase.user.passwordSalt': 'test-salt',
+        'ngdpbase.user.sessionExpiration': 3600000,
+        'ngdpbase.user.defaultTimezone': 'UTC',
+        'ngdpbase.directories.users': './users'
       };
       return config[key] !== undefined ? config[key] : defaultValue;
     });
@@ -77,7 +77,7 @@ describe('UserManager', () => {
     });
 
     test('should get configuration from ConfigurationManager', () => {
-      expect(mockConfigurationManager.getProperty).toHaveBeenCalledWith('amdwiki.user.provider', expect.any(String));
+      expect(mockConfigurationManager.getProperty).toHaveBeenCalledWith('ngdpbase.user.provider', expect.any(String));
     });
 
     test('should initialize role and permission maps', () => {
@@ -358,8 +358,8 @@ describe('UserManager', () => {
 
     test('should handle provider name case-insensitively', async () => {
       mockConfigurationManager.getProperty.mockImplementation((key, defaultValue) => {
-        if (key === 'amdwiki.user.provider') return 'FILEUSERPROVIDER';
-        if (key === 'amdwiki.user.provider.default') return 'fileuserprovider';
+        if (key === 'ngdpbase.user.provider') return 'FILEUSERPROVIDER';
+        if (key === 'ngdpbase.user.provider.default') return 'fileuserprovider';
         return defaultValue;
       });
 

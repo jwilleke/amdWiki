@@ -2,7 +2,7 @@
 
 ## Overview
 
-This guide provides comprehensive troubleshooting information for the amdWiki Policy-Based Access Control (PBAC) system. It covers common issues, diagnostic procedures, and resolution steps to help administrators maintain a healthy policy environment.
+This guide provides comprehensive troubleshooting information for the ngdpbase Policy-Based Access Control (PBAC) system. It covers common issues, diagnostic procedures, and resolution steps to help administrators maintain a healthy policy environment.
 
 ## Quick Diagnosis Checklist
 
@@ -165,8 +165,8 @@ Before diving into specific issues, use this checklist for rapid diagnosis:
 
    ```bash
    # Check for policy loading errors
-   grep -i "policy" /var/log/amdwiki/app.log
-   grep -i "error" /var/log/amdwiki/app.log
+   grep -i "policy" /var/log/ngdpbase/app.log
+   grep -i "error" /var/log/ngdpbase/app.log
    ```
 
 **Resolution Steps:**
@@ -183,9 +183,9 @@ Before diving into specific issues, use this checklist for rapid diagnosis:
 
    ```bash
    # Restart the wiki service
-   sudo systemctl restart amdwiki
+   sudo systemctl restart ngdpbase
    # or
-   pm2 restart amdwiki
+   pm2 restart ngdpbase
    ```
 
 3. **Reload Policies**
@@ -355,7 +355,7 @@ Before diving into specific issues, use this checklist for rapid diagnosis:
 
    ```bash
    # Check recent access logs
-   grep "ALLOW" /var/log/amdwiki/access.log | tail -20
+   grep "ALLOW" /var/log/ngdpbase/access.log | tail -20
    ```
 
 4. **Test Policy Logic**
@@ -617,7 +617,7 @@ class PolicyProfiler {
 
 ```bash
 # Find most accessed resources
-grep "ACCESS" /var/log/amdwiki/audit.log | \
+grep "ACCESS" /var/log/ngdpbase/audit.log | \
   awk '{print $7}' | \
   sort | \
   uniq -c | \
@@ -625,14 +625,14 @@ grep "ACCESS" /var/log/amdwiki/audit.log | \
   head -10
 
 # Find policy denial reasons
-grep "DENY" /var/log/amdwiki/audit.log | \
+grep "DENY" /var/log/ngdpbase/audit.log | \
   awk '{print $8}' | \
   sort | \
   uniq -c | \
   sort -nr
 
 # Monitor policy evaluation performance
-grep "POLICY_EVAL" /var/log/amdwiki/performance.log | \
+grep "POLICY_EVAL" /var/log/ngdpbase/performance.log | \
   awk '{sum += $3; count++} END {print "Average:", sum/count, "ms"}'
 ```
 
@@ -727,7 +727,7 @@ cat > /path/to/policies/active-policies.json << 'EOF'
 EOF
 
 # 3. Restart services
-sudo systemctl restart amdwiki
+sudo systemctl restart ngdpbase
 
 # 4. Verify access
 curl -u admin:password http://localhost:3000/
@@ -794,7 +794,7 @@ if [ -n "$high_priority" ]; then
 fi
 
 # Check recent errors
-error_count=$(grep -c "ERROR.*policy" /var/log/amdwiki/app.log)
+error_count=$(grep -c "ERROR.*policy" /var/log/ngdpbase/app.log)
 if [ "$error_count" -gt 0 ]; then
     echo "⚠ $error_count policy-related errors in logs"
 fi
@@ -885,4 +885,4 @@ echo "Policy backup completed: $TIMESTAMP"
 
 ---
 
-*This troubleshooting guide covers amdWiki Policy-Based Access Control version 1.0. For the latest troubleshooting information and additional tools, check the official documentation.*
+*This troubleshooting guide covers ngdpbase Policy-Based Access Control version 1.0. For the latest troubleshooting information and additional tools, check the official documentation.*

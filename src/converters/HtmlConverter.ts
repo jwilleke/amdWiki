@@ -1,7 +1,7 @@
 /**
  * HTML to Markdown Converter
  *
- * Converts HTML web pages to Markdown for import into amdWiki.
+ * Converts HTML web pages to Markdown for import into ngdpbase.
  * Uses linkedom for DOM parsing/content extraction and turndown for HTML-to-Markdown conversion.
  * Extracts metadata from HTML head, meta tags, Open Graph, and Schema.org markup.
  *

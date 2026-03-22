@@ -1,12 +1,12 @@
-[**amdWiki API v1.5.0**](../../../../../README.md)
+[**ngdpbase API v1.5.0**](../../../../../README.md)
 
 ***
 
-[amdWiki API](../../../../../README.md) / [src/parsers/handlers/HandlerRegistry](../README.md) / RegistryInfo
+[ngdpbase API](../../../../../README.md) / [src/parsers/handlers/HandlerRegistry](../README.md) / RegistryInfo
 
 # Interface: RegistryInfo
 
-Defined in: [src/parsers/handlers/HandlerRegistry.ts:88](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/HandlerRegistry.ts#L88)
+Defined in: [src/parsers/handlers/HandlerRegistry.ts:88](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/HandlerRegistry.ts#L88)
 
 Registry information summary
 
@@ -16,7 +16,7 @@ Registry information summary
 
 > **activeHandlerCount**: `number`
 
-Defined in: [src/parsers/handlers/HandlerRegistry.ts:90](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/HandlerRegistry.ts#L90)
+Defined in: [src/parsers/handlers/HandlerRegistry.ts:90](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/HandlerRegistry.ts#L90)
 
 ***
 
@@ -24,7 +24,7 @@ Defined in: [src/parsers/handlers/HandlerRegistry.ts:90](https://github.com/jwil
 
 > **config**: [`RegistryConfig`](RegistryConfig.md)
 
-Defined in: [src/parsers/handlers/HandlerRegistry.ts:91](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/HandlerRegistry.ts#L91)
+Defined in: [src/parsers/handlers/HandlerRegistry.ts:91](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/HandlerRegistry.ts#L91)
 
 ***
 
@@ -32,7 +32,7 @@ Defined in: [src/parsers/handlers/HandlerRegistry.ts:91](https://github.com/jwil
 
 > **handlerCount**: `number`
 
-Defined in: [src/parsers/handlers/HandlerRegistry.ts:89](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/HandlerRegistry.ts#L89)
+Defined in: [src/parsers/handlers/HandlerRegistry.ts:89](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/HandlerRegistry.ts#L89)
 
 ***
 
@@ -40,4 +40,4 @@ Defined in: [src/parsers/handlers/HandlerRegistry.ts:89](https://github.com/jwil
 
 > **stats**: [`RegistryStats`](RegistryStats.md)
 
-Defined in: [src/parsers/handlers/HandlerRegistry.ts:92](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/HandlerRegistry.ts#L92)
+Defined in: [src/parsers/handlers/HandlerRegistry.ts:92](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/HandlerRegistry.ts#L92)

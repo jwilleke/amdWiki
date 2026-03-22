@@ -10,7 +10,7 @@
  * The manager compiles and registers cleanly; all index queries return
  * empty results until a real FileSystemMediaProvider scan is implemented.
  *
- * Enabled via config: amdwiki.media.enabled = true
+ * Enabled via config: ngdpbase.media.enabled = true
  *
  * @class MediaManager
  * @extends BaseManager
@@ -43,7 +43,7 @@ class MediaManager extends BaseManager {
    * - Creates the thumbnail directory if it does not exist.
    * - Instantiates the FileSystemMediaProvider with config-driven settings.
    * - Loads any existing media-index.json from disk (stub: no-op).
-   * - Schedules a periodic background rescan based on amdwiki.media.scaninterval.
+   * - Schedules a periodic background rescan based on ngdpbase.media.scaninterval.
    *
    * @param config - Configuration overrides (passed by BaseManager pattern).
    */
@@ -57,12 +57,12 @@ class MediaManager extends BaseManager {
 
     const defaultThumbDir = path.join(process.env.FAST_STORAGE ?? './data', 'media', 'thumbs');
     const thumbnailDir =
-      configManager.getResolvedDataPath('amdwiki.media.thumbnail.dir', defaultThumbDir) ||
+      configManager.getResolvedDataPath('ngdpbase.media.thumbnail.dir', defaultThumbDir) ||
       defaultThumbDir;
 
     const defaultIndexFile = path.join(process.env.FAST_STORAGE ?? './data', 'media-index.json');
     const indexFile =
-      configManager.getResolvedDataPath('amdwiki.media.index.file', defaultIndexFile) ||
+      configManager.getResolvedDataPath('ngdpbase.media.index.file', defaultIndexFile) ||
       defaultIndexFile;
 
     // Ensure thumbnail directory exists
@@ -74,17 +74,17 @@ class MediaManager extends BaseManager {
     }
 
     // Defensive: if stored as a legacy comma-separated string instead of a JSON array, split it.
-    const rawFolders = configManager.getProperty('amdwiki.media.folders', []);
+    const rawFolders = configManager.getProperty('ngdpbase.media.folders', []);
     const folders: string[] = Array.isArray(rawFolders)
       ? (rawFolders as string[])
       : typeof rawFolders === 'string' && rawFolders.trim()
         ? rawFolders.split(',').map((f: string) => f.trim()).filter(Boolean)
         : [];
-    const ignoreDirs = configManager.getProperty('amdwiki.media.ignoredirs', ['.dtrash', '.ts']) as string[];
-    const maxDepth = configManager.getProperty('amdwiki.media.maxdepth', 5) as number;
-    const thumbnailSizes = configManager.getProperty('amdwiki.media.thumbnail.sizes', '300x300,150x150') as string;
-    const metadataPriority = configManager.getProperty('amdwiki.media.metadata.priority', ['EXIF', 'IPTC', 'XMP']) as string[];
-    const extensionList = configManager.getProperty('amdwiki.media.extensions', DEFAULT_MEDIA_EXTENSIONS) as string[];
+    const ignoreDirs = configManager.getProperty('ngdpbase.media.ignoredirs', ['.dtrash', '.ts']) as string[];
+    const maxDepth = configManager.getProperty('ngdpbase.media.maxdepth', 5) as number;
+    const thumbnailSizes = configManager.getProperty('ngdpbase.media.thumbnail.sizes', '300x300,150x150') as string;
+    const metadataPriority = configManager.getProperty('ngdpbase.media.metadata.priority', ['EXIF', 'IPTC', 'XMP']) as string[];
+    const extensionList = configManager.getProperty('ngdpbase.media.extensions', DEFAULT_MEDIA_EXTENSIONS) as string[];
     const extensions = new Set(extensionList.map(e => e.toLowerCase().replace(/^\./, '')));
 
     this.provider = new FileSystemMediaProvider({
@@ -102,7 +102,7 @@ class MediaManager extends BaseManager {
     // Load persisted index so queries work before the first background scan
     await this.provider.initialize();
 
-    const scanInterval = configManager.getProperty('amdwiki.media.scaninterval', 3600000) as number;
+    const scanInterval = configManager.getProperty('ngdpbase.media.scaninterval', 3600000) as number;
     if (scanInterval > 0) {
       this.scanTimer = setInterval(() => {
         void this.scanFolders();

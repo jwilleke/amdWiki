@@ -1,6 +1,6 @@
-# amdWiki MCP Server
+# ngdpbase MCP Server
 
-The amdWiki MCP (Model Context Protocol) Server provides AI assistants like Claude with direct access to wiki content, search functionality, validation, and metadata operations.
+The ngdpbase MCP (Model Context Protocol) Server provides AI assistants like Claude with direct access to wiki content, search functionality, validation, and metadata operations.
 
 ## Overview
 
@@ -40,12 +40,12 @@ Add to your Claude Desktop configuration (`~/Library/Application Support/Claude/
 ```json
 {
   "mcpServers": {
-    "amdwiki": {
+    "ngdpbase": {
       "command": "node",
       "args": [
-        "/path/to/amdWiki/dist/mcp-server.js"
+        "/path/to/ngdpbase/dist/mcp-server.js"
       ],
-      "cwd": "/path/to/amdWiki"
+      "cwd": "/path/to/ngdpbase"
     }
   }
 }
@@ -58,12 +58,12 @@ Add to `~/.claude/mcp.json` (or project-level `.claude/mcp.json`):
 ```json
 {
   "mcpServers": {
-    "amdwiki": {
+    "ngdpbase": {
       "command": "node",
       "args": [
-        "/path/to/amdWiki/dist/mcp-server.js"
+        "/path/to/ngdpbase/dist/mcp-server.js"
       ],
-      "cwd": "/path/to/amdWiki"
+      "cwd": "/path/to/ngdpbase"
     }
   }
 }
@@ -104,8 +104,8 @@ import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js'
 
 const transport = new StdioClientTransport({
   command: 'node',
-  args: ['/path/to/amdWiki/dist/mcp-server.js'],
-  cwd: '/path/to/amdWiki'
+  args: ['/path/to/ngdpbase/dist/mcp-server.js'],
+  cwd: '/path/to/ngdpbase'
 });
 
 const client = new Client({ name: 'my-agent', version: '1.0.0' });
@@ -115,7 +115,7 @@ await client.connect(transport);
 const tools = await client.listTools();
 
 // Call a tool
-const result = await client.callTool('amdwiki_search', {
+const result = await client.callTool('ngdpbase_search', {
   query: 'validation',
   max_results: 10
 });
@@ -123,7 +123,7 @@ const result = await client.callTool('amdwiki_search', {
 
 ## How to Use
 
-Once the MCP server is configured in Claude Desktop or Claude Code, the AI assistant automatically gains access to all amdWiki tools. You can interact naturally:
+Once the MCP server is configured in Claude Desktop or Claude Code, the AI assistant automatically gains access to all ngdpbase tools. You can interact naturally:
 
 **Ask questions about wiki content:**
 
@@ -153,7 +153,7 @@ The AI assistant will select the appropriate tool(s) based on your request and r
 
 ## Available Tools
 
-### 1. amdwiki_query_page
+### 1. ngdpbase_query_page
 
 Get complete page content and metadata by identifier.
 
@@ -182,11 +182,11 @@ Get complete page content and metadata by identifier.
   "keywords": ["welcome", "introduction"],
   "lastModified": "2025-11-26T...",
   "editor": "admin",
-  "content": "# Welcome to amdWiki..."
+  "content": "# Welcome to ngdpbase..."
 }
 ```
 
-### 2. amdwiki_list_pages
+### 2. ngdpbase_list_pages
 
 List all pages with optional filtering.
 
@@ -206,7 +206,7 @@ List all pages with optional filtering.
 }
 ```
 
-### 3. amdwiki_search
+### 3. ngdpbase_search
 
 Full-text search with advanced filtering.
 
@@ -246,7 +246,7 @@ Full-text search with advanced filtering.
 }
 ```
 
-### 4. amdwiki_get_metadata
+### 4. ngdpbase_get_metadata
 
 Get page metadata only (fast, no content).
 
@@ -262,7 +262,7 @@ Get page metadata only (fast, no content).
 }
 ```
 
-### 5. amdwiki_list_categories
+### 5. ngdpbase_list_categories
 
 Get all system categories with configurations.
 
@@ -290,7 +290,7 @@ Get all system categories with configurations.
 }
 ```
 
-### 6. amdwiki_list_keywords
+### 6. ngdpbase_list_keywords
 
 Get all user keywords in use across pages.
 
@@ -304,7 +304,7 @@ Get all user keywords in use across pages.
 }
 ```
 
-### 7. amdwiki_validate_metadata
+### 7. ngdpbase_validate_metadata
 
 Validate page metadata structure.
 
@@ -335,7 +335,7 @@ Validate page metadata structure.
 }
 ```
 
-### 8. amdwiki_generate_metadata
+### 8. ngdpbase_generate_metadata
 
 Generate valid metadata template for a new page.
 
@@ -357,7 +357,7 @@ Generate valid metadata template for a new page.
 
 **Returns:** Complete valid metadata object ready for use.
 
-### 9. amdwiki_get_attachments
+### 9. ngdpbase_get_attachments
 
 List attachments for a page.
 
@@ -390,7 +390,7 @@ List attachments for a page.
 }
 ```
 
-### 10. amdwiki_search_similar
+### 10. ngdpbase_search_similar
 
 Find pages similar to a given page.
 
@@ -408,7 +408,7 @@ Find pages similar to a given page.
 }
 ```
 
-### 11. amdwiki_get_configuration
+### 11. ngdpbase_get_configuration
 
 Get wiki configuration value(s).
 
@@ -420,13 +420,13 @@ Get wiki configuration value(s).
 
 ```json
 {
-  "key": "amdwiki.page.provider"
+  "key": "ngdpbase.page.provider"
 }
 ```
 
 If no key provided, returns all configuration (large response).
 
-### 12. amdwiki_get_search_statistics
+### 12. ngdpbase_get_search_statistics
 
 Get search index statistics.
 
@@ -442,7 +442,7 @@ Get search index statistics.
 }
 ```
 
-### 13. amdwiki_upload_attachment
+### 13. ngdpbase_upload_attachment
 
 Upload a single file as an attachment, optionally linking it to a page.
 
@@ -476,7 +476,7 @@ Upload a single file as an attachment, optionally linking it to a page.
 }
 ```
 
-### 14. amdwiki_bulk_upload_attachments
+### 14. ngdpbase_bulk_upload_attachments
 
 Upload multiple files from a directory as attachments. Supports glob patterns and recursive directory scanning.
 
@@ -524,7 +524,7 @@ AI assistants can search and navigate your wiki content naturally:
 
 ```text
 User: "Find all documentation pages about validation"
-AI: Uses amdwiki_search with category filter
+AI: Uses ngdpbase_search with category filter
 ```
 
 ### 2. Context-Aware Development
@@ -533,7 +533,7 @@ When developing features, AI can pull relevant wiki documentation:
 
 ```text
 User: "I'm working on the page manager, show me related docs"
-AI: Uses amdwiki_search and amdwiki_search_similar
+AI: Uses ngdpbase_search and ngdpbase_search_similar
 ```
 
 ### 3. Metadata Management
@@ -542,7 +542,7 @@ AI can help validate and generate metadata:
 
 ```text
 User: "Create metadata for a new tutorial page"
-AI: Uses amdwiki_generate_metadata with appropriate category
+AI: Uses ngdpbase_generate_metadata with appropriate category
 ```
 
 ### 4. Content Analysis
@@ -551,7 +551,7 @@ AI can analyze wiki structure and relationships:
 
 ```text
 User: "What categories exist and how many pages in each?"
-AI: Uses amdwiki_list_categories and amdwiki_list_pages
+AI: Uses ngdpbase_list_categories and ngdpbase_list_pages
 ```
 
 ### 5. Attachment Management
@@ -560,7 +560,7 @@ AI can upload files to the wiki:
 
 ```text
 User: "Upload all screenshots from /path/to/images to the Tutorial page"
-AI: Uses amdwiki_bulk_upload_attachments with pattern and page_name
+AI: Uses ngdpbase_bulk_upload_attachments with pattern and page_name
 ```
 
 ## Architecture
@@ -672,7 +672,7 @@ Example:
 
 ```typescript
 {
-  name: 'amdwiki_my_tool',
+  name: 'ngdpbase_my_tool',
   description: 'Tool description',
   inputSchema: {
     type: 'object',
@@ -771,10 +771,10 @@ Completed:
 
 - [Model Context Protocol](https://modelcontextprotocol.io)
 - [MCP SDK Documentation](https://github.com/modelcontextprotocol/sdk)
-- [amdWiki Architecture](./architecture/)
+- [ngdpbase Architecture](./architecture/)
 - [ValidationManager](../required-pages/5100a3df-0d87-4d85-87de-359f51029c67.md)
 - [Policies-Roles-Permissions](./architecture/Policies-Roles-Permissions.md)
 
 ## License
 
-Same as amdWiki main license.
+Same as ngdpbase main license.

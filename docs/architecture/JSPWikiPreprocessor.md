@@ -4,7 +4,7 @@
 
 ## Overview
 
-`JSPWikiPreprocessor` is a Phase 1 handler in the amdWiki rendering pipeline that processes JSPWiki-specific syntax **before** markdown conversion. This ensures JSPWiki markup is properly converted to HTML before any other transformations occur.
+`JSPWikiPreprocessor` is a Phase 1 handler in the ngdpbase rendering pipeline that processes JSPWiki-specific syntax **before** markdown conversion. This ensures JSPWiki markup is properly converted to HTML before any other transformations occur.
 
 ## Position in the Rendering Pipeline
 
@@ -463,4 +463,4 @@ if (this.debug) {
 ---
 
 **Last Updated:** 2025-10-07
-**Maintainer:** amdWiki Development Team
+**Maintainer:** ngdpbase Development Team

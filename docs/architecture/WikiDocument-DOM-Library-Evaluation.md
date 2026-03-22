@@ -4,7 +4,7 @@
 
 **Date:** 2025-10-12
 **Phase:** 1.1 - Research & Setup
-**Related Issue:** [#93 - WikiDocument DOM Migration](https://github.com/jwilleke/amdWiki/issues/93)
+**Related Issue:** [#93 - WikiDocument DOM Migration](https://github.com/jwilleke/ngdpbase/issues/93)
 
 ## Overview
 
@@ -326,7 +326,7 @@ class WikiDocument {
 
 - Deep understanding of implementation
 - Custom optimizations
-- Tailored to amdWiki
+- Tailored to ngdpbase
 
 #### Cons
 

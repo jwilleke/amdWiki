@@ -57,7 +57,7 @@ class SchemaManager extends BaseManager {
     }
 
     // Fetch the schemas directory from ConfigurationManager
-    const schemasDir = configManager.getResolvedDataPath('amdwiki.directories.schemas', './data/schemas');
+    const schemasDir = configManager.getResolvedDataPath('ngdpbase.directories.schemas', './data/schemas');
     if (!schemasDir) {
       logger.warn('Schema directory not configured. No schemas loaded.');
       return;

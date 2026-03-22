@@ -7,7 +7,7 @@
 
 ## Overview
 
-The ConfigurationManager provides JSPWiki-compatible configuration management for amdWiki. It implements a two-tier configuration system with default values and instance-specific overrides.
+The ConfigurationManager provides JSPWiki-compatible configuration management for ngdpbase. It implements a two-tier configuration system with default values and instance-specific overrides.
 
 ## Architecture
 
@@ -55,16 +55,16 @@ Contains all default configuration properties. This file should not be modified 
 
 ```json
 {
-  "amdwiki.applicationName": "amdWiki",
-  "amdwiki.version": "1.3.2",
-  "amdwiki.baseURL": "http://localhost:3000",
-  "amdwiki.server.port": 3000,
-  "amdwiki.server.host": "localhost",
-  "amdwiki.session.secret": "amdwiki-session-secret-change-in-production",
-  "amdwiki.session.maxAge": 86400000,
-  "amdwiki.frontPage": "Welcome",
-  "amdwiki.pageProvider": "FileSystemProvider",
-  "amdwiki.searchProvider": "LuceneSearchProvider"
+  "ngdpbase.applicationName": "ngdpbase",
+  "ngdpbase.version": "1.3.2",
+  "ngdpbase.baseURL": "http://localhost:3000",
+  "ngdpbase.server.port": 3000,
+  "ngdpbase.server.host": "localhost",
+  "ngdpbase.session.secret": "ngdpbase-session-secret-change-in-production",
+  "ngdpbase.session.maxAge": 86400000,
+  "ngdpbase.frontPage": "Welcome",
+  "ngdpbase.pageProvider": "FileSystemProvider",
+  "ngdpbase.searchProvider": "LuceneSearchProvider"
 }
 ```
 
@@ -77,10 +77,10 @@ Contains custom overrides for default properties. Created by installation wizard
 ```json
 {
   "_comment": "This file overrides values from app-default-config.json",
-  "amdwiki.applicationName": "My Custom Wiki",
-  "amdwiki.baseURL": "https://wiki.mycompany.com",
-  "amdwiki.server.port": 8080,
-  "amdwiki.frontPage": "CustomHomePage"
+  "ngdpbase.applicationName": "My Custom Wiki",
+  "ngdpbase.baseURL": "https://wiki.mycompany.com",
+  "ngdpbase.server.port": 8080,
+  "ngdpbase.frontPage": "CustomHomePage"
 }
 ```
 
@@ -95,24 +95,24 @@ node scripts/configurationmanage-get-config.js <key> [--prefix] [--pretty]
 Examples:
 
 ```bash
-node scripts/configurationmanage-get-config.js amdwiki.notifications.dir
-node scripts/configurationmanage-get-config.js amdwiki.notifications --prefix --pretty
+node scripts/configurationmanage-get-config.js ngdpbase.notifications.dir
+node scripts/configurationmanage-get-config.js ngdpbase.notifications --prefix --pretty
 ```
 
 ## Property Naming Convention
 
 All properties follow JSPWiki's naming convention:
 
-- **Namespace prefix**: `amdwiki.` or `log4j.`
+- **Namespace prefix**: `ngdpbase.` or `log4j.`
 - **Hierarchical structure**: Use dots to separate levels
 - **Descriptive names**: Clear, self-documenting property names
 
 **Examples:**
 
-- `amdwiki.server.port` - Server configuration
-- `amdwiki.session.maxAge` - Session settings
-- `amdwiki.rss.generate` - RSS feed settings
-- `amdwiki.translatorReader.allowHTML` - Content processing
+- `ngdpbase.server.port` - Server configuration
+- `ngdpbase.session.maxAge` - Session settings
+- `ngdpbase.rss.generate` - RSS feed settings
+- `ngdpbase.translatorReader.allowHTML` - Content processing
 
 ## API Reference
 
@@ -130,7 +130,7 @@ Gets a configuration property value with optional default.
 
 **Parameters:**
 
-- `key` (string): Property key (e.g., 'amdwiki.applicationName')
+- `key` (string): Property key (e.g., 'ngdpbase.applicationName')
 - `defaultValue` (any): Default value if property not found
 
 **Returns:** any - Property value or default
@@ -193,26 +193,26 @@ Gets custom override properties from app-custom-config.json.
 ##### Application Settings
 
 ```javascript
-getApplicationName()    // amdwiki.applicationName
-getBaseURL()           // amdwiki.baseURL
-getFrontPage()         // amdwiki.frontPage
-getEncoding()          // amdwiki.encoding
+getApplicationName()    // ngdpbase.applicationName
+getBaseURL()           // ngdpbase.baseURL
+getFrontPage()         // ngdpbase.frontPage
+getEncoding()          // ngdpbase.encoding
 ```
 
 ##### Server Settings
 
 ```javascript
-getServerPort()        // amdwiki.server.port (as number)
-getServerHost()        // amdwiki.server.host
+getServerPort()        // ngdpbase.server.port (as number)
+getServerHost()        // ngdpbase.server.host
 ```
 
 ##### Session Settings
 
 ```javascript
-getSessionSecret()     // amdwiki.session.secret
-getSessionMaxAge()     // amdwiki.session.maxAge (as number)
-getSessionSecure()     // amdwiki.session.secure (as boolean)
-getSessionHttpOnly()   // amdwiki.session.httpOnly (as boolean)
+getSessionSecret()     // ngdpbase.session.secret
+getSessionMaxAge()     // ngdpbase.session.maxAge (as number)
+getSessionSecure()     // ngdpbase.session.secure (as boolean)
+getSessionHttpOnly()   // ngdpbase.session.httpOnly (as boolean)
 ```
 
 ##### RSS Settings
@@ -229,12 +229,12 @@ getRSSConfig()         // Complete RSS configuration object
 
 ```json
 {
-  "amdwiki.applicationName": "amdWiki",
-  "amdwiki.version": "1.3.2",
-  "amdwiki.baseURL": "http://localhost:3000",
-  "amdwiki.encoding": "UTF-8",
-  "amdwiki.frontPage": "Welcome",
-  "amdwiki.templateDir": "default"
+  "ngdpbase.applicationName": "ngdpbase",
+  "ngdpbase.version": "1.3.2",
+  "ngdpbase.baseURL": "http://localhost:3000",
+  "ngdpbase.encoding": "UTF-8",
+  "ngdpbase.frontPage": "Welcome",
+  "ngdpbase.templateDir": "default"
 }
 ```
 
@@ -244,12 +244,12 @@ getRSSConfig()         // Complete RSS configuration object
 
 ```json
 {
-  "amdwiki.server.port": 3000,
-  "amdwiki.server.host": "localhost",
-  "amdwiki.session.secret": "amdwiki-session-secret-change-in-production",
-  "amdwiki.session.maxAge": 86400000,
-  "amdwiki.session.secure": false,
-  "amdwiki.session.httpOnly": true
+  "ngdpbase.server.port": 3000,
+  "ngdpbase.server.host": "localhost",
+  "ngdpbase.session.secret": "ngdpbase-session-secret-change-in-production",
+  "ngdpbase.session.maxAge": 86400000,
+  "ngdpbase.session.secure": false,
+  "ngdpbase.session.httpOnly": true
 }
 ```
 
@@ -259,12 +259,12 @@ getRSSConfig()         // Complete RSS configuration object
 
 ```json
 {
-  "amdwiki.pageProvider": "FileSystemProvider",
-  "amdwiki.attachment.provider": "BasicAttachmentProvider",
-  "amdwiki.searchProvider": "LuceneSearchProvider",
-  "amdwiki.diffProvider": "TraditionalDiffProvider",
-  "amdwiki.userdatabase": "JSONUserDatabase",
-  "amdwiki.groupdatabase": "JSONGroupDatabase"
+  "ngdpbase.pageProvider": "FileSystemProvider",
+  "ngdpbase.attachment.provider": "BasicAttachmentProvider",
+  "ngdpbase.searchProvider": "LuceneSearchProvider",
+  "ngdpbase.diffProvider": "TraditionalDiffProvider",
+  "ngdpbase.userdatabase": "JSONUserDatabase",
+  "ngdpbase.groupdatabase": "JSONGroupDatabase"
 }
 ```
 
@@ -274,12 +274,12 @@ getRSSConfig()         // Complete RSS configuration object
 
 ```json
 {
-  "amdwiki.rss.generate": true,
-  "amdwiki.rss.fileName": "rss.xml",
-  "amdwiki.rss.interval": 3600,
-  "amdwiki.translatorReader.allowHTML": false,
-  "amdwiki.plugin.searchresult.showScore": true,
-  "amdwiki.plugin.versioning.use": true
+  "ngdpbase.rss.generate": true,
+  "ngdpbase.rss.fileName": "rss.xml",
+  "ngdpbase.rss.interval": 3600,
+  "ngdpbase.translatorReader.allowHTML": false,
+  "ngdpbase.plugin.searchresult.showScore": true,
+  "ngdpbase.plugin.versioning.use": true
 }
 ```
 
@@ -314,13 +314,13 @@ Access at `/admin/configuration` with admin privileges.
 
 - Add new custom configuration properties
 - Property name validation
-- Supports amdwiki.*and log4j.* prefixes
+- Supports ngdpbase.*and log4j.* prefixes
 
 ### Property Validation
 
 The admin interface validates:
 
-- **Property names** must start with `amdwiki.` or `log4j.`
+- **Property names** must start with `ngdpbase.` or `log4j.`
 - **Property values** are properly formatted
 - **Duplicate properties** are handled correctly
 
@@ -338,7 +338,7 @@ class MyManager extends BaseManager {
     const port = configManager.getServerPort();
 
     // Use direct property access
-    const customSetting = configManager.getProperty('amdwiki.mymanager.enabled', true);
+    const customSetting = configManager.getProperty('ngdpbase.mymanager.enabled', true);
   }
 }
 ```
@@ -348,7 +348,7 @@ class MyManager extends BaseManager {
 ```javascript
 // Update server configuration
 const configManager = engine.getManager('ConfigurationManager');
-await configManager.setProperty('amdwiki.server.port', 8080);
+await configManager.setProperty('ngdpbase.server.port', 8080);
 
 // Configuration is automatically saved to INSTANCE_DATA_FOLDER/config/app-custom-config.json
 ```
@@ -379,9 +379,9 @@ File: `./data/config/app-custom-config.json`
 
 ```json
 {
-  "amdwiki.server.port": 3000,
-  "amdwiki.baseURL": "http://localhost:3000",
-  "amdwiki.session.secure": false
+  "ngdpbase.server.port": 3000,
+  "ngdpbase.baseURL": "http://localhost:3000",
+  "ngdpbase.session.secure": false
 }
 ```
 
@@ -391,10 +391,10 @@ File: `INSTANCE_DATA_FOLDER/config/app-custom-config.json`
 
 ```json
 {
-  "amdwiki.server.port": 80,
-  "amdwiki.baseURL": "https://wiki.mycompany.com",
-  "amdwiki.session.secure": true,
-  "amdwiki.session.secret": "production-secret-key-change-this"
+  "ngdpbase.server.port": 80,
+  "ngdpbase.baseURL": "https://wiki.mycompany.com",
+  "ngdpbase.session.secure": true,
+  "ngdpbase.session.secret": "production-secret-key-change-this"
 }
 ```
 
@@ -427,7 +427,7 @@ env:
   - name: INSTANCE_CONFIG_FILE
     value: "app-custom-config.json"
 volumeMounts:
-  - name: amdwiki-data
+  - name: ngdpbase-data
     mountPath: /app/data
 ```
 
@@ -448,10 +448,10 @@ When adding new configuration properties:
 
 ```json
 {
-  "amdwiki.session.secret": "change-in-production",
-  "amdwiki.session.secure": true,    // HTTPS only
-  "amdwiki.session.httpOnly": true,  // No JavaScript access
-  "amdwiki.session.maxAge": 86400000 // 24 hours
+  "ngdpbase.session.secret": "change-in-production",
+  "ngdpbase.session.secure": true,    // HTTPS only
+  "ngdpbase.session.httpOnly": true,  // No JavaScript access
+  "ngdpbase.session.maxAge": 86400000 // 24 hours
 }
 ```
 
@@ -480,9 +480,9 @@ When adding new configuration properties:
 
 The ConfigurationManager maintains compatibility with JSPWiki patterns:
 
-| Feature | JSPWiki | amdWiki |
+| Feature | JSPWiki | ngdpbase |
 | --------- | --------- | ---------- |
-| Property Format | `jspwiki.property` | `amdwiki.property` |
+| Property Format | `jspwiki.property` | `ngdpbase.property` |
 | Two-tier Config | Yes | Yes ✓ |
 | Property Merging | Yes | Yes ✓ |
 | Admin Interface | Basic | Enhanced ✓ |
@@ -529,7 +529,7 @@ console.log('Total properties:', Object.keys(allProps).length);
 ### Property Naming
 
 - Use descriptive, hierarchical names
-- Follow `amdwiki.category.subcategory.property` pattern
+- Follow `ngdpbase.category.subcategory.property` pattern
 - Avoid abbreviations in property names
 
 ### Default Values

@@ -1,7 +1,7 @@
 /**
  * JSPWiki to Markdown Converter
  *
- * Converts JSPWiki syntax to Markdown format for import into amdWiki.
+ * Converts JSPWiki syntax to Markdown format for import into ngdpbase.
  * Implements IContentConverter interface for use with ImportManager.
  *
  * Reference: https://github.com/apache/jspwiki/blob/main/jspwiki-wikipages/en/src/main/resources/TextFormattingRules.txt
@@ -101,7 +101,7 @@ class JSPWikiConverter implements IContentConverter {
     const result = content.replace(setPattern, (_match: string, name: string, singleQuoted: string | undefined, doubleQuoted: string | undefined, unquoted: string | undefined) => {
       const value: string = singleQuoted ?? doubleQuoted ?? unquoted ?? '';
 
-      // Map common JSPWiki attributes to amdWiki metadata
+      // Map common JSPWiki attributes to ngdpbase metadata
       const normalizedName = name.toLowerCase();
       if (normalizedName === 'title' || normalizedName === 'pagetitle') {
         metadata['title'] = value;
@@ -146,7 +146,7 @@ class JSPWikiConverter implements IContentConverter {
    *   %%category [CategoryName]%%      - single line, %% closing
    *   %%category [CategoryName] /%     - may span lines, /% closing
    *
-   * These are converted to amdWiki's user-keywords metadata array.
+   * These are converted to ngdpbase's user-keywords metadata array.
    */
   private extractCategories(
     content: string,
@@ -383,7 +383,7 @@ class JSPWikiConverter implements IContentConverter {
       '$1'
     );
 
-    // amdWiki natively supports JSPWiki wiki link syntax:
+    // ngdpbase natively supports JSPWiki wiki link syntax:
     //   [PageName], [DisplayText|PageName], [{$variable}], [{Plugin ...}]
     // These are left as-is — no conversion needed.
 
@@ -481,7 +481,7 @@ class JSPWikiConverter implements IContentConverter {
    * JSPWiki uses page-level attachments, so image paths include the page name:
    *   [{Image src='Geological Timeline/Geolog_path_text.svg.png' ...}]
    *
-   * amdWiki uses a flat attachment structure, so we strip the path:
+   * ngdpbase uses a flat attachment structure, so we strip the path:
    *   [{Image src='Geolog_path_text.svg.png' ...}]
    */
   private convertImagePaths(content: string): string {

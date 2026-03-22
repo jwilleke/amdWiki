@@ -28,17 +28,17 @@ let TEST_REQUIRED_DIR;
 const createMockConfigManager = (pagesDir, requiredDir) => ({
   getProperty: (key, defaultValue) => {
     const config = {
-      'amdwiki.page.provider.filesystem.storagedir': pagesDir,
-      'amdwiki.page.provider.filesystem.requiredpagesdir': requiredDir,
-      'amdwiki.page.provider.filesystem.encoding': 'utf-8',
-      'amdwiki.translator-reader.match-english-plurals': true
+      'ngdpbase.page.provider.filesystem.storagedir': pagesDir,
+      'ngdpbase.page.provider.filesystem.requiredpagesdir': requiredDir,
+      'ngdpbase.page.provider.filesystem.encoding': 'utf-8',
+      'ngdpbase.translator-reader.match-english-plurals': true
     };
     return config[key] !== undefined ? config[key] : defaultValue;
   },
   // Support INSTANCE_DATA_FOLDER feature
   getResolvedDataPath: (key, defaultValue) => {
     const config = {
-      'amdwiki.page.provider.filesystem.storagedir': pagesDir
+      'ngdpbase.page.provider.filesystem.storagedir': pagesDir
     };
     return config[key] !== undefined ? config[key] : defaultValue;
   },

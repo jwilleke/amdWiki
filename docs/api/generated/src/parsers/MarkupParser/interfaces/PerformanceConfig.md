@@ -1,12 +1,12 @@
-[**amdWiki API v1.5.0**](../../../../README.md)
+[**ngdpbase API v1.5.0**](../../../../README.md)
 
 ***
 
-[amdWiki API](../../../../README.md) / [src/parsers/MarkupParser](../README.md) / PerformanceConfig
+[ngdpbase API](../../../../README.md) / [src/parsers/MarkupParser](../README.md) / PerformanceConfig
 
 # Interface: PerformanceConfig
 
-Defined in: [src/parsers/MarkupParser.ts:127](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L127)
+Defined in: [src/parsers/MarkupParser.ts:127](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L127)
 
 Performance configuration
 
@@ -16,7 +16,7 @@ Performance configuration
 
 > **alertThresholds**: [`AlertThresholds`](AlertThresholds.md)
 
-Defined in: [src/parsers/MarkupParser.ts:131](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L131)
+Defined in: [src/parsers/MarkupParser.ts:131](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L131)
 
 Alert thresholds
 
@@ -26,6 +26,6 @@ Alert thresholds
 
 > **monitoring**: `boolean`
 
-Defined in: [src/parsers/MarkupParser.ts:129](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L129)
+Defined in: [src/parsers/MarkupParser.ts:129](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L129)
 
 Whether performance monitoring is enabled

@@ -94,12 +94,12 @@ const sessionId = await userManager.createSession('john');
 
 ```json
 {
-  "amdwiki.user.enabled": true,
-  "amdwiki.user.provider": "jsonuserprovider",
-  "amdwiki.user.provider.storagedir": "./users",
-  "amdwiki.user.security.passwordsalt": "amdwiki-salt",
-  "amdwiki.user.security.sessionexpiration": 86400000,
-  "amdwiki.roles.definitions": {
+  "ngdpbase.user.enabled": true,
+  "ngdpbase.user.provider": "jsonuserprovider",
+  "ngdpbase.user.provider.storagedir": "./users",
+  "ngdpbase.user.security.passwordsalt": "ngdpbase-salt",
+  "ngdpbase.user.security.sessionexpiration": 86400000,
+  "ngdpbase.roles.definitions": {
     "admin": { "name": "admin", "displayname": "Administrator" },
     "editor": { "name": "editor", "displayname": "Editor" }
   }

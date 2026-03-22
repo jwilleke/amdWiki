@@ -1,8 +1,8 @@
 /**
- * amdWiki Type Definitions
+ * ngdpbase Type Definitions
  *
  * Central export point for all TypeScript type definitions used throughout
- * the amdWiki application. Import types from this module to ensure consistency.
+ * the ngdpbase application. Import types from this module to ensure consistency.
  *
  * @example
  * import { WikiPage, PageFrontmatter, User } from '../types';
