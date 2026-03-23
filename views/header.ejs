@@ -1267,82 +1267,56 @@ document.addEventListener('DOMContentLoaded', () => {
 function toggleLeftMenu() {
     const sidebar = document.querySelector('.sidebar');
     const mainContent = document.querySelector('main');
-    
-    console.log('Toggle clicked - Sidebar classes:', sidebar ? sidebar.className : 'not found');
-    console.log('Toggle clicked - Main content classes:', mainContent ? mainContent.className : 'not found');
-    
-    if (sidebar && mainContent) {
-        if (sidebar.classList.contains('d-none')) {
-            console.log('Showing sidebar...');
-            // Show sidebar
-            sidebar.classList.remove('d-none');
-            sidebar.classList.add('d-md-block');
-            // Restore original Bootstrap classes for 2-column layout
+    if (!sidebar) return;
+
+    if (sidebar.classList.contains('d-none')) {
+        // Show sidebar — use d-block so it's visible on ALL screen sizes including mobile
+        sidebar.classList.remove('d-none');
+        sidebar.classList.add('d-block');
+        if (mainContent) {
             mainContent.classList.remove('col-12');
             mainContent.classList.add('col-md-9', 'ms-sm-auto', 'col-lg-10');
-            localStorage.setItem('leftMenuVisible', 'true');
-            console.log('After showing - Sidebar classes:', sidebar.className);
-            console.log('After showing - Main content classes:', mainContent.className);
-        } else {
-            console.log('Hiding sidebar...');
-            // Hide sidebar
-            sidebar.classList.add('d-none');
-            sidebar.classList.remove('d-md-block');
-            // Make main content full width
+        }
+        localStorage.setItem('leftMenuVisible', 'true');
+    } else {
+        // Hide sidebar
+        sidebar.classList.remove('d-block', 'd-md-block');
+        sidebar.classList.add('d-none');
+        if (mainContent) {
             mainContent.classList.remove('col-md-9', 'ms-sm-auto', 'col-lg-10');
             mainContent.classList.add('col-12');
-            localStorage.setItem('leftMenuVisible', 'false');
-            console.log('After hiding - Sidebar classes:', sidebar.className);
-            console.log('After hiding - Main content classes:', mainContent.className);
         }
+        localStorage.setItem('leftMenuVisible', 'false');
     }
 }
 
 // Initialize left menu state from localStorage
 function initializeLeftMenuState() {
     const isVisible = localStorage.getItem('leftMenuVisible');
-    console.log('Init: leftMenuVisible from localStorage:', isVisible);
-    
-    // Don't auto-hide if no preference is stored, let the default CSS handle it
+    const sidebar = document.querySelector('.jspwiki-sidebar');
+    const mainContent = document.querySelector('main');
+
     if (isVisible === 'false') {
-        const sidebar = document.querySelector('.jspwiki-sidebar');
-        // Try multiple selectors to find the main content
-        let mainContent = document.querySelector('body > div.container-fluid > div > main');
-        if (!mainContent) {
-            mainContent = document.querySelector('main.jspwiki-content');
-        }
-        if (!mainContent) {
-            mainContent = document.querySelector('main[role="main"]');
-        }
-        if (!mainContent) {
-            mainContent = document.querySelector('.jspwiki-content');
-        }
-        
-        console.log('Init: Found sidebar:', sidebar);
-        console.log('Init: Found main content:', mainContent);
-        
         if (sidebar) {
+            sidebar.classList.remove('d-block', 'd-md-block');
             sidebar.classList.add('d-none');
-            sidebar.classList.remove('d-md-block');
-            if (mainContent) {
-                mainContent.classList.remove('col-md-9', 'ms-sm-auto', 'col-lg-10');
-                mainContent.classList.add('col-12');
-                console.log('Init: Applied full-width layout on page load');
-            }
+        }
+        if (mainContent) {
+            mainContent.classList.remove('col-md-9', 'ms-sm-auto', 'col-lg-10');
+            mainContent.classList.add('col-12');
         }
     } else if (isVisible === 'true') {
-        // Show sidebar if preference is to show it
-        const sidebar = document.querySelector('.jspwiki-sidebar');
-        const mainContent = document.querySelector('main');
-        
-        if (sidebar && mainContent) {
+        if (sidebar) {
             sidebar.classList.remove('d-none');
-            sidebar.classList.add('d-md-block');
+            sidebar.classList.add('d-block');
+        }
+        if (mainContent) {
             mainContent.classList.remove('col-12');
             mainContent.classList.add('col-md-9', 'ms-sm-auto', 'col-lg-10');
-            console.log('Init: Restored sidebar from localStorage');
         }
     }
+    // If no preference stored, default CSS (d-none d-md-block) handles it:
+    // desktop shows sidebar, mobile hides it
 }
 
 // Breadcrumb trail management
