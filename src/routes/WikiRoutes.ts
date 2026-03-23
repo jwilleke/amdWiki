@@ -289,6 +289,7 @@ class WikiRoutes {
       variablesCssPath: string;
       logoPath: string;
       locationCssPath: string;
+      themeFontUrls: string[];
       leftMenu?: string;
       footer?: string;
     } = {
@@ -308,7 +309,8 @@ class WikiRoutes {
       coreCssPath: themePaths.coreCssPath,
       variablesCssPath: themePaths.variablesCssPath,
       logoPath: themePaths.logoPath,
-      locationCssPath: themePaths.locationCssPath
+      locationCssPath: themePaths.locationCssPath,
+      themeFontUrls: themePaths.fontUrls
     };
 
     // Load LeftMenu

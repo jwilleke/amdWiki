@@ -24,6 +24,41 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-03-23-12
+
+- Agent: Claude Sonnet 4.6
+- Subject: feat #368 — Bootstrap 5 native variable alignment + Bootstrap 5.3.3 upgrade
+- Key Decision: Moved --bs-* variable alignment block from core.css into each theme's variables.css as the single source of truth. Lazy var() references mean dark mode propagates automatically without any duplication. Bootstrap 5.1.3 → 5.3.3 across all views. Added fonts[] support to ThemeManager (theme.json can declare Google Fonts URLs).
+- Current Issue: #368
+- Testing:
+  - Build clean (tsc)
+  - No Bootstrap 5.1.3 references remain
+- Work Done:
+  - Upgraded Bootstrap CSS+JS from 5.1.3 → 5.3.3 in all views (header.ejs, footer.ejs, reader.ejs, admin-audit.ejs, admin-policies.ejs, maintenance.ejs)
+  - Added fonts?: string[] to ThemeInfo interface in ThemeManager.ts
+  - Added fontUrls: string[] to ThemePaths interface, populated from theme.json fonts[] array
+  - Updated WikiRoutes.ts getCommonTemplateData() to pass themeFontUrls to templates
+  - header.ejs already loads themeFontUrls (from prior session)
+  - Added --bs-* Bootstrap native variable alignment block to themes/default/css/variables.css :root
+  - Added --bs-* Bootstrap native variable alignment block to themes/volcano/css/variables.css :root
+  - Removed the --bs-* alignment block from themes/core.css (now owned by each theme's variables.css)
+  - Closing #368
+- Commits: TBD
+- Files Modified:
+  - views/header.ejs
+  - views/footer.ejs
+  - views/reader.ejs
+  - views/admin-audit.ejs
+  - views/admin-policies.ejs
+  - views/maintenance.ejs
+  - src/managers/ThemeManager.ts
+  - src/routes/WikiRoutes.ts
+  - themes/default/css/variables.css
+  - themes/volcano/css/variables.css
+  - themes/core.css
+
+---
+
 ## 2026-03-23-11
 
 - Agent: Claude Sonnet 4.6

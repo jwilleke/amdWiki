@@ -63,6 +63,45 @@
   --zebra-row-even: rgba(2, 6, 19, 0.08);
   --zebra-row-odd: rgba(2, 6, 19, 0);
   --zebra-row-hover: rgba(88, 166, 255, 0.24);
+
+  /* Bootstrap 5 native variable alignment — lazy var() so dark mode overrides propagate automatically */
+  --bs-body-bg:                   var(--bg-primary);
+  --bs-body-color:                var(--text-primary);
+  --bs-secondary-bg:              var(--bg-secondary);
+  --bs-tertiary-bg:               var(--bg-tertiary);
+  --bs-secondary-color:           var(--text-secondary);
+  --bs-tertiary-color:            var(--text-muted);
+  --bs-emphasis-color:            var(--text-heading);
+  --bs-heading-color:             var(--text-heading);
+  --bs-link-color:                var(--link-color);
+  --bs-link-hover-color:          var(--link-hover);
+  --bs-border-color:              var(--border-color);
+  --bs-border-color-translucent:  var(--border-color);
+  --bs-code-color:                var(--text-primary);
+  --bs-card-bg:                   var(--card-bg);
+  --bs-card-border-color:         var(--card-border);
+  --bs-card-cap-bg:               var(--bg-secondary);
+  --bs-card-color:                var(--text-primary);
+  --bs-modal-bg:                  var(--card-bg);
+  --bs-modal-border-color:        var(--border-color);
+  --bs-modal-header-border-color: var(--border-color);
+  --bs-modal-footer-border-color: var(--border-color);
+  --bs-modal-color:               var(--text-primary);
+  --bs-modal-header-bg:           var(--bg-secondary);
+  --bs-dropdown-bg:               var(--card-bg);
+  --bs-dropdown-border-color:     var(--border-color);
+  --bs-dropdown-color:            var(--text-primary);
+  --bs-dropdown-link-color:       var(--text-primary);
+  --bs-dropdown-link-hover-bg:    var(--bg-secondary);
+  --bs-dropdown-link-hover-color: var(--text-primary);
+  --bs-dropdown-divider-bg:       var(--border-color);
+  --bs-table-color:               var(--text-primary);
+  --bs-table-bg:                  transparent;
+  --bs-table-striped-bg:          var(--table-stripe);
+  --bs-table-hover-bg:            var(--table-hover);
+  --bs-table-border-color:        var(--border-color);
+  --bs-form-valid-color:          var(--alert-success-text);
+  --bs-form-invalid-color:        var(--alert-danger-text);
 }
 
 /* Explicit dark mode (data-theme="dark" on <html>) — GitHub-inspired */

@@ -7,6 +7,8 @@ export interface ThemeInfo {
   description: string;
   version: string;
   author: string;
+  /** Optional Google Fonts (or other) stylesheet URLs to inject in <head> */
+  fonts?: string[];
 }
 
 export interface ThemePaths {
@@ -24,6 +26,8 @@ export interface ThemePaths {
   locationCssPath: string;
   /** Metadata from theme.json */
   themeInfo: ThemeInfo | null;
+  /** Optional font stylesheet URLs from theme.json fonts[] */
+  fontUrls: string[];
 }
 
 const DEFAULT_THEME_INFO: ThemeInfo = {
@@ -66,7 +70,8 @@ export class ThemeManager {
       logoPath: this.resolveLogoPath(assetsDir, t),
       faviconPath: `/themes/${t}/assets/favicon.png`,
       locationCssPath: '/themes/plugins/location.css',
-      themeInfo
+      themeInfo,
+      fontUrls: Array.isArray(themeInfo?.fonts) ? themeInfo.fonts : []
     };
   }
 
