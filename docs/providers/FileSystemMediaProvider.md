@@ -41,6 +41,7 @@ Source files are **never modified** — the provider is strictly read-only.
 |-------|------|-------------|
 | `folders` | `string[]` | Absolute paths to scan |
 | `ignoreDirs` | `string[]` | Directory names to skip unconditionally |
+| `extensions` | `Set<string>` | Lowercase extensions (no dot) to index — built from `ngdpbase.media.extensions` config, falling back to `DEFAULT_MEDIA_EXTENSIONS` |
 | `maxDepth` | `number` | Recursion depth (0 = unlimited) |
 | `indexFile` | `string` | Path to `media-index.json` |
 | `thumbnailDir` | `string` | Path to thumbnail cache |
