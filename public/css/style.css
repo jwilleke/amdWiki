@@ -547,7 +547,11 @@ main p, main div, main span, main li {
 /* Responsive adjustments */
 @media (max-width: 767.98px) {
     .sidebar {
-        display: none !important; /* Hide sidebar on mobile */
+        display: none !important; /* Hide sidebar on mobile by default */
+    }
+    .sidebar.sidebar-mobile-open {
+        display: block !important; /* Shown when hamburger opens it */
+        width: 100%;
     }
     
     main[role="main"] {

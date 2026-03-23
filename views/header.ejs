@@ -1269,22 +1269,33 @@ function toggleLeftMenu() {
     const mainContent = document.querySelector('main');
     if (!sidebar) return;
 
-    if (sidebar.classList.contains('d-none')) {
-        // Show sidebar — use d-block so it's visible on ALL screen sizes including mobile
-        sidebar.classList.remove('d-none');
-        sidebar.classList.add('d-block');
-        if (mainContent) {
-            mainContent.classList.remove('col-12');
-            mainContent.classList.add('col-md-9', 'ms-sm-auto', 'col-lg-10');
+    const isMobile = window.innerWidth < 768;
+    const isHidden = isMobile
+        ? !sidebar.classList.contains('sidebar-mobile-open')
+        : sidebar.classList.contains('d-none');
+
+    if (isHidden) {
+        if (isMobile) {
+            sidebar.classList.add('sidebar-mobile-open');
+        } else {
+            sidebar.classList.remove('d-none');
+            sidebar.classList.add('d-block');
+            if (mainContent) {
+                mainContent.classList.remove('col-12');
+                mainContent.classList.add('col-md-9', 'ms-sm-auto', 'col-lg-10');
+            }
         }
         localStorage.setItem('leftMenuVisible', 'true');
     } else {
-        // Hide sidebar
-        sidebar.classList.remove('d-block', 'd-md-block');
-        sidebar.classList.add('d-none');
-        if (mainContent) {
-            mainContent.classList.remove('col-md-9', 'ms-sm-auto', 'col-lg-10');
-            mainContent.classList.add('col-12');
+        if (isMobile) {
+            sidebar.classList.remove('sidebar-mobile-open');
+        } else {
+            sidebar.classList.remove('d-block', 'd-md-block');
+            sidebar.classList.add('d-none');
+            if (mainContent) {
+                mainContent.classList.remove('col-md-9', 'ms-sm-auto', 'col-lg-10');
+                mainContent.classList.add('col-12');
+            }
         }
         localStorage.setItem('leftMenuVisible', 'false');
     }
@@ -1295,28 +1306,32 @@ function initializeLeftMenuState() {
     const isVisible = localStorage.getItem('leftMenuVisible');
     const sidebar = document.querySelector('.jspwiki-sidebar');
     const mainContent = document.querySelector('main');
+    const isMobile = window.innerWidth < 768;
 
-    if (isVisible === 'false') {
+    if (isVisible === 'true') {
+        if (isMobile) {
+            if (sidebar) sidebar.classList.add('sidebar-mobile-open');
+        } else {
+            if (sidebar) {
+                sidebar.classList.remove('d-none');
+                sidebar.classList.add('d-block');
+            }
+            if (mainContent) {
+                mainContent.classList.remove('col-12');
+                mainContent.classList.add('col-md-9', 'ms-sm-auto', 'col-lg-10');
+            }
+        }
+    } else if (isVisible === 'false') {
         if (sidebar) {
-            sidebar.classList.remove('d-block', 'd-md-block');
+            sidebar.classList.remove('d-block', 'd-md-block', 'sidebar-mobile-open');
             sidebar.classList.add('d-none');
         }
-        if (mainContent) {
+        if (!isMobile && mainContent) {
             mainContent.classList.remove('col-md-9', 'ms-sm-auto', 'col-lg-10');
             mainContent.classList.add('col-12');
         }
-    } else if (isVisible === 'true') {
-        if (sidebar) {
-            sidebar.classList.remove('d-none');
-            sidebar.classList.add('d-block');
-        }
-        if (mainContent) {
-            mainContent.classList.remove('col-12');
-            mainContent.classList.add('col-md-9', 'ms-sm-auto', 'col-lg-10');
-        }
     }
-    // If no preference stored, default CSS (d-none d-md-block) handles it:
-    // desktop shows sidebar, mobile hides it
+    // No preference: default CSS handles it (sidebar visible on desktop, hidden on mobile)
 }
 
 // Breadcrumb trail management
