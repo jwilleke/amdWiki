@@ -1269,33 +1269,24 @@ function toggleLeftMenu() {
     const mainContent = document.querySelector('main');
     if (!sidebar) return;
 
-    const isMobile = window.innerWidth < 768;
-    const isHidden = isMobile
-        ? !sidebar.classList.contains('sidebar-mobile-open')
-        : sidebar.classList.contains('d-none');
+    const isHidden = sidebar.classList.contains('d-none');
 
     if (isHidden) {
-        if (isMobile) {
-            sidebar.classList.add('sidebar-mobile-open');
-        } else {
-            sidebar.classList.remove('d-none');
-            sidebar.classList.add('d-block');
-            if (mainContent) {
-                mainContent.classList.remove('col-12');
-                mainContent.classList.add('col-md-9', 'ms-sm-auto', 'col-lg-10');
-            }
+        // Show: remove d-none, add d-block (works on all screen sizes)
+        sidebar.classList.remove('d-none');
+        sidebar.classList.add('d-block');
+        if (mainContent && window.innerWidth >= 768) {
+            mainContent.classList.remove('col-12');
+            mainContent.classList.add('col-md-9', 'ms-sm-auto', 'col-lg-10');
         }
         localStorage.setItem('leftMenuVisible', 'true');
     } else {
-        if (isMobile) {
-            sidebar.classList.remove('sidebar-mobile-open');
-        } else {
-            sidebar.classList.remove('d-block', 'd-md-block');
-            sidebar.classList.add('d-none');
-            if (mainContent) {
-                mainContent.classList.remove('col-md-9', 'ms-sm-auto', 'col-lg-10');
-                mainContent.classList.add('col-12');
-            }
+        // Hide: remove d-block, add d-none
+        sidebar.classList.remove('d-block', 'd-md-block');
+        sidebar.classList.add('d-none');
+        if (mainContent && window.innerWidth >= 768) {
+            mainContent.classList.remove('col-md-9', 'ms-sm-auto', 'col-lg-10');
+            mainContent.classList.add('col-12');
         }
         localStorage.setItem('leftMenuVisible', 'false');
     }
@@ -1306,32 +1297,28 @@ function initializeLeftMenuState() {
     const isVisible = localStorage.getItem('leftMenuVisible');
     const sidebar = document.querySelector('.jspwiki-sidebar');
     const mainContent = document.querySelector('main');
-    const isMobile = window.innerWidth < 768;
 
     if (isVisible === 'true') {
-        if (isMobile) {
-            if (sidebar) sidebar.classList.add('sidebar-mobile-open');
-        } else {
-            if (sidebar) {
-                sidebar.classList.remove('d-none');
-                sidebar.classList.add('d-block');
-            }
-            if (mainContent) {
-                mainContent.classList.remove('col-12');
-                mainContent.classList.add('col-md-9', 'ms-sm-auto', 'col-lg-10');
-            }
+        if (sidebar) {
+            sidebar.classList.remove('d-none');
+            sidebar.classList.add('d-block');
+        }
+        if (mainContent && window.innerWidth >= 768) {
+            mainContent.classList.remove('col-12');
+            mainContent.classList.add('col-md-9', 'ms-sm-auto', 'col-lg-10');
         }
     } else if (isVisible === 'false') {
         if (sidebar) {
-            sidebar.classList.remove('d-block', 'd-md-block', 'sidebar-mobile-open');
+            sidebar.classList.remove('d-block', 'd-md-block');
             sidebar.classList.add('d-none');
         }
-        if (!isMobile && mainContent) {
+        if (mainContent && window.innerWidth >= 768) {
             mainContent.classList.remove('col-md-9', 'ms-sm-auto', 'col-lg-10');
             mainContent.classList.add('col-12');
         }
     }
-    // No preference: default CSS handles it (sidebar visible on desktop, hidden on mobile)
+    // No preference stored: Bootstrap d-none/d-md-block defaults handle it
+    // (sidebar visible on desktop ≥768px, hidden on mobile)
 }
 
 // Breadcrumb trail management
