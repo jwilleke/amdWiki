@@ -1334,9 +1334,8 @@ class WikiRoutes {
 
       const templateManager = this.engine.getManager('TemplateManager');
 
-      // Get template data from WikiContext
-      const templateData = this.getTemplateDataFromContext(wikiContext);
-      const commonData = { ...templateData };
+      // Get common template data (includes theme paths, user, pages, etc.)
+      const commonData = await this.getCommonTemplateData(req);
 
       // Get available templates
       const templates = templateManager.getTemplates();
@@ -1684,9 +1683,8 @@ class WikiRoutes {
         }
       }
 
-      // Get template data from WikiContext
-      const templateData = this.getTemplateDataFromContext(wikiContext);
-      const commonData = { ...templateData };
+      // Get common template data (includes theme paths, user, pages, etc.)
+      const commonData = await this.getCommonTemplateData(req);
 
       // Get categories and keywords (defensive array handling)
       const rawCategories = this.getSystemCategories();
@@ -2302,9 +2300,8 @@ class WikiRoutes {
 
       const searchManager = this.engine.getManager('SearchManager');
 
-      // Get template data from WikiContext
-      const templateData = this.getTemplateDataFromContext(wikiContext);
-      const commonData = { ...templateData };
+      // Get common template data (includes theme paths, user, pages, etc.)
+      const commonData = await this.getCommonTemplateData(req);
 
       let results = [];
       let searchType = 'text';
@@ -7660,8 +7657,8 @@ class WikiRoutes {
       const versions = await provider.getVersionHistory(pageName);
       logger.info(`[pageHistory] Found ${versions.length} versions`);
 
-      // Get template data from WikiContext
-      const templateData = this.getTemplateDataFromContext(wikiContext);
+      // Get common template data (includes theme paths, user, pages, etc.)
+      const templateData = await this.getCommonTemplateData(req);
 
       res.render('page-history', {
         ...templateData,
@@ -7743,8 +7740,8 @@ class WikiRoutes {
       // Compare versions
       const comparison = await provider.compareVersions(pageName, v1, v2);
 
-      // Get template data from WikiContext
-      const templateData = this.getTemplateDataFromContext(wikiContext);
+      // Get common template data (includes theme paths, user, pages, etc.)
+      const templateData = await this.getCommonTemplateData(req);
 
       // Get left menu content
       const leftMenu = await this.getLeftMenu(wikiContext.userContext);
