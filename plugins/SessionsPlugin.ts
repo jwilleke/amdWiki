@@ -1,17 +1,31 @@
 /**
  * SessionsPlugin - JSPWiki-style sessions plugin
- * Returns the number of active sessions
+ *
+ * Usage:
+ *   [{INSERT SessionsPlugin property=users}]         — list of authenticated users + anonymous count
+ *   [{INSERT SessionsPlugin property=count}]         — total session count (default)
+ *   [{INSERT SessionsPlugin property=distinctUsers}] — number of distinct users/sessions
+ *
+ * Based on JSPWiki SessionsPlugin:
+ * https://jspwiki-wiki.apache.org/Wiki.jsp?page=SessionsPlugin
  */
 
 import type { SimplePlugin, PluginContext, PluginParams } from './types';
+import { escapeHtml, formatAsList, formatAsCount } from '../src/utils/pluginFormatters';
 
 interface ConfigManager {
   getProperty(key: string, defaultValue: string | number): string | number;
 }
 
-interface SessionData {
+interface SessionCountData {
   sessionCount?: number;
   distinctUsers?: number;
+}
+
+interface SessionUsersData {
+  users?: string[];
+  anonymous?: number;
+  total?: number;
 }
 
 interface FetchResponse {
@@ -23,24 +37,16 @@ type FetchFunction = (url: string, init?: { method: string }) => Promise<FetchRe
 
 const SessionsPlugin: SimplePlugin = {
   name: 'SessionsPlugin',
-  description: 'Shows the number of active sessions',
+  description: 'Shows active session count or list of authenticated users',
   author: 'ngdpbase',
-  version: '1.0.0',
+  version: '2.0.0',
 
-  /**
-   * Execute the plugin
-   * @param context - Wiki context
-   * @param params - Plugin parameters (property='users' or 'distinctUsers')
-   * @returns HTML output
-   */
   async execute(context: PluginContext, params: PluginParams = {}): Promise<string> {
     try {
       let host = 'localhost';
       let port = 3000;
 
-      // Try to get config, but use defaults if anything fails
       try {
-        // Prefer ConfigurationManager keys
         const cfgMgr = (
           context.engine?.getManager?.('ConfigurationManager') ||
           context.engine?.getManager?.('ConfigManager')
@@ -57,44 +63,66 @@ const SessionsPlugin: SimplePlugin = {
           }
         }
       } catch {
-        // Silently use defaults if config is not available
+        // use defaults
       }
 
       const baseUrl = `http://${host}:${port}`;
-
-      // Use global fetch (available in Node.js 18+ and browsers)
       const fetchFn: FetchFunction = fetch as FetchFunction;
+      const property = String(params.property || 'count').toLowerCase();
 
-      // Determine which property to return
-      const property = (String(params.property || 'users')).toLowerCase();
+      // property=users — list authenticated users + anonymous count
+      if (property === 'users') {
+        const resp = await fetchFn(`${baseUrl}/api/session-users`, { method: 'GET' });
+        if (!resp?.ok) return '<span class="sessions-plugin">0</span>';
 
+        const data = await resp.json() as SessionUsersData;
+        const users = data.users ?? [];
+        const anonymous = data.anonymous ?? 0;
+
+        if (users.length === 0 && anonymous === 0) {
+          return '<span class="sessions-plugin text-muted">No active sessions</span>';
+        }
+
+        let html = '<div class="sessions-plugin">\n';
+
+        if (users.length > 0) {
+          const links = users.map(u => ({
+            href: `/view/${encodeURIComponent(u)}`,
+            text: u,
+            cssClass: 'wikipage'
+          }));
+          html += formatAsList(links);
+        }
+
+        if (anonymous > 0) {
+          html += `<ul><li class="text-muted">${escapeHtml(`Anonymous (${formatAsCount(anonymous)})`)}` +
+                  `</li></ul>\n`;
+        }
+
+        html += '</div>';
+        return html;
+      }
+
+      // property=count / property=sessions / property=distinctusers — numeric
       const resp = await fetchFn(`${baseUrl}/api/session-count`, { method: 'GET' });
       if (!resp?.ok) return '0';
 
-      let data: SessionData;
+      let data: SessionCountData;
       try {
-        data = await resp.json() as SessionData;
+        data = await resp.json() as SessionCountData;
       } catch {
         data = { sessionCount: 0, distinctUsers: 0 };
       }
 
-      // Return based on property parameter
       if (property === 'distinctusers') {
         return String(data.distinctUsers ?? data.sessionCount ?? 0);
-      } else {
-        // Default: property='users'
-        return String(data.sessionCount ?? 0);
       }
+      return String(data.sessionCount ?? 0);
+
     } catch (e) {
-      // Suppress config initialization errors - use defaults instead
       const error = e as Error;
-      if (error.message && error.message.includes('Config instance is invalid')) {
-        return '0';
-      }
-      const logger = context?.engine?.logger;
-      if (logger?.error) {
-        logger.error(`SessionsPlugin error: ${error.message}`);
-      }
+      if (error.message?.includes('Config instance is invalid')) return '0';
+      context.engine?.logger?.error?.(`SessionsPlugin error: ${error.message}`);
       return '0';
     }
   }

@@ -1,73 +1,31 @@
-const path = require('path');
-const os = require('os');
-const fs = require('fs-extra');
+/**
+ * Unit tests for SessionsPlugin (#330)
+ *
+ * @jest-environment node
+ */
 
-const PluginManager = require('../../src/managers/PluginManager');
+const SessionsPlugin = require('../SessionsPlugin');
 
-describe('SessionsPlugin (via PluginManager)', () => {
-  let SessionsPlugin;
-  let mockConfig;
-  let mockContext;
-  let pm;
-  let tmpPluginsDir;
-  let consoleErrSpy;
-
-  beforeAll(async () => {
-    // Create a temp plugins dir and copy SessionsPlugin.ts and types.ts into it
-    tmpPluginsDir = await fs.mkdtemp(path.join(os.tmpdir(), 'pm-sessions-only-'));
-    const repoPluginsDir = path.resolve(__dirname, '..');
-    const src = path.join(repoPluginsDir, 'SessionsPlugin.ts');
-    const dst = path.join(tmpPluginsDir, 'SessionsPlugin.ts');
-    const exists = await fs.pathExists(src);
-    if (!exists) throw new Error(`SessionsPlugin.ts not found at ${src}`);
-    await fs.copy(src, dst);
-
-    // Also copy types.ts since SessionsPlugin imports from it
-    const typesSrc = path.join(repoPluginsDir, 'types.ts');
-    const typesDst = path.join(tmpPluginsDir, 'types.ts');
-    await fs.copy(typesSrc, typesDst);
-
-    // Wire PluginManager to the temp dir via ConfigurationManager
-    const logger = { info: jest.fn(), warn: jest.fn(), debug: jest.fn(), error: jest.fn() };
-    const cfgMgr = { getProperty: jest.fn().mockReturnValue([tmpPluginsDir]) };
-    const engine = {
-      getManager: (name) => (name === 'ConfigurationManager' ? cfgMgr : null),
-      logger
-    };
-
-    pm = new PluginManager(engine);
-    await pm.registerPlugins();
-
-    SessionsPlugin = pm.plugins.get('SessionsPlugin');
-    if (!SessionsPlugin) {
-      const names = Array.from(pm.plugins.keys());
-      throw new Error(`SessionsPlugin not loaded. Loaded plugins: ${names.join(', ')}`);
+function makeContext() {
+  return {
+    engine: {
+      getManager: jest.fn((name) => {
+        if (name === 'ConfigurationManager' || name === 'ConfigManager') {
+          return { getProperty: (key, defaultVal) => defaultVal };
+        }
+        return null;
+      }),
+      logger: { error: jest.fn() }
     }
+  };
+}
 
-    consoleErrSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
-  });
-
-  afterAll(async () => {
-    consoleErrSpy?.mockRestore();
-    if (tmpPluginsDir) await fs.remove(tmpPluginsDir).catch(() => {});
-  });
+describe('SessionsPlugin', () => {
+  let mockContext;
 
   beforeEach(() => {
-    global.fetch = jest.fn(); // success by default for non-error tests
-    // Initialize mockContext with a proper engine
-    mockContext = {
-      engine: {
-        getManager: jest.fn((name) => {
-          if (name === 'ConfigurationManager') {
-            return {
-              getProperty: jest.fn((key, defaultVal) => defaultVal)
-            };
-          }
-          return null;
-        }),
-        logger: { error: jest.fn() }
-      }
-    };
+    mockContext = makeContext();
+    global.fetch = jest.fn();
   });
 
   afterEach(() => {
@@ -75,26 +33,130 @@ describe('SessionsPlugin (via PluginManager)', () => {
     jest.clearAllMocks();
   });
 
-  test('returns session count as string from endpoint', async () => {
+  // --- property=count (default) ---
+
+  test('returns session count as string (default property)', async () => {
     global.fetch.mockResolvedValue({ ok: true, json: async () => ({ sessionCount: 5 }) });
     const out = await SessionsPlugin.execute(mockContext, {});
     expect(out).toBe('5');
   });
 
-  test('uses defaults when ConfigurationManager lacks values', async () => {
-    mockContext.engine.getManager = (n) => (n === 'ConfigurationManager' ? { getProperty: (k, d) => d } : null);
-    global.fetch.mockResolvedValue({ ok: true, json: async () => ({ sessionCount: 2 }) });
-    const out = await SessionsPlugin.execute(mockContext, {});
-    expect(out).toBe('2');
+  test('property=count returns sessionCount', async () => {
+    global.fetch.mockResolvedValue({ ok: true, json: async () => ({ sessionCount: 3 }) });
+    const out = await SessionsPlugin.execute(mockContext, { property: 'count' });
+    expect(out).toBe('3');
   });
 
-  test('returns "0" when fetch throws or JSON parsing fails', async () => {
+  test('returns "0" when fetch fails (network error)', async () => {
     global.fetch.mockRejectedValue(new Error('network down'));
     expect(await SessionsPlugin.execute(mockContext, {})).toBe('0');
+  });
 
+  test('returns "0" when JSON parsing fails', async () => {
     global.fetch.mockResolvedValue({ ok: true, json: async () => { throw new Error('bad json'); } });
     expect(await SessionsPlugin.execute(mockContext, {})).toBe('0');
   });
+
+  test('returns "0" when response is not ok', async () => {
+    global.fetch.mockResolvedValue({ ok: false, json: async () => ({}) });
+    expect(await SessionsPlugin.execute(mockContext, {})).toBe('0');
+  });
+
+  // --- property=distinctusers ---
+
+  test('property=distinctusers returns distinctUsers count', async () => {
+    global.fetch.mockResolvedValue({ ok: true, json: async () => ({ sessionCount: 5, distinctUsers: 3 }) });
+    const out = await SessionsPlugin.execute(mockContext, { property: 'distinctUsers' });
+    expect(out).toBe('3');
+  });
+
+  test('property=distinctusers falls back to sessionCount when distinctUsers absent', async () => {
+    global.fetch.mockResolvedValue({ ok: true, json: async () => ({ sessionCount: 4 }) });
+    const out = await SessionsPlugin.execute(mockContext, { property: 'distinctUsers' });
+    expect(out).toBe('4');
+  });
+
+  // --- property=users ---
+
+  test('property=users fetches /api/session-users endpoint', async () => {
+    global.fetch.mockResolvedValue({
+      ok: true,
+      json: async () => ({ users: ['alice'], anonymous: 0, total: 1 })
+    });
+    await SessionsPlugin.execute(mockContext, { property: 'users' });
+    expect(global.fetch).toHaveBeenCalledWith(
+      expect.stringContaining('/api/session-users'),
+      expect.objectContaining({ method: 'GET' })
+    );
+  });
+
+  test('property=users renders authenticated user links', async () => {
+    global.fetch.mockResolvedValue({
+      ok: true,
+      json: async () => ({ users: ['alice', 'bob'], anonymous: 0, total: 2 })
+    });
+    const out = await SessionsPlugin.execute(mockContext, { property: 'users' });
+    expect(out).toContain('alice');
+    expect(out).toContain('bob');
+    expect(out).toContain('href');
+  });
+
+  test('property=users shows anonymous count when present', async () => {
+    global.fetch.mockResolvedValue({
+      ok: true,
+      json: async () => ({ users: [], anonymous: 3, total: 3 })
+    });
+    const out = await SessionsPlugin.execute(mockContext, { property: 'users' });
+    expect(out).toContain('Anonymous');
+    expect(out).toContain('3');
+  });
+
+  test('property=users shows both authenticated users and anonymous count', async () => {
+    global.fetch.mockResolvedValue({
+      ok: true,
+      json: async () => ({ users: ['alice'], anonymous: 2, total: 3 })
+    });
+    const out = await SessionsPlugin.execute(mockContext, { property: 'users' });
+    expect(out).toContain('alice');
+    expect(out).toContain('Anonymous');
+    expect(out).toContain('2');
+  });
+
+  test('property=users with no sessions shows "No active sessions"', async () => {
+    global.fetch.mockResolvedValue({
+      ok: true,
+      json: async () => ({ users: [], anonymous: 0, total: 0 })
+    });
+    const out = await SessionsPlugin.execute(mockContext, { property: 'users' });
+    expect(out).toContain('No active sessions');
+  });
+
+  test('property=users returns "0" when response is not ok', async () => {
+    global.fetch.mockResolvedValue({ ok: false, json: async () => ({}) });
+    const out = await SessionsPlugin.execute(mockContext, { property: 'users' });
+    expect(out).toContain('0');
+  });
+
+  test('property=users XSS: user names are escaped', async () => {
+    global.fetch.mockResolvedValue({
+      ok: true,
+      json: async () => ({ users: ['<script>alert(1)</script>'], anonymous: 0, total: 1 })
+    });
+    const out = await SessionsPlugin.execute(mockContext, { property: 'users' });
+    expect(out).not.toContain('<script>');
+    expect(out).toContain('&lt;script&gt;');
+  });
+
+  // --- config / defaults ---
+
+  test('uses defaults when ConfigurationManager unavailable', async () => {
+    const ctx = { engine: { getManager: () => null, logger: { error: jest.fn() } } };
+    global.fetch.mockResolvedValue({ ok: true, json: async () => ({ sessionCount: 2 }) });
+    const out = await SessionsPlugin.execute(ctx, {});
+    expect(out).toBe('2');
+  });
+
+  // --- metadata ---
 
   test('plugin metadata', () => {
     expect(SessionsPlugin.name).toBe('SessionsPlugin');

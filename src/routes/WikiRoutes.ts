@@ -466,6 +466,66 @@ class WikiRoutes {
   }
 
   /**
+   * Active session users — lists authenticated usernames and anonymous session count.
+   * Used by SessionsPlugin property=users.
+   */
+  getActiveSessionUsers(req: Request, res: Response): void {
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Express session store access
+      const store = (req as any).sessionStore;
+      if (!store) {
+        res.status(503).json({ error: 'Session store not available' });
+        return;
+      }
+
+      if (typeof store.all === 'function') {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any -- session data is dynamic
+        store.all((err: Error | null, sessions: Record<string, any>) => {
+          if (err) {
+            res.status(500).json({ error: 'Failed to obtain session users' });
+            return;
+          }
+          const sessionArray = Array.isArray(sessions)
+            ? sessions
+            : sessions ? Object.values(sessions) : [];
+
+          const userSet = new Set<string>();
+          let anonymous = 0;
+          for (const session of sessionArray) {
+            if (session?.username) {
+              userSet.add(String(session.username));
+            } else {
+              anonymous++;
+            }
+          }
+          res.json({
+            users: Array.from(userSet).sort(),
+            anonymous,
+            total: sessionArray.length
+          });
+        });
+        return;
+      }
+
+      // Fallback: store.length only — return counts without user list
+      if (typeof store.length === 'function') {
+        store.length((err: Error | null, count: number) => {
+          if (err) {
+            res.status(500).json({ error: 'Failed to obtain session users' });
+            return;
+          }
+          res.json({ users: [], anonymous: count || 0, total: count || 0 });
+        });
+        return;
+      }
+
+      res.status(501).json({ error: 'Session user list not supported by store' });
+    } catch {
+      res.status(500).json({ error: 'Failed to obtain session users' });
+    }
+  }
+
+  /**
    * Extract categories from System Categories page
    */
   async getCategories() {
@@ -6443,6 +6503,9 @@ class WikiRoutes {
 
     app.get('/api/session-count', (req: Request, res: Response) => {
       this.getActiveSesssionCount(req, res);
+    });
+    app.get('/api/session-users', (req: Request, res: Response) => {
+      this.getActiveSessionUsers(req, res);
     });
     // Schema.org routes
     app.get('/schema/person/:identifier', (req: Request, res: Response) =>
