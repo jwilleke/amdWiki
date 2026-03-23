@@ -334,8 +334,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 buffer += decoder.decode(value, { stream: true });
 
-                // Process complete SSE events (data: ...\\n\\n)
-                const events = buffer.split('\\n\\n');
+                // Process complete SSE events (data: ...\n\n)
+                const events = buffer.split('\n\n');
                 buffer = events.pop() || ''; // Keep incomplete event in buffer
 
                 for (const eventStr of events) {

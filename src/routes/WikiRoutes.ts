@@ -526,6 +526,51 @@ class WikiRoutes {
   }
 
   /**
+   * GET /api/check-updates
+   * Compare running version against latest GitHub release.
+   * Returns { currentVersion, latestVersion, updateAvailable, releaseUrl }
+   */
+  async checkForUpdates(_req: Request, res: Response): Promise<void> {
+    try {
+      const configManager = this.engine.getManager('ConfigurationManager');
+      const currentVersion = configManager.getProperty('ngdpbase.version', '0.0.0') as string;
+      const githubRepo = configManager.getProperty('ngdpbase.github.repo', 'jwilleke/ngdpbase') as string;
+
+      const apiUrl = `https://api.github.com/repos/${githubRepo}/releases/latest`;
+      let latestVersion: string | null = null;
+      let releaseUrl: string | null = null;
+
+      try {
+        const resp = await fetch(apiUrl, {
+          headers: { 'User-Agent': 'ngdpbase-update-check', 'Accept': 'application/vnd.github+json' }
+        });
+        if (resp.ok) {
+          const data = await resp.json() as { tag_name?: string; html_url?: string };
+          latestVersion = (data.tag_name ?? '').replace(/^v/, '');
+          releaseUrl = data.html_url ?? null;
+        }
+      } catch {
+        // GitHub unreachable — return current version only
+      }
+
+      const semverGt = (a: string, b: string): boolean => {
+        const pa = a.split('.').map(Number);
+        const pb = b.split('.').map(Number);
+        for (let i = 0; i < Math.max(pa.length, pb.length); i++) {
+          const diff = (pa[i] ?? 0) - (pb[i] ?? 0);
+          if (diff !== 0) return diff > 0;
+        }
+        return false;
+      };
+      const updateAvailable = latestVersion ? semverGt(latestVersion, currentVersion) : false;
+
+      res.json({ currentVersion, latestVersion, updateAvailable, releaseUrl });
+    } catch (err: unknown) {
+      res.status(500).json({ error: 'Failed to check for updates', details: getErrorMessage(err) });
+    }
+  }
+
+  /**
    * Extract categories from System Categories page
    */
   async getCategories() {
@@ -3277,10 +3322,11 @@ class WikiRoutes {
       }
 
       // Gather system statistics
+      const configManager = this.engine.getManager('ConfigurationManager');
       const stats = {
         totalUsers: users.length,
         uptime: Math.floor(process.uptime()) + ' seconds',
-        version: '1.0.0'
+        version: configManager.getProperty('ngdpbase.version', '1.0.0') as string
       };
 
       // Mock recent activity (in a real implementation, this would come from logs)
@@ -6507,6 +6553,9 @@ class WikiRoutes {
     app.get('/api/session-users', (req: Request, res: Response) => {
       this.getActiveSessionUsers(req, res);
     });
+    app.get('/api/check-updates', (req: Request, res: Response) =>
+      void this.checkForUpdates(req, res)
+    );
     // Schema.org routes
     app.get('/schema/person/:identifier', (req: Request, res: Response) =>
       this.adminGetPersonSchema(req, res)
