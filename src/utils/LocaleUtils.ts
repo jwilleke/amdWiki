@@ -185,7 +185,15 @@ class LocaleUtils {
   static formatDateWithPattern(date: Date, pattern: string, timezone?: string): string {
     if (!date || !(date instanceof Date)) return '';
 
+    // Include time parts when the pattern contains time tokens (HH, mm, ss)
+    const needsTime = /HH|mm|ss/.test(pattern);
     const opts: Intl.DateTimeFormatOptions = { year: 'numeric', month: '2-digit', day: '2-digit' };
+    if (needsTime) {
+      opts.hour = '2-digit';
+      opts.minute = '2-digit';
+      opts.second = '2-digit';
+      opts.hour12 = false;
+    }
     if (timezone && this.isValidTimezone(timezone)) opts.timeZone = timezone;
 
     try {
@@ -193,10 +201,18 @@ class LocaleUtils {
       for (const part of new Intl.DateTimeFormat('en-US', opts).formatToParts(date)) {
         parts[part.type] = part.value;
       }
+      // Intl returns hour as '00'-'23' but may use '24' for midnight in some locales;
+      // normalise to two-digit zero-padded.
+      const hour = (parts.hour ?? '00').padStart(2, '0');
+      const minute = (parts.minute ?? '00').padStart(2, '0');
+      const second = (parts.second ?? '00').padStart(2, '0');
       return pattern
         .replace('yyyy', parts.year ?? '')
         .replace('MM', parts.month ?? '')
-        .replace('dd', parts.day ?? '');
+        .replace('dd', parts.day ?? '')
+        .replace('HH', hour)
+        .replace('mm', minute)
+        .replace('ss', second);
     } catch {
       return date.toLocaleDateString('en-US');
     }

@@ -24,6 +24,23 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-03-23-03
+
+- Agent: Claude Sonnet 4.6
+- Subject: Fix #341 follow-up — formatDateWithPattern() drops HH:mm tokens
+- Key Decision: The profile page offered 'yyyy-MM-dd HH:mm' as a date format option but LocaleUtils.formatDateWithPattern() only handled date tokens (yyyy/MM/dd). Time tokens HH, mm, ss were passed through literally.
+- Current Issue: #341
+- Testing:
+  - npm test: 76 suites passed, 1923 tests passed
+  - E2E: 41 passed
+- Work Done:
+  - Extended formatDateWithPattern() to detect time tokens in the pattern and include hour/minute/second in Intl.DateTimeFormat options, then replace HH, mm, ss tokens
+- Commits: TBD
+- Files Modified:
+  - src/utils/LocaleUtils.ts
+
+---
+
 ## 2026-03-23-02
 
 - Agent: Claude Sonnet 4.6
