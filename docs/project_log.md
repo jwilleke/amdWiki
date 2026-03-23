@@ -24,6 +24,26 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-03-23-05
+
+- Agent: Claude Sonnet 4.6
+- Subject: feat #342 — replace plexignore sentinel with .ngdpbaseignore pattern file and ngdpbaseignore EXIF keyword
+- Key Decision: Implementation already present in FileSystemMediaProvider.ts from prior work; this session completed the remaining surface areas: MediaManager log lines, provider docs, and user-facing required-page
+- Current Issue: #342
+- Testing:
+  - npm test: 77 suites passed, 1931 tests passed
+- Work Done:
+  - Added `excluded` count to MediaManager rebuild/scan log lines
+  - Updated docs/providers/FileSystemMediaProvider.md: removed ignoreFiles config entry, updated scan algorithm, updated troubleshooting section
+  - Updated required-pages media doc: replaced .amdwikiignore/amdwikiignore with .ngdpbaseignore/ngdpbaseignore
+- Commits: b3a35d4
+- Files Modified:
+  - src/managers/MediaManager.ts
+  - docs/providers/FileSystemMediaProvider.md
+  - required-pages/d14ef7c7-299a-4729-a457-452679569ca9.md
+
+---
+
 ## 2026-03-23-04
 
 - Agent: Claude Sonnet 4.6
