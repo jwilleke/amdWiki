@@ -134,7 +134,7 @@ class MediaManager extends BaseManager {
     const result = await this.provider.rebuild();
     logger.info(
       `[MediaManager] Rebuild complete: scanned=${result.scanned} added=${result.added} ` +
-        `updated=${result.updated} errors=${result.errors}`
+        `updated=${result.updated} errors=${result.errors} excluded=${result.excluded ?? 0}`
     );
     return result;
   }
@@ -157,7 +157,7 @@ class MediaManager extends BaseManager {
     const result = await this.provider.scan(force);
     logger.info(
       `[MediaManager] Scan complete: scanned=${result.scanned} added=${result.added} ` +
-        `updated=${result.updated} errors=${result.errors}`
+        `updated=${result.updated} errors=${result.errors} excluded=${result.excluded ?? 0}`
     );
 
     // Surface missing folders as notifications so admins see them in /admin/notifications

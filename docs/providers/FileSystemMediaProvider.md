@@ -29,7 +29,9 @@ Source files are **never modified** — the provider is strictly read-only.
 - **Event names** — parsed from `YYYY-MM-DD-EventName-NNN.ext` filename pattern
 - **Persistent index** — `media-index.json` loaded at `initialize()`, saved after scan
 - **Thumbnail cache** — `{thumbnailDir}/{id}-{size}.jpg`; cover-crop, 85% JPEG quality
-- **ignoredirs / ignorefiles** — skip by directory name or sentinel file presence
+- **ignoreDirs** — skip directories by name (config list)
+- **`.ngdpbaseignore`** — gitignore-style pattern file; place in any directory to exclude matching entries before ExifTool runs
+- **`ngdpbaseignore` EXIF keyword** — tag a file in any photo manager; provider evicts and excludes it at scan time
 
 ---
 
@@ -38,8 +40,7 @@ Source files are **never modified** — the provider is strictly read-only.
 | Field | Type | Description |
 |-------|------|-------------|
 | `folders` | `string[]` | Absolute paths to scan |
-| `ignoreDirs` | `string[]` | Directory names to skip |
-| `ignoreFiles` | `string[]` | Sentinel filenames that exclude a directory |
+| `ignoreDirs` | `string[]` | Directory names to skip unconditionally |
 | `maxDepth` | `number` | Recursion depth (0 = unlimited) |
 | `indexFile` | `string` | Path to `media-index.json` |
 | `thumbnailDir` | `string` | Path to thumbnail cache |
@@ -55,16 +56,19 @@ Source files are **never modified** — the provider is strictly read-only.
 for each folder in config.folders:
   walkDir(folder, depth=0)
     ├─ read directory entries
-    ├─ if any entry name is in ignoreFiles → skip entire dir
+    ├─ load .ngdpbaseignore patterns from this directory (if file present)
     ├─ for each subdirectory:
-    │    skip if name in ignoreDirs
+    │    skip if name in ignoreDirs → excluded++
+    │    skip if matches .ngdpbaseignore pattern → excluded++
     │    if depth < maxDepth (or maxDepth === 0): recurse
     └─ for each file:
          skip if extension not in MEDIA_EXTENSIONS
+         skip if matches .ngdpbaseignore pattern → excluded++
          scanned++
          id = sha256(filePath)[0:32]
          if !force && index[id] && index[id].mtime === stat.mtimeMs: skip
          tags = exiftool.read(filePath)
+         if "ngdpbaseignore" in tags.Keywords → evict + excluded++
          year, eventName = extract(tags, filePath, stat.mtime)
          update index[id] → added++ or updated++
 
@@ -167,7 +171,8 @@ Closes the ExifTool worker process. Must be called to avoid orphan processes.
 
 - Confirm folder paths in config are absolute and accessible
 - Check extension is in the supported set
-- Look for `ignorefiles` sentinels (`.photoviewignore`, `.plexignore`) in parent directories
+- Check for a `.ngdpbaseignore` file in the directory or a parent directory — a matching pattern silently excludes the file
+- Check the file's EXIF/XMP keywords — the `ngdpbaseignore` keyword causes immediate exclusion
 
 ### EXIF year is wrong
 

@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [2.0.6] - 2026-03-23
+
 ## [2.0.5] - 2026-03-23
 
 **See [docs/project_log.md](./docs/project_log.md) for detailed AI agent session logs and daily work history.**
