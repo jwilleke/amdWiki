@@ -24,6 +24,28 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-03-23-16
+
+- Agent: Claude Sonnet 4.6
+- Subject: fix: pageName missing from page-history; E2E pass; SEMVER bump 2.0.11 → 3.0.0
+- Key Decision: pageName was dropped from res.render() when pageHistory was switched to getCommonTemplateData() — simple one-line fix. MAJOR bump per dev-notes 2026-03-22 instruction.
+- Current Issue: none
+- Testing:
+  - npm test: 85 suites passed, 2212 tests passed
+  - E2E: 47 passed, 0 failed (was 1 failed before fix)
+  - Build clean
+- Work Done:
+  - Added pageName to pageHistory res.render() call
+  - Bumped version 2.0.11 → 3.0.0 (MAJOR)
+- Commits: 2e433b8
+- Files Modified:
+  - src/routes/WikiRoutes.ts
+  - package.json
+  - config/app-default-config.json
+  - CHANGELOG.md
+
+---
+
 ## 2026-03-23-15
 
 - Agent: Claude Sonnet 4.6
