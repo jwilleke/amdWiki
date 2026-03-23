@@ -7,6 +7,7 @@
 
 import { WikiConfig } from './Config';
 import type { Logger } from 'winston';
+import type { Application } from 'express';
 
 /**
  * All known manager names as a union type
@@ -66,6 +67,13 @@ export interface WikiEngine {
   /** Current context (request-scoped) */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any -- WikiContext type varies by request
   context?: any;
+
+  /**
+   * Express application instance — available for add-ons to mount routes and
+   * middleware via engine.app.use().  Set by app.js before AddonsManager
+   * initialises (#359).
+   */
+  app?: Application;
 
   /**
    * Initialize the wiki engine

@@ -407,6 +407,30 @@ class PluginManager extends BaseManager {
   hasPlugin(pluginName: string): boolean {
     return this.findPlugin(pluginName) !== null;
   }
+
+  /**
+   * Programmatically register a plugin object (for use by add-ons).
+   *
+   * Skips the file-path security check used by loadPlugin() — the caller is
+   * responsible for providing a trusted Plugin instance.  Calls
+   * plugin.initialize(engine) if present, consistent with loadPlugin().
+   *
+   * @param {string} name - Plugin name (used for [{name ...}] invocation)
+   * @param {Plugin} plugin - Plugin function or PluginObject
+   */
+  async registerPlugin(name: string, plugin: Plugin): Promise<void> {
+    if (!isPlugin(plugin)) {
+      logger.warn(`[PluginManager] registerPlugin('${name}'): argument is not a valid Plugin — skipped`);
+      return;
+    }
+
+    if (isPluginObject(plugin) && typeof plugin.initialize === 'function') {
+      await plugin.initialize(this.engine);
+    }
+
+    this.plugins.set(name, plugin);
+    logger.info(`[PluginManager] Registered plugin: ${name}`);
+  }
 }
 
 export default PluginManager;

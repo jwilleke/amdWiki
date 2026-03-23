@@ -24,6 +24,29 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-03-23-02
+
+- Agent: Claude Sonnet 4.6
+- Subject: feat #358 registerPlugin() + feat #359 engine.app
+- Key Decision: Both are small, ship together as one patch
+- Current Issue: #358, #359
+- Testing:
+  - npm test: 76 suites passed, 1923 tests passed
+  - E2E: 41 passed
+- Work Done:
+  - Added PluginManager.registerPlugin(name, plugin) public method — validates plugin, calls initialize(engine) if present, stores in plugins map
+  - Added engine.app = app in app.js before engine.initialize() so add-ons get the Express instance during register()
+  - Declared app?: Application on WikiEngine interface in src/types/WikiEngine.ts
+  - Added 6-test unit suite: PluginManager.registerPlugin.test.js
+- Commits: TBD
+- Files Modified:
+  - src/managers/PluginManager.ts
+  - src/types/WikiEngine.ts
+  - app.js
+  - src/managers/__tests__/PluginManager.registerPlugin.test.js
+
+---
+
 ## 2026-03-23-01
 
 - Agent: Claude Sonnet 4.6

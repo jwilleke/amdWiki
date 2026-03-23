@@ -144,6 +144,7 @@ checkAndCreatePidLock();
   try {
     console.log('🚀 Initializing ngdpbase Engine...');
     engine = new WikiEngine();
+    engine.app = app; // expose Express app to add-ons before initialization (#359)
     await engine.initialize();
     engineRef = engine; // expose to graceful-shutdown SIGTERM handler
     console.log('✅ ngdpbase Engine initialized successfully.');
