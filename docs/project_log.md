@@ -24,6 +24,28 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-03-23-06
+
+- Agent: Claude Sonnet 4.6
+- Subject: feat #362 — admin/required-pages title drift detection, push-to-source, and edit warning
+- Key Decision: Title drift is a read-only detection (not auto-fix) — admin decides whether to sync source→live or push live→source; link update flagging shows affected count without auto-modifying files
+- Current Issue: #362
+- Testing:
+  - npm test: 77 suites passed, 1931 tests passed
+  - Build clean, server started
+- Work Done:
+  - Title drift detection in adminRequiredPages(): compare source vs live title frontmatter; count other source files linking to old live title
+  - Push to Source: pushToSource[] POST action copies live page back to required-pages/ source
+  - Edit page warning banner for required pages (isRequiredPage flag passed to template)
+  - Admin UI: Title Drift badge in summary, drift info in title cell, Push to Source button per row
+- Commits: a2fd679
+- Files Modified:
+  - src/routes/WikiRoutes.ts
+  - views/admin-required-pages.ejs
+  - views/edit.ejs
+
+---
+
 ## 2026-03-23-05
 
 - Agent: Claude Sonnet 4.6
