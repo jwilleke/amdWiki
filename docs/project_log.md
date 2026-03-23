@@ -24,6 +24,27 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-03-23-09
+
+- Agent: Claude Sonnet 4.6
+- Subject: feat #340 — Page Statistics modal in Info dropdown
+- Key Decision: Extended existing /api/page-metadata (no new endpoint) to add link counts, contributor aggregation, and revision frequency; replaced showPageStats() stub with full Bootstrap modal
+- Current Issue: #340
+- Testing:
+  - npm test: 78 suites passed, 1955 tests passed
+  - /api/page-metadata verified returning internalLinks, externalLinks, attachmentRefs, contributors, avgDaysBetweenEdits
+- Work Done:
+  - getPageMetadata(): added internalLinkCount, externalLinkCount, attachmentRefCount from regex on raw content
+  - getPageMetadata(): extended version history loop to aggregate topContributors and avgDaysBetweenEdits
+  - Added 'Page Statistics' dropdown item to Info menu (header.ejs)
+  - Implemented showPageStats() + showPageStatsModal() showing two-column stats modal
+- Commits: 5de6d1e
+- Files Modified:
+  - src/routes/WikiRoutes.ts
+  - views/header.ejs
+
+---
+
 ## 2026-03-23-08
 
 - Agent: Claude Sonnet 4.6
