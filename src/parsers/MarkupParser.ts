@@ -1107,11 +1107,20 @@ class MarkupParser extends BaseManager {
     // Include query-string params so paginated pages (?page=2) get distinct cache entries
     const query = (requestInfo?.['query'] ?? {}) as Record<string, unknown>;
 
+    // Include user preferences that affect rendering ({$date}, {$time}, {$timestamp})
+    const userCtx = (pageCtx.userContext ?? context.userContext) as Record<string, unknown> | undefined;
+    const prefs = userCtx?.['preferences'] as Record<string, unknown> | undefined;
+
     const contextHash = crypto.createHash('md5')
       .update(JSON.stringify({
         pageName: pageCtx.pageName ?? context.pageName,
         userName: pageCtx.userName ?? context.userName,
         query,
+        // Preferences affecting date/time variable rendering (#341)
+        userLocale: (prefs?.['locale'] ?? userCtx?.['locale']),
+        userTimezone: (prefs?.['timezone'] ?? userCtx?.['timezone']),
+        userDateFormat: prefs?.['dateFormat'],
+        userTimeFormat: prefs?.['timeFormat'],
         timestamp: Math.floor(Date.now() / 300000) // 5-minute buckets
       }))
       .digest('hex');

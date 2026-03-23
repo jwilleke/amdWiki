@@ -24,6 +24,23 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-03-23-01
+
+- Agent: Claude Sonnet 4.6
+- Subject: Fix #341 — user profile preferences not applied to {$date}/{$time} variables
+- Key Decision: Cache key in MarkupParser.generateCacheKey() was missing user preferences, so rendered pages were served from cache regardless of locale/timezone/dateFormat/timeFormat
+- Current Issue: #341
+- Testing:
+  - npm test: 75 suites passed, 1917 tests passed
+- Work Done:
+  - Added userLocale, userTimezone, userDateFormat, userTimeFormat to generateCacheKey() in MarkupParser.ts so each unique preferences combination gets its own cache bucket
+  - Verified full preference chain: app.js → req.userContext → WikiContext → ParseContext → DOMVariableHandler → VariableManager is correct; only the cache was bypassing per-user rendering
+- Commits: TBD
+- Files Modified:
+  - src/parsers/MarkupParser.ts
+
+---
+
 ## 2026-03-22-12
 
 - Agent: Claude Sonnet 4.6
