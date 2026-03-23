@@ -1617,6 +1617,8 @@ class WikiRoutes {
         logger.warn('Could not load attachments for edit page:', err);
       }
 
+      const pageIsRequired = await this.isRequiredPage(pageName);
+
       res.render('edit', {
         ...commonData,
         title: `Edit ${pageName}`,
@@ -1630,7 +1632,8 @@ class WikiRoutes {
         maxUserKeywords: maxUserKeywords,
         defaultCategory: defaultCategory,
         pageAttachments: pageAttachments,
-        csrfToken: req.session.csrfToken
+        csrfToken: req.session.csrfToken,
+        isRequiredPage: pageIsRequired
       });
     } catch (err: unknown) {
       logger.error('Error loading edit page:', err);
@@ -4751,7 +4754,18 @@ class WikiRoutes {
         lastModified: string;
         status: 'new' | 'modified' | 'current' | 'uuid-mismatch';
         liveUuid?: string;
+        titleDrift?: boolean;
+        liveTitle?: string;
+        affectedLinks?: number;
       }> = [];
+
+      // Pre-load all required-pages source contents for link-drift scanning
+      const allSourceContents: string[] = [];
+      for (const file of mdFiles) {
+        try {
+          allSourceContents.push(await fse.readFile(path.join(requiredDirResolved, file), 'utf8'));
+        } catch { /* skip unreadable files */ }
+      }
 
       for (const file of mdFiles) {
         const uuid = path.basename(file, '.md');
@@ -4782,6 +4796,9 @@ class WikiRoutes {
         const destPath = path.join(pagesDirResolved, file);
         let status: 'new' | 'modified' | 'current' | 'uuid-mismatch';
         let liveUuid: string | undefined;
+        let titleDrift = false;
+        let liveTitle: string | undefined;
+        let affectedLinks = 0;
 
         if (!(await fse.pathExists(destPath))) {
           status = 'new';
@@ -4803,9 +4820,19 @@ class WikiRoutes {
           }
           // Use user-modified flag as the authoritative "was this edited by a human?" signal
           status = destData['user-modified'] === true ? 'modified' : 'current';
+
+          // Detect title drift: source title vs live title
+          const liveTitleRaw = (destData.title as string | undefined) || '';
+          if (liveTitleRaw && liveTitleRaw !== title) {
+            titleDrift = true;
+            liveTitle = liveTitleRaw;
+            // Count other required-pages source files that still link to the live title
+            const linkPattern = new RegExp(`\\[${liveTitleRaw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\]`, 'g');
+            affectedLinks = allSourceContents.reduce((n, src) => n + (linkPattern.test(src) ? 1 : 0), 0);
+          }
         }
 
-        comparison.push({ uuid, title, slug, lastModified, status, liveUuid });
+        comparison.push({ uuid, title, slug, lastModified, status, liveUuid, titleDrift, liveTitle, affectedLinks });
       }
 
       const statusOrder: Record<string, number> = { 'uuid-mismatch': 0, new: 1, modified: 2, current: 3 };
@@ -4815,7 +4842,8 @@ class WikiRoutes {
         uuidMismatch: comparison.filter(p => p.status === 'uuid-mismatch').length,
         new: comparison.filter(p => p.status === 'new').length,
         modified: comparison.filter(p => p.status === 'modified').length,
-        current: comparison.filter(p => p.status === 'current').length
+        current: comparison.filter(p => p.status === 'current').length,
+        titleDrift: comparison.filter(p => p.titleDrift).length
       };
 
       const commonData = await this.getCommonTemplateData(req);
@@ -4872,12 +4900,14 @@ class WikiRoutes {
         uuids?: string[];
         reconcile?: { sourceUuid: string; liveUuid: string }[];
         adoptUuid?: { sourceUuid: string; liveUuid: string }[];
+        pushToSource?: string[];
       };
       const uuids = Array.isArray(body.uuids) ? body.uuids : [];
       const reconcileItems = Array.isArray(body.reconcile) ? body.reconcile : [];
       const adoptItems = Array.isArray(body.adoptUuid) ? body.adoptUuid : [];
+      const pushToSourceUuids = Array.isArray(body.pushToSource) ? body.pushToSource : [];
 
-      if (uuids.length === 0 && reconcileItems.length === 0 && adoptItems.length === 0) {
+      if (uuids.length === 0 && reconcileItems.length === 0 && adoptItems.length === 0 && pushToSourceUuids.length === 0) {
         return res.status(400).json({ success: false, error: 'No pages selected' });
       }
 
@@ -4968,6 +4998,20 @@ class WikiRoutes {
           synced.push(sourceUuid);
         } else {
           logger.warn(`Adopt UUID: live file not found for liveUuid=${liveUuid}, skipping`);
+        }
+      }
+
+      // Push live edits back to required-pages/ source (live → source direction)
+      for (const uuid of pushToSourceUuids) {
+        const fileName = `${uuid}.md`;
+        const livePath = path.join(pagesDirResolved, fileName);
+        const sourcePath = path.join(requiredDirResolved, fileName);
+        if (await fse.pathExists(livePath)) {
+          await fse.copy(livePath, sourcePath, { overwrite: true });
+          synced.push(uuid);
+          logger.info(`Required pages push-to-source: ${uuid} by ${currentUser.username}`);
+        } else {
+          logger.warn(`Push to source: live file not found for ${uuid}, skipping`);
         }
       }
 

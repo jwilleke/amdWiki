@@ -46,6 +46,12 @@
                     <i class="fas fa-exclamation-triangle me-1"></i> <%= counts.uuidMismatch %> UUID Mismatch
                 </span>
                 <% } %>
+                <% if (counts.titleDrift > 0) { %>
+                <span class="badge bg-info fs-6 px-3 py-2"
+                      title="Source title differs from live page title">
+                    <i class="fas fa-tag me-1"></i> <%= counts.titleDrift %> Title Drift
+                </span>
+                <% } %>
                 <span class="badge bg-primary fs-6 px-3 py-2">
                     <i class="fas fa-plus-circle me-1"></i> <%= counts.new %> New
                 </span>
@@ -132,6 +138,17 @@
                                     </td>
                                     <td>
                                         <strong><%= page.title %></strong>
+                                        <% if (page.titleDrift) { %>
+                                        <br><span class="badge bg-info text-dark"
+                                                  title="Live page title: <%= page.liveTitle %>">
+                                            <i class="fas fa-tag me-1"></i>Live: "<%= page.liveTitle %>"
+                                        </span>
+                                        <% if (page.affectedLinks > 0) { %>
+                                        <br><small class="text-warning">
+                                            <i class="fas fa-link me-1"></i><%= page.affectedLinks %> required-page<%= page.affectedLinks !== 1 ? 's' : '' %> link to live title
+                                        </small>
+                                        <% } %>
+                                        <% } %>
                                         <br><small class="text-muted font-monospace"><%= page.uuid %></small>
                                     </td>
                                     <td><code><%= page.slug || '—' %></code></td>
@@ -179,6 +196,13 @@
                                         <button class="btn btn-sm btn-outline-primary"
                                                 onclick="syncOne('<%= page.uuid %>', '<%= page.title.replace(/'/g, '\\\'') %>')">
                                             <i class="fas fa-sync-alt"></i> Sync
+                                        </button>
+                                        <% } %>
+                                        <% if (page.status === 'modified' || page.titleDrift) { %>
+                                        <button class="btn btn-sm btn-outline-warning"
+                                                onclick="pushToSourceOne('<%= page.uuid %>', '<%= page.title.replace(/'/g, '\\\'') %>')"
+                                                title="Push live edits back to required-pages/ source">
+                                            <i class="fas fa-upload"></i> Push to Source
                                         </button>
                                         <% } %>
                                         <% if (page.slug) { %>
@@ -480,6 +504,30 @@ async function doAdoptUuid(items, statusMsg) {
                 }
             });
             setTimeout(() => location.reload(), 2000);
+        } else {
+            showToast(`✗ Error: ${result.error}`);
+        }
+    } catch (err) {
+        showToast(`✗ Network error: ${err.message}`);
+    }
+}
+
+async function pushToSourceOne(uuid, title) {
+    if (!confirm(`Push live edits for "${title}" back to required-pages/ source?\n\nThis overwrites the source file with the current live content.`)) return;
+    showToast(`Pushing "${title}" to source…`);
+    try {
+        const response = await fetch('/admin/required-pages/sync', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-Token': CSRF_TOKEN
+            },
+            body: JSON.stringify({ pushToSource: [uuid] })
+        });
+        const result = await response.json();
+        if (result.success) {
+            showToast(`✓ Pushed "${title}" to source`);
+            setTimeout(() => location.reload(), 1500);
         } else {
             showToast(`✗ Error: ${result.error}`);
         }

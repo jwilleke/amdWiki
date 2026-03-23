@@ -1,10 +1,21 @@
 <%- include('header', { pageName: pageName }) %>
 
 <div class="container-fluid">
+    <% if (typeof isRequiredPage !== 'undefined' && isRequiredPage) { %>
+    <div class="alert alert-warning d-flex align-items-center mb-3" role="alert">
+        <i class="fas fa-exclamation-triangle me-2 flex-shrink-0"></i>
+        <div>
+            <strong>Required page:</strong> This page is managed in the <code>required-pages/</code> source.
+            Your changes will be overwritten the next time an admin runs a Required Pages Sync.
+            To make edits permanent, push them back to the source from
+            <a href="/admin/required-pages" class="alert-link">Admin &rsaquo; Required Pages Sync</a>.
+        </div>
+    </div>
+    <% } %>
     <div class="row">
         <div class="col-md-12">
             <h1>Edit <%= pageName %></h1>
-            
+
             <form id="editForm" action="/save/<%= pageName %>" method="POST">
                 <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                 <!-- Page Title on its own row -->

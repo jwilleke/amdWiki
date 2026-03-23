@@ -2,7 +2,7 @@
   "ngdpbase.applicationName": "ngdpbase",
   "ngdpbase.faviconPath": "/favicon.svg",
   "ngdpbase.application.category": "Digital Platform",
-  "ngdpbase.version": "2.0.6",
+  "ngdpbase.version": "2.0.7",
   "ngdpbase.baseURL": "http://localhost:3000",
   "ngdpbase.encoding": "UTF-8",
   "ngdpbase.frontPage": "Welcome",
