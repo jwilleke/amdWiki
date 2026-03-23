@@ -24,6 +24,28 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-03-23-04
+
+- Agent: Claude Sonnet 4.6
+- Subject: feat #365 — version.ts --release / --tag-only flags
+- Key Decision: Use temp file for release notes to avoid shell-escaping issues; fallback to "Release vX.Y.Z" when no CHANGELOG entry exists
+- Current Issue: #365
+- Testing:
+  - npm test: 77 suites passed, 1931 tests passed
+  - --release flag tested live: bumped 2.0.4→2.0.5, pushed tag, created GH release
+- Work Done:
+  - Added --release flag: bump + git tag + push + gh release create
+  - Added --tag-only flag: bump + git tag + push (no GH release)
+  - Added extractChangelogNotes() to pull release notes from CHANGELOG.md
+  - Fixed updateChangelogForRelease() to insert version entry even when no [Unreleased] section exists
+  - Added 8-test unit suite for parseVersion/formatVersion/incrementVersion
+- Commits: TBD
+- Files Modified:
+  - src/utils/version.ts
+  - src/utils/__tests__/version.test.js
+
+---
+
 ## 2026-03-23-03
 
 - Agent: Claude Sonnet 4.6

@@ -17,6 +17,7 @@
 
 import fs from 'fs';
 import path from 'path';
+import { execSync } from 'child_process';
 
 // Find project root by walking up from __dirname until we find package.json
 function findProjectRoot(): string {
@@ -177,17 +178,78 @@ function getCurrentDate(): string {
 function updateChangelogForRelease(newVersion: string): void {
   try {
     let changelog = fs.readFileSync(CHANGELOG_PATH, 'utf8');
+    const newHeader = `## [${newVersion}] - ${getCurrentDate()}`;
 
-    // Find the [Unreleased] section and replace with new version
-    const unreleasedPattern = /## \[Unreleased\]/;
-    if (changelog.match(unreleasedPattern)) {
-      const newVersionHeader = `## [Unreleased]\n\n### Planned\n- Future enhancements\n\n## [${newVersion}] - ${getCurrentDate()}`;
-      changelog = changelog.replace(/## \[Unreleased\]/, newVersionHeader);
-      fs.writeFileSync(CHANGELOG_PATH, changelog);
-      console.log(`Updated CHANGELOG.md with version ${newVersion}`);
+    if (/## \[Unreleased\]/.test(changelog)) {
+      // Replace [Unreleased] heading, preserving a fresh one above the new entry
+      const replacement = `## [Unreleased]\n\n### Planned\n- Future enhancements\n\n${newHeader}`;
+      changelog = changelog.replace(/## \[Unreleased\]/, replacement);
+    } else {
+      // No [Unreleased] section — insert new version after the header block (first ---)
+      const insertAfter = /^---\s*\n/m;
+      if (insertAfter.test(changelog)) {
+        changelog = changelog.replace(insertAfter, `---\n\n${newHeader}\n\n`);
+      } else {
+        // Fallback: prepend to the first ## heading
+        changelog = changelog.replace(/^(## )/m, `${newHeader}\n\n$1`);
+      }
     }
+
+    fs.writeFileSync(CHANGELOG_PATH, changelog);
+    console.log(`Updated CHANGELOG.md with version ${newVersion}`);
   } catch (error) {
     console.warn('Warning: Could not update CHANGELOG.md:', (error as Error).message);
+  }
+}
+
+/**
+ * Extract the release notes for a specific version from CHANGELOG.md.
+ * Returns the content between `## [version]` and the next `## [` heading.
+ */
+function extractChangelogNotes(version: string): string {
+  try {
+    const changelog = fs.readFileSync(CHANGELOG_PATH, 'utf8');
+    const escaped = version.replace(/\./g, '\\.');
+    const pattern = new RegExp(`## \\[${escaped}\\][^\n]*\n([\s\S]*?)(?=\n## \\[|$)`);
+    const match = changelog.match(pattern);
+    if (match?.[1]) return match[1].trim();
+  } catch {
+    // ignore — caller handles empty notes
+  }
+  return '';
+}
+
+/**
+ * Create a git tag and push it to origin.
+ */
+function createGitTag(version: string): void {
+  const tag = `v${version}`;
+  try {
+    execSync(`git tag ${tag}`, { stdio: 'inherit' });
+    execSync(`git push origin ${tag}`, { stdio: 'inherit' });
+    console.log(`✅ Git tag ${tag} created and pushed`);
+  } catch (error) {
+    console.error('Error creating git tag:', (error as Error).message);
+    process.exit(1);
+  }
+}
+
+/**
+ * Create a GitHub release using the `gh` CLI.
+ * Release notes are written to a temp file to avoid shell-escaping issues.
+ */
+function createGitHubRelease(version: string, notes: string): void {
+  const tag = `v${version}`;
+  const tmpFile = path.join(PROJECT_ROOT, '.release-notes.tmp');
+  try {
+    fs.writeFileSync(tmpFile, notes || `Release ${tag}`);
+    execSync(`gh release create ${tag} --title "${tag}" --notes-file "${tmpFile}"`, { stdio: 'inherit' });
+    fs.unlinkSync(tmpFile);
+    console.log(`✅ GitHub release ${tag} created`);
+  } catch (error) {
+    console.error('Error creating GitHub release:', (error as Error).message);
+    try { fs.unlinkSync(tmpFile); } catch { /* ignore */ }
+    process.exit(1);
   }
 }
 
@@ -199,12 +261,14 @@ function showHelp(): void {
 ngdpbase Version Management
 
 Usage:
-  node version.js                    - Show current version and info
-  node version.js patch              - Increment patch (bug fixes: 1.2.0 → 1.2.1)
-  node version.js minor              - Increment minor (new features: 1.2.0 → 1.3.0)
-  node version.js major              - Increment major (breaking changes: 1.2.0 → 2.0.0)
-  node version.js set <version>      - Set specific version (e.g., 1.2.3)
-  node version.js help               - Show this help
+  node version.js                         - Show current version and info
+  node version.js patch                   - Increment patch (bug fixes: 1.2.0 → 1.2.1)
+  node version.js minor                   - Increment minor (new features: 1.2.0 → 1.3.0)
+  node version.js major                   - Increment major (breaking changes: 1.2.0 → 2.0.0)
+  node version.js set <version>           - Set specific version (e.g., 1.2.3)
+  node version.js patch --tag-only        - Bump + create/push git tag (no GH release)
+  node version.js minor --release         - Bump + create/push tag + GitHub release
+  node version.js help                    - Show this help
 
 Semantic Versioning:
   MAJOR.MINOR.PATCH
@@ -220,6 +284,8 @@ Semantic Versioning:
 function main(): void {
   const args = process.argv.slice(2);
   const command = args[0];
+  const doRelease = args.includes('--release');
+  const doTagOnly = args.includes('--tag-only');
 
   const packageData = readPackageJson();
   const currentVersion = packageData.version;
@@ -283,6 +349,15 @@ function main(): void {
       console.log('\n✨ MINOR version bump - new features added');
     } else if (command === 'patch') {
       console.log('\n🐛 PATCH version bump - bug fixes');
+    }
+
+    // Tag and/or release if requested
+    if (doRelease || doTagOnly) {
+      createGitTag(newVersion);
+    }
+    if (doRelease) {
+      const notes = extractChangelogNotes(newVersion);
+      createGitHubRelease(newVersion, notes);
     }
   } catch (error) {
     console.error('Error:', (error as Error).message);
