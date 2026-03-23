@@ -24,6 +24,31 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-03-23-15
+
+- Agent: Claude Sonnet 4.6
+- Subject: feat: addon stylesheet hook, per-theme EJS partial overrides, /addons static route (#350)
+- Key Decision: Addon CSS registration goes in AddonsManager (not ThemeManager) because it's about addon lifecycle. Partial override uses res.locals.views array — EJS checks this when resolving include() calls, so themes/active/partials/ takes precedence over views/ with no template changes required. /addons static route added so addon public dirs are served automatically.
+- Current Issue: none (#350 fully implemented; #368 previously closed)
+- Testing:
+  - npm test: 85 suites passed, 2212 tests passed
+  - Build clean, server restarts 302
+- Work Done:
+  - AddonsManager: added registerStylesheet(url, addonName) + getRegisteredStylesheets()
+  - WikiRoutes.getCommonTemplateData(): added addonStylesheets collection from AddonsManager
+  - header.ejs: render addonStylesheets after location CSS
+  - app.js: /addons static route; theme middleware now injects addonStylesheets + res.locals.views for partial overrides
+  - docs/theming.md: full theming API documentation
+- Commits: a22d83a
+- Files Modified:
+  - src/managers/AddonsManager.ts
+  - src/routes/WikiRoutes.ts
+  - views/header.ejs
+  - app.js
+  - docs/theming.md
+
+---
+
 ## 2026-03-23-14
 
 - Agent: Claude Sonnet 4.6
