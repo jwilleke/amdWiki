@@ -7697,9 +7697,18 @@ class WikiRoutes {
       const pageMetadata = await pageManager.getPageMetadata(pageName);
       logger.info(`[pageHistory] Page info - UUID: ${pageMetadata?.uuid}, Title: ${pageMetadata?.title}`);
 
-      // Get version history
+      // Get version history (BasePageProvider stubs throw; catch and render 501)
       logger.info(`[pageHistory] Fetching version history for: "${pageName}"`);
-      const versions = await provider.getVersionHistory(pageName);
+      let versions: Awaited<ReturnType<typeof provider.getVersionHistory>>;
+      try {
+        versions = await provider.getVersionHistory(pageName);
+      } catch (_versionErr: unknown) {
+        const templateData = this.getTemplateDataFromContext(wikiContext);
+        return res.status(501).render('error', {
+          ...templateData,
+          message: 'Page versioning is not enabled. Please configure VersioningFileProvider.'
+        });
+      }
       logger.info(`[pageHistory] Found ${versions.length} versions`);
 
       // Get common template data (includes theme paths, user, pages, etc.)

@@ -31,13 +31,11 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Run passing tests only
-        run: |
-          # Run tests excluding known failing suites (21 remaining as of 2025-12-12)
-          # Fixed: UserManager.test.js (30 tests passing)
-          # Note: maintenance-middleware.test.js is flaky in CI (socket/fetch issues)
-          npm test -- --maxWorkers=2 \
-            --testPathIgnorePatterns="AllPlugins.test.js|SessionsPlugin.test.js|PageManager-Storage.test.js|PluginManager.registerPlugins.test.js|PluginManager.test.js|MarkupParser-Comprehensive.test.js|MarkupParser-Config.test.js|MarkupParser-DOM-Integration.test.js|MarkupParser-DOMNodeCreation.test.js|MarkupParser-EndToEnd.test.js|MarkupParser-Extraction.test.js|MarkupParser-Integration.test.js|MarkupParser-MergePipeline.test.js|MarkupParser-ModularConfig.test.js|MarkupParser-Performance.test.js|MarkupParser.test.js|VersioningFileProvider-Maintenance.test.js|VersioningFileProvider.test.js|DeltaStorage.test.js|VersionCompression.test.js|VersioningMigration.test.js|maintenance-middleware.test.js"
+      - name: Build TypeScript
+        run: npm run build
+
+      - name: Run tests
+        run: npm test -- --maxWorkers=2
         env:
           NODE_ENV: test
 
@@ -156,9 +154,6 @@ jobs:
           echo "- Lint: ${{ needs.lint.result }}"
           echo "- Smoke Tests: ${{ needs.smoke-test.result }}"
           echo ""
-          echo "Note: This workflow excludes 21 known-failing test suites."
-          echo "See docs/testing/Testing-Summary.md for details."
-
           if [ "${{ needs.passing-tests.result }}" != "success" ] || \
              [ "${{ needs.smoke-test.result }}" != "success" ]; then
             echo "CI pipeline failed!"
