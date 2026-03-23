@@ -13,6 +13,41 @@
     <%- content %>
 </div>
 
+<% if (typeof sectionEditingEnabled !== 'undefined' && sectionEditingEnabled) { %>
+<style>
+.section-edit-link {
+    opacity: 0;
+    margin-left: 0.4em;
+    font-size: 0.7em;
+    vertical-align: middle;
+    color: var(--link-color, #0d6efd);
+    text-decoration: none;
+    transition: opacity 0.15s;
+}
+.markdown-body h1:hover .section-edit-link,
+.markdown-body h2:hover .section-edit-link,
+.markdown-body h3:hover .section-edit-link,
+.markdown-body h4:hover .section-edit-link,
+.markdown-body h5:hover .section-edit-link,
+.markdown-body h6:hover .section-edit-link { opacity: 1; }
+</style>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    var body = document.querySelector('.markdown-body');
+    if (!body) return;
+    var headings = body.querySelectorAll('h1, h2, h3, h4, h5, h6');
+    headings.forEach(function (h, i) {
+        var a = document.createElement('a');
+        a.href = '/edit/<%= encodeURIComponent(pageName) %>?section=' + i;
+        a.className = 'section-edit-link';
+        a.title = 'Edit this section';
+        a.innerHTML = '<i class="fas fa-pencil-alt"></i>';
+        h.appendChild(a);
+    });
+});
+</script>
+<% } %>
+
 <!-- More Information section (similar to JSPWiki) -->
 <% if (referringPages && referringPages.length > 0) { %>
 <div class="card mb-4">

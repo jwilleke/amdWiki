@@ -18,6 +18,14 @@
 
             <form id="editForm" action="/save/<%= pageName %>" method="POST">
                 <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                <% if (typeof sectionIndex !== 'undefined' && sectionIndex !== null) { %>
+                <input type="hidden" name="section" value="<%= sectionIndex %>">
+                <div class="alert alert-info d-flex align-items-center mb-3" role="alert">
+                    <i class="fas fa-cut me-2"></i>
+                    <span>Editing <strong>section <%= sectionIndex + 1 %></strong> only.
+                    <a href="/edit/<%= pageName %>" class="alert-link ms-2">Edit full page</a></span>
+                </div>
+                <% } %>
                 <!-- Page Title on its own row -->
                 <div class="form-group mb-3">
                     <label for="title" style="font-weight:bold;">Page Title:</label>

@@ -17,6 +17,7 @@ import fs from 'fs';
 import { Request, Response, Application } from 'express';
 import SchemaGenerator from '../utils/SchemaGenerator';
 import logger from '../utils/logger';
+import { extractSection, spliceSection } from '../utils/SectionUtils';
 import WikiContext from '../context/WikiContext';
 import { ThemeManager } from '../managers/ThemeManager';
 
@@ -1252,12 +1253,16 @@ class WikiRoutes {
       const warningMessage = req.query.warning === 'github-page'
         ? 'This page is managed in GitHub — edits here will not be reflected in the source repository.'
         : null;
+      const sectionEditingEnabled =
+        canEdit && !!userContext?.preferences?.['display.sectionEditing'];
+
       res.render(template, {
         ...templateData,
         pageName,
         title: pageName, // For reader view template
         content: html,
         canEdit,
+        sectionEditingEnabled,
         metadata,
         versionInfo,
         lastModified: metadata?.lastModified,
@@ -1717,6 +1722,20 @@ class WikiRoutes {
       const cleanContent = aclManager.removeACLMarkup(pageData.content);
       pageData.content = cleanContent;
 
+      // Section editing: if ?section=N is provided, edit only that section
+      const sectionParam = req.query.section;
+      let sectionIndex: number | null = null;
+      if (sectionParam !== undefined && sectionParam !== '') {
+        const idx = parseInt(String(sectionParam), 10);
+        if (!isNaN(idx) && idx >= 0) {
+          const sectionContent = extractSection(pageData.content, idx);
+          if (sectionContent !== null) {
+            pageData.content = sectionContent;
+            sectionIndex = idx;
+          }
+        }
+      }
+
       // Extract current categories and keywords from metadata - handle both old and new format
       const selectedCategories =
         pageData.metadata?.categories ||
@@ -1746,7 +1765,7 @@ class WikiRoutes {
 
       res.render('edit', {
         ...commonData,
-        title: `Edit ${pageName}`,
+        title: sectionIndex !== null ? `Edit section of ${pageName}` : `Edit ${pageName}`,
         pageName: pageName,
         content: pageData.content,
         metadata: pageData.metadata,
@@ -1758,7 +1777,8 @@ class WikiRoutes {
         defaultCategory: defaultCategory,
         pageAttachments: pageAttachments,
         csrfToken: req.session.csrfToken,
-        isRequiredPage: pageIsRequired
+        isRequiredPage: pageIsRequired,
+        sectionIndex: sectionIndex
       });
     } catch (err: unknown) {
       logger.error('Error loading edit page:', err);
@@ -1933,7 +1953,24 @@ class WikiRoutes {
       const pageName = req.params.page;
       logger.debug(`💾 Save request received for page: ${pageName}`);
       logger.debug(`💾 Request body keys: ${Object.keys(req.body).join(', ')}`);
-      const { content, title, categories: _categories, userKeywords: _userKeywords } = req.body;
+      const { content: _rawContent, title, categories: _categories, userKeywords: _userKeywords } = req.body;
+
+      // Section editing: if a section index was submitted, splice edited section
+      // back into the full page content before saving
+      let content = _rawContent;
+      const sectionBodyParam = req.body.section;
+      if (sectionBodyParam !== undefined && sectionBodyParam !== '') {
+        const sectionIdx = parseInt(String(sectionBodyParam), 10);
+        if (!isNaN(sectionIdx) && sectionIdx >= 0) {
+          const pageManager0 = this.engine.getManager('PageManager');
+          const fullPage = await pageManager0.getPage(pageName);
+          if (fullPage?.content) {
+            const aclManager0 = this.engine.getManager('ACLManager');
+            const fullClean = aclManager0.removeACLMarkup(fullPage.content);
+            content = spliceSection(fullClean, sectionIdx, _rawContent);
+          }
+        }
+      }
 
       // Create WikiContext as single source of truth for this operation
       const wikiContext = this.createWikiContext(req, {
@@ -3242,6 +3279,8 @@ class WikiRoutes {
       preferences['display.tooltips'] = getBodyValue('display.tooltips') === 'on';
       preferences['display.readermode'] =
         getBodyValue('display.readermode') === 'on';
+      preferences['display.sectionEditing'] =
+        getBodyValue('display.sectionEditing') === 'on';
       preferences['display.theme'] = getBodyValue('display.theme') || 'system';
 
       // Locale preferences (new system)
