@@ -270,6 +270,13 @@ class WikiRoutes {
     // Get the user context directly from the request.
     const userContext =
       req.userContext || (await userManager.getCurrentUser(req));
+
+    // Resolve active theme paths
+    const activeTheme = (configManager?.getProperty('ngdpbase.theme.active', 'default') as string) || 'default';
+    const themesDir = path.join(__dirname, '../../../themes');
+    const themeManager = new ThemeManager(activeTheme, themesDir);
+    const themePaths = themeManager.paths;
+
     const templateData: {
       currentUser: UserContext | null;
       user: UserContext | null;
@@ -277,6 +284,11 @@ class WikiRoutes {
       applicationName: unknown;
       faviconPath: unknown;
       pages: unknown;
+      activeTheme: string;
+      coreCssPath: string;
+      variablesCssPath: string;
+      logoPath: string;
+      locationCssPath: string;
       leftMenu?: string;
       footer?: string;
     } = {
@@ -290,11 +302,13 @@ class WikiRoutes {
         'ngdpbase.applicationName',
         'ngdpbase'
       ),
-      faviconPath: configManager?.getProperty(
-        'ngdpbase.faviconPath',
-        '/favicon.ico'
-      ),
-      pages: await pageManager.getAllPages()
+      faviconPath: themePaths.faviconPath,
+      pages: await pageManager.getAllPages(),
+      activeTheme: themePaths.activeTheme,
+      coreCssPath: themePaths.coreCssPath,
+      variablesCssPath: themePaths.variablesCssPath,
+      logoPath: themePaths.logoPath,
+      locationCssPath: themePaths.locationCssPath
     };
 
     // Load LeftMenu

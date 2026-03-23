@@ -29,13 +29,13 @@ body {
     font-size: 1.25rem;
     font-weight: 600;
     text-decoration: none;
-    color: var(--text-primary);
+    color: var(--navbar-text, var(--text-primary));
     transition: color 0.2s ease;
 }
 
 .jspwiki-header .navbar-brand:hover {
     text-decoration: none;
-    color: var(--link-color);
+    color: var(--navbar-text-hover, var(--link-color));
 }
 
 /* JSPWiki Tabs Styles */
@@ -1103,11 +1103,11 @@ main p, main div, main span, main li {
 }
 
 .navbar-nav .nav-link {
-    color: var(--text-primary);
+    color: var(--navbar-text, var(--text-primary));
 }
 
 .navbar-nav .nav-link:hover {
-    color: var(--link-color);
+    color: var(--navbar-text-hover, var(--link-color));
 }
 
 /* Dropdowns */

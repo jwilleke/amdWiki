@@ -1,0 +1,120 @@
+/* =============================================================
+   Volcano Theme — CSS Custom Properties (variables)
+   Warm volcanic palette: dark earth tones with red/orange accents.
+   Structural/layout CSS lives in themes/core.css.
+   ============================================================= */
+
+/* Light mode (default) */
+:root {
+  /* Backgrounds */
+  --bg-primary: #fdf6f0;
+  --bg-secondary: #f5ebe0;
+  --bg-tertiary: #ecddd0;
+
+  /* Text */
+  --text-primary: #2c1810;
+  --text-secondary: #5a3a2a;
+  --text-muted: #8a6a5a;
+  --text-heading: #1a0e08;
+  --text-content: #3d2214;
+
+  /* Borders */
+  --border-color: #d4a898;
+  --border-color-strong: #b07060;
+
+  /* Links */
+  --link-color: #c0392b;
+  --link-hover: #922b21;
+
+  /* Cards */
+  --card-bg: #fdf6f0;
+  --card-border: #d4a898;
+
+  /* Navbar */
+  --navbar-bg: #2c1810;
+  --navbar-border: #4a2418;
+  --navbar-text: #f0ddd0;
+  --navbar-text-hover: #e85a40;
+
+  /* Form inputs */
+  --input-bg: #ffffff;
+  --input-border: #c4947a;
+
+  /* Buttons */
+  --button-primary-bg: #c0392b;
+  --button-primary-hover: #922b21;
+
+  /* Alerts */
+  --alert-success-bg: #d4edda;
+  --alert-success-border: #c3e6cb;
+  --alert-success-text: #155724;
+  --alert-danger-bg: #f8d0cc;
+  --alert-danger-border: #f1b0aa;
+  --alert-danger-text: #7b1a14;
+  --alert-info-bg: #fde8d0;
+  --alert-info-border: #f9c8a0;
+  --alert-info-text: #7a3c10;
+
+  /* Code */
+  --code-bg: #f5ebe0;
+  --code-border: #e0c8b8;
+
+  /* Tables */
+  --table-stripe: #f0e0d8;
+  --table-hover: #e8d0c8;
+  --zebra-row-even: rgba(192, 57, 43, 0.06);
+  --zebra-row-odd: rgba(192, 57, 43, 0);
+  --zebra-row-hover: rgba(192, 57, 43, 0.14);
+}
+
+/* Explicit dark mode (data-theme="dark" on <html>) — volcanic night */
+[data-theme="dark"] {
+  --bg-primary: #1a0e08;
+  --bg-secondary: #261408;
+  --bg-tertiary: #351c10;
+
+  --text-primary: #f0ddd0;
+  --text-secondary: #c4907a;
+  --text-muted: #8a6a5a;
+  --text-heading: #fae8d8;
+  --text-content: #e0c0a8;
+
+  --border-color: #5a3020;
+  --border-color-strong: #8a4a30;
+
+  --link-color: #e85a40;
+  --link-hover: #ff7a60;
+
+  --card-bg: #261408;
+  --card-border: #5a3020;
+
+  --navbar-bg: #110806;
+  --navbar-border: #3a1c0c;
+  --navbar-text: #f0ddd0;
+  --navbar-text-hover: #ff7a60;
+
+  --input-bg: #351c10;
+  --input-border: #7a4030;
+
+  --button-primary-bg: #c0392b;
+  --button-primary-hover: #e04030;
+
+  --alert-success-bg: #1a3320;
+  --alert-success-border: #254d2c;
+  --alert-success-text: #88d8a0;
+  --alert-danger-bg: #3a1010;
+  --alert-danger-border: #5a1a18;
+  --alert-danger-text: #f09088;
+  --alert-info-bg: #3a2010;
+  --alert-info-border: #5a3418;
+  --alert-info-text: #f0a878;
+
+  --code-bg: #2c1610;
+  --code-border: #4a2820;
+
+  --table-stripe: #2a1608;
+  --table-hover: #3a2010;
+  --zebra-row-even: rgba(224, 80, 60, 0.08);
+  --zebra-row-odd: rgba(224, 80, 60, 0);
+  --zebra-row-hover: rgba(224, 80, 60, 0.18);
+}

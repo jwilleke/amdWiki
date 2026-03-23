@@ -24,6 +24,30 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-03-23-11
+
+- Agent: Claude Sonnet 4.6
+- Subject: feat #350 — Core Theming System wired end-to-end
+- Key Decision: ThemeManager already existed but was not wired into getCommonTemplateData() — theme switching config change had zero visual effect. Fixed by instantiating ThemeManager per-request in getCommonTemplateData() and passing all theme paths (coreCssPath, variablesCssPath, logoPath, faviconPath, locationCssPath) to every template. Added --navbar-text/--navbar-text-hover CSS vars to support dark navbar with light text in custom themes.
+- Current Issue: #350
+- Testing:
+  - npm test: 78 suites passed, 1955 tests passed
+  - Build clean, server started
+- Work Done:
+  - Wired ThemeManager into getCommonTemplateData() — reads ngdpbase.theme.active config, instantiates ThemeManager, spreads all theme paths into every template render
+  - Created themes/volcano/ proof-of-concept: warm dark navbar (#2c1810) with red/orange accent, full light+dark CSS variable set
+  - Added --navbar-text / --navbar-text-hover CSS variables + updated core.css to use them (with fallback to existing vars for backward compat)
+  - Closing #350
+- Commits: TBD
+- Files Modified:
+  - src/routes/WikiRoutes.ts
+  - themes/core.css
+  - themes/volcano/theme.json (new)
+  - themes/volcano/css/variables.css (new)
+  - themes/volcano/assets/favicon.svg (new)
+
+---
+
 ## 2026-03-23-10
 
 - Agent: Claude Sonnet 4.6
