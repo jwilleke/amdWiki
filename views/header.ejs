@@ -16,6 +16,10 @@
     <link rel="stylesheet" href="<%= typeof variablesCssPath !== 'undefined' ? variablesCssPath : '/themes/default/css/variables.css' %>">
     <link rel="stylesheet" href="<%= typeof coreCssPath !== 'undefined' ? coreCssPath : '/themes/core.css' %>">
     <link rel="stylesheet" href="<%= typeof locationCssPath !== 'undefined' ? locationCssPath : '/themes/plugins/location.css' %>">
+    <!-- Add-on stylesheets (registered via AddonsManager.registerStylesheet()) -->
+    <% if (typeof addonStylesheets !== 'undefined' && addonStylesheets && addonStylesheets.length) { %>
+    <% addonStylesheets.forEach(function(url) { %><link rel="stylesheet" href="<%= url %>">
+    <% }); %><% } %>
 
     <!-- User Preferences Script -->
     <script src="/js/user-preferences.js"></script>

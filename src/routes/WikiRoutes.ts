@@ -277,6 +277,10 @@ class WikiRoutes {
     const themeManager = new ThemeManager(activeTheme, themesDir);
     const themePaths = themeManager.paths;
 
+    // Collect addon stylesheets registered via AddonsManager.registerStylesheet()
+    const addonsManager = this.engine.getManager('AddonsManager');
+    const addonStylesheets: string[] = addonsManager?.getRegisteredStylesheets?.() ?? [];
+
     const templateData: {
       currentUser: UserContext | null;
       user: UserContext | null;
@@ -290,6 +294,7 @@ class WikiRoutes {
       logoPath: string;
       locationCssPath: string;
       themeFontUrls: string[];
+      addonStylesheets: string[];
       leftMenu?: string;
       footer?: string;
     } = {
@@ -310,7 +315,8 @@ class WikiRoutes {
       variablesCssPath: themePaths.variablesCssPath,
       logoPath: themePaths.logoPath,
       locationCssPath: themePaths.locationCssPath,
-      themeFontUrls: themePaths.fontUrls
+      themeFontUrls: themePaths.fontUrls,
+      addonStylesheets
     };
 
     // Load LeftMenu

@@ -109,6 +109,8 @@ checkAndCreatePidLock();
   app.use(express.static(path.join(__dirname, 'public')));
   // Serve theme assets (CSS, images) under /themes/
   app.use('/themes', express.static(path.join(__dirname, 'themes')));
+  // Serve add-on public assets under /addons/ (e.g. /addons/my-addon/css/style.css)
+  app.use('/addons', express.static(path.join(__dirname, 'addons')));
 
   // 2. Initialization gate middleware - serves maintenance page while engine starts
   app.use((req, res, next) => {
@@ -117,6 +119,7 @@ checkAndCreatePidLock();
     // Allow static assets through
     if (req.path.startsWith('/css') || req.path.startsWith('/js') ||
         req.path.startsWith('/images') || req.path.startsWith('/themes') ||
+        req.path.startsWith('/addons') ||
         req.path === '/favicon.ico' || req.path === '/favicon.svg') {
       return next();
     }
@@ -214,12 +217,32 @@ checkAndCreatePidLock();
   // Setup express-session with file store
   const configManager = engine.getManager('ConfigurationManager');
 
-  // Initialise ThemeManager and inject theme paths into all template locals
+  // Initialise ThemeManager and inject theme paths into all template locals.
+  // Note: this uses the startup theme; WikiRoutes.getCommonTemplateData() creates a
+  // fresh ThemeManager per-request to pick up admin theme changes immediately.
   const activeThemeName = configManager.getProperty('ngdpbase.theme.active', 'default');
   const themesDir = path.join(__dirname, 'themes');
+  const viewsDir = path.join(__dirname, 'views');
   const themeManager = new ThemeManager(activeThemeName, themesDir);
+
+  // Get add-on stylesheets (set once at startup; add-ons don't hot-reload)
+  const addonsManager = engine.getManager('AddonsManager');
+
   app.use((req, res, next) => {
+    // Inject base theme paths (coreCssPath, variablesCssPath, logoPath, etc.)
     Object.assign(res.locals, themeManager.paths);
+
+    // Inject add-on stylesheets registered via AddonsManager.registerStylesheet()
+    res.locals.addonStylesheets = addonsManager?.getRegisteredStylesheets?.() ?? [];
+
+    // Per-theme EJS partial overrides: if themes/<active>/partials/ exists, EJS will
+    // find overrides there first, falling back to views/ for unoverridden templates.
+    const currentTheme = configManager.getProperty('ngdpbase.theme.active', 'default');
+    const themePartialsDir = path.join(themesDir, currentTheme, 'partials');
+    res.locals.views = fs.existsSync(themePartialsDir)
+      ? [themePartialsDir, viewsDir]
+      : [viewsDir];
+
     next();
   });
   const sessionPath = configManager.getResolvedDataPath('ngdpbase.session.storagedir', './data/sessions');

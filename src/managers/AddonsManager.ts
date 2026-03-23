@@ -118,11 +118,15 @@ class AddonsManager extends BaseManager {
   /** Resolved absolute path to addons directory */
   private resolvedAddonsPath: string | null;
 
+  /** Stylesheets registered by add-ons via registerStylesheet() */
+  private registeredStylesheets: Array<{ url: string; addonName: string }>;
+
   constructor(engine: WikiEngine) {
     super(engine);
     this.addons = new Map();
     this.addonsPath = './addons';
     this.resolvedAddonsPath = null;
+    this.registeredStylesheets = [];
   }
 
   /**
@@ -481,6 +485,39 @@ class AddonsManager extends BaseManager {
       if (addon.loaded) count++;
     }
     return count;
+  }
+
+  /**
+   * Register a stylesheet URL to be injected into every page's <head>.
+   *
+   * Call this from your add-on's register() function:
+   * ```js
+   * const addonsManager = engine.getManager('AddonsManager');
+   * addonsManager.registerStylesheet('/addons/my-addon/css/style.css');
+   * ```
+   *
+   * The URL must be publicly accessible (served via Express static or a CDN).
+   * Add-on CSS files under `addons/<name>/public/` are automatically served at
+   * `/addons/<name>/public/` when the server starts.
+   *
+   * @param url    Public URL of the stylesheet (e.g. '/addons/my-addon/css/style.css')
+   * @param addonName  Optional: name of the registering add-on (for logging)
+   */
+  registerStylesheet(url: string, addonName: string = 'unknown'): void {
+    if (!url || typeof url !== 'string') {
+      logger.warn(`[AddonsManager] registerStylesheet called with invalid url by ${addonName}`);
+      return;
+    }
+    this.registeredStylesheets.push({ url, addonName });
+    logger.debug(`[AddonsManager] Stylesheet registered by ${addonName}: ${url}`);
+  }
+
+  /**
+   * Return the ordered list of stylesheet URLs registered by all add-ons.
+   * Called by the template layer to inject <link> tags into <head>.
+   */
+  getRegisteredStylesheets(): string[] {
+    return this.registeredStylesheets.map(s => s.url);
   }
 
   /**
