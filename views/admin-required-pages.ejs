@@ -36,6 +36,43 @@
         </div>
     </div>
 
+    <!-- Product update / protection info banner -->
+    <div class="row mb-3">
+        <div class="col-12">
+            <div class="card border-secondary">
+                <div class="card-header bg-transparent d-flex align-items-center gap-2" style="cursor:pointer;"
+                     data-bs-toggle="collapse" data-bs-target="#updateProtectionInfo" aria-expanded="false">
+                    <i class="fas fa-shield-alt text-secondary"></i>
+                    <strong class="text-secondary">What happens during a product update?</strong>
+                    <i class="fas fa-chevron-down ms-auto text-secondary small"></i>
+                </div>
+                <div class="collapse" id="updateProtectionInfo">
+                    <div class="card-body small">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <h6 class="text-success"><i class="fas fa-lock me-1"></i>Protected from overwrite</h6>
+                                <ul class="mb-0">
+                                    <li>Live pages in <code>data/pages/</code> that have been edited in the wiki UI are flagged <code>user-modified: true</code>. A sync will show them as <strong>Modified</strong> and will not auto-overwrite them — an admin must sync them manually.</li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <h6 class="text-danger"><i class="fas fa-exclamation-triangle me-1"></i>At risk of overwrite</h6>
+                                <ul class="mb-0">
+                                    <li>Files written via <strong>Push to Source</strong> exist only in the local <code>required-pages/</code> directory. A <code>git pull</code> or product upgrade will overwrite them. They are not in the repository unless manually committed and pushed by a contributor.</li>
+                                    <li>Live pages that were never edited in the wiki UI (no <code>user-modified</code> flag) will be silently replaced when a new product version ships updated source content and an admin syncs.</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="alert alert-warning mt-3 mb-0 py-2">
+                            <i class="fas fa-info-circle me-1"></i>
+                            <strong>Best practice:</strong> Customize required pages in the wiki UI (sets <code>user-modified</code>) rather than via Push to Source. Push to Source is only durable if someone with repository access subsequently commits and pushes the file.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Status Summary -->
     <div class="row mt-3">
         <div class="col-12">
@@ -513,7 +550,13 @@ async function doAdoptUuid(items, statusMsg) {
 }
 
 async function pushToSourceOne(uuid, title) {
-    if (!confirm(`Push live edits for "${title}" back to required-pages/ source?\n\nThis overwrites the source file with the current live content.`)) return;
+    if (!confirm(
+        `Push live edits for "${title}" back to required-pages/ source?\n\n` +
+        `⚠ This only updates the LOCAL filesystem.\n\n` +
+        `It does NOT commit or push to the repository. A git pull or product upgrade will overwrite this file and your changes will be lost unless a contributor manually commits and pushes it.\n\n` +
+        `For durable customization, edit the page in the wiki UI instead — that sets user-modified and protects it from auto-sync overwrites.\n\n` +
+        `Continue?`
+    )) return;
     showToast(`Pushing "${title}" to source…`);
     try {
         const response = await fetch('/admin/required-pages/sync', {
