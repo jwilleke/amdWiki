@@ -81,32 +81,60 @@ const IndexPlugin: SimplePlugin = {
         groupedPages[key].push(page);
       }
 
-      // Generate HTML output
-      let html = '<div class="index-plugin">\n';
-
-      // Add jump links to sections
       const sections = Object.keys(groupedPages).sort();
+
+      // Unique prefix so multiple [{IndexPlugin}] on one page don't collide
+      const uid = Math.random().toString(36).slice(2, 8);
+
+      // Jump-to nav
+      let html = '<div class="index-plugin">\n';
       if (sections.length > 1) {
-        html += '<div class="index-sections">\n';
+        html += '<div class="index-sections mb-2">\n';
         html += '<strong>Jump to:</strong> ';
         html += sections.map(letter =>
-          `<a href="#index-${letter}">${letter}</a>`
+          `<a href="#index-${uid}-${letter}" ` +
+          `onclick="var el=document.getElementById(\'collapse-${uid}-${letter}\');` +
+          `if(el&&!el.classList.contains(\'show\')){bootstrap.Collapse.getOrCreateInstance(el).show();}"` +
+          `>${letter}</a>`
         ).join(' | ');
-        html += '\n</div>\n\n';
+        html += '\n</div>\n';
       }
 
-      // Generate index content grouped by letter
+      // Expand / Collapse all controls
+      html +=
+        `<div class="mb-3 d-flex gap-2 align-items-center">\n` +
+        `  <button type="button" class="btn btn-sm btn-outline-secondary" ` +
+        `onclick="document.querySelectorAll('.index-plugin-${uid} .collapse').forEach(` +
+        `el=>bootstrap.Collapse.getOrCreateInstance(el).show())">` +
+        `Expand all</button>\n` +
+        `  <button type="button" class="btn btn-sm btn-outline-secondary" ` +
+        `onclick="document.querySelectorAll('.index-plugin-${uid} .collapse').forEach(` +
+        `el=>bootstrap.Collapse.getOrCreateInstance(el).hide())">` +
+        `Collapse all</button>\n` +
+        `  <span class="text-muted small">${filteredPages.length} page${filteredPages.length !== 1 ? 's' : ''}</span>\n` +
+        `</div>\n`;
+
+      html = html.replace('class="index-plugin"', `class="index-plugin index-plugin-${uid}"`);
+
+      // Collapsible letter sections
       for (const letter of sections) {
-        html += `<div class="index-section" id="index-${letter}">\n`;
-        html += `<h3>${letter}</h3>\n`;
-        html += '<ul>\n';
-
+        const collapseId = `collapse-${uid}-${letter}`;
+        const headingId  = `index-${uid}-${letter}`;
+        const count = groupedPages[letter].length;
+        html += `<div class="index-section mb-1" id="${headingId}">\n`;
+        html +=
+          `  <button class="btn btn-sm btn-outline-secondary w-100 text-start d-flex justify-content-between align-items-center" ` +
+          `type="button" data-bs-toggle="collapse" data-bs-target="#${collapseId}" ` +
+          `aria-expanded="false" aria-controls="${collapseId}">\n` +
+          `    <strong>${letter}</strong>\n` +
+          `    <span class="text-muted small">${count} page${count !== 1 ? 's' : ''}</span>\n` +
+          `  </button>\n`;
+        html += `  <div class="collapse" id="${collapseId}">\n`;
+        html += `    <ul class="list-unstyled ps-3 pt-1 mb-1">\n`;
         for (const page of groupedPages[letter]) {
-          html += `  <li><a class="wikipage" href="/view/${encodeURIComponent(page)}">${escapeHtml(page)}</a></li>\n`;
+          html += `      <li><a class="wikipage" href="/view/${encodeURIComponent(page)}">${escapeHtml(page)}</a></li>\n`;
         }
-
-        html += '</ul>\n';
-        html += '</div>\n\n';
+        html += `    </ul>\n  </div>\n</div>\n`;
       }
 
       html += '</div>';
