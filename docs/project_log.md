@@ -24,6 +24,25 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-03-23-07
+
+- Agent: Claude Sonnet 4.6
+- Subject: feat #325 (already done) + feat #363 — IndexPlugin collapsible sections
+- Key Decision: #325 was fully implemented (MediaManager reads ngdpbase.media.extensions, default config present, docs updated). #363: Bootstrap 5 collapse per letter, collapsed by default, page count badges, Expand/Collapse all, jump-to links auto-open target
+- Current Issues: #325, #363
+- Testing:
+  - npm test: 78 suites passed, 1943 tests passed (12 new IndexPlugin tests)
+- Work Done:
+  - #325: Added extensions row to FileSystemMediaProvider config table in docs; closed as already implemented
+  - #363: Rewrote IndexPlugin output to use Bootstrap 5 collapse panels; added uid prefix for multi-instance safety; added 12-test suite
+- Commits: 5d13ffe
+- Files Modified:
+  - plugins/IndexPlugin.ts
+  - plugins/__tests__/IndexPlugin.test.js
+  - docs/providers/FileSystemMediaProvider.md
+
+---
+
 ## 2026-03-23-06
 
 - Agent: Claude Sonnet 4.6
