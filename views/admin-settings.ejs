@@ -83,8 +83,9 @@
                 <div class="card-body">
                     <div class="alert alert-info">
                         <i class="fas fa-info-circle"></i>
-                        <strong>Note:</strong> Configuration settings are currently read-only. 
-                        To modify settings, edit the configuration files directly.
+                        <strong>Note:</strong> Most configuration settings are read-only here.
+                        To modify them, edit the configuration files directly.
+                        Theme selection is the exception — it can be changed below.
                     </div>
                     
                     <form>
@@ -118,8 +119,8 @@
                                         <button type="submit" class="btn btn-primary btn-sm">Apply</button>
                                     </form>
                                     <small class="text-muted mt-1 d-block">
-                                        <i class="fas fa-exclamation-triangle text-warning"></i>
-                                        Changing the theme requires a server restart to take effect.
+                                        <i class="fas fa-check-circle text-success"></i>
+                                        Theme change takes effect immediately on next page load.
                                     </small>
                                     <% if (settings.themeInfo) { %>
                                     <small class="text-muted d-block mt-1">
