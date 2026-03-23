@@ -171,6 +171,9 @@
                                 <li><a class="dropdown-item" href="#" onclick="showPageSource()">
                                     <i class="fas fa-code"></i> View Page Source
                                 </a></li>
+                                <li><a class="dropdown-item" href="#" onclick="showPageStats(); return false;">
+                                    <i class="fas fa-chart-bar"></i> Page Statistics
+                                </a></li>
                                 <li><a class="dropdown-item" href="/view/Recent%20Changes">
                                     <i class="fas fa-clock"></i> Recent Changes
                                 </a></li>
@@ -771,7 +774,132 @@
     }
     
     function showPageStats() {
-        alert('Page Statistics feature coming soon!');
+        const currentPage = window.location.pathname.split('/view/')[1];
+        if (!currentPage) {
+            alert('No page selected for statistics');
+            return;
+        }
+        const decodedPage = decodeURIComponent(currentPage);
+
+        // Show loading modal first
+        showPageStatsModal(decodedPage, null, true);
+
+        requestAnimationFrame(() => {
+            fetch(`/api/page-metadata/${encodeURIComponent(currentPage)}`)
+                .then(response => {
+                    if (!response.ok) throw new Error('API not available');
+                    return response.json();
+                })
+                .then(metadata => {
+                    showPageStatsModal(decodedPage, metadata, false);
+                })
+                .catch(error => {
+                    console.warn('Stats fetch failed:', error.message);
+                    showPageStatsModal(decodedPage, null, false, error.message);
+                });
+        });
+    }
+
+    function showPageStatsModal(pageName, metadata, isLoading, errorMessage) {
+        // Clean up existing stats modal
+        const existing = document.getElementById('pageStatsModal');
+        if (existing) {
+            const inst = bootstrap.Modal.getInstance(existing);
+            if (inst) inst.dispose();
+            existing.remove();
+            const backdrop = document.querySelector('.modal-backdrop');
+            if (backdrop) backdrop.remove();
+            document.body.classList.remove('modal-open');
+            document.body.style.paddingRight = '';
+        }
+
+        let bodyHtml;
+        if (isLoading) {
+            bodyHtml = `<div class="text-center py-4">
+                <div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div>
+                <p class="mt-2">Loading statistics...</p></div>`;
+        } else if (errorMessage || !metadata) {
+            bodyHtml = `<div class="alert alert-danger"><i class="fas fa-exclamation-triangle"></i> Failed to load statistics: ${errorMessage || 'Unknown error'}</div>`;
+        } else {
+            const s = metadata.stats || {};
+            const vi = metadata.versionInfo || {};
+            const contributors = metadata.contributors || [];
+
+            function fmtNum(n) { return (n != null) ? n.toLocaleString() : '—'; }
+            function fmtDate(d) { return d ? new Date(d).toLocaleString() : '—'; }
+            function fmtSize(b) {
+                if (!b) return '—';
+                const units = ['B','KB','MB','GB'];
+                const i = Math.floor(Math.log(b) / Math.log(1024));
+                return (b / Math.pow(1024, i)).toFixed(1) + ' ' + units[i];
+            }
+
+            const contributorRows = contributors.length
+                ? contributors.map(c => `<tr><td>${c.author}</td><td class="text-end">${c.editCount}</td></tr>`).join('')
+                : '<tr><td colspan="2" class="text-muted">No version history</td></tr>';
+
+            const avgFreq = metadata.avgDaysBetweenEdits != null
+                ? `${metadata.avgDaysBetweenEdits} days/edit`
+                : '—';
+
+            bodyHtml = `
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <h6><i class="fas fa-align-left"></i> Content</h6>
+                        <table class="table table-bordered table-sm">
+                            <tr><td>Words</td><td class="text-end fw-bold">${fmtNum(s.wordCount)}</td></tr>
+                            <tr><td>Characters</td><td class="text-end">${fmtNum(s.characterCount)}</td></tr>
+                            <tr><td>Lines</td><td class="text-end">${fmtNum(s.lineCount)}</td></tr>
+                            <tr><td>File size</td><td class="text-end">${fmtSize(s.fileSize)}</td></tr>
+                        </table>
+                        <h6 class="mt-3"><i class="fas fa-link"></i> Links &amp; References</h6>
+                        <table class="table table-bordered table-sm">
+                            <tr><td>Internal links</td><td class="text-end fw-bold">${fmtNum(s.internalLinks)}</td></tr>
+                            <tr><td>External links</td><td class="text-end">${fmtNum(s.externalLinks)}</td></tr>
+                            <tr><td>Attachment refs</td><td class="text-end">${fmtNum(s.attachmentRefs)}</td></tr>
+                        </table>
+                    </div>
+                    <div class="col-md-6">
+                        <h6><i class="fas fa-history"></i> Revisions</h6>
+                        <table class="table table-bordered table-sm">
+                            <tr><td>Total revisions</td><td class="text-end fw-bold">${fmtNum(vi.totalVersions)}</td></tr>
+                            <tr><td>Last modified</td><td class="text-end">${fmtDate(metadata.lastModified)}</td></tr>
+                            <tr><td>Last editor</td><td class="text-end">${metadata.editor || '—'}</td></tr>
+                            <tr><td>Avg frequency</td><td class="text-end">${avgFreq}</td></tr>
+                        </table>
+                        <h6 class="mt-3"><i class="fas fa-users"></i> Top Contributors</h6>
+                        <table class="table table-bordered table-sm">
+                            <thead><tr><th>Author</th><th class="text-end">Edits</th></tr></thead>
+                            <tbody>${contributorRows}</tbody>
+                        </table>
+                    </div>
+                </div>`;
+        }
+
+        const modalHtml = `
+            <div class="modal fade" id="pageStatsModal" tabindex="-1">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title"><i class="fas fa-chart-bar"></i> Page Statistics: ${pageName}</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">${bodyHtml}</div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>`;
+
+        document.body.insertAdjacentHTML('beforeend', modalHtml);
+        requestAnimationFrame(() => {
+            const el = document.getElementById('pageStatsModal');
+            if (!el) return;
+            const modal = new bootstrap.Modal(el);
+            el.addEventListener('hidden.bs.modal', () => { modal.dispose(); el.remove(); });
+            modal.show();
+        });
     }
     
     // View Page Source functionality

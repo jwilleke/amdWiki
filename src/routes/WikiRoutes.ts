@@ -7010,8 +7010,15 @@ class WikiRoutes {
       // Get filesystem filename from page.filePath (path is already imported at top of file)
       const filesystemName = page.filePath ? path.basename(page.filePath) : null;
 
+      // Count links and attachment references in raw markdown content
+      const internalLinkCount = (content.match(/\[\[([^\]]+)\]\]|\[([^\|]+)\|([^\]]+)\]/g) || []).length;
+      const externalLinkCount = (content.match(/https?:\/\/[^\s\)>\]"]+/g) || []).length;
+      const attachmentRefCount = (content.match(/!\[\[|\[{[Ii]mage|\[{[Aa]ttachment/g) || []).length;
+
       // Get version information if versioning is enabled
       let versionInfo = null;
+      let topContributors: { author: string; editCount: number }[] = [];
+      let avgDaysBetweenEdits: number | null = null;
       try {
         const provider = pageManager.provider;
         if (typeof provider.getVersionHistory === 'function') {
@@ -7026,6 +7033,25 @@ class WikiRoutes {
               changeType: currentVersion.changeType,
               comment: currentVersion.comment
             };
+
+            // Aggregate contributors
+            const contributorMap: Record<string, number> = {};
+            for (const v of versions) {
+              if (v.author) {
+                contributorMap[v.author] = (contributorMap[v.author] || 0) + 1;
+              }
+            }
+            topContributors = Object.entries(contributorMap)
+              .map(([author, editCount]) => ({ author, editCount }))
+              .sort((a, b) => b.editCount - a.editCount);
+
+            // Average days between edits
+            if (versions.length >= 2) {
+              const newest = new Date(versions[0].dateCreated).getTime();
+              const oldest = new Date(versions[versions.length - 1].dateCreated).getTime();
+              const daysDiff = (newest - oldest) / (1000 * 60 * 60 * 24);
+              avgDaysBetweenEdits = Math.round((daysDiff / (versions.length - 1)) * 10) / 10;
+            }
           }
         }
       } catch (error: unknown) {
@@ -7060,8 +7086,15 @@ class WikiRoutes {
           wordCount: wordCount,
           characterCount: characterCount,
           lineCount: lineCount,
-          fileSize: fileStats?.size || null
+          fileSize: fileStats?.size || null,
+          internalLinks: internalLinkCount,
+          externalLinks: externalLinkCount,
+          attachmentRefs: attachmentRefCount
         },
+
+        // Contributor statistics
+        contributors: topContributors,
+        avgDaysBetweenEdits: avgDaysBetweenEdits,
 
         // Additional metadata - author is the immutable original creator (from frontmatter);
         // editor is the last person to modify (from version history).
