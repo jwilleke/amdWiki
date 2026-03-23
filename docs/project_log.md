@@ -24,6 +24,36 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-03-23-17
+
+- Agent: Claude Sonnet 4.6
+- Subject: feat: section editing (#138)
+- Key Decision: Section boundaries follow JSPWiki semantics — a section is a heading plus all content (including sub-headings) until the next heading of the same or higher level. Client-side JS injects pencil links (hover-reveal) rather than server-side post-processing, matching the JSPWiki Snipe.Sections.js reference. Section save loads the full page from DB, splices, and saves — so metadata (category, keywords) is preserved from the existing page.
+- Current Issue: none
+- Testing:
+  - 15 SectionUtils unit tests: all pass
+  - npm test: 86 suites passed, 2227 tests passed
+  - Build clean, server online
+- Work Done:
+  - src/utils/SectionUtils.ts: extractSection, spliceSection, getSectionCount
+  - WikiRoutes editPage: ?section=N extracts section content, passes sectionIndex
+  - WikiRoutes savePage: section in body triggers splice-and-save of full markdown
+  - WikiRoutes viewPage: sectionEditingEnabled from user preference
+  - WikiRoutes updatePreferences: saves display.sectionEditing
+  - views/view.ejs: hover-reveal pencil links on headings when enabled
+  - views/edit.ejs: section hidden field + "Editing section N" alert
+  - views/profile.ejs: Section Editing preference checkbox
+- Commits: 5f70cd5
+- Files Modified:
+  - src/utils/SectionUtils.ts (new)
+  - src/utils/__tests__/SectionUtils.test.js (new)
+  - src/routes/WikiRoutes.ts
+  - views/view.ejs
+  - views/edit.ejs
+  - views/profile.ejs
+
+---
+
 ## 2026-03-23-16
 
 - Agent: Claude Sonnet 4.6
