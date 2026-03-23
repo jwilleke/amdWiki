@@ -5001,13 +5001,18 @@ class WikiRoutes {
         }
       }
 
-      // Push live edits back to required-pages/ source (live → source direction)
+      // Push live edits back to required-pages/ source (live → source direction).
+      // Strip user-modified so the source is canonical and won't show as modified on next sync.
       for (const uuid of pushToSourceUuids) {
         const fileName = `${uuid}.md`;
         const livePath = path.join(pagesDirResolved, fileName);
         const sourcePath = path.join(requiredDirResolved, fileName);
         if (await fse.pathExists(livePath)) {
-          await fse.copy(livePath, sourcePath, { overwrite: true });
+          const raw: string = await fse.readFile(livePath, 'utf8');
+          const parsed = matter(raw) as { data: Record<string, unknown>; content: string };
+          delete parsed.data['user-modified'];
+          const cleaned: string = matter.stringify(parsed.content, parsed.data) as string;
+          await fse.writeFile(sourcePath, cleaned, 'utf8');
           synced.push(uuid);
           logger.info(`Required pages push-to-source: ${uuid} by ${currentUser.username}`);
         } else {
