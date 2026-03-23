@@ -24,6 +24,30 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-03-23-10
+
+- Agent: Claude Sonnet 4.6
+- Subject: Quick wins — fix import SSE bug (#241), check for updates (#156), close already-done issues (#299, #338, #225, #330)
+- Key Decision: #241 root cause was literal '\\n\\n' in SSE split (should be '\n\n'); #156 implemented as read-only version check (no auto-install — too risky); #133 deferred (config key rename is breaking change needing migration layer)
+- Current Issues: #241, #156
+- Testing:
+  - npm test: 78 suites passed, 1955 tests passed
+  - Build clean, /api/check-updates verified
+- Work Done:
+  - #241: Fixed buffer.split('\\n\\n') → buffer.split('\n\n') in admin-import.ejs
+  - #156: Added /api/check-updates endpoint + version badge + update link on admin dashboard
+  - Fixed hardcoded version: '1.0.0' in adminDashboard() — now reads from config
+  - Added ngdpbase.github.repo to app-default-config.json
+  - Closed already-implemented: #299 (InterWikiLinks), #338 (ALLOW ACL), #225 (Create Page), #330 (SessionsPlugin)
+- Commits: 6da196a
+- Files Modified:
+  - views/admin-import.ejs
+  - views/admin-dashboard.ejs
+  - src/routes/WikiRoutes.ts
+  - config/app-default-config.json
+
+---
+
 ## 2026-03-23-09
 
 - Agent: Claude Sonnet 4.6
