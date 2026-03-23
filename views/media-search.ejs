@@ -47,15 +47,14 @@
                             { s: 'caption', o: 'desc', label: 'Caption Z–A' }
                           ];
                         %>
-                        <div class="btn-group btn-group-sm" role="group" aria-label="Sort">
+                        <select class="form-select form-select-sm" style="width:auto;" aria-label="Sort" onchange="window.location.href=this.value">
                             <% sorts.forEach(function(opt) { %>
-                                <% const active = (sort === opt.s && order === opt.o); %>
-                                <a href="/media/search?q=<%= encodeURIComponent(query) %>&sort=<%= opt.s %>&order=<%= opt.o %>"
-                                   class="btn <%= active ? 'btn-primary' : 'btn-outline-secondary' %>">
+                                <option value="/media/search?q=<%= encodeURIComponent(query) %>&sort=<%= opt.s %>&order=<%= opt.o %>"
+                                        <%= (sort === opt.s && order === opt.o) ? 'selected' : '' %>>
                                     <%= opt.label %>
-                                </a>
+                                </option>
                             <% }); %>
-                        </div>
+                        </select>
                     <% } %>
                 </div>
             <% } %>

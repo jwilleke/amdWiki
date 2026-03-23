@@ -24,6 +24,17 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-03-23-18
+
+- Agent: Claude Sonnet 4.6
+- Subject: feat: mobile improvements — swipe navigation, responsive header search, sort dropdowns (#367)
+- Issues: #367
+- Changes:
+  - `views/media-item.ejs`: added touch swipe detection (left=next, right=prev, 50px threshold) alongside existing keyboard arrow nav
+  - `views/header.ejs`: removed `min-width: 300px` inline style on search input that caused horizontal overflow on mobile
+  - `views/media-keyword.ejs`, `views/media-year.ejs`, `views/media-search.ejs`: replaced 4-button `btn-group` sort controls with a `<select>` dropdown — compact and touch-friendly on all screen sizes
+- Tests: 2227 passed, 46 skipped (no regressions)
+
 ## 2026-03-23-17
 
 - Agent: Claude Sonnet 4.6

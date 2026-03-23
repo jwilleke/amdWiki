@@ -229,6 +229,21 @@
         if (e.key === 'ArrowLeft'  && prev) { window.location.href = prev; }
         if (e.key === 'ArrowRight' && next) { window.location.href = next; }
     });
+
+    // Touch swipe navigation (left = next, right = prev)
+    var _swipeX = 0, _swipeY = 0;
+    document.addEventListener('touchstart', function (e) {
+        _swipeX = e.changedTouches[0].screenX;
+        _swipeY = e.changedTouches[0].screenY;
+    }, { passive: true });
+    document.addEventListener('touchend', function (e) {
+        var dx = e.changedTouches[0].screenX - _swipeX;
+        var dy = e.changedTouches[0].screenY - _swipeY;
+        if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.5) {
+            if (dx < 0 && next) { window.location.href = next; }
+            if (dx > 0 && prev) { window.location.href = prev; }
+        }
+    }, { passive: true });
 })();
 
 window.ngdpbaseMediaItem = <%- JSON.stringify({
