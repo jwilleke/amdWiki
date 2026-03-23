@@ -7668,6 +7668,7 @@ class WikiRoutes {
 
       res.render('page-history', {
         ...templateData,
+        pageName: pageName,
         pageUuid: pageMetadata?.uuid,
         versions: versions,
         versionCount: versions.length
