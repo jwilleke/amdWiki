@@ -24,6 +24,27 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-03-23-08
+
+- Agent: Claude Sonnet 4.6
+- Subject: feat #330 — SessionsPlugin property=users showing active authenticated users
+- Key Decision: Added /api/session-users endpoint using session store.all() to enumerate live sessions; SessionsPlugin v2.0.0 uses pluginFormatters for consistent output; tests switched from PluginManager temp-dir-copy to direct require to support relative pluginFormatters import
+- Current Issue: #330
+- Testing:
+  - npm test: 78 suites passed, 1955 tests passed (16 SessionsPlugin tests)
+- Work Done:
+  - Added getActiveSessionUsers() handler and /api/session-users route to WikiRoutes.ts
+  - Rewrote SessionsPlugin v2.0.0: property=users, property=count, property=distinctusers
+  - Uses escapeHtml, formatAsList, formatAsCount from pluginFormatters.ts
+  - Rewrote SessionsPlugin tests as direct require (16 tests)
+- Commits: ffb5b8f
+- Files Modified:
+  - plugins/SessionsPlugin.ts
+  - plugins/__tests__/SessionsPlugin.test.js
+  - src/routes/WikiRoutes.ts
+
+---
+
 ## 2026-03-23-07
 
 - Agent: Claude Sonnet 4.6
