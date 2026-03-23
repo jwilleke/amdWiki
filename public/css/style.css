@@ -547,10 +547,10 @@ main p, main div, main span, main li {
 /* Responsive adjustments */
 @media (max-width: 767.98px) {
     .sidebar {
-        display: none !important; /* Hide sidebar on mobile by default */
+        display: none; /* Bootstrap d-none / d-block utilities override this */
     }
     .sidebar.sidebar-mobile-open {
-        display: block !important; /* Shown when hamburger opens it */
+        display: block; /* toggled by JS; Bootstrap utilities can still override */
         width: 100%;
     }
     
@@ -675,8 +675,8 @@ main p, main div, main span, main li {
 .search-page .list-group a.list-group-item-action {
     border-left: 4px solid transparent;
     transition: border-left-color 0.2s ease, background-color 0.2s ease;
-    background-color: var(--card-bg) !important;
-    color: var(--text-primary) !important;
+    background-color: var(--card-bg);
+    color: var(--text-primary);
     border-color: var(--border-color);
     text-decoration: none;
 }
@@ -684,21 +684,21 @@ main p, main div, main span, main li {
 .search-page .list-group a.list-group-item-action:hover,
 .search-page .list-group a.list-group-item-action:focus {
     border-left-color: #007bff;
-    background-color: var(--bg-secondary) !important;
-    color: var(--text-primary) !important;
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
 }
 
 .search-page .list-group a.list-group-item-action h6 {
-    color: var(--text-heading) !important;
+    color: var(--text-heading);
     font-weight: 600;
 }
 
 .search-page .list-group a.list-group-item-action p {
-    color: var(--text-content) !important;
+    color: var(--text-content);
 }
 
 .search-page .list-group a.list-group-item-action small.text-muted {
-    color: var(--text-muted) !important;
+    color: var(--text-muted);
 }
 
 .search-page .list-group a.list-group-item-action mark {
@@ -751,18 +751,7 @@ main p, main div, main span, main li {
     }
 }
 
-/* Improved gap utility for better browser support */
-.gap-2 {
-    gap: 0.5rem !important;
-}
-
-.me-1 {
-    margin-right: 0.25rem !important;
-}
-
-.me-2 {
-    margin-right: 0.5rem !important;
-}
+/* gap-2 / me-1 / me-2 are Bootstrap 5 utilities — no override needed */
 
 /* Footer Styles */
 .footer-content {
@@ -773,17 +762,17 @@ main p, main div, main span, main li {
 }
 
 .footer-content .text-muted {
-    color: #6c757d !important;
+    color: #6c757d;
 }
 
 .footer-content a {
-    color: #6c757d !important;
+    color: #6c757d;
     text-decoration: none;
     transition: color 0.2s ease;
 }
 
 .footer-content a:hover {
-    color: #007bff !important;
+    color: #007bff;
     text-decoration: underline;
 }
 
@@ -1036,8 +1025,10 @@ main p, main div, main span, main li {
 }
 
 .bg-light {
-    background-color: var(--bg-secondary) !important;
-    color: var(--text-primary) !important;
+    /* Override Bootstrap's --bs-light variable so bg-light utility picks up theme colour */
+    --bs-light-rgb: var(--bg-secondary-rgb, 248, 249, 250);
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
 }
 
 /* Forms - GitHub-inspired */
