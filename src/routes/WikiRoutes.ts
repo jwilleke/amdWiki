@@ -4684,7 +4684,7 @@ class WikiRoutes {
       await configManager.setProperty('ngdpbase.theme.active', theme);
 
       logger.info(`Admin theme changed to "${theme}" by ${currentUser.username}`);
-      return res.redirect('/admin/settings?success=Theme+updated+to+' + encodeURIComponent(theme) + '+%E2%80%94+restart+required');
+      return res.redirect('/admin/settings?success=Theme+updated+to+' + encodeURIComponent(theme));
     } catch (err: unknown) {
       logger.error('Error updating theme:', err);
       return res.redirect('/admin/settings?error=Failed+to+update+theme');
