@@ -4636,15 +4636,18 @@ class WikiRoutes {
       const availableThemes = ThemeManager.listAvailable(themesDir);
       const themeManager = new ThemeManager(activeTheme, themesDir);
 
+      const maxFileSizeBytes = Number(configManager?.getProperty('ngdpbase.attachment.maxsize', 10485760)) || 10485760;
+      const sessionMaxAgeMs = Number(configManager?.getProperty('ngdpbase.session.maxAge', 86400000)) || 86400000;
+
       const settings = {
         systemName: configManager?.getProperty('ngdpbase.applicationName', 'ngdpbase'),
         version: configManager?.getProperty('ngdpbase.version', ''),
         activeTheme,
         availableThemes,
         themeInfo: themeManager.paths.themeInfo,
-        maxFileSize: configManager?.getProperty('ngdpbase.attachment.maxsize', '10MB'),
+        maxFileSizeMB: Math.round(maxFileSizeBytes / (1024 * 1024)),
         allowRegistration: configManager?.getProperty('ngdpbase.user.allowregistration', true),
-        sessionTimeout: '24 hours'
+        sessionTimeoutHours: Math.round(sessionMaxAgeMs / 3600000)
       };
 
       return res.render('admin-settings', {
@@ -4652,7 +4655,8 @@ class WikiRoutes {
         title: 'System Settings',
         settings,
         successMessage: req.query.success || null,
-        errorMessage: req.query.error || null
+        errorMessage: req.query.error || null,
+        restartRequired: req.query.restart === '1'
       });
     } catch (err: unknown) {
       logger.error('Error loading admin settings:', err);
@@ -4688,6 +4692,38 @@ class WikiRoutes {
     } catch (err: unknown) {
       logger.error('Error updating theme:', err);
       return res.redirect('/admin/settings?error=Failed+to+update+theme');
+    }
+  }
+
+  async adminUpdateGeneralSettings(req: Request, res: Response) {
+    try {
+      const userManager = this.engine.getManager('UserManager');
+      const currentUser = req.userContext;
+
+      if (!currentUser || !(await userManager.hasPermission(currentUser.username, 'admin:system'))) {
+        return res.redirect('/admin/settings?error=Access+denied');
+      }
+
+      const body = req.body as { maxFileSizeMB?: string; sessionTimeoutHours?: string; allowRegistration?: string };
+      const configManager = this.engine.getManager('ConfigurationManager');
+
+      const maxFileSizeMB = parseInt(body.maxFileSizeMB || '10', 10);
+      if (!isNaN(maxFileSizeMB) && maxFileSizeMB > 0) {
+        await configManager.setProperty('ngdpbase.attachment.maxsize', maxFileSizeMB * 1024 * 1024);
+      }
+
+      const sessionTimeoutHours = parseInt(body.sessionTimeoutHours || '24', 10);
+      if (!isNaN(sessionTimeoutHours) && sessionTimeoutHours > 0) {
+        await configManager.setProperty('ngdpbase.session.maxAge', sessionTimeoutHours * 3600000);
+      }
+
+      await configManager.setProperty('ngdpbase.user.allowregistration', body.allowRegistration === 'on');
+
+      logger.info(`Admin general settings updated by ${currentUser.username}`);
+      return res.redirect('/admin/settings?success=Settings+saved&restart=1');
+    } catch (err: unknown) {
+      logger.error('Error updating general settings:', err);
+      return res.redirect('/admin/settings?error=Failed+to+save+settings');
     }
   }
 
@@ -6399,6 +6435,7 @@ class WikiRoutes {
     );
     app.get('/admin/settings', (req: Request, res: Response) => this.adminSettings(req, res));
     app.post('/admin/settings/theme', (req: Request, res: Response) => this.adminUpdateTheme(req, res));
+    app.post('/admin/settings/general', (req: Request, res: Response) => this.adminUpdateGeneralSettings(req, res));
     app.get('/admin/logs', (req: Request, res: Response) => this.adminLogs(req, res));
     app.post('/admin/restart', (req: Request, res: Response) => this.adminRestart(req, res));
     app.post('/admin/reindex', (req: Request, res: Response) => this.adminReindex(req, res));

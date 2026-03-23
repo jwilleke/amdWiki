@@ -67,7 +67,7 @@
                                 </tr>
                                 <tr>
                                     <td><strong>Session Timeout:</strong></td>
-                                    <td><%= settings.sessionTimeout %></td>
+                                    <td><%= settings.sessionTimeoutHours %> hours</td>
                                 </tr>
                             </table>
                         </div>
@@ -81,63 +81,98 @@
                     <h5><i class="fas fa-sliders-h"></i> Configuration Settings</h5>
                 </div>
                 <div class="card-body">
-                    <div class="alert alert-info">
-                        <i class="fas fa-info-circle"></i>
-                        <strong>Note:</strong> Most configuration settings are read-only here.
-                        To modify them, edit the configuration files directly.
-                        Theme selection is the exception — it can be changed below.
-                    </div>
-                    
-                    <div>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="maxFileSize">Maximum File Upload Size</label>
-                                    <input type="text" class="form-control" id="maxFileSize" 
-                                           value="<%= settings.maxFileSize %>" readonly>
+                    <div class="row">
+                        <!-- Left: editable general settings -->
+                        <div class="col-md-6 border-end">
+                            <form method="POST" action="/admin/settings/general">
+                                <div class="mb-3">
+                                    <label for="maxFileSizeMB" class="form-label">Maximum File Upload Size (MB)</label>
+                                    <input type="number" class="form-control" id="maxFileSizeMB" name="maxFileSizeMB"
+                                           value="<%= settings.maxFileSizeMB %>" min="1" max="2048" style="max-width: 120px;">
                                 </div>
-                                <div class="form-group">
-                                    <label for="allowRegistration">Allow New User Registration</label>
+                                <div class="mb-3">
+                                    <label for="sessionTimeoutHours" class="form-label">Session Timeout (hours)</label>
+                                    <input type="number" class="form-control" id="sessionTimeoutHours" name="sessionTimeoutHours"
+                                           value="<%= settings.sessionTimeoutHours %>" min="1" max="8760" style="max-width: 120px;">
+                                </div>
+                                <div class="mb-3">
                                     <div class="form-check">
-                                        <input type="checkbox" class="form-check-input" id="allowRegistration" 
-                                               <%= settings.allowRegistration ? 'checked' : '' %> disabled>
+                                        <input type="checkbox" class="form-check-input" id="allowRegistration" name="allowRegistration"
+                                               <%= settings.allowRegistration ? 'checked' : '' %>>
                                         <label class="form-check-label" for="allowRegistration">
-                                            Allow users to self-register
+                                            Allow new user self-registration
                                         </label>
                                     </div>
                                 </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="themeSelect">Site Theme</label>
-                                    <form method="POST" action="/admin/settings/theme" class="d-flex gap-2 align-items-start flex-wrap">
-                                        <select class="form-control" id="themeSelect" name="theme" style="max-width: 200px;">
-                                            <% settings.availableThemes.forEach(function(t) { %>
-                                            <option value="<%= t %>" <%= t === settings.activeTheme ? 'selected' : '' %>><%= t %></option>
-                                            <% }); %>
-                                        </select>
-                                        <button type="submit" class="btn btn-primary btn-sm">Apply</button>
-                                    </form>
-                                    <small class="text-muted mt-1 d-block">
-                                        <i class="fas fa-check-circle text-success"></i>
-                                        Theme change takes effect immediately on next page load.
-                                    </small>
-                                    <% if (settings.themeInfo) { %>
-                                    <small class="text-muted d-block mt-1">
-                                        <strong><%= settings.themeInfo.name %></strong> v<%= settings.themeInfo.version %> &mdash; <%= settings.themeInfo.description %>
-                                    </small>
-                                    <% } %>
-                                </div>
-                                <div class="form-group">
-                                    <label for="sessionTimeout">Session Timeout</label>
-                                    <input type="text" class="form-control" id="sessionTimeout" 
-                                           value="<%= settings.sessionTimeout %>" readonly>
-                                </div>
+                                <button type="submit" class="btn btn-primary btn-sm">
+                                    <i class="fas fa-save"></i> Save Settings
+                                </button>
+                                <small class="text-muted d-block mt-2">
+                                    <i class="fas fa-info-circle"></i>
+                                    File size &amp; session timeout changes require a server restart.
+                                </small>
+                            </form>
+                        </div>
+                        <!-- Right: theme -->
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="themeSelect" class="form-label">Site Theme</label>
+                                <form method="POST" action="/admin/settings/theme" class="d-flex gap-2 align-items-center flex-wrap">
+                                    <select class="form-select" id="themeSelect" name="theme" style="max-width: 180px;">
+                                        <% settings.availableThemes.forEach(function(t) { %>
+                                        <option value="<%= t %>" <%= t === settings.activeTheme ? 'selected' : '' %>><%= t %></option>
+                                        <% }); %>
+                                    </select>
+                                    <button type="submit" class="btn btn-primary btn-sm">Apply</button>
+                                </form>
+                                <small class="text-muted d-block mt-1">
+                                    <i class="fas fa-check-circle text-success"></i>
+                                    Takes effect immediately — no restart needed.
+                                </small>
+                                <% if (settings.themeInfo) { %>
+                                <small class="text-muted d-block mt-1">
+                                    <strong><%= settings.themeInfo.name %></strong> v<%= settings.themeInfo.version %> &mdash; <%= settings.themeInfo.description %>
+                                </small>
+                                <% } %>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
+
+            <!-- Restart Required Modal -->
+            <div class="modal fade" id="restartModal" tabindex="-1" aria-labelledby="restartModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="restartModalLabel">
+                                <i class="fas fa-exclamation-triangle text-warning"></i> Restart Required
+                            </h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                            <p>Settings saved. Changes to <strong>Maximum File Upload Size</strong> and
+                            <strong>Session Timeout</strong> will not take effect until the server is restarted.</p>
+                            <p class="text-muted mb-0"><small>Use the Restart button on the Admin Dashboard, or run
+                            <code>./server.sh restart</code> from the command line.</small></p>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Dismiss</button>
+                            <a href="/admin" class="btn btn-warning">
+                                <i class="fas fa-redo"></i> Go to Dashboard
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <script>
+                (function() {
+                    if (new URLSearchParams(window.location.search).get('restart') === '1') {
+                        var modal = new bootstrap.Modal(document.getElementById('restartModal'));
+                        modal.show();
+                    }
+                })();
+            </script>
 
             <!-- Quick Links -->
             <div class="card">
