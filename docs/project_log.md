@@ -24,6 +24,25 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-03-23-13
+
+- Agent: Claude Sonnet 4.6
+- Subject: fix — edit/create/search/history/diff ignored active theme; ThemeManager crash on non-string input
+- Key Decision: editPage/createPage/searchResults/pageHistory/pageDiff all used getTemplateDataFromContext() which returned no theme paths, causing header.ejs to always fall back to hardcoded default theme. Changed to getCommonTemplateData(req). Also fixed ThemeManager constructor to guard against non-string activeTheme (test mock was passing [] causing path.join TypeError and 500 errors).
+- Current Issue: none (follow-on fix from #350/#368)
+- Testing:
+  - npm test: 78 suites passed, 1955 tests passed (restored from 77/1944 — pre-existing regression fixed)
+  - Build clean
+- Work Done:
+  - Replaced getTemplateDataFromContext() with getCommonTemplateData(req) in editPage, createPage, searchResults, pageHistory, pageDiff
+  - Added typeof guard in ThemeManager constructor: only uses activeTheme if it's a non-empty string, otherwise falls back to 'default'
+- Commits: TBD
+- Files Modified:
+  - src/routes/WikiRoutes.ts
+  - src/managers/ThemeManager.ts
+
+---
+
 ## 2026-03-23-12
 
 - Agent: Claude Sonnet 4.6

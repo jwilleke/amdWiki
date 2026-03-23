@@ -44,7 +44,7 @@ export class ThemeManager {
 
   constructor(activeTheme: string, themesDir: string) {
     this.themesDir = themesDir;
-    this.activeTheme = activeTheme || 'default';
+    this.activeTheme = (typeof activeTheme === 'string' && activeTheme) ? activeTheme : 'default';
     this._paths = this.buildPaths();
   }
 
