@@ -311,9 +311,9 @@ describe('MarkupParser', () => {
       expect(markupParser.getHandler('MockHandler2')).toBeNull();
     });
 
-    // Skipped: Handler execution during parsing depends on implementation details
-    // that have changed. Handler registration works (tested above) but the exact
-    // execution flow during content transformation needs investigation.
+    // Skipped: handler.process() is registered but parse() does not invoke it for
+    // arbitrary content patterns — only built-in handler chains are called during parse().
+    // Fixing this requires changing the parse pipeline, not just the test.
     test.skip('should execute registered handlers during content transformation', async () => {
       const { BaseSyntaxHandler } = require('../handlers/BaseSyntaxHandler');
 

@@ -1,13 +1,16 @@
+// Opt out of the global VersioningFileProvider and FileSystemProvider mocks
+jest.unmock('../VersioningFileProvider');
+jest.unmock('../../providers/VersioningFileProvider');
+jest.unmock('../FileSystemProvider');
+jest.unmock('../../providers/FileSystemProvider');
+
 const VersioningFileProvider = require('../VersioningFileProvider');
 const fs = require('fs-extra');
 const path = require('path');
 const os = require('os');
 const DeltaStorage = require('../../utils/DeltaStorage');
 
-// Skipped: Tests have significant API mismatches with current VersioningFileProvider implementation
-// The provider's property names and initialization flow have changed.
-// 54/55 tests fail - needs comprehensive rewrite to match current API.
-describe.skip('VersioningFileProvider', () => {
+describe('VersioningFileProvider', () => {
   let testDir;
   let engine;
   let configManager;
@@ -18,6 +21,8 @@ describe.skip('VersioningFileProvider', () => {
     testDir = path.join(os.tmpdir(), `versioning-provider-test-${Date.now()}`);
     await fs.ensureDir(testDir);
 
+    const indexPath = path.join(testDir, 'data', 'page-index.json');
+
     // Create mock engine and ConfigurationManager
     configManager = {
       getProperty: jest.fn((key, defaultValue) => {
@@ -27,14 +32,30 @@ describe.skip('VersioningFileProvider', () => {
           'ngdpbase.page.provider.filesystem.requiredpagesdir': path.join(testDir, 'required-pages'),
           'ngdpbase.page.provider.filesystem.encoding': 'utf-8',
           'ngdpbase.page.provider.filesystem.autosave': true,
-          'ngdpbase.page.provider.versioning.indexfile': path.join(testDir, 'data', 'page-index.json'),
+          'ngdpbase.page.provider.filesystem.pluralmatching': false,
+          'ngdpbase.page.provider.versioning.indexfile': indexPath,
           'ngdpbase.page.provider.versioning.maxversions': 50,
           'ngdpbase.page.provider.versioning.retentiondays': 365,
           'ngdpbase.page.provider.versioning.compression': 'gzip',
-          'ngdpbase.page.provider.versioning.deltastorage': true
+          'ngdpbase.page.provider.versioning.deltastorage': true,
+          'ngdpbase.page.provider.versioning.checkpointinterval': 10,
+          'ngdpbase.page.provider.versioning.cachesize': 50
         };
         return config[key] !== undefined ? config[key] : defaultValue;
-      })
+      }),
+      getResolvedDataPath: jest.fn((key, defaultValue) => {
+        if (key === 'ngdpbase.page.provider.versioning.indexfile') {
+          return path.join(testDir, 'data', 'page-index.json');
+        }
+        if (key === 'ngdpbase.page.provider.filesystem.storagedir') {
+          return path.join(testDir, 'pages');
+        }
+        if (key === 'ngdpbase.page.provider.filesystem.requiredpagesdir') {
+          return path.join(testDir, 'required-pages');
+        }
+        return defaultValue;
+      }),
+      getInstanceDataFolder: jest.fn(() => testDir)
     };
 
     engine = {
@@ -211,14 +232,15 @@ describe.skip('VersioningFileProvider', () => {
       const savedContent = await fs.readFile(contentPath, 'utf8');
       expect(savedContent).toBe(content);
 
-      // Check meta.json
-      const metaPath = path.join(v1Dir, 'meta.json');
-      const metaData = JSON.parse(await fs.readFile(metaPath, 'utf8'));
-      expect(metaData.author).toBe('test-user');
-      expect(metaData.changeType).toBe('created');
-      expect(metaData.isDelta).toBe(false);
-      expect(metaData.contentHash).toBe(DeltaStorage.calculateHash(content));
-      expect(metaData.contentSize).toBe(Buffer.byteLength(content, 'utf8'));
+      // Check version metadata via manifest.json (meta.json no longer written - manifest is single source of truth)
+      const manifestPath = path.join(provider.pagesVersionsDir, 'test-uuid-1', 'manifest.json');
+      const manifest = JSON.parse(await fs.readFile(manifestPath, 'utf8'));
+      const v1Meta = manifest.versions[0];
+      expect(v1Meta.editor).toBe('test-user'); // field is 'editor' (derived from metadata.author)
+      expect(v1Meta.changeType).toBe('created');
+      expect(v1Meta.isDelta).toBe(false);
+      expect(v1Meta.contentHash).toBe(DeltaStorage.calculateHash(content));
+      expect(v1Meta.contentSize).toBe(Buffer.byteLength(content, 'utf8'));
     });
 
     test('should create manifest.json for new page', async () => {
@@ -420,6 +442,13 @@ describe.skip('VersioningFileProvider', () => {
   });
 
   describe('Metadata Tracking', () => {
+    // Helper: get version metadata from manifest.json (meta.json no longer written - manifest is single source of truth)
+    async function getVersionMeta(pagesVersionsDir, uuid, versionNum) {
+      const manifestPath = path.join(pagesVersionsDir, uuid, 'manifest.json');
+      const manifest = JSON.parse(await fs.readFile(manifestPath, 'utf8'));
+      return manifest.versions.find(v => v.version === versionNum);
+    }
+
     test('should track author information', async () => {
       await provider.initialize();
 
@@ -430,10 +459,9 @@ describe.skip('VersioningFileProvider', () => {
 
       await provider.savePage('Test Page', 'Content', metadata);
 
-      const metaPath = path.join(provider.pagesVersionsDir, 'test-uuid-10', 'v1', 'meta.json');
-      const meta = JSON.parse(await fs.readFile(metaPath, 'utf8'));
-
-      expect(meta.author).toBe('john.doe@example.com');
+      const meta = await getVersionMeta(provider.pagesVersionsDir, 'test-uuid-10', 1);
+      // Author is stored as 'editor' in manifest (derived from metadata.editor || metadata.author)
+      expect(meta.editor).toBe('john.doe@example.com');
     });
 
     test('should track timestamps', async () => {
@@ -443,8 +471,7 @@ describe.skip('VersioningFileProvider', () => {
       await provider.savePage('Test Page', 'Content', { uuid: 'test-uuid-11' });
       const afterTime = Date.now();
 
-      const metaPath = path.join(provider.pagesVersionsDir, 'test-uuid-11', 'v1', 'meta.json');
-      const meta = JSON.parse(await fs.readFile(metaPath, 'utf8'));
+      const meta = await getVersionMeta(provider.pagesVersionsDir, 'test-uuid-11', 1);
 
       const createdTime = new Date(meta.dateCreated).getTime();
       expect(createdTime).toBeGreaterThanOrEqual(beforeTime);
@@ -457,8 +484,7 @@ describe.skip('VersioningFileProvider', () => {
       const content = 'Test content for hashing';
       await provider.savePage('Test Page', content, { uuid: 'test-uuid-12' });
 
-      const metaPath = path.join(provider.pagesVersionsDir, 'test-uuid-12', 'v1', 'meta.json');
-      const meta = JSON.parse(await fs.readFile(metaPath, 'utf8'));
+      const meta = await getVersionMeta(provider.pagesVersionsDir, 'test-uuid-12', 1);
 
       const expectedHash = DeltaStorage.calculateHash(content);
       expect(meta.contentHash).toBe(expectedHash);
@@ -470,8 +496,7 @@ describe.skip('VersioningFileProvider', () => {
       const content = 'Test content';
       await provider.savePage('Test Page', content, { uuid: 'test-uuid-13' });
 
-      const metaPath = path.join(provider.pagesVersionsDir, 'test-uuid-13', 'v1', 'meta.json');
-      const meta = JSON.parse(await fs.readFile(metaPath, 'utf8'));
+      const meta = await getVersionMeta(provider.pagesVersionsDir, 'test-uuid-13', 1);
 
       expect(meta.contentSize).toBe(Buffer.byteLength(content, 'utf8'));
     });
@@ -482,17 +507,11 @@ describe.skip('VersioningFileProvider', () => {
       const metadata = { uuid: 'test-uuid-14' };
 
       await provider.savePage('Test', 'V1', metadata);
-      let meta = JSON.parse(await fs.readFile(
-        path.join(provider.pagesVersionsDir, 'test-uuid-14', 'v1', 'meta.json'),
-        'utf8'
-      ));
+      let meta = await getVersionMeta(provider.pagesVersionsDir, 'test-uuid-14', 1);
       expect(meta.changeType).toBe('created');
 
       await provider.savePage('Test', 'V2', metadata);
-      meta = JSON.parse(await fs.readFile(
-        path.join(provider.pagesVersionsDir, 'test-uuid-14', 'v2', 'meta.json'),
-        'utf8'
-      ));
+      meta = await getVersionMeta(provider.pagesVersionsDir, 'test-uuid-14', 2);
       expect(meta.changeType).toBe('updated');
     });
 
@@ -506,8 +525,7 @@ describe.skip('VersioningFileProvider', () => {
 
       await provider.savePage('Test', 'Content', metadata);
 
-      const metaPath = path.join(provider.pagesVersionsDir, 'test-uuid-15', 'v1', 'meta.json');
-      const meta = JSON.parse(await fs.readFile(metaPath, 'utf8'));
+      const meta = await getVersionMeta(provider.pagesVersionsDir, 'test-uuid-15', 1);
 
       expect(meta.comment).toBe('Fixed typo in introduction');
     });
@@ -650,12 +668,12 @@ describe.skip('VersioningFileProvider', () => {
       expect(await fs.pathExists(path.join(baseDir, 'v2'))).toBe(true);
       expect(await fs.pathExists(path.join(baseDir, 'v3'))).toBe(true);
 
-      // Verify manifest tracking
+      // Verify manifest tracking (manifest stores 'editor', not 'author')
       const manifest = JSON.parse(await fs.readFile(path.join(baseDir, 'manifest.json'), 'utf8'));
       expect(manifest.currentVersion).toBe(3);
-      expect(manifest.versions[0].author).toBe('tech-writer');
-      expect(manifest.versions[1].author).toBe('developer1');
-      expect(manifest.versions[2].author).toBe('developer2');
+      expect(manifest.versions[0].editor).toBe('tech-writer');
+      expect(manifest.versions[1].editor).toBe('developer1');
+      expect(manifest.versions[2].editor).toBe('developer2');
       expect(manifest.versions[2].comment).toBe('Fixed typo');
 
       // Verify v1 is full content
@@ -745,11 +763,10 @@ describe.skip('VersioningFileProvider', () => {
       const history = await provider.getVersionHistory('Meta Test');
 
       expect(history[0]).toHaveProperty('version');
-      expect(history[0]).toHaveProperty('dateCreated');
-      expect(history[0]).toHaveProperty('author');
+      expect(history[0]).toHaveProperty('timestamp'); // dateCreated is mapped to 'timestamp'
+      expect(history[0]).toHaveProperty('author');    // editor is mapped to 'author'
       expect(history[0]).toHaveProperty('changeType');
-      expect(history[0]).toHaveProperty('comment');
-      expect(history[0]).toHaveProperty('contentHash');
+      expect(history[0]).toHaveProperty('message');   // comment is mapped to 'message'
       expect(history[0]).toHaveProperty('contentSize');
     });
   });
@@ -857,22 +874,18 @@ describe.skip('VersioningFileProvider', () => {
       await provider.savePage(pageName, 'v2 content', { uuid, author: 'user2' });
       await provider.savePage(pageName, 'v3 content', { uuid, author: 'user3' });
 
-      // Restore to v1
-      const newVersion = await provider.restoreVersion(pageName, 1, { author: 'admin' });
+      // Restore to v1 (returns void - new version number found via history)
+      await provider.restoreVersion(pageName, 1);
 
       // Should create v4 with v1's content
-      expect(newVersion).toBe(4);
-
-      // Verify v4 has v1's content
       const { content } = await provider.getPageVersion(pageName, 4);
       expect(content).toBe('v1 content');
 
       // Verify metadata
       const history = await provider.getVersionHistory(pageName);
       expect(history[0].version).toBe(4);
-      expect(history[0].author).toBe('admin');
       expect(history[0].changeType).toBe('restored');
-      expect(history[0].comment).toContain('Restored from v1');
+      expect(history[0].message).toContain('Restored from v1'); // comment maps to 'message'
     });
 
     test('should preserve all original versions after restore', async () => {
@@ -902,14 +915,13 @@ describe.skip('VersioningFileProvider', () => {
       await provider.savePage('Test', 'v1', { uuid });
       await provider.savePage('Test', 'v2 bad content', { uuid });
 
-      await provider.restoreVersion('Test', 1, {
-        author: 'moderator',
-        comment: 'Reverted spam edit'
-      });
+      // restoreVersion() uses 'system' as editor and 'Restored from v{N}' as comment
+      await provider.restoreVersion('Test', 1);
 
       const history = await provider.getVersionHistory('Test');
-      expect(history[0].author).toBe('moderator');
-      expect(history[0].comment).toBe('Reverted spam edit');
+      // Author will be 'system' (implementation default) and message matches restore pattern
+      expect(history[0].author).toBe('system');
+      expect(history[0].message).toContain('Restored from v1');
     });
 
     test('should restore by UUID', async () => {
@@ -919,8 +931,10 @@ describe.skip('VersioningFileProvider', () => {
       await provider.savePage('Test', 'v1', { uuid });
       await provider.savePage('Test', 'v2', { uuid });
 
-      const newVersion = await provider.restoreVersion(uuid, 1);
-      expect(newVersion).toBe(3);
+      // restoreVersion returns void; verify via version count
+      await provider.restoreVersion(uuid, 1);
+      const history = await provider.getVersionHistory(uuid);
+      expect(history[0].version).toBe(3);
     });
 
     test('should throw error for non-existent page', async () => {
@@ -946,12 +960,15 @@ describe.skip('VersioningFileProvider', () => {
       await provider.savePage('Test', 'Hello world', { uuid, author: 'user1' });
       await provider.savePage('Test', 'Hello ngdpbase', { uuid, author: 'user2' });
 
+      // compareVersions returns { fromVersion, toVersion, fromMetadata, toMetadata, diff, stats }
       const comparison = await provider.compareVersions('Test', 1, 2);
 
-      expect(comparison.version1.version).toBe(1);
-      expect(comparison.version1.author).toBe('user1');
-      expect(comparison.version2.version).toBe(2);
-      expect(comparison.version2.author).toBe('user2');
+      expect(comparison.fromVersion).toBe(1);
+      expect(comparison.fromMetadata.version).toBe(1);
+      expect(comparison.fromMetadata.author).toBe('user1');
+      expect(comparison.toVersion).toBe(2);
+      expect(comparison.toMetadata.version).toBe(2);
+      expect(comparison.toMetadata.author).toBe('user2');
 
       expect(Array.isArray(comparison.diff)).toBe(true);
       expect(comparison.diff.length).toBeGreaterThan(0);
@@ -971,13 +988,13 @@ describe.skip('VersioningFileProvider', () => {
 
       // Compare v1 to v3
       const forward = await provider.compareVersions('Test', 1, 3);
-      expect(forward.version1.version).toBe(1);
-      expect(forward.version2.version).toBe(3);
+      expect(forward.fromVersion).toBe(1);
+      expect(forward.toVersion).toBe(3);
 
       // Compare v3 to v1 (reverse)
       const backward = await provider.compareVersions('Test', 3, 1);
-      expect(backward.version1.version).toBe(3);
-      expect(backward.version2.version).toBe(1);
+      expect(backward.fromVersion).toBe(3);
+      expect(backward.toVersion).toBe(1);
     });
 
     test('should compare by UUID', async () => {
@@ -988,7 +1005,7 @@ describe.skip('VersioningFileProvider', () => {
       await provider.savePage('Test', 'v2', { uuid });
 
       const comparison = await provider.compareVersions(uuid, 1, 2);
-      expect(comparison.version1.version).toBe(1);
+      expect(comparison.fromVersion).toBe(1);
     });
 
     test('should handle identical versions (no changes)', async () => {

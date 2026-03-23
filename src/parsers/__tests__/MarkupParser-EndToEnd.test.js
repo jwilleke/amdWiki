@@ -173,6 +173,8 @@ class ComprehensiveMockEngine {
 }
 
 // Skipped: Output format expectations don't match current implementation
+// Skipped: Tests rely on internal properties (phases, filterChain, cacheStrategies) that
+// are not public in the current implementation. Needs rewrite to test only through public API.
 describe.skip('MarkupParser End-to-End JSPWiki Compatibility', () => {
   let markupParser;
   let mockEngine;

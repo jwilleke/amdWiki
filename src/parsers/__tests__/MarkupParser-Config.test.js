@@ -158,15 +158,13 @@ describe('MarkupParser Configuration Integration', () => {
       expect(markupParser.getHandler('PluginSyntaxHandler')).toBeNull();
     });
 
-    // Skipped: Handler priority configuration and registration may have changed
-    test.skip('should use configured handler priorities', async () => {
+    test('should use configured handler priorities', async () => {
       mockConfigManager.config['ngdpbase.markup.handlers.plugin.priority'] = 95;
 
       await markupParser.initialize();
 
-      const pluginHandler = new PluginSyntaxHandler();
-      await markupParser.registerHandler(pluginHandler);
-
+      // PluginSyntaxHandler is registered by initialize() — verify its own priority (90)
+      // is preserved and not overridden by the config value (95)
       const registeredHandler = markupParser.getHandler('PluginSyntaxHandler');
       expect(registeredHandler.priority).toBe(90); // Handler's own priority, not overridden
     });
@@ -189,7 +187,9 @@ describe('MarkupParser Configuration Integration', () => {
       expect(markupParser.config.cacheTTL).toBe(600);
     });
 
-    // Skipped: Cache TTL configuration propagation has changed
+    // Skipped: cacheTTL config is read into markupParser.config.cacheTTL but cache.set
+    // still uses the strategy-level default TTL (300), not the top-level cacheTTL.
+    // Fixing this requires a source code change in the cache write path.
     test.skip('should use cache TTL in caching operations', async () => {
       mockConfigManager.config['ngdpbase.markup.cacheTTL'] = 900;
 
@@ -284,14 +284,15 @@ describe('MarkupParser Configuration Integration', () => {
       expect(unknownConfig.priority).toBe(100);
     });
 
-    // Skipped: Handler ID to type mapping has changed - some handlers may not be registered
-    test.skip('should map handler IDs to types correctly', async () => {
+    test('should map handler IDs to types correctly', async () => {
       await markupParser.initialize();
 
       expect(markupParser.getHandlerTypeFromId('PluginSyntaxHandler')).toBe('plugin');
       expect(markupParser.getHandlerTypeFromId('WikiTagHandler')).toBe('wikitag');
       expect(markupParser.getHandlerTypeFromId('WikiFormHandler')).toBe('form');
-      expect(markupParser.getHandlerTypeFromId('InterWikiLinkHandler')).toBe('interwiki');
+      // InterWikiLinkHandler was replaced by LinkParserHandler
+      expect(markupParser.getHandlerTypeFromId('InterWikiLinkHandler')).toBeNull();
+      expect(markupParser.getHandlerTypeFromId('LinkParserHandler')).toBe('linkparser');
       expect(markupParser.getHandlerTypeFromId('AttachmentHandler')).toBe('attachment');
       expect(markupParser.getHandlerTypeFromId('WikiStyleHandler')).toBe('style');
       expect(markupParser.getHandlerTypeFromId('UnknownHandler')).toBeNull();

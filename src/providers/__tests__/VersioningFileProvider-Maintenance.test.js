@@ -1,3 +1,9 @@
+// Opt out of the global VersioningFileProvider and FileSystemProvider mocks
+jest.unmock('../VersioningFileProvider');
+jest.unmock('../../providers/VersioningFileProvider');
+jest.unmock('../FileSystemProvider');
+jest.unmock('../../providers/FileSystemProvider');
+
 const VersioningFileProvider = require('../VersioningFileProvider');
 const VersioningMaintenance = require('../../utils/VersioningMaintenance');
 const VersioningAnalytics = require('../../utils/VersioningAnalytics');
@@ -5,8 +11,10 @@ const fs = require('fs-extra');
 const path = require('path');
 const os = require('os');
 
-// Skipped: Tests depend on VersioningFileProvider which has significant API changes
-// Needs rewrite to match current implementation
+// Skipped: purgeOldVersions() API mismatch — tests expect (identifier, optionsObj) returning
+// a rich report { versionsRemoved, versionsPurged, dryRun, message }, but current API takes
+// (identifier, keepLatest: number) and returns Promise<number>.
+// VersioningMaintenance.cleanupAllPages and VersioningAnalytics report structures also differ.
 describe.skip('VersioningFileProvider - Maintenance', () => {
   let testDir;
   let engine;
@@ -17,6 +25,8 @@ describe.skip('VersioningFileProvider - Maintenance', () => {
     testDir = path.join(os.tmpdir(), `versioning-maintenance-test-${Date.now()}`);
     await fs.ensureDir(testDir);
 
+    const indexPath = path.join(testDir, 'data', 'page-index.json');
+
     configManager = {
       getProperty: jest.fn((key, defaultValue) => {
         const config = {
@@ -25,7 +35,8 @@ describe.skip('VersioningFileProvider - Maintenance', () => {
           'ngdpbase.page.provider.filesystem.requiredpagesdir': path.join(testDir, 'required-pages'),
           'ngdpbase.page.provider.filesystem.encoding': 'utf-8',
           'ngdpbase.page.provider.filesystem.autosave': true,
-          'ngdpbase.page.provider.versioning.indexfile': path.join(testDir, 'data', 'page-index.json'),
+          'ngdpbase.page.provider.filesystem.pluralmatching': false,
+          'ngdpbase.page.provider.versioning.indexfile': indexPath,
           'ngdpbase.page.provider.versioning.maxversions': 50,
           'ngdpbase.page.provider.versioning.retentiondays': 365,
           'ngdpbase.page.provider.versioning.compression': 'gzip',
@@ -34,7 +45,20 @@ describe.skip('VersioningFileProvider - Maintenance', () => {
           'ngdpbase.page.provider.versioning.cachesize': 50
         };
         return config[key] !== undefined ? config[key] : defaultValue;
-      })
+      }),
+      getResolvedDataPath: jest.fn((key, defaultValue) => {
+        if (key === 'ngdpbase.page.provider.versioning.indexfile') {
+          return path.join(testDir, 'data', 'page-index.json');
+        }
+        if (key === 'ngdpbase.page.provider.filesystem.storagedir') {
+          return path.join(testDir, 'pages');
+        }
+        if (key === 'ngdpbase.page.provider.filesystem.requiredpagesdir') {
+          return path.join(testDir, 'required-pages');
+        }
+        return defaultValue;
+      }),
+      getInstanceDataFolder: jest.fn(() => testDir)
     };
 
     engine = {

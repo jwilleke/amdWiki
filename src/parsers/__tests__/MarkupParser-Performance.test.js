@@ -321,11 +321,10 @@ describe('MarkupParser Advanced Caching and Performance', () => {
       expect(slowParsingAlert.message).toContain('exceeds threshold');
     });
 
-    // Skipped: Alert generation mechanism may have changed
-    test.skip('should generate low cache hit ratio alert', async () => {
-      // Simulate low cache hit ratio
-      markupParser.metrics.cacheHits = 2;
-      markupParser.metrics.cacheMisses = 8; // 20% hit ratio
+    test('should generate low cache hit ratio alert', async () => {
+      // Simulate low cache hit ratio — must meet minCacheSamples threshold (default 50)
+      markupParser.metrics.cacheHits = 10;
+      markupParser.metrics.cacheMisses = 40; // 50 total ops, 20% hit ratio
 
       // Force threshold check
       markupParser.performanceMonitor.lastCheck = 0;

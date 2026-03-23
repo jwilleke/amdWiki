@@ -6,8 +6,7 @@
 
 const MarkupParser = require('../MarkupParser');
 
-// Skipped: Output format expectations don't match current implementation
-describe.skip('MarkupParser.extractJSPWikiSyntax()', () => {
+describe('MarkupParser.extractJSPWikiSyntax()', () => {
   let parser;
   let mockEngine;
 
@@ -32,7 +31,7 @@ describe.skip('MarkupParser.extractJSPWikiSyntax()', () => {
       const content = 'User: [{$username}]';
       const { sanitized, jspwikiElements, uuid } = parser.extractJSPWikiSyntax(content);
 
-      expect(sanitized).toMatch(/User: <!--JSPWIKI-[a-f0-9]{8}-0-->/);
+      expect(sanitized).toMatch(/User: <span data-jspwiki-placeholder="[a-f0-9]+-0"><\/span>/);
       expect(jspwikiElements).toHaveLength(1);
       expect(jspwikiElements[0]).toMatchObject({
         type: 'variable',
@@ -76,7 +75,7 @@ describe.skip('MarkupParser.extractJSPWikiSyntax()', () => {
       const content = '[{TableOfContents}]';
       const { sanitized, jspwikiElements } = parser.extractJSPWikiSyntax(content);
 
-      expect(sanitized).toMatch(/<!--JSPWIKI-[a-f0-9]{8}-0-->/);
+      expect(sanitized).toMatch(/<span data-jspwiki-placeholder="[a-f0-9]+-0"><\/span>/);
       expect(jspwikiElements).toHaveLength(1);
       expect(jspwikiElements[0]).toMatchObject({
         type: 'plugin',
@@ -117,7 +116,7 @@ describe.skip('MarkupParser.extractJSPWikiSyntax()', () => {
       const content = 'Example: [[{$username}]';
       const { sanitized, jspwikiElements } = parser.extractJSPWikiSyntax(content);
 
-      expect(sanitized).toMatch(/Example: <!--JSPWIKI-[a-f0-9]{8}-0-->/);
+      expect(sanitized).toMatch(/Example: <span data-jspwiki-placeholder="[a-f0-9]+-0"><\/span>/);
       expect(jspwikiElements).toHaveLength(1);
       expect(jspwikiElements[0]).toMatchObject({
         type: 'escaped',
@@ -151,7 +150,7 @@ describe.skip('MarkupParser.extractJSPWikiSyntax()', () => {
       const content = '[HomePage]';
       const { sanitized, jspwikiElements } = parser.extractJSPWikiSyntax(content);
 
-      expect(sanitized).toMatch(/<!--JSPWIKI-[a-f0-9]{8}-0-->/);
+      expect(sanitized).toMatch(/<span data-jspwiki-placeholder="[a-f0-9]+-0"><\/span>/);
       expect(jspwikiElements).toHaveLength(1);
       expect(jspwikiElements[0]).toMatchObject({
         type: 'link',
@@ -251,7 +250,7 @@ describe.skip('MarkupParser.extractJSPWikiSyntax()', () => {
       const { sanitized, jspwikiElements } = parser.extractJSPWikiSyntax(content);
 
       expect(sanitized).toContain('## Welcome'); // MD preserved
-      expect(sanitized).toMatch(/<!--JSPWIKI-[a-f0-9]{8}-0-->/); // Variable extracted
+      expect(sanitized).toMatch(/<span data-jspwiki-placeholder="[a-f0-9]+-0"><\/span>/); // Variable extracted
       expect(jspwikiElements).toHaveLength(1);
       expect(jspwikiElements[0].type).toBe('variable');
     });
@@ -312,30 +311,29 @@ Example: [[{$var}]
     });
 
     test('UUID prevents placeholder conflicts', () => {
-      // User writes text that looks like a placeholder
+      // User writes text that previously looked like the old comment-style placeholder.
+      // New format uses <span data-jspwiki-placeholder="uuid-n"> so there is no conflict.
       const content = 'Debug: <!--JSPWIKI-0__ and [{$username}]';
       const { sanitized, jspwikiElements, uuid } = parser.extractJSPWikiSyntax(content);
 
-      // User's text preserved (no UUID, so different from our placeholders)
+      // User's literal text is preserved as-is
       expect(sanitized).toContain('<!--JSPWIKI-0__');
 
-      // Variable gets UUID-based placeholder (different from user's text)
-      expect(sanitized).toContain(`<!--JSPWIKI-${uuid}-0-->`);
+      // Variable gets a span-based placeholder (completely different format)
+      expect(sanitized).toContain(`data-jspwiki-placeholder="${uuid}-0"`);
 
-      // Both strings present (user's <!--JSPWIKI-0__ and our <!--JSPWIKI-uuid-0-->)
-      const userPlaceholderCount = (sanitized.match(/<!--JSPWIKI-0__/g) || []).length;
-      const ourPlaceholderCount = (sanitized.match(new RegExp(`<!--JSPWIKI-${uuid}-0-->`, 'g')) || []).length;
-      expect(userPlaceholderCount).toBe(1); // User's text
-      expect(ourPlaceholderCount).toBe(1); // Our placeholder
+      // Verify both are present and distinct
+      expect((sanitized.match(/<!--JSPWIKI-0__/g) || []).length).toBe(1);
+      expect((sanitized.match(new RegExp(`data-jspwiki-placeholder="${uuid}-0"`, 'g')) || []).length).toBe(1);
     });
 
     test('placeholders use correct ID sequence', () => {
       const content = '[{$user}] [{TOC}] [{$page}]';
       const { sanitized, uuid } = parser.extractJSPWikiSyntax(content);
 
-      expect(sanitized).toContain(`<!--JSPWIKI-${uuid}-0-->`);
-      expect(sanitized).toContain(`<!--JSPWIKI-${uuid}-1-->`);
-      expect(sanitized).toContain(`<!--JSPWIKI-${uuid}-2-->`);
+      expect(sanitized).toContain(`data-jspwiki-placeholder="${uuid}-0"`);
+      expect(sanitized).toContain(`data-jspwiki-placeholder="${uuid}-1"`);
+      expect(sanitized).toContain(`data-jspwiki-placeholder="${uuid}-2"`);
     });
   });
 
