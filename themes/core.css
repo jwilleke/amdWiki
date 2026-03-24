@@ -288,17 +288,18 @@ body {
 main[role="main"] {
     min-height: calc(100vh - 56px);
     background-color: var(--bg-primary);
-    transition: margin-left 0.3s ease; /* Smooth transition when sidebar toggles */
 }
 
-/* When sidebar is visible, add margin */
-main[role="main"].col-md-9 {
-    margin-left: 16.66667%; /* Match sidebar width when sidebar is visible */
-}
-
-/* When sidebar is hidden, remove margin */
-main[role="main"].col-12 {
-    margin-left: 0; /* Full width when sidebar is hidden */
+/* Desktop only: sidebar in flex row naturally positions main; no explicit margin needed.
+   This rule only applies when col-md-9 is active (md+ viewport) and sidebar is visible. */
+@media (min-width: 768px) {
+    main[role="main"].col-md-9 {
+        margin-left: 0; /* sidebar is a flex sibling — no margin needed */
+    }
+    /* Full-width when sidebar is hidden (JS removes col-md-9, leaves col-12) */
+    main[role="main"]:not(.col-md-9) {
+        margin-left: 0;
+    }
 }
 
 /* Page content styling */
@@ -389,16 +390,7 @@ main[role="main"].col-12 {
     width: 40%;
 }
 
-/* Responsive adjustments */
-@media (max-width: 768px) {
-    main[role="main"] {
-        margin-left: 0;
-    }
-    
-    .sidebar {
-        display: none;
-    }
-}
+/* Mobile responsive rules moved to @media (max-width: 767.98px) block below */
 
 .sidebar .nav-link {
     color: #333;
@@ -436,10 +428,10 @@ main p, main div, main span, main li {
     color: var(--text-content, #333);
 }
 
-/* Container adjustments */
+/* Container adjustments — do NOT zero the padding here.
+   Bootstrap's .row uses negative margins that require matching padding on the container.
+   Zeroing this causes 12px horizontal overflow and a horizontal scrollbar. */
 .container-fluid {
-    padding-left: 0;
-    padding-right: 0;
     margin-top: 0;
 }
 
@@ -451,19 +443,18 @@ main p, main div, main span, main li {
 
 /* Responsive adjustments */
 @media (max-width: 767.98px) {
+    /* Prevent any overflowing content from creating a horizontal scrollbar */
+    body {
+        overflow-x: hidden;
+    }
+
     .sidebar {
-        display: none !important; /* Hide sidebar on mobile */
+        display: none !important; /* Hide sidebar on mobile — offcanvas handles nav */
     }
-    
+
     main[role="main"] {
-        margin-left: 0; /* No margin on mobile */
-        padding-left: 15px;
-        padding-right: 15px;
-    }
-    
-    .container-fluid {
-        padding-left: 15px;
-        padding-right: 15px;
+        margin-left: 0 !important; /* Override any specificity from col-* margin rules */
+        width: 100% !important;   /* Ensure main fills full row width */
     }
 }
 
