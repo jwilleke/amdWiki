@@ -385,12 +385,9 @@ main[role="main"] {
     background-color: var(--bg-primary);
 }
 
-/* When sidebar is visible on desktop, align main to sidebar edge */
+/* Desktop: when sidebar is hidden, main fills the row via col-12 base class */
 @media (min-width: 768px) {
-    main[role="main"].col-md-9 {
-        margin-left: 16.66667%;
-    }
-    main[role="main"].col-12 {
+    main[role="main"]:not(.col-md-9) {
         margin-left: 0;
     }
 }
@@ -541,20 +538,24 @@ main p, main div, main span, main li {
 
 /* Responsive adjustments */
 @media (max-width: 767.98px) {
+    /* Prevent horizontal scroll from any overflowing content */
+    body {
+        overflow-x: hidden;
+    }
+
     /* Sidebar hidden on mobile — Bootstrap offcanvas handles mobile navigation */
     .sidebar {
         display: none !important;
     }
 
     main[role="main"] {
-        margin-left: 0;
-        padding-left: 15px;
-        padding-right: 15px;
+        margin-left: 0 !important;
+        width: 100% !important;
     }
 
     .container-fluid {
-        padding-left: 15px;
-        padding-right: 15px;
+        padding-left: 12px;
+        padding-right: 12px;
     }
 
     /* Touch targets: minimum 44px for interactive elements (#373) */

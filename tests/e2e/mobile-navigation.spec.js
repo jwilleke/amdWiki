@@ -136,8 +136,8 @@ test.describe('Mobile Navigation', () => {
       await page.goto('/view/Main');
       await page.waitForLoadState('networkidle');
 
-      // The right col-3 with action buttons has d-none d-md-block
-      const actionCol = page.locator('.navigation .col-3.d-none.d-md-block');
+      // The right actions container has d-none d-md-block
+      const actionCol = page.locator('.navigation .flex-shrink-0.d-none.d-md-block');
       await expect(actionCol).toBeHidden();
     });
 
@@ -255,6 +255,32 @@ test.describe('Desktop Navigation', () => {
 
     const trail = page.locator('#trail');
     await expect(trail).toBeVisible();
+  });
+});
+
+test.describe('Mobile layout — main content fills viewport (#375)', () => {
+  test.use({ storageState: './tests/e2e/.auth/user.json' });
+
+  test('main content has no left blank column (fills viewport width)', async ({ page }) => {
+    await page.goto('/view/Main');
+    await page.waitForLoadState('networkidle');
+
+    const viewport = page.viewportSize();
+    const mainBox = await page.locator('main[role="main"]').boundingBox();
+
+    // Main should start at or very near the left edge of the viewport
+    expect(mainBox.x).toBeLessThanOrEqual(16); // allow for minor padding
+    // Main should extend to fill the viewport width (accounting for gutters)
+    expect(mainBox.width).toBeGreaterThanOrEqual(viewport.width * 0.9);
+  });
+
+  test('no horizontal scrollbar on mobile', async ({ page }) => {
+    await page.goto('/view/Main');
+    await page.waitForLoadState('networkidle');
+
+    const scrollWidth = await page.evaluate(() => document.documentElement.scrollWidth);
+    const clientWidth = await page.evaluate(() => document.documentElement.clientWidth);
+    expect(scrollWidth).toBeLessThanOrEqual(clientWidth + 1); // allow 1px rounding
   });
 });
 

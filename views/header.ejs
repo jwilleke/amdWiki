@@ -108,48 +108,47 @@
     <!-- JSPWiki-style navigation -->
     <div class="navigation" role="navigation">
         <div class="container-fluid">
-            <div class="row">
-                <div class="col-3">
-                    <!-- Always show navigation controls -->
-                        <ul class="nav nav-pills float-start">
-                            <!-- Menu toggle button -->
-                            <li class="nav-item" id="menu">
-                                <!-- Desktop: toggle sidebar in document flow -->
-                                <button class="btn btn-outline-secondary btn-sm me-2 d-none d-md-inline-flex" onclick="toggleLeftMenu()" title="Show/Hide Sidebar">
-                                    <i class="fas fa-bars"></i>
-                                </button>
-                                <!-- Mobile: Bootstrap offcanvas -->
-                                <button class="btn btn-outline-secondary btn-sm me-2 d-md-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileNavOffcanvas" aria-controls="mobileNavOffcanvas" title="Show Navigation">
-                                    <i class="fas fa-bars"></i>
-                                </button>
-                            </li>
+            <!-- Flex row: left controls | title fills remaining | right actions desktop-only -->
+            <div class="d-flex align-items-center">
+                <!-- Left: hamburger + trail -->
+                <div class="flex-shrink-0">
+                    <ul class="nav nav-pills mb-0">
+                        <li class="nav-item" id="menu">
+                            <!-- Desktop: toggle sidebar in document flow -->
+                            <button class="btn btn-outline-secondary btn-sm me-2 d-none d-md-inline-flex" onclick="toggleLeftMenu()" title="Show/Hide Sidebar">
+                                <i class="fas fa-bars"></i>
+                            </button>
+                            <!-- Mobile: Bootstrap offcanvas -->
+                            <button class="btn btn-outline-secondary btn-sm me-2 d-md-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileNavOffcanvas" aria-controls="mobileNavOffcanvas" title="Show Navigation">
+                                <i class="fas fa-bars"></i>
+                            </button>
+                        </li>
                     <% if (typeof pageName !== 'undefined' && pageName) { %>
-                            <!-- Breadcrumb trail dropdown -->
-                            <li class="nav-item dropdown d-none d-md-block" id="trail">
-                                <button class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" title="Navigation Trail">
-                                    Trail
-                                </button>
-                                <ul class="dropdown-menu" data-hover-parent="li" id="breadcrumbTrail">
-                                    <!-- Breadcrumbs will be populated by JavaScript -->
-                                    <li><span class="dropdown-item-text text-muted">No trail available</span></li>
-                                </ul>
-                            </li>
-                    <% } else { %>
-                            <!-- Placeholder for pages without trail -->
+                        <!-- Breadcrumb trail dropdown (desktop only) -->
+                        <li class="nav-item dropdown d-none d-md-block" id="trail">
+                            <button class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" title="Navigation Trail">
+                                Trail
+                            </button>
+                            <ul class="dropdown-menu" data-hover-parent="li" id="breadcrumbTrail">
+                                <!-- Breadcrumbs will be populated by JavaScript -->
+                                <li><span class="dropdown-item-text text-muted">No trail available</span></li>
                             </ul>
+                        </li>
+                    <% } %>
+                    </ul>
+                </div>
+
+                <!-- Center: page title — flex-grow fills all remaining space -->
+                <div class="flex-grow-1 text-center navigation-title px-2">
+                    <% if (typeof title !== 'undefined' && title) { %>
+                        <h5 class="mb-0 text-truncate"><%= title %></h5>
+                    <% } else if (typeof pageName !== 'undefined' && pageName) { %>
+                        <h5 class="mb-0 text-truncate"><%= pageName %></h5>
                     <% } %>
                 </div>
-                <div class="col-6">
-                    <!-- Navigation Title -->
-                    <div class="navigation-title text-center">
-                        <% if (typeof title !== 'undefined' && title) { %>
-                            <h5 class="mb-0 text-truncate"><%= title %></h5>
-                        <% } else if (typeof pageName !== 'undefined' && pageName) { %>
-                            <h5 class="mb-0 text-truncate"><%= pageName %></h5>
-                        <% } %>
-                    </div>
-                </div>
-                <div class="col-3 d-none d-md-block">
+
+                <!-- Right: action buttons — desktop only -->
+                <div class="flex-shrink-0 d-none d-md-block">
                     <div class="btn-group float-end" role="group">
                         <!-- Edit Page Actions (only show in edit mode) -->
                         <% if (typeof title !== 'undefined' && title && title.startsWith('Edit ')) { %>
@@ -315,7 +314,7 @@
                 </div>
             </nav>
 
-            <main role="main" class="col-md-9 ms-sm-auto col-lg-10 px-4 jspwiki-content main-content">
+            <main role="main" class="col-12 col-md-9 col-lg-10 px-md-4 px-2 jspwiki-content main-content">
 
 <script>
     /**
@@ -1324,15 +1323,15 @@ function toggleLeftMenu() {
     if (isHidden) {
         sidebar.style.display = '';
         if (mainContent) {
-            mainContent.classList.remove('col-12');
-            mainContent.classList.add('col-md-9', 'ms-sm-auto', 'col-lg-10');
+            // Restore responsive column classes — col-12 base stays, col-md-9 overrides at md+
+            mainContent.classList.add('col-md-9', 'col-lg-10');
         }
         localStorage.setItem('leftMenuVisible', 'true');
     } else {
         sidebar.style.display = 'none';
         if (mainContent) {
-            mainContent.classList.remove('col-md-9', 'ms-sm-auto', 'col-lg-10');
-            mainContent.classList.add('col-12');
+            // Remove responsive overrides — col-12 base gives 100% width
+            mainContent.classList.remove('col-md-9', 'col-lg-10');
         }
         localStorage.setItem('leftMenuVisible', 'false');
     }
@@ -1356,8 +1355,8 @@ function initializeLeftMenuState() {
             var mainContent = document.querySelector('main');
             if (sidebar) sidebar.style.display = 'none';
             if (mainContent) {
-                mainContent.classList.remove('col-md-9', 'ms-sm-auto', 'col-lg-10');
-                mainContent.classList.add('col-12');
+                // col-12 is the base class — just remove responsive overrides
+                mainContent.classList.remove('col-md-9', 'col-lg-10');
             }
         }
     }
