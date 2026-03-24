@@ -24,6 +24,23 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-03-24-13
+
+- Agent: Claude Sonnet 4.6
+- Subject: fix: replace --btn-* CSS vars and bg-light across all views
+- Key Decision: `--btn-*` CSS variables were never defined anywhere — every button using them rendered with no color/border. Swept all 33 affected EJS views with a Python script to replace inline styles with Bootstrap semantic classes. Also replaced `bg-light` (breaks dark mode) with `bg-body-secondary` (Bootstrap 5.3 dark-mode adaptive) across media and admin views.
+- Current Issue: general theme/dark mode cleanup
+- Testing:
+  - Unit tests: 86 suites, 2227 tests passed
+- Work Done:
+  - 92 `--btn-*` inline style replacements across 33 views (btn-primary, btn-secondary, btn-outline-*)
+  - 15 `bg-light` → `bg-body-secondary` or removal across media-*.ejs, admin-*.ejs, maintenance.ejs
+- Commits: 82638f1
+- Files Modified:
+  - views/*.ejs (33 files)
+
+---
+
 ## 2026-03-24-12
 
 - Agent: Claude Sonnet 4.6
