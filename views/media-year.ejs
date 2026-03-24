@@ -6,10 +6,10 @@
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h1><i class="fas fa-calendar-alt"></i> Media — <%= year %></h1>
                 <div>
-                    <a href="/media/search" class="btn btn-sm me-2" style="background-color: var(--btn-secondary-bg); color: var(--btn-secondary-text); border-color: var(--btn-secondary-border);">
+                    <a href="/media/search" class="btn btn-sm me-2 btn-secondary">
                         <i class="fas fa-search"></i> Search
                     </a>
-                    <a href="/media" class="btn btn-sm" style="background-color: var(--btn-secondary-bg); color: var(--btn-secondary-text); border-color: var(--btn-secondary-border);">
+                    <a href="/media" class="btn btn-sm btn-secondary">
                         <i class="fas fa-arrow-left"></i> All Years
                     </a>
                 </div>
@@ -50,11 +50,11 @@
                                             loading="lazy"
                                             onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"
                                         >
-                                        <div class="d-none align-items-center justify-content-center bg-light" style="height:160px;">
+                                        <div class="d-none align-items-center justify-content-center bg-body-secondary" style="height:160px;">
                                             <i class="fas fa-image fa-3x text-muted"></i>
                                         </div>
                                     <% } else { %>
-                                        <div class="d-flex align-items-center justify-content-center bg-light" style="height:160px;">
+                                        <div class="d-flex align-items-center justify-content-center bg-body-secondary" style="height:160px;">
                                             <i class="fas fa-film fa-3x text-muted"></i>
                                         </div>
                                     <% } %>

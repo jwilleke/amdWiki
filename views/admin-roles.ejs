@@ -51,11 +51,11 @@
                                 </div>
 
                                 <div class="d-flex justify-content-between">
-                                    <button type="submit" class="btn" style="background-color: var(--btn-primary-bg); color: var(--btn-primary-text); border-color: var(--btn-primary-border);">
+                                    <button type="submit" class="btn btn-primary">
                                         <i class="fas fa-save"></i> Update Role
                                     </button>
                                     <% if (!role.issystem) { %>
-                                    <button type="button" class="btn btn-sm" style="background-color: var(--btn-outline-danger-bg); color: var(--btn-outline-danger-text); border-color: var(--btn-outline-danger-border);" 
+                                    <button type="button" class="btn btn-sm btn-outline-danger" 
                                             onclick="deleteRole('<%= role.name %>')">
                                         <i class="fas fa-trash"></i> Delete
                                     </button>

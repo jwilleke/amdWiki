@@ -22,7 +22,7 @@
                     <h1><i class="fas fa-external-link-alt"></i> InterWiki Management</h1>
                     <p class="lead">Manage InterWiki sites and link parsing options</p>
                 </div>
-                <a href="/admin" class="btn" style="background-color: var(--btn-secondary-bg); color: var(--btn-secondary-text); border-color: var(--btn-secondary-border);">
+                <a href="/admin" class="btn btn-secondary">
                     <i class="fas fa-arrow-left"></i> Back to Dashboard
                 </a>
             </div>
@@ -122,7 +122,7 @@
                                                     </form>
                                                 </td>
                                                 <td colspan="7" class="edit-mode p-0" style="display:none;">
-                                                    <form method="POST" action="/admin/interwiki/sites" class="p-2 bg-light border-top">
+                                                    <form method="POST" action="/admin/interwiki/sites" class="p-2 bg-body-secondary border-top">
                                                         <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                                                         <input type="hidden" name="originalName" value="<%= name %>">
                                                         <div class="row g-2 align-items-end">

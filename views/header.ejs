@@ -82,7 +82,7 @@
                 <form class="d-flex mx-auto" action="/search" method="GET" style="max-width: 400px; width: 100%;">
                     <div class="input-group">
                         <input class="form-control" type="search" id="headerSearchInput" placeholder="Search pages..." aria-label="Search" name="q">
-                        <button class="btn" style="background-color: var(--btn-primary-bg); color: var(--btn-primary-text); border-color: var(--btn-primary-border);" type="submit">
+                        <button class="btn btn-primary" type="submit">
                             <i class="fas fa-search"></i>
                         </button>
                     </div>
@@ -213,7 +213,7 @@
                         <!-- Edit Button -->
                         <% if (typeof pageName !== 'undefined' && pageName && typeof canEdit !== 'undefined' && canEdit) { %>
                             <div class="btn-group me-2" role="group">
-                                <a href="/edit/<%= encodeURIComponent(pageName) %>" class="btn btn-sm" style="background-color: var(--btn-outline-primary-bg); color: var(--btn-outline-primary-text); border-color: var(--btn-outline-primary-border);">
+                                <a href="/edit/<%= encodeURIComponent(pageName) %>" class="btn btn-sm btn-outline-primary">
                                     <i class="fas fa-edit"></i> Edit
                                 </a>
                             </div>
@@ -546,7 +546,7 @@
                                 <p class="mt-2">Loading page information...</p>
                             </div>
                             <div class="modal-footer">
-                                <button type="button" class="btn" style="background-color: var(--btn-secondary-bg); color: var(--btn-secondary-text); border-color: var(--btn-secondary-border);" data-bs-dismiss="modal">Close</button>
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                             </div>
                         </div>
                     </div>
@@ -572,7 +572,7 @@
                                 </div>
                             </div>
                             <div class="modal-footer">
-                                <button type="button" class="btn" style="background-color: var(--btn-secondary-bg); color: var(--btn-secondary-text); border-color: var(--btn-secondary-border);" data-bs-dismiss="modal">Close</button>
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                             </div>
                         </div>
                     </div>
@@ -696,7 +696,7 @@
                             <button type="button" class="btn btn-outline-primary btn-sm" onclick="copyPageInfo()">
                                 <i class="fas fa-copy"></i> Copy Information
                             </button>
-                            <button type="button" class="btn" style="background-color: var(--btn-secondary-bg); color: var(--btn-secondary-text); border-color: var(--btn-secondary-border);" data-bs-dismiss="modal">Close</button>
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                         </div>
                     </div>
                 </div>
@@ -1026,14 +1026,14 @@
                         </div>
                         <div class="modal-body">
                             <div class="mb-3">
-                                <button id="copyButton" class="btn btn-sm" style="background-color: var(--btn-outline-primary-bg); color: var(--btn-outline-primary-text); border-color: var(--btn-outline-primary-border);">
+                                <button id="copyButton" class="btn btn-sm btn-outline-primary">
                                     <i class="fas fa-copy"></i> Copy to Clipboard
                                 </button>
                             </div>
                             <pre id="sourceContent" class="p-3 border rounded" style="max-height: 500px; overflow-y: auto; white-space: pre-wrap; background-color: var(--code-bg); color: var(--style="color: var(--text-primary);");">${escapeHtml(sourceContent)}</pre>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn" style="background-color: var(--btn-secondary-bg); color: var(--btn-secondary-text); border-color: var(--btn-secondary-border);" data-bs-dismiss="modal">Close</button>
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                         </div>
                     </div>
                 </div>
@@ -1121,7 +1121,7 @@
                                 <p class="text-muted">This may happen in some browsers due to security restrictions.</p>
                             </div>
                             <div class="modal-footer">
-                                <button type="button" class="btn" style="background-color: var(--btn-secondary-bg); color: var(--btn-secondary-text); border-color: var(--btn-secondary-border);" data-bs-dismiss="modal">Close</button>
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                             </div>
                         </div>
                     </div>

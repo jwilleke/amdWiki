@@ -13,17 +13,17 @@
                 <h1><i class="fas <%= item.mimeType && item.mimeType.startsWith('video/') ? 'fa-film' : 'fa-image' %>"></i> <%= (item.metadata && item.metadata.caption) ? item.metadata.caption : item.filename %></h1>
                 <div>
                     <% if (item.year) { %>
-                        <a href="/media/year/<%= item.year %>" class="btn btn-sm me-2" style="background-color: var(--btn-secondary-bg); color: var(--btn-secondary-text); border-color: var(--btn-secondary-border);">
+                        <a href="/media/year/<%= item.year %>" class="btn btn-sm me-2 btn-secondary">
                             <i class="fas fa-calendar-alt"></i> <%= item.year %>
                         </a>
                     <% } %>
                     <% if (albumKeyword) { %>
                         <% const backSuffix = sortParam ? '?' + sortParam : ''; %>
-                        <a href="/media/keyword/<%= encodeURIComponent(albumKeyword) %><%= backSuffix %>" class="btn btn-sm" style="background-color: var(--btn-secondary-bg); color: var(--btn-secondary-text); border-color: var(--btn-secondary-border);">
+                        <a href="/media/keyword/<%= encodeURIComponent(albumKeyword) %><%= backSuffix %>" class="btn btn-sm btn-secondary">
                             <i class="fas fa-arrow-left"></i> <%= albumKeyword %>
                         </a>
                     <% } else { %>
-                        <a href="/media" class="btn btn-sm" style="background-color: var(--btn-secondary-bg); color: var(--btn-secondary-text); border-color: var(--btn-secondary-border);">
+                        <a href="/media" class="btn btn-sm btn-secondary">
                             <i class="fas fa-arrow-left"></i> Media
                         </a>
                     <% } %>
@@ -50,7 +50,7 @@
                             Your browser does not support the video tag.
                         </video>
                     <% } else { %>
-                        <div class="d-flex align-items-center justify-content-center bg-light rounded" style="min-height:300px;">
+                        <div class="d-flex align-items-center justify-content-center bg-body-secondary rounded" style="min-height:300px;">
                             <div class="text-center text-muted">
                                 <i class="fas fa-file fa-5x mb-3"></i>
                                 <p><%= item.filename %></p>
@@ -61,14 +61,14 @@
                     <% if (prevItem || nextItem) { %>
                     <div class="d-flex justify-content-between mt-2">
                         <% if (prevItem) { %>
-                            <a href="/media/item/<%= prevItem.id %><%= navSuffix %>" class="btn btn-sm" style="background-color: var(--btn-secondary-bg); color: var(--btn-secondary-text); border-color: var(--btn-secondary-border);" title="<%= prevItem.filename %>">
+                            <a href="/media/item/<%= prevItem.id %><%= navSuffix %>" class="btn btn-sm btn-secondary" title="<%= prevItem.filename %>">
                                 &laquo; Prev
                             </a>
                         <% } else { %>
                             <span></span>
                         <% } %>
                         <% if (nextItem) { %>
-                            <a href="/media/item/<%= nextItem.id %><%= navSuffix %>" class="btn btn-sm" style="background-color: var(--btn-secondary-bg); color: var(--btn-secondary-text); border-color: var(--btn-secondary-border);" title="<%= nextItem.filename %>">
+                            <a href="/media/item/<%= nextItem.id %><%= navSuffix %>" class="btn btn-sm btn-secondary" title="<%= nextItem.filename %>">
                                 Next &raquo;
                             </a>
                         <% } %>
@@ -152,8 +152,7 @@
 
                     <!-- Media Information (collapsible) -->
                     <div class="mt-3">
-                        <button class="btn btn-sm w-100 text-start"
-                                style="background-color: var(--btn-secondary-bg); color: var(--btn-secondary-text); border-color: var(--btn-secondary-border);"
+                        <button class="btn btn-sm w-100 text-start btn-secondary"
                                 type="button"
                                 data-bs-toggle="collapse"
                                 data-bs-target="#mediaInfoPanel"

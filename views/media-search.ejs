@@ -5,7 +5,7 @@
         <div class="col-12">
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h1><i class="fas fa-search"></i> Media Search</h1>
-                <a href="/media" class="btn btn-sm" style="background-color: var(--btn-secondary-bg); color: var(--btn-secondary-text); border-color: var(--btn-secondary-border);">
+                <a href="/media" class="btn btn-sm btn-secondary">
                     <i class="fas fa-arrow-left"></i> Browse
                 </a>
             </div>
@@ -23,7 +23,7 @@
                         placeholder="Search by filename, event, year, title, description, keywords…"
                         autofocus
                     >
-                    <button class="btn" type="submit" style="background-color: var(--btn-primary-bg); color: var(--btn-primary-text); border-color: var(--btn-primary-border);">
+                    <button class="btn btn-primary" type="submit">
                         <i class="fas fa-search"></i> Search
                     </button>
                 </div>
@@ -74,11 +74,11 @@
                                             loading="lazy"
                                             onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"
                                         >
-                                        <div class="d-none align-items-center justify-content-center bg-light" style="height:140px;">
+                                        <div class="d-none align-items-center justify-content-center bg-body-secondary" style="height:140px;">
                                             <i class="fas fa-image fa-3x text-muted"></i>
                                         </div>
                                     <% } else { %>
-                                        <div class="d-flex align-items-center justify-content-center bg-light" style="height:140px;">
+                                        <div class="d-flex align-items-center justify-content-center bg-body-secondary" style="height:140px;">
                                             <i class="fas fa-film fa-3x text-muted"></i>
                                         </div>
                                     <% } %>

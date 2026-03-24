@@ -35,18 +35,18 @@
             <div class="alert alert-warning">
               <strong>Access Denied:</strong> You need to be logged in with appropriate permissions to access this page.
             </div>
-            <a href="/login?redirect=<%= encodeURIComponent(originalUrl || '/') %>" class="btn" style="background-color: var(--btn-primary-bg); color: var(--btn-primary-text); border-color: var(--btn-primary-border);">
+            <a href="/login?redirect=<%= encodeURIComponent(originalUrl || '/') %>" class="btn btn-primary">
               <i class="fas fa-sign-in-alt"></i> Login
             </a>
           <% } else if (error.status === 404) { %>
             <div class="alert alert-info">
               <strong>Not Found:</strong> The page you're looking for doesn't exist.
             </div>
-            <a href="/" class="btn" style="background-color: var(--btn-primary-bg); color: var(--btn-primary-text); border-color: var(--btn-primary-border);">
+            <a href="/" class="btn btn-primary">
               <i class="fas fa-home"></i> Go Home
             </a>
           <% } else { %>
-            <a href="/" class="btn" style="background-color: var(--btn-primary-bg); color: var(--btn-primary-text); border-color: var(--btn-primary-border);">
+            <a href="/" class="btn btn-primary">
               <i class="fas fa-home"></i> Go Home
             </a>
           <% } %>
