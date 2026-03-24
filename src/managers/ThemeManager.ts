@@ -66,13 +66,23 @@ export class ThemeManager {
     return {
       activeTheme: t,
       coreCssPath: '/themes/core.css',
-      variablesCssPath: `/themes/${t}/css/variables.css`,
+      variablesCssPath: this.resolveVariablesCssPath(t),
       logoPath: this.resolveLogoPath(assetsDir, t),
       faviconPath: `/themes/${t}/assets/favicon.png`,
       locationCssPath: '/themes/plugins/location.css',
       themeInfo,
       fontUrls: Array.isArray(themeInfo?.fonts) ? themeInfo.fonts : []
     };
+  }
+
+  /** Resolve variables.css path — falls back to empty placeholder if theme has no custom vars */
+  private resolveVariablesCssPath(t: string): string {
+    const themeVars = path.join(this.themesDir, t, 'css', 'variables.css');
+    if (fs.existsSync(themeVars)) {
+      return `/themes/${t}/css/variables.css`;
+    }
+    // No theme-specific variables — core.css generic Bootstrap mappings are sufficient
+    return '/themes/core-variables-empty.css';
   }
 
   /** Resolve logo path: prefer logo.svg → logo.png → favicon.svg → favicon.png */

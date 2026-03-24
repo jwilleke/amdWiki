@@ -1,10 +1,44 @@
 /* =============================================================
    Core structural CSS — shared across all themes.
    Theme-specific CSS custom properties live in
-   themes/<theme-name>/css/variables.css
+   themes/<theme-name>/css/variables.css (optional overrides).
    ============================================================= */
 
-/* Base theme application - GitHub-inspired */
+/* --- Bootstrap → semantic var bridge ----------------------------
+   Maps Bootstrap 5.3 native vars to our semantic vars so that ANY
+   Bootstrap/Bootswatch theme works out of the box without a custom
+   variables.css. Theme files only need to override what they want
+   to customise (e.g. volcanic palette, explicit dark mode values).
+   ---------------------------------------------------------------- */
+:root {
+  --bg-primary:      var(--bs-body-bg,         #ffffff);
+  --bg-secondary:    var(--bs-secondary-bg,    #f8f9fa);
+  --bg-tertiary:     var(--bs-tertiary-bg,     #e9ecef);
+  --text-primary:    var(--bs-body-color,      #212529);
+  --text-secondary:  var(--bs-secondary-color, #6c757d);
+  --text-muted:      var(--bs-tertiary-color,  #adb5bd);
+  --text-heading:    var(--bs-heading-color,   inherit);
+  --text-content:    var(--bs-body-color,      #212529);
+  --border-color:    var(--bs-border-color,    #dee2e6);
+  --link-color:      var(--bs-link-color,      #0d6efd);
+  --link-hover:      var(--bs-link-hover-color,#0a58ca);
+  --card-bg:         var(--bs-body-bg,         #ffffff);
+  --card-border:     var(--bs-border-color,    #dee2e6);
+  --input-bg:        var(--bs-body-bg,         #ffffff);
+  --code-bg:         var(--bs-tertiary-bg,     #f8f9fa);
+  /* Vars not in Bootstrap — sensible defaults */
+  --border-color-strong: #adb5bd;
+  --navbar-bg:           var(--bs-secondary-bg, #f8f9fa);
+  --navbar-border:       var(--bs-border-color, #dee2e6);
+  --navbar-text:         var(--bs-body-color,   #212529);
+  --navbar-text-hover:   var(--bs-link-color,   #0d6efd);
+  --input-border:        var(--bs-border-color, #ced4da);
+  --button-primary-bg:   var(--bs-primary,      #0d6efd);
+  --button-primary-hover: var(--bs-primary,     #0a58ca);
+  --code-border:         var(--bs-border-color, #e9ecef);
+}
+
+/* Base theme application */
 body {
   background-color: var(--bg-primary);
   color: var(--text-primary);
