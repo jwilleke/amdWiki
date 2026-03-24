@@ -119,7 +119,12 @@
                         <ul class="nav nav-pills float-start">
                             <!-- Menu toggle button -->
                             <li class="nav-item" id="menu">
-                                <button class="btn btn-outline-secondary btn-sm me-2" onclick="toggleLeftMenu()" title="Show/Hide Sidebar">
+                                <!-- Desktop: toggle sidebar in document flow -->
+                                <button class="btn btn-outline-secondary btn-sm me-2 d-none d-md-inline-flex" onclick="toggleLeftMenu()" title="Show/Hide Sidebar">
+                                    <i class="fas fa-bars"></i>
+                                </button>
+                                <!-- Mobile: Bootstrap offcanvas -->
+                                <button class="btn btn-outline-secondary btn-sm me-2 d-md-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileNavOffcanvas" aria-controls="mobileNavOffcanvas" title="Show Navigation">
                                     <i class="fas fa-bars"></i>
                                 </button>
                             </li>
@@ -232,9 +237,20 @@
         </div>
     </div>
 
+    <!-- Mobile navigation offcanvas (Bootstrap 5) -->
+    <div class="offcanvas offcanvas-start" tabindex="-1" id="mobileNavOffcanvas" aria-labelledby="mobileNavOffcanvasLabel">
+        <div class="offcanvas-header">
+            <h5 class="offcanvas-title" id="mobileNavOffcanvasLabel">Navigation</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body" id="mobile-nav-body">
+            <!-- Populated from sidebar content by JS on DOMContentLoaded -->
+        </div>
+    </div>
+
     <div class="container-fluid">
         <div class="row">
-            <nav class="col-md-2 d-none d-md-block sidebar jspwiki-sidebar">
+            <nav class="col-md-2 sidebar jspwiki-sidebar">
                 <div class="sidebar-sticky px-3 pt-3">
                     <% if (typeof leftMenu !== 'undefined' && leftMenu) { %>
                         <div class="leftmenu-content">
@@ -1263,25 +1279,23 @@ document.addEventListener('DOMContentLoaded', () => {
     initializeTrail();
 });
 
-// Left menu and trail functionality
+// Left menu toggle (desktop only — mobile uses Bootstrap offcanvas via data-bs-toggle)
 function toggleLeftMenu() {
     var sidebar = document.querySelector('.sidebar');
     var mainContent = document.querySelector('main');
     if (!sidebar) return;
 
-    // Use computed style as ground truth — inline style beats all CSS !important rules
-    var isHidden = window.getComputedStyle(sidebar).display === 'none';
-
+    var isHidden = sidebar.style.display === 'none';
     if (isHidden) {
-        sidebar.style.display = 'block';
-        if (mainContent && window.innerWidth >= 768) {
+        sidebar.style.display = '';
+        if (mainContent) {
             mainContent.classList.remove('col-12');
             mainContent.classList.add('col-md-9', 'ms-sm-auto', 'col-lg-10');
         }
         localStorage.setItem('leftMenuVisible', 'true');
     } else {
         sidebar.style.display = 'none';
-        if (mainContent && window.innerWidth >= 768) {
+        if (mainContent) {
             mainContent.classList.remove('col-md-9', 'ms-sm-auto', 'col-lg-10');
             mainContent.classList.add('col-12');
         }
@@ -1290,25 +1304,28 @@ function toggleLeftMenu() {
 }
 
 // Initialize left menu state from localStorage
+// Populate mobile offcanvas with sidebar content, then apply desktop preference
 function initializeLeftMenuState() {
-    var isVisible = localStorage.getItem('leftMenuVisible');
-    var sidebar = document.querySelector('.jspwiki-sidebar');
-    var mainContent = document.querySelector('main');
+    // Copy sidebar content into offcanvas for mobile use
+    var sidebarBody = document.querySelector('.sidebar .sidebar-sticky');
+    var offcanvasBody = document.getElementById('mobile-nav-body');
+    if (sidebarBody && offcanvasBody) {
+        offcanvasBody.innerHTML = sidebarBody.innerHTML;
+    }
 
-    if (isVisible === 'true') {
-        if (sidebar) sidebar.style.display = 'block';
-        if (mainContent && window.innerWidth >= 768) {
-            mainContent.classList.remove('col-12');
-            mainContent.classList.add('col-md-9', 'ms-sm-auto', 'col-lg-10');
-        }
-    } else if (isVisible === 'false') {
-        if (sidebar) sidebar.style.display = 'none';
-        if (mainContent && window.innerWidth >= 768) {
-            mainContent.classList.remove('col-md-9', 'ms-sm-auto', 'col-lg-10');
-            mainContent.classList.add('col-12');
+    // Desktop: restore saved preference (sidebar visible by default)
+    if (window.innerWidth >= 768) {
+        var isVisible = localStorage.getItem('leftMenuVisible');
+        if (isVisible === 'false') {
+            var sidebar = document.querySelector('.sidebar');
+            var mainContent = document.querySelector('main');
+            if (sidebar) sidebar.style.display = 'none';
+            if (mainContent) {
+                mainContent.classList.remove('col-md-9', 'ms-sm-auto', 'col-lg-10');
+                mainContent.classList.add('col-12');
+            }
         }
     }
-    // No preference stored: CSS default handles it (sidebar visible on desktop, hidden on mobile)
 }
 
 // Breadcrumb trail management

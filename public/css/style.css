@@ -383,17 +383,16 @@ body {
 main[role="main"] {
     min-height: calc(100vh - 56px);
     background-color: var(--bg-primary);
-    transition: margin-left 0.3s ease; /* Smooth transition when sidebar toggles */
 }
 
-/* When sidebar is visible, add margin */
-main[role="main"].col-md-9 {
-    margin-left: 16.66667%; /* Match sidebar width when sidebar is visible */
-}
-
-/* When sidebar is hidden, remove margin */
-main[role="main"].col-12 {
-    margin-left: 0; /* Full width when sidebar is hidden */
+/* When sidebar is visible on desktop, align main to sidebar edge */
+@media (min-width: 768px) {
+    main[role="main"].col-md-9 {
+        margin-left: 16.66667%;
+    }
+    main[role="main"].col-12 {
+        margin-left: 0;
+    }
 }
 
 /* Page content styling */
@@ -542,20 +541,17 @@ main p, main div, main span, main li {
 
 /* Responsive adjustments */
 @media (max-width: 767.98px) {
+    /* Sidebar hidden on mobile — Bootstrap offcanvas handles mobile navigation */
     .sidebar {
-        display: none; /* Bootstrap d-none / d-block utilities override this */
+        display: none !important;
     }
-    .sidebar.sidebar-mobile-open {
-        display: block; /* toggled by JS; Bootstrap utilities can still override */
-        width: 100%;
-    }
-    
+
     main[role="main"] {
-        margin-left: 0; /* No margin on mobile */
+        margin-left: 0;
         padding-left: 15px;
         padding-right: 15px;
     }
-    
+
     .container-fluid {
         padding-left: 15px;
         padding-right: 15px;
