@@ -114,13 +114,14 @@
                                                 </div>
                                                 
                                                 <div class="form-group mb-3">
-                                                    <label for="editorTheme" class="form-label"><strong>Editor Theme</strong></label>
+                                                    <label for="editorTheme" class="form-label"><strong>Code Editor Style</strong></label>
                                                     <select class="form-control" id="editorTheme" name="editor.theme">
                                                         <option value="default" <%= (user.preferences && user.preferences['editor.theme'] === 'default') ? 'selected' : '' %>>Default</option>
                                                         <option value="dark" <%= (user.preferences && user.preferences['editor.theme'] === 'dark') ? 'selected' : '' %>>Dark</option>
                                                         <option value="monokai" <%= (user.preferences && user.preferences['editor.theme'] === 'monokai') ? 'selected' : '' %>>Monokai</option>
                                                         <option value="solarized" <%= (user.preferences && user.preferences['editor.theme'] === 'solarized') ? 'selected' : '' %>>Solarized</option>
                                                     </select>
+                                                    <small class="form-text text-muted">Color style for the page editor textarea only — separate from the site light/dark mode</small>
                                                 </div>
                                             </div>
                                             
@@ -260,13 +261,13 @@
                                                 </div>
                                                 
                                                 <div class="form-group mb-3">
-                                                    <label for="siteTheme" class="form-label"><strong>Site Theme</strong></label>
+                                                    <label for="siteTheme" class="form-label"><strong>Light / Dark Mode</strong></label>
                                                     <select class="form-control" id="siteTheme" name="display.theme">
                                                         <option value="system" <%= (user.preferences && user.preferences['display.theme'] === 'system') ? 'selected' : '' %>>System Preference</option>
                                                         <option value="light" <%= (user.preferences && user.preferences['display.theme'] === 'light') ? 'selected' : '' %>>Light</option>
                                                         <option value="dark" <%= (user.preferences && user.preferences['display.theme'] === 'dark') ? 'selected' : '' %>>Dark</option>
                                                     </select>
-                                                    <small class="form-text text-muted">Choose your preferred site theme</small>
+                                                    <small class="form-text text-muted">Also controlled by the <i class="fas fa-adjust"></i> icon in the top navigation bar</small>
                                                 </div>
                                             </div>
                                         </div>

@@ -408,8 +408,8 @@ main[role="main"] {
 }
 
 .btn-outline-primary:hover {
-    background-color: #007bff;
-    border-color: #007bff;
+    background-color: var(--link-color);
+    border-color: var(--link-color);
 }
 
 /* System info table styling */
@@ -427,7 +427,7 @@ main[role="main"] {
 /* Mobile responsive rules moved to @media (max-width: 767.98px) block below */
 
 .sidebar .nav-link {
-    color: #333;
+    color: var(--text-secondary);
     padding: 0.5rem 1rem;
     border-radius: 4px;
     margin: 0.25rem 0.5rem;
@@ -435,8 +435,8 @@ main[role="main"] {
 }
 
 .sidebar .nav-link:hover {
-    background-color: #007bff;
-    color: white;
+    background-color: var(--link-color);
+    color: var(--navbar-text, #fff);
     text-decoration: none;
 }
 
@@ -848,8 +848,8 @@ main p, main div, main span, main li {
 
 /* Active navigation link styling */
 .navigation .nav-link.active {
-    background-color: #007bff;
-    color: white;
+    background-color: var(--link-color);
+    color: var(--navbar-text, #fff);
     border-radius: 0.25rem;
 }
 

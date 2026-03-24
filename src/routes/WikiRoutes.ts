@@ -3334,6 +3334,31 @@ class WikiRoutes {
   }
 
   /**
+   * AJAX endpoint — update only display.theme preference.
+   * Used by the navbar light/dark toggle so it persists server-side
+   * without resetting other preferences (POST /preferences resets all).
+   */
+  async updateDisplayTheme(req: Request, res: Response) {
+    try {
+      const currentUser = req.userContext;
+      if (!currentUser || !currentUser.isAuthenticated) {
+        return res.status(401).json({ error: 'Not authenticated' });
+      }
+      const theme = req.body?.theme;
+      if (!['light', 'dark', 'system'].includes(theme)) {
+        return res.status(400).json({ error: 'Invalid theme value' });
+      }
+      const userManager = this.engine.getManager('UserManager');
+      const prefs = { ...(currentUser.preferences || {}), 'display.theme': theme };
+      await userManager.updateUser(currentUser.username, { preferences: prefs });
+      return res.json({ ok: true });
+    } catch (err: unknown) {
+      logger.error('Error updating display theme:', err);
+      return res.status(500).json({ error: 'Failed to save theme' });
+    }
+  }
+
+  /**
    * Admin dashboard
    */
   async adminDashboard(req: Request, res: Response) {
@@ -6426,6 +6451,7 @@ class WikiRoutes {
     app.get('/profile', (req: Request, res: Response) => this.profilePage(req, res));
     app.post('/profile', (req: Request, res: Response) => this.updateProfile(req, res));
     app.post('/preferences', (req: Request, res: Response) => this.updatePreferences(req, res));
+    app.post('/api/user/display-theme', (req: Request, res: Response) => this.updateDisplayTheme(req, res));
     app.get('/user-info', (req: Request, res: Response) => this.userInfo(req, res));
     app.get('/export', (req: Request, res: Response) => this.exportPage(req, res));
     app.post('/export/html/:page', (req: Request, res: Response) => this.exportPageHtml(req, res));

@@ -13,9 +13,9 @@
     <% themeFontUrls.forEach(function(url) { %><link rel="stylesheet" href="<%= url %>">
     <% }); %><% } %>
     <!-- Theme: variables must load before core so selectors can resolve them -->
-    <link rel="stylesheet" href="<%= typeof variablesCssPath !== 'undefined' ? variablesCssPath : '/themes/default/css/variables.css' %>?v=3.0.4">
-    <link rel="stylesheet" href="<%= typeof coreCssPath !== 'undefined' ? coreCssPath : '/themes/core.css' %>?v=3.0.4">
-    <link rel="stylesheet" href="<%= typeof locationCssPath !== 'undefined' ? locationCssPath : '/themes/plugins/location.css' %>?v=3.0.4">
+    <link rel="stylesheet" href="<%= typeof variablesCssPath !== 'undefined' ? variablesCssPath : '/themes/default/css/variables.css' %>?v=3.0.5">
+    <link rel="stylesheet" href="<%= typeof coreCssPath !== 'undefined' ? coreCssPath : '/themes/core.css' %>?v=3.0.5">
+    <link rel="stylesheet" href="<%= typeof locationCssPath !== 'undefined' ? locationCssPath : '/themes/plugins/location.css' %>?v=3.0.5">
     <!-- Add-on stylesheets (registered via AddonsManager.registerStylesheet()) -->
     <% if (typeof addonStylesheets !== 'undefined' && addonStylesheets && addonStylesheets.length) { %>
     <% addonStylesheets.forEach(function(url) { %><link rel="stylesheet" href="<%= url %>">
@@ -47,14 +47,30 @@
                 <img src="<%= typeof logoPath !== 'undefined' ? logoPath : (typeof faviconPath !== 'undefined' ? faviconPath : '/favicon.ico') %>" alt="Logo" style="height: 24px; width: 24px; margin-right: 8px;"><strong><%= typeof applicationName !== 'undefined' ? applicationName : 'ngdpbase' %></strong>
             </a>
 
-            <!-- Mobile: compact user icon (no dropdown, just link to profile/login) -->
-            <div class="d-flex d-md-none align-items-center">
+            <!-- Mobile: compact user icon + theme toggle -->
+            <div class="d-flex d-md-none align-items-center gap-1">
+                <button type="button"
+                        class="btn btn-outline-secondary btn-sm theme-toggle-btn"
+                        onclick="window.themeManager.cycleTheme()"
+                        title="Toggle light/dark mode">
+                    <i class="fas fa-adjust"></i>
+                </button>
                 <% if (typeof currentUser !== 'undefined' && currentUser && currentUser.isAuthenticated) { %>
-                <a class="btn btn-outline-secondary btn-sm" href="/profile" title="<%= currentUser.displayName || currentUser.username %>">
-                    <i class="fas fa-user"></i>
-                </a>
+                <div class="dropdown">
+                    <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" title="<%= currentUser.displayName || currentUser.username %>">
+                        <i class="fas fa-user"></i>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item" href="/profile"><i class="fas fa-user-cog me-2"></i><%= currentUser.displayName || currentUser.username %></a></li>
+                        <% if (currentUser.roles && currentUser.roles.includes('admin')) { %>
+                        <li><a class="dropdown-item" href="/admin"><i class="fas fa-cogs me-2"></i>Admin</a></li>
+                        <% } %>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="/logout"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
+                    </ul>
+                </div>
                 <% } else { %>
-                <a class="btn btn-outline-primary btn-sm me-1" href="/login?redirect=<%= encodeURIComponent(typeof pageName !== 'undefined' && pageName ? `/view/${pageName}` : '/') %>">
+                <a class="btn btn-outline-primary btn-sm" href="/login?redirect=<%= encodeURIComponent(typeof pageName !== 'undefined' && pageName ? `/view/${pageName}` : '/') %>">
                     <i class="fas fa-sign-in-alt"></i>
                 </a>
                 <% } %>
@@ -287,31 +303,12 @@
             </nav>
             <% } %>
 
-            <!-- Theme toggle at bottom of offcanvas (#377) -->
-            <hr class="mt-auto mb-2">
-            <button type="button"
-                    class="btn btn-sm w-100 d-flex align-items-center gap-2 text-start theme-toggle-btn"
-                    onclick="window.themeManager.cycleTheme()"
-                    title="Toggle theme">
-                <i class="fas fa-adjust"></i>
-                <span class="theme-label">System</span>
-            </button>
         </div>
     </div>
 
     <div class="container-fluid">
         <div class="row">
             <nav class="col-md-2 sidebar jspwiki-sidebar">
-                <!-- Theme toggle at top of sidebar — outside sidebar-sticky so it is NOT cloned into offcanvas (#377) -->
-                <div class="px-3 pt-2 pb-1 border-bottom">
-                    <button type="button"
-                            class="btn btn-sm w-100 d-flex align-items-center gap-2 text-start theme-toggle-btn"
-                            onclick="window.themeManager.cycleTheme()"
-                            title="Toggle theme">
-                        <i class="fas fa-adjust"></i>
-                        <span class="theme-label">System</span>
-                    </button>
-                </div>
                 <div class="sidebar-sticky px-3 pt-3">
                     <% if (typeof leftMenu !== 'undefined' && leftMenu) { %>
                         <div class="leftmenu-content">
@@ -1161,11 +1158,13 @@
     });
 </script>
 
-<!-- Light/Dark Mode Manager (#377) -->
+<!-- Light/Dark Mode Manager (#377 #379) -->
 <script>
 (function() {
     var MODES = ['light', 'dark', 'system'];
     var KEY = 'lightdark-mode';
+    // Injected by server — true when a user session is active
+    var userAuthenticated = <%= (typeof currentUser !== 'undefined' && currentUser && currentUser.isAuthenticated) ? 'true' : 'false' %>;
 
     function systemIsDark() {
         return !!(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
@@ -1192,6 +1191,17 @@
         });
     }
 
+    // Persist display.theme server-side so it survives page navigation (#379)
+    function persistThemeServer(mode) {
+        if (!userAuthenticated) return;
+        fetch('/api/user/display-theme', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ theme: mode }),
+            credentials: 'same-origin'
+        }).catch(function() {}); // fire-and-forget; ignore network errors
+    }
+
     // Apply stored mode immediately (before DOMContentLoaded) to avoid flash
     var storedMode = localStorage.getItem(KEY) || 'system';
     applyMode(storedMode);
@@ -1205,6 +1215,7 @@
             localStorage.setItem(KEY, next);
             applyMode(next);
             updateButtons(next);
+            persistThemeServer(next);
         },
         setTheme: function(mode) {
             if (MODES.indexOf(mode) === -1) return;
