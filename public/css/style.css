@@ -556,6 +556,15 @@ main p, main div, main span, main li {
         padding-left: 15px;
         padding-right: 15px;
     }
+
+    /* Touch targets: minimum 44px for interactive elements (#373) */
+    .navigation .btn,
+    .navigation .nav-link,
+    .navigation .dropdown-toggle {
+        min-height: 44px;
+        display: inline-flex;
+        align-items: center;
+    }
 }
 
 .markdown-body {
@@ -587,6 +596,20 @@ main p, main div, main span, main li {
     color: var(--text-primary);
     white-space: pre;
     overflow-x: auto;
+}
+
+/* Responsive tables in wiki content (#372) */
+.markdown-body table {
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    max-width: 100%;
+}
+
+/* Responsive images in wiki content (#372) */
+.markdown-body img {
+    max-width: 100%;
+    height: auto;
 }
 
 /* Wiki image styles — constrain images to content area */

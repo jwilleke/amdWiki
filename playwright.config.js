@@ -1,5 +1,5 @@
 // @ts-check
-const { defineConfig } = require('@playwright/test');
+const { defineConfig, devices } = require('@playwright/test');
 
 /**
  * Playwright E2E Test Configuration for ngdpbase
@@ -69,6 +69,17 @@ module.exports = defineConfig({
       use: {
         browserName: 'chromium',
         // Use setup project for authenticated tests
+        storageState: './tests/e2e/.auth/user.json',
+      },
+      dependencies: ['setup'],
+    },
+
+    // Mobile navigation tests — Pixel 5 viewport, no auth needed for layout checks
+    {
+      name: 'mobile-chrome',
+      testMatch: /mobile-navigation\.spec\.js/,
+      use: {
+        ...devices['Pixel 5'],
         storageState: './tests/e2e/.auth/user.json',
       },
       dependencies: ['setup'],
