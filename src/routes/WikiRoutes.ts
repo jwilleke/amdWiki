@@ -176,13 +176,21 @@ class WikiRoutes {
    * @returns {WikiContext} WikiContext instance
    */
   createWikiContext(req: Request, options: WikiContextOptions = {}): WikiContext {
+    // Resolve active theme for this request
+    const configManager = this.engine.getManager('ConfigurationManager');
+    const activeTheme = (configManager?.getProperty('ngdpbase.theme.active', 'default') as string) || 'default';
+    const themesDir = path.join(__dirname, '../../../themes');
+    const themeManager = new ThemeManager(activeTheme, themesDir);
+
     return new WikiContext(this.engine as unknown as import('../types/WikiEngine').WikiEngine, {
       context: options.context || WikiContext.CONTEXT.NONE,
       pageName: options.pageName ?? undefined,
       content: options.content ?? undefined,
       userContext: req.userContext,
       request: req,
-      response: options.response ?? undefined
+      response: options.response ?? undefined,
+      activeTheme: themeManager.paths.activeTheme,
+      themeInfo: themeManager.paths.themeInfo
     });
   }
 

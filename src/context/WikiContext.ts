@@ -17,6 +17,7 @@ import type VariableManager from '../managers/VariableManager';
 import type ACLManager from '../managers/ACLManager';
 import type MarkupParser from '../parsers/MarkupParser';
 import type { VariableContext } from '../managers/VariableManager';
+import type { ThemeInfo } from '../managers/ThemeManager';
 
 /**
  * Request information extracted from Express request
@@ -73,6 +74,18 @@ export interface UserContext {
 }
 
 /**
+ * Theme context — active theme identity and user display preference
+ */
+export interface ThemeContext {
+  /** Active theme folder name (e.g. 'default', 'flatly') */
+  activeTheme: string;
+  /** Metadata from the active theme's theme.json */
+  themeInfo: ThemeInfo | null;
+  /** User's light/dark/system display preference */
+  displayTheme: string;
+}
+
+/**
  * Page context for rendering
  */
 export interface PageContext {
@@ -82,6 +95,8 @@ export interface PageContext {
   userContext: UserContext | null;
   /** Request information */
   requestInfo: RequestInfo;
+  /** Theme context */
+  themeContext?: ThemeContext;
 }
 
 /**
@@ -110,6 +125,10 @@ export interface WikiContextOptions {
   request?: Request;
   /** Express response object */
   response?: Response;
+  /** Active theme folder name (e.g. 'default', 'flatly') */
+  activeTheme?: string;
+  /** Metadata from theme.json */
+  themeInfo?: ThemeInfo | null;
 }
 
 /**
@@ -214,6 +233,12 @@ class WikiContext {
   /** Reference to ACLManager */
   public readonly aclManager: ACLManager;
 
+  /** Active theme folder name (e.g. 'default', 'flatly') */
+  public readonly activeTheme: string;
+
+  /** Metadata from the active theme's theme.json */
+  public readonly themeInfo: ThemeInfo | null;
+
   /** Fallback markdown converter */
   private readonly _fallbackConverter: Showdown.Converter;
 
@@ -246,6 +271,8 @@ class WikiContext {
     this.userContext = options.userContext || null;
     this.request = options.request || null;
     this.response = options.response || null;
+    this.activeTheme = options.activeTheme || 'default';
+    this.themeInfo = options.themeInfo ?? null;
 
     // Ensure essential managers are available on the context
     this.pageManager = engine.getManager<PageManager>('PageManager')!;
@@ -269,6 +296,25 @@ class WikiContext {
    */
   getContext(): string {
     return this.context;
+  }
+
+  /**
+   * Returns the user's display theme preference ('light' | 'dark' | 'system')
+   * Derived from userContext.preferences['display.theme']; defaults to 'system'.
+   */
+  get displayTheme(): string {
+    return (this.userContext?.preferences?.['display.theme'] as string) || 'system';
+  }
+
+  /**
+   * Returns a ThemeContext snapshot for use in parse options and variable context
+   */
+  get themeContext(): ThemeContext {
+    return {
+      activeTheme: this.activeTheme,
+      themeInfo: this.themeInfo,
+      displayTheme: this.displayTheme
+    };
   }
 
   /**
@@ -346,7 +392,8 @@ class WikiContext {
           referer: this.request?.headers?.referer,
           sessionId: this.request?.sessionID,
           query: this.request?.query as Record<string, string> | undefined
-        }
+        },
+        themeContext: this.themeContext
       },
       engine: this.engine
     };
@@ -377,7 +424,8 @@ class WikiContext {
         clientIp: this.request?.ip,
         referer: this.request?.headers?.referer,
         sessionId: this.request?.sessionID
-      }
+      },
+      themeContext: this.themeContext
     };
   }
 }

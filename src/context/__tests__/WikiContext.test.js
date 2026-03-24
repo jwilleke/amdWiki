@@ -145,6 +145,11 @@ describe('WikiContext', () => {
             clientIp: '127.0.0.1',
             referer: undefined,
             sessionId: 'test-session-id'
+          },
+          themeContext: {
+            activeTheme: 'default',
+            themeInfo: null,
+            displayTheme: 'system'
           }
         },
         engine: mockEngine

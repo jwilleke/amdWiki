@@ -24,6 +24,31 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-03-24-06
+
+- Agent: Claude Sonnet 4.6
+- Subject: feat: add theme context to WikiContext; fix /profile dark mode contrast; add glossary terms
+- Key Decision: WikiContext now carries `activeTheme`, `themeInfo`, `displayTheme` (getter), and `themeContext` (getter returning all three). `toParseOptions()` and `toVariableContext()` both expose `themeContext` so plugins and variables can access theme state. `createWikiContext()` in WikiRoutes resolves ThemeManager once per request and passes theme info into the context. Profile page contrast fixed by replacing `bg-light` cards and inline `var(--btn-*)`/`var(--badge-*)` styles with standard Bootstrap utility classes that respond to `data-bs-theme`.
+- Current Issue: #379 (profile contrast), theme in WikiContext (new)
+- Testing:
+  - npm test: 86 suites passed, 2227 tests passed (1 test updated for themeContext in toParseOptions)
+- Work Done:
+  - Added `ThemeContext` interface and `activeTheme`/`themeInfo` properties to `WikiContext`
+  - Added `displayTheme` getter (from `preferences['display.theme']`) and `themeContext` getter
+  - Updated `toParseOptions()` and `toVariableContext()` to include `themeContext`
+  - Updated `createWikiContext()` in `WikiRoutes.ts` to resolve ThemeManager and pass theme info
+  - Fixed `views/profile.ejs`: replaced `card bg-light` → `card`; replaced inline `var(--btn-*)`/`var(--badge-*)` styles with `btn-success`, `btn-primary`, `btn-secondary`, `bg-primary`, `bg-info` Bootstrap classes
+  - Added UI & Appearance section to `docs/GLOSSARY.md`: Site Theme, Light-Dark Mode, Code Editor Style
+- Commits: TBD
+- Files Modified:
+  - src/context/WikiContext.ts
+  - src/context/__tests__/WikiContext.test.js
+  - src/routes/WikiRoutes.ts
+  - views/profile.ejs
+  - docs/GLOSSARY.md
+
+---
+
 ## 2026-03-24-05
 
 - Agent: Claude Sonnet 4.6

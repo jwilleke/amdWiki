@@ -23,7 +23,7 @@
                     <!-- User Information Display -->
                     <div class="row mb-4">
                         <div class="col-md-6">
-                            <div class="card bg-light">
+                            <div class="card">
                                 <div class="card-header">
                                     <h6><i class="fas fa-info-circle"></i> Account Information</h6>
                                 </div>
@@ -36,9 +36,9 @@
                                     <% } %>
                                     <p><strong>Account Type:</strong> 
                                         <% if (user.isExternal) { %>
-                                            <span class="badge" style="background-color: var(--badge-info-bg); color: var(--badge-info-text);">OAuth/External</span>
+                                            <span class="badge bg-info text-dark">OAuth/External</span>
                                         <% } else { %>
-                                            <span class="badge" style="background-color: var(--badge-primary-bg); color: var(--badge-primary-text);">Local Account</span>
+                                            <span class="badge bg-primary">Local Account</span>
                                         <% } %>
                                     </p>
                                     <p><strong>Roles:</strong> 
@@ -55,7 +55,7 @@
                         </div>
                         
                         <div class="col-md-6">
-                            <div class="card bg-light">
+                            <div class="card">
                                 <div class="card-header">
                                     <h6><i class="fas fa-shield-alt"></i> Permissions</h6>
                                 </div>
@@ -75,7 +75,7 @@
                     <!-- User Preferences Section -->
                     <div class="row mb-4">
                         <div class="col-12">
-                            <div class="card bg-light">
+                            <div class="card">
                                 <div class="card-header">
                                     <h6><i class="fas fa-cogs"></i> User Preferences</h6>
                                 </div>
@@ -275,7 +275,7 @@
                                         <hr>
                                         
                                         <div class="d-flex justify-content-between">
-                                            <button type="submit" class="btn" style="background-color: var(--btn-success-bg); color: var(--btn-success-text); border-color: var(--btn-success-border);">
+                                            <button type="submit" class="btn btn-success">
                                                 <i class="fas fa-save"></i> Save Preferences
                                             </button>
                                             
@@ -365,11 +365,11 @@
                         <hr>
                         
                         <div class="d-flex justify-content-between">
-                            <button type="submit" class="btn" style="background-color: var(--btn-primary-bg); color: var(--btn-primary-text); border-color: var(--btn-primary-border);">
+                            <button type="submit" class="btn btn-primary">
                                 <i class="fas fa-save"></i> Update Profile
                             </button>
-                            
-                            <a href="/" class="btn" style="background-color: var(--btn-secondary-bg); color: var(--btn-secondary-text); border-color: var(--btn-secondary-border);">
+
+                            <a href="/" class="btn btn-secondary">
                                 <i class="fas fa-arrow-left"></i> Back to Wiki
                             </a>
                         </div>

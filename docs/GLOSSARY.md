@@ -341,6 +341,65 @@ Triggered when `RenderingManager.getParser()` returns null.
 
 ---
 
+## UI & Appearance
+
+### Site Theme
+
+Preferred: **Site Theme** or **display theme**
+Avoid: "theme", "color scheme" (ambiguous — see also Code Editor Style)
+
+The active Bootstrap/Bootswatch theme folder loaded by `ThemeManager`. Controls
+the site's overall look: color palette, typography, navbar, and component styles.
+Set via config key `ngdpbase.theme.active` (default: `default`).
+
+Available themes live in `themes/<name>/` and require a `theme.json`. A standard
+Bootswatch theme can be added by placing a CDN URL in `theme.json`'s `fonts[]`
+array — no custom CSS needed. `core.css` provides the Bootstrap→semantic CSS
+variable bridge that makes any Bootstrap 5 theme work out of the box.
+
+`ThemeManager` resolves the active theme's paths (`coreCssPath`, `variablesCssPath`,
+`logoPath`, `faviconPath`, `fontUrls`) and falls back to
+`/themes/core-variables-empty.css` when a theme has no `variables.css`.
+
+Separate from Light-Dark Mode and Code Editor Style.
+
+### Light-Dark Mode
+
+Preferred: **Light-Dark Mode** or **display mode**
+Avoid: "dark mode toggle", "theme toggle", "color scheme"
+
+The user's brightness preference for the site: `light`, `dark`, or `system`
+(follows the OS setting). Stored in `user.preferences['display.theme']`.
+
+Applied at runtime by setting `data-bs-theme="light|dark"` on the `<html>` element
+— Bootstrap 5.3's native dark mode mechanism. CSS custom properties in
+`variables.css` respond to `[data-bs-theme="dark"]` to flip colors.
+
+Controlled per-user via:
+- The **⊕ icon** button in the top navigation bar (desktop and mobile)
+- The **Light / Dark Mode** field on the `/profile` page
+
+Persisted server-side for authenticated users via `POST /api/user/display-theme`;
+stored in `localStorage` only for anonymous users.
+
+Separate from the active Site Theme (which Bootstrap theme is loaded) and the
+Code Editor Style (textarea color scheme).
+
+### Code Editor Style
+
+Preferred: **Code Editor Style**
+Avoid: "editor theme" alone (ambiguous with display theme or site theme), "theme"
+
+The syntax-highlighting color scheme applied inside the page editor textarea only
+(e.g., `default`, `dracula`, `monokai`). Stored in `user.preferences['editor.theme']`.
+Has no effect on the rest of the site's appearance.
+
+Configured via the **Code Editor Style** field on the `/profile` page.
+
+Separate from Light-Dark Mode and the active Site Theme.
+
+---
+
 ## Private Pages
 
 ### Private Page
@@ -407,3 +466,6 @@ Key providers: `BasicAttachmentProvider` (attachments), `VersioningFileProvider`
 | Resolve an attachment src to a URL | resolveAttachmentSrc | `AttachmentManager.resolveAttachmentSrc(src, pageName)` |
 | Add a new wiki plugin | Plugin | add `*.ts` to `plugins/`, build, configure search path |
 | Check configured storage paths | ConfigurationManager | `ngdpbase.attachment.provider.basic.storagedir`, etc. |
+| Change the site color palette / Bootstrap theme | Site Theme | set `ngdpbase.theme.active` in config; theme folder in `themes/` |
+| Toggle light / dark appearance | Light-Dark Mode | ⊕ icon in navbar, or `/profile` → Light / Dark Mode |
+| Change page editor color scheme | Code Editor Style | `/profile` → Code Editor Style |

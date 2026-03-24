@@ -2,7 +2,7 @@
   "ngdpbase.applicationName": "ngdpbase",
   "ngdpbase.faviconPath": "/favicon.svg",
   "ngdpbase.application.category": "Digital Platform",
-  "ngdpbase.version": "3.0.2",
+  "ngdpbase.version": "3.0.3",
   "ngdpbase.github.repo": "jwilleke/ngdpbase",
   "ngdpbase.baseURL": "http://localhost:3000",
   "ngdpbase.encoding": "UTF-8",
