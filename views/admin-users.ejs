@@ -31,7 +31,7 @@
       <!-- User Statistics -->
       <div class="row mb-4">
         <div class="col-md-3">
-          <div class="card" style="background-color: var(--card-primary-bg); color: var(--card-primary-text);">
+          <div class="card bg-primary text-white" >
             <div class="card-body">
               <h5 class="card-title">Total Users</h5>
               <h3><%= users.length %></h3>
@@ -39,7 +39,7 @@
           </div>
         </div>
         <div class="col-md-3">
-          <div class="card" style="background-color: var(--card-success-bg); color: var(--card-success-text);">
+          <div class="card bg-success text-white" >
             <div class="card-body">
               <h5 class="card-title">Active Users</h5>
               <h3><%= users.filter(u => u.isActive).length %></h3>
@@ -47,7 +47,7 @@
           </div>
         </div>
         <div class="col-md-3">
-          <div class="card" style="background-color: var(--card-info-bg); color: var(--card-info-text);">
+          <div class="card bg-info text-dark" >
             <div class="card-body">
               <h5 class="card-title">Admin Users</h5>
               <h3><%= users.filter(u => u.roles.includes('admin')).length %></h3>
@@ -55,7 +55,7 @@
           </div>
         </div>
         <div class="col-md-3">
-          <div class="card" style="background-color: var(--card-warning-bg); color: var(--card-warning-text);">
+          <div class="card bg-warning text-dark" >
             <div class="card-body">
               <h5 class="card-title">System Users</h5>
               <h3><%= users.filter(u => u.isSystem).length %></h3>
@@ -90,7 +90,7 @@
                   <td>
                     <strong><%= user.username %></strong>
                     <% if (user.isSystem) { %>
-                      <span class="badge" style="background-color: var(--badge-warning-bg); color: var(--badge-warning-text);">System</span>
+                      <span class="badge bg-warning text-dark" >System</span>
                     <% } %>
                   </td>
                   <td><%= user.displayName || user.username %></td>
@@ -104,9 +104,9 @@
                   </td>
                   <td>
                     <% if (user.isActive) { %>
-                      <span class="badge" style="background-color: var(--badge-success-bg); color: var(--badge-success-text);">Active</span>
+                      <span class="badge bg-success" >Active</span>
                     <% } else { %>
-                      <span class="badge" style="background-color: var(--badge-danger-bg); color: var(--badge-danger-text);">Inactive</span>
+                      <span class="badge bg-danger" >Inactive</span>
                     <% } %>
                   </td>
                   <td>

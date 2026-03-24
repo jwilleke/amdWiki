@@ -102,7 +102,7 @@
                     <div class="dropdown d-inline">
                         <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             <i class="fas fa-user"></i> <%= currentUser.displayName || currentUser.username %>
-                            <% if (currentUser.roles && currentUser.roles.includes('admin')) { %><span class="badge bg-warning ms-1" style="color: var(--text-dark);">Admin</span><% } %>
+                            <% if (currentUser.roles && currentUser.roles.includes('admin')) { %><span class="badge bg-warning text-dark ms-1">Admin</span><% } %>
                         </button>
                         <div class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
                             <a class="dropdown-item" href="/profile"><i class="fas fa-user-cog"></i> Profile</a>
@@ -1424,7 +1424,7 @@ function updateTrailDropdown() {
         
         const clearLi = document.createElement('li');
         const clearA = document.createElement('a');
-        clearA.className = 'dropdown-item style="color: var(--text-danger);"';
+        clearA.className = 'dropdown-item text-danger';
         clearA.href = '#';
         clearA.innerHTML = '<i class="fas fa-trash me-2"></i>Clear Trail';
         clearA.onclick = (e) => {

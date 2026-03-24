@@ -72,9 +72,9 @@
                                             <td><%= org.foundingDate || 'Unknown' %></td>
                                             <td>
                                                 <% if (org.isActive !== false) { %>
-                                                    <span class="badge" style="background-color: var(--badge-success-bg); color: var(--badge-success-text);">Active</span>
+                                                    <span class="badge bg-success" >Active</span>
                                                 <% } else { %>
-                                                    <span class="badge" style="background-color: var(--badge-secondary-bg); color: var(--badge-secondary-text);">Inactive</span>
+                                                    <span class="badge bg-secondary" >Inactive</span>
                                                 <% } %>
                                             </td>
                                             <td>
@@ -119,7 +119,7 @@
                     <!-- Basic Information -->
                     <div class="row mb-3">
                         <div class="col-md-6">
-                            <label for="orgName" class="form-label">Name <span class="style="color: var(--text-danger);"">*</span></label>
+                            <label for="orgName" class="form-label">Name <span class="text-danger">*</span></label>
                             <input type="text" class="form-control" id="orgName" name="name" required>
                         </div>
                         <div class="col-md-6">
@@ -182,7 +182,7 @@
                     </div>
 
                     <!-- Contact Points -->
-                    <h6><i class="fas fa-phone"></i> Contact Points <span class="style="color: var(--text-danger);"">*</span></h6>
+                    <h6><i class="fas fa-phone"></i> Contact Points <span class="text-danger">*</span></h6>
                     <div id="contactPointsContainer">
                         <div class="contact-point-item border rounded p-3 mb-3">
                             <div class="row">
@@ -252,7 +252,7 @@
                     <input type="hidden" id="editOrgId" name="identifier">
                     <!-- Same form fields as create modal -->
                     <!-- Implementation abbreviated for brevity -->
-                    <p class="style="color: var(--text-info);"">Edit form implementation would mirror the create form with pre-populated values.</p>
+                    <p class="text-info">Edit form implementation would mirror the create form with pre-populated values.</p>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>

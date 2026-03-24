@@ -31,7 +31,7 @@
       <!-- Keyword Statistics -->
       <div class="row mb-4">
         <div class="col-md-3">
-          <div class="card" style="background-color: var(--card-primary-bg); color: var(--card-primary-text);">
+          <div class="card bg-primary text-white" >
             <div class="card-body">
               <h5 class="card-title">Total Keywords</h5>
               <h3><%= stats.total %></h3>
@@ -39,7 +39,7 @@
           </div>
         </div>
         <div class="col-md-3">
-          <div class="card" style="background-color: var(--card-success-bg); color: var(--card-success-text);">
+          <div class="card bg-success text-white" >
             <div class="card-body">
               <h5 class="card-title">Enabled</h5>
               <h3><%= stats.enabled %></h3>
@@ -47,7 +47,7 @@
           </div>
         </div>
         <div class="col-md-3">
-          <div class="card" style="background-color: var(--card-info-bg); color: var(--card-info-text);">
+          <div class="card bg-info text-dark" >
             <div class="card-body">
               <h5 class="card-title">With Pages</h5>
               <h3><%= stats.withPages %></h3>
@@ -55,7 +55,7 @@
           </div>
         </div>
         <div class="col-md-3">
-          <div class="card" style="background-color: var(--card-warning-bg); color: var(--card-warning-text);">
+          <div class="card bg-warning text-dark" >
             <div class="card-body">
               <h5 class="card-title">In Use</h5>
               <h3><%= stats.inUse %></h3>
@@ -99,12 +99,12 @@
                   <td><%= keyword.category || '-' %></td>
                   <td>
                     <% if (keyword.enabled) { %>
-                      <span class="badge" style="background-color: var(--badge-success-bg); color: var(--badge-success-text);">Enabled</span>
+                      <span class="badge bg-success" >Enabled</span>
                     <% } else { %>
-                      <span class="badge" style="background-color: var(--badge-danger-bg); color: var(--badge-danger-text);">Disabled</span>
+                      <span class="badge bg-danger" >Disabled</span>
                     <% } %>
                     <% if (keyword.restrictEditing) { %>
-                      <span class="badge" style="background-color: var(--badge-warning-bg); color: var(--badge-warning-text);" title="Editing restricted">
+                      <span class="badge bg-warning text-dark"  title="Editing restricted">
                         <i class="fas fa-lock"></i>
                       </span>
                     <% } %>

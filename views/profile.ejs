@@ -484,7 +484,7 @@ document.getElementById('smartPairs')?.addEventListener('change', function() {
     const demo = document.getElementById('smartPairsDemo');
     if (demo) {
         demo.textContent = this.checked ? 'Smart pairs enabled!' : 'Smart pairs disabled';
-        demo.className = this.checked ? 'style="color: var(--text-success);"' : 'text-muted';
+        demo.className = this.checked ? 'text-success' : 'text-muted';
     }
 });
 
