@@ -284,10 +284,10 @@
             <hr class="mt-auto mb-2">
             <button type="button"
                     class="btn btn-sm w-100 d-flex align-items-center gap-2 text-start theme-toggle-btn"
-                    onclick="window.themeManager && window.themeManager.cycleTheme()"
+                    onclick="window.themeManager.cycleTheme()"
                     title="Toggle theme">
                 <i class="fas fa-adjust"></i>
-                <span class="theme-label">Theme: System</span>
+                <span class="theme-label">System</span>
             </button>
         </div>
     </div>
@@ -299,10 +299,10 @@
                 <div class="px-3 pt-2 pb-1 border-bottom">
                     <button type="button"
                             class="btn btn-sm w-100 d-flex align-items-center gap-2 text-start theme-toggle-btn"
-                            onclick="window.themeManager && window.themeManager.cycleTheme()"
+                            onclick="window.themeManager.cycleTheme()"
                             title="Toggle theme">
                         <i class="fas fa-adjust"></i>
-                        <span class="theme-label">Theme: System</span>
+                        <span class="theme-label">System</span>
                     </button>
                 </div>
                 <div class="sidebar-sticky px-3 pt-3">
@@ -1154,99 +1154,86 @@
     });
 </script>
 
-<!-- Theme Manager -->
+<!-- Light/Dark Mode Manager (#377) -->
 <script>
-// Theme manager — uses Bootstrap-native data-bs-theme on <html>
-class SimpleThemeManager {
-    constructor() {
-        this.themes = ['light', 'dark', 'system'];
-        this.currentTheme = localStorage.getItem('theme-preference') || 'system';
-        this.systemTheme = this.getSystemTheme();
+(function() {
+    var MODES = ['light', 'dark', 'system'];
+    var KEY = 'lightdark-mode';
 
-        this.applyTheme();
-        this.updateButtons();
-
-        // Listen for OS theme changes
-        if (window.matchMedia) {
-            window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
-                this.systemTheme = e.matches ? 'dark' : 'light';
-                if (this.currentTheme === 'system') {
-                    this.applyTheme();
-                    this.updateButtons();
-                }
-            });
-        }
-    }
-    
-    getSystemTheme() {
-        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-            return 'dark';
-        }
-        return 'light';
-    }
-    
-    getEffectiveTheme() {
-        if (this.currentTheme === 'system') {
-            return this.systemTheme;
-        }
-        return this.currentTheme;
-    }
-    
-    applyTheme() {
-        const effectiveTheme = this.getEffectiveTheme();
-        const html = document.documentElement;
-        // Bootstrap-native: data-bs-theme drives Bootstrap components AND our CSS vars
-        html.setAttribute('data-bs-theme', effectiveTheme);
-    }
-    
-    cycleTheme() {
-        const currentIndex = this.themes.indexOf(this.currentTheme);
-        this.currentTheme = this.themes[(currentIndex + 1) % this.themes.length];
-        localStorage.setItem('theme-preference', this.currentTheme);
-        this.applyTheme();
-        this.updateButtons();
+    function systemIsDark() {
+        return !!(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
     }
 
-    updateButtons() {
-        const effectiveTheme = this.getEffectiveTheme();
-        let iconClass, title;
-        switch (this.currentTheme) {
-            case 'light':
-                iconClass = 'fas fa-sun';
-                title = 'Theme: Light — click for Dark';
-                break;
-            case 'dark':
-                iconClass = 'fas fa-moon';
-                title = 'Theme: Dark — click for System';
-                break;
-            default:
-                iconClass = 'fas fa-adjust';
-                title = `Theme: System (${effectiveTheme}) — click for Light`;
-        }
-        // Update all theme toggle buttons (sidebar + offcanvas)
-        document.querySelectorAll('.theme-toggle-btn').forEach(btn => {
-            const icon = btn.querySelector('i');
-            const label = btn.querySelector('.theme-label');
-            if (icon) icon.className = iconClass;
-            if (label) label.textContent = title.split(' — ')[0];
-            btn.title = title;
+    function effectiveMode(mode) {
+        return mode === 'system' ? (systemIsDark() ? 'dark' : 'light') : mode;
+    }
+
+    function applyMode(mode) {
+        document.documentElement.setAttribute('data-bs-theme', effectiveMode(mode));
+    }
+
+    function updateButtons(mode) {
+        var eff = effectiveMode(mode);
+        var labels = { light: 'Light Mode', dark: 'Dark Mode', system: 'System (' + eff + ')' };
+        var icons  = { light: 'fas fa-sun', dark: 'fas fa-moon', system: 'fas fa-adjust' };
+        document.querySelectorAll('.theme-toggle-btn').forEach(function(btn) {
+            var icon  = btn.querySelector('i');
+            var label = btn.querySelector('.theme-label');
+            if (icon)  icon.className = icons[mode] || 'fas fa-adjust';
+            if (label) label.textContent = labels[mode] || 'System';
+            btn.title = labels[mode] || 'System';
         });
     }
-}
+
+    // Apply stored mode immediately (before DOMContentLoaded) to avoid flash
+    var storedMode = localStorage.getItem(KEY) || 'system';
+    applyMode(storedMode);
+
+    // Expose global API (also satisfies user-preferences.js which calls setTheme / cycleTheme)
+    window.themeManager = {
+        get currentTheme() { return localStorage.getItem(KEY) || 'system'; },
+        cycleTheme: function() {
+            var cur = localStorage.getItem(KEY) || 'system';
+            var next = MODES[(MODES.indexOf(cur) + 1) % MODES.length];
+            localStorage.setItem(KEY, next);
+            applyMode(next);
+            updateButtons(next);
+        },
+        setTheme: function(mode) {
+            if (MODES.indexOf(mode) === -1) return;
+            localStorage.setItem(KEY, mode);
+            applyMode(mode);
+            updateButtons(mode);
+        }
+    };
+
+    // Update button labels once DOM is ready
+    document.addEventListener('DOMContentLoaded', function() {
+        updateButtons(localStorage.getItem(KEY) || 'system');
+        // Re-sync after offcanvas clone
+        document.addEventListener('offcanvasShown', function() {
+            updateButtons(localStorage.getItem(KEY) || 'system');
+        });
+    });
+
+    // Track OS changes when mode is 'system'
+    if (window.matchMedia) {
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function() {
+            var cur = localStorage.getItem(KEY) || 'system';
+            if (cur === 'system') { applyMode('system'); updateButtons('system'); }
+        });
+    }
+})();
 
 // Initialize when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
-    window.themeManager = new SimpleThemeManager();
-    // updateButtons runs after DOM is ready so sidebar/offcanvas buttons exist
-    window.themeManager.updateButtons();
-    
     // Check for user changes and server restarts
     checkUserChange();
     checkServerRestart();
-    
-    // Initialize left menu state
+
+    // Initialize left menu state (clones sidebar into offcanvas, then re-syncs buttons)
     initializeLeftMenuState();
-    
+
     // Initialize breadcrumb trail
     initializeTrail();
 });
@@ -1283,8 +1270,8 @@ function initializeLeftMenuState() {
     var offcanvasBody = document.getElementById('mobile-nav-body');
     if (sidebarBody && offcanvasBody) {
         offcanvasBody.innerHTML = sidebarBody.innerHTML;
-        // Re-sync theme button label now that the offcanvas static button exists in DOM
-        if (window.themeManager) window.themeManager.updateButtons();
+        // Re-sync mode button label after clone
+        if (window.themeManager) window.themeManager.setTheme(window.themeManager.currentTheme);
     }
 
     // Desktop: restore saved preference (sidebar visible by default)
