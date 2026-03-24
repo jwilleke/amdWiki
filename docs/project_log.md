@@ -24,6 +24,32 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-03-24-14
+
+- Agent: Claude Sonnet 4.6
+- Subject: fix: replace undefined CSS vars and fix malformed HTML class attrs in views
+- Key Decision: Two distinct bug classes found. (1) Undefined `--badge-*`, `--card-*-bg`, `--text-*` CSS variables used inline — replaced with Bootstrap utility classes. (2) Malformed HTML where `style="..."` was embedded inside a `class="..."` attribute string — these never applied any styling. Fixed all 8 affected files.
+- Current Issue: general theme/dark mode cleanup; #367 closed
+- Testing:
+  - Unit tests: 86 suites, 2227 tests passed
+- Work Done:
+  - Replaced `--badge-*` inline styles with `badge bg-*` classes in admin-keywords.ejs, admin-organizations.ejs, admin-users.ejs, admin-validation-report.ejs
+  - Replaced `--card-*-bg/text` inline styles with `bg-* text-*` on stat cards
+  - Fixed 12 malformed `class="style=..."` attributes: admin-validation-report.ejs (6), admin-organizations.ejs (3), header.ejs (2), profile.ejs (1), error.ejs (1), edit-index.ejs (2)
+  - Closed #367 on GitHub
+- Commits: 3037b9d
+- Files Modified:
+  - views/admin-validation-report.ejs
+  - views/admin-organizations.ejs
+  - views/admin-keywords.ejs
+  - views/admin-users.ejs
+  - views/header.ejs
+  - views/profile.ejs
+  - views/error.ejs
+  - views/edit-index.ejs
+
+---
+
 ## 2026-03-24-13
 
 - Agent: Claude Sonnet 4.6
