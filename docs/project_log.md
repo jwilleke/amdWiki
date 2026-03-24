@@ -24,6 +24,23 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-03-24-10
+
+- Agent: Claude Sonnet 4.6
+- Subject: fix: migrate data-theme to data-bs-theme in style.css (#377)
+- Key Decision: `[data-theme="dark"]` selectors and `:root:not([data-theme])` media query fallbacks in `public/css/style.css` were still using the old attribute. Updated all occurrences to `data-bs-theme` so custom CSS variables respond consistently with Bootstrap's dark mode toggle.
+- Current Issue: #377
+- Testing:
+  - Unit tests: 12 passed (WikiContext)
+- Work Done:
+  - Updated `public/css/style.css`: 7 selector groups migrated from `data-theme` to `data-bs-theme`
+  - Closed #377 on GitHub
+- Commits: c0ca985
+- Files Modified:
+  - public/css/style.css
+
+---
+
 ## 2026-03-24-09
 
 - Agent: Claude Sonnet 4.6
