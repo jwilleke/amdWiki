@@ -489,10 +489,6 @@ main[role="main"].col-12 {
     main[role="main"] {
         margin-left: 0;
     }
-    
-    .sidebar {
-        display: none;
-    }
 }
 
 .sidebar .nav-link {

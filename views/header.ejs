@@ -1265,25 +1265,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Left menu and trail functionality
 function toggleLeftMenu() {
-    const sidebar = document.querySelector('.sidebar');
-    const mainContent = document.querySelector('main');
+    var sidebar = document.querySelector('.sidebar');
+    var mainContent = document.querySelector('main');
     if (!sidebar) return;
 
-    const isHidden = sidebar.classList.contains('d-none');
+    // Use computed style as ground truth — inline style beats all CSS !important rules
+    var isHidden = window.getComputedStyle(sidebar).display === 'none';
 
     if (isHidden) {
-        // Show: remove d-none, add d-block (works on all screen sizes)
-        sidebar.classList.remove('d-none');
-        sidebar.classList.add('d-block');
+        sidebar.style.display = 'block';
         if (mainContent && window.innerWidth >= 768) {
             mainContent.classList.remove('col-12');
             mainContent.classList.add('col-md-9', 'ms-sm-auto', 'col-lg-10');
         }
         localStorage.setItem('leftMenuVisible', 'true');
     } else {
-        // Hide: remove d-block, add d-none
-        sidebar.classList.remove('d-block', 'd-md-block');
-        sidebar.classList.add('d-none');
+        sidebar.style.display = 'none';
         if (mainContent && window.innerWidth >= 768) {
             mainContent.classList.remove('col-md-9', 'ms-sm-auto', 'col-lg-10');
             mainContent.classList.add('col-12');
@@ -1294,31 +1291,24 @@ function toggleLeftMenu() {
 
 // Initialize left menu state from localStorage
 function initializeLeftMenuState() {
-    const isVisible = localStorage.getItem('leftMenuVisible');
-    const sidebar = document.querySelector('.jspwiki-sidebar');
-    const mainContent = document.querySelector('main');
+    var isVisible = localStorage.getItem('leftMenuVisible');
+    var sidebar = document.querySelector('.jspwiki-sidebar');
+    var mainContent = document.querySelector('main');
 
     if (isVisible === 'true') {
-        if (sidebar) {
-            sidebar.classList.remove('d-none');
-            sidebar.classList.add('d-block');
-        }
+        if (sidebar) sidebar.style.display = 'block';
         if (mainContent && window.innerWidth >= 768) {
             mainContent.classList.remove('col-12');
             mainContent.classList.add('col-md-9', 'ms-sm-auto', 'col-lg-10');
         }
     } else if (isVisible === 'false') {
-        if (sidebar) {
-            sidebar.classList.remove('d-block', 'd-md-block');
-            sidebar.classList.add('d-none');
-        }
+        if (sidebar) sidebar.style.display = 'none';
         if (mainContent && window.innerWidth >= 768) {
             mainContent.classList.remove('col-md-9', 'ms-sm-auto', 'col-lg-10');
             mainContent.classList.add('col-12');
         }
     }
-    // No preference stored: Bootstrap d-none/d-md-block defaults handle it
-    // (sidebar visible on desktop ≥768px, hidden on mobile)
+    // No preference stored: CSS default handles it (sidebar visible on desktop, hidden on mobile)
 }
 
 // Breadcrumb trail management
