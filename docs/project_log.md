@@ -24,6 +24,28 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-03-24-01
+
+- Agent: Claude Sonnet 4.6
+- Subject: fix: Bootstrap 5 offcanvas for mobile sidebar navigation (#367)
+- Key Decision: Use Bootstrap's built-in offcanvas component for mobile rather than fighting CSS `!important` cascade with custom classes
+- Current Issue: #367 Make more Mobile Friendly (open)
+- Testing:
+  - Manual test: hamburger opens offcanvas drawer on mobile; desktop hamburger toggles sidebar
+- Work Done:
+  - Split hamburger into two buttons: mobile (`data-bs-toggle="offcanvas"`) and desktop (`d-none d-md-inline-flex`)
+  - Added Bootstrap 5 offcanvas HTML (`#mobileNavOffcanvas`); populated via JS from sidebar content on DOMContentLoaded
+  - Desktop toggle uses `sidebar.style.display` (inline style beats CSS `!important` without class conflicts)
+  - Removed `transition: margin-left 0.3s ease` that caused desktop content flash
+  - Wrapped `margin-left: 16.66667%` rule in `@media (min-width: 768px)` so it doesn't affect mobile
+  - Mobile sidebar CSS simplified to `display: none !important` (offcanvas handles mobile display)
+- Commits: 25ca757
+- Files Modified:
+  - views/header.ejs
+  - public/css/style.css
+
+---
+
 ## 2026-03-23-18
 
 - Agent: Claude Sonnet 4.6
