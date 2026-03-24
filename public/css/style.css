@@ -41,7 +41,7 @@
 }
 
 /* Dark theme colors - GitHub-inspired */
-[data-theme="dark"] {
+[data-bs-theme="dark"] {
   /* GitHub-style backgrounds */
   --bg-primary: #0d1117;
   --bg-secondary: #161b22;
@@ -1334,7 +1334,7 @@ pre, code {
 
 /* System preference media query */
 @media (prefers-color-scheme: dark) {
-    :root:not([data-theme]) {
+    :root:not([data-bs-theme]) {
         --bg-primary: #1a1a1a;
         --bg-secondary: #2d2d2d;
         --bg-tertiary: #404040;
@@ -1424,18 +1424,18 @@ table.zebra-table tbody tr.zebra-even th {
 }
 
 /* Brighter text on striped rows in dark mode (only when NOT using custom colors) */
-[data-theme="dark"] .table-striped tbody tr.zebra-even td,
-[data-theme="dark"] .table-striped tbody tr.zebra-even th,
-[data-theme="dark"] .zebra-table:not([style*="--zebra-text-color"]) tbody tr.zebra-even td,
-[data-theme="dark"] .zebra-table:not([style*="--zebra-text-color"]) tbody tr.zebra-even th {
+[data-bs-theme="dark"] .table-striped tbody tr.zebra-even td,
+[data-bs-theme="dark"] .table-striped tbody tr.zebra-even th,
+[data-bs-theme="dark"] .zebra-table:not([style*="--zebra-text-color"]) tbody tr.zebra-even td,
+[data-bs-theme="dark"] .zebra-table:not([style*="--zebra-text-color"]) tbody tr.zebra-even th {
   color: #f0f6fc;
 }
 
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme]) .table-striped tbody tr.zebra-even td,
-  :root:not([data-theme]) .table-striped tbody tr.zebra-even th,
-  :root:not([data-theme]) .zebra-table:not([style*="--zebra-text-color"]) tbody tr.zebra-even td,
-  :root:not([data-theme]) .zebra-table:not([style*="--zebra-text-color"]) tbody tr.zebra-even th {
+  :root:not([data-bs-theme]) .table-striped tbody tr.zebra-even td,
+  :root:not([data-bs-theme]) .table-striped tbody tr.zebra-even th,
+  :root:not([data-bs-theme]) .zebra-table:not([style*="--zebra-text-color"]) tbody tr.zebra-even td,
+  :root:not([data-bs-theme]) .zebra-table:not([style*="--zebra-text-color"]) tbody tr.zebra-even th {
     color: #f0f6fc;
   }
 }
@@ -1462,14 +1462,14 @@ table[data-zebra] tbody tr.zebra-hover,
 }
 
 /* Brighter text on hover in dark mode */
-[data-theme="dark"] .table-hover tbody tr:hover td,
-[data-theme="dark"] .table-hover tbody tr:hover th {
+[data-bs-theme="dark"] .table-hover tbody tr:hover td,
+[data-bs-theme="dark"] .table-hover tbody tr:hover th {
   color: #f0f6fc;
 }
 
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme]) .table-hover tbody tr:hover td,
-  :root:not([data-theme]) .table-hover tbody tr:hover th {
+  :root:not([data-bs-theme]) .table-hover tbody tr:hover td,
+  :root:not([data-bs-theme]) .table-hover tbody tr:hover th {
     color: #f0f6fc;
   }
 }
