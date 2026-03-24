@@ -317,7 +317,7 @@ class WikiRoutes {
         'ngdpbase.applicationName',
         'ngdpbase'
       ),
-      faviconPath: themePaths.faviconPath,
+      faviconPath: (configManager?.getProperty('ngdpbase.faviconPath') as string) || themePaths.faviconPath,
       pages: await pageManager.getAllPages(),
       activeTheme: themePaths.activeTheme,
       coreCssPath: themePaths.coreCssPath,

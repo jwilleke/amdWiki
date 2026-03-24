@@ -68,7 +68,7 @@ export class ThemeManager {
       coreCssPath: '/themes/core.css',
       variablesCssPath: this.resolveVariablesCssPath(t),
       logoPath: this.resolveLogoPath(assetsDir, t),
-      faviconPath: `/themes/${t}/assets/favicon.png`,
+      faviconPath: this.resolveFaviconPath(assetsDir, t),
       locationCssPath: '/themes/plugins/location.css',
       themeInfo,
       fontUrls: Array.isArray(themeInfo?.fonts) ? themeInfo.fonts : []
@@ -83,6 +83,17 @@ export class ThemeManager {
     }
     // No theme-specific variables — core.css generic Bootstrap mappings are sufficient
     return '/themes/core-variables-empty.css';
+  }
+
+  /** Resolve favicon path: prefer favicon.svg → favicon.png */
+  private resolveFaviconPath(assetsDir: string, t: string): string {
+    const candidates = ['favicon.svg', 'favicon.png'];
+    for (const file of candidates) {
+      if (fs.existsSync(path.join(assetsDir, file))) {
+        return `/themes/${t}/assets/${file}`;
+      }
+    }
+    return `/themes/${t}/assets/favicon.png`;
   }
 
   /** Resolve logo path: prefer logo.svg → logo.png → favicon.svg → favicon.png */

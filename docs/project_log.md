@@ -24,6 +24,25 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-03-24-07
+
+- Agent: Claude Sonnet 4.6
+- Subject: fix: wrong favicon in browser tab — resolve svg > png consistently (#378)
+- Key Decision: Two-part fix. (1) `ThemeManager.faviconPath` was hardcoded to `.png` while `logoPath` already preferred `.svg` — added `resolveFaviconPath()` with same `favicon.svg → favicon.png` preference order so tab and navbar use the same file. (2) `faviconPath` template var in `renderPage` now prefers `ngdpbase.faviconPath` config key over theme path, implementing the config-driven design described in the issue.
+- Current Issue: #378
+- Testing:
+  - npm test: 86 suites passed, 2227 tests passed
+- Work Done:
+  - Added `resolveFaviconPath()` to `ThemeManager` (svg before png)
+  - `buildPaths()` uses `resolveFaviconPath()` instead of hardcoded `.png`
+  - `WikiRoutes.renderPage` template `faviconPath` = `configManager.getProperty('ngdpbase.faviconPath') || themePaths.faviconPath`
+- Commits: TBD
+- Files Modified:
+  - src/managers/ThemeManager.ts
+  - src/routes/WikiRoutes.ts
+
+---
+
 ## 2026-03-24-06
 
 - Agent: Claude Sonnet 4.6
