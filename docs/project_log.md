@@ -24,6 +24,34 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-03-24-02
+
+- Agent: Claude Sonnet 4.6
+- Subject: feat: Bootstrap-native mobile navigation (#371 #372 #373 #374 #375)
+- Key Decision: Use Bootstrap navbar-expand-md for header, offcanvas for all mobile nav; avoid custom JS where Bootstrap data-bs-* attributes suffice
+- Current Issue: #371 #372 #373 #374 #375 (open)
+- Testing:
+  - npm test: 86 suites passed, 2227 tests passed
+  - E2E mobile-chrome: 24 new tests all passing (Pixel 5 viewport)
+- Work Done:
+  - Converted `.jspwiki-header` to `<nav class="navbar navbar-expand-md">` — mobile shows logo + user icon only, search in collapsed navbar
+  - Navigation action buttons (Info/Edit/More, Trail) hidden on mobile via `d-none d-md-block`; all accessible in offcanvas
+  - Offcanvas expanded: mobile search bar at top, sidebar links (via JS), page actions section (Edit/Info/History/Reader View/Attachments) via static EJS
+  - Added `mobile-chrome` Playwright project (Pixel 5) to `playwright.config.js`
+  - CSS #372: `.markdown-body table` scrollable, `.markdown-body img` max-width 100%
+  - CSS #373: 44px min-height touch targets for nav buttons on mobile
+  - CSS #374: reviewed !important; legitimate theme overrides kept
+  - CSS #375: mobile hamburger uses `data-bs-toggle="offcanvas"` — zero custom JS on mobile
+  - 24 E2E tests: mobile offcanvas, page actions, responsive content, desktop sidebar toggle
+- Commits: 00cedcd
+- Files Modified:
+  - views/header.ejs
+  - public/css/style.css
+  - playwright.config.js
+  - tests/e2e/mobile-navigation.spec.js (new)
+
+---
+
 ## 2026-03-24-01
 
 - Agent: Claude Sonnet 4.6
