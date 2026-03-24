@@ -322,16 +322,16 @@
                         </ul>
                     <% } %>
 
-                    <!-- Theme toggle — below LeftMenu entries (#377) -->
-                    <div class="border-top mt-3 pt-2">
-                        <button type="button"
-                                class="btn btn-sm w-100 d-flex align-items-center gap-2 text-start theme-toggle-btn"
-                                onclick="window.themeManager && window.themeManager.cycleTheme()"
-                                title="Toggle theme">
-                            <i class="fas fa-adjust"></i>
-                            <span class="theme-label">Theme: System</span>
-                        </button>
-                    </div>
+                </div>
+                <!-- Theme toggle — outside sidebar-sticky so it is NOT cloned into offcanvas (#377) -->
+                <div class="px-3 pb-3 border-top pt-2">
+                    <button type="button"
+                            class="btn btn-sm w-100 d-flex align-items-center gap-2 text-start theme-toggle-btn"
+                            onclick="window.themeManager && window.themeManager.cycleTheme()"
+                            title="Toggle theme">
+                        <i class="fas fa-adjust"></i>
+                        <span class="theme-label">Theme: System</span>
+                    </button>
                 </div>
             </nav>
 
@@ -1283,6 +1283,8 @@ function initializeLeftMenuState() {
     var offcanvasBody = document.getElementById('mobile-nav-body');
     if (sidebarBody && offcanvasBody) {
         offcanvasBody.innerHTML = sidebarBody.innerHTML;
+        // Re-sync theme button label now that the offcanvas static button exists in DOM
+        if (window.themeManager) window.themeManager.updateButtons();
     }
 
     // Desktop: restore saved preference (sidebar visible by default)

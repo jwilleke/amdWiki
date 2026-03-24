@@ -62,10 +62,10 @@ module.exports = defineConfig({
       timeout: 150000,
     },
 
-    // Chromium tests (main browser) - excludes admin-maintenance which modifies global server state
+    // Chromium tests (main browser) - excludes files owned by dedicated viewport projects
     {
       name: 'chromium',
-      testIgnore: /admin-maintenance\.spec\.js/,
+      testIgnore: /admin-maintenance\.spec\.js|mobile-navigation\.spec\.js/,
       use: {
         browserName: 'chromium',
         // Use setup project for authenticated tests
