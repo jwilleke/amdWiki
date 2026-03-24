@@ -24,6 +24,24 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-03-24-08
+
+- Agent: Claude Sonnet 4.6
+- Subject: fix: app-level favicon always overrides theme for both tab and navbar logo (#378)
+- Key Decision: Config `ngdpbase.faviconPath` now drives both `faviconPath` (browser tab `<link rel="icon">`) AND `logoPath` (navbar `<img>`) in `renderPage`. ThemeManager logo/favicon fallback updated to use `/favicon.svg` (public-level) when theme has no assets, ensuring a logo is always available even for a bare-bones Bootswatch drop-in theme.
+- Current Issue: #378
+- Testing:
+  - npm test: 86 suites passed, 2227 tests passed
+- Work Done:
+  - `WikiRoutes.renderPage` sets `logoPath = config favicon || theme logoPath` (config overrides theme)
+  - `ThemeManager.resolveFaviconPath` and `resolveLogoPath` fall back to `/favicon.svg` instead of a non-existent theme PNG
+- Commits: TBD
+- Files Modified:
+  - src/managers/ThemeManager.ts
+  - src/routes/WikiRoutes.ts
+
+---
+
 ## 2026-03-24-07
 
 - Agent: Claude Sonnet 4.6

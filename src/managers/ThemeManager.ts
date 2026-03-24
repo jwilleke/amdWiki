@@ -85,7 +85,7 @@ export class ThemeManager {
     return '/themes/core-variables-empty.css';
   }
 
-  /** Resolve favicon path: prefer favicon.svg → favicon.png */
+  /** Resolve favicon path: prefer favicon.svg → favicon.png → public fallback */
   private resolveFaviconPath(assetsDir: string, t: string): string {
     const candidates = ['favicon.svg', 'favicon.png'];
     for (const file of candidates) {
@@ -93,10 +93,11 @@ export class ThemeManager {
         return `/themes/${t}/assets/${file}`;
       }
     }
-    return `/themes/${t}/assets/favicon.png`;
+    // No theme favicon — fall back to the public-level default
+    return '/favicon.svg';
   }
 
-  /** Resolve logo path: prefer logo.svg → logo.png → favicon.svg → favicon.png */
+  /** Resolve logo path: prefer logo.svg → logo.png → favicon.svg → favicon.png → public fallback */
   private resolveLogoPath(assetsDir: string, t: string): string {
     const candidates = ['logo.svg', 'logo.png', 'favicon.svg', 'favicon.png'];
     for (const file of candidates) {
@@ -104,7 +105,8 @@ export class ThemeManager {
         return `/themes/${t}/assets/${file}`;
       }
     }
-    return `/themes/${t}/assets/favicon.png`;
+    // No theme logo or favicon — fall back to the public-level default
+    return '/favicon.svg';
   }
 
   get paths(): ThemePaths {

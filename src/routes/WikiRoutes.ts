@@ -317,12 +317,13 @@ class WikiRoutes {
         'ngdpbase.applicationName',
         'ngdpbase'
       ),
+      // App-level favicon overrides theme assets for both the browser tab and navbar logo
       faviconPath: (configManager?.getProperty('ngdpbase.faviconPath') as string) || themePaths.faviconPath,
       pages: await pageManager.getAllPages(),
       activeTheme: themePaths.activeTheme,
       coreCssPath: themePaths.coreCssPath,
       variablesCssPath: themePaths.variablesCssPath,
-      logoPath: themePaths.logoPath,
+      logoPath: (configManager?.getProperty('ngdpbase.faviconPath') as string) || themePaths.logoPath,
       locationCssPath: themePaths.locationCssPath,
       themeFontUrls: themePaths.fontUrls,
       addonStylesheets
