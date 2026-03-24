@@ -24,6 +24,43 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-03-24-12
+
+- Agent: Claude Sonnet 4.6
+- Subject: feat: add doc help icons to admin dashboard; fix nested anchors and btn styles (#376)
+- Key Decision: Nested `<a>` tags inside `<a>`/`<button>` elements are invalid HTML. Pattern: wrap each button+doc-icon pair in `<span class="d-inline-flex align-items-center gap-1">` so the doc link is a sibling, not a child. `--btn-*` CSS variables were undefined (no visual effect); replaced with Bootstrap semantic classes.
+- Current Issue: #376
+- Testing:
+  - E2E: 65 passed (1 pre-existing flaky logout test unrelated to changes)
+- Work Done:
+  - Fixed all nested `<a>` tags in `admin-dashboard.ejs` (User Management, Administrative Tools, System Settings sections)
+  - Replaced `--btn-secondary-bg/--btn-outline-*-bg` inline styles with `btn-secondary`, `btn-outline-danger`, `btn-outline-info`, `btn-outline-secondary`
+  - Added missing doc icons for Manage Users, InterWiki, Settings buttons
+  - Added doc icon to Administrative Tools section header
+  - Closed #376 on GitHub
+- Commits: 5b543b0
+- Files Modified:
+  - views/admin-dashboard.ejs
+
+---
+
+## 2026-03-24-11
+
+- Agent: Claude Sonnet 4.6
+- Subject: close #371-#375 — Bootstrap navbar / mobile / CSS audit (previously committed)
+- Key Decision: All work for #371-#375 was committed in 00cedcd earlier in the session; acceptance criteria verified against E2E tests (26 passed) and issue tracker. Closed all five issues on GitHub.
+- Current Issue: #371 #372 #373 #374 #375
+- Testing:
+  - E2E: 26 mobile-navigation tests passed
+- Work Done:
+  - Migrated remaining `[data-theme]` selectors in style.css to `[data-bs-theme]` (#377)
+  - Closed #371–#375 on GitHub after verifying acceptance criteria
+- Commits: c0ca985, 4a059ab
+- Files Modified:
+  - public/css/style.css
+
+---
+
 ## 2026-03-24-10
 
 - Agent: Claude Sonnet 4.6
