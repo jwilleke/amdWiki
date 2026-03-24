@@ -24,6 +24,58 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-03-24-04
+
+- Agent: Claude Sonnet 4.6
+- Subject: feat: Bootstrap theme compatibility — data-bs-theme, variable direction, theme toggle UX (#377)
+- Key Decision: Flip CSS variable direction so custom vars inherit Bootstrap vars (`--bg-primary: var(--bs-body-bg, fallback)`) instead of overriding them — enables any Bootswatch theme to work automatically
+- Current Issue: #377 Bootstrap theme compatibility (implemented)
+- Testing:
+  - E2E: 77 tests passed (chromium + mobile-chrome)
+- Work Done:
+  - Migrated JS from `data-theme` → `data-bs-theme` on `<html>`; removed `createThemeToggle()` body-append
+  - Added static `button.theme-toggle-btn` in sidebar (below LeftMenu) and offcanvas footer
+  - Removed floating fixed-position theme toggle (was intercepting Playwright test clicks)
+  - Overhauled `themes/default/css/variables.css`: BS vars set in `:root` and `[data-bs-theme="dark"]`; all custom vars inherit via `var(--bs-*, fallback)`
+  - Updated `themes/core.css`: `[data-theme="dark"]` → `[data-bs-theme="dark"]` throughout
+  - Replaced floating `.theme-toggle` CSS with inline `.theme-toggle-btn` styles
+- Commits: e37171b
+- Files Modified:
+  - views/header.ejs
+  - themes/core.css
+  - themes/default/css/variables.css
+
+---
+
+## 2026-03-24-03
+
+- Agent: Claude Sonnet 4.6
+- Subject: fix: core.css mobile layout bugs — blank left column, horizontal scroll (#375)
+- Key Decision: Root cause was `main[role="main"].col-md-9 { margin-left: 16.66667% }` with no media query guard; class-selector specificity (0-1-1) beat the mobile reset (0-1-0). Also removed `ms-sm-auto` and zeroed `.container-fluid` padding that caused Bootstrap row overflow.
+- Current Issue: #375 (follow-up fix)
+- Testing:
+  - E2E mobile-chrome: all tests passing after fix
+- Work Done:
+  - Removed unconditional `margin-left: 16.66667%` from `main[role="main"].col-md-9` in core.css; replaced with `@media (min-width: 768px)` guard
+  - Removed `.container-fluid { padding-left: 0; padding-right: 0 }` — was causing 12px horizontal overflow due to Bootstrap row negative margins
+  - Updated mobile `@media (max-width: 767.98px)` block with `!important` overrides for main width/margin
+  - Removed duplicate `@media (max-width: 768px)` block
+  - Changed main element classes: `col-md-9 ms-sm-auto col-lg-10 px-4` → `col-12 col-md-9 col-lg-10 px-md-4 px-2`
+  - Updated `toggleLeftMenu()` JS to remove `ms-sm-auto` and use `col-12` as permanent base
+  - Added 2 new E2E tests: "main content fills viewport width" and "no horizontal scrollbar on mobile"
+  - Version bumped 3.0.1 → 3.0.2
+- Commits: 66f792e 68ac48f
+- Files Modified:
+  - views/header.ejs
+  - themes/core.css
+  - public/css/style.css
+  - tests/e2e/mobile-navigation.spec.js
+  - package.json
+  - config/app-default-config.json
+  - CHANGELOG.md
+
+---
+
 ## 2026-03-24-02
 
 - Agent: Claude Sonnet 4.6
