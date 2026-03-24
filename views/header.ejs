@@ -295,6 +295,16 @@
     <div class="container-fluid">
         <div class="row">
             <nav class="col-md-2 sidebar jspwiki-sidebar">
+                <!-- Theme toggle at top of sidebar — outside sidebar-sticky so it is NOT cloned into offcanvas (#377) -->
+                <div class="px-3 pt-2 pb-1 border-bottom">
+                    <button type="button"
+                            class="btn btn-sm w-100 d-flex align-items-center gap-2 text-start theme-toggle-btn"
+                            onclick="window.themeManager && window.themeManager.cycleTheme()"
+                            title="Toggle theme">
+                        <i class="fas fa-adjust"></i>
+                        <span class="theme-label">Theme: System</span>
+                    </button>
+                </div>
                 <div class="sidebar-sticky px-3 pt-3">
                     <% if (typeof leftMenu !== 'undefined' && leftMenu) { %>
                         <div class="leftmenu-content">
@@ -322,16 +332,6 @@
                         </ul>
                     <% } %>
 
-                </div>
-                <!-- Theme toggle — outside sidebar-sticky so it is NOT cloned into offcanvas (#377) -->
-                <div class="px-3 pb-3 border-top pt-2">
-                    <button type="button"
-                            class="btn btn-sm w-100 d-flex align-items-center gap-2 text-start theme-toggle-btn"
-                            onclick="window.themeManager && window.themeManager.cycleTheme()"
-                            title="Toggle theme">
-                        <i class="fas fa-adjust"></i>
-                        <span class="theme-label">Theme: System</span>
-                    </button>
                 </div>
             </nav>
 
