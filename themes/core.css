@@ -1036,36 +1036,15 @@ pre, code {
     border-color: var(--code-border);
 }
 
-/* Theme Toggle Button - GitHub-inspired */
-.theme-toggle {
-    position: fixed;
-    top: 16px;
-    right: 16px;
-    z-index: 9999 !important;
-    background: var(--card-bg);
-    border: 1px solid var(--border-color);
-    border-radius: 6px;
-    width: 36px;
-    height: 36px;
-    display: flex !important;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: all 0.15s ease;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+/* Theme toggle button — inline in sidebar/offcanvas (#377) */
+.theme-toggle-btn {
+    color: var(--text-secondary);
+    background: transparent;
+    border: none;
 }
-
-.theme-toggle:hover {
-    background: var(--bg-tertiary);
-    border-color: var(--border-color-strong);
-    transform: none;
-    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
-}
-
-.theme-toggle i {
-    font-size: 0.875rem;
+.theme-toggle-btn:hover {
     color: var(--text-primary);
-    transition: color 0.15s ease;
+    background: var(--bg-tertiary);
 }
 
 /* System dark mode preferences live in each theme's variables.css
@@ -1125,18 +1104,18 @@ table.zebra-table tbody tr.zebra-even th {
 }
 
 /* Brighter text on striped rows in dark mode (only when NOT using custom colors) */
-[data-theme="dark"] .table-striped tbody tr.zebra-even td,
-[data-theme="dark"] .table-striped tbody tr.zebra-even th,
-[data-theme="dark"] .zebra-table:not([style*="--zebra-text-color"]) tbody tr.zebra-even td,
-[data-theme="dark"] .zebra-table:not([style*="--zebra-text-color"]) tbody tr.zebra-even th {
+[data-bs-theme="dark"] .table-striped tbody tr.zebra-even td,
+[data-bs-theme="dark"] .table-striped tbody tr.zebra-even th,
+[data-bs-theme="dark"] .zebra-table:not([style*="--zebra-text-color"]) tbody tr.zebra-even td,
+[data-bs-theme="dark"] .zebra-table:not([style*="--zebra-text-color"]) tbody tr.zebra-even th {
   color: #f0f6fc;
 }
 
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme]) .table-striped tbody tr.zebra-even td,
-  :root:not([data-theme]) .table-striped tbody tr.zebra-even th,
-  :root:not([data-theme]) .zebra-table:not([style*="--zebra-text-color"]) tbody tr.zebra-even td,
-  :root:not([data-theme]) .zebra-table:not([style*="--zebra-text-color"]) tbody tr.zebra-even th {
+  :root:not([data-bs-theme]) .table-striped tbody tr.zebra-even td,
+  :root:not([data-bs-theme]) .table-striped tbody tr.zebra-even th,
+  :root:not([data-bs-theme]) .zebra-table:not([style*="--zebra-text-color"]) tbody tr.zebra-even td,
+  :root:not([data-bs-theme]) .zebra-table:not([style*="--zebra-text-color"]) tbody tr.zebra-even th {
     color: #f0f6fc;
   }
 }
@@ -1163,14 +1142,14 @@ table[data-zebra] tbody tr.zebra-hover,
 }
 
 /* Brighter text on hover in dark mode */
-[data-theme="dark"] .table-hover tbody tr:hover td,
-[data-theme="dark"] .table-hover tbody tr:hover th {
+[data-bs-theme="dark"] .table-hover tbody tr:hover td,
+[data-bs-theme="dark"] .table-hover tbody tr:hover th {
   color: #f0f6fc;
 }
 
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme]) .table-hover tbody tr:hover td,
-  :root:not([data-theme]) .table-hover tbody tr:hover th {
+  :root:not([data-bs-theme]) .table-hover tbody tr:hover td,
+  :root:not([data-bs-theme]) .table-hover tbody tr:hover th {
     color: #f0f6fc;
   }
 }

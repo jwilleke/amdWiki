@@ -279,6 +279,16 @@
                 <% } %>
             </nav>
             <% } %>
+
+            <!-- Theme toggle at bottom of offcanvas (#377) -->
+            <hr class="mt-auto mb-2">
+            <button type="button"
+                    class="btn btn-sm w-100 d-flex align-items-center gap-2 text-start theme-toggle-btn"
+                    onclick="window.themeManager && window.themeManager.cycleTheme()"
+                    title="Toggle theme">
+                <i class="fas fa-adjust"></i>
+                <span class="theme-label">Theme: System</span>
+            </button>
         </div>
     </div>
 
@@ -311,6 +321,17 @@
                             </li>
                         </ul>
                     <% } %>
+
+                    <!-- Theme toggle — below LeftMenu entries (#377) -->
+                    <div class="border-top mt-3 pt-2">
+                        <button type="button"
+                                class="btn btn-sm w-100 d-flex align-items-center gap-2 text-start theme-toggle-btn"
+                                onclick="window.themeManager && window.themeManager.cycleTheme()"
+                                title="Toggle theme">
+                            <i class="fas fa-adjust"></i>
+                            <span class="theme-label">Theme: System</span>
+                        </button>
+                    </div>
                 </div>
             </nav>
 
@@ -1135,36 +1156,26 @@
 
 <!-- Theme Manager -->
 <script>
-// Simple embedded theme manager with system preference support
+// Theme manager — uses Bootstrap-native data-bs-theme on <html>
 class SimpleThemeManager {
     constructor() {
-        console.log('🎨 Theme Manager: Starting initialization...');
         this.themes = ['light', 'dark', 'system'];
         this.currentTheme = localStorage.getItem('theme-preference') || 'system';
         this.systemTheme = this.getSystemTheme();
-        
-        console.log('🎨 Theme Manager: Initial state:', {
-            currentTheme: this.currentTheme,
-            systemTheme: this.systemTheme,
-            stored: localStorage.getItem('theme-preference')
-        });
-        
+
         this.applyTheme();
-        this.createThemeToggle();
-        
-        // Listen for system theme changes
+        this.updateButtons();
+
+        // Listen for OS theme changes
         if (window.matchMedia) {
             window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
-                console.log('🎨 System theme changed:', e.matches ? 'dark' : 'light');
                 this.systemTheme = e.matches ? 'dark' : 'light';
                 if (this.currentTheme === 'system') {
                     this.applyTheme();
-                    this.updateButton();
+                    this.updateButtons();
                 }
             });
         }
-        
-        console.log('🎨 Theme Manager: Initialization complete');
     }
     
     getSystemTheme() {
@@ -1184,123 +1195,50 @@ class SimpleThemeManager {
     applyTheme() {
         const effectiveTheme = this.getEffectiveTheme();
         const html = document.documentElement;
-        
-        console.log('🎨 Applying theme:', this.currentTheme, '(effective:', effectiveTheme + ')');
-        
-        // Remove existing theme attributes
-        html.removeAttribute('data-theme');
-        
-        // Apply new theme
-        if (effectiveTheme === 'dark') {
-            html.setAttribute('data-theme', 'dark');
-            document.body.style.backgroundColor = '#1a1a1a';
-            document.body.style.color = '#e9ecef';
-        } else {
-            html.setAttribute('data-theme', 'light');
-            document.body.style.backgroundColor = '#ffffff';
-            document.body.style.color = '#212529';
-        }
-        
-        console.log('🎨 Theme applied - HTML data-theme:', html.getAttribute('data-theme'));
-        console.log('🎨 Theme applied - Body background:', document.body.style.backgroundColor);
-        
-        // Add a visible debug indicator
-        let debugDiv = document.getElementById('theme-debug');
-        if (!debugDiv) {
-            debugDiv = document.createElement('div');
-            debugDiv.id = 'theme-debug';
-            debugDiv.style.cssText = `
-                position: fixed;
-                bottom: 20px;
-                left: 20px;
-                background: rgba(0,0,0,0.8);
-                color: white;
-                padding: 10px;
-                border-radius: 5px;
-                z-index: 9998;
-                font-family: monospace;
-                font-size: 12px;
-            `;
-            document.body.appendChild(debugDiv);
-        }
-        debugDiv.textContent = `Theme: ${this.currentTheme} (${effectiveTheme})`;
-        
-        // Force a reflow to ensure styles are applied
-        document.body.offsetHeight;
+        // Bootstrap-native: data-bs-theme drives Bootstrap components AND our CSS vars
+        html.setAttribute('data-bs-theme', effectiveTheme);
     }
     
     cycleTheme() {
-        const oldTheme = this.currentTheme;
         const currentIndex = this.themes.indexOf(this.currentTheme);
-        const nextIndex = (currentIndex + 1) % this.themes.length;
-        this.currentTheme = this.themes[nextIndex];
-        
-        console.log('🎨 Theme cycling:', oldTheme, '→', this.currentTheme);
-        
+        this.currentTheme = this.themes[(currentIndex + 1) % this.themes.length];
         localStorage.setItem('theme-preference', this.currentTheme);
         this.applyTheme();
-        this.updateButton();
-        
-        // Show a brief visual feedback
-        if (this.toggleButton) {
-            this.toggleButton.style.background = 'var(--bg-tertiary)';
-            setTimeout(() => {
-                this.toggleButton.style.background = 'var(--card-bg)';
-            }, 200);
-        }
+        this.updateButtons();
     }
-    
-    createThemeToggle() {
-        const toggle = document.createElement('div');
-        toggle.id = 'theme-toggle';
-        toggle.className = 'theme-toggle';
-        toggle.innerHTML = '<i class="fas fa-palette"></i>';
-        toggle.title = 'Toggle Theme';
-        
-        toggle.addEventListener('click', () => {
-            console.log('🎨 Theme toggle clicked!');
-            this.cycleTheme();
-        });
-        
-        toggle.addEventListener('mouseenter', () => {
-            toggle.style.background = 'var(--bg-tertiary)';
-        });
-        
-        toggle.addEventListener('mouseleave', () => {
-            toggle.style.background = 'var(--card-bg)';
-        });
-        
-        document.body.appendChild(toggle);
-        this.toggleButton = toggle;
-        this.updateButton();
-    }
-    
-    updateButton() {
-        if (!this.toggleButton) return;
-        const icon = this.toggleButton.querySelector('i');
+
+    updateButtons() {
         const effectiveTheme = this.getEffectiveTheme();
-        
+        let iconClass, title;
         switch (this.currentTheme) {
             case 'light':
-                icon.className = 'fas fa-sun';
-                this.toggleButton.title = 'Theme: Light (click for Dark)';
+                iconClass = 'fas fa-sun';
+                title = 'Theme: Light — click for Dark';
                 break;
             case 'dark':
-                icon.className = 'fas fa-moon';
-                this.toggleButton.title = 'Theme: Dark (click for System)';
+                iconClass = 'fas fa-moon';
+                title = 'Theme: Dark — click for System';
                 break;
-            case 'system':
-                icon.className = 'fas fa-adjust';
-                this.toggleButton.title = `Theme: System (${effectiveTheme}) (click for Light)`;
-                break;
+            default:
+                iconClass = 'fas fa-adjust';
+                title = `Theme: System (${effectiveTheme}) — click for Light`;
         }
+        // Update all theme toggle buttons (sidebar + offcanvas)
+        document.querySelectorAll('.theme-toggle-btn').forEach(btn => {
+            const icon = btn.querySelector('i');
+            const label = btn.querySelector('.theme-label');
+            if (icon) icon.className = iconClass;
+            if (label) label.textContent = title.split(' — ')[0];
+            btn.title = title;
+        });
     }
 }
 
 // Initialize when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
     window.themeManager = new SimpleThemeManager();
-    console.log('Simple Theme Manager initialized with theme:', window.themeManager.currentTheme);
+    // updateButtons runs after DOM is ready so sidebar/offcanvas buttons exist
+    window.themeManager.updateButtons();
     
     // Check for user changes and server restarts
     checkUserChange();

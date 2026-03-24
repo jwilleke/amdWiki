@@ -64,71 +64,67 @@
   --zebra-row-odd: rgba(2, 6, 19, 0);
   --zebra-row-hover: rgba(88, 166, 255, 0.24);
 
-  /* Bootstrap 5 native variable alignment — lazy var() so dark mode overrides propagate automatically */
-  --bs-body-bg:                   var(--bg-primary);
-  --bs-body-color:                var(--text-primary);
-  --bs-secondary-bg:              var(--bg-secondary);
-  --bs-tertiary-bg:               var(--bg-tertiary);
-  --bs-secondary-color:           var(--text-secondary);
-  --bs-tertiary-color:            var(--text-muted);
-  --bs-emphasis-color:            var(--text-heading);
-  --bs-heading-color:             var(--text-heading);
-  --bs-link-color:                var(--link-color);
-  --bs-link-hover-color:          var(--link-hover);
-  --bs-border-color:              var(--border-color);
-  --bs-border-color-translucent:  var(--border-color);
-  --bs-code-color:                var(--text-primary);
-  --bs-card-bg:                   var(--card-bg);
-  --bs-card-border-color:         var(--card-border);
-  --bs-card-cap-bg:               var(--bg-secondary);
-  --bs-card-color:                var(--text-primary);
-  --bs-modal-bg:                  var(--card-bg);
-  --bs-modal-border-color:        var(--border-color);
-  --bs-modal-header-border-color: var(--border-color);
-  --bs-modal-footer-border-color: var(--border-color);
-  --bs-modal-color:               var(--text-primary);
-  --bs-modal-header-bg:           var(--bg-secondary);
-  --bs-dropdown-bg:               var(--card-bg);
-  --bs-dropdown-border-color:     var(--border-color);
-  --bs-dropdown-color:            var(--text-primary);
-  --bs-dropdown-link-color:       var(--text-primary);
-  --bs-dropdown-link-hover-bg:    var(--bg-secondary);
-  --bs-dropdown-link-hover-color: var(--text-primary);
-  --bs-dropdown-divider-bg:       var(--border-color);
-  --bs-table-color:               var(--text-primary);
-  --bs-table-bg:                  transparent;
-  --bs-table-striped-bg:          var(--table-stripe);
-  --bs-table-hover-bg:            var(--table-hover);
-  --bs-table-border-color:        var(--border-color);
-  --bs-form-valid-color:          var(--alert-success-text);
-  --bs-form-invalid-color:        var(--alert-danger-text);
+  /* Bootstrap 5 native variables — set here so any Bootswatch theme that overrides
+     these in [data-bs-theme] will automatically cascade into our custom vars below.
+     Direction: --bs-* → our vars (NOT the other way). */
+  --bs-body-bg:                   #ffffff;
+  --bs-body-color:                #212529;
+  --bs-secondary-bg:              #f8f9fa;
+  --bs-tertiary-bg:               #e9ecef;
+  --bs-secondary-color:           #6c757d;
+  --bs-tertiary-color:            #adb5bd;
+  --bs-emphasis-color:            #000;
+  --bs-heading-color:             inherit;
+  --bs-link-color:                #0d6efd;
+  --bs-link-hover-color:          #0a58ca;
+  --bs-border-color:              #dee2e6;
+
+  /* Our semantic vars inherit from Bootstrap vars with our light-mode fallbacks */
+  --bg-primary:        var(--bs-body-bg, #ffffff);
+  --bg-secondary:      var(--bs-secondary-bg, #f8f9fa);
+  --bg-tertiary:       var(--bs-tertiary-bg, #e9ecef);
+  --text-primary:      var(--bs-body-color, #212529);
+  --text-secondary:    var(--bs-secondary-color, #6c757d);
+  --text-muted:        var(--bs-tertiary-color, #adb5bd);
+  --text-heading:      var(--bs-heading-color, #212529);
+  --text-content:      var(--bs-body-color, #333333);
+  --border-color:      var(--bs-border-color, #dee2e6);
+  --border-color-strong: var(--bs-border-color, #adb5bd);
+  --link-color:        var(--bs-link-color, #007bff);
+  --link-hover:        var(--bs-link-hover-color, #0056b3);
+  --card-bg:           var(--bs-body-bg, #ffffff);
+  --card-border:       var(--bs-border-color, #dee2e6);
+  --navbar-bg:         var(--bs-secondary-bg, #f8f9fa);
+  --navbar-border:     var(--bs-border-color, #dee2e6);
+  --input-bg:          var(--bs-body-bg, #ffffff);
+  --input-border:      var(--bs-border-color, #ced4da);
+  --code-bg:           var(--bs-tertiary-bg, #f8f9fa);
+  --code-border:       var(--bs-border-color, #e9ecef);
 }
 
-/* Explicit dark mode (data-theme="dark" on <html>) — GitHub-inspired */
-[data-theme="dark"] {
-  --bg-primary: #0d1117;
-  --bg-secondary: #161b22;
-  --bg-tertiary: #21262d;
+/* Explicit dark mode — Bootstrap-native data-bs-theme="dark" on <html>
+   Setting --bs-* vars here means Bootstrap's own components (modals, dropdowns,
+   offcanvas, etc.) go dark automatically. Our --bg-*/--text-* vars then inherit
+   via var(--bs-body-bg, ...) defined in :root above. */
+[data-bs-theme="dark"] {
+  /* Bootstrap vars — these drive Bootstrap components AND our semantic vars */
+  --bs-body-bg:        #0d1117;
+  --bs-body-color:     #e6edf3;
+  --bs-secondary-bg:   #161b22;
+  --bs-tertiary-bg:    #21262d;
+  --bs-secondary-color: #7d8590;
+  --bs-tertiary-color: #656d76;
+  --bs-emphasis-color: #f0f6fc;
+  --bs-heading-color:  #f0f6fc;
+  --bs-link-color:     #58a6ff;
+  --bs-link-hover-color: #79c0ff;
+  --bs-border-color:   #30363d;
 
-  --text-primary: #e6edf3;
-  --text-secondary: #7d8590;
-  --text-muted: #656d76;
-  --text-heading: #f0f6fc;
-  --text-content: #c9d1d9;
-
-  --border-color: #30363d;
+  /* Additional custom vars not covered by Bootstrap's own dark mode */
   --border-color-strong: #484f58;
-
-  --link-color: #58a6ff;
-  --link-hover: #79c0ff;
-
-  --card-bg: #161b22;
-  --card-border: #30363d;
-  --navbar-bg: #010409;
-  --navbar-border: #21262d;
-
-  --input-bg: #0d1117;
-  --input-border: #30363d;
+  --navbar-bg:         #010409;
+  --navbar-border:     #21262d;
+  --input-border:      #30363d;
   --button-primary-bg: #238636;
   --button-primary-hover: #2ea043;
 
@@ -142,9 +138,6 @@
   --alert-info-border: #388bfd;
   --alert-info-text: #58a6ff;
 
-  --code-bg: #161b22;
-  --code-border: #30363d;
-
   --table-stripe: #1a1a1a;
   --table-hover: rgba(88, 166, 255, 0.15);
   --zebra-row-even: #1a1a1a;
@@ -152,25 +145,25 @@
   --zebra-row-hover: rgba(88, 166, 255, 0.15);
 }
 
-/* System dark mode (no explicit data-theme set) */
+/* System dark mode (JS hasn't run yet / no explicit preference) */
+/* System dark mode — applies when OS is dark but JS hasn't set data-bs-theme yet.
+   Also sets --bs-* so Bootstrap components go dark before JS fires. */
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme]) {
-    --bg-primary: #1a1a1a;
-    --bg-secondary: #2d2d2d;
-    --bg-tertiary: #404040;
-    --text-primary: #e9ecef;
-    --text-secondary: #ced4da;
-    --text-muted: #adb5bd;
-    --border-color: #495057;
+  :root:not([data-bs-theme]) {
+    --bs-body-bg:        #1a1a1a;
+    --bs-body-color:     #e9ecef;
+    --bs-secondary-bg:   #2d2d2d;
+    --bs-tertiary-bg:    #404040;
+    --bs-secondary-color: #ced4da;
+    --bs-tertiary-color: #adb5bd;
+    --bs-border-color:   #495057;
+    --bs-link-color:     #66b3ff;
+    --bs-link-hover-color: #4da6ff;
+
     --border-color-strong: #6c757d;
-    --link-color: #66b3ff;
-    --link-hover: #4da6ff;
-    --card-bg: #2d2d2d;
-    --card-border: #495057;
-    --navbar-bg: #1a1a1a;
-    --navbar-border: #495057;
-    --input-bg: #404040;
-    --input-border: #6c757d;
+    --navbar-bg:         #1a1a1a;
+    --navbar-border:     #495057;
+    --input-border:      #6c757d;
     --button-primary-bg: #0d6efd;
     --button-primary-hover: #0b5ed7;
     --alert-success-bg: #0f5132;
@@ -179,8 +172,6 @@
     --alert-danger-bg: #842029;
     --alert-danger-border: #a52834;
     --alert-danger-text: #f8d7da;
-    --code-bg: #404040;
-    --code-border: #6c757d;
     --table-stripe: #252525;
     --table-hover: rgba(88, 166, 255, 0.15);
     --zebra-row-even: #252525;
