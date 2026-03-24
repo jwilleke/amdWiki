@@ -6,154 +6,133 @@
 
 /* Light mode (default) */
 :root {
-  /* Backgrounds */
-  --bg-primary: #fdf6f0;
-  --bg-secondary: #f5ebe0;
-  --bg-tertiary: #ecddd0;
+  /* Bootstrap 5 native variables — set here so any override in [data-bs-theme]
+     cascades into our custom vars below. Direction: --bs-* → our vars. */
+  --bs-body-bg:                   #fdf6f0;
+  --bs-body-color:                #2c1810;
+  --bs-secondary-bg:              #f5ebe0;
+  --bs-tertiary-bg:               #ecddd0;
+  --bs-secondary-color:           #5a3a2a;
+  --bs-tertiary-color:            #8a6a5a;
+  --bs-emphasis-color:            #1a0e08;
+  --bs-heading-color:             #1a0e08;
+  --bs-link-color:                #c0392b;
+  --bs-link-hover-color:          #922b21;
+  --bs-border-color:              #d4a898;
 
-  /* Text */
-  --text-primary: #2c1810;
-  --text-secondary: #5a3a2a;
-  --text-muted: #8a6a5a;
-  --text-heading: #1a0e08;
-  --text-content: #3d2214;
+  /* Custom semantic vars inherit from Bootstrap vars with volcanic fallbacks */
+  --bg-primary:      var(--bs-body-bg, #fdf6f0);
+  --bg-secondary:    var(--bs-secondary-bg, #f5ebe0);
+  --bg-tertiary:     var(--bs-tertiary-bg, #ecddd0);
+  --text-primary:    var(--bs-body-color, #2c1810);
+  --text-secondary:  var(--bs-secondary-color, #5a3a2a);
+  --text-muted:      var(--bs-tertiary-color, #8a6a5a);
+  --text-heading:    var(--bs-heading-color, #1a0e08);
+  --text-content:    var(--bs-body-color, #3d2214);
+  --border-color:    var(--bs-border-color, #d4a898);
+  --link-color:      var(--bs-link-color, #c0392b);
+  --link-hover:      var(--bs-link-hover-color, #922b21);
+  --card-bg:         var(--bs-body-bg, #fdf6f0);
+  --card-border:     var(--bs-border-color, #d4a898);
+  --input-bg:        var(--bs-body-bg, #ffffff);
+  --code-bg:         var(--bs-tertiary-bg, #f5ebe0);
 
-  /* Borders */
-  --border-color: #d4a898;
+  /* Volcano-specific vars not covered by Bootstrap */
   --border-color-strong: #b07060;
-
-  /* Links */
-  --link-color: #c0392b;
-  --link-hover: #922b21;
-
-  /* Cards */
-  --card-bg: #fdf6f0;
-  --card-border: #d4a898;
-
-  /* Navbar */
-  --navbar-bg: #2c1810;
-  --navbar-border: #4a2418;
-  --navbar-text: #f0ddd0;
-  --navbar-text-hover: #e85a40;
-
-  /* Form inputs */
-  --input-bg: #ffffff;
-  --input-border: #c4947a;
-
-  /* Buttons */
-  --button-primary-bg: #c0392b;
+  --navbar-bg:           #2c1810;
+  --navbar-border:       #4a2418;
+  --navbar-text:         #f0ddd0;
+  --navbar-text-hover:   #e85a40;
+  --input-border:        #c4947a;
+  --button-primary-bg:   #c0392b;
   --button-primary-hover: #922b21;
+  --code-border:         #e0c8b8;
 
   /* Alerts */
-  --alert-success-bg: #d4edda;
+  --alert-success-bg:     #d4edda;
   --alert-success-border: #c3e6cb;
-  --alert-success-text: #155724;
-  --alert-danger-bg: #f8d0cc;
-  --alert-danger-border: #f1b0aa;
-  --alert-danger-text: #7b1a14;
-  --alert-info-bg: #fde8d0;
-  --alert-info-border: #f9c8a0;
-  --alert-info-text: #7a3c10;
-
-  /* Code */
-  --code-bg: #f5ebe0;
-  --code-border: #e0c8b8;
+  --alert-success-text:   #155724;
+  --alert-danger-bg:      #f8d0cc;
+  --alert-danger-border:  #f1b0aa;
+  --alert-danger-text:    #7b1a14;
+  --alert-info-bg:        #fde8d0;
+  --alert-info-border:    #f9c8a0;
+  --alert-info-text:      #7a3c10;
 
   /* Tables */
-  --table-stripe: #f0e0d8;
-  --table-hover: #e8d0c8;
-  --zebra-row-even: rgba(192, 57, 43, 0.06);
-  --zebra-row-odd: rgba(192, 57, 43, 0);
-  --zebra-row-hover: rgba(192, 57, 43, 0.14);
-
-  /* Bootstrap 5 native variable alignment — lazy var() so dark mode overrides propagate automatically */
-  --bs-body-bg:                   var(--bg-primary);
-  --bs-body-color:                var(--text-primary);
-  --bs-secondary-bg:              var(--bg-secondary);
-  --bs-tertiary-bg:               var(--bg-tertiary);
-  --bs-secondary-color:           var(--text-secondary);
-  --bs-tertiary-color:            var(--text-muted);
-  --bs-emphasis-color:            var(--text-heading);
-  --bs-heading-color:             var(--text-heading);
-  --bs-link-color:                var(--link-color);
-  --bs-link-hover-color:          var(--link-hover);
-  --bs-border-color:              var(--border-color);
-  --bs-border-color-translucent:  var(--border-color);
-  --bs-code-color:                var(--text-primary);
-  --bs-card-bg:                   var(--card-bg);
-  --bs-card-border-color:         var(--card-border);
-  --bs-card-cap-bg:               var(--bg-secondary);
-  --bs-card-color:                var(--text-primary);
-  --bs-modal-bg:                  var(--card-bg);
-  --bs-modal-border-color:        var(--border-color);
-  --bs-modal-header-border-color: var(--border-color);
-  --bs-modal-footer-border-color: var(--border-color);
-  --bs-modal-color:               var(--text-primary);
-  --bs-modal-header-bg:           var(--bg-secondary);
-  --bs-dropdown-bg:               var(--card-bg);
-  --bs-dropdown-border-color:     var(--border-color);
-  --bs-dropdown-color:            var(--text-primary);
-  --bs-dropdown-link-color:       var(--text-primary);
-  --bs-dropdown-link-hover-bg:    var(--bg-secondary);
-  --bs-dropdown-link-hover-color: var(--text-primary);
-  --bs-dropdown-divider-bg:       var(--border-color);
-  --bs-table-color:               var(--text-primary);
-  --bs-table-bg:                  transparent;
-  --bs-table-striped-bg:          var(--table-stripe);
-  --bs-table-hover-bg:            var(--table-hover);
-  --bs-table-border-color:        var(--border-color);
-  --bs-form-valid-color:          var(--alert-success-text);
-  --bs-form-invalid-color:        var(--alert-danger-text);
+  --table-stripe:     #f0e0d8;
+  --table-hover:      #e8d0c8;
+  --zebra-row-even:   rgba(192, 57, 43, 0.06);
+  --zebra-row-odd:    rgba(192, 57, 43, 0);
+  --zebra-row-hover:  rgba(192, 57, 43, 0.14);
 }
 
-/* Explicit dark mode (data-theme="dark" on <html>) — volcanic night */
-[data-theme="dark"] {
-  --bg-primary: #1a0e08;
-  --bg-secondary: #261408;
-  --bg-tertiary: #351c10;
+/* Explicit dark mode — Bootstrap-native data-bs-theme="dark" on <html> */
+[data-bs-theme="dark"] {
+  /* Bootstrap vars — drive Bootstrap components AND our semantic vars */
+  --bs-body-bg:        #1a0e08;
+  --bs-body-color:     #f0ddd0;
+  --bs-secondary-bg:   #261408;
+  --bs-tertiary-bg:    #351c10;
+  --bs-secondary-color: #c4907a;
+  --bs-tertiary-color: #8a6a5a;
+  --bs-emphasis-color: #fae8d8;
+  --bs-heading-color:  #fae8d8;
+  --bs-link-color:     #e85a40;
+  --bs-link-hover-color: #ff7a60;
+  --bs-border-color:   #5a3020;
 
-  --text-primary: #f0ddd0;
-  --text-secondary: #c4907a;
-  --text-muted: #8a6a5a;
-  --text-heading: #fae8d8;
-  --text-content: #e0c0a8;
-
-  --border-color: #5a3020;
+  /* Volcano-specific vars not covered by Bootstrap's dark mode */
   --border-color-strong: #8a4a30;
-
-  --link-color: #e85a40;
-  --link-hover: #ff7a60;
-
-  --card-bg: #261408;
-  --card-border: #5a3020;
-
-  --navbar-bg: #110806;
-  --navbar-border: #3a1c0c;
-  --navbar-text: #f0ddd0;
-  --navbar-text-hover: #ff7a60;
-
-  --input-bg: #351c10;
-  --input-border: #7a4030;
-
-  --button-primary-bg: #c0392b;
+  --navbar-bg:           #110806;
+  --navbar-border:       #3a1c0c;
+  --navbar-text:         #f0ddd0;
+  --navbar-text-hover:   #ff7a60;
+  --input-border:        #7a4030;
+  --button-primary-bg:   #c0392b;
   --button-primary-hover: #e04030;
+  --code-border:         #4a2820;
 
-  --alert-success-bg: #1a3320;
+  --alert-success-bg:     #1a3320;
   --alert-success-border: #254d2c;
-  --alert-success-text: #88d8a0;
-  --alert-danger-bg: #3a1010;
-  --alert-danger-border: #5a1a18;
-  --alert-danger-text: #f09088;
-  --alert-info-bg: #3a2010;
-  --alert-info-border: #5a3418;
-  --alert-info-text: #f0a878;
+  --alert-success-text:   #88d8a0;
+  --alert-danger-bg:      #3a1010;
+  --alert-danger-border:  #5a1a18;
+  --alert-danger-text:    #f09088;
+  --alert-info-bg:        #3a2010;
+  --alert-info-border:    #5a3418;
+  --alert-info-text:      #f0a878;
 
-  --code-bg: #2c1610;
-  --code-border: #4a2820;
-
-  --table-stripe: #2a1608;
-  --table-hover: #3a2010;
-  --zebra-row-even: rgba(224, 80, 60, 0.08);
-  --zebra-row-odd: rgba(224, 80, 60, 0);
+  --table-stripe:    #2a1608;
+  --table-hover:     #3a2010;
+  --zebra-row-even:  rgba(224, 80, 60, 0.08);
+  --zebra-row-odd:   rgba(224, 80, 60, 0);
   --zebra-row-hover: rgba(224, 80, 60, 0.18);
+}
+
+/* System dark mode — applies when OS is dark but JS hasn't set data-bs-theme yet */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-bs-theme]) {
+    --bs-body-bg:        #1a0e08;
+    --bs-body-color:     #f0ddd0;
+    --bs-secondary-bg:   #261408;
+    --bs-tertiary-bg:    #351c10;
+    --bs-secondary-color: #c4907a;
+    --bs-tertiary-color: #8a6a5a;
+    --bs-border-color:   #5a3020;
+    --bs-link-color:     #e85a40;
+    --bs-link-hover-color: #ff7a60;
+
+    --border-color-strong: #8a4a30;
+    --navbar-bg:           #110806;
+    --navbar-border:       #3a1c0c;
+    --input-border:        #7a4030;
+    --button-primary-bg:   #c0392b;
+    --button-primary-hover: #e04030;
+    --table-stripe:    #2a1608;
+    --table-hover:     #3a2010;
+    --zebra-row-even:  rgba(224, 80, 60, 0.08);
+    --zebra-row-odd:   rgba(224, 80, 60, 0);
+    --zebra-row-hover: rgba(224, 80, 60, 0.18);
+  }
 }
