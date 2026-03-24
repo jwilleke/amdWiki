@@ -24,6 +24,25 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-03-24-09
+
+- Agent: Claude Sonnet 4.6
+- Subject: feat: update "Everything We Know About You"; create "Privacy Notice" page (#380)
+- Key Decision: Added "Your Preferences" section to the existing system page covering Light/Dark Mode, Site Theme, Code Editor Style, Locale, Timezone, and Date Format. Moved Privacy Notice and Data Usage content to a new dedicated "Privacy Notice" required-page, linked from the bottom of the main page. Both files live in `required-pages/` as system pages.
+- Current Issue: #380
+- Testing:
+  - Manual: both pages return 200 at /view/Everything%20We%20Know%20About%20You and /view/Privacy%20Notice
+- Work Done:
+  - Updated `required-pages/d26ac975-3773-4144-a346-0d42c991eb1f.md`: added Preferences table, removed inline Privacy/Data Usage sections, added link to Privacy Notice
+  - Created `required-pages/23568f88-3a67-4466-a5f9-6ff161265236.md`: Privacy Notice page with Information Collected, User Preferences Stored, Data Usage, Data Retention, and Your Rights sections
+  - Added Privacy Notice entry to page-index.json
+- Commits: TBD
+- Files Modified:
+  - required-pages/d26ac975-3773-4144-a346-0d42c991eb1f.md
+  - required-pages/23568f88-3a67-4466-a5f9-6ff161265236.md (new)
+
+---
+
 ## 2026-03-24-08
 
 - Agent: Claude Sonnet 4.6
