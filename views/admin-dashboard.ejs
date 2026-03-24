@@ -42,13 +42,18 @@
                 </div>
                 <div class="card-body">
                     <div class="d-flex flex-wrap gap-2">
-                        <a href="/admin/users" class="btn btn-info btn-sm">
-                            <i class="fas fa-users"></i> Manage Users
-                        </a>
-                        <a href="/admin/roles" class="btn btn-sm" style="background-color: var(--btn-secondary-bg); color: var(--btn-secondary-text); border-color: var(--btn-secondary-border);">
-                            <i class="fas fa-shield-alt"></i> Roles
-                            <a href="/view/roles" class="ms-1 text-muted" title="Documentation" target="_blank"><i class="fas fa-question-circle fa-xs"></i></a>
-                        </a>
+                        <span class="d-inline-flex align-items-center gap-1">
+                            <a href="/admin/users" class="btn btn-info btn-sm">
+                                <i class="fas fa-users"></i> Manage Users
+                            </a>
+                            <a href="/view/manage-users" class="text-muted small" title="Documentation" target="_blank"><i class="fas fa-question-circle"></i></a>
+                        </span>
+                        <span class="d-inline-flex align-items-center gap-1">
+                            <a href="/admin/roles" class="btn btn-secondary btn-sm">
+                                <i class="fas fa-shield-alt"></i> Roles
+                            </a>
+                            <a href="/view/roles" class="text-muted small" title="Documentation" target="_blank"><i class="fas fa-question-circle"></i></a>
+                        </span>
                     </div>
                 </div>
             </div>
@@ -58,69 +63,92 @@
         <div class="col-lg-4 mb-4">
             <div class="card h-100">
                 <div class="card-header">
-                    <h5 class="mb-0"><i class="fas fa-tools"></i> Administrative Tools</h5>
+                    <h5 class="mb-0">
+                        <i class="fas fa-tools"></i> Administrative Tools
+                        <a href="/view/administrative-tools" class="ms-1 text-muted" title="Documentation" target="_blank"><i class="fas fa-question-circle fa-sm"></i></a>
+                    </h5>
                 </div>
                 <div class="card-body">
                     <% if (currentUser.roles.includes('admin')) { %>
                     <div class="d-flex flex-wrap gap-2">
-                        <button class="btn btn-sm" style="background-color: var(--btn-outline-danger-bg); color: var(--btn-outline-danger-text); border-color: var(--btn-outline-danger-border);" onclick="confirmRestart()">
-                            <i class="fas fa-sync-alt"></i> Restart
-                            <a href="/view/server-management" class="ms-1 text-muted" title="Documentation" target="_blank" onclick="event.stopPropagation()"><i class="fas fa-question-circle fa-xs"></i></a>
-                        </button>
+                        <span class="d-inline-flex align-items-center gap-1">
+                            <button class="btn btn-outline-danger btn-sm" onclick="confirmRestart()">
+                                <i class="fas fa-sync-alt"></i> Restart
+                            </button>
+                            <a href="/view/server-management" class="text-muted small" title="Documentation" target="_blank"><i class="fas fa-question-circle"></i></a>
+                        </span>
 
-                        <a href="/admin/backup" class="btn btn-sm" style="background-color: var(--btn-outline-info-bg); color: var(--btn-outline-info-text); border-color: var(--btn-outline-info-border);">
-                            <i class="fas fa-database"></i> Backup
-                            <a href="/view/backup" class="ms-1 text-muted" title="Documentation" target="_blank"><i class="fas fa-question-circle fa-xs"></i></a>
-                        </a>
+                        <span class="d-inline-flex align-items-center gap-1">
+                            <a href="/admin/backup" class="btn btn-outline-info btn-sm">
+                                <i class="fas fa-database"></i> Backup
+                            </a>
+                            <a href="/view/backup" class="text-muted small" title="Documentation" target="_blank"><i class="fas fa-question-circle"></i></a>
+                        </span>
 
-                        <a href="/admin/logs" class="btn btn-sm" style="background-color: var(--btn-outline-secondary-bg); color: var(--btn-outline-secondary-text); border-color: var(--btn-outline-secondary-border);">
-                            <i class="fas fa-file-alt"></i> Logs
-                            <a href="/view/logs" class="ms-1 text-muted" title="Documentation" target="_blank"><i class="fas fa-question-circle fa-xs"></i></a>
-                        </a>
+                        <span class="d-inline-flex align-items-center gap-1">
+                            <a href="/admin/logs" class="btn btn-outline-secondary btn-sm">
+                                <i class="fas fa-file-alt"></i> Logs
+                            </a>
+                            <a href="/view/logs" class="text-muted small" title="Documentation" target="_blank"><i class="fas fa-question-circle"></i></a>
+                        </span>
 
-                        <button class="btn btn-outline-success btn-sm" onclick="clearCache()">
-                            <i class="fas fa-broom"></i> Clear Cache
-                            <a href="/view/clear-cache" class="ms-1 text-muted" title="Documentation" target="_blank" onclick="event.stopPropagation()"><i class="fas fa-question-circle fa-xs"></i></a>
-                        </button>
+                        <span class="d-inline-flex align-items-center gap-1">
+                            <button class="btn btn-outline-success btn-sm" onclick="clearCache()">
+                                <i class="fas fa-broom"></i> Clear Cache
+                            </button>
+                            <a href="/view/clear-cache" class="text-muted small" title="Documentation" target="_blank"><i class="fas fa-question-circle"></i></a>
+                        </span>
 
-                        <button class="btn btn-outline-primary btn-sm" onclick="reindexPages()">
-                            <i class="fas fa-sync"></i> Reindex Pages
-                            <a href="/view/reindex-pages" class="ms-1 text-muted" title="Documentation" target="_blank" onclick="event.stopPropagation()"><i class="fas fa-question-circle fa-xs"></i></a>
-                        </button>
+                        <span class="d-inline-flex align-items-center gap-1">
+                            <button class="btn btn-outline-primary btn-sm" onclick="reindexPages()">
+                                <i class="fas fa-sync"></i> Reindex Pages
+                            </button>
+                            <a href="/view/reindex-pages" class="text-muted small" title="Documentation" target="_blank"><i class="fas fa-question-circle"></i></a>
+                        </span>
 
-                        <a href="/admin/media" class="btn btn-sm" style="background-color: var(--btn-outline-secondary-bg); color: var(--btn-outline-secondary-text); border-color: var(--btn-outline-secondary-border);">
-                            <i class="fas fa-photo-video"></i> Reindex Media
-                            <a href="/view/media" class="ms-1 text-muted" title="Documentation" target="_blank"><i class="fas fa-question-circle fa-xs"></i></a>
-                        </a>
+                        <span class="d-inline-flex align-items-center gap-1">
+                            <a href="/admin/media" class="btn btn-outline-secondary btn-sm">
+                                <i class="fas fa-photo-video"></i> Reindex Media
+                            </a>
+                            <a href="/view/media" class="text-muted small" title="Documentation" target="_blank"><i class="fas fa-question-circle"></i></a>
+                        </span>
 
-                        <a href="/admin/media" class="btn btn-sm btn-warning">
-                            <i class="fas fa-database"></i> Rebuild Media
-                            <a href="/view/media" class="ms-1 text-muted" title="Documentation" target="_blank"><i class="fas fa-question-circle fa-xs"></i></a>
-                        </a>
+                        <span class="d-inline-flex align-items-center gap-1">
+                            <a href="/admin/media" class="btn btn-warning btn-sm">
+                                <i class="fas fa-database"></i> Rebuild Media
+                            </a>
+                            <a href="/view/media" class="text-muted small" title="Documentation" target="_blank"><i class="fas fa-question-circle"></i></a>
+                        </span>
 
-                        <a href="/export" class="btn btn-success btn-sm">
-                            <i class="fas fa-download"></i> Export Data
-                            <a href="/view/export-data" class="ms-1 text-muted" title="Documentation" target="_blank"><i class="fas fa-question-circle fa-xs"></i></a>
-                        </a>
+                        <span class="d-inline-flex align-items-center gap-1">
+                            <a href="/export" class="btn btn-success btn-sm">
+                                <i class="fas fa-download"></i> Export Data
+                            </a>
+                            <a href="/view/export-data" class="text-muted small" title="Documentation" target="_blank"><i class="fas fa-question-circle"></i></a>
+                        </span>
 
-                        <a href="/admin/import" class="btn btn-info btn-sm">
-                            <i class="fas fa-file-import"></i> Import Pages
-                            <a href="/view/import-pages" class="ms-1 text-muted" title="Documentation" target="_blank"><i class="fas fa-question-circle fa-xs"></i></a>
-                        </a>
+                        <span class="d-inline-flex align-items-center gap-1">
+                            <a href="/admin/import" class="btn btn-info btn-sm">
+                                <i class="fas fa-file-import"></i> Import Pages
+                            </a>
+                            <a href="/view/import-pages" class="text-muted small" title="Documentation" target="_blank"><i class="fas fa-question-circle"></i></a>
+                        </span>
 
-                        <form method="POST" action="/admin/maintenance/toggle" class="d-inline">
-                            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-                            <% if (maintenanceMode) { %>
-                                <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Disable maintenance mode? Users will be able to access the system again.')">
-                                    <i class="fas fa-play"></i> Disable Maintenance
-                                </button>
-                            <% } else { %>
-                                <button type="submit" class="btn btn-warning btn-sm" onclick="return confirm('Enable maintenance mode? This will restrict access for regular users.')">
-                                    <i class="fas fa-pause"></i> Enable Maintenance
-                                </button>
-                            <% } %>
-                            <a href="/view/maintenance-mode" class="ms-1 text-muted" title="Documentation" target="_blank"><i class="fas fa-question-circle fa-xs"></i></a>
-                        </form>
+                        <span class="d-inline-flex align-items-center gap-1">
+                            <form method="POST" action="/admin/maintenance/toggle" class="d-inline">
+                                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                                <% if (maintenanceMode) { %>
+                                    <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Disable maintenance mode? Users will be able to access the system again.')">
+                                        <i class="fas fa-play"></i> Disable Maintenance
+                                    </button>
+                                <% } else { %>
+                                    <button type="submit" class="btn btn-warning btn-sm" onclick="return confirm('Enable maintenance mode? This will restrict access for regular users.')">
+                                        <i class="fas fa-pause"></i> Enable Maintenance
+                                    </button>
+                                <% } %>
+                            </form>
+                            <a href="/view/maintenance-mode" class="text-muted small" title="Documentation" target="_blank"><i class="fas fa-question-circle"></i></a>
+                        </span>
                     </div>
                     <% if (maintenanceMode) { %>
                         <div class="mt-2">
@@ -147,28 +175,42 @@
                 </div>
                 <div class="card-body">
                     <div class="d-flex flex-wrap gap-2">
-                        <a href="/admin/keywords" class="btn btn-sm" style="background-color: var(--btn-secondary-bg); color: var(--btn-secondary-text); border-color: var(--btn-secondary-border);">
-                            <i class="fas fa-tags"></i> Keywords
-                            <a href="/view/keywords-and-categories" class="ms-1 text-muted" title="Documentation" target="_blank"><i class="fas fa-question-circle fa-xs"></i></a>
-                        </a>
-                        <a href="/admin/configuration" class="btn btn-sm" style="background-color: var(--btn-secondary-bg); color: var(--btn-secondary-text); border-color: var(--btn-secondary-border);">
-                            <i class="fas fa-sliders-h"></i> Configuration
-                            <a href="/view/configuration-system" class="ms-1 text-muted" title="Documentation" target="_blank"><i class="fas fa-question-circle fa-xs"></i></a>
-                        </a>
-                        <a href="/admin/variables" class="btn btn-sm" style="background-color: var(--btn-secondary-bg); color: var(--btn-secondary-text); border-color: var(--btn-secondary-border);">
-                            <i class="fas fa-code"></i> Variables
-                            <a href="/view/system-variables" class="ms-1 text-muted" title="Documentation" target="_blank"><i class="fas fa-question-circle fa-xs"></i></a>
-                        </a>
-                        <a href="/admin/attachments" class="btn btn-sm" style="background-color: var(--btn-secondary-bg); color: var(--btn-secondary-text); border-color: var(--btn-secondary-border);">
-                            <i class="fas fa-paperclip"></i> Attachments
-                            <a href="/view/attachments" class="ms-1 text-muted" title="Documentation" target="_blank"><i class="fas fa-question-circle fa-xs"></i></a>
-                        </a>
-                        <a href="/admin/interwiki" class="btn btn-sm" style="background-color: var(--btn-secondary-bg); color: var(--btn-secondary-text); border-color: var(--btn-secondary-border);">
-                            <i class="fas fa-external-link-alt"></i> InterWiki
-                        </a>
-                        <a href="/admin/settings" class="btn btn-sm" style="background-color: var(--btn-secondary-bg); color: var(--btn-secondary-text); border-color: var(--btn-secondary-border);">
-                            <i class="fas fa-cogs"></i> Settings
-                        </a>
+                        <span class="d-inline-flex align-items-center gap-1">
+                            <a href="/admin/keywords" class="btn btn-secondary btn-sm">
+                                <i class="fas fa-tags"></i> Keywords
+                            </a>
+                            <a href="/view/keywords-and-categories" class="text-muted small" title="Documentation" target="_blank"><i class="fas fa-question-circle"></i></a>
+                        </span>
+                        <span class="d-inline-flex align-items-center gap-1">
+                            <a href="/admin/configuration" class="btn btn-secondary btn-sm">
+                                <i class="fas fa-sliders-h"></i> Configuration
+                            </a>
+                            <a href="/view/configuration-system" class="text-muted small" title="Documentation" target="_blank"><i class="fas fa-question-circle"></i></a>
+                        </span>
+                        <span class="d-inline-flex align-items-center gap-1">
+                            <a href="/admin/variables" class="btn btn-secondary btn-sm">
+                                <i class="fas fa-code"></i> Variables
+                            </a>
+                            <a href="/view/system-variables" class="text-muted small" title="Documentation" target="_blank"><i class="fas fa-question-circle"></i></a>
+                        </span>
+                        <span class="d-inline-flex align-items-center gap-1">
+                            <a href="/admin/attachments" class="btn btn-secondary btn-sm">
+                                <i class="fas fa-paperclip"></i> Attachments
+                            </a>
+                            <a href="/view/attachments" class="text-muted small" title="Documentation" target="_blank"><i class="fas fa-question-circle"></i></a>
+                        </span>
+                        <span class="d-inline-flex align-items-center gap-1">
+                            <a href="/admin/interwiki" class="btn btn-secondary btn-sm">
+                                <i class="fas fa-external-link-alt"></i> InterWiki
+                            </a>
+                            <a href="/view/interwiki" class="text-muted small" title="Documentation" target="_blank"><i class="fas fa-question-circle"></i></a>
+                        </span>
+                        <span class="d-inline-flex align-items-center gap-1">
+                            <a href="/admin/settings" class="btn btn-secondary btn-sm">
+                                <i class="fas fa-cogs"></i> Settings
+                            </a>
+                            <a href="/view/system-settings" class="text-muted small" title="Documentation" target="_blank"><i class="fas fa-question-circle"></i></a>
+                        </span>
                     </div>
                 </div>
             </div>
