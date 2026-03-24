@@ -1,72 +1,13 @@
 /* =============================================================
    Default Theme — CSS Custom Properties (variables)
-   These override/define the visual palette for the default theme.
+   GitHub-inspired light/dark design.
    Structural/layout CSS lives in themes/core.css.
    ============================================================= */
 
 /* Light mode (default) */
 :root {
-  /* Backgrounds */
-  --bg-primary: #ffffff;
-  --bg-secondary: #f8f9fa;
-  --bg-tertiary: #e9ecef;
-
-  /* Text */
-  --text-primary: #212529;
-  --text-secondary: #495057;
-  --text-muted: #6c757d;
-  --text-heading: #212529;
-  --text-content: #333333;
-
-  /* Borders */
-  --border-color: #dee2e6;
-  --border-color-strong: #adb5bd;
-
-  /* Links */
-  --link-color: #007bff;
-  --link-hover: #0056b3;
-
-  /* Cards */
-  --card-bg: #ffffff;
-  --card-border: #dee2e6;
-
-  /* Navbar */
-  --navbar-bg: #f8f9fa;
-  --navbar-border: #dee2e6;
-
-  /* Form inputs */
-  --input-bg: #ffffff;
-  --input-border: #ced4da;
-
-  /* Buttons */
-  --button-primary-bg: #007bff;
-  --button-primary-hover: #0056b3;
-
-  /* Alerts */
-  --alert-success-bg: #d1e7dd;
-  --alert-success-border: #badbcc;
-  --alert-success-text: #0f5132;
-  --alert-danger-bg: #f8d7da;
-  --alert-danger-border: #f5c2c7;
-  --alert-danger-text: #842029;
-  --alert-info-bg: #d1ecf1;
-  --alert-info-border: #bee5eb;
-  --alert-info-text: #0c5460;
-
-  /* Code */
-  --code-bg: #f8f9fa;
-  --code-border: #e9ecef;
-
-  /* Tables */
-  --table-stripe: #f0f0f0;
-  --table-hover: #e8e8e8;
-  --zebra-row-even: rgba(2, 6, 19, 0.08);
-  --zebra-row-odd: rgba(2, 6, 19, 0);
-  --zebra-row-hover: rgba(88, 166, 255, 0.24);
-
-  /* Bootstrap 5 native variables — set here so any Bootswatch theme that overrides
-     these in [data-bs-theme] will automatically cascade into our custom vars below.
-     Direction: --bs-* → our vars (NOT the other way). */
+  /* Bootstrap 5 native variables — set here so Bootstrap components
+     and our semantic vars below both stay consistent. */
   --bs-body-bg:                   #ffffff;
   --bs-body-color:                #212529;
   --bs-secondary-bg:              #f8f9fa;
@@ -79,7 +20,7 @@
   --bs-link-hover-color:          #0a58ca;
   --bs-border-color:              #dee2e6;
 
-  /* Our semantic vars inherit from Bootstrap vars with our light-mode fallbacks */
+  /* Our semantic vars inherit from Bootstrap vars */
   --bg-primary:        var(--bs-body-bg, #ffffff);
   --bg-secondary:      var(--bs-secondary-bg, #f8f9fa);
   --bg-tertiary:       var(--bs-tertiary-bg, #e9ecef);
@@ -89,25 +30,47 @@
   --text-heading:      var(--bs-heading-color, #212529);
   --text-content:      var(--bs-body-color, #333333);
   --border-color:      var(--bs-border-color, #dee2e6);
-  --border-color-strong: var(--bs-border-color, #adb5bd);
-  --link-color:        var(--bs-link-color, #007bff);
-  --link-hover:        var(--bs-link-hover-color, #0056b3);
+  --link-color:        var(--bs-link-color, #0d6efd);
+  --link-hover:        var(--bs-link-hover-color, #0a58ca);
   --card-bg:           var(--bs-body-bg, #ffffff);
   --card-border:       var(--bs-border-color, #dee2e6);
-  --navbar-bg:         var(--bs-secondary-bg, #f8f9fa);
-  --navbar-border:     var(--bs-border-color, #dee2e6);
   --input-bg:          var(--bs-body-bg, #ffffff);
-  --input-border:      var(--bs-border-color, #ced4da);
   --code-bg:           var(--bs-tertiary-bg, #f8f9fa);
-  --code-border:       var(--bs-border-color, #e9ecef);
+
+  /* Default-specific vars not covered by Bootstrap */
+  --border-color-strong: #adb5bd;
+  --navbar-bg:           #f8f9fa;
+  --navbar-border:       #dee2e6;
+  --navbar-text:         #212529;
+  --navbar-text-hover:   #0d6efd;
+  --input-border:        #ced4da;
+  --button-primary-bg:   #0d6efd;
+  --button-primary-hover: #0a58ca;
+  --code-border:         #e9ecef;
+
+  /* Alerts */
+  --alert-success-bg:     #d1e7dd;
+  --alert-success-border: #badbcc;
+  --alert-success-text:   #0f5132;
+  --alert-danger-bg:      #f8d7da;
+  --alert-danger-border:  #f5c2c7;
+  --alert-danger-text:    #842029;
+  --alert-info-bg:        #d1ecf1;
+  --alert-info-border:    #bee5eb;
+  --alert-info-text:      #0c5460;
+
+  /* Tables */
+  --table-stripe:     #f0f0f0;
+  --table-hover:      #e8e8e8;
+  --zebra-row-even:   rgba(2, 6, 19, 0.08);
+  --zebra-row-odd:    rgba(2, 6, 19, 0);
+  --zebra-row-hover:  rgba(88, 166, 255, 0.24);
 }
 
 /* Explicit dark mode — Bootstrap-native data-bs-theme="dark" on <html>
-   Setting --bs-* vars here means Bootstrap's own components (modals, dropdowns,
-   offcanvas, etc.) go dark automatically. Our --bg-*/--text-* vars then inherit
-   via var(--bs-body-bg, ...) defined in :root above. */
+   Setting both --bs-* and our custom vars here ensures no cascade ambiguity. */
 [data-bs-theme="dark"] {
-  /* Bootstrap vars — these drive Bootstrap components AND our semantic vars */
+  /* Bootstrap vars */
   --bs-body-bg:        #0d1117;
   --bs-body-color:     #e6edf3;
   --bs-secondary-bg:   #161b22;
@@ -120,62 +83,93 @@
   --bs-link-hover-color: #79c0ff;
   --bs-border-color:   #30363d;
 
-  /* Additional custom vars not covered by Bootstrap's own dark mode */
+  /* Our semantic vars — set explicitly to avoid any cascade ambiguity */
+  --bg-primary:        #0d1117;
+  --bg-secondary:      #161b22;
+  --bg-tertiary:       #21262d;
+  --text-primary:      #e6edf3;
+  --text-secondary:    #7d8590;
+  --text-muted:        #656d76;
+  --text-heading:      #f0f6fc;
+  --text-content:      #e6edf3;
+  --border-color:      #30363d;
+  --link-color:        #58a6ff;
+  --link-hover:        #79c0ff;
+  --card-bg:           #161b22;
+  --card-border:       #30363d;
+  --input-bg:          #0d1117;
+  --code-bg:           #21262d;
+
+  /* Default-specific dark vars */
   --border-color-strong: #484f58;
-  --navbar-bg:         #010409;
-  --navbar-border:     #21262d;
-  --input-border:      #30363d;
-  --button-primary-bg: #238636;
+  --navbar-bg:           #010409;
+  --navbar-border:       #21262d;
+  --navbar-text:         #e6edf3;
+  --navbar-text-hover:   #58a6ff;
+  --input-border:        #30363d;
+  --button-primary-bg:   #238636;
   --button-primary-hover: #2ea043;
+  --code-border:         #21262d;
 
-  --alert-success-bg: #0f2419;
+  --alert-success-bg:     #0f2419;
   --alert-success-border: #1a7f37;
-  --alert-success-text: #3fb950;
-  --alert-danger-bg: #282e33;
-  --alert-danger-border: #f85149;
-  --alert-danger-text: #f85149;
-  --alert-info-bg: #1c2c3a;
-  --alert-info-border: #388bfd;
-  --alert-info-text: #58a6ff;
+  --alert-success-text:   #3fb950;
+  --alert-danger-bg:      #282e33;
+  --alert-danger-border:  #f85149;
+  --alert-danger-text:    #f85149;
+  --alert-info-bg:        #1c2c3a;
+  --alert-info-border:    #388bfd;
+  --alert-info-text:      #58a6ff;
 
-  --table-stripe: #1a1a1a;
-  --table-hover: rgba(88, 166, 255, 0.15);
-  --zebra-row-even: #1a1a1a;
-  --zebra-row-odd: transparent;
+  --table-stripe:    #1a1a1a;
+  --table-hover:     rgba(88, 166, 255, 0.15);
+  --zebra-row-even:  #1a1a1a;
+  --zebra-row-odd:   transparent;
   --zebra-row-hover: rgba(88, 166, 255, 0.15);
 }
 
-/* System dark mode (JS hasn't run yet / no explicit preference) */
-/* System dark mode — applies when OS is dark but JS hasn't set data-bs-theme yet.
-   Also sets --bs-* so Bootstrap components go dark before JS fires. */
+/* System dark mode — applies when OS is dark but JS hasn't set data-bs-theme yet */
 @media (prefers-color-scheme: dark) {
   :root:not([data-bs-theme]) {
-    --bs-body-bg:        #1a1a1a;
-    --bs-body-color:     #e9ecef;
-    --bs-secondary-bg:   #2d2d2d;
-    --bs-tertiary-bg:    #404040;
-    --bs-secondary-color: #ced4da;
-    --bs-tertiary-color: #adb5bd;
-    --bs-border-color:   #495057;
-    --bs-link-color:     #66b3ff;
-    --bs-link-hover-color: #4da6ff;
+    /* Bootstrap vars */
+    --bs-body-bg:        #0d1117;
+    --bs-body-color:     #e6edf3;
+    --bs-secondary-bg:   #161b22;
+    --bs-tertiary-bg:    #21262d;
+    --bs-secondary-color: #7d8590;
+    --bs-tertiary-color: #656d76;
+    --bs-border-color:   #30363d;
+    --bs-link-color:     #58a6ff;
+    --bs-link-hover-color: #79c0ff;
 
-    --border-color-strong: #6c757d;
-    --navbar-bg:         #1a1a1a;
-    --navbar-border:     #495057;
-    --input-border:      #6c757d;
-    --button-primary-bg: #0d6efd;
-    --button-primary-hover: #0b5ed7;
-    --alert-success-bg: #0f5132;
-    --alert-success-border: #1a6938;
-    --alert-success-text: #d1e7dd;
-    --alert-danger-bg: #842029;
-    --alert-danger-border: #a52834;
-    --alert-danger-text: #f8d7da;
-    --table-stripe: #252525;
-    --table-hover: rgba(88, 166, 255, 0.15);
-    --zebra-row-even: #252525;
-    --zebra-row-odd: transparent;
+    /* Our semantic vars */
+    --bg-primary:        #0d1117;
+    --bg-secondary:      #161b22;
+    --bg-tertiary:       #21262d;
+    --text-primary:      #e6edf3;
+    --text-secondary:    #7d8590;
+    --text-muted:        #656d76;
+    --text-heading:      #f0f6fc;
+    --text-content:      #e6edf3;
+    --border-color:      #30363d;
+    --link-color:        #58a6ff;
+    --link-hover:        #79c0ff;
+    --card-bg:           #161b22;
+    --card-border:       #30363d;
+    --input-bg:          #0d1117;
+    --code-bg:           #21262d;
+
+    --border-color-strong: #484f58;
+    --navbar-bg:           #010409;
+    --navbar-border:       #21262d;
+    --navbar-text:         #e6edf3;
+    --input-border:        #30363d;
+    --button-primary-bg:   #238636;
+    --button-primary-hover: #2ea043;
+    --table-stripe:    #1a1a1a;
+    --table-hover:     rgba(88, 166, 255, 0.15);
+    --zebra-row-even:  #1a1a1a;
+    --zebra-row-odd:   transparent;
     --zebra-row-hover: rgba(88, 166, 255, 0.15);
   }
 }

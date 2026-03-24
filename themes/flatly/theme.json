@@ -1,0 +1,9 @@
+{
+  "name": "Flatly",
+  "description": "Flatly Bootswatch theme — clean, modern flat design",
+  "version": "1.0.0",
+  "author": "ngdpbase",
+  "fonts": [
+    "https://cdn.jsdelivr.net/npm/bootswatch@5.3.3/dist/flatly/bootstrap.min.css"
+  ]
+}

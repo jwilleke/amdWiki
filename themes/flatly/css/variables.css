@@ -1,0 +1,126 @@
+/* =============================================================
+   Flatly Theme — CSS Custom Properties (variables)
+   Bootswatch Flatly: clean flat design with teal/navy palette.
+   Flatly Bootstrap CSS is loaded via theme.json fonts[] from CDN.
+   Structural/layout CSS lives in themes/core.css.
+   ============================================================= */
+
+/* Light mode (default) — let Flatly's Bootstrap CSS drive --bs-* vars;
+   we only need to map our custom semantic vars from those. */
+:root {
+  /* Our semantic vars inherit from Bootstrap/Flatly vars */
+  --bg-primary:      var(--bs-body-bg, #ffffff);
+  --bg-secondary:    var(--bs-secondary-bg, #ecf0f1);
+  --bg-tertiary:     var(--bs-tertiary-bg, #dce1e7);
+  --text-primary:    var(--bs-body-color, #2c3e50);
+  --text-secondary:  var(--bs-secondary-color, #7b8a8b);
+  --text-muted:      var(--bs-tertiary-color, #95a5a6);
+  --text-heading:    var(--bs-heading-color, #2c3e50);
+  --text-content:    var(--bs-body-color, #2c3e50);
+  --border-color:    var(--bs-border-color, #dee2e6);
+  --link-color:      var(--bs-link-color, #18bc9c);
+  --link-hover:      var(--bs-link-hover-color, #0f7864);
+  --card-bg:         var(--bs-body-bg, #ffffff);
+  --card-border:     var(--bs-border-color, #dee2e6);
+  --input-bg:        var(--bs-body-bg, #ffffff);
+  --code-bg:         var(--bs-tertiary-bg, #ecf0f1);
+
+  /* Flatly-specific vars not covered by Bootstrap */
+  --border-color-strong: #b0bec5;
+  --navbar-bg:           #2c3e50;
+  --navbar-border:       #1a252f;
+  --navbar-text:         #ffffff;
+  --navbar-text-hover:   #18bc9c;
+  --input-border:        #ced4da;
+  --button-primary-bg:   #2c3e50;
+  --button-primary-hover: #1a252f;
+  --code-border:         #dce1e7;
+
+  /* Alerts */
+  --alert-success-bg:     #d5f0eb;
+  --alert-success-border: #a8dfd6;
+  --alert-success-text:   #0d7a65;
+  --alert-danger-bg:      #fde8e7;
+  --alert-danger-border:  #f9c5c2;
+  --alert-danger-text:    #922b21;
+  --alert-info-bg:        #d6eaf8;
+  --alert-info-border:    #a9cce3;
+  --alert-info-text:      #1a5276;
+
+  /* Tables */
+  --table-stripe:     #f2f3f4;
+  --table-hover:      #e8ecef;
+  --zebra-row-even:   rgba(24, 188, 156, 0.06);
+  --zebra-row-odd:    rgba(24, 188, 156, 0);
+  --zebra-row-hover:  rgba(24, 188, 156, 0.14);
+}
+
+/* Explicit dark mode — Bootstrap-native data-bs-theme="dark" on <html> */
+[data-bs-theme="dark"] {
+  /* Bootstrap vars — drive Bootstrap components AND our semantic vars */
+  --bs-body-bg:        #1a1e21;
+  --bs-body-color:     #dee2e6;
+  --bs-secondary-bg:   #212529;
+  --bs-tertiary-bg:    #2b3035;
+  --bs-secondary-color: #8d9fa7;
+  --bs-tertiary-color: #6c757d;
+  --bs-emphasis-color: #f8f9fa;
+  --bs-heading-color:  #f8f9fa;
+  --bs-link-color:     #18bc9c;
+  --bs-link-hover-color: #4dcfb8;
+  --bs-border-color:   #495057;
+
+  /* Flatly-specific dark vars */
+  --border-color-strong: #6c757d;
+  --navbar-bg:           #121518;
+  --navbar-border:       #2b3035;
+  --navbar-text:         #dee2e6;
+  --navbar-text-hover:   #18bc9c;
+  --input-border:        #495057;
+  --button-primary-bg:   #18bc9c;
+  --button-primary-hover: #0f9b80;
+  --code-border:         #2b3035;
+
+  --alert-success-bg:     #0d2e28;
+  --alert-success-border: #155a49;
+  --alert-success-text:   #4dcfb8;
+  --alert-danger-bg:      #2e1a1a;
+  --alert-danger-border:  #5a2020;
+  --alert-danger-text:    #f08080;
+  --alert-info-bg:        #162433;
+  --alert-info-border:    #1e4060;
+  --alert-info-text:      #5dade2;
+
+  --table-stripe:    #1e2428;
+  --table-hover:     #2b3035;
+  --zebra-row-even:  rgba(24, 188, 156, 0.08);
+  --zebra-row-odd:   rgba(24, 188, 156, 0);
+  --zebra-row-hover: rgba(24, 188, 156, 0.18);
+}
+
+/* System dark mode — applies when OS is dark but JS hasn't set data-bs-theme yet */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-bs-theme]) {
+    --bs-body-bg:        #1a1e21;
+    --bs-body-color:     #dee2e6;
+    --bs-secondary-bg:   #212529;
+    --bs-tertiary-bg:    #2b3035;
+    --bs-secondary-color: #8d9fa7;
+    --bs-tertiary-color: #6c757d;
+    --bs-border-color:   #495057;
+    --bs-link-color:     #18bc9c;
+    --bs-link-hover-color: #4dcfb8;
+
+    --border-color-strong: #6c757d;
+    --navbar-bg:           #121518;
+    --navbar-border:       #2b3035;
+    --input-border:        #495057;
+    --button-primary-bg:   #18bc9c;
+    --button-primary-hover: #0f9b80;
+    --table-stripe:    #1e2428;
+    --table-hover:     #2b3035;
+    --zebra-row-even:  rgba(24, 188, 156, 0.08);
+    --zebra-row-odd:   rgba(24, 188, 156, 0);
+    --zebra-row-hover: rgba(24, 188, 156, 0.18);
+  }
+}

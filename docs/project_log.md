@@ -24,6 +24,28 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-03-24-05
+
+- Agent: Claude Sonnet 4.6
+- Subject: fix: default theme dark mode; add Flatly Bootswatch theme (#377 follow-up)
+- Key Decision: Remove duplicate custom property declarations in default/variables.css — `:root` had hardcoded values followed by `var(--bs-*)` overrides, causing CSS cascade ambiguity. Fix: single clean declaration per var in `:root`, plus explicit `--bg-primary`/`--text-primary` etc. set directly in `[data-bs-theme="dark"]` block (no reliance on lazy `var()` resolution). Also added Flatly Bootswatch as a third theme.
+- Current Issue: #377 (default theme dark mode now fixed)
+- Testing:
+  - Manual: default/volcano/flatly all confirmed working light ↔ dark ↔ system
+- Work Done:
+  - Rewrote `themes/default/css/variables.css`: removed duplicate `:root` declarations; `[data-bs-theme="dark"]` now sets both `--bs-*` and semantic vars directly
+  - Bumped CSS cache-buster `?v=3.0.2` → `?v=3.0.3` in `views/header.ejs`
+  - Created `themes/flatly/` — Bootswatch Flatly theme (navy/teal palette), loaded via CDN in theme.json fonts[]
+- Commits: TBD
+- Files Modified:
+  - themes/default/css/variables.css
+  - themes/flatly/theme.json (new)
+  - themes/flatly/css/variables.css (new)
+  - themes/flatly/assets/favicon.{png,svg} (new)
+  - views/header.ejs
+
+---
+
 ## 2026-03-24-04
 
 - Agent: Claude Sonnet 4.6
