@@ -469,34 +469,26 @@ async function reindexPages() {
 
     try {
         button.disabled = true;
-        button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Reindexing...';
+        button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Starting…';
 
         const csrfToken = document.querySelector('input[name="_csrf"]')?.value || '<%= csrfToken %>';
 
-        const response = await fetch('/admin/reindex', {
+        const enqueueRes = await fetch('/api/admin/jobs/pages.reindex/enqueue', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'CSRF-Token': csrfToken
-            },
-            body: JSON.stringify({ _csrf: csrfToken })
+            headers: { 'Content-Type': 'application/json', 'CSRF-Token': csrfToken }
         });
+        const { runId } = await enqueueRes.json();
+        if (!runId) throw new Error('Failed to start reindex job');
 
-        const contentType = response.headers.get('content-type');
-        if (!contentType || !contentType.includes('application/json')) {
-            throw new Error('Server returned non-JSON response. Check console for details.');
-        }
+        button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Reindexing…';
 
-        const result = await response.json();
-
-        if (response.ok && result.success) {
+        // Poll until complete
+        const run = await pollJobStatus(runId);
+        if (run.status === 'completed') {
             button.classList.remove('btn-outline-primary');
             button.classList.add('btn-primary');
             button.innerHTML = '<i class="fas fa-check"></i> Reindexed';
-
-            const stats = result.stats || {};
-            showMessage(`Reindexing complete! Pages: ${stats.pageCount || 0}, Search docs: ${stats.searchDocuments || 0}`, 'success');
-
+            showMessage(`Reindex complete — ${run.result?.summary || ''}`, 'success');
             setTimeout(() => {
                 button.disabled = false;
                 button.classList.remove('btn-primary');
@@ -504,13 +496,26 @@ async function reindexPages() {
                 button.innerHTML = originalHTML;
             }, 3000);
         } else {
-            throw new Error(result.error || 'Failed to reindex pages');
+            throw new Error(run.result?.error || 'Reindex failed');
         }
     } catch (error) {
         button.disabled = false;
         button.innerHTML = originalHTML;
         showMessage('Failed to reindex: ' + error.message, 'error');
     }
+}
+
+/** Poll /api/admin/jobs/:runId/status until status is completed or failed. */
+async function pollJobStatus(runId, intervalMs = 1500, maxWaitMs = 600000) {
+    const deadline = Date.now() + maxWaitMs;
+    while (Date.now() < deadline) {
+        await new Promise(r => setTimeout(r, intervalMs));
+        const res = await fetch(`/api/admin/jobs/${runId}/status`);
+        if (!res.ok) throw new Error('Status check failed');
+        const run = await res.json();
+        if (run.status === 'completed' || run.status === 'failed') return run;
+    }
+    throw new Error('Job timed out');
 }
 
 function showMessage(message, type) {

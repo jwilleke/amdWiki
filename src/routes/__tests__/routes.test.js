@@ -250,6 +250,13 @@ jest.mock('../../WikiEngine', () => {
     }))
   };
 
+  const mockBackgroundJobManager = {
+    registerJob: jest.fn(),
+    enqueue: jest.fn().mockResolvedValue('mock-run-id'),
+    getStatus: jest.fn().mockReturnValue(null),
+    getActiveJobs: jest.fn().mockReturnValue([])
+  };
+
   return jest.fn().mockImplementation(() => ({
     getManager: jest.fn((name) => {
       const mockManagers = {
@@ -265,7 +272,8 @@ jest.mock('../../WikiEngine', () => {
         VariableManager: mockVariableManager,
         ExportManager: mockExportManager,
         ValidationManager: mockValidationManager,
-        CacheManager: mockCacheManager
+        CacheManager: mockCacheManager,
+        BackgroundJobManager: mockBackgroundJobManager
       };
       return mockManagers[name] || {};
     }),

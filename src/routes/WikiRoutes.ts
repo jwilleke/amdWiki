@@ -4921,7 +4921,7 @@ class WikiRoutes {
   }
 
   /**
-   * Admin reindex - Refresh page cache and rebuild search index
+   * Admin reindex - enqueues the pages.reindex background job and returns immediately.
    */
   async adminReindex(req: Request, res: Response) {
     try {
@@ -4940,41 +4940,14 @@ class WikiRoutes {
 
       logger.info(`Page reindex requested by: ${currentUser.username}`);
 
-      const pageManager = this.engine.getManager('PageManager');
-      const searchManager = this.engine.getManager('SearchManager');
-      const renderingManager = this.engine.getManager('RenderingManager');
-      const cacheManager = this.engine.getManager('CacheManager');
-
-      // Refresh page list (reload from disk)
-      await pageManager.refreshPageList();
-      const pageCount = (await pageManager.getAllPages()).length;
-
-      // Rebuild search index
-      await searchManager.rebuildIndex();
-      const searchStats = await searchManager.getStatistics();
-
-      // Rebuild link graph
-      await renderingManager.rebuildLinkGraph();
-
-      // Clear rendered page cache
-      await cacheManager.clear('rendered-pages');
-
-      logger.info(`Reindex complete: ${pageCount} pages, ${searchStats.totalDocuments || 0} search documents`);
-
-      return res.json({
-        success: true,
-        message: 'Pages reindexed successfully',
-        stats: {
-          pageCount: pageCount,
-          searchDocuments: searchStats.totalDocuments || 0,
-          timestamp: new Date().toISOString()
-        }
-      });
+      const jobManager = this.engine.getManager('BackgroundJobManager');
+      const runId = await jobManager.enqueue('pages.reindex');
+      return res.status(202).json({ runId });
     } catch (err: unknown) {
-      logger.error('Error reindexing pages:', err);
+      logger.error('Error enqueueing reindex job:', err);
       return res.status(500).json({
         success: false,
-        error: getErrorMessage(err) || 'Error reindexing pages'
+        error: getErrorMessage(err) || 'Error starting reindex'
       });
     }
   }
@@ -6825,6 +6798,13 @@ class WikiRoutes {
     app.get('/admin/media', (req: Request, res: Response) => void this.adminMedia(req, res));
     app.post('/admin/media/rescan', (req: Request, res: Response) => void this.adminMediaRescan(req, res));
     app.post('/admin/media/rebuild', (req: Request, res: Response) => void this.adminMediaRebuild(req, res));
+
+    // Background job API
+    app.post('/api/admin/jobs/:jobId/enqueue', (req: Request, res: Response) => void this.apiJobEnqueue(req, res));
+    app.get('/api/admin/jobs/active', (req: Request, res: Response) => void this.apiJobsActive(req, res));
+    app.get('/api/admin/jobs/:runId/status', (req: Request, res: Response) => void this.apiJobStatus(req, res));
+
+    this.registerAdminJobs();
   }
 
   /**
@@ -9058,7 +9038,7 @@ ${description}
 
   /**
    * POST /admin/media/rescan
-   * Trigger a full media rescan.
+   * Enqueues the media.rescan background job and returns immediately.
    */
   async adminMediaRescan(req: Request, res: Response) {
     try {
@@ -9071,17 +9051,18 @@ ${description}
       if (!mediaManager) {
         return res.status(503).json({ error: 'Media manager not enabled' });
       }
-      const result = await mediaManager.scanFolders(true);
-      return res.json({ success: true, result });
+      const jobManager = this.engine.getManager('BackgroundJobManager');
+      const runId = await jobManager.enqueue('media.rescan');
+      return res.status(202).json({ runId });
     } catch (err: unknown) {
-      logger.error('[media] Error triggering rescan:', err);
+      logger.error('[media] Error enqueueing rescan job:', err);
       return res.status(500).json({ error: 'Internal server error' });
     }
   }
 
   /**
    * POST /admin/media/rebuild
-   * Rebuild the media index from scratch (clears index, rescans all folders).
+   * Enqueues the media.rebuild background job and returns immediately.
    */
   async adminMediaRebuild(req: Request, res: Response) {
     try {
@@ -9094,14 +9075,145 @@ ${description}
       if (!mediaManager) {
         return res.status(503).json({ error: 'Media manager not enabled' });
       }
-      const result = await mediaManager.rebuildIndex();
-      return res.json({ success: true, result });
+      const jobManager = this.engine.getManager('BackgroundJobManager');
+      const runId = await jobManager.enqueue('media.rebuild');
+      return res.status(202).json({ runId });
     } catch (err: unknown) {
-      logger.error('[media] Error triggering rebuild:', err);
+      logger.error('[media] Error enqueueing rebuild job:', err);
       return res.status(500).json({ error: 'Internal server error' });
     }
   }
+
+  /**
+   * POST /api/admin/jobs/:jobId/enqueue
+   * Enqueue a registered background job. Returns { runId }.
+   */
+  async apiJobEnqueue(req: Request, res: Response) {
+    try {
+      const userManager = this.engine.getManager('UserManager');
+      const currentUser = req.userContext;
+      if (!currentUser || !(await userManager.hasPermission(currentUser.username, 'admin:system'))) {
+        return res.status(403).json({ error: 'Access denied' });
+      }
+      const { jobId } = req.params;
+      const jobManager = this.engine.getManager('BackgroundJobManager');
+      const runId = await jobManager.enqueue(jobId);
+      return res.status(202).json({ runId });
+    } catch (err: unknown) {
+      const msg = getErrorMessage(err);
+      logger.error('[jobs] Error enqueueing job:', err);
+      const status = msg.includes('unknown job') ? 404 : 500;
+      return res.status(status).json({ error: msg });
+    }
+  }
+
+  /**
+   * GET /api/admin/jobs/:runId/status
+   * Returns the current state of a job run.
+   */
+  async apiJobStatus(req: Request, res: Response) {
+    try {
+      const userManager = this.engine.getManager('UserManager');
+      const currentUser = req.userContext;
+      if (!currentUser || !(await userManager.hasPermission(currentUser.username, 'admin:system'))) {
+        return res.status(403).json({ error: 'Access denied' });
+      }
+      const { runId } = req.params;
+      const jobManager = this.engine.getManager('BackgroundJobManager');
+      const run = jobManager.getStatus(runId);
+      if (!run) return res.status(404).json({ error: 'Run not found' });
+      return res.json(run);
+    } catch (err: unknown) {
+      logger.error('[jobs] Error getting job status:', err);
+      return res.status(500).json({ error: 'Internal server error' });
+    }
+  }
+
+  /**
+   * GET /api/admin/jobs/active
+   * Returns all currently pending or running jobs.
+   */
+  async apiJobsActive(req: Request, res: Response) {
+    try {
+      const userManager = this.engine.getManager('UserManager');
+      const currentUser = req.userContext;
+      if (!currentUser || !(await userManager.hasPermission(currentUser.username, 'admin:system'))) {
+        return res.status(403).json({ error: 'Access denied' });
+      }
+      const jobManager = this.engine.getManager('BackgroundJobManager');
+      return res.json(jobManager.getActiveJobs());
+    } catch (err: unknown) {
+      logger.error('[jobs] Error getting active jobs:', err);
+      return res.status(500).json({ error: 'Internal server error' });
+    }
+  }
+
+  /**
+   * Register built-in admin background jobs with the BackgroundJobManager.
+   * Called once from registerRoutes().
+   */
+  private registerAdminJobs(): void {
+    const jobManager = this.engine.getManager('BackgroundJobManager');
+    if (!jobManager) {
+      logger.warn('[jobs] BackgroundJobManager not available — skipping job registration');
+      return;
+    }
+
+    jobManager.registerJob({
+      id: 'pages.reindex',
+      displayName: 'Reindex Pages',
+      run: async () => {
+        const pageManager = this.engine.getManager('PageManager');
+        const searchManager = this.engine.getManager('SearchManager');
+        const renderingManager = this.engine.getManager('RenderingManager');
+        const cacheManager = this.engine.getManager('CacheManager');
+
+        await pageManager.refreshPageList();
+        const pageCount = (await pageManager.getAllPages()).length;
+        await searchManager.rebuildIndex();
+        const searchStats = await searchManager.getStatistics();
+        await renderingManager.rebuildLinkGraph();
+        await cacheManager.clear('rendered-pages');
+
+        const docs = searchStats.totalDocuments || 0;
+        return { success: true, summary: `${pageCount} pages, ${docs} search documents` };
+      }
+    });
+
+    jobManager.registerJob({
+      id: 'media.rescan',
+      displayName: 'Reindex Media',
+      run: async () => {
+        const mediaManager = this.engine.getManager('MediaManager');
+        if (!mediaManager) return { success: false, error: 'Media manager not enabled' };
+        const result = await mediaManager.scanFolders(true);
+        const r = result as { scanned?: number; added?: number; updated?: number; errors?: number };
+        return {
+          success: true,
+          summary: `Scanned ${r.scanned ?? 0}, added ${r.added ?? 0}, updated ${r.updated ?? 0}, errors ${r.errors ?? 0}`
+        };
+      }
+    });
+
+    jobManager.registerJob({
+      id: 'media.rebuild',
+      displayName: 'Rebuild Media Index',
+      run: async () => {
+        const mediaManager = this.engine.getManager('MediaManager');
+        if (!mediaManager) return { success: false, error: 'Media manager not enabled' };
+        const result = await mediaManager.rebuildIndex();
+        const r = result as { scanned?: number; added?: number; updated?: number; errors?: number };
+        return {
+          success: true,
+          summary: `Rebuilt — scanned ${r.scanned ?? 0}, added ${r.added ?? 0}, updated ${r.updated ?? 0}, errors ${r.errors ?? 0}`
+        };
+      }
+    });
+
+    logger.info('[jobs] Admin jobs registered: pages.reindex, media.rescan, media.rebuild');
+  }
 }
+
 
 export default WikiRoutes;
 module.exports = WikiRoutes;

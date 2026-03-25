@@ -98,34 +98,42 @@
 </div>
 
 <script>
-function formatScanResult(r, verb) {
-    const elapsed = r.elapsedMs != null ? ` in ${(r.elapsedMs/1000).toFixed(1)}s` : '';
-    const rate = (r.scanned > 0 && r.elapsedMs) ? ` (~${(r.elapsedMs/r.scanned).toFixed(0)}ms/file)` : '';
-    const excluded = r.excluded != null ? `, excluded: ${r.excluded}` : '';
-    return `<i class="fas fa-check-circle"></i> ${verb} complete${elapsed}${rate} — scanned: ${r.scanned}, added: ${r.added}, updated: ${r.updated}, errors: ${r.errors}${excluded}`;
+/** Poll /api/admin/jobs/:runId/status until completed or failed. */
+async function pollJobStatus(runId, intervalMs = 1500, maxWaitMs = 600000) {
+    const deadline = Date.now() + maxWaitMs;
+    while (Date.now() < deadline) {
+        await new Promise(r => setTimeout(r, intervalMs));
+        const res = await fetch(`/api/admin/jobs/${runId}/status`);
+        if (!res.ok) throw new Error('Status check failed');
+        const run = await res.json();
+        if (run.status === 'completed' || run.status === 'failed') return run;
+    }
+    throw new Error('Job timed out');
 }
 
 document.getElementById('rescan-btn')?.addEventListener('click', async function () {
     const btn = this;
     const status = document.getElementById('rescan-status');
     btn.disabled = true;
-    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Scanning…';
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Starting…';
     status.style.display = 'none';
     try {
-        const res = await fetch('/admin/media/rescan', { method: 'POST', headers: { 'Content-Type': 'application/json' } });
-        const data = await res.json();
-        status.className = data.success ? 'alert alert-success' : 'alert alert-danger';
-        status.innerHTML = data.success
-            ? formatScanResult(data.result, 'Reindex')
-            : `<i class="fas fa-exclamation-triangle"></i> ${data.error || 'Scan failed'}`;
+        const enqueueRes = await fetch('/api/admin/jobs/media.rescan/enqueue', { method: 'POST', headers: { 'Content-Type': 'application/json' } });
+        const { runId } = await enqueueRes.json();
+        if (!runId) throw new Error('Failed to start rescan job');
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Scanning…';
+        const run = await pollJobStatus(runId);
+        status.className = run.status === 'completed' ? 'alert alert-success' : 'alert alert-danger';
+        status.innerHTML = run.status === 'completed'
+            ? `<i class="fas fa-check-circle"></i> ${run.result?.summary || 'Reindex complete'}`
+            : `<i class="fas fa-exclamation-triangle"></i> ${run.result?.error || 'Scan failed'}`;
     } catch (e) {
         status.className = 'alert alert-danger';
-        status.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Request failed';
+        status.innerHTML = `<i class="fas fa-exclamation-triangle"></i> ${e.message || 'Request failed'}`;
     } finally {
         btn.disabled = false;
         btn.innerHTML = '<i class="fas fa-sync-alt"></i> Reindex Media';
         status.style.display = 'block';
-        setTimeout(() => location.reload(), 2000);
     }
 });
 
@@ -134,23 +142,25 @@ document.getElementById('rebuild-btn')?.addEventListener('click', async function
     const btn = this;
     const status = document.getElementById('rebuild-status');
     btn.disabled = true;
-    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Rebuilding…';
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Starting…';
     status.style.display = 'none';
     try {
-        const res = await fetch('/admin/media/rebuild', { method: 'POST', headers: { 'Content-Type': 'application/json' } });
-        const data = await res.json();
-        status.className = data.success ? 'alert alert-success' : 'alert alert-danger';
-        status.innerHTML = data.success
-            ? formatScanResult(data.result, 'Rebuild')
-            : `<i class="fas fa-exclamation-triangle"></i> ${data.error || 'Rebuild failed'}`;
+        const enqueueRes = await fetch('/api/admin/jobs/media.rebuild/enqueue', { method: 'POST', headers: { 'Content-Type': 'application/json' } });
+        const { runId } = await enqueueRes.json();
+        if (!runId) throw new Error('Failed to start rebuild job');
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Rebuilding…';
+        const run = await pollJobStatus(runId);
+        status.className = run.status === 'completed' ? 'alert alert-success' : 'alert alert-danger';
+        status.innerHTML = run.status === 'completed'
+            ? `<i class="fas fa-check-circle"></i> ${run.result?.summary || 'Rebuild complete'}`
+            : `<i class="fas fa-exclamation-triangle"></i> ${run.result?.error || 'Rebuild failed'}`;
     } catch (e) {
         status.className = 'alert alert-danger';
-        status.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Request failed';
+        status.innerHTML = `<i class="fas fa-exclamation-triangle"></i> ${e.message || 'Request failed'}`;
     } finally {
         btn.disabled = false;
         btn.innerHTML = '<i class="fas fa-database"></i> Rebuild Media Index';
         status.style.display = 'block';
-        setTimeout(() => location.reload(), 3000);
     }
 });
 </script>

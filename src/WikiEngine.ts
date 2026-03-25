@@ -29,6 +29,7 @@ import AuditManager from './managers/AuditManager';
 import AddonsManager from './managers/AddonsManager';
 import ImportManager from './managers/ImportManager';
 import MetricsManager from './managers/MetricsManager';
+import BackgroundJobManager from './managers/BackgroundJobManager';
 
 // Parsers
 import MarkupParser from './parsers/MarkupParser';
@@ -178,6 +179,10 @@ class WikiEngine extends Engine {
     const notificationManager = new NotificationManager(this);
     this.registerManager('NotificationManager', notificationManager);
     await notificationManager.initialize();
+
+    const backgroundJobManager = new BackgroundJobManager(this);
+    this.registerManager('BackgroundJobManager', backgroundJobManager);
+    await backgroundJobManager.initialize();
 
     const pageManager = new PageManager(this);
     this.registerManager('PageManager', pageManager);
