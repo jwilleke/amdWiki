@@ -24,6 +24,35 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-03-25-11
+
+- Agent: Claude Sonnet 4.6
+- Subject: feat: BackgroundJobManager — async long-running admin operations (#387)
+- Key Decision: In-process job runner registered as a manager. Jobs run via fire-and-forget void call; caller polls `/api/admin/jobs/:runId/status`. Only one instance of a jobId runs at a time — duplicate enqueue returns the existing runId. NotificationManager posts system notification on completion/failure. Admin sync handlers (adminReindex, adminMediaRescan, adminMediaRebuild) now return HTTP 202 + runId immediately instead of blocking. UI polls at 1.5s intervals showing inline spinner.
+- Current Issue: #387
+- Testing:
+  - npm test: 88 suites passed, 2278 tests passed
+- Work Done:
+  - Created `BackgroundJobManager` with `registerJob()`, `enqueue()`, `getStatus()`, `getActiveJobs()`
+  - Registered `BackgroundJobManager` in `WikiEngine.ts` after `NotificationManager`
+  - Registered built-in jobs at startup: `pages.reindex`, `media.rescan`, `media.rebuild`
+  - Refactored `adminReindex`, `adminMediaRescan`, `adminMediaRebuild` to enqueue + return 202
+  - Added API routes: `POST /api/admin/jobs/:jobId/enqueue`, `GET /api/admin/jobs/:runId/status`, `GET /api/admin/jobs/active`
+  - Updated `admin-dashboard.ejs` `reindexPages()` to enqueue + poll
+  - Updated `admin-media.ejs` rescan/rebuild buttons to enqueue + poll
+  - Added `mockBackgroundJobManager` to `routes.test.js` mock engine
+  - Added `pollJobStatus()` helper shared by both UI views
+- Commits: 01a06ce
+- Files Modified:
+  - src/managers/BackgroundJobManager.ts (new)
+  - src/WikiEngine.ts
+  - src/routes/WikiRoutes.ts
+  - src/routes/__tests__/routes.test.js
+  - views/admin-dashboard.ejs
+  - views/admin-media.ejs
+
+---
+
 ## 2026-03-25-10
 
 - Agent: Claude Sonnet 4.6
