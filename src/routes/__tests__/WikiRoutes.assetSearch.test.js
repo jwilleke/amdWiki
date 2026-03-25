@@ -4,16 +4,24 @@
  * Covers:
  *   - Auth: 403 for unauthenticated / insufficient role
  *   - 503 when AssetService is not registered
- *   - Query param forwarding (q, types, year, max)
- *   - max cap at 200
- *   - Success response shape
+ *   - Query param forwarding (q, types, year, pageSize, offset)
+ *   - pageSize cap at 200
+ *   - Success response shape (spreads AssetSearchPage fields)
  *   - 500 on unexpected error
  */
 
 const WikiRoutes = require('../WikiRoutes');
 
-function makeAssetService(results = []) {
-  return { search: jest.fn().mockResolvedValue(results) };
+function makeAssetPage(results = [], total = null, hasMore = false) {
+  return {
+    results,
+    total: total !== null ? total : results.length,
+    hasMore,
+  };
+}
+
+function makeAssetService(page = makeAssetPage()) {
+  return { search: jest.fn().mockResolvedValue(page) };
 }
 
 function makeEngine(assetService) {
@@ -75,7 +83,7 @@ describe('WikiRoutes.assetSearch — GET /api/assets/search', () => {
     it.each(['admin', 'editor', 'contributor'])(
       'allows role: %s',
       async (role) => {
-        const service = makeAssetService([]);
+        const service = makeAssetService();
         const routes = makeRoutes(service);
         const req = makeReq({ userContext: { roles: [role] }, query: {} });
         const res = makeRes();
@@ -103,10 +111,12 @@ describe('WikiRoutes.assetSearch — GET /api/assets/search', () => {
   });
 
   describe('query param forwarding', () => {
-    it('passes q, types array, year, and max to AssetService.search()', async () => {
-      const service = makeAssetService([]);
+    it('passes q, types array, year, pageSize, and offset to AssetService.search()', async () => {
+      const service = makeAssetService();
       const routes = makeRoutes(service);
-      const req = makeReq({ query: { q: 'beach', types: 'attachment,media', year: '2023', max: '20' } });
+      const req = makeReq({
+        query: { q: 'beach', types: 'attachment,media', year: '2023', pageSize: '20', offset: '40' },
+      });
       const res = makeRes();
 
       await routes.assetSearch(req, res);
@@ -115,12 +125,13 @@ describe('WikiRoutes.assetSearch — GET /api/assets/search', () => {
         query: 'beach',
         types: ['attachment', 'media'],
         year: 2023,
-        max: 20,
+        pageSize: 20,
+        offset: 40,
       }));
     });
 
     it('omits types when not provided (pass undefined)', async () => {
-      const service = makeAssetService([]);
+      const service = makeAssetService();
       const routes = makeRoutes(service);
       const req = makeReq({ query: { q: 'test' } });
       const res = makeRes();
@@ -132,7 +143,7 @@ describe('WikiRoutes.assetSearch — GET /api/assets/search', () => {
     });
 
     it('ignores unknown type values in types param', async () => {
-      const service = makeAssetService([]);
+      const service = makeAssetService();
       const routes = makeRoutes(service);
       const req = makeReq({ query: { types: 'media,garbage,attachment' } });
       const res = makeRes();
@@ -143,20 +154,20 @@ describe('WikiRoutes.assetSearch — GET /api/assets/search', () => {
       expect(call.types).toEqual(['media', 'attachment']);
     });
 
-    it('caps max at 200', async () => {
-      const service = makeAssetService([]);
+    it('caps pageSize at 200', async () => {
+      const service = makeAssetService();
       const routes = makeRoutes(service);
-      const req = makeReq({ query: { max: '9999' } });
+      const req = makeReq({ query: { pageSize: '9999' } });
       const res = makeRes();
 
       await routes.assetSearch(req, res);
 
       const call = service.search.mock.calls[0][0];
-      expect(call.max).toBe(200);
+      expect(call.pageSize).toBe(200);
     });
 
-    it('defaults max to 50 when not provided', async () => {
-      const service = makeAssetService([]);
+    it('defaults pageSize to 48 when not provided', async () => {
+      const service = makeAssetService();
       const routes = makeRoutes(service);
       const req = makeReq({ query: {} });
       const res = makeRes();
@@ -164,16 +175,28 @@ describe('WikiRoutes.assetSearch — GET /api/assets/search', () => {
       await routes.assetSearch(req, res);
 
       const call = service.search.mock.calls[0][0];
-      expect(call.max).toBe(50);
+      expect(call.pageSize).toBe(48);
+    });
+
+    it('defaults offset to 0 when not provided', async () => {
+      const service = makeAssetService();
+      const routes = makeRoutes(service);
+      const req = makeReq({ query: {} });
+      const res = makeRes();
+
+      await routes.assetSearch(req, res);
+
+      const call = service.search.mock.calls[0][0];
+      expect(call.offset).toBe(0);
     });
   });
 
   describe('success response', () => {
-    it('returns { success: true, results, total } on success', async () => {
+    it('spreads AssetSearchPage fields into { success: true, results, total, hasMore }', async () => {
       const fakeResults = [
         { assetType: 'attachment', id: 'a1', filename: 'photo.jpg', insertSnippet: "[{Image src='photo.jpg'}]" },
       ];
-      const service = makeAssetService(fakeResults);
+      const service = makeAssetService(makeAssetPage(fakeResults, 42, true));
       const routes = makeRoutes(service);
       const req = makeReq({ query: {} });
       const res = makeRes();
@@ -183,7 +206,8 @@ describe('WikiRoutes.assetSearch — GET /api/assets/search', () => {
       expect(res.json).toHaveBeenCalledWith({
         success: true,
         results: fakeResults,
-        total: 1,
+        total: 42,
+        hasMore: true,
       });
     });
   });

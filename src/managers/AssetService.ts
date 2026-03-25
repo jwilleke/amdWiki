@@ -2,8 +2,8 @@
  * AssetService — unified search across AttachmentManager and MediaManager.
  *
  * Provides a single `search()` call that fans out to both asset stores and
- * returns a normalised `AssetSearchResult[]` list. Used by the editor picker
- * and the `/api/assets/search` endpoint.
+ * returns a normalised `AssetSearchPage` (results slice + total count).
+ * Used by the editor picker and the `/api/assets/search` endpoint.
  *
  * Attachment results: searched by filename substring match across all stored
  * attachments (`getAllAttachments()`).
@@ -11,6 +11,9 @@
  * Media results: delegated to `MediaManager.search()` which already handles
  * full-text search across the in-memory index (filename, title, description,
  * keywords, year).
+ *
+ * Both stores hold their working sets in memory so fetching all matches then
+ * slicing for pagination is fast and accurate.
  *
  * Access control: MediaManager.search() accepts a WikiContext for private-page
  * filtering. Attachments have no per-item privacy model today — all are returned
@@ -46,10 +49,24 @@ export interface AssetSearchResult {
   isPrivate?: boolean;
   /**
    * Wiki markup snippet ready to paste into the editor.
-   * - Attachment: `[{ATTACH src='filename.jpg'}]`
-   * - Media:      `[{Image src='media://filename.jpg'}]`
+   * - Attachment image:   `[{Image src='filename.jpg'}]`
+   * - Attachment other:   `[{ATTACH src='filename.pdf'}]`
+   * - Media image:        `[{Image src='media://filename.jpg'}]`
+   * - Media other:        `[{ATTACH src='media://clip.mp4'}]`
    */
   insertSnippet: string;
+}
+
+/**
+ * Paginated result returned by AssetService.search().
+ */
+export interface AssetSearchPage {
+  /** The current page of results */
+  results: AssetSearchResult[];
+  /** Total number of matching items across both stores */
+  total: number;
+  /** True when there are more results beyond this page */
+  hasMore: boolean;
 }
 
 /**
@@ -62,8 +79,10 @@ export interface AssetSearchOptions {
   types?: ('attachment' | 'media')[];
   /** Filter media results to a specific year */
   year?: number;
-  /** Maximum results to return (default 50) */
-  max?: number;
+  /** Number of results per page (default 48) */
+  pageSize?: number;
+  /** Zero-based offset into the full result set (default 0) */
+  offset?: number;
   /** WikiContext for media access-control evaluation */
   wikiContext?: WikiContext;
 }
@@ -74,23 +93,22 @@ class AssetService extends BaseManager {
   }
 
   /**
-   * Search across attachment and media stores.
+   * Search across attachment and media stores with pagination.
    *
-   * Results are attachment-first, then media, each capped at half of `max`
-   * when both types are requested.
+   * Fetches all matching items from both stores (in-memory operations),
+   * combines them (attachments first, then media), applies offset+pageSize
+   * slicing, and returns the page along with the total match count.
    */
-  async search(options: AssetSearchOptions = {}): Promise<AssetSearchResult[]> {
-    const { query = '', types, year, max = 50, wikiContext } = options;
+  async search(options: AssetSearchOptions = {}): Promise<AssetSearchPage> {
+    const { query = '', types, year, pageSize = 48, offset = 0, wikiContext } = options;
     const includeAttachments = !types || types.includes('attachment');
     const includeMedia = !types || types.includes('media');
 
-    const results: AssetSearchResult[] = [];
-    const perTypeMax = types && types.length === 1 ? max : Math.ceil(max / 2);
+    const all: AssetSearchResult[] = [];
 
     if (includeAttachments) {
       try {
-        const attachmentResults = await this._searchAttachments(query, perTypeMax);
-        results.push(...attachmentResults);
+        all.push(...await this._searchAttachments(query));
       } catch (err) {
         logger.warn('[AssetService] Attachment search failed:', err);
       }
@@ -98,17 +116,19 @@ class AssetService extends BaseManager {
 
     if (includeMedia) {
       try {
-        const mediaResults = await this._searchMedia(query, year, perTypeMax, wikiContext);
-        results.push(...mediaResults);
+        all.push(...await this._searchMedia(query, year, wikiContext));
       } catch (err) {
         logger.warn('[AssetService] Media search failed:', err);
       }
     }
 
-    return results.slice(0, max);
+    const total = all.length;
+    const results = all.slice(offset, offset + pageSize);
+
+    return { results, total, hasMore: offset + results.length < total };
   }
 
-  private async _searchAttachments(query: string, max: number): Promise<AssetSearchResult[]> {
+  private async _searchAttachments(query: string): Promise<AssetSearchResult[]> {
     const attachmentManager = this.engine.getManager('AttachmentManager') as
       | { getAllAttachments(): Promise<Array<{ identifier: string; name?: string; encodingFormat?: string; url?: string; mentions?: Array<{ name: string }> }>> }
       | undefined;
@@ -120,7 +140,6 @@ class AssetService extends BaseManager {
 
     return all
       .filter(a => !q || (a.name || '').toLowerCase().includes(q))
-      .slice(0, max)
       .map(a => {
         const filename = a.name || a.identifier;
         const mimeType = a.encodingFormat || '';
@@ -143,7 +162,6 @@ class AssetService extends BaseManager {
   private async _searchMedia(
     query: string,
     year: number | undefined,
-    max: number,
     wikiContext?: WikiContext
   ): Promise<AssetSearchResult[]> {
     const mediaManager = this.engine.getManager('MediaManager') as
@@ -166,7 +184,7 @@ class AssetService extends BaseManager {
       }
     }
 
-    return items.slice(0, max).map(item => ({
+    return items.map(item => ({
       assetType: 'media' as const,
       id: item.id,
       filename: item.filename,

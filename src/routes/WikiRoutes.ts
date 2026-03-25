@@ -5643,13 +5643,16 @@ class WikiRoutes {
   /**
    * GET /api/assets/search
    *
-   * Unified search across AttachmentManager and MediaManager.
+   * Unified search across AttachmentManager and MediaManager with pagination.
    *
    * Query parameters:
-   *   q      — free-text query (optional; empty returns all up to max)
-   *   types  — comma-separated: "attachment", "media", or both (default both)
-   *   year   — four-digit year filter for media results (optional)
-   *   max    — maximum results (default 50, capped at 200)
+   *   q        — free-text query (optional; empty returns all)
+   *   types    — comma-separated: "attachment", "media", or both (default both)
+   *   year     — four-digit year filter for media results (optional)
+   *   pageSize — results per page (default 48, max 200)
+   *   offset   — zero-based offset into result set (default 0)
+   *
+   * Response: { success, results, total, hasMore }
    *
    * Requires editor, contributor, or admin role.
    */
@@ -5681,13 +5684,14 @@ class WikiRoutes {
         ? (typesParam.split(',').filter(t => t === 'attachment' || t === 'media') as ('attachment' | 'media')[])
         : undefined;
       const year = req.query.year ? parseInt(req.query.year as string, 10) || undefined : undefined;
-      const max = Math.min(parseInt(req.query.max as string, 10) || 50, 200);
+      const pageSize = Math.min(parseInt(req.query.pageSize as string, 10) || 48, 200);
+      const offset = Math.max(parseInt(req.query.offset as string, 10) || 0, 0);
 
       const wikiContext = this.createWikiContext(req);
 
-      const results = await assetService.search({ query, types, year, max, wikiContext });
+      const page = await assetService.search({ query, types, year, pageSize, offset, wikiContext });
 
-      return res.json({ success: true, results, total: results.length });
+      return res.json({ success: true, ...page });
     } catch (err: unknown) {
       logger.error('[AssetService] Search error:', err);
       return res.status(500).json({ success: false, error: 'Internal server error' });
