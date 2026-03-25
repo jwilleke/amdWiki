@@ -563,6 +563,10 @@ class AttachmentManager extends BaseManager {
     try {
       const globalMatch = await this.attachmentProvider.getAttachmentByFilename(src);
       if (globalMatch) {
+        // Lazily populate mentions on first render — fixes imported content automatically.
+        // Both [{Image}] and [{ATTACH}] share this path so both benefit. Fire-and-forget
+        // so a metadata write failure never breaks rendering. See #384.
+        this.attachToPage(globalMatch.identifier, pageName).catch(() => {});
         return {
           url: globalMatch.url || `/attachments/${globalMatch.identifier}`,
           mimeType: globalMatch.encodingFormat || ''

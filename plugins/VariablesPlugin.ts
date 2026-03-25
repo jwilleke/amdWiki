@@ -11,6 +11,7 @@
  */
 
 import type { SimplePlugin, PluginContext, PluginParams } from './types';
+import { escapeHtml } from '../src/utils/pluginFormatters';
 
 interface VariablesParams extends PluginParams {
   type?: string;
@@ -36,28 +37,6 @@ interface PluginInfo {
 
 interface PluginManager {
   plugins: Map<string, PluginInfo>;
-}
-
-/**
- * Escape HTML special characters
- * @param text - Text to escape
- * @returns Escaped text
- */
-function escapeHtml(text: unknown): string {
-  if (text === null || text === undefined) return '';
-  // Handle non-string/number values safely
-  if (typeof text !== 'string' && typeof text !== 'number') {
-    return '[Object]';
-  }
-  const str = String(text);
-  const map: Record<string, string> = {
-    '&': '&amp;',
-    '<': '&lt;',
-    '>': '&gt;',
-    '"': '&quot;',
-    '\'': '&#039;'
-  };
-  return str.replace(/[&<>"']/g, m => map[m] || m);
 }
 
 /**
@@ -183,7 +162,7 @@ const VariablesPlugin: SimplePlugin = {
 
           html += '          <tr>\n';
           html += `            <td><code>[{$${escapeHtml(varName)}}]</code></td>\n`;
-          html += `            <td><code>${escapeHtml(value)}</code></td>\n`;
+          html += `            <td><code>${escapeHtml(String(value))}</code></td>\n`;
           html += `            <td><small class="text-muted">${description}</small></td>\n`;
           html += '          </tr>\n';
         }
@@ -223,7 +202,7 @@ const VariablesPlugin: SimplePlugin = {
 
           html += '          <tr>\n';
           html += `            <td><code>[{$${escapeHtml(varName)}}]</code></td>\n`;
-          html += `            <td><code>${escapeHtml(value)}</code></td>\n`;
+          html += `            <td><code>${escapeHtml(String(value))}</code></td>\n`;
           html += `            <td><small class="text-muted">${description}</small></td>\n`;
           html += '          </tr>\n';
         }

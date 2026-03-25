@@ -43,6 +43,7 @@
 
 import type { SimplePlugin, PluginContext, PluginParams } from './types';
 import { renderImageHtml } from './renderImage';
+import { escapeHtml } from '../src/utils/pluginFormatters';
 
 interface AttachmentManager {
   resolveAttachmentSrc(src: string, pageName: string): Promise<{ url: string; mimeType: string } | null>;
@@ -58,15 +59,6 @@ interface AttachParams extends PluginParams {
   target?: string;
   width?: string | number;
   height?: string | number;
-}
-
-function escapeHtml(str: string): string {
-  return str
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;');
 }
 
 function getFileIconClass(filename: string): string {

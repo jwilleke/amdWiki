@@ -20,6 +20,7 @@
  */
 
 import type { SimplePlugin, PluginContext, PluginParams } from './types';
+import { escapeHtml } from '../src/utils/pluginFormatters';
 
 interface ConfigManager {
   getProperty(key: string, defaultValue: string): string;
@@ -76,18 +77,6 @@ const providers: Record<string, MapProvider> = {
     // Apple Maps embed not publicly available
   }
 };
-
-/**
- * Sanitize string for HTML attribute use
- */
-function escapeHtml(str: string): string {
-  return str
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#x27;');
-}
 
 const LocationPlugin: SimplePlugin = {
   name: 'Location',
