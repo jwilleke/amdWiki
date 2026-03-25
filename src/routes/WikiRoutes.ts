@@ -2402,34 +2402,37 @@ class WikiRoutes {
         stats = searchManager.getStats();
       }
 
-      // Handle attachment search
+      // Handle asset tab searches via AssetService (DRY: single search path for attachments + media)
       const searchTab = (req.query.tab as string) || '';
       const attachmentQuery = (req.query.attachmentQuery as string) || '';
       const mimeType = (req.query.mimeType as string) || '';
-      let attachmentResults: Array<{ identifier: string; originalName?: string; filename?: string; mimeType?: string; size?: number; pageName?: string }> = [];
+      const mediaQuery = (req.query.mediaQuery as string) || '';
+      const mediaOffset = Math.max(0, parseInt(req.query.mediaOffset as string) || 0);
+      const mediaPageSize = 48;
 
-      if (searchTab === 'attachments') {
+      const assetService = this.engine.getManager('AssetService') as
+        | { search(opts: object): Promise<{ results: Array<{ id: string; filename: string; mimeType: string; url: string; thumbUrl?: string; year?: number; linkedPageName?: string; isPrivate?: boolean; assetType: string }>; total: number; hasMore: boolean }> }
+        | undefined;
+
+      let attachmentResults: Array<{ id: string; filename: string; mimeType: string; url: string; linkedPageName?: string }> = [];
+      let mediaPage: { results: Array<{ id: string; filename: string; mimeType: string; url: string; thumbUrl?: string; year?: number; linkedPageName?: string; isPrivate?: boolean }>; total: number; hasMore: boolean } = { results: [], total: 0, hasMore: false };
+
+      if (searchTab === 'attachments' && assetService) {
         try {
-          const attachmentManager = this.engine.getManager('AttachmentManager');
-          if (attachmentManager && attachmentManager.getAllAttachments) {
-            const allAttachments = await attachmentManager.getAllAttachments();
-
-            // Filter by query and mime type
-            attachmentResults = allAttachments.filter((att: { identifier: string; originalName?: string; filename?: string; mimeType?: string }) => {
-              const filename = (att.originalName || att.filename || att.identifier || '').toLowerCase();
-              const attMimeType = (att.mimeType || '').toLowerCase();
-
-              // Match filename if query provided
-              const matchesQuery = !attachmentQuery || filename.includes(attachmentQuery.toLowerCase());
-
-              // Match mime type if filter provided
-              const matchesMime = !mimeType || attMimeType.startsWith(mimeType.toLowerCase());
-
-              return matchesQuery && matchesMime;
-            });
-          }
+          const page = await assetService.search({ query: attachmentQuery, types: ['attachment'], pageSize: 500, wikiContext });
+          attachmentResults = mimeType
+            ? page.results.filter(r => r.mimeType.toLowerCase().startsWith(mimeType.toLowerCase()))
+            : page.results;
         } catch (attachErr) {
-          logger.warn('Error searching attachments:', attachErr);
+          logger.warn('Error searching attachments via AssetService:', attachErr);
+        }
+      }
+
+      if (searchTab === 'media' && assetService) {
+        try {
+          mediaPage = await assetService.search({ query: mediaQuery, types: ['media'], pageSize: mediaPageSize, offset: mediaOffset, wikiContext });
+        } catch (mediaErr) {
+          logger.warn('Error searching media via AssetService:', mediaErr);
         }
       }
 
@@ -2449,11 +2452,15 @@ class WikiRoutes {
         availableCategories: systemCategories,
         availableKeywords: userKeywordsList,
         stats: stats,
-        // Attachment search
+        // Asset tab search
         searchTab: searchTab,
         attachmentQuery: attachmentQuery,
         mimeType: mimeType,
-        attachmentResults: attachmentResults
+        attachmentResults: attachmentResults,
+        mediaQuery: mediaQuery,
+        mediaPage: mediaPage,
+        mediaOffset: mediaOffset,
+        mediaPageSize: mediaPageSize,
       });
     } catch (err: unknown) {
       logger.error('Error searching:', err);

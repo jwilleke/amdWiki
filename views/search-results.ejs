@@ -6,7 +6,7 @@
 <!-- Search Tabs -->
 <ul class="nav nav-tabs mb-3" id="searchTabs" role="tablist">
     <li class="nav-item" role="presentation">
-        <button class="nav-link <%= searchTab !== 'attachments' ? 'active' : '' %>" id="pages-tab" data-bs-toggle="tab"
+        <button class="nav-link <%= (!searchTab || searchTab === 'pages') ? 'active' : '' %>" id="pages-tab" data-bs-toggle="tab"
                 data-bs-target="#pages-search" type="button" role="tab">
             <i class="fas fa-file-alt me-1"></i>Pages
         </button>
@@ -17,11 +17,17 @@
             <i class="fas fa-paperclip me-1"></i>Attachments
         </button>
     </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link <%= searchTab === 'media' ? 'active' : '' %>" id="media-tab" data-bs-toggle="tab"
+                data-bs-target="#media-search" type="button" role="tab">
+            <i class="fas fa-photo-video me-1"></i>Media
+        </button>
+    </li>
 </ul>
 
 <div class="tab-content" id="searchTabsContent">
     <!-- Pages Search Tab -->
-    <div class="tab-pane fade <%= searchTab !== 'attachments' ? 'show active' : '' %>" id="pages-search" role="tabpanel">
+    <div class="tab-pane fade <%= (!searchTab || searchTab === 'pages') ? 'show active' : '' %>" id="pages-search" role="tabpanel">
         <!-- Simplified Search Form -->
         <div class="card mb-4 shadow-sm">
             <div class="card-body" style="background-color: var(--card-bg);">
@@ -259,7 +265,6 @@
                         <tr>
                             <th>Filename</th>
                             <th>Type</th>
-                            <th>Size</th>
                             <th>Page</th>
                             <th>Actions</th>
                         </tr>
@@ -269,23 +274,22 @@
                             <tr>
                                 <td>
                                     <i class="fas fa-<%= att.mimeType && att.mimeType.startsWith('image/') ? 'image' : 'file' %> me-2"></i>
-                                    <%= att.originalName || att.filename || att.identifier %>
+                                    <%= att.filename %>
                                 </td>
                                 <td><code><%= att.mimeType || 'unknown' %></code></td>
-                                <td><%= att.size ? (att.size / 1024).toFixed(1) + ' KB' : '-' %></td>
                                 <td>
-                                    <% if (att.pageName) { %>
-                                        <a href="/view/<%= encodeURIComponent(att.pageName) %>"><%= att.pageName %></a>
+                                    <% if (att.linkedPageName) { %>
+                                        <a href="/view/<%= encodeURIComponent(att.linkedPageName) %>"><%= att.linkedPageName %></a>
                                     <% } else { %>
                                         -
                                     <% } %>
                                 </td>
                                 <td>
-                                    <a href="/attachments/<%= att.identifier %>" class="btn btn-sm btn-outline-primary" target="_blank">
+                                    <a href="<%= att.url %>" class="btn btn-sm btn-outline-primary" target="_blank">
                                         <i class="fas fa-download"></i>
                                     </a>
                                     <% if (att.mimeType && att.mimeType.startsWith('image/')) { %>
-                                        <a href="/attachments/<%= att.identifier %>" class="btn btn-sm btn-outline-info" target="_blank">
+                                        <a href="<%= att.url %>" class="btn btn-sm btn-outline-info" target="_blank">
                                             <i class="fas fa-eye"></i>
                                         </a>
                                     <% } %>
@@ -303,6 +307,128 @@
             <div class="text-center py-4 text-muted">
                 <i class="fas fa-paperclip fa-3x mb-3"></i>
                 <p>Search for attachments by filename or filter by type.</p>
+            </div>
+        <% } %>
+    </div>
+
+    <!-- Media Search Tab -->
+    <div class="tab-pane fade <%= searchTab === 'media' ? 'show active' : '' %>" id="media-search" role="tabpanel">
+        <div class="card mb-4 shadow-sm">
+            <div class="card-body" style="background-color: var(--card-bg);">
+                <form id="mediaSearchForm" action="/search" method="GET">
+                    <input type="hidden" name="tab" value="media">
+                    <input type="hidden" name="mediaOffset" value="0">
+                    <div class="row g-3">
+                        <div class="col">
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-photo-video"></i></span>
+                                <input type="text" class="form-control" id="mediaQuery" name="mediaQuery"
+                                       value="<%= mediaQuery || '' %>" placeholder="Search by filename, caption, keyword, year…">
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <button class="btn btn-primary" type="submit">
+                                <i class="fas fa-search me-1"></i>Search
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <% if (searchTab === 'media' && mediaPage && mediaPage.results && mediaPage.results.length > 0) { %>
+            <!-- Results count + pagination -->
+            <%
+              const mediaTotalPages = Math.ceil(mediaPage.total / mediaPageSize);
+              const mediaCurrentPage = Math.floor(mediaOffset / mediaPageSize);
+              const mediaStart = mediaOffset + 1;
+              const mediaEnd = mediaOffset + mediaPage.results.length;
+            %>
+            <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
+                <span class="badge bg-info">
+                    <%= mediaPage.total.toLocaleString() %> result<%= mediaPage.total !== 1 ? 's' : '' %>
+                    <% if (mediaPage.total > mediaPageSize) { %> &middot; showing <%= mediaStart %>–<%= mediaEnd %><% } %>
+                </span>
+                <% if (mediaTotalPages > 1) { %>
+                <div class="d-flex align-items-center gap-2">
+                    <% if (mediaCurrentPage > 0) { %>
+                        <a href="/search?tab=media&mediaQuery=<%= encodeURIComponent(mediaQuery || '') %>&mediaOffset=<%= (mediaCurrentPage - 1) * mediaPageSize %>"
+                           class="btn btn-sm btn-outline-secondary">
+                            <i class="fas fa-chevron-left"></i> Prev
+                        </a>
+                    <% } %>
+                    <span class="small text-muted">Page <%= mediaCurrentPage + 1 %> of <%= mediaTotalPages %></span>
+                    <% if (mediaPage.hasMore) { %>
+                        <a href="/search?tab=media&mediaQuery=<%= encodeURIComponent(mediaQuery || '') %>&mediaOffset=<%= (mediaCurrentPage + 1) * mediaPageSize %>"
+                           class="btn btn-sm btn-outline-secondary">
+                            Next <i class="fas fa-chevron-right"></i>
+                        </a>
+                    <% } %>
+                </div>
+                <% } %>
+            </div>
+
+            <!-- Thumbnail grid -->
+            <div class="row g-2">
+                <% mediaPage.results.forEach(item => { %>
+                    <div class="col-6 col-md-3 col-lg-2">
+                        <div class="card h-100 border-0 shadow-sm">
+                            <div class="card-body p-2">
+                                <% if (item.mimeType && item.mimeType.startsWith('image/') && item.thumbUrl) { %>
+                                    <a href="<%= item.url %>" target="_blank">
+                                        <img src="<%= item.thumbUrl %>" class="img-fluid rounded mb-1"
+                                             style="max-height:120px;object-fit:cover;width:100%;" loading="lazy"
+                                             alt="<%= item.filename %>">
+                                    </a>
+                                <% } else { %>
+                                    <a href="<%= item.url %>" target="_blank" class="d-block text-center text-muted py-3">
+                                        <i class="fas fa-photo-video fa-2x"></i>
+                                    </a>
+                                <% } %>
+                                <div class="small text-truncate" title="<%= item.filename %>">
+                                    <a href="<%= item.url %>" target="_blank" class="text-body text-decoration-none"><%= item.filename %></a>
+                                </div>
+                                <div>
+                                    <% if (item.year) { %><small class="text-muted"><%= item.year %></small> <% } %>
+                                    <% if (item.linkedPageName) { %>
+                                        <a href="/view/<%= encodeURIComponent(item.linkedPageName) %>" class="badge bg-secondary text-decoration-none">
+                                            <%= item.linkedPageName %>
+                                        </a>
+                                    <% } %>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                <% }); %>
+            </div>
+
+            <!-- Bottom pagination -->
+            <% if (mediaTotalPages > 1) { %>
+            <div class="d-flex align-items-center justify-content-center gap-2 mt-3">
+                <% if (mediaCurrentPage > 0) { %>
+                    <a href="/search?tab=media&mediaQuery=<%= encodeURIComponent(mediaQuery || '') %>&mediaOffset=<%= (mediaCurrentPage - 1) * mediaPageSize %>"
+                       class="btn btn-sm btn-outline-secondary">
+                        <i class="fas fa-chevron-left"></i> Prev
+                    </a>
+                <% } %>
+                <span class="small text-muted">Page <%= mediaCurrentPage + 1 %> of <%= mediaTotalPages %></span>
+                <% if (mediaPage.hasMore) { %>
+                    <a href="/search?tab=media&mediaQuery=<%= encodeURIComponent(mediaQuery || '') %>&mediaOffset=<%= (mediaCurrentPage + 1) * mediaPageSize %>"
+                       class="btn btn-sm btn-outline-secondary">
+                        Next <i class="fas fa-chevron-right"></i>
+                    </a>
+                <% } %>
+            </div>
+            <% } %>
+
+        <% } else if (searchTab === 'media' && mediaQuery) { %>
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle me-2"></i>No media found matching your search.
+            </div>
+        <% } else if (searchTab === 'media') { %>
+            <div class="text-center py-4 text-muted">
+                <i class="fas fa-photo-video fa-3x mb-3"></i>
+                <p>Search media by filename, caption, keyword, or year.</p>
             </div>
         <% } %>
     </div>
