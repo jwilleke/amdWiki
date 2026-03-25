@@ -5,7 +5,7 @@ user-keywords:
   - default
 uuid: 6bdacfac-300d-4d89-ad4a-2acc98e12bc5
 slug: imageplugin
-lastModified: '2026-01-13T09:20:42.776Z'
+lastModified: '2026-03-25T00:00:00.000Z'
 author: admin
 ---
 # ImagePlugin
@@ -24,7 +24,7 @@ author: admin
 
 | Parameter | Description | Example |
 | ----------- | ------------- | --------- |
-| `src` | Image source path or URL | `src='/attachments/photo.jpg'` |
+| `src` | Image source: path, URL, or `media://filename` for media library items | `src='photo.jpg'` |
 
 ### Optional Parameters
 
@@ -156,19 +156,34 @@ Click the [{Image src='/icons/edit.png' display='inline' alt='edit icon'}] butto
 [{Image src='/attachments/photo.jpg' border='2' style='border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);' caption='Styled image'}]
 ```wiki
 
-## Attachment Integration
+## Source Types
 
-When uploading images through the wiki's attachment system, use the hash-based path:
+`src` accepts three forms:
+
+| Form | Example | Behaviour |
+| ---- | ------- | --------- |
+| Filename | `src='photo.jpg'` | Resolved via [Attachments] — page-local first, then global |
+| `media://` URI | `src='media://IMG_1234.jpg'` | Resolved via the [Media] library by filename — no upload needed |
+| Absolute path / URL | `src='/public/img/logo.png'` or `src='https://…'` | Used as-is |
+
+### Embedding a Media Library Photo
+
+If your wiki has the [Media] feature enabled, you can reference photos from the library without uploading them:
 
 ```wiki
-[{Image src='/attachments/621c9274e39fc77d5e6cce7028c7805a37e5d977f116c20cc8be728d8de90c26' caption='Uploaded image'}]
-```wiki
+[{Image src='media://IMG_1234.jpg' caption='Family Trip 2024' align='center'}]
+[{Image src='media://DSC_0042.jpg' align='left' display='float' caption='Sunset'}]
+```
 
-The attachment system automatically:
-- Generates unique hash-based filenames
-- Stores metadata with Schema.org format
-- Tracks page mentions
-- Provides deduplication
+### Attachment Integration
+
+When you upload an image through the [Attachments] system, simply use its filename — the system resolves it automatically:
+
+```wiki
+[{Image src='photo.jpg' caption='Uploaded image'}]
+```
+
+The attachment system handles hash-based storage, deduplication, and page mention tracking behind the scenes.
 
 ## Accessibility
 
@@ -277,9 +292,9 @@ If text isn't wrapping around your image:
 
 ## Related Pages
 
-- [AttachmentManager] - Uploading and managing images
-- [System Keywords] - Categorization system
-- [PageIndex] - All wiki pages
+- [Attachments] — uploading files and choosing between Image / ATTACH plugins
+- [AttachPlugin] — the `[{ATTACH}]` plugin for files and images
+- [Media] — browsing and embedding media library photos
 
 ## Technical Details
 
