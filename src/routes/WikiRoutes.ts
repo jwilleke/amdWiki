@@ -1048,6 +1048,22 @@ class WikiRoutes {
    * @param {string} pageName - The page name to check
    * @returns {Promise<boolean>} True if page requires admin permission to edit
    */
+  /** Returns true when the page lives in the private storage location. */
+  private async _isPagePrivate(pageName: string): Promise<boolean> {
+    try {
+      const pageManager = this.engine.getManager('PageManager');
+      if (!pageManager) return false;
+      const meta = await pageManager.getPageMetadata(pageName);
+      if (!meta?.uuid) return false;
+      const provider = pageManager.getCurrentPageProvider?.() ?? (pageManager as any).provider;
+      const pageIndex = provider?.pageIndex as { pages: Record<string, { location?: string }> } | null;
+      const entry = pageIndex?.pages[meta.uuid];
+      return entry?.location === 'private';
+    } catch {
+      return false;
+    }
+  }
+
   async isRequiredPage(pageName: string): Promise<boolean> {
     // Check if page has a protected system-category
     try {
@@ -1273,6 +1289,7 @@ class WikiRoutes {
         canEdit,
         sectionEditingEnabled,
         metadata,
+        pageIsPrivate: !canAccessPrivate ? false : await this._isPagePrivate(pageName),
         versionInfo,
         lastModified: metadata?.lastModified,
         referringPages: [], // TODO: Implement backlink detection
@@ -1778,6 +1795,7 @@ class WikiRoutes {
         pageName: pageName,
         content: pageData.content,
         metadata: pageData.metadata,
+        pageIsPrivate: await this._isPagePrivate(pageName),
         systemCategories: systemCategories,
         selectedCategories: selectedCategories,
         userKeywords: userKeywords,

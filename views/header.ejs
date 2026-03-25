@@ -164,10 +164,25 @@
 
                 <!-- Center: page title — flex-grow fills all remaining space -->
                 <div class="flex-grow-1 text-center navigation-title px-2">
-                    <% if (typeof title !== 'undefined' && title) { %>
-                        <h5 class="mb-0 text-truncate"><%= title %></h5>
-                    <% } else if (typeof pageName !== 'undefined' && pageName) { %>
-                        <h5 class="mb-0 text-truncate"><%= pageName %></h5>
+                    <%
+                      const _navTitle = (typeof title !== 'undefined' && title) ? title
+                                      : (typeof pageName !== 'undefined' && pageName) ? pageName : '';
+                      const _sysCat  = (typeof metadata !== 'undefined' && metadata && metadata['system-category'])
+                                        ? String(metadata['system-category']).toLowerCase() : '';
+                      const _isPriv  = (typeof pageIsPrivate !== 'undefined') ? pageIsPrivate : false;
+                    %>
+                    <% if (_navTitle) { %>
+                        <h5 class="mb-0 text-truncate">
+                            <%= _navTitle %>
+                            <% if (_isPriv) { %>
+                                <span class="badge bg-warning text-dark ms-1" style="font-size:0.6em;vertical-align:middle;" title="Private page">(Private)</span>
+                            <% } %>
+                            <% if (_sysCat === 'system') { %>
+                                <span class="badge bg-secondary ms-1" style="font-size:0.6em;vertical-align:middle;" title="System page">(System)</span>
+                            <% } else if (_sysCat === 'documentation') { %>
+                                <span class="badge bg-info text-dark ms-1" style="font-size:0.6em;vertical-align:middle;" title="Documentation page">(Documentation)</span>
+                            <% } %>
+                        </h5>
                     <% } %>
                 </div>
 
