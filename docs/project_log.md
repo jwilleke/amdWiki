@@ -24,6 +24,26 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-03-25-03
+
+- Agent: Claude Sonnet 4.6
+- Subject: fix: normalize frontmatter before comparing required-pages (#386)
+- Key Decision: Strip volatile fields (lastModified, user-modified, editor) before comparing — not raw string diff. Keep user-modified as a separate userModified flag for the UI rather than as the modified/current signal.
+- Current Issue: #386 (closed)
+- Testing:
+  - npm test: 86 suites passed, 2227 tests passed
+- Work Done:
+  - Added `normalizeForCompare()` helper in `adminRequiredPages()` — strips volatile frontmatter fields before comparing source vs live
+  - Applied same normalization to dashboard badge count
+  - Added `userModified` field to comparison items; template shows "User Edited" badge
+  - Fixed "Push to Source" button condition: appears when `userModified || titleDrift`, not `status === 'modified'`
+- Commits: 15dc921
+- Files Modified:
+  - src/routes/WikiRoutes.ts
+  - views/admin-required-pages.ejs
+
+---
+
 ## 2026-03-25-02
 
 - Agent: Claude Sonnet 4.6
