@@ -24,6 +24,30 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-03-25-01
+
+- Agent: Claude Sonnet 4.6
+- Subject: feat/fix: AttachmentManager mentions lazy population + escapeHtml DRY consolidation
+- Current Issue: #383 (Unified Asset System), #384 (attachment mentions), #385 (escapeHtml DRY)
+- Key Decision: Populate attachment `mentions[]` lazily in `resolveAttachmentSrc()` step 4 rather than parsing page content on save — self-heals imported attachments on first render with no backfill tool needed
+- Testing:
+  - npm test: 86 suites passed, 2227 tests passed
+- Work Done:
+  - Created GH issues #383 (Unified Asset System — AttachmentManager + MediaManager integration), #384 (lazy mentions population, sub-issue of #383), #385 (escapeHtml DRY)
+  - Analyzed AttachmentManager vs MediaManager: confirmed both [{Image}] and [{ATTACH}] use same attachment store via resolveAttachmentSrc(); MediaPlugin has no single-image display
+  - Documented media:// URI prefix approach for performance-safe MediaManager integration (54K+ images never touched unless explicitly requested)
+  - Fixed #384: added attachToPage() call in resolveAttachmentSrc() step 4 — both plugins benefit, fire-and-forget so metadata write never breaks rendering
+  - Fixed #385: removed local escapeHtml() from AttachPlugin.ts, LocationPlugin.ts, VariablesPlugin.ts; all import from src/utils/pluginFormatters.ts
+  - Closed #384 and #385
+- Commits: f2a9fe8
+- Files Modified:
+  - plugins/AttachPlugin.ts
+  - plugins/LocationPlugin.ts
+  - plugins/VariablesPlugin.ts
+  - src/managers/AttachmentManager.ts
+
+---
+
 ## 2026-03-24-14
 
 - Agent: Claude Sonnet 4.6
