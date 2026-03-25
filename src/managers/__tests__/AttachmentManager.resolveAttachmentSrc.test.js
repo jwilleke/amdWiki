@@ -5,6 +5,7 @@
  * src value into { url, mimeType } or null.
  *
  * Resolution order:
+ *   0. media:// URI → MediaManager.findByFilename() → { url: /media/file/{id}, mimeType }
  *   1. External URL (http:// / https://) → passthrough, mimeType: ''
  *   2. Absolute path (/) → passthrough, mimeType: ''
  *   3. Current-page filename lookup → { url, mimeType } from metadata
@@ -14,8 +15,15 @@
 
 const AttachmentManager = require('../AttachmentManager');
 
+const mockMediaManager = {
+  findByFilename: jest.fn(),
+};
+
 const mockEngine = {
-  getManager: jest.fn().mockReturnValue(null),
+  getManager: jest.fn((name) => {
+    if (name === 'MediaManager') return mockMediaManager;
+    return null;
+  }),
 };
 
 function makeManager(providerMethods = {}) {
@@ -30,6 +38,71 @@ function makeManager(providerMethods = {}) {
 }
 
 describe('AttachmentManager.resolveAttachmentSrc', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  describe('step 0: media:// URI scheme', () => {
+    it('media://filename found → { url: /media/file/{id}, mimeType }', async () => {
+      mockMediaManager.findByFilename.mockResolvedValue({ id: 'abc123', mimeType: 'image/jpeg' });
+      const manager = makeManager();
+
+      const result = await manager.resolveAttachmentSrc('media://IMG_1234.jpg', 'MyPage');
+
+      expect(result).toEqual({ url: '/media/file/abc123', mimeType: 'image/jpeg' });
+      expect(mockMediaManager.findByFilename).toHaveBeenCalledWith('IMG_1234.jpg');
+    });
+
+    it('media://filename not found in media index → null', async () => {
+      mockMediaManager.findByFilename.mockResolvedValue(null);
+      const manager = makeManager();
+
+      const result = await manager.resolveAttachmentSrc('media://missing.jpg', 'MyPage');
+
+      expect(result).toBeNull();
+      expect(manager['attachmentProvider'].getAttachmentsForPage).not.toHaveBeenCalled();
+    });
+
+    it('media:// when MediaManager unavailable → null, no attachment lookup', async () => {
+      // Override engine to return null for MediaManager
+      const engineNoMedia = { getManager: jest.fn().mockReturnValue(null) };
+      const manager = new AttachmentManager(engineNoMedia);
+      manager['attachmentProvider'] = {
+        getAttachmentsForPage: jest.fn(),
+        getAttachmentByFilename: jest.fn(),
+      };
+
+      const result = await manager.resolveAttachmentSrc('media://photo.jpg', 'MyPage');
+
+      expect(result).toBeNull();
+      expect(manager['attachmentProvider'].getAttachmentsForPage).not.toHaveBeenCalled();
+    });
+
+    it('media:// findByFilename throws → null (resilience)', async () => {
+      mockMediaManager.findByFilename.mockRejectedValue(new Error('index error'));
+      const manager = makeManager();
+
+      const result = await manager.resolveAttachmentSrc('media://photo.jpg', 'MyPage');
+
+      expect(result).toBeNull();
+    });
+
+    it('media:// does not fall through to attachment lookup', async () => {
+      mockMediaManager.findByFilename.mockResolvedValue(null);
+      const manager = makeManager({
+        getAttachmentByFilename: jest.fn().mockResolvedValue({
+          name: 'photo.jpg', url: '/attachments/x', encodingFormat: 'image/jpeg', identifier: 'x',
+        }),
+      });
+
+      const result = await manager.resolveAttachmentSrc('media://photo.jpg', 'MyPage');
+
+      // Must return null — media:// only consults MediaManager
+      expect(result).toBeNull();
+      expect(manager['attachmentProvider'].getAttachmentByFilename).not.toHaveBeenCalled();
+    });
+  });
+
   describe('step 1 & 2: passthrough for URLs and absolute paths', () => {
     it('external https:// URL → { url, mimeType: "" }, no provider calls', async () => {
       const manager = makeManager();
