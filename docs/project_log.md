@@ -24,6 +24,31 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-03-25-10
+
+- Agent: Claude Sonnet 4.6
+- Subject: feat: sort Browse Assets modal by date/caption (#392)
+- Key Decision: Sort server-side (before pagination slice) so page 2 sorted = page 2 of the globally sorted list, not just the local page. `caption` and `dateTimeOriginal` added to `AssetSearchResult` from media metadata. Sort selector in modal has 4 options: Date ↑/↓, Caption A–Z/Z–A. Caption display name shown on card when available.
+- Current Issue: #392
+- Testing:
+  - npm test: 88 suites passed, 2278 tests passed
+- Work Done:
+  - Added `caption`, `dateTimeOriginal` fields to `AssetSearchResult` in `AssetService.ts`
+  - Added `sort`/`order` to `AssetSearchOptions`; added `_sortResults()` in `search()`
+  - Populated `caption`/`dateTimeOriginal` from `item.metadata` in `_searchMedia()`
+  - Updated `assetSearch()` route to pass `sort`/`order` from query params
+  - Added sort selector UI to Browse Assets modal in `views/edit.ejs`
+  - Updated `runAssetSearch` JS to read sort selector and pass `sort`/`order` params
+  - 7 new sort tests in `AssetService.test.js`
+- Commits: 39c4a2e
+- Files Modified:
+  - src/managers/AssetService.ts
+  - src/managers/__tests__/AssetService.test.js
+  - src/routes/WikiRoutes.ts
+  - views/edit.ejs
+
+---
+
 ## 2026-03-25-09
 
 - Agent: Claude Sonnet 4.6
