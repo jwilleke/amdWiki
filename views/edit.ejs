@@ -502,6 +502,14 @@
                         </select>
                     </div>
                     <div class="col-auto">
+                        <select id="assetPickerSort" class="form-select" onchange="runAssetSearch(0)" title="Sort order">
+                            <option value="date-asc">Date ↑</option>
+                            <option value="date-desc">Date ↓</option>
+                            <option value="caption-asc">Caption A–Z</option>
+                            <option value="caption-desc">Caption Z–A</option>
+                        </select>
+                    </div>
+                    <div class="col-auto">
                         <button type="button" class="btn btn-primary" onclick="runAssetSearch()">
                             <i class="fas fa-search"></i> Search
                         </button>
@@ -571,6 +579,8 @@
 
         const query = document.getElementById('assetPickerQuery').value.trim();
         const type = document.getElementById('assetPickerType').value;
+        const sortVal = document.getElementById('assetPickerSort').value; // e.g. "date-asc"
+        const [sortField, sortOrder] = sortVal.split('-');
         const resultsEl = document.getElementById('assetPickerResults');
         const countEl = document.getElementById('assetPickerCount');
         const paginationEl = document.getElementById('assetPickerPagination');
@@ -582,7 +592,9 @@
         try {
             const params = new URLSearchParams({
                 pageSize: String(PAGE_SIZE),
-                offset: String(page * PAGE_SIZE)
+                offset: String(page * PAGE_SIZE),
+                sort: sortField,
+                order: sortOrder
             });
             if (query) params.set('q', query);
             if (type) params.set('types', type);
@@ -652,12 +664,13 @@
             ? '<span class="badge bg-info text-dark">media</span>'
             : '<span class="badge bg-secondary">attachment</span>';
         const year = asset.year ? '<small class="text-muted">' + escHtml(String(asset.year)) + '</small> ' : '';
+        const displayName = asset.caption || asset.filename;
 
         return '<div class="col-6 col-md-3 col-lg-2">' +
             '<div class="card h-100 border-0 shadow-sm">' +
                 '<div class="card-body p-2">' +
                     thumb +
-                    '<div class="small text-truncate" title="' + escHtml(asset.filename) + '">' + escHtml(asset.filename) + '</div>' +
+                    '<div class="small text-truncate" title="' + escHtml(asset.filename) + '">' + escHtml(displayName) + '</div>' +
                     '<div>' + year + badge + '</div>' +
                 '</div>' +
                 '<div class="card-footer p-1 text-center">' +

@@ -318,6 +318,90 @@ describe('AssetService.search()', () => {
     });
   });
 
+  describe('sort', () => {
+    it('sort=date asc orders media by dateTimeOriginal oldest-first', async () => {
+      const items = [
+        makeMediaItem({ id: 'm1', filename: 'c.jpg', metadata: { dateTimeOriginal: '2024-06-15 10:00:00' } }),
+        makeMediaItem({ id: 'm2', filename: 'a.jpg', metadata: { dateTimeOriginal: '2022-01-01 00:00:00' } }),
+        makeMediaItem({ id: 'm3', filename: 'b.jpg', metadata: { dateTimeOriginal: '2023-03-20 08:00:00' } }),
+      ];
+      const { service } = makeService({ mediaItems: items, noAttach: true });
+
+      const { results } = await service.search({ types: ['media'], sort: 'date', order: 'asc' });
+
+      expect(results.map(r => r.filename)).toEqual(['a.jpg', 'b.jpg', 'c.jpg']);
+    });
+
+    it('sort=date desc orders media by dateTimeOriginal newest-first', async () => {
+      const items = [
+        makeMediaItem({ id: 'm1', filename: 'a.jpg', metadata: { dateTimeOriginal: '2022-01-01 00:00:00' } }),
+        makeMediaItem({ id: 'm2', filename: 'c.jpg', metadata: { dateTimeOriginal: '2024-06-15 10:00:00' } }),
+      ];
+      const { service } = makeService({ mediaItems: items, noAttach: true });
+
+      const { results } = await service.search({ types: ['media'], sort: 'date', order: 'desc' });
+
+      expect(results[0].filename).toBe('c.jpg');
+      expect(results[1].filename).toBe('a.jpg');
+    });
+
+    it('sort=caption asc orders media by caption alphabetically', async () => {
+      const items = [
+        makeMediaItem({ id: 'm1', filename: 'z.jpg', metadata: { caption: 'Zebra' } }),
+        makeMediaItem({ id: 'm2', filename: 'a.jpg', metadata: { caption: 'Apple' } }),
+        makeMediaItem({ id: 'm3', filename: 'm.jpg', metadata: { caption: 'Mango' } }),
+      ];
+      const { service } = makeService({ mediaItems: items, noAttach: true });
+
+      const { results } = await service.search({ types: ['media'], sort: 'caption', order: 'asc' });
+
+      expect(results.map(r => r.caption)).toEqual(['Apple', 'Mango', 'Zebra']);
+    });
+
+    it('sort=caption falls back to filename when no caption', async () => {
+      const items = [
+        makeMediaItem({ id: 'm1', filename: 'zebra.jpg', metadata: {} }),
+        makeMediaItem({ id: 'm2', filename: 'apple.jpg', metadata: {} }),
+      ];
+      const { service } = makeService({ mediaItems: items, noAttach: true });
+
+      const { results } = await service.search({ types: ['media'], sort: 'caption', order: 'asc' });
+
+      expect(results[0].filename).toBe('apple.jpg');
+      expect(results[1].filename).toBe('zebra.jpg');
+    });
+
+    it('media results expose caption field from metadata', async () => {
+      const item = makeMediaItem({ metadata: { caption: 'A lovely sunset' } });
+      const { service } = makeService({ mediaItems: [item], noAttach: true });
+
+      const { results } = await service.search({ types: ['media'] });
+
+      expect(results[0].caption).toBe('A lovely sunset');
+    });
+
+    it('media results expose dateTimeOriginal field from metadata', async () => {
+      const item = makeMediaItem({ metadata: { dateTimeOriginal: '2024-06-15 10:30:00' } });
+      const { service } = makeService({ mediaItems: [item], noAttach: true });
+
+      const { results } = await service.search({ types: ['media'] });
+
+      expect(results[0].dateTimeOriginal).toBe('2024-06-15 10:30:00');
+    });
+
+    it('default sort is date asc', async () => {
+      const items = [
+        makeMediaItem({ id: 'm1', filename: 'c.jpg', metadata: { dateTimeOriginal: '2024-01-01 00:00:00' } }),
+        makeMediaItem({ id: 'm2', filename: 'a.jpg', metadata: { dateTimeOriginal: '2022-01-01 00:00:00' } }),
+      ];
+      const { service } = makeService({ mediaItems: items, noAttach: true });
+
+      const { results } = await service.search({ types: ['media'] });
+
+      expect(results[0].filename).toBe('a.jpg');
+    });
+  });
+
   describe('graceful degradation', () => {
     it('AttachmentManager unavailable → returns only media results', async () => {
       const { service } = makeService({ noAttach: true, mediaItems: [makeMediaItem()] });

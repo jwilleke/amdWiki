@@ -5678,6 +5678,8 @@ class WikiRoutes {
    *   year     — four-digit year filter for media results (optional)
    *   pageSize — results per page (default 48, max 200)
    *   offset   — zero-based offset into result set (default 0)
+   *   sort     — sort field: "date" (default) or "caption"
+   *   order    — sort direction: "asc" (default) or "desc"
    *
    * Response: { success, results, total, hasMore }
    *
@@ -5713,10 +5715,12 @@ class WikiRoutes {
       const year = req.query.year ? parseInt(req.query.year as string, 10) || undefined : undefined;
       const pageSize = Math.min(parseInt(req.query.pageSize as string, 10) || 48, 200);
       const offset = Math.max(parseInt(req.query.offset as string, 10) || 0, 0);
+      const sort = req.query.sort === 'caption' ? 'caption' as const : 'date' as const;
+      const order = req.query.order === 'desc' ? 'desc' as const : 'asc' as const;
 
       const wikiContext = this.createWikiContext(req);
 
-      const page = await assetService.search({ query, types, year, pageSize, offset, wikiContext });
+      const page = await assetService.search({ query, types, year, pageSize, offset, sort, order, wikiContext });
 
       return res.json({ success: true, ...page });
     } catch (err: unknown) {

@@ -43,6 +43,10 @@ export interface AssetSearchResult {
   thumbUrl?: string;
   /** Year (media only) */
   year?: number;
+  /** Caption from EXIF Description field (media only) */
+  caption?: string;
+  /** ISO-style date string from EXIF DateTimeOriginal, e.g. "2024-06-15 10:30:00" (media only) */
+  dateTimeOriginal?: string;
   /** Wiki page this item is linked to (media) or was first uploaded for (attachment) */
   linkedPageName?: string;
   /** True when the item is gated by a private wiki page */
@@ -83,6 +87,10 @@ export interface AssetSearchOptions {
   pageSize?: number;
   /** Zero-based offset into the full result set (default 0) */
   offset?: number;
+  /** Sort field: 'date' (default) or 'caption' */
+  sort?: 'date' | 'caption';
+  /** Sort direction: 'asc' (default) or 'desc' */
+  order?: 'asc' | 'desc';
   /** WikiContext for media access-control evaluation */
   wikiContext?: WikiContext;
 }
@@ -100,7 +108,7 @@ class AssetService extends BaseManager {
    * slicing, and returns the page along with the total match count.
    */
   async search(options: AssetSearchOptions = {}): Promise<AssetSearchPage> {
-    const { query = '', types, year, pageSize = 48, offset = 0, wikiContext } = options;
+    const { query = '', types, year, pageSize = 48, offset = 0, sort = 'date', order = 'asc', wikiContext } = options;
     const includeAttachments = !types || types.includes('attachment');
     const includeMedia = !types || types.includes('media');
 
@@ -122,10 +130,34 @@ class AssetService extends BaseManager {
       }
     }
 
+    this._sortResults(all, sort, order);
+
     const total = all.length;
     const results = all.slice(offset, offset + pageSize);
 
     return { results, total, hasMore: offset + results.length < total };
+  }
+
+  private _sortResults(items: AssetSearchResult[], sort: 'date' | 'caption', order: 'asc' | 'desc'): void {
+    const asc = order === 'asc';
+    items.sort((a, b) => {
+      let cmp = 0;
+      if (sort === 'caption') {
+        const getCaption = (r: AssetSearchResult) =>
+          (r.caption ?? r.filename ?? '').toLowerCase();
+        cmp = getCaption(a).localeCompare(getCaption(b));
+      } else {
+        const getDate = (r: AssetSearchResult): number => {
+          if (r.dateTimeOriginal) {
+            const d = new Date(r.dateTimeOriginal);
+            if (!isNaN(d.getTime())) return d.getTime();
+          }
+          return (r.year ?? 0) * 10000;
+        };
+        cmp = getDate(a) - getDate(b);
+      }
+      return asc ? cmp : -cmp;
+    });
   }
 
   private async _searchAttachments(query: string): Promise<AssetSearchResult[]> {
@@ -166,14 +198,14 @@ class AssetService extends BaseManager {
   ): Promise<AssetSearchResult[]> {
     const mediaManager = this.engine.getManager('MediaManager') as
       | {
-          search(q: string, ctx?: WikiContext): Promise<Array<{ id: string; filename: string; mimeType: string; year?: number; linkedPageName?: string; isPrivate?: boolean }>>;
-          listByYear(y: number, ctx?: WikiContext): Promise<Array<{ id: string; filename: string; mimeType: string; year?: number; linkedPageName?: string; isPrivate?: boolean }>>;
+          search(q: string, ctx?: WikiContext): Promise<Array<{ id: string; filename: string; mimeType: string; year?: number; linkedPageName?: string; isPrivate?: boolean; metadata?: Record<string, unknown> }>>;
+          listByYear(y: number, ctx?: WikiContext): Promise<Array<{ id: string; filename: string; mimeType: string; year?: number; linkedPageName?: string; isPrivate?: boolean; metadata?: Record<string, unknown> }>>;
         }
       | undefined;
 
     if (!mediaManager) return [];
 
-    let items: Array<{ id: string; filename: string; mimeType: string; year?: number; linkedPageName?: string; isPrivate?: boolean }>;
+    let items: Array<{ id: string; filename: string; mimeType: string; year?: number; linkedPageName?: string; isPrivate?: boolean; metadata?: Record<string, unknown> }>;
 
     if (year && !query) {
       items = await mediaManager.listByYear(year, wikiContext);
@@ -184,20 +216,29 @@ class AssetService extends BaseManager {
       }
     }
 
-    return items.map(item => ({
-      assetType: 'media' as const,
-      id: item.id,
-      filename: item.filename,
-      mimeType: item.mimeType,
-      url: `/media/file/${item.id}`,
-      thumbUrl: `/media/thumb/${item.id}?size=150x150`,
-      year: item.year,
-      linkedPageName: item.linkedPageName,
-      isPrivate: item.isPrivate,
-      insertSnippet: item.mimeType.startsWith('image/')
-        ? `[{Image src='media://${item.filename}'}]`
-        : `[{ATTACH src='media://${item.filename}'}]`
-    }));
+    return items.map(item => {
+      const m = item.metadata ?? {};
+      const caption = typeof m['caption'] === 'string' && m['caption']
+        ? m['caption']
+        : (typeof m['imageDescription'] === 'string' && m['imageDescription'] ? m['imageDescription'] : undefined);
+      const dateTimeOriginal = typeof m['dateTimeOriginal'] === 'string' ? m['dateTimeOriginal'] : undefined;
+      return {
+        assetType: 'media' as const,
+        id: item.id,
+        filename: item.filename,
+        mimeType: item.mimeType,
+        url: `/media/file/${item.id}`,
+        thumbUrl: `/media/thumb/${item.id}?size=150x150`,
+        year: item.year,
+        caption,
+        dateTimeOriginal,
+        linkedPageName: item.linkedPageName,
+        isPrivate: item.isPrivate,
+        insertSnippet: item.mimeType.startsWith('image/')
+          ? `[{Image src='media://${item.filename}'}]`
+          : `[{ATTACH src='media://${item.filename}'}]`
+      };
+    });
   }
 }
 
