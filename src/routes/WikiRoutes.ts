@@ -3468,6 +3468,15 @@ class WikiRoutes {
           './data/pages'
         );
 
+        // eslint-disable-next-line @typescript-eslint/no-require-imports -- lazy load
+        const matter = require('gray-matter');
+        const volatileFields = ['lastModified', 'user-modified', 'editor'];
+        const normalize = (raw: string): string => {
+          const parsed = matter(raw) as { data: Record<string, unknown>; content: string };
+          const stable = { ...parsed.data };
+          for (const f of volatileFields) delete stable[f];
+          return matter.stringify(parsed.content, stable) as string;
+        };
         const allFiles: string[] = await fse.readdir(requiredDirResolved);
         for (const file of allFiles.filter((f: string) => f.endsWith('.md'))) {
           const destPath = path.join(pagesDirResolved, file);
@@ -3479,7 +3488,7 @@ class WikiRoutes {
               'utf8'
             );
             const dst: string = await fse.readFile(destPath, 'utf8');
-            if (src !== dst) requiredPagesSyncNeeded++;
+            if (normalize(src) !== normalize(dst)) requiredPagesSyncNeeded++;
           }
         }
       } catch {
@@ -4981,12 +4990,23 @@ class WikiRoutes {
 
       const validationManager = this.engine.getManager('ValidationManager');
 
+      // Fields that legitimately diverge between source and live (set by the wiki on
+      // save/sync) — strip before comparing so cosmetic differences don't inflate counts.
+      const VOLATILE_FRONTMATTER = ['lastModified', 'user-modified', 'editor'];
+      const normalizeForCompare = (raw: string): string => {
+        const parsed = matter(raw) as { data: Record<string, unknown>; content: string };
+        const stable = { ...parsed.data };
+        for (const f of VOLATILE_FRONTMATTER) delete stable[f];
+        return matter.stringify(parsed.content, stable) as string;
+      };
+
       const comparison: Array<{
         uuid: string;
         title: string;
         slug: string;
         lastModified: string;
         status: 'new' | 'modified' | 'current' | 'uuid-mismatch';
+        userModified: boolean;
         liveUuid?: string;
         titleDrift?: boolean;
         liveTitle?: string;
@@ -5029,6 +5049,7 @@ class WikiRoutes {
 
         const destPath = path.join(pagesDirResolved, file);
         let status: 'new' | 'modified' | 'current' | 'uuid-mismatch';
+        let userModified = false;
         let liveUuid: string | undefined;
         let titleDrift = false;
         let liveTitle: string | undefined;
@@ -5052,8 +5073,13 @@ class WikiRoutes {
             await fse.writeFile(destPath, healed, 'utf8');
             logger.info(`auto-healed system-category System/Admin → system for ${uuid}`);
           }
-          // Use user-modified flag as the authoritative "was this edited by a human?" signal
-          status = destData['user-modified'] === true ? 'modified' : 'current';
+          // Track whether a human has edited the live copy (separate from modified/current status).
+          userModified = destData['user-modified'] === true;
+          // Compare normalized content — strip volatile frontmatter fields so cosmetic
+          // divergence (lastModified, user-modified, editor) doesn't inflate the count.
+          status = normalizeForCompare(sourceContent) !== normalizeForCompare(destContent)
+            ? 'modified'
+            : 'current';
 
           // Detect title drift: source title vs live title
           const liveTitleRaw = (destData.title as string | undefined) || '';
@@ -5066,7 +5092,7 @@ class WikiRoutes {
           }
         }
 
-        comparison.push({ uuid, title, slug, lastModified, status, liveUuid, titleDrift, liveTitle, affectedLinks });
+        comparison.push({ uuid, title, slug, lastModified, status, userModified, liveUuid, titleDrift, liveTitle, affectedLinks });
       }
 
       const statusOrder: Record<string, number> = { 'uuid-mismatch': 0, new: 1, modified: 2, current: 3 };

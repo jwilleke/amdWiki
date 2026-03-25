@@ -200,7 +200,19 @@
                                             <span class="badge bg-primary">New</span>
                                         <% } else if (page.status === 'modified') { %>
                                             <span class="badge bg-warning text-dark">Modified</span>
+                                            <% if (page.userModified) { %>
+                                            <br><span class="badge bg-secondary mt-1"
+                                                  title="This live page has also been edited in the wiki UI — syncing will overwrite those edits">
+                                                <i class="fas fa-user-edit me-1"></i>User Edited
+                                            </span>
+                                            <% } %>
                                         <% } else { %>
+                                            <% if (page.userModified) { %>
+                                            <span class="badge bg-secondary"
+                                                  title="This live page has been edited in the wiki UI">
+                                                <i class="fas fa-user-edit me-1"></i>User Edited
+                                            </span>
+                                            <% } %>
                                             <span class="badge bg-success">Current</span>
                                         <% } %>
                                     </td>
@@ -235,7 +247,7 @@
                                             <i class="fas fa-sync-alt"></i> Sync
                                         </button>
                                         <% } %>
-                                        <% if (page.status === 'modified' || page.titleDrift) { %>
+                                        <% if (page.userModified || page.titleDrift) { %>
                                         <button class="btn btn-sm btn-outline-warning"
                                                 onclick="pushToSourceOne('<%= page.uuid %>', '<%= page.title.replace(/'/g, '\\\'') %>')"
                                                 title="Push live edits back to required-pages/ source">
