@@ -24,6 +24,32 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-03-25-02
+
+- Agent: Claude Sonnet 4.6
+- Subject: feat: media:// URI support in resolveAttachmentSrc() — Piece 1 of #383
+- Key Decision: Use explicit `media://` prefix as opt-in gate so MediaManager (54K+ items) is never consulted for normal attachment resolution; findByFilename() is O(n) but index is in-memory and the path is ad-hoc
+- Current Issue: #383 (Unified Asset System — Piece 1 complete)
+- Testing:
+  - npm test: 86 suites passed, 2227 tests passed
+- Work Done:
+  - Added `findByFilename()` to BaseMediaProvider (default no-op), FileSystemMediaProvider (basename scan), and MediaManager (delegates to provider)
+  - Added step 0 in `AttachmentManager.resolveAttachmentSrc()` — strips `media://` prefix, looks up by filename, returns `/media/file/:id`
+  - Updated docs: ImagePlugin.md, AttachPlugin.md, AttachmentManager.md, MediaManager.md, Content-Management.md
+- Commits: 8edf885
+- Files Modified:
+  - src/managers/AttachmentManager.ts
+  - src/managers/MediaManager.ts
+  - src/providers/BaseMediaProvider.ts
+  - src/providers/FileSystemMediaProvider.ts
+  - docs/plugins/ImagePlugin.md
+  - docs/plugins/AttachPlugin.md
+  - docs/managers/AttachmentManager.md
+  - docs/managers/MediaManager.md
+  - docs/user-guide/Content-Management.md
+
+---
+
 ## 2026-03-25-01
 
 - Agent: Claude Sonnet 4.6
