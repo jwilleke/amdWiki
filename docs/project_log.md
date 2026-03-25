@@ -24,6 +24,29 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-03-25-04
+
+- Agent: Claude Sonnet 4.6
+- Subject: feat: reorganize Admin Dashboard — manager-specific cards, navbar cleanup (#382)
+- Key Decision: Break Administrative Tools into Page Management and Media Management cards; move Organizations into User Management card; drop User Management and Organizations from navbar dropdown; move System Notifications to bottom; Required Pages moved into Page Management card.
+- Current Issue: #382
+- Testing:
+  - npm test: 86 suites passed, 2227 tests passed
+- Work Done:
+  - Rewrote `views/admin-dashboard.ejs` with new 4-row layout: (1) User Management / Administrative Tools / System Settings, (2) Page Management / Media Management, (3) Recent Activity, (4) System Notifications
+  - Added Organizations button to User Management card
+  - Removed Reindex Pages, Import Pages, Reindex Media, Rebuild Media from Administrative Tools
+  - Created Page Management card with Reindex Pages, Import Pages, Required Pages (with sync badge)
+  - Created Media Management card with Reindex Media, Rebuild Media
+  - Moved Required Pages from standalone Row 3 into Page Management card
+  - Moved System Notifications from Row 2 (side-by-side with Activity) to Row 4 (full width, bottom)
+  - Removed "User Management" and "Organizations" dropdown items from `views/header.ejs`
+- Files Modified:
+  - views/admin-dashboard.ejs
+  - views/header.ejs
+
+---
+
 ## 2026-03-25-03
 
 - Agent: Claude Sonnet 4.6

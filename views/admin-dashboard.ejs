@@ -54,6 +54,12 @@
                             </a>
                             <a href="/view/roles" class="text-muted small" title="Documentation" target="_blank"><i class="fas fa-question-circle"></i></a>
                         </span>
+                        <span class="d-inline-flex align-items-center gap-1">
+                            <a href="/admin/organizations" class="btn btn-secondary btn-sm">
+                                <i class="fas fa-building"></i> Organizations
+                            </a>
+                            <a href="/view/organizations" class="text-muted small" title="Documentation" target="_blank"><i class="fas fa-question-circle"></i></a>
+                        </span>
                     </div>
                 </div>
             </div>
@@ -100,38 +106,10 @@
                         </span>
 
                         <span class="d-inline-flex align-items-center gap-1">
-                            <button class="btn btn-outline-primary btn-sm" onclick="reindexPages()">
-                                <i class="fas fa-sync"></i> Reindex Pages
-                            </button>
-                            <a href="/view/reindex-pages" class="text-muted small" title="Documentation" target="_blank"><i class="fas fa-question-circle"></i></a>
-                        </span>
-
-                        <span class="d-inline-flex align-items-center gap-1">
-                            <a href="/admin/media" class="btn btn-outline-secondary btn-sm">
-                                <i class="fas fa-photo-video"></i> Reindex Media
-                            </a>
-                            <a href="/view/media" class="text-muted small" title="Documentation" target="_blank"><i class="fas fa-question-circle"></i></a>
-                        </span>
-
-                        <span class="d-inline-flex align-items-center gap-1">
-                            <a href="/admin/media" class="btn btn-warning btn-sm">
-                                <i class="fas fa-database"></i> Rebuild Media
-                            </a>
-                            <a href="/view/media" class="text-muted small" title="Documentation" target="_blank"><i class="fas fa-question-circle"></i></a>
-                        </span>
-
-                        <span class="d-inline-flex align-items-center gap-1">
                             <a href="/export" class="btn btn-success btn-sm">
                                 <i class="fas fa-download"></i> Export Data
                             </a>
                             <a href="/view/export-data" class="text-muted small" title="Documentation" target="_blank"><i class="fas fa-question-circle"></i></a>
-                        </span>
-
-                        <span class="d-inline-flex align-items-center gap-1">
-                            <a href="/admin/import" class="btn btn-info btn-sm">
-                                <i class="fas fa-file-import"></i> Import Pages
-                            </a>
-                            <a href="/view/import-pages" class="text-muted small" title="Documentation" target="_blank"><i class="fas fa-question-circle"></i></a>
                         </span>
 
                         <span class="d-inline-flex align-items-center gap-1">
@@ -218,10 +196,112 @@
 
     </div>
 
-    <!-- Row 2: Recent Activity & System Notifications -->
+    <!-- Row 2: Page Management & Media Management -->
     <div class="row">
-        <!-- Recent Activity -->
-        <div class="col-md-6">
+
+        <!-- Page Management -->
+        <div class="col-lg-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="fas fa-file-alt"></i> Page Management
+                        <a href="/view/page-management" class="ms-1 text-muted" title="Documentation" target="_blank"><i class="fas fa-question-circle fa-sm"></i></a>
+                    </h5>
+                    <% if (typeof requiredPagesSyncNeeded !== 'undefined' && requiredPagesSyncNeeded > 0) { %>
+                        <span class="badge bg-warning text-dark">
+                            <i class="fas fa-exclamation-triangle me-1"></i><%= requiredPagesSyncNeeded %> need attention
+                        </span>
+                    <% } %>
+                </div>
+                <div class="card-body">
+                    <% if (currentUser.roles.includes('admin')) { %>
+                    <div class="d-flex flex-wrap gap-2 mb-3">
+                        <span class="d-inline-flex align-items-center gap-1">
+                            <button class="btn btn-outline-primary btn-sm" onclick="reindexPages()">
+                                <i class="fas fa-sync"></i> Reindex Pages
+                            </button>
+                            <a href="/view/reindex-pages" class="text-muted small" title="Documentation" target="_blank"><i class="fas fa-question-circle"></i></a>
+                        </span>
+
+                        <span class="d-inline-flex align-items-center gap-1">
+                            <a href="/admin/import" class="btn btn-info btn-sm">
+                                <i class="fas fa-file-import"></i> Import Pages
+                            </a>
+                            <a href="/view/import-pages" class="text-muted small" title="Documentation" target="_blank"><i class="fas fa-question-circle"></i></a>
+                        </span>
+
+                        <span class="d-inline-flex align-items-center gap-1">
+                            <a href="/admin/required-pages" class="btn btn-outline-primary btn-sm">
+                                <i class="fas fa-lock me-1"></i> Required Pages
+                                <% if (typeof requiredPagesSyncNeeded !== 'undefined' && requiredPagesSyncNeeded > 0) { %>
+                                    <span class="badge bg-warning text-dark ms-1"><%= requiredPagesSyncNeeded %></span>
+                                <% } %>
+                            </a>
+                            <a href="/view/required-pages" class="text-muted small" title="Documentation" target="_blank"><i class="fas fa-question-circle"></i></a>
+                        </span>
+                    </div>
+                    <% if (requiredPages && requiredPages.length > 0) { %>
+                        <details>
+                            <summary class="text-muted" style="cursor: pointer;">
+                                <small><i class="fas fa-list me-1"></i>View <%= requiredPages.length %> installed required pages</small>
+                            </summary>
+                            <div class="d-flex flex-wrap gap-2 mt-2">
+                            <% requiredPages.forEach(page => { %>
+                                <a href="/edit/<%= encodeURIComponent(page.name) %>" class="btn btn-outline-secondary btn-sm">
+                                    <i class="fas fa-edit"></i> <%= page.name %>
+                                    <% if (page.userModified) { %>
+                                        <span class="badge bg-warning text-dark ms-1" title="Modified by admin">modified</span>
+                                    <% } %>
+                                </a>
+                            <% }); %>
+                            </div>
+                        </details>
+                    <% } %>
+                    <% } else { %>
+                        <p class="text-muted">Admin role required for these tools.</p>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+
+        <!-- Media Management -->
+        <div class="col-lg-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-photo-video"></i> Media Management
+                        <a href="/view/media-management" class="ms-1 text-muted" title="Documentation" target="_blank"><i class="fas fa-question-circle fa-sm"></i></a>
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <% if (currentUser.roles.includes('admin')) { %>
+                    <div class="d-flex flex-wrap gap-2">
+                        <span class="d-inline-flex align-items-center gap-1">
+                            <a href="/admin/media" class="btn btn-outline-secondary btn-sm">
+                                <i class="fas fa-sync"></i> Reindex Media
+                            </a>
+                            <a href="/view/media" class="text-muted small" title="Documentation" target="_blank"><i class="fas fa-question-circle"></i></a>
+                        </span>
+
+                        <span class="d-inline-flex align-items-center gap-1">
+                            <a href="/admin/media" class="btn btn-warning btn-sm">
+                                <i class="fas fa-database"></i> Rebuild Media
+                            </a>
+                            <a href="/view/media" class="text-muted small" title="Documentation" target="_blank"><i class="fas fa-question-circle"></i></a>
+                        </span>
+                    </div>
+                    <% } else { %>
+                        <p class="text-muted">Admin role required for these tools.</p>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Row 3: Recent Activity -->
+    <div class="row">
+        <div class="col-12">
             <div class="card mb-4">
                 <div class="card-header">
                     <h5><i class="fas fa-history"></i> Recent Activity</h5>
@@ -240,9 +320,11 @@
                 </div>
             </div>
         </div>
+    </div>
 
-        <!-- System Notifications -->
-        <div class="col-md-6">
+    <!-- Row 4: System Notifications (bottom) -->
+    <div class="row">
+        <div class="col-12">
             <div class="card mb-4">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h5><i class="fas fa-bell"></i> System Notifications</h5>
@@ -306,55 +388,6 @@
                             </a>
                         </div>
                     </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Row 3: Required Pages (full width) -->
-    <div class="row">
-        <div class="col-12">
-            <div class="card mb-4">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0"><i class="fas fa-lock"></i> Required Pages (Admin Only)</h5>
-                    <% if (typeof requiredPagesSyncNeeded !== 'undefined' && requiredPagesSyncNeeded > 0) { %>
-                        <span class="badge bg-warning text-dark">
-                            <i class="fas fa-exclamation-triangle me-1"></i><%= requiredPagesSyncNeeded %> need attention
-                        </span>
-                    <% } else { %>
-                        <span class="badge bg-success"><i class="fas fa-check me-1"></i>All current</span>
-                    <% } %>
-                </div>
-                <div class="card-body">
-                    <p class="text-muted">System pages installed during setup. These can only be edited by administrators.</p>
-                    <div class="d-flex flex-wrap gap-2 mb-3">
-                        <a href="/admin/required-pages" class="btn btn-outline-primary btn-sm">
-                            <i class="fas fa-sync-alt me-1"></i> Manage &amp; Sync Required Pages
-                            <% if (typeof requiredPagesSyncNeeded !== 'undefined' && requiredPagesSyncNeeded > 0) { %>
-                                <span class="badge bg-warning text-dark ms-1"><%= requiredPagesSyncNeeded %></span>
-                            <% } %>
-                        </a>
-                    </div>
-                    <% if (requiredPages && requiredPages.length > 0) { %>
-                        <details>
-                            <summary class="text-muted" style="cursor: pointer;">
-                                <small><i class="fas fa-list me-1"></i>View <%= requiredPages.length %> installed required pages</small>
-                            </summary>
-                            <div class="d-flex flex-wrap gap-2 mt-2">
-                            <% requiredPages.forEach(page => { %>
-                                <a href="/edit/<%= encodeURIComponent(page.name) %>" class="btn btn-outline-secondary btn-sm">
-                                    <i class="fas fa-edit"></i> <%= page.name %>
-                                    <% if (page.userModified) { %>
-                                        <span class="badge bg-warning text-dark ms-1" title="Modified by admin">modified</span>
-                                    <% } %>
-                                </a>
-                            <% }); %>
-                            </div>
-                        </details>
-                    <% } %>
-                    <small class="text-muted d-block mt-2">
-                        <i class="fas fa-info-circle"></i> All users can view these pages, but only admins can edit them.
-                    </small>
                 </div>
             </div>
         </div>
