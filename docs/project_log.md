@@ -24,6 +24,85 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-03-25-09
+
+- Agent: Claude Sonnet 4.6
+- Subject: feat: MediaPlugin end-user documentation required page (#388)
+- Key Decision: New required page `70416655-ace4-4440-8ae6-8fed7587a94f.md` with title `MediaPlugin`, system-category `documentation`. Covers all 4 formats (count/list/album/album-link), all parameters (format/keyword/page/year/max), `current` shorthand, quoting syntax, and common use cases. Modelled after ImagePlugin doc structure.
+- Current Issue: #388
+- Testing:
+  - No code changes; no tests needed
+- Work Done:
+  - Created `required-pages/70416655-ace4-4440-8ae6-8fed7587a94f.md` — full MediaPlugin reference documentation
+- Commits: 405977b
+- Files Modified:
+  - required-pages/70416655-ace4-4440-8ae6-8fed7587a94f.md (new)
+
+---
+
+## 2026-03-25-08
+
+- Agent: Claude Sonnet 4.6
+- Subject: feat: show page type badge in navbar title (#389)
+- Key Decision: Read `location` from page index (`entry.location === 'private'`), and `metadata['system-category']` for system/documentation classification. Pass `pageIsPrivate` from `viewPage`/`editPage` routes; read `metadata` already in scope. Badges are small Bootstrap inline badges (warning/secondary/info).
+- Current Issue: #389
+- Testing:
+  - npm test: 86 suites passed, 2227 tests passed
+- Work Done:
+  - Added `_isPagePrivate()` private helper in `WikiRoutes.ts` — reads page index entry for `location === 'private'`
+  - Updated `viewPage` and `editPage` to pass `pageIsPrivate` to template
+  - Updated `views/header.ejs` navbar title block to show Private / System / Documentation badges
+- Commits: 865cac1
+- Files Modified:
+  - src/routes/WikiRoutes.ts
+  - views/header.ejs
+
+---
+
+## 2026-03-25-07
+
+- Agent: Claude Sonnet 4.6
+- Subject: feat: consistent pagination via WikiPagination helper (#390)
+- Key Decision: Single `public/js/wiki-pagination.js` singleton loaded globally. Provides `renderNav()` (Bootstrap `<ul class="pagination">`), `attachKeyboard()` (ArrowLeft/Right), `attachSwipe()` (touch dx>50px), and `urlNav()` for server-side URL navigation via `data-prev-url`/`data-next-url` attributes.
+- Current Issue: #390
+- Testing:
+  - npm test: 86 suites passed, 2227 tests passed
+- Work Done:
+  - Created `public/js/wiki-pagination.js` — WikiPagination singleton with renderNav/attachKeyboard/attachSwipe/urlNav
+  - Added script tag to `views/header.ejs`
+  - Refactored `views/browse-attachments.ejs` — replaced manual pagination with WikiPagination.renderNav + keyboard/swipe
+  - Refactored `views/admin-attachments.ejs` — same refactor
+  - Updated `views/search-results.ejs` — added Media tab; keyboard/swipe via urlNav
+  - Updated `src/routes/WikiRoutes.ts` — media tab via AssetService; mediaPage param
+- Commits: 66ae3ab
+- Files Modified:
+  - public/js/wiki-pagination.js (new)
+  - views/header.ejs
+  - views/browse-attachments.ejs
+  - views/admin-attachments.ejs
+  - views/search-results.ejs
+  - src/routes/WikiRoutes.ts
+
+---
+
+## 2026-03-25-06
+
+- Agent: Claude Sonnet 4.6
+- Subject: feat: DRY /search asset tabs via AssetService; add Media tab (#391)
+- Key Decision: Route /search attachment results through AssetService (fan-out, normalised type). Add Media as a 3rd tab alongside Pages/Attachments. Use `mediaPage` (1-based) in URLs; compute offset internally.
+- Current Issue: #391
+- Testing:
+  - npm test: 86 suites passed, 2227 tests passed
+- Work Done:
+  - Updated `/search` route in `WikiRoutes.ts` — attachments via AssetService; added media search with pageSize=48/offset
+  - Added Media tab to `views/search-results.ejs` — thumbnail grid, pagination with prev/next URLs, tab active logic
+- Commits: c5297fa
+- Files Modified:
+  - src/routes/WikiRoutes.ts
+  - views/search-results.ejs
+
+---
+
 ## 2026-03-25-05
 
 - Agent: Claude Sonnet 4.6
