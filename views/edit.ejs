@@ -116,6 +116,9 @@
                             <button type="button" class="btn btn-outline-secondary" onclick="openBrowseAttachments(); return false;">
                                 <i class="fas fa-folder-open"></i> Browse
                             </button>
+                            <button type="button" class="btn btn-outline-info" onclick="openAssetPicker(); return false;">
+                                <i class="fas fa-photo-video"></i> Media Library
+                            </button>
                         </div>
                     </div>
                     <div id="pageAttachments">
@@ -476,6 +479,155 @@
     } else {
         initEditPageAutocomplete();
     }
+</script>
+
+<!-- Asset Picker Modal -->
+<div class="modal fade" id="assetPickerModal" tabindex="-1" aria-labelledby="assetPickerModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="assetPickerModalLabel">
+                    <i class="fas fa-photo-video"></i> Media Library
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Search bar -->
+                <div class="row g-2 mb-3">
+                    <div class="col">
+                        <input type="text" id="assetPickerQuery" class="form-control" placeholder="Search by filename, keyword, year…" oninput="debounceAssetSearch()">
+                    </div>
+                    <div class="col-auto">
+                        <select id="assetPickerType" class="form-select" onchange="runAssetSearch()">
+                            <option value="">All types</option>
+                            <option value="attachment">Attachments only</option>
+                            <option value="media">Media library only</option>
+                        </select>
+                    </div>
+                    <div class="col-auto">
+                        <button type="button" class="btn btn-primary" onclick="runAssetSearch()">
+                            <i class="fas fa-search"></i> Search
+                        </button>
+                    </div>
+                </div>
+                <!-- Results grid -->
+                <div id="assetPickerResults" class="row g-2" style="max-height: 60vh; overflow-y: auto;">
+                    <div class="col-12 text-center text-muted py-5" id="assetPickerPlaceholder">
+                        <i class="fas fa-search fa-2x mb-2"></i><br>
+                        Enter a search term or leave blank to browse all assets.
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <small class="text-muted me-auto" id="assetPickerCount"></small>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+(function () {
+    let _assetDebounceTimer = null;
+
+    window.openAssetPicker = function () {
+        const modal = new bootstrap.Modal(document.getElementById('assetPickerModal'));
+        modal.show();
+        // Auto-search on open to show recent/all results
+        runAssetSearch();
+    };
+
+    window.debounceAssetSearch = function () {
+        clearTimeout(_assetDebounceTimer);
+        _assetDebounceTimer = setTimeout(runAssetSearch, 350);
+    };
+
+    window.runAssetSearch = async function () {
+        const query = document.getElementById('assetPickerQuery').value.trim();
+        const type = document.getElementById('assetPickerType').value;
+        const resultsEl = document.getElementById('assetPickerResults');
+        const countEl = document.getElementById('assetPickerCount');
+
+        resultsEl.innerHTML = '<div class="col-12 text-center py-4"><i class="fas fa-spinner fa-spin fa-2x text-muted"></i></div>';
+        countEl.textContent = '';
+
+        try {
+            const params = new URLSearchParams({ max: '100' });
+            if (query) params.set('q', query);
+            if (type) params.set('types', type);
+
+            const resp = await fetch('/api/assets/search?' + params.toString());
+            if (!resp.ok) throw new Error('Search failed');
+            const data = await resp.json();
+
+            if (!data.success || !data.results.length) {
+                resultsEl.innerHTML = '<div class="col-12 text-center text-muted py-5">No assets found.</div>';
+                countEl.textContent = '';
+                return;
+            }
+
+            countEl.textContent = data.total + ' result' + (data.total !== 1 ? 's' : '');
+            resultsEl.innerHTML = data.results.map(renderAssetCard).join('');
+        } catch (err) {
+            resultsEl.innerHTML = '<div class="col-12 text-center text-danger py-4"><i class="fas fa-exclamation-triangle"></i> ' + err.message + '</div>';
+        }
+    };
+
+    function renderAssetCard(asset) {
+        const isImage = asset.mimeType && asset.mimeType.startsWith('image/');
+        const isMedia = asset.assetType === 'media';
+
+        let thumb = '';
+        if (isMedia && asset.thumbUrl) {
+            thumb = `<img src="${escHtml(asset.thumbUrl)}" class="img-fluid rounded mb-1" style="max-height:120px;object-fit:cover;width:100%;" loading="lazy" alt="${escHtml(asset.filename)}">`;
+        } else if (isImage && asset.url) {
+            // Attachment image — use the attachment URL directly
+            thumb = `<img src="${escHtml(asset.url)}" class="img-fluid rounded mb-1" style="max-height:120px;object-fit:cover;width:100%;" loading="lazy" alt="${escHtml(asset.filename)}">`;
+        } else {
+            const icon = isMedia ? 'fa-photo-video' : 'fa-paperclip';
+            thumb = `<div class="text-center text-muted py-3"><i class="fas ${icon} fa-2x"></i></div>`;
+        }
+
+        const badge = isMedia
+            ? `<span class="badge bg-info text-dark">media</span>`
+            : `<span class="badge bg-secondary">attachment</span>`;
+
+        const year = asset.year ? `<small class="text-muted">${asset.year}</small> ` : '';
+        const snippet = escHtml(asset.insertSnippet);
+
+        return `<div class="col-6 col-md-3 col-lg-2">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body p-2">
+                    ${thumb}
+                    <div class="small text-truncate" title="${escHtml(asset.filename)}">${escHtml(asset.filename)}</div>
+                    <div>${year}${badge}</div>
+                </div>
+                <div class="card-footer p-1 text-center">
+                    <button type="button" class="btn btn-sm btn-primary w-100"
+                        onclick="insertAsset(${JSON.stringify(asset.insertSnippet)})"
+                        title="${snippet}">
+                        <i class="fas fa-code"></i> Insert
+                    </button>
+                </div>
+            </div>
+        </div>`;
+    }
+
+    window.insertAsset = function (snippet) {
+        const textarea = document.getElementById('content');
+        const start = textarea.selectionStart;
+        const end = textarea.selectionEnd;
+        textarea.value = textarea.value.substring(0, start) + snippet + textarea.value.substring(end);
+        textarea.focus();
+        textarea.setSelectionRange(start + snippet.length, start + snippet.length);
+        if (typeof updatePreview === 'function') updatePreview();
+        bootstrap.Modal.getInstance(document.getElementById('assetPickerModal'))?.hide();
+    };
+
+    function escHtml(str) {
+        return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+})();
 </script>
 
 <%- include('footer') %>

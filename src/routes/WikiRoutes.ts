@@ -5641,6 +5641,60 @@ class WikiRoutes {
   }
 
   /**
+   * GET /api/assets/search
+   *
+   * Unified search across AttachmentManager and MediaManager.
+   *
+   * Query parameters:
+   *   q      — free-text query (optional; empty returns all up to max)
+   *   types  — comma-separated: "attachment", "media", or both (default both)
+   *   year   — four-digit year filter for media results (optional)
+   *   max    — maximum results (default 50, capped at 200)
+   *
+   * Requires editor, contributor, or admin role.
+   */
+  async assetSearch(req: Request, res: Response) {
+    try {
+      const currentUser = req.userContext;
+      if (
+        !currentUser?.roles ||
+        !(
+          currentUser.roles.includes('admin') ||
+          currentUser.roles.includes('editor') ||
+          currentUser.roles.includes('contributor')
+        )
+      ) {
+        return res.status(403).json({ success: false, error: 'Access denied' });
+      }
+
+      const assetService = this.engine.getManager('AssetService') as
+        | import('../managers/AssetService').default
+        | undefined;
+
+      if (!assetService) {
+        return res.status(503).json({ success: false, error: 'AssetService unavailable' });
+      }
+
+      const query = typeof req.query.q === 'string' ? req.query.q.trim() : '';
+      const typesParam = typeof req.query.types === 'string' ? req.query.types : '';
+      const types = typesParam
+        ? (typesParam.split(',').filter(t => t === 'attachment' || t === 'media') as ('attachment' | 'media')[])
+        : undefined;
+      const year = req.query.year ? parseInt(req.query.year as string, 10) || undefined : undefined;
+      const max = Math.min(parseInt(req.query.max as string, 10) || 50, 200);
+
+      const wikiContext = this.createWikiContext(req);
+
+      const results = await assetService.search({ query, types, year, max, wikiContext });
+
+      return res.json({ success: true, results, total: results.length });
+    } catch (err: unknown) {
+      logger.error('[AssetService] Search error:', err);
+      return res.status(500).json({ success: false, error: 'Internal server error' });
+    }
+  }
+
+  /**
    * Non-admin attachment browser API - return JSON
    */
   async browseAttachmentsApi(req: Request, res: Response) {
@@ -6446,6 +6500,9 @@ class WikiRoutes {
     app.get('/api/page-suggestions', (req: Request, res: Response) =>
       this.getPageSuggestions(req, res)
     );
+
+    // Unified asset search (attachments + media library)
+    app.get('/api/assets/search', (req: Request, res: Response) => this.assetSearch(req, res));
 
     // Version management API routes (Phase 6)
     logger.debug('ROUTES DEBUG: Registering version management API routes');

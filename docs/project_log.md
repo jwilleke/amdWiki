@@ -24,6 +24,29 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-03-25-05
+
+- Agent: Claude Sonnet 4.6
+- Subject: feat: AssetService + unified asset picker in editor (#383 Piece 2)
+- Key Decision: AssetService is a thin manager (no persistence) that fans out to AttachmentManager and MediaManager. Editor picker is a Bootstrap modal with debounced search, thumbnail grid, and one-click insert. Media items insert as `media://filename` syntax; attachments insert as `[{ATTACH src='name'}]` or `[{Image src='name'}]`.
+- Current Issue: #383
+- Testing:
+  - npm test: 86 suites passed, 2227 tests passed
+- Work Done:
+  - Added `src/managers/AssetService.ts` — `search()` fans out to both stores, returns normalised `AssetSearchResult[]` with `insertSnippet` field
+  - Registered AssetService in `WikiEngine.ts` after AttachmentManager/MediaManager
+  - Added `GET /api/assets/search` route (q, types, year, max params; editor/contributor/admin auth)
+  - Added `assetSearch()` handler in `WikiRoutes.ts`
+  - Added "Media Library" button to editor attachment toolbar
+  - Added asset picker Bootstrap modal to `edit.ejs` with debounced search, thumbnail grid, and Insert button that pastes snippet at cursor
+- Files Modified:
+  - src/managers/AssetService.ts (new)
+  - src/WikiEngine.ts
+  - src/routes/WikiRoutes.ts
+  - views/edit.ejs
+
+---
+
 ## 2026-03-25-04
 
 - Agent: Claude Sonnet 4.6
