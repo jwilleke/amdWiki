@@ -231,7 +231,7 @@
                                         <i class="fas fa-paperclip"></i> Upload Attachment
                                     </a></li>
                                     <li><a class="dropdown-item" href="#" onclick="openBrowseAttachments(); return false;">
-                                        <i class="fas fa-folder-open"></i> Browse Attachments
+                                        <i class="fas fa-photo-video"></i> Browse Assets
                                     </a></li>
                                     <li><hr class="dropdown-divider"></li>
                                 <% } %>
@@ -295,7 +295,7 @@
                     <i class="fas fa-paperclip me-2"></i> Upload Attachment
                 </a>
                 <a class="nav-link py-2" href="#" onclick="openBrowseAttachments(); bootstrap.Offcanvas.getInstance(this.closest('.offcanvas')).hide(); return false;">
-                    <i class="fas fa-folder-open me-2"></i> Browse Attachments
+                    <i class="fas fa-photo-video me-2"></i> Browse Assets
                 </a>
                 <% } %>
             </nav>
@@ -1531,8 +1531,11 @@ function openBrowseAttachments() {
     // Check if we're on the edit page
     const isEditPage = window.location.pathname.startsWith('/edit/');
 
-    if (isEditPage) {
-        // Open as popup so we can insert into editor
+    if (isEditPage && typeof window.openAssetPicker === 'function') {
+        // Use the unified asset picker modal (attachments + media library)
+        window.openAssetPicker();
+    } else if (isEditPage) {
+        // Fallback: open legacy popup if asset picker not loaded
         const popup = window.open(
             '/attachments/browse?mode=insert',
             'browseAttachments',
@@ -1540,7 +1543,7 @@ function openBrowseAttachments() {
         );
         if (popup) popup.focus();
     } else {
-        // Normal navigation
+        // Normal navigation when not on edit page
         window.location.href = '/attachments/browse';
     }
 }
