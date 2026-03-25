@@ -277,6 +277,19 @@ class FileSystemMediaProvider extends BaseMediaProvider {
   }
 
   /**
+   * Find the first item whose filename (basename) exactly matches.
+   *
+   * Iterates the in-memory index; O(n) but the index is small enough that
+   * this is acceptable for the ad-hoc `media://` URI resolution path.
+   *
+   * @param filename - Basename to match exactly (e.g. "IMG_1234.jpg").
+   */
+  findByFilename(filename: string): Promise<MediaItem | null> {
+    const entry = Object.values(this.index).find(item => item.filename === filename);
+    return Promise.resolve(entry ?? null);
+  }
+
+  /**
    * Full-text keyword search across filename, year, title,
    * description, and keywords fields.
    *

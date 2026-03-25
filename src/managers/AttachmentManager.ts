@@ -5,6 +5,14 @@ import type ConfigurationManager from './ConfigurationManager';
 import type PageManager from './PageManager';
 
 /**
+ * Minimal interface for MediaManager — avoids a circular import.
+ * Only the method used by resolveAttachmentSrc() is declared here.
+ */
+interface MediaManagerInterface {
+  findByFilename(filename: string): Promise<{ id: string; mimeType: string } | null>;
+}
+
+/**
  * Base attachment provider interface
  */
 interface BaseAttachmentProvider {
@@ -525,6 +533,7 @@ class AttachmentManager extends BaseManager {
    * need to be wired in once.
    *
    * Resolution order:
+   *   0. media:// URI — resolved via MediaManager.findByFilename(); never touches attachment store
    *   1. External URL (starts with http:// or https://) — returned as-is, mimeType: ''
    *   2. Absolute path (starts with /) — returned as-is, mimeType: ''
    *   3. Filename lookup on the current page's attachments (exact name match)
@@ -537,6 +546,22 @@ class AttachmentManager extends BaseManager {
    */
   async resolveAttachmentSrc(src: string, pageName: string): Promise<{ url: string; mimeType: string } | null> {
     if (!src) return null;
+
+    // Step 0: media:// URI scheme — route to MediaManager without touching attachment store.
+    // Authors use this to reference media library photos directly, e.g.:
+    //   [{Image src='media://IMG_1234.jpg'}]
+    //   [{ATTACH src='media://family-trip.jpg'}]
+    if (src.startsWith('media://')) {
+      const filename = src.slice('media://'.length);
+      const mediaManager = this.engine.getManager<MediaManagerInterface>('MediaManager');
+      if (mediaManager) {
+        const item = await mediaManager.findByFilename(filename).catch(() => null);
+        if (item) {
+          return { url: `/media/file/${item.id}`, mimeType: item.mimeType };
+        }
+      }
+      return null;
+    }
 
     // Steps 1 & 2: external URLs and absolute paths are already resolved
     if (src.startsWith('http://') || src.startsWith('https://') || src.startsWith('/')) {
@@ -576,7 +601,7 @@ class AttachmentManager extends BaseManager {
       // continue
     }
 
-    // Future steps (e.g. Media Manager #273, private folders #122) go here
+    // Future steps (e.g. private folders #122) go here
 
     return null;
   }

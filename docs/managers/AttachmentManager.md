@@ -57,6 +57,20 @@ await attachmentManager.deleteAttachment(attachment.identifier, wikiContext);
 | `refreshAttachmentList()` | `Promise<void>` | Rescan storage |
 | `getAttachmentUrl(id)` | `string` | Get attachment URL path |
 | `getAttachmentByFilename(filename)` | `Promise<Object\|null>` | Find attachment by filename |
+| `resolveAttachmentSrc(src, pageName)` | `Promise<{url, mimeType}\|null>` | Canonical src resolution used by Image/ATTACH plugins |
+
+## Attachment Resolution Order
+
+`resolveAttachmentSrc()` is the single resolution path shared by all plugins ([`[{Image}]`](../plugins/ImagePlugin.md), [`[{ATTACH}]`](../plugins/AttachPlugin.md)):
+
+| Step | Trigger | Behavior |
+| ------ | ------- | -------- |
+| 0 | `src` starts with `media://` | Resolved via MediaManager by filename (see [MediaManager](MediaManager.md)) |
+| 1 | `src` starts with `http://` or `https://` | Returned as-is |
+| 2 | `src` starts with `/` | Returned as-is |
+| 3 | plain filename | Page-local attachment lookup (exact filename) |
+| 4 | plain filename | Global attachment search (lazily updates `mentions`) |
+| — | no match | Returns `null` |
 
 ## UI Features
 

@@ -30,7 +30,7 @@ The Image plugin enables inline image insertion using JSPWiki-compatible syntax:
 
 **Available Parameters:**
 
-* `src` (required): Image path or URL
+* `src` (required): Image path, URL, or `media://filename` for media library items
 * `alt`: Alternative text for accessibility
 * `width`: Image width in pixels
 * `height`: Image height in pixels
@@ -52,6 +52,17 @@ The Image plugin enables inline image insertion using JSPWiki-compatible syntax:
 [{Image src='thumbnail.jpg' link='full-image.jpg' title='Click to enlarge'}]
 ```
 
+**Media Library (media:// URI):**
+
+If your wiki has a media library configured, you can embed photos directly without uploading them as attachments:
+
+```wiki
+[{Image src='media://IMG_1234.jpg' caption='Family Trip 2024'}]
+[{Image src='media://DSC_0042.jpg' align='left' display='float'}]
+```
+
+The `media://` prefix tells the wiki to look up the photo by filename in the media library. The image is served securely — items linked to private pages are only visible to authorised users.
+
 **Image Upload:**
 
 * Images can be uploaded through the page editor interface
@@ -59,3 +70,21 @@ The Image plugin enables inline image insertion using JSPWiki-compatible syntax:
 * Maximum file size: 5MB (configurable)
 * Uploaded images are stored in `/public/images/`
 * Use relative paths for uploaded images or absolute URLs for external images
+
+## Attachments
+
+Use `[{ATTACH}]` to embed or link files attached to wiki pages:
+
+```wiki
+[{ATTACH src='report.pdf' caption='Q4 Report'}]
+[{ATTACH src='photo.jpg' align='left' display='float' caption='Team Photo'}]
+[{ATTACH src='media://vacation.jpg' caption='Summer 2024'}]
+```
+
+`[{ATTACH}]` resolves files in this order:
+
+1. Current page's uploaded attachments (exact filename)
+2. Global attachment search across all pages
+3. Media library (when `src` starts with `media://`)
+
+For full parameter reference see [AttachPlugin documentation](../plugins/AttachPlugin.md).

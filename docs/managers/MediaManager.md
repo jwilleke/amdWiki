@@ -66,9 +66,36 @@ const results = await mediaManager.search('birthday 2023', wikiContext);
 | `listByKeyword(keyword, wikiContext?)` | `Promise<MediaItem[]>` | Items whose EXIF/XMP keywords contain `keyword`, privacy-filtered |
 | `listByPage(pageName, wikiContext?)` | `Promise<MediaItem[]>` | Items linked to a wiki page by `linkedPageName`, privacy-filtered |
 | `getItem(id, wikiContext?)` | `Promise<MediaItem\|null>` | Single item by ID, privacy-filtered |
+| `findByFilename(filename)` | `Promise<MediaItem\|null>` | Find first item by basename — used by `media://` URI resolution |
 | `search(query, wikiContext?)` | `Promise<MediaItem[]>` | Keyword search, privacy-filtered |
 | `getThumbnailBuffer(id, size)` | `Promise<Buffer\|null>` | JPEG thumbnail (cached) |
 | `shutdown()` | `Promise<void>` | Clear timer, release ExifTool worker |
+
+## Wiki Integration — `media://` URI Scheme
+
+MediaManager integrates with the attachment resolution pipeline so that media library photos can be embedded in wiki pages using `[{Image}]` or `[{ATTACH}]` without uploading them as wiki attachments.
+
+### Syntax
+
+```wiki
+[{Image src='media://IMG_1234.jpg' caption='Family Trip 2024'}]
+[{ATTACH src='media://vacation.jpg' align='left' display='float'}]
+```
+
+### How It Works
+
+When `AttachmentManager.resolveAttachmentSrc()` encounters a `src` that starts with `media://` it:
+
+1. Strips the prefix and calls `MediaManager.findByFilename(filename)`
+2. If a matching item is found, returns `{ url: '/media/file/{id}', mimeType: '...' }`
+3. The `/media/file/:id` route serves the raw file with access control
+
+No attachment upload is needed. The media library index is consulted only for `media://` prefixed values, so normal attachment resolution is unaffected.
+
+### Access Control
+
+- `/media/file/:id` enforces the same private-page access control as other media routes
+- Items linked to private pages are inaccessible to non-owners even when referenced by `media://` URI
 
 ## HTTP Routes
 

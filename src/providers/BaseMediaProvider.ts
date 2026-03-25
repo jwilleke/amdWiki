@@ -94,6 +94,22 @@ abstract class BaseMediaProvider {
   abstract getItem(id: string): Promise<MediaItem | null>;
 
   /**
+   * Find the first media item whose filename (basename) exactly matches.
+   *
+   * Used by the `media://` URI scheme so authors can reference items by
+   * their original filename rather than an opaque SHA-256 id.
+   *
+   * Default implementation returns null; override in providers that maintain
+   * a filename-keyed index.
+   *
+   * @param filename - Basename to match (e.g. "IMG_1234.jpg").
+   * @returns The first matching MediaItem, or null if not found.
+   */
+  findByFilename(_filename: string): Promise<MediaItem | null> {
+    return Promise.resolve(null);
+  }
+
+  /**
    * Retrieve all media items for a given year.
    *
    * @param year - Four-digit year (e.g. 2024).

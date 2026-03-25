@@ -266,6 +266,22 @@ class MediaManager extends BaseManager {
   }
 
   /**
+   * Find a media item by its original filename (basename).
+   *
+   * Used to resolve `media://filename.jpg` URIs in wiki page content.
+   * No privacy filtering is applied here — the caller (resolveAttachmentSrc)
+   * only uses the resulting URL; actual file delivery goes through the
+   * `/media/file/:id` route which enforces access control.
+   *
+   * @param filename - Basename to match (e.g. "IMG_1234.jpg").
+   * @returns The first matching MediaItem, or null if not found.
+   */
+  async findByFilename(filename: string): Promise<MediaItem | null> {
+    if (!this.provider) return null;
+    return this.provider.findByFilename(filename);
+  }
+
+  /**
    * Retrieve a thumbnail buffer for an item.
    *
    * @param id   - Item identifier.

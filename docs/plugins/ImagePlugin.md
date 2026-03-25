@@ -1,7 +1,7 @@
 ---
 name: "ImagePlugin"
 description: "Inline image display with alignment and caption support"
-dateModified: "2025-12-18"
+dateModified: "2026-03-25"
 category: "plugins"
 relatedModules: ["PluginManager", "ConfigurationManager"]
 version: "1.0.0"
@@ -50,7 +50,7 @@ The ImagePlugin implements JSPWiki-style inline image functionality. It supports
 
 | Parameter | Type | Default | Required | Description |
 | ----------- | ------ | --------- | ---------- | ------------- |
-| src | string | - | Yes | Image source path or URL |
+| src | string | - | Yes | Image source: path, URL, or `media://filename` for media library items |
 | alt | string | caption or "Uploaded image" | No | Alt text for accessibility |
 | caption | string | - | No | Caption below image |
 | width | string | - | No | Image width |
@@ -129,6 +129,14 @@ This text will wrap around the image on the right side.
 [{Image src='photo.jpg' border=2 style='border-radius: 8px;' class='featured-image'}]
 ```
 
+### Example 7: Media Library Photo
+
+```wiki
+[{Image src='media://IMG_1234.jpg' caption='Family Trip 2024' align='center'}]
+```
+
+References a photo from the media library by filename. The image is served from `/media/file/:id`; no attachment upload is required.
+
 ## Configuration
 
 The plugin reads these configuration options:
@@ -142,14 +150,27 @@ The plugin reads these configuration options:
 
 ### Path Resolution
 
-- Absolute paths (starting with `/` or `http`) are used as-is
-- Relative paths are prefixed with `/images/`
+All `src` values are resolved by `AttachmentManager.resolveAttachmentSrc()` in order:
 
-```javascript
-if (!src.startsWith("http") && !src.startsWith("/")) {
-  src = `/images/${src}`;
-}
+| Step | Trigger | Behavior |
+| ------ | ------- | -------- |
+| 0 | `src` starts with `media://` | Resolved via MediaManager by filename — never touches the attachment store |
+| 1 | `src` starts with `http://` or `https://` | Returned as-is (external URL) |
+| 2 | `src` starts with `/` | Returned as-is (absolute path) |
+| 3 | plain filename | Looked up in the current page's attachments |
+| 4 | plain filename | Global attachment search across all pages |
+| — | no match | Plugin renders an error span |
+
+### media:// URI scheme
+
+The `media://` prefix routes `src` to the media library managed by MediaManager. Use it to embed photos from your imported media collection without uploading them as wiki attachments.
+
+```wiki
+[{Image src='media://IMG_1234.jpg' caption='Family Trip'}]
+[{Image src='media://DSC_0042.jpg' align='left' display='float'}]
 ```
+
+The resolved URL follows the `/media/file/:id` route; access control is enforced there.
 
 ### Context Usage
 
@@ -194,4 +215,5 @@ if (!src.startsWith("http") && !src.startsWith("/")) {
 
 | Version | Date | Changes |
 | --------- | ------ | --------- |
+| 1.1.0 | 2026-03-25 | Added `media://` URI support via MediaManager (#383) |
 | 1.0.0 | 2025-10-19 | Initial implementation |

@@ -1,7 +1,7 @@
 ---
 name: "AttachPlugin"
 description: "Renders wiki attachments inline — images as clickable thumbnails, other files as download links"
-dateModified: "2026-02-23"
+dateModified: "2026-03-25"
 category: "plugins"
 relatedModules: ["PluginManager", "AttachmentManager", "ConfigurationManager"]
 version: "1.0.0"
@@ -48,7 +48,7 @@ Displays page attachments inline in wiki content. Image attachments render as cl
 
 | Parameter | Type | Default | Required | Description |
 | ----------- | ------ | --------- | ---------- | ------------- |
-| src | string | - | Yes* | Attachment filename. Resolved via AttachmentManager. |
+| src | string | - | Yes* | Attachment filename, URL, or `media://filename` for media library items. Resolved via AttachmentManager. |
 | caption | string | - | No | Caption/link text. Also used as alt text for images. |
 | align | string | - | No | Alignment: `left`, `right`, `center` |
 | display | string | `block` | No | Image display mode: `block`, `float`, `inline`, `full` (images only) |
@@ -62,11 +62,27 @@ Displays page attachments inline in wiki content. Image attachments render as cl
 
 ## Attachment Resolution
 
-The plugin resolves filenames in the same order as ImagePlugin:
+Both AttachPlugin and ImagePlugin delegate to `AttachmentManager.resolveAttachmentSrc()`, which resolves `src` in this order:
 
-1. **Page-local attachments** — `AttachmentManager.getAttachmentsForPage(pageName)` (exact filename match)
-2. **Global search** — `AttachmentManager.getAttachmentByFilename(filename)` across all pages
-3. **Not found** — renders `<span class="attachment-missing">[Attachment not found: filename]</span>`
+| Step | Trigger | Behavior |
+| ------ | ------- | -------- |
+| 0 | `src` starts with `media://` | Resolved via MediaManager by filename — never touches the attachment store |
+| 1 | `src` starts with `http://` or `https://` | Returned as-is (external URL) |
+| 2 | `src` starts with `/` | Returned as-is (absolute path) |
+| 3 | plain filename | Looked up in the current page's attachments (exact match) |
+| 4 | plain filename | Global attachment search across all pages (lazily populates `mentions`) |
+| — | no match | Renders `<span class="attachment-missing">[Attachment not found: filename]</span>` |
+
+### media:// URI scheme
+
+Use `media://` to reference photos from the media library (managed by MediaManager) without uploading them as wiki attachments:
+
+```wiki
+[{ATTACH src='media://IMG_1234.jpg' align='left' display='float' caption='Family Trip'}]
+[{ATTACH src='media://DSC_0042.jpg'}]
+```
+
+The resolved URL follows the `/media/file/:id` route; access control is enforced there.
 
 ## Image Attachments
 
@@ -178,6 +194,20 @@ Output: a download link labeled `mwg_guidance.pdf` with a PDF icon.
 [{ATTACH src='photo.jpg' style='border-radius: 8px;' class='featured-image' width='400'}]
 ```
 
+### Example 7: Media Library Photo (Floating)
+
+```wiki
+[{ATTACH src='media://IMG_1234.jpg' align='left' display='float' caption='Family Trip 2024'}]
+```
+
+References a photo from the media library by filename. No attachment upload required.
+
+### Example 8: Media Library Photo (Inline Link)
+
+```wiki
+[{ATTACH src='media://vacation.jpg' caption='Summer 2024'}]
+```
+
 ## Technical Implementation
 
 ### Positional Syntax Parsing
@@ -246,4 +276,5 @@ function parsePositional(originalMatch: string): { filename: string; caption: st
 
 | Version | Date | Changes |
 | --------- | ------ | --------- |
+| 1.1.0 | 2026-03-25 | Added `media://` URI support via MediaManager (#383) |
 | 1.0.0 | 2026-02-23 | Initial implementation — fixes #274 |
