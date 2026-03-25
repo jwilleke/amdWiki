@@ -540,11 +540,25 @@
     let _assetTotal = 0;
     let _assetResults = [];       // current page's result objects (for index-based insert)
 
+    let _assetModalOpen = false;
+    document.getElementById('assetPickerModal').addEventListener('shown.bs.modal',  function () { _assetModalOpen = true; });
+    document.getElementById('assetPickerModal').addEventListener('hidden.bs.modal', function () { _assetModalOpen = false; });
+
     window.openAssetPicker = function () {
         const modal = new bootstrap.Modal(document.getElementById('assetPickerModal'));
         modal.show();
         runAssetSearch();
     };
+
+    WikiPagination.attachKeyboard(
+        function () { if (_assetModalOpen) assetPickerPage(-1); },
+        function () { if (_assetModalOpen) assetPickerPage(1); }
+    );
+    WikiPagination.attachSwipe(
+        document.getElementById('assetPickerModal') || document.body,
+        function () { if (_assetModalOpen) assetPickerPage(-1); },
+        function () { if (_assetModalOpen) assetPickerPage(1); }
+    );
 
     window.debounceAssetSearch = function () {
         clearTimeout(_assetDebounceTimer);

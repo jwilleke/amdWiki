@@ -2407,8 +2407,9 @@ class WikiRoutes {
       const attachmentQuery = (req.query.attachmentQuery as string) || '';
       const mimeType = (req.query.mimeType as string) || '';
       const mediaQuery = (req.query.mediaQuery as string) || '';
-      const mediaOffset = Math.max(0, parseInt(req.query.mediaOffset as string) || 0);
       const mediaPageSize = 48;
+      const mediaPageParam = Math.max(1, parseInt(req.query.mediaPage as string) || 1);
+      const mediaOffset = (mediaPageParam - 1) * mediaPageSize;
 
       const assetService = this.engine.getManager('AssetService') as
         | { search(opts: object): Promise<{ results: Array<{ id: string; filename: string; mimeType: string; url: string; thumbUrl?: string; year?: number; linkedPageName?: string; isPrivate?: boolean; assetType: string }>; total: number; hasMore: boolean }> }
@@ -2459,6 +2460,7 @@ class WikiRoutes {
         attachmentResults: attachmentResults,
         mediaQuery: mediaQuery,
         mediaPage: mediaPage,
+        mediaCurrentPage: mediaPageParam,
         mediaOffset: mediaOffset,
         mediaPageSize: mediaPageSize,
       });

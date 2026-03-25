@@ -337,89 +337,104 @@
         </div>
 
         <% if (searchTab === 'media' && mediaPage && mediaPage.results && mediaPage.results.length > 0) { %>
-            <!-- Results count + pagination -->
             <%
               const mediaTotalPages = Math.ceil(mediaPage.total / mediaPageSize);
-              const mediaCurrentPage = Math.floor(mediaOffset / mediaPageSize);
               const mediaStart = mediaOffset + 1;
               const mediaEnd = mediaOffset + mediaPage.results.length;
+              const mediaPrevUrl = mediaCurrentPage > 1
+                ? '/search?tab=media&mediaQuery=' + encodeURIComponent(mediaQuery || '') + '&mediaPage=' + (mediaCurrentPage - 1)
+                : '';
+              const mediaNextUrl = mediaPage.hasMore
+                ? '/search?tab=media&mediaQuery=' + encodeURIComponent(mediaQuery || '') + '&mediaPage=' + (mediaCurrentPage + 1)
+                : '';
             %>
-            <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
-                <span class="badge bg-info">
-                    <%= mediaPage.total.toLocaleString() %> result<%= mediaPage.total !== 1 ? 's' : '' %>
-                    <% if (mediaPage.total > mediaPageSize) { %> &middot; showing <%= mediaStart %>–<%= mediaEnd %><% } %>
-                </span>
-                <% if (mediaTotalPages > 1) { %>
-                <div class="d-flex align-items-center gap-2">
-                    <% if (mediaCurrentPage > 0) { %>
-                        <a href="/search?tab=media&mediaQuery=<%= encodeURIComponent(mediaQuery || '') %>&mediaOffset=<%= (mediaCurrentPage - 1) * mediaPageSize %>"
-                           class="btn btn-sm btn-outline-secondary">
-                            <i class="fas fa-chevron-left"></i> Prev
-                        </a>
-                    <% } %>
-                    <span class="small text-muted">Page <%= mediaCurrentPage + 1 %> of <%= mediaTotalPages %></span>
-                    <% if (mediaPage.hasMore) { %>
-                        <a href="/search?tab=media&mediaQuery=<%= encodeURIComponent(mediaQuery || '') %>&mediaOffset=<%= (mediaCurrentPage + 1) * mediaPageSize %>"
-                           class="btn btn-sm btn-outline-secondary">
-                            Next <i class="fas fa-chevron-right"></i>
-                        </a>
+            <!-- data-pagination carries prev/next URLs for keyboard+swipe -->
+            <div data-pagination
+                 data-prev-url="<%= mediaPrevUrl %>"
+                 data-next-url="<%= mediaNextUrl %>">
+
+                <!-- Top count + pagination -->
+                <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
+                    <span class="badge bg-info">
+                        <%= mediaPage.total.toLocaleString() %> result<%= mediaPage.total !== 1 ? 's' : '' %>
+                        <% if (mediaPage.total > mediaPageSize) { %> &middot; showing <%= mediaStart %>–<%= mediaEnd %><% } %>
+                    </span>
+                    <% if (mediaTotalPages > 1) { %>
+                    <nav aria-label="Media results pages">
+                        <ul class="pagination pagination-sm mb-0">
+                            <li class="page-item <%= !mediaPrevUrl ? 'disabled' : '' %>">
+                                <a class="page-link" href="<%= mediaPrevUrl || '#' %>" aria-label="Previous">
+                                    <i class="fas fa-chevron-left"></i>
+                                </a>
+                            </li>
+                            <li class="page-item disabled">
+                                <span class="page-link">Page <%= mediaCurrentPage %> of <%= mediaTotalPages %></span>
+                            </li>
+                            <li class="page-item <%= !mediaNextUrl ? 'disabled' : '' %>">
+                                <a class="page-link" href="<%= mediaNextUrl || '#' %>" aria-label="Next">
+                                    <i class="fas fa-chevron-right"></i>
+                                </a>
+                            </li>
+                        </ul>
+                    </nav>
                     <% } %>
                 </div>
-                <% } %>
-            </div>
 
-            <!-- Thumbnail grid -->
-            <div class="row g-2">
-                <% mediaPage.results.forEach(item => { %>
-                    <div class="col-6 col-md-3 col-lg-2">
-                        <div class="card h-100 border-0 shadow-sm">
-                            <div class="card-body p-2">
-                                <% if (item.mimeType && item.mimeType.startsWith('image/') && item.thumbUrl) { %>
-                                    <a href="<%= item.url %>" target="_blank">
-                                        <img src="<%= item.thumbUrl %>" class="img-fluid rounded mb-1"
-                                             style="max-height:120px;object-fit:cover;width:100%;" loading="lazy"
-                                             alt="<%= item.filename %>">
-                                    </a>
-                                <% } else { %>
-                                    <a href="<%= item.url %>" target="_blank" class="d-block text-center text-muted py-3">
-                                        <i class="fas fa-photo-video fa-2x"></i>
-                                    </a>
-                                <% } %>
-                                <div class="small text-truncate" title="<%= item.filename %>">
-                                    <a href="<%= item.url %>" target="_blank" class="text-body text-decoration-none"><%= item.filename %></a>
-                                </div>
-                                <div>
-                                    <% if (item.year) { %><small class="text-muted"><%= item.year %></small> <% } %>
-                                    <% if (item.linkedPageName) { %>
-                                        <a href="/view/<%= encodeURIComponent(item.linkedPageName) %>" class="badge bg-secondary text-decoration-none">
-                                            <%= item.linkedPageName %>
+                <!-- Thumbnail grid -->
+                <div class="row g-2">
+                    <% mediaPage.results.forEach(item => { %>
+                        <div class="col-6 col-md-3 col-lg-2">
+                            <div class="card h-100 border-0 shadow-sm">
+                                <div class="card-body p-2">
+                                    <% if (item.mimeType && item.mimeType.startsWith('image/') && item.thumbUrl) { %>
+                                        <a href="<%= item.url %>" target="_blank">
+                                            <img src="<%= item.thumbUrl %>" class="img-fluid rounded mb-1"
+                                                 style="max-height:120px;object-fit:cover;width:100%;" loading="lazy"
+                                                 alt="<%= item.filename %>">
+                                        </a>
+                                    <% } else { %>
+                                        <a href="<%= item.url %>" target="_blank" class="d-block text-center text-muted py-3">
+                                            <i class="fas fa-photo-video fa-2x"></i>
                                         </a>
                                     <% } %>
+                                    <div class="small text-truncate" title="<%= item.filename %>">
+                                        <a href="<%= item.url %>" target="_blank" class="text-body text-decoration-none"><%= item.filename %></a>
+                                    </div>
+                                    <div>
+                                        <% if (item.year) { %><small class="text-muted"><%= item.year %></small> <% } %>
+                                        <% if (item.linkedPageName) { %>
+                                            <a href="/view/<%= encodeURIComponent(item.linkedPageName) %>" class="badge bg-secondary text-decoration-none">
+                                                <%= item.linkedPageName %>
+                                            </a>
+                                        <% } %>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                <% }); %>
-            </div>
+                    <% }); %>
+                </div>
 
-            <!-- Bottom pagination -->
-            <% if (mediaTotalPages > 1) { %>
-            <div class="d-flex align-items-center justify-content-center gap-2 mt-3">
-                <% if (mediaCurrentPage > 0) { %>
-                    <a href="/search?tab=media&mediaQuery=<%= encodeURIComponent(mediaQuery || '') %>&mediaOffset=<%= (mediaCurrentPage - 1) * mediaPageSize %>"
-                       class="btn btn-sm btn-outline-secondary">
-                        <i class="fas fa-chevron-left"></i> Prev
-                    </a>
-                <% } %>
-                <span class="small text-muted">Page <%= mediaCurrentPage + 1 %> of <%= mediaTotalPages %></span>
-                <% if (mediaPage.hasMore) { %>
-                    <a href="/search?tab=media&mediaQuery=<%= encodeURIComponent(mediaQuery || '') %>&mediaOffset=<%= (mediaCurrentPage + 1) * mediaPageSize %>"
-                       class="btn btn-sm btn-outline-secondary">
-                        Next <i class="fas fa-chevron-right"></i>
-                    </a>
+                <!-- Bottom pagination (repeat for long pages) -->
+                <% if (mediaTotalPages > 1) { %>
+                <nav aria-label="Media results pages" class="mt-3 d-flex justify-content-center">
+                    <ul class="pagination pagination-sm mb-0">
+                        <li class="page-item <%= !mediaPrevUrl ? 'disabled' : '' %>">
+                            <a class="page-link" href="<%= mediaPrevUrl || '#' %>" aria-label="Previous">
+                                <i class="fas fa-chevron-left"></i>
+                            </a>
+                        </li>
+                        <li class="page-item disabled">
+                            <span class="page-link">Page <%= mediaCurrentPage %> of <%= mediaTotalPages %></span>
+                        </li>
+                        <li class="page-item <%= !mediaNextUrl ? 'disabled' : '' %>">
+                            <a class="page-link" href="<%= mediaNextUrl || '#' %>" aria-label="Next">
+                                <i class="fas fa-chevron-right"></i>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
                 <% } %>
             </div>
-            <% } %>
 
         <% } else if (searchTab === 'media' && mediaQuery) { %>
             <div class="alert alert-info">
@@ -498,6 +513,22 @@ if (document.readyState === 'loading') {
 } else {
     initSearchPageAutocomplete();
 }
+
+// Keyboard and swipe for media tab pagination (only when media tab is visible)
+(function () {
+    var tabParam = new URLSearchParams(window.location.search).get('tab');
+    if (tabParam !== 'media') return;
+    var paginationEl = document.querySelector('[data-pagination]');
+    if (!paginationEl) return;
+    WikiPagination.attachKeyboard(
+        WikiPagination.urlNav('data-prev-url', '[data-pagination]'),
+        WikiPagination.urlNav('data-next-url', '[data-pagination]')
+    );
+    WikiPagination.attachSwipe(document.body,
+        WikiPagination.urlNav('data-prev-url', '[data-pagination]'),
+        WikiPagination.urlNav('data-next-url', '[data-pagination]')
+    );
+})();
 </script>
 
 <%- include('footer') %>

@@ -297,35 +297,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Render pagination
         pageInfo.textContent = 'Page ' + currentPage + ' of ' + totalPages;
-        pagination.innerHTML = '';
-
-        if (totalPages > 1) {
-            var prevLi = document.createElement('li');
-            prevLi.className = 'page-item' + (currentPage === 1 ? ' disabled' : '');
-            prevLi.innerHTML = '<a class="page-link" href="#">&laquo;</a>';
-            prevLi.addEventListener('click', function(e) { e.preventDefault(); if (currentPage > 1) { currentPage--; render(); } });
-            pagination.appendChild(prevLi);
-
-            var startPage = Math.max(1, currentPage - 3);
-            var endPage = Math.min(totalPages, startPage + 6);
-            if (endPage - startPage < 6) startPage = Math.max(1, endPage - 6);
-
-            for (var p = startPage; p <= endPage; p++) {
-                (function(page) {
-                    var li = document.createElement('li');
-                    li.className = 'page-item' + (page === currentPage ? ' active' : '');
-                    li.innerHTML = '<a class="page-link" href="#">' + page + '</a>';
-                    li.addEventListener('click', function(e) { e.preventDefault(); currentPage = page; render(); });
-                    pagination.appendChild(li);
-                })(p);
-            }
-
-            var nextLi = document.createElement('li');
-            nextLi.className = 'page-item' + (currentPage === totalPages ? ' disabled' : '');
-            nextLi.innerHTML = '<a class="page-link" href="#">&raquo;</a>';
-            nextLi.addEventListener('click', function(e) { e.preventDefault(); if (currentPage < totalPages) { currentPage++; render(); } });
-            pagination.appendChild(nextLi);
-        }
+        WikiPagination.renderNav(pagination, currentPage, totalPages, function(page) {
+            currentPage = page;
+            render();
+        });
 
         // Bind copy buttons
         document.querySelectorAll('.copy-btn').forEach(function(btn) {
@@ -375,6 +350,19 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     render();
+
+    // Keyboard and swipe navigation
+    WikiPagination.attachKeyboard(
+        function() { if (currentPage > 1) { currentPage--; render(); } },
+        function() { if (currentPage < Math.ceil(allAttachments.length / PER_PAGE)) { currentPage++; render(); } }
+    );
+    WikiPagination.attachSwipe(document.body,
+        function() { if (currentPage > 1) { currentPage--; render(); } },
+        function() {
+            var tp = Math.ceil(allAttachments.length / PER_PAGE);
+            if (currentPage < tp) { currentPage++; render(); }
+        }
+    );
 });
 </script>
 
