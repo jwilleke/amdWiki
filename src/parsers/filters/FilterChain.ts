@@ -441,7 +441,7 @@ class FilterChain {
       try {
         // Execute filter with timeout
         const timeoutPromise = new Promise<string>((_, reject) => {
-          setTimeout(() => reject(new Error(`Filter ${filter.filterId} timeout`)), this.config.timeout);
+          setTimeout(() => reject(new Error(`Filter ${filter.filterId} timeout`)), this.config.timeout).unref();
         });
 
          
