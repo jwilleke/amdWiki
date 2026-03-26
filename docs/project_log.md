@@ -24,6 +24,26 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-03-26-19
+
+- Agent: Claude Sonnet 4.6
+- Subject: test: add pluginFormatters unit tests, fix stub output param names, close #238
+- Key Decision: Issue was mostly done — `pluginFormatters.ts` and plugin migrations existed. Remaining gaps were (1) no tests and (2) MediaGallery/MediaSearch stubs documenting `output=` instead of `format=`. Added 63 unit tests covering all exports; fixed stub comments.
+- Current Issue: #238
+- Testing:
+  - npm test: 91 suites passed, 2358 tests passed
+- Work Done:
+  - Created `src/utils/__tests__/pluginFormatters.test.js` — 63 tests for all pluginFormatters exports
+  - Fixed `plugins/MediaGallery.ts` and `plugins/MediaSearch.ts` stub comments: `output=` → `format=`
+  - Closed #238
+- Commits: 2347f76
+- Files Modified:
+  - src/utils/__tests__/pluginFormatters.test.js (new)
+  - plugins/MediaGallery.ts
+  - plugins/MediaSearch.ts
+
+---
+
 ## 2026-03-26-18
 
 - Agent: Claude Sonnet 4.6
