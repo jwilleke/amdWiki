@@ -24,6 +24,38 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-03-26-15
+
+- Agent: Claude Sonnet 4.6
+- Subject: feat: optional-capability framework + description fields on managers and plugins (#394)
+- Key Decision: Capability state tracked in Engine base class (not WikiEngine) so any future engine subclass inherits it automatically. `getCommonTemplateData()` injects `capabilities` into every template rather than per-route, so no admin page needs manual plumbing. Admin dashboard Media card is hidden (not greyed) when disabled — cleaner than a disabled-state badge at dashboard level.
+- Current Issue: #394
+- Testing:
+  - npm test: 90 suites passed, 2295 tests passed
+- Work Done:
+  - `src/core/Engine.ts`: added `capabilities` Map, `setCapability(id, enabled)`, `getCapabilities()` — base framework for all optional features
+  - `src/WikiEngine.ts`: calls `this.setCapability('media', mediaEnabled)` at init time alongside existing conditional MediaManager registration
+  - `src/types/WikiEngine.ts`: added `getCapabilities()` and `setCapability()` to public interface
+  - `src/routes/WikiRoutes.ts`: `getCommonTemplateData()` includes `capabilities` in every template response; added `getCapabilities?()` to local WikiEngine interface
+  - `views/admin-dashboard.ejs`: Media Management card wrapped in `<% if (capabilities && capabilities.media) { %>` — hidden when MediaManager is disabled
+  - `src/managers/BaseManager.ts`: added optional `readonly description?: string` property for admin UIs, addon registries, and introspection
+  - `plugins/ImagePlugin.ts`: added missing `description` field (was the only built-in plugin without one)
+  - Patch version bump 3.0.6 → 3.0.7
+- Commits: c6d479c
+- Files Modified:
+  - src/core/Engine.ts
+  - src/WikiEngine.ts
+  - src/types/WikiEngine.ts
+  - src/routes/WikiRoutes.ts
+  - views/admin-dashboard.ejs
+  - src/managers/BaseManager.ts
+  - plugins/ImagePlugin.ts
+  - package.json
+  - config/app-default-config.json
+  - CHANGELOG.md
+
+---
+
 ## 2026-03-25-14
 
 - Agent: Claude Sonnet 4.6
