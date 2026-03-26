@@ -5,11 +5,11 @@
  * Full implementation is deferred to Phase 4 (MediaManager real scan).
  *
  * Intended syntax (Phase 4):
- *   [{MediaGallery year=2024 output=grid max=20}]
+ *   [{MediaGallery year=2024 format=grid max=20}]
  *
  * Parameters (Phase 4):
  *   year    — Four-digit year to display (required)
- *   output  — Display mode: "grid" (default) or "list"
+ *   format  — Display mode: "grid" (default) or "list"
  *   max     — Maximum number of items to show (default: 20)
  */
 

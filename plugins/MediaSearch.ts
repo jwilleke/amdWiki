@@ -5,11 +5,11 @@
  * Full implementation is deferred to Phase 4 (MediaManager real scan).
  *
  * Intended syntax (Phase 4):
- *   [{MediaSearch keyword="Nassau" output=grid max=20}]
+ *   [{MediaSearch keyword="Nassau" format=grid max=20}]
  *
  * Parameters (Phase 4):
  *   keyword — Search query string (required)
- *   output  — Display mode: "grid" (default) or "list"
+ *   format  — Display mode: "grid" (default) or "list"
  *   max     — Maximum number of results to show (default: 20)
  */
 
