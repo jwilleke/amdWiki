@@ -307,7 +307,7 @@ Before deploying to production:
 ### Configuration
 
 - [ ] Set `ngdpbase.server.host` to `0.0.0.0` in Docker
-- [ ] Configure `ngdpbase.baseURL` with your actual domain
+- [ ] Configure `ngdpbase.base-url` with your actual domain
 - [ ] Set appropriate `NODE_ENV=production`
 - [ ] Configure logging level (`ngdpbase.logging.level`)
 - [ ] Review and customize all ConfigurationManager settings

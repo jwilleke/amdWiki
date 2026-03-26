@@ -40,7 +40,7 @@ class ComprehensiveMockEngine {
           // MarkupParser configuration
           'ngdpbase.markup.enabled': true,
           'ngdpbase.markup.caching': true,
-          'ngdpbase.markup.cacheTTL': 300,
+          'ngdpbase.markup.cache-ttl': 300,
           
           // All handlers enabled for testing
           'ngdpbase.markup.handlers.plugin.enabled': true,
@@ -57,12 +57,12 @@ class ComprehensiveMockEngine {
           'ngdpbase.markup.filters.validation.enabled': true,
           
           // Security configuration
-          'ngdpbase.markup.filters.security.preventXSS': true,
-          'ngdpbase.markup.filters.security.allowedTags': 'p,div,span,strong,em,h1,h2,h3,a,img',
+          'ngdpbase.markup.filters.security.prevent-xss': true,
+          'ngdpbase.markup.filters.security.allowed-tags': 'p,div,span,strong,em,h1,h2,h3,a,img',
           
           // Spam configuration
-          'ngdpbase.markup.filters.spam.maxLinks': 10,
-          'ngdpbase.markup.filters.spam.blacklistWords': 'spam,casino',
+          'ngdpbase.markup.filters.spam.max-links': 10,
+          'ngdpbase.markup.filters.spam.blacklist-words': 'spam,casino',
           
           // InterWiki sites
           'ngdpbase.interwiki.sites.Wikipedia': 'https://en.wikipedia.org/wiki/%s',
@@ -70,7 +70,7 @@ class ComprehensiveMockEngine {
           
           // Style configuration
           'ngdpbase.style.predefined.text': 'text-primary,text-success,text-danger',
-          'ngdpbase.style.security.allowInlineCSS': false
+          'ngdpbase.style.security.allow-inline-css': false
         };
         
         return config[key] !== undefined ? config[key] : defaultValue;
@@ -776,10 +776,10 @@ Links: [Wikipedia:Section${i}] and [JSPWiki:Test${i}].
         const securityConfig = {
           'ngdpbase.markup.handlers.form.enabled': false,           // No forms
           'ngdpbase.markup.handlers.attachment.enabled': false,     // No attachments
-          'ngdpbase.style.security.allowInlineCSS': false,         // No inline CSS
-          'ngdpbase.markup.filters.security.preventXSS': true,     // Max security
-          'ngdpbase.markup.filters.spam.autoBlock': true,          // Auto-block spam
-          'ngdpbase.markup.filters.validation.failOnValidationError': true
+          'ngdpbase.style.security.allow-inline-css': false,         // No inline CSS
+          'ngdpbase.markup.filters.security.prevent-xss': true,     // Max security
+          'ngdpbase.markup.filters.spam.auto-block': true,          // Auto-block spam
+          'ngdpbase.markup.filters.validation.fail-on-validation-error': true
         };
         return securityConfig[key] !== undefined ? securityConfig[key] : defaultValue;
       };
@@ -809,11 +809,11 @@ Links: [Wikipedia:Section${i}] and [JSPWiki:Test${i}].
       const devEngine = new ComprehensiveMockEngine();
       devEngine.managers.get('ConfigurationManager').getProperty = (key, defaultValue) => {
         const devConfig = {
-          'ngdpbase.markup.cache.parseResults.ttl': 60,            // Short cache
-          'ngdpbase.style.security.allowInlineCSS': true,         // Allow for testing
-          'ngdpbase.markup.filters.spam.autoBlock': false,        // Don't auto-block
+          'ngdpbase.markup.cache.parse-results.ttl': 60,            // Short cache
+          'ngdpbase.style.security.allow-inline-css': true,         // Allow for testing
+          'ngdpbase.markup.filters.spam.auto-block': false,        // Don't auto-block
           'ngdpbase.markup.performance.monitoring': true,         // Monitor closely
-          'ngdpbase.markup.logParsingMethod': true               // Debug logging
+          'ngdpbase.markup.log-parsing-method': true               // Debug logging
         };
         return devConfig[key] !== undefined ? devConfig[key] : defaultValue;
       };

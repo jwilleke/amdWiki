@@ -89,7 +89,7 @@ describe('PluginManager.registerPlugins', () => {
     await pm.registerPlugins();
 
     // Assert
-    expect(cfgMgr.getProperty).toHaveBeenCalledWith('ngdpbase.managers.pluginManager.searchPaths');
+    expect(cfgMgr.getProperty).toHaveBeenCalledWith('ngdpbase.managers.plugin-manager.search-paths');
     expect(loadCalls).toHaveLength(2); // Both .js and .ts plugins should be loaded
     const loadedNames = loadCalls.map(c => path.basename(c)).sort();
     expect(loadedNames).toContain('Alpha.js');
@@ -144,7 +144,7 @@ describe('PluginManager.registerPlugins', () => {
 
     await pm.registerPlugins();
 
-    expect(cfgMgr.getProperty).toHaveBeenCalledWith('ngdpbase.managers.pluginManager.searchPaths');
+    expect(cfgMgr.getProperty).toHaveBeenCalledWith('ngdpbase.managers.plugin-manager.search-paths');
     expect(pm.loadPlugin).not.toHaveBeenCalled();
     expect(logger.info).toHaveBeenCalled();
     expect(

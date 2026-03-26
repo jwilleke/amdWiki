@@ -597,7 +597,7 @@ class ACLManager extends BaseManager {
       return { allowed: true, reason: 'no_config' };
     }
 
-    const contextAwareEnabled = configManager.getProperty('ngdpbase.accessControl.contextAware.enabled', true) as boolean;
+    const contextAwareEnabled = configManager.getProperty('ngdpbase.access-control.context-aware.enabled', true) as boolean;
 
     if (!contextAwareEnabled) {
       return { allowed: true, reason: 'context_disabled' };
@@ -606,10 +606,10 @@ class ACLManager extends BaseManager {
     // Build context config object from ConfigurationManager properties
     const contextConfig: ContextConfig = {
       enabled: contextAwareEnabled,
-      timeZone: configManager.getProperty('ngdpbase.accessControl.contextAware.timeZone', 'UTC') as string,
+      timeZone: configManager.getProperty('ngdpbase.access-control.context-aware.time-zone', 'UTC') as string,
       maintenanceMode: {
         enabled: configManager.getProperty('ngdpbase.features.maintenance.enabled', false) as boolean,
-        allowAdmins: configManager.getProperty('ngdpbase.features.maintenance.allowAdmins', true) as boolean
+        allowAdmins: configManager.getProperty('ngdpbase.features.maintenance.allow-admins', true) as boolean
       }
     };
 
@@ -746,7 +746,7 @@ class ACLManager extends BaseManager {
       const now = new Date();
       const currentDate = now.toISOString().split('T')[0]; // YYYY-MM-DD format
 
-      const timeZone = String(cfg.getProperty('ngdpbase.timeZone', 'UTC'));
+      const timeZone = String(cfg.getProperty('ngdpbase.time-zone', 'UTC'));
       const currentTime = now.toLocaleTimeString('en-US', {
         timeZone,
         hour12: false,

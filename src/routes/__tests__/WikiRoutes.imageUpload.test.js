@@ -21,8 +21,8 @@ const mockConfigManager = {
   getProperty: jest.fn((key, defaultValue) => {
     const config = {
       "ngdpbase.features.images.maxUploadSize": 10 * 1024 * 1024,
-      "ngdpbase.features.images.defaultAlt": "Uploaded image",
-      "ngdpbase.features.images.defaultClass": "wiki-image",
+      "ngdpbase.features.images.default-alt": "Uploaded image",
+      "ngdpbase.features.images.default-class": "wiki-image",
     };
     return config[key] || defaultValue;
   }),

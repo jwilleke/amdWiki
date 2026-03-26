@@ -705,14 +705,14 @@ class MarkupParser extends BaseManager {
       try {
         this.config.enabled = configManager.getProperty('ngdpbase.markup.enabled', this.config.enabled);
         this.config.caching = configManager.getProperty('ngdpbase.markup.caching', this.config.caching);
-        this.config.cacheTTL = configManager.getProperty('ngdpbase.markup.cacheTTL', this.config.cacheTTL);
+        this.config.cacheTTL = configManager.getProperty('ngdpbase.markup.cache-ttl', this.config.cacheTTL);
         
         // Handler registry configuration
-        this.config.handlerRegistry.maxHandlers = configManager.getProperty('ngdpbase.markup.handlerRegistry.maxHandlers', this.config.handlerRegistry.maxHandlers);
-        this.config.handlerRegistry.allowDuplicatePriorities = configManager.getProperty('ngdpbase.markup.handlerRegistry.allowDuplicatePriorities', this.config.handlerRegistry.allowDuplicatePriorities);
-        this.config.handlerRegistry.enableDependencyResolution = configManager.getProperty('ngdpbase.markup.handlerRegistry.enableDependencyResolution', this.config.handlerRegistry.enableDependencyResolution);
-        this.config.handlerRegistry.enableConflictDetection = configManager.getProperty('ngdpbase.markup.handlerRegistry.enableConflictDetection', this.config.handlerRegistry.enableConflictDetection);
-        this.config.handlerRegistry.defaultTimeout = configManager.getProperty('ngdpbase.markup.handlerRegistry.defaultTimeout', this.config.handlerRegistry.defaultTimeout);
+        this.config.handlerRegistry.maxHandlers = configManager.getProperty('ngdpbase.markup.handler-registry.max-handlers', this.config.handlerRegistry.maxHandlers);
+        this.config.handlerRegistry.allowDuplicatePriorities = configManager.getProperty('ngdpbase.markup.handler-registry.allow-duplicate-priorities', this.config.handlerRegistry.allowDuplicatePriorities);
+        this.config.handlerRegistry.enableDependencyResolution = configManager.getProperty('ngdpbase.markup.handler-registry.enable-dependency-resolution', this.config.handlerRegistry.enableDependencyResolution);
+        this.config.handlerRegistry.enableConflictDetection = configManager.getProperty('ngdpbase.markup.handler-registry.enable-conflict-detection', this.config.handlerRegistry.enableConflictDetection);
+        this.config.handlerRegistry.defaultTimeout = configManager.getProperty('ngdpbase.markup.handler-registry.default-timeout', this.config.handlerRegistry.defaultTimeout);
         
         // Individual handler configuration
         for (const handlerName of Object.keys(this.config.handlers)) {
@@ -735,25 +735,25 @@ class MarkupParser extends BaseManager {
         this.config.filters.validation.enabled = configManager.getProperty('ngdpbase.markup.filters.validation.enabled', this.config.filters.validation.enabled);
         
         // Advanced cache configuration
-        this.config.cache.parseResults.enabled = configManager.getProperty('ngdpbase.markup.cache.parseResults.enabled', this.config.cache.parseResults.enabled);
-        this.config.cache.parseResults.ttl = configManager.getProperty('ngdpbase.markup.cache.parseResults.ttl', this.config.cache.parseResults.ttl);
-        this.config.cache.parseResults.maxSize = configManager.getProperty('ngdpbase.markup.cache.parseResults.maxSize', this.config.cache.parseResults.maxSize);
-        this.config.cache.handlerResults.enabled = configManager.getProperty('ngdpbase.markup.cache.handlerResults.enabled', this.config.cache.handlerResults.enabled);
-        this.config.cache.handlerResults.ttl = configManager.getProperty('ngdpbase.markup.cache.handlerResults.ttl', this.config.cache.handlerResults.ttl);
-        this.config.cache.handlerResults.maxSize = configManager.getProperty('ngdpbase.markup.cache.handlerResults.maxSize', this.config.cache.handlerResults.maxSize);
+        this.config.cache.parseResults.enabled = configManager.getProperty('ngdpbase.markup.cache.parse-results.enabled', this.config.cache.parseResults.enabled);
+        this.config.cache.parseResults.ttl = configManager.getProperty('ngdpbase.markup.cache.parse-results.ttl', this.config.cache.parseResults.ttl);
+        this.config.cache.parseResults.maxSize = configManager.getProperty('ngdpbase.markup.cache.parse-results.max-size', this.config.cache.parseResults.maxSize);
+        this.config.cache.handlerResults.enabled = configManager.getProperty('ngdpbase.markup.cache.handler-results.enabled', this.config.cache.handlerResults.enabled);
+        this.config.cache.handlerResults.ttl = configManager.getProperty('ngdpbase.markup.cache.handler-results.ttl', this.config.cache.handlerResults.ttl);
+        this.config.cache.handlerResults.maxSize = configManager.getProperty('ngdpbase.markup.cache.handler-results.max-size', this.config.cache.handlerResults.maxSize);
         this.config.cache.patterns.enabled = configManager.getProperty('ngdpbase.markup.cache.patterns.enabled', this.config.cache.patterns.enabled);
         this.config.cache.patterns.ttl = configManager.getProperty('ngdpbase.markup.cache.patterns.ttl', this.config.cache.patterns.ttl);
         this.config.cache.variables.enabled = configManager.getProperty('ngdpbase.markup.cache.variables.enabled', this.config.cache.variables.enabled);
         this.config.cache.variables.ttl = configManager.getProperty('ngdpbase.markup.cache.variables.ttl', this.config.cache.variables.ttl);
-        this.config.cache.enableWarmup = configManager.getProperty('ngdpbase.markup.cache.enableWarmup', this.config.cache.enableWarmup);
-        this.config.cache.metricsEnabled = configManager.getProperty('ngdpbase.markup.cache.metricsEnabled', this.config.cache.metricsEnabled);
+        this.config.cache.enableWarmup = configManager.getProperty('ngdpbase.markup.cache.enable-warmup', this.config.cache.enableWarmup);
+        this.config.cache.metricsEnabled = configManager.getProperty('ngdpbase.markup.cache.metrics-enabled', this.config.cache.metricsEnabled);
         
         // Performance monitoring configuration
         this.config.performance.monitoring = configManager.getProperty('ngdpbase.markup.performance.monitoring', this.config.performance.monitoring);
-        this.config.performance.alertThresholds.parseTime = configManager.getProperty('ngdpbase.markup.performance.alertThresholds.parseTime', this.config.performance.alertThresholds.parseTime);
-        this.config.performance.alertThresholds.cacheHitRatio = configManager.getProperty('ngdpbase.markup.performance.alertThresholds.cacheHitRatio', this.config.performance.alertThresholds.cacheHitRatio);
-        this.config.performance.alertThresholds.errorRate = configManager.getProperty('ngdpbase.markup.performance.alertThresholds.errorRate', this.config.performance.alertThresholds.errorRate);
-        this.config.performance.alertThresholds.minCacheSamples = configManager.getProperty('ngdpbase.markup.performance.alertThresholds.minCacheSamples', this.config.performance.alertThresholds.minCacheSamples);
+        this.config.performance.alertThresholds.parseTime = configManager.getProperty('ngdpbase.markup.performance.alert-thresholds.parse-time', this.config.performance.alertThresholds.parseTime);
+        this.config.performance.alertThresholds.cacheHitRatio = configManager.getProperty('ngdpbase.markup.performance.alert-thresholds.cache-hit-ratio', this.config.performance.alertThresholds.cacheHitRatio);
+        this.config.performance.alertThresholds.errorRate = configManager.getProperty('ngdpbase.markup.performance.alert-thresholds.error-rate', this.config.performance.alertThresholds.errorRate);
+        this.config.performance.alertThresholds.minCacheSamples = configManager.getProperty('ngdpbase.markup.performance.alert-thresholds.min-cache-samples', this.config.performance.alertThresholds.minCacheSamples);
         
       } catch (err) {
         logger.warn('⚠️  Failed to load MarkupParser config from ConfigurationManager, using defaults:', getErrorMessage(err));

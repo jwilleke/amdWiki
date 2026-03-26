@@ -9,7 +9,7 @@ All settings live in the configuration hierarchy (`app-default-config.json`, ove
 | Property | Default | Description |
 |----------|---------|-------------|
 | `ngdpbase.telemetry.enabled` | `false` | Enable or disable metrics collection |
-| `ngdpbase.telemetry.serviceName` | `""` | OTLP `service.name` resource attribute (falls back to metric prefix if empty) |
+| `ngdpbase.telemetry.service-name` | `""` | OTLP `service.name` resource attribute (falls back to metric prefix if empty) |
 | `ngdpbase.telemetry.metrics.port` | `9464` | Port for the standalone Prometheus exporter |
 | `ngdpbase.telemetry.metrics.host` | `0.0.0.0` | Bind address for the Prometheus exporter |
 | `ngdpbase.telemetry.metrics.path` | `/metrics` | HTTP path for metrics endpoint |
@@ -41,7 +41,7 @@ The standalone exporter on port 9464 is intended for Prometheus scrape targets. 
 
 ## Metrics Reference
 
-All metric names are prefixed with the application name from `ngdpbase.applicationName`, sanitized for Prometheus (lowercased, non-alphanumeric characters replaced with underscores). For example, if `applicationName` is `jimstest`, metrics are prefixed `jimstest_`. The default prefix is `ngdpbase_`.
+All metric names are prefixed with the application name from `ngdpbase.application-name`, sanitized for Prometheus (lowercased, non-alphanumeric characters replaced with underscores). For example, if `applicationName` is `jimstest`, metrics are prefixed `jimstest_`. The default prefix is `ngdpbase_`.
 
 The tables below use `{app}` as a placeholder for the prefix.
 

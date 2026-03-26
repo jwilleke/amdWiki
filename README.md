@@ -144,12 +144,12 @@ ngdpbase uses a **hierarchical configuration system** with three layers (later o
 
 ```json
 {
-  "ngdpbase.applicationName": "ngdpbase",
+  "ngdpbase.application-name": "ngdpbase",
   "ngdpbase.server.port": 3000,
-  "ngdpbase.baseURL": "http://localhost:3000",
-  "ngdpbase.frontPage": "Welcome",
+  "ngdpbase.base-url": "http://localhost:3000",
+  "ngdpbase.front-page": "Welcome",
   "ngdpbase.page.provider": "filesystemprovider",
-  "ngdpbase.backup.autoBackup": true
+  "ngdpbase.backup.auto-backup": true
 }
 ```
 

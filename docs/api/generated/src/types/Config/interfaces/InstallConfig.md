@@ -24,9 +24,9 @@ Installation completed flag
 
 ***
 
-### ngdpbase.install.copyStartupPages
+### ngdpbase.install.copy-startup-pages
 
-> **ngdpbase.install.copyStartupPages**: `boolean`
+> **ngdpbase.install.copy-startup-pages**: `boolean`
 
 Defined in: [src/types/Config.ts:233](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Config.ts#L233)
 
@@ -34,9 +34,9 @@ Copy startup pages
 
 ***
 
-### ngdpbase.install.createAdminUser
+### ngdpbase.install.create-admin-user
 
-> **ngdpbase.install.createAdminUser**: `boolean`
+> **ngdpbase.install.create-admin-user**: `boolean`
 
 Defined in: [src/types/Config.ts:236](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Config.ts#L236)
 
@@ -44,9 +44,9 @@ Create admin user
 
 ***
 
-### ngdpbase.install.organization.addressCountry
+### ngdpbase.install.organization.address-country
 
-> **ngdpbase.install.organization.addressCountry**: `string`
+> **ngdpbase.install.organization.address-country**: `string`
 
 Defined in: [src/types/Config.ts:260](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Config.ts#L260)
 
@@ -54,9 +54,9 @@ Address country
 
 ***
 
-### ngdpbase.install.organization.addressLocality
+### ngdpbase.install.organization.address-locality
 
-> **ngdpbase.install.organization.addressLocality**: `string`
+> **ngdpbase.install.organization.address-locality**: `string`
 
 Defined in: [src/types/Config.ts:254](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Config.ts#L254)
 
@@ -64,9 +64,9 @@ Address locality (city)
 
 ***
 
-### ngdpbase.install.organization.addressRegion
+### ngdpbase.install.organization.address-region
 
-> **ngdpbase.install.organization.addressRegion**: `string`
+> **ngdpbase.install.organization.address-region**: `string`
 
 Defined in: [src/types/Config.ts:257](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Config.ts#L257)
 
@@ -74,9 +74,9 @@ Address region (state/province)
 
 ***
 
-### ngdpbase.install.organization.contactEmail
+### ngdpbase.install.organization.contact-email
 
-> **ngdpbase.install.organization.contactEmail**: `string`
+> **ngdpbase.install.organization.contact-email**: `string`
 
 Defined in: [src/types/Config.ts:251](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Config.ts#L251)
 
@@ -94,9 +94,9 @@ Organization description
 
 ***
 
-### ngdpbase.install.organization.foundingDate
+### ngdpbase.install.organization.founding-date
 
-> **ngdpbase.install.organization.foundingDate**: `string`
+> **ngdpbase.install.organization.founding-date**: `string`
 
 Defined in: [src/types/Config.ts:248](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Config.ts#L248)
 
@@ -104,9 +104,9 @@ Founding date
 
 ***
 
-### ngdpbase.install.organization.legalName
+### ngdpbase.install.organization.legal-name
 
-> **ngdpbase.install.organization.legalName**: `string`
+> **ngdpbase.install.organization.legal-name**: `string`
 
 Defined in: [src/types/Config.ts:242](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Config.ts#L242)
 
@@ -124,9 +124,9 @@ Organization name
 
 ***
 
-### ngdpbase.install.requireSetup
+### ngdpbase.install.require-setup
 
-> **ngdpbase.install.requireSetup**: `boolean`
+> **ngdpbase.install.require-setup**: `boolean`
 
 Defined in: [src/types/Config.ts:230](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Config.ts#L230)
 

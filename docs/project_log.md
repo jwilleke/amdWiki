@@ -470,7 +470,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 - Agent: Claude Sonnet 4.6
 - Subject: fix: app-level favicon always overrides theme for both tab and navbar logo (#378)
-- Key Decision: Config `ngdpbase.faviconPath` now drives both `faviconPath` (browser tab `<link rel="icon">`) AND `logoPath` (navbar `<img>`) in `renderPage`. ThemeManager logo/favicon fallback updated to use `/favicon.svg` (public-level) when theme has no assets, ensuring a logo is always available even for a bare-bones Bootswatch drop-in theme.
+- Key Decision: Config `ngdpbase.favicon-path` now drives both `faviconPath` (browser tab `<link rel="icon">`) AND `logoPath` (navbar `<img>`) in `renderPage`. ThemeManager logo/favicon fallback updated to use `/favicon.svg` (public-level) when theme has no assets, ensuring a logo is always available even for a bare-bones Bootswatch drop-in theme.
 - Current Issue: #378
 - Testing:
   - npm test: 86 suites passed, 2227 tests passed
@@ -488,14 +488,14 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 - Agent: Claude Sonnet 4.6
 - Subject: fix: wrong favicon in browser tab — resolve svg > png consistently (#378)
-- Key Decision: Two-part fix. (1) `ThemeManager.faviconPath` was hardcoded to `.png` while `logoPath` already preferred `.svg` — added `resolveFaviconPath()` with same `favicon.svg → favicon.png` preference order so tab and navbar use the same file. (2) `faviconPath` template var in `renderPage` now prefers `ngdpbase.faviconPath` config key over theme path, implementing the config-driven design described in the issue.
+- Key Decision: Two-part fix. (1) `ThemeManager.faviconPath` was hardcoded to `.png` while `logoPath` already preferred `.svg` — added `resolveFaviconPath()` with same `favicon.svg → favicon.png` preference order so tab and navbar use the same file. (2) `faviconPath` template var in `renderPage` now prefers `ngdpbase.favicon-path` config key over theme path, implementing the config-driven design described in the issue.
 - Current Issue: #378
 - Testing:
   - npm test: 86 suites passed, 2227 tests passed
 - Work Done:
   - Added `resolveFaviconPath()` to `ThemeManager` (svg before png)
   - `buildPaths()` uses `resolveFaviconPath()` instead of hardcoded `.png`
-  - `WikiRoutes.renderPage` template `faviconPath` = `configManager.getProperty('ngdpbase.faviconPath') || themePaths.faviconPath`
+  - `WikiRoutes.renderPage` template `faviconPath` = `configManager.getProperty('ngdpbase.favicon-path') || themePaths.faviconPath`
 - Commits: TBD
 - Files Modified:
   - src/managers/ThemeManager.ts
@@ -1749,10 +1749,10 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 - Testing:
   - npm test: 72 suites passed, 1855 tests passed
 - Work Done:
-  - `BackupManager`: auto-backup scheduler (`setInterval` every 60s); `checkAndRunScheduledBackup()` checks HH:MM + day; `updateAutoBackupConfig()` persists via configManager and restarts scheduler; `getAutoBackupStatus()` returns config + last backup date; new config keys: `ngdpbase.backup.autoBackupTime` ("02:00"), `ngdpbase.backup.autoBackupDays` ("daily")
+  - `BackupManager`: auto-backup scheduler (`setInterval` every 60s); `checkAndRunScheduledBackup()` checks HH:MM + day; `updateAutoBackupConfig()` persists via configManager and restarts scheduler; `getAutoBackupStatus()` returns config + last backup date; new config keys: `ngdpbase.backup.auto-backup-time` ("02:00"), `ngdpbase.backup.auto-backup-days` ("daily")
   - `WikiRoutes.ts`: `GET /admin/backup` → `adminBackupPage()`; `POST /admin/backup/create` → `adminBackup()` (download); `POST /admin/backup/config` → `adminBackupConfig()`
   - `views/admin-backup.ejs`: Manual Backup section (what's included/not, recent backups table); Auto Backup section (status table, collapsible Configure form with on/off, time, day checkboxes + Daily/Monthly/Custom radio, maxBackups, directory)
-  - `config/app-default-config.json`: added `ngdpbase.backup.autoBackupTime` and `ngdpbase.backup.autoBackupDays`
+  - `config/app-default-config.json`: added `ngdpbase.backup.auto-backup-time` and `ngdpbase.backup.auto-backup-days`
   - `required-pages/Backup`: full rewrite — what IS/isn't backed up (tables), filesystem paths, media note, auto backup section with ConfigAccessorPlugin, 3-step recommended process, restore guide (structured + filesystem + new machine)
   - `docs/user-guide/Backups.md`: new user-facing backup guide
 - Commits: b1dd152, 2a1e624
@@ -3633,7 +3633,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 - Work Done:
   - Installed `@opentelemetry/exporter-metrics-otlp-http` dependency
   - MetricsManager conditionally creates `PeriodicExportingMetricReader` with `OTLPMetricExporter` alongside Prometheus
-  - Added `resourceFromAttributes` with `service.name` to `MeterProvider` (configurable via `ngdpbase.telemetry.serviceName`)
+  - Added `resourceFromAttributes` with `service.name` to `MeterProvider` (configurable via `ngdpbase.telemetry.service-name`)
   - 6 new config defaults: `telemetry.serviceName`, `otlp.enabled`, `otlp.endpoint`, `otlp.headers`, `otlp.interval`, `otlp.timeout`
   - Custom config sets `serviceName: jimstest-wiki`, OTLP endpoint to `https://otel.nerdsbythehour.com/v1/metrics`
   - 6 new unit tests (4 OTLP + 2 service.name)
@@ -3654,12 +3654,12 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 - Agent: Claude Opus 4.6
 - Subject: Dynamic metric prefix from applicationName (#256)
-- Key Decision: Derive metric name prefix from `ngdpbase.applicationName` config
+- Key Decision: Derive metric name prefix from `ngdpbase.application-name` config
 - Current Issue: #256
 - Testing:
   - npm test: 67 suites passed, 1684 tests passed (13 MetricsManager tests)
 - Work Done:
-  - MetricsManager reads `ngdpbase.applicationName`, sanitizes for Prometheus (lowercase, underscores)
+  - MetricsManager reads `ngdpbase.application-name`, sanitizes for Prometheus (lowercase, underscores)
   - All metric names and meter name use dynamic prefix (e.g., `jimstest_page_views_total`)
   - Falls back to `ngdpbase_` when applicationName is not set
   - Added unit test for custom prefix derivation
@@ -4015,7 +4015,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - Created CSS styling with dark mode support
   - Created developer documentation (docs/plugins/LocationPlugin.md)
   - Created end-user wiki page documentation
-  - Added ngdpbase.location.defaultProvider config option
+  - Added ngdpbase.location.default-provider config option
 - Testing:
   - npm test: 65 suites passed, 1663 tests passed (308 skipped)
   - Build successful
@@ -5228,7 +5228,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - Modified app.js install middleware to check `HEADLESS_INSTALL=true`
   - Extended ConfigurationManager env var support:
     - `NGDPBASE_SESSION_SECRET` → `ngdpbase.session.secret`
-    - `NGDPBASE_APP_NAME` → `ngdpbase.applicationName`
+    - `NGDPBASE_APP_NAME` → `ngdpbase.application-name`
   - Consolidated docker/.env.example with Traefik and headless sections
   - Updated docker/TRAEFIK-DEPLOYMENT.md reference to .env.example
   - Added "Headless Installation" section to docker/DOCKER.md

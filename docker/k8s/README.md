@@ -129,8 +129,8 @@ Edit `configmap.yaml` to customize:
 ```json
 {
   "ngdpbase.server.host": "0.0.0.0",
-  "ngdpbase.baseURL": "https://wiki.example.com",
-  "ngdpbase.applicationName": "My Wiki",
+  "ngdpbase.base-url": "https://wiki.example.com",
+  "ngdpbase.application-name": "My Wiki",
   "ngdpbase.session.secure": true
 }
 ```

@@ -80,10 +80,10 @@ All settings come from ConfigurationManager:
       "effect": "allow"
     }
   ],
-  "ngdpbase.accessControl.contextAware.enabled": true,
-  "ngdpbase.accessControl.contextAware.timeZone": "UTC",
+  "ngdpbase.access-control.context-aware.enabled": true,
+  "ngdpbase.access-control.context-aware.time-zone": "UTC",
   "ngdpbase.features.maintenance.enabled": false,
-  "ngdpbase.features.maintenance.allowAdmins": true,
+  "ngdpbase.features.maintenance.allow-admins": true,
   "ngdpbase.schedules.enabled": true,
   "ngdpbase.schedules.businessHours": {
     "enabled": false,

@@ -103,12 +103,12 @@ After form submission, the following should be created:
 
 ```json
 {
-  "ngdpbase.applicationName": "Test Wiki",
-  "ngdpbase.baseURL": "http://localhost:3000",
+  "ngdpbase.application-name": "Test Wiki",
+  "ngdpbase.base-url": "http://localhost:3000",
   "ngdpbase.session.secret": "[64-char hex string]",
   "ngdpbase.install.organization.name": "Test Organization",
   "ngdpbase.install.organization.description": "Testing the install system",
-  "ngdpbase.install.organization.contactEmail": "admin@test.com",
+  "ngdpbase.install.organization.contact-email": "admin@test.com",
   ...
 }
 ```

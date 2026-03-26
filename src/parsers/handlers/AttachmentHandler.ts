@@ -210,14 +210,14 @@ class AttachmentHandler extends BaseSyntaxHandler {
         this.attachmentConfig.metadata = configManager.getProperty('ngdpbase.markup.handlers.attachment.metadata', this.attachmentConfig.metadata);
 
         // Detailed attachment settings
-        const thumbnailSizes = configManager.getProperty('ngdpbase.attachment.enhanced.thumbnailSizes', this.attachmentConfig.thumbnailSizes.join(','));
+        const thumbnailSizes = configManager.getProperty('ngdpbase.attachment.enhanced.thumbnail-sizes', this.attachmentConfig.thumbnailSizes.join(','));
         this.attachmentConfig.thumbnailSizes = thumbnailSizes.split(',').map((size: string) => size.trim());
 
-        this.attachmentConfig.showFileSize = configManager.getProperty('ngdpbase.attachment.enhanced.showFileSize', this.attachmentConfig.showFileSize);
-        this.attachmentConfig.showModified = configManager.getProperty('ngdpbase.attachment.enhanced.showModified', this.attachmentConfig.showModified);
-        this.attachmentConfig.iconPath = configManager.getProperty('ngdpbase.attachment.enhanced.iconPath', this.attachmentConfig.iconPath);
-        this.attachmentConfig.cacheMetadata = configManager.getProperty('ngdpbase.attachment.enhanced.cacheMetadata', this.attachmentConfig.cacheMetadata);
-        this.attachmentConfig.generateThumbnails = configManager.getProperty('ngdpbase.attachment.enhanced.generateThumbnails', this.attachmentConfig.generateThumbnails);
+        this.attachmentConfig.showFileSize = configManager.getProperty('ngdpbase.attachment.enhanced.show-file-size', this.attachmentConfig.showFileSize);
+        this.attachmentConfig.showModified = configManager.getProperty('ngdpbase.attachment.enhanced.show-modified', this.attachmentConfig.showModified);
+        this.attachmentConfig.iconPath = configManager.getProperty('ngdpbase.attachment.enhanced.icon-path', this.attachmentConfig.iconPath);
+        this.attachmentConfig.cacheMetadata = configManager.getProperty('ngdpbase.attachment.enhanced.cache-metadata', this.attachmentConfig.cacheMetadata);
+        this.attachmentConfig.generateThumbnails = configManager.getProperty('ngdpbase.attachment.enhanced.generate-thumbnails', this.attachmentConfig.generateThumbnails);
 
       } catch (error) {
         const err = error as Error;

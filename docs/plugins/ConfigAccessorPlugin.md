@@ -164,7 +164,7 @@ localhost
 ### Example 5: Embed Application Name in Text
 
 ```wiki
-Welcome to [{ConfigAccessor key='ngdpbase.applicationName' valueonly='true'}]!
+Welcome to [{ConfigAccessor key='ngdpbase.application-name' valueonly='true'}]!
 ```
 
 **Output:** Welcome to ngdpbase!
@@ -387,7 +387,7 @@ This means you don't need to specify `after=''` for inline single values - it ju
 ```wiki
 ## Server Information
 
-- **Application:** [{ConfigAccessor key='ngdpbase.applicationName' valueonly='true'}]
+- **Application:** [{ConfigAccessor key='ngdpbase.application-name' valueonly='true'}]
 - **Port:** [{ConfigAccessor key='ngdpbase.server.port' valueonly='true'}]
 - **Environment:** [{ConfigAccessor key='ngdpbase.environment' valueonly='true'}]
 
@@ -440,11 +440,11 @@ returns: { indexPath: './index', ... }
 
 - `ngdpbase.server.port` - Server port number
 - `ngdpbase.server.host` - Server hostname
-- `ngdpbase.baseURL` - Base URL for the wiki
+- `ngdpbase.base-url` - Base URL for the wiki
 
 ### Application Configuration
 
-- `ngdpbase.applicationName` - Application display name
+- `ngdpbase.application-name` - Application display name
 - `ngdpbase.version` - Current version
 - `ngdpbase.environment` - Environment (development/production)
 
@@ -461,7 +461,7 @@ returns: { indexPath: './index', ... }
 
 ### Manager Configuration
 
-- `ngdpbase.managers.pluginManager.searchPaths` - Plugin directories
+- `ngdpbase.managers.plugin-manager.search-paths` - Plugin directories
 - `ngdpbase.managers.userManager.*` - User management settings
 - `ngdpbase.managers.pageManager.*` - Page management settings
 
@@ -607,7 +607,7 @@ Embed configuration values directly in page text:
 ```wiki
 ## Welcome
 
-Welcome to [{ConfigAccessor key='ngdpbase.applicationName' valueonly='true'}]!
+Welcome to [{ConfigAccessor key='ngdpbase.application-name' valueonly='true'}]!
 
 The server is running on port [{ConfigAccessor key='ngdpbase.server.port' valueonly='true'}]
 and currently has [{$totalpages}] pages.

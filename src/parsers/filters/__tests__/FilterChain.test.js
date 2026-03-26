@@ -40,10 +40,10 @@ class MockConfigurationManager {
   constructor(config = {}) {
     this.config = {
       'ngdpbase.markup.filters.enabled': true,
-      'ngdpbase.markup.filters.pipeline.maxFilters': 50,
+      'ngdpbase.markup.filters.pipeline.max-filters': 50,
       'ngdpbase.markup.filters.pipeline.timeout': 10000,
-      'ngdpbase.markup.filters.pipeline.enableProfiling': true,
-      'ngdpbase.markup.filters.pipeline.failOnError': false,
+      'ngdpbase.markup.filters.pipeline.enable-profiling': true,
+      'ngdpbase.markup.filters.pipeline.fail-on-error': false,
       ...config
     };
   }
@@ -89,9 +89,9 @@ describe('FilterChain Modular Configuration', () => {
 
     test('should override with app-custom-config.json values', async () => {
       const customConfig = {
-        'ngdpbase.markup.filters.pipeline.maxFilters': 25,
+        'ngdpbase.markup.filters.pipeline.max-filters': 25,
         'ngdpbase.markup.filters.pipeline.timeout': 5000,
-        'ngdpbase.markup.filters.pipeline.failOnError': true
+        'ngdpbase.markup.filters.pipeline.fail-on-error': true
       };
       
       const customEngine = createMockEngine(customConfig);
@@ -292,7 +292,7 @@ describe('FilterChain Modular Configuration', () => {
 
     test('should disable performance monitoring when configured', async () => {
       const noPerfConfig = {
-        'ngdpbase.markup.filters.pipeline.enableProfiling': false
+        'ngdpbase.markup.filters.pipeline.enable-profiling': false
       };
 
       const customEngine = createMockEngine(noPerfConfig);
@@ -319,7 +319,7 @@ describe('FilterChain Modular Configuration', () => {
   describe('Configuration Flexibility', () => {
     test('should support different filter limits per deployment', async () => {
       const prodConfig = {
-        'ngdpbase.markup.filters.pipeline.maxFilters': 100,
+        'ngdpbase.markup.filters.pipeline.max-filters': 100,
         'ngdpbase.markup.filters.pipeline.timeout': 15000
       };
       

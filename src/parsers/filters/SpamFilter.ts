@@ -161,12 +161,12 @@ class SpamFilter extends BaseFilter {
     if (configManager) {
       try {
         // Spam detection limits (modular configuration)
-        this.spamConfig.maxLinks = configManager.getProperty('ngdpbase.markup.filters.spam.maxLinks', this.spamConfig.maxLinks) as number;
-        this.spamConfig.maxImages = configManager.getProperty('ngdpbase.markup.filters.spam.maxImages', this.spamConfig.maxImages) as number;
-        this.spamConfig.cacheBlacklist = configManager.getProperty('ngdpbase.markup.filters.spam.cacheBlacklist', this.spamConfig.cacheBlacklist) as boolean;
+        this.spamConfig.maxLinks = configManager.getProperty('ngdpbase.markup.filters.spam.max-links', this.spamConfig.maxLinks) as number;
+        this.spamConfig.maxImages = configManager.getProperty('ngdpbase.markup.filters.spam.max-images', this.spamConfig.maxImages) as number;
+        this.spamConfig.cacheBlacklist = configManager.getProperty('ngdpbase.markup.filters.spam.cache-blacklist', this.spamConfig.cacheBlacklist) as boolean;
 
         // Load blacklisted words (modular blacklist)
-        const blacklistWords = configManager.getProperty('ngdpbase.markup.filters.spam.blacklistWords', '') as string;
+        const blacklistWords = configManager.getProperty('ngdpbase.markup.filters.spam.blacklist-words', '') as string;
         if (blacklistWords) {
           blacklistWords.split(',').forEach(word => {
             const cleanWord = word.trim().toLowerCase();
@@ -175,7 +175,7 @@ class SpamFilter extends BaseFilter {
         }
 
         // Load whitelisted domains (modular whitelist)
-        const whitelistDomains = configManager.getProperty('ngdpbase.markup.filters.spam.whitelistDomains', '') as string;
+        const whitelistDomains = configManager.getProperty('ngdpbase.markup.filters.spam.whitelist-domains', '') as string;
         if (whitelistDomains) {
           whitelistDomains.split(',').forEach(domain => {
             const cleanDomain = domain.trim().toLowerCase();
@@ -184,9 +184,9 @@ class SpamFilter extends BaseFilter {
         }
 
         // Advanced spam detection settings (configurable)
-        this.spamConfig.minContentLength = configManager.getProperty('ngdpbase.markup.filters.spam.minContentLength', this.spamConfig.minContentLength) as number;
-        this.spamConfig.autoBlock = configManager.getProperty('ngdpbase.markup.filters.spam.autoBlock', this.spamConfig.autoBlock) as boolean;
-        this.spamConfig.logSpamAttempts = configManager.getProperty('ngdpbase.markup.filters.spam.logSpamAttempts', this.spamConfig.logSpamAttempts) as boolean;
+        this.spamConfig.minContentLength = configManager.getProperty('ngdpbase.markup.filters.spam.min-content-length', this.spamConfig.minContentLength) as number;
+        this.spamConfig.autoBlock = configManager.getProperty('ngdpbase.markup.filters.spam.auto-block', this.spamConfig.autoBlock) as boolean;
+        this.spamConfig.logSpamAttempts = configManager.getProperty('ngdpbase.markup.filters.spam.log-spam-attempts', this.spamConfig.logSpamAttempts) as boolean;
 
       } catch (error) {
         const err = error as Error;

@@ -586,7 +586,7 @@ Configuration value or default
 #### Example
 
 ```ts
-const appName = configManager.getProperty('ngdpbase.applicationName', 'MyWiki');
+const appName = configManager.getProperty('ngdpbase.application-name', 'MyWiki');
 ```
 
 ***
@@ -911,7 +911,7 @@ Configuration value to set
 #### Example
 
 ```ts
-await configManager.setProperty('ngdpbase.applicationName', 'My Custom Wiki');
+await configManager.setProperty('ngdpbase.application-name', 'My Custom Wiki');
 ```
 
 ***

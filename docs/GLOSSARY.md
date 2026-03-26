@@ -65,7 +65,7 @@ Key config paths (resolved via `ConfigurationManager.getResolvedDataPath()`):
 | `ngdpbase.page.provider.versioning.indexfile` | `${FAST_STORAGE}/page-index.json` | Page Index |
 | `ngdpbase.search.provider.lunr.indexdir` | `${FAST_STORAGE}/search-index/` | Search Index |
 | `ngdpbase.media.index.file` | `${FAST_STORAGE}/media-index.json` | Media Index |
-| `ngdpbase.managers.pluginManager.searchPaths` | `["./dist/plugins"]` | plugin search paths |
+| `ngdpbase.managers.plugin-manager.search-paths` | `["./dist/plugins"]` | plugin search paths |
 
 ---
 
@@ -243,7 +243,7 @@ A module that extends wiki rendering via JSPWiki-style syntax:
 `[{PluginName param='value'}]`
 
 Plugins are loaded from directories listed in
-`ngdpbase.managers.pluginManager.searchPaths` (default `["./dist/plugins"]`)
+`ngdpbase.managers.plugin-manager.search-paths` (default `["./dist/plugins"]`)
 and compiled from `plugins/*.ts` source. Plugin discovery is case-insensitive;
 `[{Image}]` and `[{ImagePlugin}]` both resolve to `ImagePlugin`.
 

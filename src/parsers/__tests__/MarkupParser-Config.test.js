@@ -7,9 +7,9 @@ class MockConfigurationManager {
     this.config = {
       'ngdpbase.markup.enabled': true,
       'ngdpbase.markup.caching': true,
-      'ngdpbase.markup.cacheTTL': 300,
-      'ngdpbase.markup.handlerRegistry.maxHandlers': 100,
-      'ngdpbase.markup.handlerRegistry.enableConflictDetection': true,
+      'ngdpbase.markup.cache-ttl': 300,
+      'ngdpbase.markup.handler-registry.max-handlers': 100,
+      'ngdpbase.markup.handler-registry.enable-conflict-detection': true,
       'ngdpbase.markup.handlers.plugin.enabled': true,
       'ngdpbase.markup.handlers.plugin.priority': 90,
       'ngdpbase.markup.handlers.wikitag.enabled': false,
@@ -88,7 +88,7 @@ describe('MarkupParser Configuration Integration', () => {
     test('should load configuration from ConfigurationManager', async () => {
       // Configure custom values
       mockConfigManager.config['ngdpbase.markup.enabled'] = false;
-      mockConfigManager.config['ngdpbase.markup.cacheTTL'] = 600;
+      mockConfigManager.config['ngdpbase.markup.cache-ttl'] = 600;
       mockConfigManager.config['ngdpbase.markup.handlers.plugin.priority'] = 95;
       
       await markupParser.initialize();
@@ -135,8 +135,8 @@ describe('MarkupParser Configuration Integration', () => {
     // NOTE: HandlerRegistry.config is private - cannot be configured from MarkupParser
     // HandlerRegistry uses sensible defaults: maxHandlers=100, enableConflictDetection=true
     test('should use HandlerRegistry default configuration', async () => {
-      mockConfigManager.config['ngdpbase.markup.handlerRegistry.maxHandlers'] = 50;
-      mockConfigManager.config['ngdpbase.markup.handlerRegistry.enableConflictDetection'] = false;
+      mockConfigManager.config['ngdpbase.markup.handler-registry.max-handlers'] = 50;
+      mockConfigManager.config['ngdpbase.markup.handler-registry.enable-conflict-detection'] = false;
 
       await markupParser.initialize();
 
@@ -180,7 +180,7 @@ describe('MarkupParser Configuration Integration', () => {
     });
 
     test('should use configured cache TTL', async () => {
-      mockConfigManager.config['ngdpbase.markup.cacheTTL'] = 600;
+      mockConfigManager.config['ngdpbase.markup.cache-ttl'] = 600;
       
       await markupParser.initialize();
       
@@ -191,7 +191,7 @@ describe('MarkupParser Configuration Integration', () => {
     // still uses the strategy-level default TTL (300), not the top-level cacheTTL.
     // Fixing this requires a source code change in the cache write path.
     test.skip('should use cache TTL in caching operations', async () => {
-      mockConfigManager.config['ngdpbase.markup.cacheTTL'] = 900;
+      mockConfigManager.config['ngdpbase.markup.cache-ttl'] = 900;
 
       await markupParser.initialize();
 

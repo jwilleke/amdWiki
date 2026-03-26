@@ -498,8 +498,8 @@ After initial setup, edit `data/config/app-custom-config.json` to customize sett
 
 ```json
 {
-  "ngdpbase.baseURL": "https://your-domain.com",
-  "ngdpbase.applicationName": "My Wiki",
+  "ngdpbase.base-url": "https://your-domain.com",
+  "ngdpbase.application-name": "My Wiki",
   "ngdpbase.session.secret": "your-secure-random-secret",
   "ngdpbase.session.secure": true
 }
@@ -528,7 +528,7 @@ docker-compose restart
 
 ```json
 {
-  "ngdpbase.baseURL": "https://your-domain.com"
+  "ngdpbase.base-url": "https://your-domain.com"
 }
 ```
 
@@ -540,8 +540,8 @@ Set this to your actual domain or IP address.
 {
   "ngdpbase.session.secret": "CHANGE-THIS-TO-A-SECURE-RANDOM-STRING",
   "ngdpbase.session.secure": true,
-  "ngdpbase.session.httpOnly": true,
-  "ngdpbase.session.maxAge": 86400000
+  "ngdpbase.session.http-only": true,
+  "ngdpbase.session.max-age": 86400000
 }
 ```
 
@@ -713,12 +713,12 @@ Environment variables have the **highest priority** in the configuration system,
 
 | Environment Variable | Config Property | Description |
 | --- | --- | --- |
-| `NGDPBASE_BASE_URL` | `ngdpbase.baseURL` | Base URL for the wiki |
+| `NGDPBASE_BASE_URL` | `ngdpbase.base-url` | Base URL for the wiki |
 | `NGDPBASE_HOSTNAME` | `ngdpbase.hostname` | Server hostname |
 | `NGDPBASE_HOST` | `ngdpbase.server.host` | Server bind address |
 | `NGDPBASE_PORT` | `ngdpbase.server.port` | Server port |
 | `NGDPBASE_SESSION_SECRET` | `ngdpbase.session.secret` | Session encryption key |
-| `NGDPBASE_APP_NAME` | `ngdpbase.applicationName` | Application display name |
+| `NGDPBASE_APP_NAME` | `ngdpbase.application-name` | Application display name |
 
 ### Instance Management Variables
 
@@ -751,7 +751,7 @@ For full details on the configuration priority order, all supported variables, a
 - [ ] Change `ngdpbase.session.secret` to a secure random string
 - [ ] Set `ngdpbase.session.secure` to `true` (requires HTTPS)
 - [ ] Set `ngdpbase.server.host` to `0.0.0.0` for Docker
-- [ ] Set `ngdpbase.baseURL` to your actual domain
+- [ ] Set `ngdpbase.base-url` to your actual domain
 - [ ] Keep `ngdpbase.translator-reader.allow-html` as `false`
 - [ ] Enable HTTPS with reverse proxy (nginx, traefik, etc.)
 - [ ] Use strong passwords for user accounts
@@ -790,7 +790,7 @@ Update `data/config/app-custom-config.json`:
 
 ```json
 {
-  "ngdpbase.baseURL": "https://wiki.example.com",
+  "ngdpbase.base-url": "https://wiki.example.com",
   "ngdpbase.session.secure": true
 }
 ```

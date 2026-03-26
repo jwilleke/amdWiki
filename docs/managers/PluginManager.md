@@ -58,7 +58,7 @@ Examples:
 
 ```json
 {
-  "ngdpbase.managers.pluginManager.searchPaths": ["./plugins"]
+  "ngdpbase.managers.plugin-manager.search-paths": ["./plugins"]
 }
 ```
 

@@ -92,7 +92,7 @@ export default {
 [{MyPlugin id='42' style='compact'}]
 ```
 
-**Config key:** `ngdpbase.managers.pluginManager.searchPaths`
+**Config key:** `ngdpbase.managers.plugin-manager.search-paths`
 
 ### Add-ons — Application Modules
 
@@ -277,7 +277,7 @@ jwilleke/fairways-gen2     ← addon repo (separate, already exists)
 
 ```json
 {
-  "ngdpbase.managers.addonsManager.addonsPath": "/path/to/volcano-wiki/addons"
+  "ngdpbase.managers.addons-manager.addons-path": "/path/to/volcano-wiki/addons"
 }
 ```
 

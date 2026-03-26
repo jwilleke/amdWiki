@@ -143,8 +143,8 @@ The plugin reads these configuration options:
 
 | Property | Default | Description |
 | ---------- | --------- | ------------- |
-| `ngdpbase.features.images.defaultAlt` | "Uploaded image" | Default alt text |
-| `ngdpbase.features.images.defaultClass` | "wiki-image" | Default CSS class |
+| `ngdpbase.features.images.default-alt` | "Uploaded image" | Default alt text |
+| `ngdpbase.features.images.default-class` | "wiki-image" | Default CSS class |
 
 ## Technical Implementation
 

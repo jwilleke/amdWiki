@@ -12,7 +12,7 @@ class ModularConfigurationManager {
     this.defaultConfig = {
       'ngdpbase.markup.enabled': true,
       'ngdpbase.markup.caching': true,
-      'ngdpbase.markup.cacheTTL': 300,
+      'ngdpbase.markup.cache-ttl': 300,
       
       // Handler enable/disable (modular)
       'ngdpbase.markup.handlers.plugin.enabled': true,
@@ -32,29 +32,29 @@ class ModularConfigurationManager {
       'ngdpbase.markup.handlers.style.priority': 70,
       
       // Attachment configuration (modular)
-      'ngdpbase.attachment.enhanced.thumbnailSizes': '150x150,300x300',
+      'ngdpbase.attachment.enhanced.thumbnail-sizes': '150x150,300x300',
       'ngdpbase.attachment.enhanced.showMetadata': true,
-      'ngdpbase.attachment.enhanced.showFileSize': true,
-      'ngdpbase.attachment.enhanced.iconPath': '/icons/filetypes',
-      'ngdpbase.attachment.enhanced.generateThumbnails': true,
+      'ngdpbase.attachment.enhanced.show-file-size': true,
+      'ngdpbase.attachment.enhanced.icon-path': '/icons/filetypes',
+      'ngdpbase.attachment.enhanced.generate-thumbnails': true,
       
       // Style configuration (modular)
-      'ngdpbase.style.customClasses.enabled': true,
+      'ngdpbase.style.custom-classes.enabled': true,
       'ngdpbase.style.bootstrap.integration': true,
-      'ngdpbase.style.security.allowInlineCSS': false,
-      'ngdpbase.style.security.allowedProperties': 'color,background-color,font-weight',
+      'ngdpbase.style.security.allow-inline-css': false,
+      'ngdpbase.style.security.allowed-properties': 'color,background-color,font-weight',
       'ngdpbase.style.predefined.text': 'text-primary,text-success,text-danger',
       'ngdpbase.style.predefined.background': 'bg-primary,bg-light,bg-dark',
       
       // Cache configuration (modular)
-      'ngdpbase.markup.cache.parseResults.enabled': true,
-      'ngdpbase.markup.cache.parseResults.ttl': 300,
-      'ngdpbase.markup.cache.handlerResults.enabled': true,
-      'ngdpbase.markup.cache.handlerResults.ttl': 600,
+      'ngdpbase.markup.cache.parse-results.enabled': true,
+      'ngdpbase.markup.cache.parse-results.ttl': 300,
+      'ngdpbase.markup.cache.handler-results.enabled': true,
+      'ngdpbase.markup.cache.handler-results.ttl': 600,
       
       // Performance configuration (modular)
       'ngdpbase.markup.performance.monitoring': true,
-      'ngdpbase.markup.performance.alertThresholds.parseTime': 100
+      'ngdpbase.markup.performance.alert-thresholds.parse-time': 100
     };
     
     // Simulate app-custom-config.json overrides
@@ -172,10 +172,10 @@ describe('MarkupParser Modular Configuration System', () => {
     test('should override with app-custom-config.json values', async () => {
       // Simulate app-custom-config.json overrides
       const customOverrides = {
-        'ngdpbase.markup.cacheTTL': 600,                    // Override default 300
+        'ngdpbase.markup.cache-ttl': 600,                    // Override default 300
         'ngdpbase.markup.handlers.plugin.priority': 95,     // Override default 90
         'ngdpbase.markup.handlers.attachment.thumbnails': false, // Override default true
-        'ngdpbase.style.security.allowInlineCSS': true      // Override default false
+        'ngdpbase.style.security.allow-inline-css': true      // Override default false
       };
       
       const engine = new ModularMockEngine(customOverrides);
@@ -197,8 +197,8 @@ describe('MarkupParser Modular Configuration System', () => {
     test('should support partial configuration overrides', async () => {
       // Override only specific attachment settings
       const partialOverrides = {
-        'ngdpbase.attachment.enhanced.showFileSize': false,
-        'ngdpbase.attachment.enhanced.iconPath': '/custom/icons'
+        'ngdpbase.attachment.enhanced.show-file-size': false,
+        'ngdpbase.attachment.enhanced.icon-path': '/custom/icons'
       };
       
       const engine = new ModularMockEngine(partialOverrides);
@@ -223,8 +223,8 @@ describe('MarkupParser Modular Configuration System', () => {
         'ngdpbase.markup.handlers.attachment.enhanced': true,
         'ngdpbase.markup.handlers.attachment.thumbnails': false,  // Disable thumbnails
         'ngdpbase.markup.handlers.attachment.metadata': true,
-        'ngdpbase.attachment.enhanced.showFileSize': false,       // Disable file size
-        'ngdpbase.attachment.enhanced.iconPath': '/custom/icons'  // Custom icon path
+        'ngdpbase.attachment.enhanced.show-file-size': false,       // Disable file size
+        'ngdpbase.attachment.enhanced.icon-path': '/custom/icons'  // Custom icon path
       };
       
       const engine = new ModularMockEngine(customConfig);
@@ -246,9 +246,9 @@ describe('MarkupParser Modular Configuration System', () => {
     // Skipped: WikiStyleHandler is deprecated and no longer registered by initialize()
     test.skip('should configure WikiStyleHandler security settings', async () => {
       const securityConfig = {
-        'ngdpbase.style.security.allowInlineCSS': true,    // Enable inline CSS
-        'ngdpbase.style.security.allowedProperties': 'color,font-weight,text-align', // Custom properties
-        'ngdpbase.style.customClasses.enabled': false,     // Disable custom classes
+        'ngdpbase.style.security.allow-inline-css': true,    // Enable inline CSS
+        'ngdpbase.style.security.allowed-properties': 'color,font-weight,text-align', // Custom properties
+        'ngdpbase.style.custom-classes.enabled': false,     // Disable custom classes
         'ngdpbase.style.predefined.text': 'text-primary,text-warning' // Custom predefined
       };
       
@@ -361,8 +361,8 @@ describe('MarkupParser Modular Configuration System', () => {
         'ngdpbase.markup.handlers.attachment.enhanced': true,
         'ngdpbase.markup.handlers.attachment.thumbnails': false,    // Disable thumbnails only
         'ngdpbase.markup.handlers.attachment.metadata': true,
-        'ngdpbase.attachment.enhanced.showFileSize': false,        // Disable file size only
-        'ngdpbase.attachment.enhanced.showModified': true
+        'ngdpbase.attachment.enhanced.show-file-size': false,        // Disable file size only
+        'ngdpbase.attachment.enhanced.show-modified': true
       };
       
       const engine = new ModularMockEngine(featureConfig);
@@ -382,9 +382,9 @@ describe('MarkupParser Modular Configuration System', () => {
     // Skipped: WikiStyleHandler is deprecated and no longer registered by initialize()
     test.skip('should configure style security settings individually', async () => {
       const securityConfig = {
-        'ngdpbase.style.security.allowInlineCSS': true,           // Enable inline CSS
-        'ngdpbase.style.security.allowedProperties': 'color,font-size', // Specific properties
-        'ngdpbase.style.customClasses.enabled': false,           // Disable custom classes
+        'ngdpbase.style.security.allow-inline-css': true,           // Enable inline CSS
+        'ngdpbase.style.security.allowed-properties': 'color,font-size', // Specific properties
+        'ngdpbase.style.custom-classes.enabled': false,           // Disable custom classes
         'ngdpbase.style.bootstrap.integration': true             // Keep Bootstrap
       };
 
@@ -407,12 +407,12 @@ describe('MarkupParser Modular Configuration System', () => {
   describe('Cache Configuration Modularity', () => {
     test('should configure cache strategies individually', async () => {
       const cacheConfig = {
-        'ngdpbase.markup.cache.parseResults.enabled': true,
-        'ngdpbase.markup.cache.parseResults.ttl': 900,           // Custom TTL
-        'ngdpbase.markup.cache.handlerResults.enabled': false,   // Disable handler cache
+        'ngdpbase.markup.cache.parse-results.enabled': true,
+        'ngdpbase.markup.cache.parse-results.ttl': 900,           // Custom TTL
+        'ngdpbase.markup.cache.handler-results.enabled': false,   // Disable handler cache
         'ngdpbase.markup.cache.patterns.enabled': true,
         'ngdpbase.markup.cache.variables.enabled': false,       // Disable variable cache
-        'ngdpbase.markup.cache.enableWarmup': false              // Disable warmup
+        'ngdpbase.markup.cache.enable-warmup': false              // Disable warmup
       };
       
       const engine = new ModularMockEngine(cacheConfig);
@@ -452,9 +452,9 @@ describe('MarkupParser Modular Configuration System', () => {
     test('should configure performance thresholds individually', async () => {
       const perfConfig = {
         'ngdpbase.markup.performance.monitoring': true,
-        'ngdpbase.markup.performance.alertThresholds.parseTime': 50,    // Custom threshold
-        'ngdpbase.markup.performance.alertThresholds.cacheHitRatio': 0.8, // Custom threshold
-        'ngdpbase.markup.performance.alertThresholds.errorRate': 0.02    // Custom threshold
+        'ngdpbase.markup.performance.alert-thresholds.parse-time': 50,    // Custom threshold
+        'ngdpbase.markup.performance.alert-thresholds.cache-hit-ratio': 0.8, // Custom threshold
+        'ngdpbase.markup.performance.alert-thresholds.error-rate': 0.02    // Custom threshold
       };
       
       const engine = new ModularMockEngine(perfConfig);
@@ -487,10 +487,10 @@ describe('MarkupParser Modular Configuration System', () => {
   describe('Deployment Scenario Configurations', () => {
     test('should support development environment configuration', async () => {
       const devConfig = {
-        'ngdpbase.markup.cache.parseResults.ttl': 60,        // Short cache for development
+        'ngdpbase.markup.cache.parse-results.ttl': 60,        // Short cache for development
         'ngdpbase.markup.performance.monitoring': true,      // Enable monitoring
-        'ngdpbase.style.security.allowInlineCSS': true,      // Allow for testing
-        'ngdpbase.attachment.enhanced.generateThumbnails': false // Disable for dev speed
+        'ngdpbase.style.security.allow-inline-css': true,      // Allow for testing
+        'ngdpbase.attachment.enhanced.generate-thumbnails': false // Disable for dev speed
       };
 
       const engine = new ModularMockEngine(devConfig);
@@ -509,12 +509,12 @@ describe('MarkupParser Modular Configuration System', () => {
 
     test('should support production environment configuration', async () => {
       const prodConfig = {
-        'ngdpbase.markup.cache.parseResults.ttl': 1800,      // Long cache for production
+        'ngdpbase.markup.cache.parse-results.ttl': 1800,      // Long cache for production
         'ngdpbase.markup.performance.monitoring': true,      // Enable monitoring
-        'ngdpbase.style.security.allowInlineCSS': false,     // Security lockdown
-        'ngdpbase.attachment.enhanced.generateThumbnails': true, // Enable for UX
+        'ngdpbase.style.security.allow-inline-css': false,     // Security lockdown
+        'ngdpbase.attachment.enhanced.generate-thumbnails': true, // Enable for UX
         'ngdpbase.markup.handlers.form.enabled': true,       // Enable forms
-        'ngdpbase.style.customClasses.enabled': false        // Only predefined classes
+        'ngdpbase.style.custom-classes.enabled': false        // Only predefined classes
       };
 
       const engine = new ModularMockEngine(prodConfig);
@@ -537,10 +537,10 @@ describe('MarkupParser Modular Configuration System', () => {
       const securityConfig = {
         'ngdpbase.markup.handlers.form.enabled': false,      // Disable forms
         'ngdpbase.markup.handlers.attachment.enabled': false, // Disable attachments
-        'ngdpbase.style.security.allowInlineCSS': false,     // No inline CSS
-        'ngdpbase.style.customClasses.enabled': false,       // No custom classes
+        'ngdpbase.style.security.allow-inline-css': false,     // No inline CSS
+        'ngdpbase.style.custom-classes.enabled': false,       // No custom classes
         'ngdpbase.style.predefined.text': 'text-muted',      // Minimal styling
-        'ngdpbase.markup.cache.handlerResults.enabled': false // No handler caching
+        'ngdpbase.markup.cache.handler-results.enabled': false // No handler caching
       };
       
       const engine = new ModularMockEngine(securityConfig);

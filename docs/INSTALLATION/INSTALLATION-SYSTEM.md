@@ -141,12 +141,12 @@ These override the corresponding config file properties at runtime:
 
 | Environment Variable | Config Property | Description | Default |
 | --- | --- | --- | --- |
-| `NGDPBASE_BASE_URL` | `ngdpbase.baseURL` | Base URL for the wiki (e.g., `https://wiki.example.com`) | (empty) |
+| `NGDPBASE_BASE_URL` | `ngdpbase.base-url` | Base URL for the wiki (e.g., `https://wiki.example.com`) | (empty) |
 | `NGDPBASE_HOSTNAME` | `ngdpbase.hostname` | Server hostname | (from config) |
 | `NGDPBASE_HOST` | `ngdpbase.server.host` | Server bind address | `localhost` |
 | `NGDPBASE_PORT` | `ngdpbase.server.port` | Server port | `3000` |
 | `NGDPBASE_SESSION_SECRET` | `ngdpbase.session.secret` | Session encryption key | (from config) |
-| `NGDPBASE_APP_NAME` | `ngdpbase.applicationName` | Application display name | `ngdpbase` |
+| `NGDPBASE_APP_NAME` | `ngdpbase.application-name` | Application display name | `ngdpbase` |
 
 These overrides are implemented in `src/managers/ConfigurationManager.ts:173-180`.
 
@@ -284,8 +284,8 @@ The Kubernetes manifests (`docker/k8s/`) provide:
 data:
   app-custom-config.json: |
     {
-      "ngdpbase.applicationName": "My Wiki",
-      "ngdpbase.baseURL": "https://wiki.example.com"
+      "ngdpbase.application-name": "My Wiki",
+      "ngdpbase.base-url": "https://wiki.example.com"
     }
 ```
 

@@ -184,7 +184,7 @@ describe('MetricsManager', () => {
       mockConfigManager.getProperty = jest.fn((key, defaultValue) => {
         const config = {
           'ngdpbase.telemetry.enabled': true,
-          'ngdpbase.applicationName': 'jimstest',
+          'ngdpbase.application-name': 'jimstest',
           'ngdpbase.telemetry.metrics.port': 9464,
           'ngdpbase.telemetry.metrics.host': '0.0.0.0',
           'ngdpbase.telemetry.metrics.path': '/metrics',
@@ -229,8 +229,8 @@ describe('MetricsManager', () => {
       mockConfigManager.getProperty = jest.fn((key, defaultValue) => {
         const config = {
           'ngdpbase.telemetry.enabled': true,
-          'ngdpbase.applicationName': 'jimstest',
-          'ngdpbase.telemetry.serviceName': 'jimstest-wiki',
+          'ngdpbase.application-name': 'jimstest',
+          'ngdpbase.telemetry.service-name': 'jimstest-wiki',
           'ngdpbase.telemetry.metrics.port': 9464,
           'ngdpbase.telemetry.metrics.host': '0.0.0.0',
           'ngdpbase.telemetry.metrics.path': '/metrics',

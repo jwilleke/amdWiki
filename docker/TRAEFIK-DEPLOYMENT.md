@@ -186,7 +186,7 @@ Create `config/app-custom-config.json` with your overrides:
 {
   "ngdpbase.server.host": "0.0.0.0",
   "ngdpbase.server.port": 3000,
-  "ngdpbase.baseURL": "https://wiki.example.com",
+  "ngdpbase.base-url": "https://wiki.example.com",
   "ngdpbase.session.secret": "your-secure-random-secret-here",
   "ngdpbase.session.secure": true
 }

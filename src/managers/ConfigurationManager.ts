@@ -319,19 +319,19 @@ class ConfigurationManager extends BaseManager {
    * @returns {*} Configuration value or default
    *
    * @example
-   * const appName = configManager.getProperty('ngdpbase.applicationName', 'MyWiki');
+   * const appName = configManager.getProperty('ngdpbase.application-name', 'MyWiki');
    */
   getProperty(key: string, defaultValue: unknown = null): unknown {
     // Check environment variables for Docker/Traefik/K8s deployments
     // Allows dynamic configuration without editing config files
     // Used especially for headless installation mode (HEADLESS_INSTALL=true)
     const envOverrides: { [key: string]: string | undefined } = {
-      'ngdpbase.baseURL': process.env.NGDPBASE_BASE_URL,
+      'ngdpbase.base-url': process.env.NGDPBASE_BASE_URL,
       'ngdpbase.hostname': process.env.NGDPBASE_HOSTNAME,
       'ngdpbase.server.host': process.env.NGDPBASE_HOST,
       'ngdpbase.server.port': process.env.NGDPBASE_PORT,
       'ngdpbase.session.secret': process.env.NGDPBASE_SESSION_SECRET,
-      'ngdpbase.applicationName': process.env.NGDPBASE_APP_NAME
+      'ngdpbase.application-name': process.env.NGDPBASE_APP_NAME
     };
 
     if (envOverrides[key]) {
@@ -364,7 +364,7 @@ class ConfigurationManager extends BaseManager {
    * @returns {Promise<void>}
    *
    * @example
-   * await configManager.setProperty('ngdpbase.applicationName', 'My Custom Wiki');
+   * await configManager.setProperty('ngdpbase.application-name', 'My Custom Wiki');
    */
   async setProperty(key: string, value: unknown): Promise<void> {
     if (!this.customConfig) {
@@ -422,7 +422,7 @@ class ConfigurationManager extends BaseManager {
    * const name = configManager.getApplicationName(); // 'ngdpbase'
    */
   getApplicationName(): string {
-    return this.getProperty('ngdpbase.applicationName', 'ngdpbase') as string;
+    return this.getProperty('ngdpbase.application-name', 'ngdpbase') as string;
   }
 
   /**
@@ -431,7 +431,7 @@ class ConfigurationManager extends BaseManager {
    * @returns {string} Base URL (defaults to 'http://localhost:3000')
    */
   getBaseURL(): string {
-    return this.getProperty('ngdpbase.baseURL', 'http://localhost:3000') as string;
+    return this.getProperty('ngdpbase.base-url', 'http://localhost:3000') as string;
   }
 
   /**
@@ -440,7 +440,7 @@ class ConfigurationManager extends BaseManager {
    * @returns {string} Front page name (defaults to 'Welcome')
    */
   getFrontPage(): string {
-    return this.getProperty('ngdpbase.frontPage', 'Welcome') as string;
+    return this.getProperty('ngdpbase.front-page', 'Welcome') as string;
   }
 
   /**
@@ -480,7 +480,7 @@ class ConfigurationManager extends BaseManager {
    * @returns {number} Session max age
    */
   getSessionMaxAge(): number {
-    return parseInt(this.getProperty('ngdpbase.session.maxAge', '86400000') as string);
+    return parseInt(this.getProperty('ngdpbase.session.max-age', '86400000') as string);
   }
 
   /**
@@ -496,7 +496,7 @@ class ConfigurationManager extends BaseManager {
    * @returns {boolean} Session httpOnly flag
    */
   getSessionHttpOnly(): boolean {
-    return this.getProperty('ngdpbase.session.httpOnly', 'true') === 'true';
+    return this.getProperty('ngdpbase.session.http-only', 'true') === 'true';
   }
 
   /**
@@ -679,8 +679,8 @@ class ConfigurationManager extends BaseManager {
     return {
       level: this.getProperty('ngdpbase.logging.level'),
       dir: this.getProperty('ngdpbase.logging.dir'),
-      maxSize: this.getProperty('ngdpbase.logging.maxSize'),
-      maxFiles: parseInt(this.getProperty('ngdpbase.logging.maxFiles') as string)
+      maxSize: this.getProperty('ngdpbase.logging.max-size'),
+      maxFiles: parseInt(this.getProperty('ngdpbase.logging.max-files') as string)
     };
   }
 
@@ -714,16 +714,16 @@ class ConfigurationManager extends BaseManager {
       days: unknown;
     };
     } {
-    const days = this.getProperty('ngdpbase.accessControl.businessHours.days');
+    const days = this.getProperty('ngdpbase.access-control.business-hours.days');
     return {
       contextAware: {
-        enabled: this.getProperty('ngdpbase.accessControl.contextAware.enabled') === true,
-        timeZone: this.getProperty('ngdpbase.accessControl.contextAware.timeZone')
+        enabled: this.getProperty('ngdpbase.access-control.context-aware.enabled') === true,
+        timeZone: this.getProperty('ngdpbase.access-control.context-aware.time-zone')
       },
       businessHours: {
-        enabled: this.getProperty('ngdpbase.accessControl.businessHours.enabled') === true,
-        start: this.getProperty('ngdpbase.accessControl.businessHours.start'),
-        end: this.getProperty('ngdpbase.accessControl.businessHours.end'),
+        enabled: this.getProperty('ngdpbase.access-control.business-hours.enabled') === true,
+        start: this.getProperty('ngdpbase.access-control.business-hours.start'),
+        end: this.getProperty('ngdpbase.access-control.business-hours.end'),
         days: typeof days === 'string' ? days.split(',') : days
       }
     };
@@ -758,11 +758,11 @@ class ConfigurationManager extends BaseManager {
         maxAge: this.getProperty('ngdpbase.audit.retentiondays')
       },
       includeContext: {
-        ip: this.getProperty('ngdpbase.audit.includeContext.ip') === true,
-        userAgent: this.getProperty('ngdpbase.audit.includeContext.userAgent') === true,
-        timestamp: this.getProperty('ngdpbase.audit.includeContext.timestamp') === true,
-        decision: this.getProperty('ngdpbase.audit.includeContext.decision') === true,
-        reason: this.getProperty('ngdpbase.audit.includeContext.reason') === true
+        ip: this.getProperty('ngdpbase.audit.include-context.ip') === true,
+        userAgent: this.getProperty('ngdpbase.audit.include-context.user-agent') === true,
+        timestamp: this.getProperty('ngdpbase.audit.include-context.timestamp') === true,
+        decision: this.getProperty('ngdpbase.audit.include-context.decision') === true,
+        reason: this.getProperty('ngdpbase.audit.include-context.reason') === true
       }
     };
   }
@@ -780,10 +780,10 @@ class ConfigurationManager extends BaseManager {
     } {
     return {
       generate: this.getProperty('ngdpbase.rss.generate', true),
-      fileName: this.getProperty('ngdpbase.rss.fileName', 'rss.xml'),
+      fileName: this.getProperty('ngdpbase.rss.file-name', 'rss.xml'),
       interval: this.getProperty('ngdpbase.rss.interval', 3600),
-      channelTitle: this.getProperty('ngdpbase.rss.channelTitle', 'ngdpbase RSS Feed'),
-      channelDescription: this.getProperty('ngdpbase.rss.channelDescription', 'RSS feed for ngdpbase updates')
+      channelTitle: this.getProperty('ngdpbase.rss.channel-title', 'ngdpbase RSS Feed'),
+      channelDescription: this.getProperty('ngdpbase.rss.channel-description', 'RSS feed for ngdpbase updates')
     };
   }
 

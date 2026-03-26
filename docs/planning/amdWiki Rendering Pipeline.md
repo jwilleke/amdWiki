@@ -98,7 +98,7 @@ The RenderingManager routes content through either the Advanced Parser (MarkupPa
 - Step 3: Process wiki-style links (RenderingManager.js:837-918)
 - Step 4: Convert to HTML via Showdown (RenderingManager.js:198)
 - Step 5: Post-process tables with styling (RenderingManager.js:407-473)
-- Used when: `ngdpbase.markup.useAdvancedParser=false` or MarkupParser unavailable
+- Used when: `ngdpbase.markup.use-advanced-parser=false` or MarkupParser unavailable
 - Location: RenderingManager.js:181-204
 
 ### Phase 4. **Template Rendering**
@@ -114,7 +114,7 @@ The RenderingManager routes content through either the Advanced Parser (MarkupPa
 
 - The rendered HTML is sent as the response with appropriate headers (e.g., `Content-Type: text/html`).
 - **Advanced caching** via CacheManager with multiple strategies:
-  - **Parse Results Cache**: Full content parsing results (TTL: 300s, configurable via `ngdpbase.markup.cache.parseResults.ttl`)
+  - **Parse Results Cache**: Full content parsing results (TTL: 300s, configurable via `ngdpbase.markup.cache.parse-results.ttl`)
   - **Handler Results Cache**: Individual handler outputs (TTL: 600s)
   - **Pattern Compilation Cache**: Pre-compiled regex patterns (TTL: 3600s)
   - **Variable Resolution Cache**: System variable lookups (TTL: 900s)
@@ -247,8 +247,8 @@ Response
   - Configurable TTLs for different cache strategies
   - File-based I/O with intelligent caching suitable for small-to-medium wikis
 - **Configuration**:
-  - Advanced parser mode: `ngdpbase.markup.useAdvancedParser=true` (default)
-  - Legacy fallback: `ngdpbase.markup.fallbackToLegacy=true`
+  - Advanced parser mode: `ngdpbase.markup.use-advanced-parser=true` (default)
+  - Legacy fallback: `ngdpbase.markup.fallback-to-legacy=true`
   - Individual handlers: `ngdpbase.markup.handlers.[handler].enabled`
   - Filters: `ngdpbase.markup.filters.enabled`
   - Cache strategies: `ngdpbase.markup.cache.[strategy].enabled`
@@ -336,7 +336,7 @@ ngdpbase's pipeline is built on Node.js with Express.js, using Markdown with com
 4. **Content Rendering - Legacy Parser Mode (Fallback)**:
    - **Component**: `RenderingManager.renderWithLegacyParser()`.
    - **Process**: Expand macros → Process JSPWiki tables → Process wiki links → Showdown conversion → Post-process styling.
-   - **Details**: Used when `ngdpbase.markup.useAdvancedParser=false` or MarkupParser unavailable.
+   - **Details**: Used when `ngdpbase.markup.use-advanced-parser=false` or MarkupParser unavailable.
 
 5. **Caching**:
    - **Component**: `CacheManager` with multi-strategy caching integrated in MarkupParser.

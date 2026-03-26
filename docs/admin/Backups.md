@@ -44,10 +44,10 @@ config/app-default-config.json - Added backup configuration properties
 ``` json
   "_comment_backup": "Backup and restore configuration for BackupManager",
   "ngdpbase.backup.directory": "./backups",
-  "ngdpbase.backup.maxBackups": 10,
+  "ngdpbase.backup.max-backups": 10,
   "ngdpbase.backup.compress": true,
-  "ngdpbase.backup.autoBackup": false,
-  "ngdpbase.backup.autoBackupInterval": 86400000
+  "ngdpbase.backup.auto-backup": false,
+  "ngdpbase.backup.auto-backup-interval": 86400000
 ```
 
 ## BackupManger TODOs

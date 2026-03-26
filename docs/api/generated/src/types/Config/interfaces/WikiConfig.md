@@ -32,9 +32,9 @@ Application category
 
 ***
 
-### ngdpbase.applicationName
+### ngdpbase.application-name
 
-> **ngdpbase.applicationName**: `string`
+> **ngdpbase.application-name**: `string`
 
 Defined in: [src/types/Config.ts:17](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Config.ts#L17)
 
@@ -132,9 +132,9 @@ Audit provider default
 
 ***
 
-### ngdpbase.baseURL
+### ngdpbase.base-url
 
-> **ngdpbase.baseURL**: `string`
+> **ngdpbase.base-url**: `string`
 
 Defined in: [src/types/Config.ts:29](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Config.ts#L29)
 
@@ -172,9 +172,9 @@ Character encoding
 
 ***
 
-### ngdpbase.faviconPath
+### ngdpbase.favicon-path
 
-> **ngdpbase.faviconPath**: `string`
+> **ngdpbase.favicon-path**: `string`
 
 Defined in: [src/types/Config.ts:20](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Config.ts#L20)
 
@@ -182,9 +182,9 @@ Favicon path
 
 ***
 
-### ngdpbase.frontPage
+### ngdpbase.front-page
 
-> **ngdpbase.frontPage**: `string`
+> **ngdpbase.front-page**: `string`
 
 Defined in: [src/types/Config.ts:35](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Config.ts#L35)
 
@@ -362,9 +362,9 @@ Server port
 
 ***
 
-### ngdpbase.session.httpOnly
+### ngdpbase.session.http-only
 
-> **ngdpbase.session.httpOnly**: `boolean`
+> **ngdpbase.session.http-only**: `boolean`
 
 Defined in: [src/types/Config.ts:53](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Config.ts#L53)
 
@@ -372,9 +372,9 @@ Session HTTP only flag
 
 ***
 
-### ngdpbase.session.maxAge
+### ngdpbase.session.max-age
 
-> **ngdpbase.session.maxAge**: `number`
+> **ngdpbase.session.max-age**: `number`
 
 Defined in: [src/types/Config.ts:47](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Config.ts#L47)
 

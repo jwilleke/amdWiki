@@ -119,7 +119,7 @@ Server-side `[{PluginName param='value'}]` directives execute during page render
 
 - Drop a `.ts` file in `plugins/` — auto-discovered at startup
 - Or register programmatically from an add-on: `engine.getManager('PluginManager').registerPlugin(...)`
-- Additional search paths configurable via `ngdpbase.managers.pluginManager.searchPaths`
+- Additional search paths configurable via `ngdpbase.managers.plugin-manager.search-paths`
 
 ---
 

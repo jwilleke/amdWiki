@@ -99,7 +99,7 @@ Set the default map provider in `config/app-default-config.json`:
 
 ```json
 {
-  "ngdpbase.location.defaultProvider": "osm"
+  "ngdpbase.location.default-provider": "osm"
 }
 ```
 

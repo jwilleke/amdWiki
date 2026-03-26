@@ -8,10 +8,10 @@ describe('AddonsManager', () => {
 
   const makeConfigManager = (overrides = {}) => ({
     getProperty: jest.fn((key, defaultValue) => {
-      if (key === 'ngdpbase.managers.addonsManager.enabled') {
+      if (key === 'ngdpbase.managers.addons-manager.enabled') {
         return overrides.enabled ?? true;
       }
-      if (key === 'ngdpbase.managers.addonsManager.addonsPath') {
+      if (key === 'ngdpbase.managers.addons-manager.addons-path') {
         return overrides.addonsPath ?? tmpDir;
       }
       if (key.startsWith('ngdpbase.addons.')) {

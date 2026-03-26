@@ -244,17 +244,17 @@ Sample pages copied:
 
 ```json
 {
-  "ngdpbase.applicationName": "TestWiki",
-  "ngdpbase.baseURL": "http://localhost:3000",
+  "ngdpbase.application-name": "TestWiki",
+  "ngdpbase.base-url": "http://localhost:3000",
   "ngdpbase.session.secret": "[generated random hex]",
   "ngdpbase.install.organization.name": "TestOrg",
-  "ngdpbase.install.organization.legalName": "",
+  "ngdpbase.install.organization.legal-name": "",
   "ngdpbase.install.organization.description": "Testing",
-  "ngdpbase.install.organization.foundingDate": "",
-  "ngdpbase.install.organization.contactEmail": "admin@localhost",
-  "ngdpbase.install.organization.addressLocality": "",
-  "ngdpbase.install.organization.addressRegion": "",
-  "ngdpbase.install.organization.addressCountry": ""
+  "ngdpbase.install.organization.founding-date": "",
+  "ngdpbase.install.organization.contact-email": "admin@localhost",
+  "ngdpbase.install.organization.address-locality": "",
+  "ngdpbase.install.organization.address-region": "",
+  "ngdpbase.install.organization.address-country": ""
 }
 ```
 

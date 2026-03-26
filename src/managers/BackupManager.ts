@@ -146,10 +146,10 @@ class BackupManager extends BaseManager {
       './data/backups'
     );
 
-    this.maxBackups = configManager.getProperty('ngdpbase.backup.maxBackups') as number;
-    this.autoBackupEnabled = configManager.getProperty('ngdpbase.backup.autoBackup') as boolean ?? false;
-    this.autoBackupTime = configManager.getProperty('ngdpbase.backup.autoBackupTime') as string ?? '02:00';
-    this.autoBackupDays = configManager.getProperty('ngdpbase.backup.autoBackupDays') as string ?? 'daily';
+    this.maxBackups = configManager.getProperty('ngdpbase.backup.max-backups') as number;
+    this.autoBackupEnabled = configManager.getProperty('ngdpbase.backup.auto-backup') as boolean ?? false;
+    this.autoBackupTime = configManager.getProperty('ngdpbase.backup.auto-backup-time') as string ?? '02:00';
+    this.autoBackupDays = configManager.getProperty('ngdpbase.backup.auto-backup-days') as string ?? 'daily';
 
     // Ensure backup directory exists
     await fs.ensureDir(this.backupDirectory);
@@ -533,19 +533,19 @@ class BackupManager extends BaseManager {
     if (!configManager) throw new Error('ConfigurationManager not available');
 
     if (config.enabled !== undefined) {
-      await configManager.setProperty('ngdpbase.backup.autoBackup', config.enabled);
+      await configManager.setProperty('ngdpbase.backup.auto-backup', config.enabled);
       this.autoBackupEnabled = config.enabled;
     }
     if (config.time !== undefined) {
-      await configManager.setProperty('ngdpbase.backup.autoBackupTime', config.time);
+      await configManager.setProperty('ngdpbase.backup.auto-backup-time', config.time);
       this.autoBackupTime = config.time;
     }
     if (config.days !== undefined) {
-      await configManager.setProperty('ngdpbase.backup.autoBackupDays', config.days);
+      await configManager.setProperty('ngdpbase.backup.auto-backup-days', config.days);
       this.autoBackupDays = config.days;
     }
     if (config.maxBackups !== undefined) {
-      await configManager.setProperty('ngdpbase.backup.maxBackups', config.maxBackups);
+      await configManager.setProperty('ngdpbase.backup.max-backups', config.maxBackups);
       this.maxBackups = config.maxBackups;
     }
     if (config.directory !== undefined) {

@@ -46,7 +46,7 @@ const baseURL = configManager.getBaseURL();
 const customSetting = configManager.getProperty('ngdpbase.myfeature.enabled', true);
 
 // Set custom property (persisted to app-custom-config.json)
-await configManager.setProperty('ngdpbase.applicationName', 'My Wiki');
+await configManager.setProperty('ngdpbase.application-name', 'My Wiki');
 ```
 
 ## Core Methods
@@ -64,13 +64,13 @@ await configManager.setProperty('ngdpbase.applicationName', 'My Wiki');
 
 | Method | Returns | Config Key |
 | -------- | --------- | ------------ |
-| `getApplicationName()` | `string` | `ngdpbase.applicationName` |
-| `getBaseURL()` | `string` | `ngdpbase.baseURL` |
-| `getFrontPage()` | `string` | `ngdpbase.frontPage` |
+| `getApplicationName()` | `string` | `ngdpbase.application-name` |
+| `getBaseURL()` | `string` | `ngdpbase.base-url` |
+| `getFrontPage()` | `string` | `ngdpbase.front-page` |
 | `getServerPort()` | `number` | `ngdpbase.server.port` |
 | `getServerHost()` | `string` | `ngdpbase.server.host` |
 | `getSessionSecret()` | `string` | `ngdpbase.session.secret` |
-| `getSessionMaxAge()` | `number` | `ngdpbase.session.maxAge` |
+| `getSessionMaxAge()` | `number` | `ngdpbase.session.max-age` |
 
 ## Specialized Config Methods
 
@@ -99,7 +99,7 @@ For Docker/Traefik/Kubernetes deployments:
 | --- | --- |
 | `INSTANCE_DATA_FOLDER` | Base path for all instance data (default: `./data`) |
 | `INSTANCE_CONFIG_FILE` | Config filename to load (default: `app-custom-config.json`) |
-| `NGDPBASE_BASE_URL` | Overrides `ngdpbase.baseURL` |
+| `NGDPBASE_BASE_URL` | Overrides `ngdpbase.base-url` |
 | `NGDPBASE_HOSTNAME` | Overrides `ngdpbase.hostname` |
 | `NGDPBASE_HOST` | Overrides `ngdpbase.server.host` |
 | `NGDPBASE_PORT` | Overrides `ngdpbase.server.port` |

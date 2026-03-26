@@ -97,7 +97,7 @@ PolicyManager serves as the **policy repository** in ngdpbase's access control s
 ```json
 {
   "_comment_access_policies": "Access control policies - Role-based with specific action permissions",
-  "ngdpbase.access.policies.defaultPolicy": "deny",
+  "ngdpbase.access.policies.default-policy": "deny",
   "ngdpbase.access.policies.enabled": true,
   "ngdpbase.access.policies": [
     {

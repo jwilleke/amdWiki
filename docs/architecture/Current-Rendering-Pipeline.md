@@ -158,9 +158,9 @@ async renderMarkdown(content, pageName, userContext, requestInfo) {
 
 ```json
 {
-  "ngdpbase.markup.useAdvancedParser": true,
-  "ngdpbase.markup.fallbackToLegacy": true,
-  "ngdpbase.markup.logParsingMethod": true
+  "ngdpbase.markup.use-advanced-parser": true,
+  "ngdpbase.markup.fallback-to-legacy": true,
+  "ngdpbase.markup.log-parsing-method": true
 }
 ```
 
@@ -795,16 +795,16 @@ async phaseDOMParsing(content, context) {
 ```json
 {
   "_comment": "Use MarkupParser (7-phase) vs Legacy (5-step)",
-  "ngdpbase.markup.useAdvancedParser": true,
+  "ngdpbase.markup.use-advanced-parser": true,
 
   "_comment": "Fallback to legacy if MarkupParser fails",
-  "ngdpbase.markup.fallbackToLegacy": true,
+  "ngdpbase.markup.fallback-to-legacy": true,
 
   "_comment": "Log which parser was used",
-  "ngdpbase.markup.logParsingMethod": true,
+  "ngdpbase.markup.log-parsing-method": true,
 
   "_comment": "Run both parsers for performance comparison",
-  "ngdpbase.markup.performanceComparison": false
+  "ngdpbase.markup.performance-comparison": false
 }
 ```
 
@@ -835,10 +835,10 @@ async phaseDOMParsing(content, context) {
 
 ```json
 {
-  "ngdpbase.markup.cache.parseResults.enabled": true,
-  "ngdpbase.markup.cache.parseResults.ttl": 300,
-  "ngdpbase.markup.cache.handlerResults.enabled": true,
-  "ngdpbase.markup.cache.handlerResults.ttl": 600,
+  "ngdpbase.markup.cache.parse-results.enabled": true,
+  "ngdpbase.markup.cache.parse-results.ttl": 300,
+  "ngdpbase.markup.cache.handler-results.enabled": true,
+  "ngdpbase.markup.cache.handler-results.ttl": 600,
   "ngdpbase.markup.cache.patterns.enabled": true,
   "ngdpbase.markup.cache.patterns.ttl": 3600
 }

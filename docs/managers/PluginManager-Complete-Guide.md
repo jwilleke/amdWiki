@@ -73,13 +73,13 @@ Plugin search paths come from ConfigurationManager:
 
 ```json
 {
-  "ngdpbase.managers.pluginManager.searchPaths": ["./plugins"]
+  "ngdpbase.managers.plugin-manager.search-paths": ["./plugins"]
 }
 ```
 
 | Property | Type | Description |
 | ---------- | ------ | --------- |
-| `ngdpbase.managers.pluginManager.searchPaths` | string[] \| string | Directories to search for plugins |
+| `ngdpbase.managers.plugin-manager.search-paths` | string[] \| string | Directories to search for plugins |
 
 **Note:** No hardcoded fallbacks. If not configured, no plugins are loaded.
 

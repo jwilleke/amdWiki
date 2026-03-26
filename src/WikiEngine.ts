@@ -155,8 +155,8 @@ class WikiEngine extends Engine {
     reconfigureLogger({
       level: configManager.getProperty('ngdpbase.logging.level', 'info') as string,
       dir: configManager.getResolvedDataPath('ngdpbase.logging.dir', './data/logs'),
-      maxSize: configManager.getProperty('ngdpbase.logging.maxSize', '1MB') as string,
-      maxFiles: configManager.getProperty('ngdpbase.logging.maxFiles', 5) as number
+      maxSize: configManager.getProperty('ngdpbase.logging.max-size', '1MB') as string,
+      maxFiles: configManager.getProperty('ngdpbase.logging.max-files', 5) as number
     });
     logger.info('Logger reconfigured from ConfigurationManager');
 
@@ -330,7 +330,7 @@ class WikiEngine extends Engine {
     try {
       const configManager = this.getManager<ConfigurationManager>('ConfigurationManager');
       if (configManager) {
-        const name = configManager.getProperty('ngdpbase.applicationName', 'ngdpbase') as string;
+        const name = configManager.getProperty('ngdpbase.application-name', 'ngdpbase') as string;
         return name || 'ngdpbase';
       }
       return 'ngdpbase';

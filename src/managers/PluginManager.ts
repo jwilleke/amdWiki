@@ -139,7 +139,7 @@ class PluginManager extends BaseManager {
 
   /**
    * Register all plugins from search paths obtained ONLY from
-   * ConfigurationManager at key: ngdpbase.managers.pluginManager.searchPaths
+   * ConfigurationManager at key: ngdpbase.managers.plugin-manager.search-paths
    */
   async registerPlugins(): Promise<void> {
     const cfgMgr = this.engine.getManager<ConfigurationManager>('ConfigurationManager');
@@ -150,7 +150,7 @@ class PluginManager extends BaseManager {
     }
 
     // MUST come only from config; no fallbacks
-    const raw = cfgMgr.getProperty('ngdpbase.managers.pluginManager.searchPaths');
+    const raw = cfgMgr.getProperty('ngdpbase.managers.plugin-manager.search-paths');
     this.engine.logger?.debug?.(`PluginManager: raw searchPaths type=${typeof raw} value=${JSON.stringify(raw)}`);
     // Accept array or comma-separated string
     let configured: string[] = [];

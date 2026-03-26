@@ -176,17 +176,17 @@ class ValidationFilter extends BaseFilter {
     if (configManager) {
       try {
         // Validation feature configuration (modular)
-        this.validationConfig.validateMarkup = configManager.getProperty('ngdpbase.markup.filters.validation.validateMarkup', this.validationConfig.validateMarkup) as boolean;
-        this.validationConfig.validateLinks = configManager.getProperty('ngdpbase.markup.filters.validation.validateLinks', this.validationConfig.validateLinks) as boolean;
-        this.validationConfig.validateImages = configManager.getProperty('ngdpbase.markup.filters.validation.validateImages', this.validationConfig.validateImages) as boolean;
-        this.validationConfig.maxContentLength = configManager.getProperty('ngdpbase.markup.filters.validation.maxContentLength', this.validationConfig.maxContentLength) as number;
-        this.validationConfig.reportErrors = configManager.getProperty('ngdpbase.markup.filters.validation.reportErrors', this.validationConfig.reportErrors) as boolean;
+        this.validationConfig.validateMarkup = configManager.getProperty('ngdpbase.markup.filters.validation.validate-markup', this.validationConfig.validateMarkup) as boolean;
+        this.validationConfig.validateLinks = configManager.getProperty('ngdpbase.markup.filters.validation.validate-links', this.validationConfig.validateLinks) as boolean;
+        this.validationConfig.validateImages = configManager.getProperty('ngdpbase.markup.filters.validation.validate-images', this.validationConfig.validateImages) as boolean;
+        this.validationConfig.maxContentLength = configManager.getProperty('ngdpbase.markup.filters.validation.max-content-length', this.validationConfig.maxContentLength) as number;
+        this.validationConfig.reportErrors = configManager.getProperty('ngdpbase.markup.filters.validation.report-errors', this.validationConfig.reportErrors) as boolean;
 
         // Advanced validation settings (configurable)
-        this.validationConfig.failOnValidationError = configManager.getProperty('ngdpbase.markup.filters.validation.failOnValidationError', this.validationConfig.failOnValidationError) as boolean;
-        this.validationConfig.logValidationErrors = configManager.getProperty('ngdpbase.markup.filters.validation.logValidationErrors', this.validationConfig.logValidationErrors) as boolean;
-        this.validationConfig.minWordCount = configManager.getProperty('ngdpbase.markup.filters.validation.minWordCount', this.validationConfig.minWordCount) as number;
-        this.validationConfig.maxLineLength = configManager.getProperty('ngdpbase.markup.filters.validation.maxLineLength', this.validationConfig.maxLineLength) as number;
+        this.validationConfig.failOnValidationError = configManager.getProperty('ngdpbase.markup.filters.validation.fail-on-validation-error', this.validationConfig.failOnValidationError) as boolean;
+        this.validationConfig.logValidationErrors = configManager.getProperty('ngdpbase.markup.filters.validation.log-validation-errors', this.validationConfig.logValidationErrors) as boolean;
+        this.validationConfig.minWordCount = configManager.getProperty('ngdpbase.markup.filters.validation.min-word-count', this.validationConfig.minWordCount) as number;
+        this.validationConfig.maxLineLength = configManager.getProperty('ngdpbase.markup.filters.validation.max-line-length', this.validationConfig.maxLineLength) as number;
 
       } catch (error) {
         const err = error as Error;

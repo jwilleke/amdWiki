@@ -186,10 +186,10 @@ By default, BackupManager is controled by values wihtin config/app-default-confi
 ```json
   "_comment_backup": "Backup and restore configuration for BackupManager",
   "ngdpbase.backup.directory": "./backups",
-  "ngdpbase.backup.maxBackups": 10,
+  "ngdpbase.backup.max-backups": 10,
   "ngdpbase.backup.compress": true,
-  "ngdpbase.backup.autoBackup": false,
-  "ngdpbase.backup.autoBackupInterval": 86400000
+  "ngdpbase.backup.auto-backup": false,
+  "ngdpbase.backup.auto-backup-interval": 86400000
 ```
 
 ## Backup Coverage
@@ -234,10 +234,10 @@ ACLManager does **not** implement backup/restore because:
   "_comment_backup": "Backup system configuration",
   "ngdpbase.backup.enabled": true,
   "ngdpbase.backup.directory": "./backups",
-  "ngdpbase.backup.maxBackups": 10,
+  "ngdpbase.backup.max-backups": 10,
   "ngdpbase.backup.compression": "gzip",
-  "ngdpbase.backup.autoBackup.enabled": false,
-  "ngdpbase.backup.autoBackup.schedule": "0 2 * * *"
+  "ngdpbase.backup.auto-backup.enabled": false,
+  "ngdpbase.backup.auto-backup.schedule": "0 2 * * *"
 }
 ```
 
@@ -247,10 +247,10 @@ ACLManager does **not** implement backup/restore because:
 | ----- | ------ | --------- | ------------- |
 | `ngdpbase.backup.enabled` | boolean | `true` | Enable/disable backup system |
 | `ngdpbase.backup.directory` | string | `"./backups"` | Directory for backup files |
-| `ngdpbase.backup.maxBackups` | number | `10` | Maximum backups to retain |
+| `ngdpbase.backup.max-backups` | number | `10` | Maximum backups to retain |
 | `ngdpbase.backup.compression` | string | `"gzip"` | Compression algorithm |
-| `ngdpbase.backup.autoBackup.enabled` | boolean | `false` | Enable automatic backups |
-| `ngdpbase.backup.autoBackup.schedule` | string | `"0 2 * * *"` | Cron schedule (daily at 2 AM) |
+| `ngdpbase.backup.auto-backup.enabled` | boolean | `false` | Enable automatic backups |
+| `ngdpbase.backup.auto-backup.schedule` | string | `"0 2 * * *"` | Cron schedule (daily at 2 AM) |
 
 ---
 

@@ -22,7 +22,7 @@ Clicking this button:
 3. Compresses it with gzip
 4. Downloads the file to your browser as `<timestamp>-ngdpbase-backup.json.gz`
 
-The server also retains the last 10 backup files in its backup directory (configurable via `ngdpbase.backup.maxBackups`).
+The server also retains the last 10 backup files in its backup directory (configurable via `ngdpbase.backup.max-backups`).
 
 ### What IS included in the backup file
 
@@ -95,8 +95,8 @@ Copy your backed-up `pages/`, `attachments/`, and `$FAST_STORAGE/` directories b
 The configuration supports automatic scheduled backups:
 
 ```json
-"ngdpbase.backup.autoBackup": false,
-"ngdpbase.backup.autoBackupInterval": 86400000
+"ngdpbase.backup.auto-backup": false,
+"ngdpbase.backup.auto-backup-interval": 86400000
 ```
 
 Setting `autoBackup` to `true` and `autoBackupInterval` to a millisecond interval (default: 86400000 = 24 hours) is planned but **not yet implemented**. See [#258](https://github.com/jwilleke/ngdpbase/issues/258) for status.

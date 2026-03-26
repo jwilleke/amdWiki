@@ -312,20 +312,20 @@ class WikiRoutes {
       currentUser: userContext,
       user: userContext, // Add alias for consistency
       appName: configManager?.getProperty(
-        'ngdpbase.applicationName',
+        'ngdpbase.application-name',
         'ngdpbase'
       ),
       applicationName: configManager?.getProperty(
-        'ngdpbase.applicationName',
+        'ngdpbase.application-name',
         'ngdpbase'
       ),
       // App-level favicon overrides theme assets for both the browser tab and navbar logo
-      faviconPath: (configManager?.getProperty('ngdpbase.faviconPath') as string) || themePaths.faviconPath,
+      faviconPath: (configManager?.getProperty('ngdpbase.favicon-path') as string) || themePaths.faviconPath,
       pages: await pageManager.getAllPages(),
       activeTheme: themePaths.activeTheme,
       coreCssPath: themePaths.coreCssPath,
       variablesCssPath: themePaths.variablesCssPath,
-      logoPath: (configManager?.getProperty('ngdpbase.faviconPath') as string) || themePaths.logoPath,
+      logoPath: (configManager?.getProperty('ngdpbase.favicon-path') as string) || themePaths.logoPath,
       locationCssPath: themePaths.locationCssPath,
       themeFontUrls: themePaths.fontUrls,
       addonStylesheets,
@@ -970,7 +970,7 @@ class WikiRoutes {
 
         // Fallback to legacy data structure using ConfigurationManager
         const configData = {
-          applicationName: configManager.getProperty('ngdpbase.applicationName', 'ngdpbase'),
+          applicationName: configManager.getProperty('ngdpbase.application-name', 'ngdpbase'),
           version: configManager.getProperty('ngdpbase.version', '1.0.0'),
           server: {
             port: configManager.getProperty('ngdpbase.server.port', 3000),
@@ -1179,7 +1179,7 @@ class WikiRoutes {
     try {
       const configManager = this.engine.getManager('ConfigurationManager');
       const frontPage = configManager.getProperty(
-        'ngdpbase.frontPage',
+        'ngdpbase.front-page',
         'Welcome'
       );
       const pageName = (req.params.page || frontPage).trim();
@@ -4754,10 +4754,10 @@ class WikiRoutes {
       const themeManager = new ThemeManager(activeTheme, themesDir);
 
       const maxFileSizeBytes = Number(configManager?.getProperty('ngdpbase.attachment.maxsize', 10485760)) || 10485760;
-      const sessionMaxAgeMs = Number(configManager?.getProperty('ngdpbase.session.maxAge', 86400000)) || 86400000;
+      const sessionMaxAgeMs = Number(configManager?.getProperty('ngdpbase.session.max-age', 86400000)) || 86400000;
 
       const settings = {
-        systemName: configManager?.getProperty('ngdpbase.applicationName', 'ngdpbase'),
+        systemName: configManager?.getProperty('ngdpbase.application-name', 'ngdpbase'),
         version: configManager?.getProperty('ngdpbase.version', ''),
         activeTheme,
         availableThemes,
@@ -4831,7 +4831,7 @@ class WikiRoutes {
 
       const sessionTimeoutHours = parseInt(body.sessionTimeoutHours || '24', 10);
       if (!isNaN(sessionTimeoutHours) && sessionTimeoutHours > 0) {
-        await configManager.setProperty('ngdpbase.session.maxAge', sessionTimeoutHours * 3600000);
+        await configManager.setProperty('ngdpbase.session.max-age', sessionTimeoutHours * 3600000);
       }
 
       await configManager.setProperty('ngdpbase.user.allowregistration', body.allowRegistration === 'on');
@@ -6190,7 +6190,7 @@ class WikiRoutes {
             '@context': 'https://schema.org',
             '@type': 'Organization',
             identifier: 'ngdpbase-platform',
-            name: configManager.getProperty('ngdpbase.applicationName', 'ngdpbase Platform'),
+            name: configManager.getProperty('ngdpbase.application-name', 'ngdpbase Platform'),
             description:
               'Digital platform for wiki, document management, and modular content systems'
           }

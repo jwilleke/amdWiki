@@ -237,15 +237,15 @@ class RenderingManager extends BaseManager {
     // Load from configuration if available
     if (configManager) {
       try {
-        this.renderingConfig.useAdvancedParser = configManager.getProperty('ngdpbase.markup.useAdvancedParser', this.renderingConfig.useAdvancedParser) as boolean;
+        this.renderingConfig.useAdvancedParser = configManager.getProperty('ngdpbase.markup.use-advanced-parser', this.renderingConfig.useAdvancedParser) as boolean;
 
-        this.renderingConfig.fallbackToLegacy = configManager.getProperty('ngdpbase.markup.fallbackToLegacy', this.renderingConfig.fallbackToLegacy) as boolean;
+        this.renderingConfig.fallbackToLegacy = configManager.getProperty('ngdpbase.markup.fallback-to-legacy', this.renderingConfig.fallbackToLegacy) as boolean;
 
-        this.renderingConfig.integration = configManager.getProperty('ngdpbase.markup.integration.renderingManager', this.renderingConfig.integration) as boolean;
+        this.renderingConfig.integration = configManager.getProperty('ngdpbase.markup.integration.rendering-manager', this.renderingConfig.integration) as boolean;
 
-        this.renderingConfig.performanceComparison = configManager.getProperty('ngdpbase.markup.performanceComparison', this.renderingConfig.performanceComparison) as boolean;
+        this.renderingConfig.performanceComparison = configManager.getProperty('ngdpbase.markup.performance-comparison', this.renderingConfig.performanceComparison) as boolean;
 
-        this.renderingConfig.logParsingMethod = configManager.getProperty('ngdpbase.markup.logParsingMethod', this.renderingConfig.logParsingMethod) as boolean;
+        this.renderingConfig.logParsingMethod = configManager.getProperty('ngdpbase.markup.log-parsing-method', this.renderingConfig.logParsingMethod) as boolean;
       } catch (error) {
         logger.warn('Failed to load RenderingManager configuration, using defaults:', getErrorMessage(error));
       }

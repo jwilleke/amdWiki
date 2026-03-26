@@ -355,7 +355,7 @@ class SpamFilter extends BaseFilter {
 {
   "ngdpbase.markup.enabled": true,
   "ngdpbase.markup.caching": true,
-  "ngdpbase.markup.cacheTTL": 300,
+  "ngdpbase.markup.cache-ttl": 300,
   "ngdpbase.markup.handlers": {
     "plugin": { "enabled": true, "priority": 90 },
     "wikitag": { "enabled": true, "priority": 95 },

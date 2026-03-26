@@ -393,7 +393,7 @@ Path to the plugin file
 Defined in: [src/managers/PluginManager.ts:144](https://github.com/jwilleke/ngdpbase/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/PluginManager.ts#L144)
 
 Register all plugins from search paths obtained ONLY from
-ConfigurationManager at key: ngdpbase.managers.pluginManager.searchPaths
+ConfigurationManager at key: ngdpbase.managers.plugin-manager.search-paths
 
 #### Returns
 

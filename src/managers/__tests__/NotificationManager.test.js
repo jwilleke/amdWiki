@@ -23,7 +23,7 @@ function createMockEngine(dataDir) {
       if (key === 'ngdpbase.notifications.file') {
         return 'notifications.json';
       }
-      if (key === 'ngdpbase.notifications.autoSaveInterval') {
+      if (key === 'ngdpbase.notifications.auto-save-interval') {
         return 60000; // 1 minute for tests
       }
       return defaultValue;

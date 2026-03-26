@@ -240,7 +240,7 @@ No database required - fully local-first capable.
 
 If running behind a reverse proxy (nginx, Apache, etc.):
 
-1. Set `ngdpbase.baseURL` to your public URL
+1. Set `ngdpbase.base-url` to your public URL
 2. Ensure proxy passes X-Forwarded-For headers
 3. Configure PM2 for your reverse proxy
 

@@ -768,17 +768,17 @@ class InstallService {
 
     // Merge installation data using ConfigurationManager's merge strategy
     const installationProperties: Record<string, unknown> = {
-      'ngdpbase.applicationName': data.applicationName,
-      'ngdpbase.baseURL': data.baseURL,
+      'ngdpbase.application-name': data.applicationName,
+      'ngdpbase.base-url': data.baseURL,
       'ngdpbase.session.secret': data.sessionSecret || crypto.randomBytes(32).toString('hex'),
       'ngdpbase.install.organization.name': data.orgName,
-      'ngdpbase.install.organization.legalName': data.orgLegalName || '',
+      'ngdpbase.install.organization.legal-name': data.orgLegalName || '',
       'ngdpbase.install.organization.description': data.orgDescription,
-      'ngdpbase.install.organization.foundingDate': data.orgFoundingDate || '',
-      'ngdpbase.install.organization.contactEmail': data.adminEmail,
-      'ngdpbase.install.organization.addressLocality': data.orgAddressLocality || '',
-      'ngdpbase.install.organization.addressRegion': data.orgAddressRegion || '',
-      'ngdpbase.install.organization.addressCountry': data.orgAddressCountry || ''
+      'ngdpbase.install.organization.founding-date': data.orgFoundingDate || '',
+      'ngdpbase.install.organization.contact-email': data.adminEmail,
+      'ngdpbase.install.organization.address-locality': data.orgAddressLocality || '',
+      'ngdpbase.install.organization.address-region': data.orgAddressRegion || '',
+      'ngdpbase.install.organization.address-country': data.orgAddressCountry || ''
     };
 
     // Merge with existing config

@@ -70,12 +70,12 @@ These environment variables override the corresponding config file properties at
 
 | Environment Variable       | Config Property              | Default     |
 | -------------------------- | ---------------------------- | ----------- |
-| `NGDPBASE_BASE_URL`         | `ngdpbase.baseURL`            | (from config) |
+| `NGDPBASE_BASE_URL`         | `ngdpbase.base-url`            | (from config) |
 | `NGDPBASE_HOSTNAME`         | `ngdpbase.hostname`           | (from config) |
 | `NGDPBASE_HOST`             | `ngdpbase.server.host`        | `localhost` |
 | `NGDPBASE_PORT`             | `ngdpbase.server.port`        | `3000`      |
 | `NGDPBASE_SESSION_SECRET`   | `ngdpbase.session.secret`     | (from config) |
-| `NGDPBASE_APP_NAME`         | `ngdpbase.applicationName`    | `ngdpbase`   |
+| `NGDPBASE_APP_NAME`         | `ngdpbase.application-name`    | `ngdpbase`   |
 
 ### Instance Management Variables
 
@@ -217,7 +217,7 @@ After the engine is ready, the remaining middleware is registered:
 
 - JSON/URL-encoded body parsing, cookie parser
 - **Installation check middleware**: If `INSTANCE_DATA_FOLDER/.install-complete` is missing → redirect to `/install`. If `HEADLESS_INSTALL=true` → auto-configure without the wizard.
-- **Session setup**: Storage path and options from ConfigurationManager (`ngdpbase.session.storagedir`, `ngdpbase.session.secret`, `ngdpbase.session.maxAge`)
+- **Session setup**: Storage path and options from ConfigurationManager (`ngdpbase.session.storagedir`, `ngdpbase.session.secret`, `ngdpbase.session.max-age`)
 - **User context middleware**: Attaches user info from session to each request
 - **Admin maintenance mode middleware**: When `engine.config.features.maintenance.enabled` is true, returns 503 to non-admin users (allows admin/login/logout routes through so admins can disable it)
 

@@ -62,7 +62,7 @@ async initialize(config = {}) {
   const defaultDir = cfgMgr?.getProperty?.('ngdpbase.directories.data', './data');
   const dataDirCfg = cfgMgr?.getProperty?.('ngdpbase.notifications.dir', defaultDir);
   const fileNameCfg = cfgMgr?.getProperty?.('ngdpbase.notifications.file', 'notifications.json');
-  const intervalCfg = cfgMgr?.getProperty?.('ngdpbase.notifications.autoSaveInterval');
+  const intervalCfg = cfgMgr?.getProperty?.('ngdpbase.notifications.auto-save-interval');
 
   this.storagePath = path.resolve(dataDirCfg, fileNameCfg);
 
@@ -86,7 +86,7 @@ All settings come from ConfigurationManager:
 | `ngdpbase.directories.data` | string | `./data` | Base data directory |
 | `ngdpbase.notifications.dir` | string | (data dir) | Notifications directory |
 | `ngdpbase.notifications.file` | string | `notifications.json` | Storage filename |
-| `ngdpbase.notifications.autoSaveInterval` | number | `300000` | Auto-save interval (ms) |
+| `ngdpbase.notifications.auto-save-interval` | number | `300000` | Auto-save interval (ms) |
 
 ---
 

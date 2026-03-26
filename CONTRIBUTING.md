@@ -84,7 +84,7 @@ Follow JSPWiki-style naming conventions:
 ```javascript
 "ngdpbase.{category}.{property}": value
 "ngdpbase.page.provider": "filesystemprovider"
-"ngdpbase.backup.autoBackup": true
+"ngdpbase.backup.auto-backup": true
 "jspwiki.parser.useExtractionPipeline": true
 ```
 

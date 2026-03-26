@@ -99,7 +99,7 @@ const LocationPlugin: SimplePlugin = {
         'ConfigurationManager'
       ) as ConfigManager | undefined;
       const defaultProvider =
-        configManager?.getProperty('ngdpbase.location.defaultProvider', 'osm') || 'osm';
+        configManager?.getProperty('ngdpbase.location.default-provider', 'osm') || 'osm';
 
       // Parse parameters
       const name = opts.name;

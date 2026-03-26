@@ -361,7 +361,7 @@ node -e "
   const config = require('./config/app-default-config.json');
   const required = [
     'ngdpbase.server.port',
-    'ngdpbase.applicationName',
+    'ngdpbase.application-name',
     'ngdpbase.page.provider.filesystem.storagedir'
   ];
   required.forEach(key => {

@@ -89,7 +89,7 @@ await backupManager.restore(backupPath, {
 ```json
 {
   "ngdpbase.backup.directory": "./data/backups",
-  "ngdpbase.backup.maxBackups": 10,
+  "ngdpbase.backup.max-backups": 10,
   "ngdpbase.backup.compression": true,
   "ngdpbase.backup.retention.days": 30
 }

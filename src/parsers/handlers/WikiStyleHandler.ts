@@ -140,9 +140,9 @@ class WikiStyleHandler extends BaseSyntaxHandler {
     if (configManager) {
       try {
         // Main style configuration (modular)
-        this.styleConfig.customClasses = configManager.getProperty('ngdpbase.style.customClasses.enabled', this.styleConfig.customClasses);
+        this.styleConfig.customClasses = configManager.getProperty('ngdpbase.style.custom-classes.enabled', this.styleConfig.customClasses);
         this.styleConfig.bootstrap = configManager.getProperty('ngdpbase.style.bootstrap.integration', this.styleConfig.bootstrap);
-        this.styleConfig.allowInlineCSS = configManager.getProperty('ngdpbase.style.security.allowInlineCSS', this.styleConfig.allowInlineCSS);
+        this.styleConfig.allowInlineCSS = configManager.getProperty('ngdpbase.style.security.allow-inline-css', this.styleConfig.allowInlineCSS);
 
         // Load predefined class sets (modular class definitions)
         this.loadPredefinedClasses(configManager);
@@ -187,7 +187,7 @@ class WikiStyleHandler extends BaseSyntaxHandler {
    * @param configManager - Configuration manager
    */
   private loadAllowedCSSProperties(configManager: ConfigManager): void {
-    const allowedProps = configManager.getProperty('ngdpbase.style.security.allowedProperties', '').split(',');
+    const allowedProps = configManager.getProperty('ngdpbase.style.security.allowed-properties', '').split(',');
     allowedProps.forEach((prop: string) => prop.trim() && this.allowedCSSProperties.add(prop.trim()));
 
     // Add default safe properties if none configured

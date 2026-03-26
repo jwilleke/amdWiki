@@ -43,7 +43,7 @@ describe('ConfigurationManager', () => {
 
     // Create minimal default config
     const defaultConfig = {
-      'ngdpbase.applicationName': 'TestWiki',
+      'ngdpbase.application-name': 'TestWiki',
       'ngdpbase.page.provider.filesystem.storagedir': './data/pages',
       'ngdpbase.directories.data': './data'
     };
@@ -216,7 +216,7 @@ describe('ConfigurationManager', () => {
       const instanceConfigDir = path.join(instanceDataFolder, 'config');
       await fs.ensureDir(instanceConfigDir);
       const customConfig = {
-        'ngdpbase.applicationName': 'CustomFromData'
+        'ngdpbase.application-name': 'CustomFromData'
       };
       await fs.writeJson(path.join(instanceConfigDir, 'app-custom-config.json'), customConfig, { spaces: 2 });
 
@@ -224,7 +224,7 @@ describe('ConfigurationManager', () => {
       const newConfigManager = new ConfigurationManager(mockEngine);
       await newConfigManager.initialize();
 
-      const appName = newConfigManager.getProperty('ngdpbase.applicationName');
+      const appName = newConfigManager.getProperty('ngdpbase.application-name');
 
       expect(appName).toBe('CustomFromData');
     });
@@ -240,14 +240,14 @@ describe('ConfigurationManager', () => {
       // This should be ignored - custom config in code dir
       await fs.writeJson(
         path.join(configDir, 'app-custom-config.json'),
-        { 'ngdpbase.applicationName': 'FromConfigDir' },
+        { 'ngdpbase.application-name': 'FromConfigDir' },
         { spaces: 2 }
       );
 
       // This should be used - custom config in instance data dir
       await fs.writeJson(
         path.join(instanceConfigDir, 'app-custom-config.json'),
-        { 'ngdpbase.applicationName': 'FromDataDir' },
+        { 'ngdpbase.application-name': 'FromDataDir' },
         { spaces: 2 }
       );
 
@@ -255,7 +255,7 @@ describe('ConfigurationManager', () => {
       const newConfigManager = new ConfigurationManager(mockEngine);
       await newConfigManager.initialize();
 
-      const appName = newConfigManager.getProperty('ngdpbase.applicationName');
+      const appName = newConfigManager.getProperty('ngdpbase.application-name');
 
       // Should use instance data folder config, NOT code config dir
       expect(appName).toBe('FromDataDir');
@@ -266,7 +266,7 @@ describe('ConfigurationManager', () => {
     test('should deep-merge object-type properties', async () => {
       // Default config with user-keywords
       const defaultConfig = {
-        'ngdpbase.applicationName': 'TestWiki',
+        'ngdpbase.application-name': 'TestWiki',
         'ngdpbase.user-keywords': {
           'default': {
             'label': 'default',
@@ -320,7 +320,7 @@ describe('ConfigurationManager', () => {
 
     test('should allow custom to override default object properties', async () => {
       const defaultConfig = {
-        'ngdpbase.applicationName': 'TestWiki',
+        'ngdpbase.application-name': 'TestWiki',
         'ngdpbase.user-keywords': {
           'draft': {
             'label': 'draft',
@@ -364,7 +364,7 @@ describe('ConfigurationManager', () => {
 
     test('should deep-merge nested objects', async () => {
       const defaultConfig = {
-        'ngdpbase.applicationName': 'TestWiki',
+        'ngdpbase.application-name': 'TestWiki',
         'ngdpbase.interwiki.sites': {
           'Wikipedia': {
             'url': 'https://en.wikipedia.org/wiki/%s',
@@ -406,7 +406,7 @@ describe('ConfigurationManager', () => {
 
     test('should merge arrays with id-based objects', async () => {
       const defaultConfig = {
-        'ngdpbase.applicationName': 'TestWiki',
+        'ngdpbase.application-name': 'TestWiki',
         'ngdpbase.access.policies': [
           { 'id': 'admin-full-access', 'name': 'Admin Access', 'priority': 100 },
           { 'id': 'reader-permissions', 'name': 'Reader', 'priority': 60 }
@@ -452,8 +452,8 @@ describe('ConfigurationManager', () => {
 
     test('should replace arrays without id fields', async () => {
       const defaultConfig = {
-        'ngdpbase.applicationName': 'TestWiki',
-        'ngdpbase.managers.pluginManager.searchPaths': ['./dist/plugins']
+        'ngdpbase.application-name': 'TestWiki',
+        'ngdpbase.managers.plugin-manager.search-paths': ['./dist/plugins']
       };
       await fs.writeJson(
         path.join(tempDir, 'config', 'app-default-config.json'),
@@ -464,7 +464,7 @@ describe('ConfigurationManager', () => {
       const instanceConfigDir = path.join(tempDir, 'data', 'config');
       await fs.ensureDir(instanceConfigDir);
       const customConfig = {
-        'ngdpbase.managers.pluginManager.searchPaths': ['./custom-plugins', './more-plugins']
+        'ngdpbase.managers.plugin-manager.search-paths': ['./custom-plugins', './more-plugins']
       };
       await fs.writeJson(
         path.join(instanceConfigDir, 'app-custom-config.json'),
@@ -475,7 +475,7 @@ describe('ConfigurationManager', () => {
       const newConfigManager = new ConfigurationManager(mockEngine);
       await newConfigManager.initialize();
 
-      const searchPaths = newConfigManager.getProperty('ngdpbase.managers.pluginManager.searchPaths');
+      const searchPaths = newConfigManager.getProperty('ngdpbase.managers.plugin-manager.search-paths');
 
       // Arrays without id should be replaced entirely
       expect(searchPaths).toEqual(['./custom-plugins', './more-plugins']);
@@ -483,7 +483,7 @@ describe('ConfigurationManager', () => {
 
     test('should handle primitives being overridden by custom', async () => {
       const defaultConfig = {
-        'ngdpbase.applicationName': 'DefaultWiki',
+        'ngdpbase.application-name': 'DefaultWiki',
         'ngdpbase.server.port': 3000
       };
       await fs.writeJson(
@@ -495,7 +495,7 @@ describe('ConfigurationManager', () => {
       const instanceConfigDir = path.join(tempDir, 'data', 'config');
       await fs.ensureDir(instanceConfigDir);
       const customConfig = {
-        'ngdpbase.applicationName': 'CustomWiki',
+        'ngdpbase.application-name': 'CustomWiki',
         'ngdpbase.server.port': 8080
       };
       await fs.writeJson(
@@ -507,13 +507,13 @@ describe('ConfigurationManager', () => {
       const newConfigManager = new ConfigurationManager(mockEngine);
       await newConfigManager.initialize();
 
-      expect(newConfigManager.getProperty('ngdpbase.applicationName')).toBe('CustomWiki');
+      expect(newConfigManager.getProperty('ngdpbase.application-name')).toBe('CustomWiki');
       expect(newConfigManager.getProperty('ngdpbase.server.port')).toBe(8080);
     });
 
     test('should preserve defaults when custom config is empty', async () => {
       const defaultConfig = {
-        'ngdpbase.applicationName': 'TestWiki',
+        'ngdpbase.application-name': 'TestWiki',
         'ngdpbase.user-keywords': {
           'default': { 'label': 'default', 'enabled': true },
           'draft': { 'label': 'draft', 'enabled': true }
@@ -542,7 +542,7 @@ describe('ConfigurationManager', () => {
       process.env.NODE_ENV = 'development';
 
       const defaultConfig = {
-        'ngdpbase.applicationName': 'TestWiki',
+        'ngdpbase.application-name': 'TestWiki',
         'ngdpbase.logging.level': 'info'
       };
       await fs.writeJson(
@@ -561,7 +561,7 @@ describe('ConfigurationManager', () => {
       process.env.NODE_ENV = 'development';
 
       const defaultConfig = {
-        'ngdpbase.applicationName': 'TestWiki',
+        'ngdpbase.application-name': 'TestWiki',
         'ngdpbase.logging.level': 'info'
       };
       await fs.writeJson(
@@ -588,7 +588,7 @@ describe('ConfigurationManager', () => {
       process.env.NODE_ENV = 'production';
 
       const defaultConfig = {
-        'ngdpbase.applicationName': 'TestWiki',
+        'ngdpbase.application-name': 'TestWiki',
         'ngdpbase.logging.level': 'info'
       };
       await fs.writeJson(
@@ -607,7 +607,7 @@ describe('ConfigurationManager', () => {
       process.env.NODE_ENV = 'production';
 
       const defaultConfig = {
-        'ngdpbase.applicationName': 'TestWiki',
+        'ngdpbase.application-name': 'TestWiki',
         'ngdpbase.logging.level': 'info'
       };
       await fs.writeJson(

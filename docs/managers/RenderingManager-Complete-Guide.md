@@ -469,10 +469,10 @@ Located in `config/app-default-config.json`:
 
   "_comment_markup": "MarkupParser configuration",
   "ngdpbase.markup.enabled": true,
-  "ngdpbase.markup.useAdvancedParser": true,
-  "ngdpbase.markup.fallbackToLegacy": true,
-  "ngdpbase.markup.logParsingMethod": true,
-  "ngdpbase.markup.performanceComparison": false
+  "ngdpbase.markup.use-advanced-parser": true,
+  "ngdpbase.markup.fallback-to-legacy": true,
+  "ngdpbase.markup.log-parsing-method": true,
+  "ngdpbase.markup.performance-comparison": false
 }
 ```
 
@@ -836,7 +836,7 @@ Configuration is loaded at initialization:
 const configManager = engine.getManager('ConfigurationManager');
 
 // RenderingManager reads these properties
-const useAdvanced = configManager.getProperty('ngdpbase.markup.useAdvancedParser');
+const useAdvanced = configManager.getProperty('ngdpbase.markup.use-advanced-parser');
 const footnotes = configManager.getProperty('ngdpbase.markdown.footnotes.enabled');
 ```
 
@@ -850,8 +850,8 @@ Enable MarkupParser for best features:
 
 ```json
 {
-  "ngdpbase.markup.useAdvancedParser": true,
-  "ngdpbase.markup.fallbackToLegacy": true
+  "ngdpbase.markup.use-advanced-parser": true,
+  "ngdpbase.markup.fallback-to-legacy": true
 }
 ```
 
@@ -884,8 +884,8 @@ Enable performance comparison during development:
 
 ```json
 {
-  "ngdpbase.markup.performanceComparison": true,
-  "ngdpbase.markup.logParsingMethod": true
+  "ngdpbase.markup.performance-comparison": true,
+  "ngdpbase.markup.log-parsing-method": true
 }
 ```
 
@@ -976,7 +976,7 @@ console.log('MarkupParser initialized:', markupParser?.isInitialized());
    ```json
    {
      "ngdpbase.markup.enabled": true,
-     "ngdpbase.markup.useAdvancedParser": true
+     "ngdpbase.markup.use-advanced-parser": true
    }
    ```
 
@@ -1013,8 +1013,8 @@ console.log('Backlinks:', backlinks);
 ```javascript
 // Enable performance logging
 {
-  "ngdpbase.markup.performanceComparison": true,
-  "ngdpbase.markup.logParsingMethod": true
+  "ngdpbase.markup.performance-comparison": true,
+  "ngdpbase.markup.log-parsing-method": true
 }
 ```
 
@@ -1034,7 +1034,7 @@ console.log('Backlinks:', backlinks);
    ```json
    {
      "ngdpbase.markup.caching": true,
-     "ngdpbase.markup.cacheTTL": 300
+     "ngdpbase.markup.cache-ttl": 300
    }
    ```
 

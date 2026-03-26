@@ -195,7 +195,7 @@ class InterWikiLinkHandler extends BaseSyntaxHandler {
           url: url,
           description: `${siteName} Wiki`,
           enabled: true,
-          openInNewWindow: configManager.getProperty('ngdpbase.interwiki.openInNewWindow', true)
+          openInNewWindow: configManager.getProperty('ngdpbase.interwiki.open-in-new-window', true)
         });
       }
     }

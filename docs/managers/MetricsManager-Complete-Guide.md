@@ -96,7 +96,7 @@ All settings come from ConfigurationManager. See [Telemetry.md](../admin/Telemet
 | Property | Type | Default | Description |
 | -------- | ---- | ------- | ----------- |
 | `ngdpbase.telemetry.enabled` | boolean | `false` | Enable metrics collection |
-| `ngdpbase.telemetry.serviceName` | string | `""` | OTLP `service.name` resource attribute |
+| `ngdpbase.telemetry.service-name` | string | `""` | OTLP `service.name` resource attribute |
 | `ngdpbase.telemetry.metrics.port` | number | `9464` | Prometheus exporter port |
 | `ngdpbase.telemetry.metrics.host` | string | `"0.0.0.0"` | Prometheus exporter bind address |
 | `ngdpbase.telemetry.metrics.path` | string | `"/metrics"` | Prometheus scrape path |
@@ -109,7 +109,7 @@ All settings come from ConfigurationManager. See [Telemetry.md](../admin/Telemet
 
 ### Metric Prefix
 
-The metric prefix is derived from `ngdpbase.applicationName`:
+The metric prefix is derived from `ngdpbase.application-name`:
 
 - Value is lowercased
 - Non-alphanumeric characters are replaced with underscores
@@ -125,7 +125,7 @@ Examples:
 
 ### Service Name
 
-`ngdpbase.telemetry.serviceName` sets the `service.name` [resource attribute](https://opentelemetry.io/docs/specs/semconv/resource/#service) on all exported metrics. This is what appears in Grafana's "Job" or "Service" filter when querying OTLP data. If empty, the metric prefix is used as a fallback.
+`ngdpbase.telemetry.service-name` sets the `service.name` [resource attribute](https://opentelemetry.io/docs/specs/semconv/resource/#service) on all exported metrics. This is what appears in Grafana's "Job" or "Service" filter when querying OTLP data. If empty, the metric prefix is used as a fallback.
 
 ---
 

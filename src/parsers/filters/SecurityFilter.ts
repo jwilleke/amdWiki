@@ -147,13 +147,13 @@ class SecurityFilter extends BaseFilter {
     if (configManager) {
       try {
         // Security feature configuration (modular)
-        this.securityConfig.preventXSS = configManager.getProperty('ngdpbase.markup.filters.security.preventXSS', this.securityConfig.preventXSS) as boolean;
-        this.securityConfig.preventCSRF = configManager.getProperty('ngdpbase.markup.filters.security.preventCSRF', this.securityConfig.preventCSRF) as boolean;
-        this.securityConfig.sanitizeHTML = configManager.getProperty('ngdpbase.markup.filters.security.sanitizeHTML', this.securityConfig.sanitizeHTML) as boolean;
-        this.securityConfig.stripDangerousContent = configManager.getProperty('ngdpbase.markup.filters.security.stripDangerousContent', this.securityConfig.stripDangerousContent) as boolean;
+        this.securityConfig.preventXSS = configManager.getProperty('ngdpbase.markup.filters.security.prevent-xss', this.securityConfig.preventXSS) as boolean;
+        this.securityConfig.preventCSRF = configManager.getProperty('ngdpbase.markup.filters.security.prevent-csrf', this.securityConfig.preventCSRF) as boolean;
+        this.securityConfig.sanitizeHTML = configManager.getProperty('ngdpbase.markup.filters.security.sanitize-html', this.securityConfig.sanitizeHTML) as boolean;
+        this.securityConfig.stripDangerousContent = configManager.getProperty('ngdpbase.markup.filters.security.strip-dangerous-content', this.securityConfig.stripDangerousContent) as boolean;
 
         // Load allowed HTML tags (modular security policy)
-        const allowedTagsString = configManager.getProperty('ngdpbase.markup.filters.security.allowedTags', '') as string;
+        const allowedTagsString = configManager.getProperty('ngdpbase.markup.filters.security.allowed-tags', '') as string;
         if (allowedTagsString) {
           allowedTagsString.split(',').forEach(tag => {
             const cleanTag = tag.trim().toLowerCase();
@@ -162,7 +162,7 @@ class SecurityFilter extends BaseFilter {
         }
 
         // Load allowed HTML attributes (modular security policy)
-        const allowedAttrsString = configManager.getProperty('ngdpbase.markup.filters.security.allowedAttributes', '') as string;
+        const allowedAttrsString = configManager.getProperty('ngdpbase.markup.filters.security.allowed-attributes', '') as string;
         if (allowedAttrsString) {
           allowedAttrsString.split(',').forEach(attr => {
             const cleanAttr = attr.trim().toLowerCase();
@@ -171,9 +171,9 @@ class SecurityFilter extends BaseFilter {
         }
 
         // Advanced security settings (configurable)
-        this.securityConfig.allowJavaScript = configManager.getProperty('ngdpbase.markup.filters.security.allowJavaScript', this.securityConfig.allowJavaScript) as boolean;
-        this.securityConfig.allowDataURIs = configManager.getProperty('ngdpbase.markup.filters.security.allowDataURIs', this.securityConfig.allowDataURIs) as boolean;
-        this.securityConfig.maxContentLength = configManager.getProperty('ngdpbase.markup.filters.security.maxContentLength', this.securityConfig.maxContentLength) as number;
+        this.securityConfig.allowJavaScript = configManager.getProperty('ngdpbase.markup.filters.security.allow-javascript', this.securityConfig.allowJavaScript) as boolean;
+        this.securityConfig.allowDataURIs = configManager.getProperty('ngdpbase.markup.filters.security.allow-data-uris', this.securityConfig.allowDataURIs) as boolean;
+        this.securityConfig.maxContentLength = configManager.getProperty('ngdpbase.markup.filters.security.max-content-length', this.securityConfig.maxContentLength) as number;
 
       } catch (error) {
         const err = error as Error;

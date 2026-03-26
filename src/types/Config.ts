@@ -14,10 +14,10 @@
  */
 export interface WikiConfig {
   /** Application name */
-  'ngdpbase.applicationName': string;
+  'ngdpbase.application-name': string;
 
   /** Favicon path */
-  'ngdpbase.faviconPath': string;
+  'ngdpbase.favicon-path': string;
 
   /** Application category */
   'ngdpbase.application.category': string;
@@ -26,13 +26,13 @@ export interface WikiConfig {
   'ngdpbase.version': string;
 
   /** Base URL */
-  'ngdpbase.baseURL': string;
+  'ngdpbase.base-url': string;
 
   /** Character encoding */
   'ngdpbase.encoding': string;
 
   /** Front page name */
-  'ngdpbase.frontPage': string;
+  'ngdpbase.front-page': string;
 
   /** Server port */
   'ngdpbase.server.port': number;
@@ -44,13 +44,13 @@ export interface WikiConfig {
   'ngdpbase.session.secret': string;
 
   /** Session max age (milliseconds) */
-  'ngdpbase.session.maxAge': number;
+  'ngdpbase.session.max-age': number;
 
   /** Session secure flag (HTTPS only) */
   'ngdpbase.session.secure': boolean;
 
   /** Session HTTP only flag */
-  'ngdpbase.session.httpOnly': boolean;
+  'ngdpbase.session.http-only': boolean;
 
   /** Translator reader - match English plurals */
   'ngdpbase.translator-reader.match-english-plurals': boolean;
@@ -230,37 +230,37 @@ export interface SearchProviderConfig {
  */
 export interface InstallConfig {
   /** Require setup on first run */
-  'ngdpbase.install.requireSetup': boolean;
+  'ngdpbase.install.require-setup': boolean;
 
   /** Copy startup pages */
-  'ngdpbase.install.copyStartupPages': boolean;
+  'ngdpbase.install.copy-startup-pages': boolean;
 
   /** Create admin user */
-  'ngdpbase.install.createAdminUser': boolean;
+  'ngdpbase.install.create-admin-user': boolean;
 
   /** Organization name */
   'ngdpbase.install.organization.name': string;
 
   /** Organization legal name */
-  'ngdpbase.install.organization.legalName': string;
+  'ngdpbase.install.organization.legal-name': string;
 
   /** Organization description */
   'ngdpbase.install.organization.description': string;
 
   /** Founding date */
-  'ngdpbase.install.organization.foundingDate': string;
+  'ngdpbase.install.organization.founding-date': string;
 
   /** Contact email */
-  'ngdpbase.install.organization.contactEmail': string;
+  'ngdpbase.install.organization.contact-email': string;
 
   /** Address locality (city) */
-  'ngdpbase.install.organization.addressLocality': string;
+  'ngdpbase.install.organization.address-locality': string;
 
   /** Address region (state/province) */
-  'ngdpbase.install.organization.addressRegion': string;
+  'ngdpbase.install.organization.address-region': string;
 
   /** Address country */
-  'ngdpbase.install.organization.addressCountry': string;
+  'ngdpbase.install.organization.address-country': string;
 }
 
 /**

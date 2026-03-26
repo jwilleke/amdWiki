@@ -55,14 +55,14 @@ Contains all default configuration properties. This file should not be modified 
 
 ```json
 {
-  "ngdpbase.applicationName": "ngdpbase",
+  "ngdpbase.application-name": "ngdpbase",
   "ngdpbase.version": "1.3.2",
-  "ngdpbase.baseURL": "http://localhost:3000",
+  "ngdpbase.base-url": "http://localhost:3000",
   "ngdpbase.server.port": 3000,
   "ngdpbase.server.host": "localhost",
   "ngdpbase.session.secret": "ngdpbase-session-secret-change-in-production",
-  "ngdpbase.session.maxAge": 86400000,
-  "ngdpbase.frontPage": "Welcome",
+  "ngdpbase.session.max-age": 86400000,
+  "ngdpbase.front-page": "Welcome",
   "ngdpbase.pageProvider": "FileSystemProvider",
   "ngdpbase.searchProvider": "LuceneSearchProvider"
 }
@@ -77,10 +77,10 @@ Contains custom overrides for default properties. Created by installation wizard
 ```json
 {
   "_comment": "This file overrides values from app-default-config.json",
-  "ngdpbase.applicationName": "My Custom Wiki",
-  "ngdpbase.baseURL": "https://wiki.mycompany.com",
+  "ngdpbase.application-name": "My Custom Wiki",
+  "ngdpbase.base-url": "https://wiki.mycompany.com",
   "ngdpbase.server.port": 8080,
-  "ngdpbase.frontPage": "CustomHomePage"
+  "ngdpbase.front-page": "CustomHomePage"
 }
 ```
 
@@ -110,7 +110,7 @@ All properties follow JSPWiki's naming convention:
 **Examples:**
 
 - `ngdpbase.server.port` - Server configuration
-- `ngdpbase.session.maxAge` - Session settings
+- `ngdpbase.session.max-age` - Session settings
 - `ngdpbase.rss.generate` - RSS feed settings
 - `ngdpbase.translatorReader.allowHTML` - Content processing
 
@@ -130,7 +130,7 @@ Gets a configuration property value with optional default.
 
 **Parameters:**
 
-- `key` (string): Property key (e.g., 'ngdpbase.applicationName')
+- `key` (string): Property key (e.g., 'ngdpbase.application-name')
 - `defaultValue` (any): Default value if property not found
 
 **Returns:** any - Property value or default
@@ -193,9 +193,9 @@ Gets custom override properties from app-custom-config.json.
 ##### Application Settings
 
 ```javascript
-getApplicationName()    // ngdpbase.applicationName
-getBaseURL()           // ngdpbase.baseURL
-getFrontPage()         // ngdpbase.frontPage
+getApplicationName()    // ngdpbase.application-name
+getBaseURL()           // ngdpbase.base-url
+getFrontPage()         // ngdpbase.front-page
 getEncoding()          // ngdpbase.encoding
 ```
 
@@ -210,9 +210,9 @@ getServerHost()        // ngdpbase.server.host
 
 ```javascript
 getSessionSecret()     // ngdpbase.session.secret
-getSessionMaxAge()     // ngdpbase.session.maxAge (as number)
+getSessionMaxAge()     // ngdpbase.session.max-age (as number)
 getSessionSecure()     // ngdpbase.session.secure (as boolean)
-getSessionHttpOnly()   // ngdpbase.session.httpOnly (as boolean)
+getSessionHttpOnly()   // ngdpbase.session.http-only (as boolean)
 ```
 
 ##### RSS Settings
@@ -229,11 +229,11 @@ getRSSConfig()         // Complete RSS configuration object
 
 ```json
 {
-  "ngdpbase.applicationName": "ngdpbase",
+  "ngdpbase.application-name": "ngdpbase",
   "ngdpbase.version": "1.3.2",
-  "ngdpbase.baseURL": "http://localhost:3000",
+  "ngdpbase.base-url": "http://localhost:3000",
   "ngdpbase.encoding": "UTF-8",
-  "ngdpbase.frontPage": "Welcome",
+  "ngdpbase.front-page": "Welcome",
   "ngdpbase.templateDir": "default"
 }
 ```
@@ -247,9 +247,9 @@ getRSSConfig()         // Complete RSS configuration object
   "ngdpbase.server.port": 3000,
   "ngdpbase.server.host": "localhost",
   "ngdpbase.session.secret": "ngdpbase-session-secret-change-in-production",
-  "ngdpbase.session.maxAge": 86400000,
+  "ngdpbase.session.max-age": 86400000,
   "ngdpbase.session.secure": false,
-  "ngdpbase.session.httpOnly": true
+  "ngdpbase.session.http-only": true
 }
 ```
 
@@ -262,7 +262,7 @@ getRSSConfig()         // Complete RSS configuration object
   "ngdpbase.pageProvider": "FileSystemProvider",
   "ngdpbase.attachment.provider": "BasicAttachmentProvider",
   "ngdpbase.searchProvider": "LuceneSearchProvider",
-  "ngdpbase.diffProvider": "TraditionalDiffProvider",
+  "ngdpbase.diff-provider": "TraditionalDiffProvider",
   "ngdpbase.userdatabase": "JSONUserDatabase",
   "ngdpbase.groupdatabase": "JSONGroupDatabase"
 }
@@ -275,7 +275,7 @@ getRSSConfig()         // Complete RSS configuration object
 ```json
 {
   "ngdpbase.rss.generate": true,
-  "ngdpbase.rss.fileName": "rss.xml",
+  "ngdpbase.rss.file-name": "rss.xml",
   "ngdpbase.rss.interval": 3600,
   "ngdpbase.translatorReader.allowHTML": false,
   "ngdpbase.plugin.searchresult.showScore": true,
@@ -380,7 +380,7 @@ File: `./data/config/app-custom-config.json`
 ```json
 {
   "ngdpbase.server.port": 3000,
-  "ngdpbase.baseURL": "http://localhost:3000",
+  "ngdpbase.base-url": "http://localhost:3000",
   "ngdpbase.session.secure": false
 }
 ```
@@ -392,7 +392,7 @@ File: `INSTANCE_DATA_FOLDER/config/app-custom-config.json`
 ```json
 {
   "ngdpbase.server.port": 80,
-  "ngdpbase.baseURL": "https://wiki.mycompany.com",
+  "ngdpbase.base-url": "https://wiki.mycompany.com",
   "ngdpbase.session.secure": true,
   "ngdpbase.session.secret": "production-secret-key-change-this"
 }
@@ -450,8 +450,8 @@ When adding new configuration properties:
 {
   "ngdpbase.session.secret": "change-in-production",
   "ngdpbase.session.secure": true,    // HTTPS only
-  "ngdpbase.session.httpOnly": true,  // No JavaScript access
-  "ngdpbase.session.maxAge": 86400000 // 24 hours
+  "ngdpbase.session.http-only": true,  // No JavaScript access
+  "ngdpbase.session.max-age": 86400000 // 24 hours
 }
 ```
 

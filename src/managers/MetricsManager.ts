@@ -69,7 +69,7 @@ class MetricsManager extends BaseManager {
     }
 
     // Derive metric prefix from applicationName (sanitized for Prometheus)
-    const appName = configManager.getProperty('ngdpbase.applicationName', 'ngdpbase') as string;
+    const appName = configManager.getProperty('ngdpbase.application-name', 'ngdpbase') as string;
     this.prefix = appName.toLowerCase().replace(/[^a-z0-9]/g, '_').replace(/_+/g, '_').replace(/^_|_$/g, '');
 
     try {
@@ -111,7 +111,7 @@ class MetricsManager extends BaseManager {
         logger.info(`[MetricsManager] OTLP metric export enabled → ${otlpEndpoint} (interval: ${otlpInterval}ms)`);
       }
 
-      const serviceName = configManager.getProperty('ngdpbase.telemetry.serviceName', this.prefix) as string;
+      const serviceName = configManager.getProperty('ngdpbase.telemetry.service-name', this.prefix) as string;
 
       this.meterProvider = new MeterProvider({
         resource: resourceFromAttributes({ [ATTR_SERVICE_NAME]: serviceName }),

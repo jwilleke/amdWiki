@@ -336,9 +336,9 @@ Use `parseWithDOMExtraction()` instead for new code.
 
 ```json
 {
-  "ngdpbase.markup.cache.parseResults.enabled": true,
-  "ngdpbase.markup.cache.parseResults.ttl": 300000,
-  "ngdpbase.markup.cache.parseResults.maxSize": 1000
+  "ngdpbase.markup.cache.parse-results.enabled": true,
+  "ngdpbase.markup.cache.parse-results.ttl": 300000,
+  "ngdpbase.markup.cache.parse-results.max-size": 1000
 }
 ```
 
@@ -347,7 +347,7 @@ Use `parseWithDOMExtraction()` instead for new code.
 ```json
 {
   "ngdpbase.markup.performance.monitoring": true,
-  "ngdpbase.markup.performance.alertThresholds.parseTime": 1000
+  "ngdpbase.markup.performance.alert-thresholds.parse-time": 1000
 }
 ```
 
@@ -584,7 +584,7 @@ If you have custom syntax handlers, see the [Migration Guide](../migration/WikiD
 
 **Solution:**
 
-1. Enable parse results cache: `ngdpbase.markup.cache.parseResults.enabled = true`
+1. Enable parse results cache: `ngdpbase.markup.cache.parse-results.enabled = true`
 2. Check page size (consider breaking up large pages)
 3. Monitor logs for slow parse warnings
 4. Check for plugin performance issues

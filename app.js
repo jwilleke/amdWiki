@@ -251,7 +251,7 @@ checkAndCreatePidLock();
   app.use(session({
     store: new FileStore({
       path: sessionPath,
-      ttl: configManager.getProperty('ngdpbase.session.maxAge', 24 * 60 * 60 * 1000) / 1000, // Convert to seconds
+      ttl: configManager.getProperty('ngdpbase.session.max-age', 24 * 60 * 60 * 1000) / 1000, // Convert to seconds
       retries: 0,
       reapInterval: 3600 // Clean up expired sessions every hour
     }),
@@ -261,7 +261,7 @@ checkAndCreatePidLock();
     cookie: {
       secure: false, // Set to true in production with HTTPS
       httpOnly: true,
-      maxAge: configManager.getProperty('ngdpbase.session.maxAge', 24 * 60 * 60 * 1000) // 24 hours
+      maxAge: configManager.getProperty('ngdpbase.session.max-age', 24 * 60 * 60 * 1000) // 24 hours
     }
   }));
 

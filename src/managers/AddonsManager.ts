@@ -147,7 +147,7 @@ class AddonsManager extends BaseManager {
     } else {
       // Check if AddonsManager is enabled
       const enabled = configManager.getProperty(
-        'ngdpbase.managers.addonsManager.enabled',
+        'ngdpbase.managers.addons-manager.enabled',
         true
       ) as boolean;
 
@@ -158,7 +158,7 @@ class AddonsManager extends BaseManager {
 
       // Get configured addons path
       this.addonsPath = configManager.getProperty(
-        'ngdpbase.managers.addonsManager.addonsPath',
+        'ngdpbase.managers.addons-manager.addons-path',
         './addons'
       ) as string;
     }
