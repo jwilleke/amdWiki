@@ -248,6 +248,74 @@ The key insight: **ngdpbase provides the horizontal infrastructure; add-ons prov
 
 ---
 
+## Addon Development Model
+
+### Recommended: Separate Repos, External `addonsPath`
+
+Each addon lives in its own GitHub repository, independent of the ngdpbase core. The core repo stays clean; domain-specific code never enters it.
+
+```
+jwilleke/ngdpbase          ← core platform (this repo)
+jwilleke/volcano-wiki      ← addon repo (separate)
+jwilleke/fairways-gen2     ← addon repo (separate, already exists)
+```
+
+**Local development layout:**
+
+```
+/workspaces/github/
+├── ngdpbase/              ← core, always running
+├── volcano-wiki/          ← addon under active development
+│   └── addons/
+│       └── volcano-wiki/  ← the actual addon directory
+└── fairways-gen2/
+    └── addons/
+        └── fairways/
+```
+
+**Wire the addon into your running core instance** by pointing `addonsPath` at the external repo in your instance config (`$FAST_STORAGE/config/app-custom-config.json`):
+
+```json
+{
+  "ngdpbase.managers.addonsManager.addonsPath": "/path/to/volcano-wiki/addons"
+}
+```
+
+Restart the server. `AddonsManager` discovers and loads any enabled addon found in that directory. No changes to the core repo required.
+
+**Enable the addon:**
+
+```json
+{
+  "ngdpbase.addons.volcano-wiki.enabled": true
+}
+```
+
+---
+
+### Contributing Core Improvements Upstream
+
+During addon development you may discover gaps in the core platform — missing APIs, needed hooks, or bugs. The workflow is:
+
+1. Fix the core issue in the `ngdpbase` repo
+2. Merge / commit to `ngdpbase`
+3. Continue addon development against the improved core
+
+Core PRs should be self-contained — no addon-specific code in the core repo. The addon repo declares its minimum required ngdpbase version (or commit) in its own `README.md`.
+
+---
+
+### Addon Store / Registry — Future
+
+Once two or more addons exist, a lightweight registry makes sense. The simplest first version:
+
+- A `docs/addon-registry.md` in this repo listing known addons with their repo URLs
+- Each addon repo uses the GitHub topic tag `ngdpbase-addon` so they are discoverable
+
+A full marketplace (install-from-UI, version pinning, dependency resolution) is out of scope until the addon ecosystem has real traffic.
+
+---
+
 ## Practical Considerations
 
 ### What Works Well
@@ -279,4 +347,4 @@ The key insight: **ngdpbase provides the horizontal infrastructure; add-ons prov
 
 ---
 
-Last updated: 2026-03-22 | Related: #350 (Theming), #357 (Volcano Wiki), fairways-gen2-website
+Last updated: 2026-03-26 | Related: #350 (Theming), #357 (Volcano Wiki), fairways-gen2-website
