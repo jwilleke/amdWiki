@@ -264,7 +264,8 @@
             </div>
         </div>
 
-        <!-- Media Management -->
+        <!-- Media Management — only shown when MediaManager is enabled -->
+        <% if (capabilities && capabilities.media) { %>
         <div class="col-lg-6 mb-4">
             <div class="card h-100">
                 <div class="card-header">
@@ -296,6 +297,7 @@
                 </div>
             </div>
         </div>
+        <% } %>
 
     </div>
 

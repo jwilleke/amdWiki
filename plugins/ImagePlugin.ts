@@ -62,6 +62,7 @@ interface ImageParams extends PluginParams {
 
 const ImagePlugin: SimplePlugin = {
   name: 'Image',
+  description: 'Renders an image with optional caption, alignment, and display mode control',
 
   /**
    * Execute the plugin

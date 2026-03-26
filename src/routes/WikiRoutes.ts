@@ -36,6 +36,7 @@ interface WikiEngine {
   getManager(name: string): any;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any -- config is dynamic
   config?: any;
+  getCapabilities?(): Record<string, boolean>;
 }
 
 interface UserContext {
@@ -304,6 +305,7 @@ class WikiRoutes {
       locationCssPath: string;
       themeFontUrls: string[];
       addonStylesheets: string[];
+      capabilities: Record<string, boolean>;
       leftMenu?: string;
       footer?: string;
     } = {
@@ -326,7 +328,8 @@ class WikiRoutes {
       logoPath: (configManager?.getProperty('ngdpbase.faviconPath') as string) || themePaths.logoPath,
       locationCssPath: themePaths.locationCssPath,
       themeFontUrls: themePaths.fontUrls,
-      addonStylesheets
+      addonStylesheets,
+      capabilities: this.engine.getCapabilities?.() ?? {}
     };
 
     // Load LeftMenu

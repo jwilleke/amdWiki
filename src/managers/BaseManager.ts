@@ -57,8 +57,14 @@ abstract class BaseManager {
   protected initialized: boolean;
 
   /** Configuration passed during initialization */
-
   protected config?: Record<string, unknown>;
+
+  /**
+   * Short description of what this manager does.
+   * Used by admin UIs, addon registries, and introspection tools.
+   * Override in subclasses to provide a human-readable description.
+   */
+  readonly description?: string;
 
   /**
    * Creates a new BaseManager instance

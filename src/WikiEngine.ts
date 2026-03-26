@@ -263,6 +263,7 @@ class WikiEngine extends Engine {
 
     // Conditionally register MediaManager when ngdpbase.media.enabled is true
     const mediaEnabled = configManager.getProperty('ngdpbase.media.enabled', false) as boolean;
+    this.setCapability('media', mediaEnabled);
     if (mediaEnabled) {
       const mediaManager = new MediaManager(this);
       this.registerManager('MediaManager', mediaManager);

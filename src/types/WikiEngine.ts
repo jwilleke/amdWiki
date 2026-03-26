@@ -120,6 +120,20 @@ export interface WikiEngine {
    */
   getRegisteredManagers(): string[];
 
+  /**
+   * Return the optional-capability map set during initialization.
+   * Used by templates to conditionally show/hide panels for disabled features.
+   * @returns Record mapping capability ID → boolean (e.g. { media: false })
+   */
+  getCapabilities(): Record<string, boolean>;
+
+  /**
+   * Record whether an optional capability is active.
+   * @param id - Capability identifier (e.g. 'media', 'audit')
+   * @param enabled - Whether the capability is active
+   */
+  setCapability(id: string, enabled: boolean): void;
+
   /** Allow additional properties for extensibility */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Dynamic type
   [key: string]: any;

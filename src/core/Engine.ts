@@ -29,6 +29,13 @@ class Engine {
   public config?: WikiConfig;
 
   /**
+   * Optional-capability registry.
+   * Records which optional features (e.g. 'media', 'audit') are enabled.
+   * Set via setCapability() during initialization; read by admin UIs and templates.
+   */
+  protected capabilities: Map<string, boolean>;
+
+  /**
    * Creates a new Engine instance
    *
    * @constructor
@@ -37,6 +44,7 @@ class Engine {
     this.managers = new Map();
     this.properties = new Map();
     this.initialized = false;
+    this.capabilities = new Map();
   }
 
   /**
@@ -179,6 +187,34 @@ class Engine {
    */
   getConfig(): WikiConfig {
     return this.config || {} as WikiConfig;
+  }
+
+  /**
+   * Record whether an optional capability is active.
+   * Call this during initialization for every feature that can be enabled or disabled.
+   *
+   * @param id - Short identifier used in admin UIs and templates (e.g. 'media', 'audit')
+   * @param enabled - Whether the capability is active in this instance
+   *
+   * @example
+   * this.setCapability('media', mediaEnabled);
+   */
+  setCapability(id: string, enabled: boolean): void {
+    this.capabilities.set(id, enabled);
+  }
+
+  /**
+   * Return a plain-object snapshot of all registered optional capabilities.
+   * Consumed by getCommonTemplateData() so every EJS template receives it.
+   *
+   * @returns Record mapping capability ID → boolean
+   *
+   * @example
+   * const caps = engine.getCapabilities();
+   * // { media: false, audit: true }
+   */
+  getCapabilities(): Record<string, boolean> {
+    return Object.fromEntries(this.capabilities);
   }
 
   /**
