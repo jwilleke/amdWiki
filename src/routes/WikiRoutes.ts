@@ -20,6 +20,7 @@ import logger from '../utils/logger';
 import { extractSection, spliceSection } from '../utils/SectionUtils';
 import WikiContext from '../context/WikiContext';
 import { ThemeManager } from '../managers/ThemeManager';
+import type { ReportProgress } from '../managers/BackgroundJobManager';
 
 /** Helper to extract error message from unknown error */
 function getErrorMessage(error: unknown): string {
@@ -9165,7 +9166,7 @@ ${description}
     jobManager.registerJob({
       id: 'pages.reindex',
       displayName: 'Reindex Pages',
-      run: async (_reportProgress) => {
+      run: async (_reportProgress: ReportProgress) => {
         const pageManager = this.engine.getManager('PageManager');
         const searchManager = this.engine.getManager('SearchManager');
         const renderingManager = this.engine.getManager('RenderingManager');
@@ -9186,10 +9187,10 @@ ${description}
     jobManager.registerJob({
       id: 'media.rescan',
       displayName: 'Reindex Media',
-      run: async (reportProgress) => {
+      run: async (reportProgress: ReportProgress) => {
         const mediaManager = this.engine.getManager('MediaManager');
         if (!mediaManager) return { success: false, error: 'Media manager not enabled' };
-        const result = await mediaManager.scanFolders(true, (processed, total) => {
+        const result = await mediaManager.scanFolders(true, (processed: number, total: number) => {
           const pct = total > 0 ? Math.round((processed / total) * 100) : 0;
           reportProgress(`Scanning… ${processed.toLocaleString()}/${total.toLocaleString()} files (${pct}%)`);
         });
@@ -9204,10 +9205,10 @@ ${description}
     jobManager.registerJob({
       id: 'media.rebuild',
       displayName: 'Rebuild Media Index',
-      run: async (reportProgress) => {
+      run: async (reportProgress: ReportProgress) => {
         const mediaManager = this.engine.getManager('MediaManager');
         if (!mediaManager) return { success: false, error: 'Media manager not enabled' };
-        const result = await mediaManager.rebuildIndex((processed, total) => {
+        const result = await mediaManager.rebuildIndex((processed: number, total: number) => {
           const pct = total > 0 ? Math.round((processed / total) * 100) : 0;
           reportProgress(`Rebuilding… ${processed.toLocaleString()}/${total.toLocaleString()} files (${pct}%)`);
         });
