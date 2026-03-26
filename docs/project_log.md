@@ -24,6 +24,25 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-03-26-16
+
+- Agent: Claude Sonnet 4.6
+- Subject: refactor: standardize all ngdpbase config keys to kebab-case (#133)
+- Key Decision: Used a Node.js script with 110 ordered replacement pairs (longest patterns first within each group to avoid partial-match collisions) rather than manual sed. Covered all file types: .ts, .js, .json, .ejs, .md. Interwiki site names (C2, JSPWiki, MeatBall, Wikipedia) preserved as-is — they are proper names, not camelCase variable conventions.
+- Current Issue: #133
+- Testing:
+  - npm test: 90 suites passed, 2295 tests passed
+- Work Done:
+  - 631 replacements across 90 files
+  - All camelCase `ngdpbase.*` config keys converted to kebab-case in source, config, docs, tests, and views
+  - Notable: applicationName→application-name, baseURL→base-url, accessControl→access-control, managers.addonsManager.addonsPath→managers.addons-manager.addons-path, markup.cacheTTL→markup.cache-ttl, markup.cache.parseResults→markup.cache.parse-results, backup.autoBackup→backup.auto-backup, etc.
+  - Closed #133
+  - Patch version bump 3.0.7 → 3.0.8
+- Commits: 7441af0
+- Files Modified: 90 files (src/, plugins/, config/, docs/, views/, required-pages/, tests/)
+
+---
+
 ## 2026-03-26-15
 
 - Agent: Claude Sonnet 4.6
