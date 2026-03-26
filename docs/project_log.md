@@ -24,6 +24,23 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-03-25-12
+
+- Agent: Claude Sonnet 4.6
+- Subject: test: add unit tests for private page access control (#122)
+- Key Decision: Private page/attachment access was fully implemented across Phase 1–3 but missing unit test coverage. Added tests for the two untested paths: LunrSearchProvider.search() private doc filtering and WikiRoutes.serveAttachment() 403 guard.
+- Current Issue: #122
+- Testing:
+  - npm test: 90 suites passed, 2295 tests passed (17 new)
+  - E2E: not run
+- Work Done:
+  - LunrSearchProvider.privateFilter.test.js: 9 tests covering search() — anonymous excluded, non-creator excluded, creator allowed, admin sees all, public pages always visible, null index returns empty
+  - WikiRoutes.privatePageAccess.test.js: 8 tests covering serveAttachment() — anonymous 403, non-creator 403, creator 200, admin 200, public attachment bypasses check, pageName resolved from mentions/pageName/fallback
+- Commits: af8f75d
+- Files Modified:
+  - src/providers/__tests__/LunrSearchProvider.privateFilter.test.js (new)
+  - src/routes/__tests__/WikiRoutes.privatePageAccess.test.js (new)
+
 ## 2026-03-25-11
 
 - Agent: Claude Sonnet 4.6
