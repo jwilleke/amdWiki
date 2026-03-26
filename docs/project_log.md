@@ -24,6 +24,34 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-03-26-20
+
+- Agent: Claude Sonnet 4.6
+- Subject: feat: live progress reporting + concurrent scan for media jobs, close #387
+- Key Decision: Root cause of rebuild timeout was sequential ExifTool calls in `walkDirectory()`. Replaced with two-phase approach: collect all file paths first (no ExifTool), then batch-process 8 at a time with 4 ExifTool workers. Progress wired through `reportProgress` callback from BackgroundJobManager into the client via existing status polling endpoint. Client rebuild timeout raised from 10 min to 1 hour.
+- Current Issue: #387
+- Testing:
+  - npm test: 91 suites passed, 2358 tests passed
+- Work Done:
+  - `BackgroundJobManager`: added `ReportProgress` type; `run()` now receives `reportProgress` callback; `JobRun.progress` stores live message, cleared on completion
+  - `FileSystemMediaProvider`: replaced `walkDirectory()` with two-phase `collectFilePaths()` + concurrent `processFile()` batching (8 at a time); ExifTool `maxProcs: 4`; server logs every 500 files
+  - `BaseMediaProvider`: added `onProgress` param to `scan()` and `rebuild()` signatures
+  - `MediaManager`: threaded `onProgress` through `rebuildIndex()` and `scanFolders()`
+  - `WikiRoutes`: wired `reportProgress` → `onProgress` in both media jobs; added `ReportProgress` import for explicit type annotations
+  - `admin-media.ejs`: `pollJobStatus()` accepts `onProgress` callback; live progress shown on button; rebuild timeout 1 hour
+  - Fixed pre-existing ESLint issues in `BackgroundJobManager` and `WikiRoutes` (useless escapes, unused catch var, sectionParam no-base-to-string, require-await)
+  - Posted summary comment to jwilleke/ngdpbase#387
+- Commits: b3de8ae, 459773e
+- Files Modified:
+  - src/managers/BackgroundJobManager.ts
+  - src/managers/MediaManager.ts
+  - src/providers/BaseMediaProvider.ts
+  - src/providers/FileSystemMediaProvider.ts
+  - src/routes/WikiRoutes.ts
+  - views/admin-media.ejs
+
+---
+
 ## 2026-03-26-19
 
 - Agent: Claude Sonnet 4.6
