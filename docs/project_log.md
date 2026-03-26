@@ -24,6 +24,20 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-03-25-14
+
+- Agent: Claude Sonnet 4.6
+- Subject: docs: update Private Pages required-page documentation v1.1.0 (#122)
+- Key Decision: Page already existed from Phase 1 (2026-03-08); updated rather than replaced. Two factual corrections: (1) 403 is a true 403 "Access Denied", not disguised as 404; (2) attachment URL is /attachments/{id} content-addressed, not /attach/Page/filename. Added Search Behaviour, Making Public Again, version-history-is-private, and no-encryption limitation sections.
+- Current Issue: #122
+- Testing:
+  - npm test: 90 suites passed, 2295 tests passed
+- Work Done:
+  - required-pages/2586c69b-a604-4fcd-95a4-591ca45deacb.md: v1.0.0 → v1.1.0, accuracy fixes, new sections
+- Commits: c64c71b
+- Files Modified:
+  - required-pages/2586c69b-a604-4fcd-95a4-591ca45deacb.md
+
 ## 2026-03-25-13
 
 - Agent: Claude Sonnet 4.6
