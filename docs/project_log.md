@@ -24,6 +24,24 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-03-26-18
+
+- Agent: Claude Sonnet 4.6
+- Subject: docs: add env-configuration and installation required-pages, close #215
+- Key Decision: Two separate pages — one for the bootstrap `.env` / two-tier storage model (audience: anyone setting up a new instance), one for the installation wizard user flow (audience: first-time users). Both `system-category: documentation`.
+- Current Issue: #215
+- Testing: no code changes — documentation only
+- Work Done:
+  - Created `required-pages/585688f9-96cf-45d3-84e3-7a29893474d6.md` — Environment Configuration (.env)
+  - Created `required-pages/5df07a53-8a08-420f-a7a3-2318631bf320.md` — Installation and First-Run Setup
+  - Closed #215
+- Commits: (pending)
+- Files Modified:
+  - required-pages/585688f9-96cf-45d3-84e3-7a29893474d6.md
+  - required-pages/5df07a53-8a08-420f-a7a3-2318631bf320.md
+
+---
+
 ## 2026-03-26-17
 
 - Agent: Claude Sonnet 4.6
