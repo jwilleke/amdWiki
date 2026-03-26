@@ -24,6 +24,20 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-03-25-13
+
+- Agent: Claude Sonnet 4.6
+- Subject: fix: unref filter timeout timers to prevent Jest worker leak
+- Key Decision: `setTimeout(...).unref()` is the idiomatic fix — lets the worker exit cleanly without clearing the timer or restructuring the race; no functional change to filter timeout behaviour
+- Current Issue: none (housekeeping)
+- Testing:
+  - npm test: 90 suites passed, 2295 tests passed — worker force-exit warning gone
+- Work Done:
+  - FilterChain.ts line 444: added .unref() to setTimeout in executeFiltersSequential()
+- Commits: 53236b6
+- Files Modified:
+  - src/parsers/filters/FilterChain.ts
+
 ## 2026-03-25-12
 
 - Agent: Claude Sonnet 4.6
