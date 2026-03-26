@@ -24,6 +24,21 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-03-26-17
+
+- Agent: Claude Sonnet 4.6
+- Subject: docs: create configuration-properties-reference required-page (#181)
+- Key Decision: Created as a `system-category: documentation` required-page (UUID 928a1050-3542-4140-9cd4-515bac154c84) rather than a markdown doc, so it is visible in the wiki and benefits from the ReferringPagesPlugin. Covers all sections of `app-default-config.json` with a table-per-section layout mirroring the `_comment_` groupings in the config file.
+- Current Issue: #181
+- Testing: no code changes — documentation only
+- Work Done:
+  - Created `required-pages/928a1050-3542-4140-9cd4-515bac154c84.md` — full reference for every config key in `app-default-config.json`
+- Commits: (pending)
+- Files Modified:
+  - required-pages/928a1050-3542-4140-9cd4-515bac154c84.md
+
+---
+
 ## 2026-03-26-16
 
 - Agent: Claude Sonnet 4.6
