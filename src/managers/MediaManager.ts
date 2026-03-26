@@ -125,13 +125,13 @@ class MediaManager extends BaseManager {
    *
    * @returns ScanResult summary.
    */
-  async rebuildIndex(): Promise<ScanResult> {
+  async rebuildIndex(onProgress?: (processed: number, total: number) => void): Promise<ScanResult> {
     if (!this.provider) {
       logger.warn('[MediaManager] rebuildIndex() called before initialization');
       return { scanned: 0, added: 0, updated: 0, errors: 0 };
     }
     logger.info('[MediaManager] rebuildIndex() — full media index rebuild');
-    const result = await this.provider.rebuild();
+    const result = await this.provider.rebuild(onProgress);
     logger.info(
       `[MediaManager] Rebuild complete: scanned=${result.scanned} added=${result.added} ` +
         `updated=${result.updated} errors=${result.errors} excluded=${result.excluded ?? 0}`
@@ -148,13 +148,13 @@ class MediaManager extends BaseManager {
    * @param force - Pass true to force a full rescan ignoring cached mtimes.
    * @returns ScanResult summary.
    */
-  async scanFolders(force?: boolean): Promise<ScanResult> {
+  async scanFolders(force?: boolean, onProgress?: (processed: number, total: number) => void): Promise<ScanResult> {
     if (!this.provider) {
       logger.warn('[MediaManager] scanFolders() called before initialization');
       return { scanned: 0, added: 0, updated: 0, errors: 0 };
     }
-    logger.info(`[MediaManager] scanFolders(force=${force ?? false}) — not yet implemented (stub)`);
-    const result = await this.provider.scan(force);
+    logger.info(`[MediaManager] scanFolders(force=${force ?? false})`);
+    const result = await this.provider.scan(force, onProgress);
     logger.info(
       `[MediaManager] Scan complete: scanned=${result.scanned} added=${result.added} ` +
         `updated=${result.updated} errors=${result.errors} excluded=${result.excluded ?? 0}`

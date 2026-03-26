@@ -4,6 +4,12 @@ import logger from '../utils/logger';
 import type { WikiEngine } from '../types/WikiEngine';
 
 /**
+ * Callback supplied to job run functions so they can push live progress
+ * messages that the client can display while polling.
+ */
+export type ReportProgress = (message: string) => void;
+
+/**
  * A job type that can be registered with the BackgroundJobManager.
  */
 export interface JobDefinition {
@@ -12,7 +18,7 @@ export interface JobDefinition {
   /** Human-readable name shown in UI and notifications */
   displayName: string;
   /** The work to perform. Resolves with a JobResult. */
-  run: () => Promise<JobResult>;
+  run: (reportProgress: ReportProgress) => Promise<JobResult>;
 }
 
 /**
@@ -33,6 +39,8 @@ export interface JobRun {
   jobId: string;
   displayName: string;
   status: 'pending' | 'running' | 'completed' | 'failed';
+  /** Live progress message set by the job via reportProgress(); cleared on completion */
+  progress?: string;
   startedAt: Date;
   completedAt?: Date;
   result?: JobResult;
@@ -86,6 +94,7 @@ class BackgroundJobManager extends BaseManager {
    *
    * @throws Error if jobId is not registered
    */
+  // eslint-disable-next-line @typescript-eslint/require-await
   async enqueue(jobId: string): Promise<string> {
     const existingRunId = this.activeByJobId.get(jobId);
     if (existingRunId) {
@@ -150,11 +159,16 @@ class BackgroundJobManager extends BaseManager {
     const startMs = Date.now();
     logger.info(`[BackgroundJobManager] job.started { jobId: "${def.id}", runId: "${run.runId}", displayName: "${def.displayName}" }`);
 
+    const reportProgress: ReportProgress = (message: string) => {
+      run.progress = message;
+    };
+
     try {
-      const result = await def.run();
+      const result = await def.run(reportProgress);
       const durationMs = Date.now() - startMs;
       run.completedAt = new Date();
       run.result = result;
+      run.progress = undefined;
 
       if (result.success) {
         run.status = 'completed';

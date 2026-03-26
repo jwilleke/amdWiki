@@ -72,10 +72,11 @@ abstract class BaseMediaProvider {
   /**
    * Scan configured media folders and update the in-memory/persisted index.
    *
-   * @param force - When true, re-scan all files even if mtime is unchanged.
+   * @param force      - When true, re-scan all files even if mtime is unchanged.
+   * @param onProgress - Optional callback invoked periodically with (processed, total).
    * @returns Summary of what was scanned/added/updated/errored.
    */
-  abstract scan(force?: boolean): Promise<ScanResult>;
+  abstract scan(force?: boolean, onProgress?: (processed: number, total: number) => void): Promise<ScanResult>;
 
   /**
    * Return the list of years that have at least one media item, sorted
@@ -154,8 +155,11 @@ abstract class BaseMediaProvider {
    *
    * Default implementation returns an empty ScanResult; override in providers
    * that maintain a persistent index.
+   *
+   * @param onProgress - Optional callback invoked periodically with (processed, total).
    */
-  rebuild(): Promise<ScanResult> {
+  rebuild(onProgress?: (processed: number, total: number) => void): Promise<ScanResult> {
+    void onProgress;
     return Promise.resolve({ scanned: 0, added: 0, updated: 0, errors: 0 });
   }
 

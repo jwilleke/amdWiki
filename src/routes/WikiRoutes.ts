@@ -1058,7 +1058,7 @@ class WikiRoutes {
       if (!pageManager) return false;
       const meta = await pageManager.getPageMetadata(pageName);
       if (!meta?.uuid) return false;
-      const provider = pageManager.getCurrentPageProvider?.() ?? (pageManager as any).provider;
+      const provider = pageManager.getCurrentPageProvider?.() ?? (pageManager).provider;
       const pageIndex = provider?.pageIndex as { pages: Record<string, { location?: string }> } | null;
       const entry = pageIndex?.pages[meta.uuid];
       return entry?.location === 'private';
@@ -1755,7 +1755,7 @@ class WikiRoutes {
       const sectionParam = req.query.section;
       let sectionIndex: number | null = null;
       if (sectionParam !== undefined && sectionParam !== '') {
-        const idx = parseInt(String(sectionParam), 10);
+        const idx = parseInt(typeof sectionParam === 'string' ? sectionParam : String(sectionParam), 10); // eslint-disable-line @typescript-eslint/no-base-to-string
         if (!isNaN(idx) && idx >= 0) {
           const sectionContent = extractSection(pageData.content, idx);
           if (sectionContent !== null) {
@@ -2099,8 +2099,8 @@ class WikiRoutes {
 
       // Check if the new metadata will make this a required page
       const willBeRequired = this.getRequiredPageCategories().includes(
-                              ((metadata['system-category'] as string) || '').toLowerCase()
-                            );
+        ((metadata['system-category'] as string) || '').toLowerCase()
+      );
       if (isCurrentlyRequired || willBeRequired) {
         if (
           !currentUser ||
@@ -2483,7 +2483,7 @@ class WikiRoutes {
         mediaPage: mediaPage,
         mediaCurrentPage: mediaPageParam,
         mediaOffset: mediaOffset,
-        mediaPageSize: mediaPageSize,
+        mediaPageSize: mediaPageSize
       });
     } catch (err: unknown) {
       logger.error('Error searching:', err);
@@ -5686,7 +5686,7 @@ class WikiRoutes {
       const query = typeof req.query.q === 'string' ? req.query.q.trim() : '';
       const typesParam = typeof req.query.types === 'string' ? req.query.types : '';
       const types = typesParam
-        ? (typesParam.split(',').filter(t => t === 'attachment' || t === 'media') as ('attachment' | 'media')[])
+        ? (typesParam.split(',').filter(t => t === 'attachment' || t === 'media'))
         : undefined;
       const year = req.query.year ? parseInt(req.query.year as string, 10) || undefined : undefined;
       const pageSize = Math.min(parseInt(req.query.pageSize as string, 10) || 48, 200);
@@ -7291,8 +7291,8 @@ class WikiRoutes {
       const filesystemName = page.filePath ? path.basename(page.filePath) : null;
 
       // Count links and attachment references in raw markdown content
-      const internalLinkCount = (content.match(/\[\[([^\]]+)\]\]|\[([^\|]+)\|([^\]]+)\]/g) || []).length;
-      const externalLinkCount = (content.match(/https?:\/\/[^\s\)>\]"]+/g) || []).length;
+      const internalLinkCount = (content.match(/\[\[([^\]]+)\]\]|\[([^|]+)\|([^\]]+)\]/g) || []).length;
+      const externalLinkCount = (content.match(/https?:\/\/[^\s)>\]"]+/g) || []).length;
       const attachmentRefCount = (content.match(/!\[\[|\[{[Ii]mage|\[{[Aa]ttachment/g) || []).length;
 
       // Get version information if versioning is enabled
@@ -7838,7 +7838,7 @@ class WikiRoutes {
       let versions: Awaited<ReturnType<typeof provider.getVersionHistory>>;
       try {
         versions = await provider.getVersionHistory(pageName);
-      } catch (_versionErr: unknown) {
+      } catch {
         const templateData = this.getTemplateDataFromContext(wikiContext);
         return res.status(501).render('error', {
           ...templateData,
@@ -9165,7 +9165,7 @@ ${description}
     jobManager.registerJob({
       id: 'pages.reindex',
       displayName: 'Reindex Pages',
-      run: async () => {
+      run: async (_reportProgress) => {
         const pageManager = this.engine.getManager('PageManager');
         const searchManager = this.engine.getManager('SearchManager');
         const renderingManager = this.engine.getManager('RenderingManager');
@@ -9186,10 +9186,13 @@ ${description}
     jobManager.registerJob({
       id: 'media.rescan',
       displayName: 'Reindex Media',
-      run: async () => {
+      run: async (reportProgress) => {
         const mediaManager = this.engine.getManager('MediaManager');
         if (!mediaManager) return { success: false, error: 'Media manager not enabled' };
-        const result = await mediaManager.scanFolders(true);
+        const result = await mediaManager.scanFolders(true, (processed, total) => {
+          const pct = total > 0 ? Math.round((processed / total) * 100) : 0;
+          reportProgress(`Scanning… ${processed.toLocaleString()}/${total.toLocaleString()} files (${pct}%)`);
+        });
         const r = result as { scanned?: number; added?: number; updated?: number; errors?: number };
         return {
           success: true,
@@ -9201,10 +9204,13 @@ ${description}
     jobManager.registerJob({
       id: 'media.rebuild',
       displayName: 'Rebuild Media Index',
-      run: async () => {
+      run: async (reportProgress) => {
         const mediaManager = this.engine.getManager('MediaManager');
         if (!mediaManager) return { success: false, error: 'Media manager not enabled' };
-        const result = await mediaManager.rebuildIndex();
+        const result = await mediaManager.rebuildIndex((processed, total) => {
+          const pct = total > 0 ? Math.round((processed / total) * 100) : 0;
+          reportProgress(`Rebuilding… ${processed.toLocaleString()}/${total.toLocaleString()} files (${pct}%)`);
+        });
         const r = result as { scanned?: number; added?: number; updated?: number; errors?: number };
         return {
           success: true,

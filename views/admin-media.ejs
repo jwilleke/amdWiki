@@ -99,13 +99,14 @@
 
 <script>
 /** Poll /api/admin/jobs/:runId/status until completed or failed. */
-async function pollJobStatus(runId, intervalMs = 1500, maxWaitMs = 600000) {
+async function pollJobStatus(runId, intervalMs = 1500, maxWaitMs = 600000, onProgress = null) {
     const deadline = Date.now() + maxWaitMs;
     while (Date.now() < deadline) {
         await new Promise(r => setTimeout(r, intervalMs));
         const res = await fetch(`/api/admin/jobs/${runId}/status`);
         if (!res.ok) throw new Error('Status check failed');
         const run = await res.json();
+        if (onProgress && run.progress) onProgress(run.progress);
         if (run.status === 'completed' || run.status === 'failed') return run;
     }
     throw new Error('Job timed out');
@@ -122,7 +123,9 @@ document.getElementById('rescan-btn')?.addEventListener('click', async function 
         const { runId } = await enqueueRes.json();
         if (!runId) throw new Error('Failed to start rescan job');
         btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Scanning…';
-        const run = await pollJobStatus(runId);
+        const run = await pollJobStatus(runId, 1500, 600000, (progress) => {
+            btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> ${progress}`;
+        });
         status.className = run.status === 'completed' ? 'alert alert-success' : 'alert alert-danger';
         status.innerHTML = run.status === 'completed'
             ? `<i class="fas fa-check-circle"></i> ${run.result?.summary || 'Reindex complete'}`
@@ -149,7 +152,9 @@ document.getElementById('rebuild-btn')?.addEventListener('click', async function
         const { runId } = await enqueueRes.json();
         if (!runId) throw new Error('Failed to start rebuild job');
         btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Rebuilding…';
-        const run = await pollJobStatus(runId);
+        const run = await pollJobStatus(runId, 1500, 3600000, (progress) => {
+            btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> ${progress}`;
+        }); // 1-hour timeout for full rebuild
         status.className = run.status === 'completed' ? 'alert alert-success' : 'alert alert-danger';
         status.innerHTML = run.status === 'completed'
             ? `<i class="fas fa-check-circle"></i> ${run.result?.summary || 'Rebuild complete'}`

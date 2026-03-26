@@ -124,7 +124,7 @@ class FileSystemMediaProvider extends BaseMediaProvider {
   constructor(config: FileSystemMediaProviderConfig) {
     super();
     this.config = config;
-    this.exiftoolInstance = new ExifTool({ taskTimeoutMillis: 15000 });
+    this.exiftoolInstance = new ExifTool({ taskTimeoutMillis: 15000, maxProcs: 4 });
   }
 
   // ---------------------------------------------------------------------------
@@ -155,15 +155,17 @@ class FileSystemMediaProvider extends BaseMediaProvider {
    *
    * Clears the in-memory index and deletes the persisted index file, then
    * runs a forced full scan so the result reflects only files currently on disk.
+   *
+   * @param onProgress - Optional callback invoked periodically with (processed, total).
    */
-  async rebuild(): Promise<ScanResult> {
+  async rebuild(onProgress?: (processed: number, total: number) => void): Promise<ScanResult> {
     logger.info('[FileSystemMediaProvider] rebuild() — clearing index and rescanning');
     this.index = {};
     if (this.config.indexFile && await fs.pathExists(this.config.indexFile)) {
       await fs.remove(this.config.indexFile);
       logger.debug(`[FileSystemMediaProvider] Deleted index file: ${this.config.indexFile}`);
     }
-    return this.scan(true);
+    return this.scan(true, onProgress);
   }
 
   // ---------------------------------------------------------------------------
@@ -174,9 +176,14 @@ class FileSystemMediaProvider extends BaseMediaProvider {
    * Scan all configured folders, extract metadata for new/changed files,
    * save the updated index, and return a summary.
    *
-   * @param force - Re-process every file even if mtime is unchanged.
+   * Phase 1: recursively collect all matching file paths (fast, no ExifTool).
+   * Phase 2: process files concurrently in batches of BATCH_SIZE, calling
+   *          ExifTool for each file that needs metadata extraction.
+   *
+   * @param force      - Re-process every file even if mtime is unchanged.
+   * @param onProgress - Optional callback invoked after each batch with (processed, total).
    */
-  async scan(force = false): Promise<ScanResult> {
+  async scan(force = false, onProgress?: (processed: number, total: number) => void): Promise<ScanResult> {
     if (this.config.folders.length === 0) {
       logger.warn('[FileSystemMediaProvider] scan() called but no folders configured');
       return { scanned: 0, added: 0, updated: 0, errors: 0 };
@@ -189,13 +196,39 @@ class FileSystemMediaProvider extends BaseMediaProvider {
       `[FileSystemMediaProvider] Starting scan (force=${force}) — folders: [${this.config.folders.join(', ')}]`
     );
 
+    // Phase 1: collect all file paths without hitting ExifTool
+    const allFiles: string[] = [];
     for (const folder of this.config.folders) {
       if (!(await fs.pathExists(folder))) {
         logger.warn(`[FileSystemMediaProvider] Folder not found, skipping: ${folder}`);
         missingFolders.push(folder);
         continue;
       }
-      await this.walkDirectory(folder, 0, counters, force);
+      const collected = await this.collectFilePaths(folder, 0);
+      allFiles.push(...collected.files);
+      counters.excluded += collected.excluded;
+      counters.errors += collected.dirErrors;
+    }
+
+    counters.scanned = allFiles.length;
+    logger.info(`[FileSystemMediaProvider] Collected ${allFiles.length} files — beginning metadata extraction`);
+
+    // Phase 2: process files concurrently in batches
+    const BATCH_SIZE = 8;
+    const LOG_INTERVAL = 500;
+    let processed = 0;
+    for (let i = 0; i < allFiles.length; i += BATCH_SIZE) {
+      const batch = allFiles.slice(i, i + BATCH_SIZE);
+      await Promise.all(batch.map(fp => this.processFile(fp, counters, force)));
+      processed += batch.length;
+      if (onProgress) onProgress(processed, allFiles.length);
+      if (processed % LOG_INTERVAL < BATCH_SIZE || processed >= allFiles.length) {
+        const elapsedSec = ((Date.now() - startMs) / 1000).toFixed(1);
+        logger.info(
+          `[FileSystemMediaProvider] Progress: ${processed}/${allFiles.length} files in ${elapsedSec}s ` +
+            `(added=${counters.added} updated=${counters.updated} errors=${counters.errors})`
+        );
+      }
     }
 
     await this.saveIndex();
@@ -371,36 +404,35 @@ class FileSystemMediaProvider extends BaseMediaProvider {
   }
 
   // ---------------------------------------------------------------------------
-  // Private helpers — directory walk
+  // Private helpers — directory walk (collection phase only, no ExifTool)
   // ---------------------------------------------------------------------------
 
   /**
-   * Recursively walk a directory, processing media files.
+   * Recursively collect all matching media file paths under dirPath.
    *
-   * If an `.ngdpbaseignore` file is present in a directory, its gitignore-style
-   * patterns are applied to files and subdirectories within that directory.
-   * Patterns ending with `/` match directories only; all others match both.
+   * Applies ignoreDirs, maxDepth, extension filter, and .ngdpbaseignore patterns.
+   * Does NOT call ExifTool — that happens in Phase 2 (processFile).
    */
-  private async walkDirectory(
+  private async collectFilePaths(
     dirPath: string,
-    depth: number,
-    counters: ScanCounters,
-    force: boolean
-  ): Promise<void> {
-    // Enforce maxDepth (0 = unlimited)
-    if (this.config.maxDepth > 0 && depth > this.config.maxDepth) return;
+    depth: number
+  ): Promise<{ files: string[]; excluded: number; dirErrors: number }> {
+    if (this.config.maxDepth > 0 && depth > this.config.maxDepth) {
+      return { files: [], excluded: 0, dirErrors: 0 };
+    }
 
     let entries: fs.Dirent[];
     try {
       entries = await fs.readdir(dirPath, { withFileTypes: true });
     } catch (err) {
       logger.warn(`[FileSystemMediaProvider] Cannot read dir ${dirPath}: ${String(err)}`);
-      counters.errors++;
-      return;
+      return { files: [], excluded: 0, dirErrors: 1 };
     }
 
-    // Load .ngdpbaseignore patterns for this directory, if present.
     const ignorePatterns = await this.loadIgnorePatterns(dirPath, entries);
+    const files: string[] = [];
+    let excluded = 0;
+    let dirErrors = 0;
 
     for (const entry of entries) {
       if (entry.isDirectory()) {
@@ -409,21 +441,24 @@ class FileSystemMediaProvider extends BaseMediaProvider {
           logger.debug(`[FileSystemMediaProvider] Skipping dir ${entry.name} — matched .ngdpbaseignore`);
           continue;
         }
-        await this.walkDirectory(path.join(dirPath, entry.name), depth + 1, counters, force);
+        const sub = await this.collectFilePaths(path.join(dirPath, entry.name), depth + 1);
+        files.push(...sub.files);
+        excluded += sub.excluded;
+        dirErrors += sub.dirErrors;
       } else if (entry.isFile()) {
-        // Skip dotfiles (.trashed-*, .DS_Store, etc.)
         if (entry.name.startsWith('.')) continue;
         const ext = path.extname(entry.name).slice(1).toLowerCase();
         if (!this.config.extensions.has(ext)) continue;
         if (ignorePatterns.length && this.matchesIgnorePattern(entry.name, ignorePatterns, false)) {
           logger.debug(`[FileSystemMediaProvider] Skipping file ${entry.name} — matched .ngdpbaseignore`);
-          counters.excluded++;
+          excluded++;
           continue;
         }
-        counters.scanned++;
-        await this.processFile(path.join(dirPath, entry.name), counters, force);
+        files.push(path.join(dirPath, entry.name));
       }
     }
+
+    return { files, excluded, dirErrors };
   }
 
   /**
