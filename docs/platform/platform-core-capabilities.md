@@ -274,7 +274,7 @@ These are the four ways to extend ngdpbase without modifying core:
 | **Themes** | `themes/<name>/` | Visual customization — CSS variables, logo, favicon |
 | **Providers** | Implement interface, swap in config | Replace storage or search backend (`PageProvider`, `SearchProvider`, `UserProvider`, `AuditProvider`) |
 
-See `docs/amdWiki-as-platform.md` for the addon development model, use-case analysis, and how to wire an external addon repo.
+See [`docs/platform/ngdp-as-platform.md`](./ngdp-as-platform.md) for the addon development model, use-case analysis, and how to wire an external addon repo.
 
 ---
 
@@ -293,4 +293,4 @@ These are explicitly **not** in core — they are what add-on developers build:
 
 ---
 
-Last updated: 2026-03-26 | Related: `docs/amdWiki-as-platform.md`, #357 (Volcano Wiki), #122 (Private Pages), #387 (BackgroundJobManager)
+Last updated: 2026-03-29 | Related: [`docs/platform/ngdp-as-platform.md`](./ngdp-as-platform.md), #357 (Volcano Wiki), #122 (Private Pages), #387 (BackgroundJobManager)

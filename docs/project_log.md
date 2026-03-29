@@ -2,6 +2,41 @@
 
 AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version history.
 
+## 2026-03-29-04
+
+- Agent: Claude Sonnet 4.6
+- Subject: Phase 1 — addon development guide + template scaffold
+- Work Done:
+  - Created `docs/addon-development-guide.md` — full developer guide: interface, engine APIs, plugins, managers, routes, background jobs, static assets, stylesheet registration, capability flags, workflow checklist
+  - Created `addons/template/` starter scaffold:
+    - `index.js` — complete AddonModule with all lifecycle hooks, comments on each step
+    - `managers/TemplateDataManager.js` — JSON-backed data store with load/save/search/upsert/delete
+    - `plugins/TemplatePlugin.js` — markup directive with default + compact styles
+    - `routes/api.js` — search + get-by-id API routes
+    - `public/css/template.css` — CSS variables-based styles
+    - `README.md` — quick-start copy-and-rename instructions
+- Files Modified:
+  - `docs/addon-development-guide.md` (new)
+  - `addons/template/index.js` (new)
+  - `addons/template/managers/TemplateDataManager.js` (new)
+  - `addons/template/plugins/TemplatePlugin.js` (new)
+  - `addons/template/routes/api.js` (new)
+  - `addons/template/public/css/template.css` (new)
+  - `addons/template/README.md` (new)
+
+## 2026-03-29-03
+
+- Agent: Claude Sonnet 4.6
+- Subject: Formalize ngdp-as-platform.md (#398)
+- Current Issue: jwilleke/ngdpbase#398
+- Work Done:
+  - Created `docs/ngdp-as-platform.md` as the master/lead platform document
+  - Links to `docs/platform-core-capabilities.md` and `docs/amdWiki-as-platform.md` (DRY)
+  - Documents optional-capability framework (#394), add-on admin panel pattern (#397), roadmap phases, related issues
+  - Provides orientation for Volcano Wiki Phase 1 work
+- Files Modified:
+  - `docs/ngdp-as-platform.md` (new)
+
 ## 2026-03-29-02
 
 - Agent: Claude Sonnet 4.6
