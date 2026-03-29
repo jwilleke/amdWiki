@@ -304,18 +304,19 @@ class AddonsManager extends BaseManager {
       return {};
     }
 
-    // Get addon-specific properties from config
+    // Get addon-specific properties from config.
+    // Config is stored as flat dot-notation keys, e.g.:
+    //   "ngdpbase.addons.my-addon.dataPath": "./data/my-addon"
+    // Strip the prefix and expose short keys to the addon:
+    //   config.dataPath === "./data/my-addon"
     const config: Record<string, unknown> = {};
+    const prefix = `ngdpbase.addons.${addonName}.`;
+    const allProps = configManager.getAllProperties();
 
-    // Get the full config and extract addon-specific properties
-    const fullConfig = configManager.getProperty('ngdpbase.addons', {}) as Record<
-      string,
-      unknown
-    >;
-    const addonConfig = fullConfig[addonName] as Record<string, unknown> | undefined;
-
-    if (addonConfig) {
-      Object.assign(config, addonConfig);
+    for (const [key, value] of Object.entries(allProps)) {
+      if (key.startsWith(prefix)) {
+        config[key.slice(prefix.length)] = value;
+      }
     }
 
     return config;

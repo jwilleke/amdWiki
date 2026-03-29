@@ -10,14 +10,20 @@ Starter scaffold for building a new ngdpbase add-on.
    cp -r addons/template /path/to/my-addon-repo/addons/my-addon
    ```
 
-2. Rename every occurrence of `template` / `Template` to your add-on name in:
+2. Install dependencies (external repos cannot use ngdpbase's `node_modules`):
+
+   ```sh
+   npm install
+   ```
+
+3. Rename every occurrence of `template` / `Template` to your add-on name in:
    - `index.js` — `name:`, require paths, route prefix, static path
    - `managers/TemplateDataManager.js` → `managers/MyDataManager.js`
    - `plugins/TemplatePlugin.js` → `plugins/MyPlugin.js`
    - `routes/api.js` — route prefix
    - `public/css/template.css` → `public/css/my-addon.css`
 
-3. Add to your ngdpbase instance config (`$FAST_STORAGE/config/app-custom-config.json`):
+4. Add to your ngdpbase instance config (`$FAST_STORAGE/config/app-custom-config.json`):
 
    ```json
    {
@@ -27,14 +33,15 @@ Starter scaffold for building a new ngdpbase add-on.
    }
    ```
 
-4. Restart: `./server.sh restart`
+5. Restart: `./server.sh restart`
 
-5. Verify in the admin panel → Add-ons section.
+6. Verify in the admin panel → Add-ons section.
 
 ## Structure
 
 ```
 template/
+├── package.json              ← declare express + any other deps; run npm install
 ├── index.js                  ← AddonModule entry point
 ├── managers/
 │   └── TemplateDataManager.js  ← JSON-backed data store (replace with your logic)

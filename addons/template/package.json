@@ -1,0 +1,12 @@
+{
+  "name": "my-addon",
+  "version": "1.0.0",
+  "description": "ngdpbase add-on (rename this)",
+  "private": true,
+  "dependencies": {
+    "express": "^5.2.1"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
