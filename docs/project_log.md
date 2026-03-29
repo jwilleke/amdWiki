@@ -2,6 +2,25 @@
 
 AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version history.
 
+## 2026-03-29-05
+
+- Agent: Claude Sonnet 4.6
+- Subject: Consolidate platform docs, SEMVER bump, close #398
+- Work Done:
+  - Moved all platform docs into `docs/platform/`
+  - Removed `docs/amdWiki-as-platform.md` — merged unique content (use cases, gaps, upstream workflow) into `ngdp-as-platform.md`
+  - Updated all cross-references between the 3 remaining docs
+  - Bumped version 3.0.8 → 3.0.9 (PATCH)
+  - All 91 test suites passing (2358 tests)
+  - Closed GitHub issue #398
+  - Committed: 7cba353
+- Files Modified:
+  - `docs/platform/ngdp-as-platform.md` (consolidated)
+  - `docs/platform/platform-core-capabilities.md` (moved + refs updated)
+  - `docs/platform/addon-development-guide.md` (moved + refs updated)
+  - `docs/amdWiki-as-platform.md` (deleted)
+  - `package.json`, `config/app-default-config.json`, `CHANGELOG.md` (version bump)
+
 ## 2026-03-29-04
 
 - Agent: Claude Sonnet 4.6
