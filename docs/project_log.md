@@ -2,6 +2,26 @@
 
 AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version history.
 
+## 2026-03-29-01
+
+- Agent: Claude Sonnet 4.6
+- Subject: Fix Browse Assets dialog (#400)
+- Current Issue: jwilleke/ngdpbase#400
+- Key Decision: `AssetService._searchAttachments()` was casting `getAllAttachments()` results using the old schema-style interface (`identifier`, `name`, `encodingFormat`) but `BasicAttachmentProvider.getAllAttachments()` returns `Provider.AttachmentMetadata` with `id`, `filename`, `mimeType`. Fixed cast and field access to match the actual runtime shape.
+- Testing:
+  - AssetService unit tests: 32 passed
+  - Build successful, server restarted
+- Work Done:
+  - Fixed `AssetService._searchAttachments()` wrong field names (`identifier`/`name`/`encodingFormat` → `id`/`filename`/`mimeType`)
+  - Added `uploadedAt` → `dateTimeOriginal` mapping for proper date sorting of attachments
+  - Extended attachment query filter to also search `description` field (matches `/attachments/browse` behaviour)
+  - Updated `AssetService.test.js` mock data to use correct `Provider.AttachmentMetadata` field names
+  - Fixed `browse-attachments.ejs` clipboard copy to fall back to `execCommand` on non-HTTPS hosts
+- Files Modified:
+  - `src/managers/AssetService.ts`
+  - `src/managers/__tests__/AssetService.test.js`
+  - `views/browse-attachments.ejs`
+
 ## Format
 
 ```

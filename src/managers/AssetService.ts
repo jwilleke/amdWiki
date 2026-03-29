@@ -161,9 +161,8 @@ class AssetService extends BaseManager {
   }
 
   private async _searchAttachments(query: string): Promise<AssetSearchResult[]> {
-    const attachmentManager = this.engine.getManager('AttachmentManager') as
-      | { getAllAttachments(): Promise<Array<{ identifier: string; name?: string; encodingFormat?: string; url?: string; mentions?: Array<{ name: string }> }>> }
-      | undefined;
+    type AttachmentManagerLike = { getAllAttachments(): Promise<Array<{ id: string; filename: string; mimeType?: string; description?: string; uploadedAt?: string }>> };
+    const attachmentManager = this.engine.getManager<AttachmentManagerLike>('AttachmentManager');
 
     if (!attachmentManager) return [];
 
@@ -171,19 +170,20 @@ class AssetService extends BaseManager {
     const q = query.toLowerCase();
 
     return all
-      .filter(a => !q || (a.name || '').toLowerCase().includes(q))
+      .filter(a => !q ||
+        (a.filename || '').toLowerCase().includes(q) ||
+        (a.description || '').toLowerCase().includes(q))
       .map(a => {
-        const filename = a.name || a.identifier;
-        const mimeType = a.encodingFormat || '';
-        const url = a.url || `/attachments/${a.identifier}`;
-        const linkedPageName = a.mentions?.[0]?.name;
+        const filename = a.filename || a.id;
+        const mimeType = a.mimeType || '';
+        const url = `/attachments/${a.id}`;
         return {
           assetType: 'attachment' as const,
-          id: a.identifier,
+          id: a.id,
           filename,
           mimeType,
           url,
-          linkedPageName,
+          dateTimeOriginal: a.uploadedAt,
           insertSnippet: mimeType.startsWith('image/')
             ? `[{Image src='${filename}'}]`
             : `[{ATTACH src='${filename}'}]`
@@ -196,12 +196,11 @@ class AssetService extends BaseManager {
     year: number | undefined,
     wikiContext?: WikiContext
   ): Promise<AssetSearchResult[]> {
-    const mediaManager = this.engine.getManager('MediaManager') as
-      | {
-          search(q: string, ctx?: WikiContext): Promise<Array<{ id: string; filename: string; mimeType: string; year?: number; linkedPageName?: string; isPrivate?: boolean; metadata?: Record<string, unknown> }>>;
-          listByYear(y: number, ctx?: WikiContext): Promise<Array<{ id: string; filename: string; mimeType: string; year?: number; linkedPageName?: string; isPrivate?: boolean; metadata?: Record<string, unknown> }>>;
-        }
-      | undefined;
+    type MediaManagerLike = {
+      search(q: string, ctx?: WikiContext): Promise<Array<{ id: string; filename: string; mimeType: string; year?: number; linkedPageName?: string; isPrivate?: boolean; metadata?: Record<string, unknown> }>>;
+      listByYear(y: number, ctx?: WikiContext): Promise<Array<{ id: string; filename: string; mimeType: string; year?: number; linkedPageName?: string; isPrivate?: boolean; metadata?: Record<string, unknown> }>>;
+    };
+    const mediaManager = this.engine.getManager<MediaManagerLike>('MediaManager');
 
     if (!mediaManager) return [];
 

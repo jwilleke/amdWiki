@@ -12,11 +12,11 @@ const AssetService = require('../AssetService');
 
 function makeAttachment(overrides = {}) {
   return {
-    identifier: 'att-1',
-    name: 'photo.jpg',
-    encodingFormat: 'image/jpeg',
-    url: '/attachments/att-1',
-    mentions: [{ name: 'SomePage' }],
+    id: 'att-1',
+    filename: 'photo.jpg',
+    mimeType: 'image/jpeg',
+    uploadedAt: '2024-01-01T00:00:00Z',
+    description: '',
     ...overrides,
   };
 }
@@ -79,7 +79,7 @@ describe('AssetService.search()', () => {
 
     it('total equals full match count', async () => {
       const attachments = Array.from({ length: 5 }, (_, i) =>
-        makeAttachment({ identifier: `a${i}`, name: `file${i}.jpg` })
+        makeAttachment({ id: `a${i}`, filename: `file${i}.jpg` })
       );
       const { service } = makeService({ attachments, noMedia: true });
 
@@ -98,7 +98,7 @@ describe('AssetService.search()', () => {
 
     it('hasMore is true when total exceeds pageSize', async () => {
       const attachments = Array.from({ length: 10 }, (_, i) =>
-        makeAttachment({ identifier: `a${i}`, name: `f${i}.jpg` })
+        makeAttachment({ id: `a${i}`, filename: `f${i}.jpg` })
       );
       const { service } = makeService({ attachments, noMedia: true });
 
@@ -123,13 +123,13 @@ describe('AssetService.search()', () => {
       expect(r.filename).toBe('photo.jpg');
       expect(r.mimeType).toBe('image/jpeg');
       expect(r.url).toBe('/attachments/att-1');
-      expect(r.linkedPageName).toBe('SomePage');
+      expect(r.dateTimeOriginal).toBe('2024-01-01T00:00:00Z');
       expect(r.insertSnippet).toBe("[{Image src='photo.jpg'}]");
     });
 
     it('attachment insertSnippet uses ATTACH for non-image mimeType', async () => {
       const { service } = makeService({
-        attachments: [makeAttachment({ name: 'doc.pdf', encodingFormat: 'application/pdf' })],
+        attachments: [makeAttachment({ filename: 'doc.pdf', mimeType: 'application/pdf' })],
       });
 
       const { results } = await service.search({ types: ['attachment'] });
@@ -209,8 +209,8 @@ describe('AssetService.search()', () => {
     it('query filters attachments by filename substring (case-insensitive)', async () => {
       const { service } = makeService({
         attachments: [
-          makeAttachment({ identifier: 'a1', name: 'beach.jpg' }),
-          makeAttachment({ identifier: 'a2', name: 'mountain.jpg' }),
+          makeAttachment({ id: 'a1', filename: 'beach.jpg' }),
+          makeAttachment({ id: 'a2', filename: 'mountain.jpg' }),
         ],
         noMedia: true,
       });
@@ -224,8 +224,8 @@ describe('AssetService.search()', () => {
     it('empty query returns all attachments', async () => {
       const { service } = makeService({
         attachments: [
-          makeAttachment({ identifier: 'a1', name: 'a.jpg' }),
-          makeAttachment({ identifier: 'a2', name: 'b.jpg' }),
+          makeAttachment({ id: 'a1', filename: 'a.jpg' }),
+          makeAttachment({ id: 'a2', filename: 'b.jpg' }),
         ],
         noMedia: true,
       });
@@ -272,7 +272,7 @@ describe('AssetService.search()', () => {
   describe('pagination', () => {
     it('pageSize limits results returned', async () => {
       const attachments = Array.from({ length: 20 }, (_, i) =>
-        makeAttachment({ identifier: `a${i}`, name: `file${i}.jpg` })
+        makeAttachment({ id: `a${i}`, filename: `file${i}.jpg` })
       );
       const { service } = makeService({ attachments, noMedia: true });
 
@@ -283,7 +283,7 @@ describe('AssetService.search()', () => {
 
     it('offset skips earlier results', async () => {
       const attachments = Array.from({ length: 10 }, (_, i) =>
-        makeAttachment({ identifier: `a${i}`, name: `file${i}.jpg` })
+        makeAttachment({ id: `a${i}`, filename: `file${i}.jpg` })
       );
       const { service } = makeService({ attachments, noMedia: true });
 
@@ -296,7 +296,7 @@ describe('AssetService.search()', () => {
 
     it('total always reflects full match count regardless of page', async () => {
       const attachments = Array.from({ length: 15 }, (_, i) =>
-        makeAttachment({ identifier: `a${i}`, name: `file${i}.jpg` })
+        makeAttachment({ id: `a${i}`, filename: `file${i}.jpg` })
       );
       const { service } = makeService({ attachments, noMedia: true });
 
@@ -308,7 +308,7 @@ describe('AssetService.search()', () => {
 
     it('default pageSize is 48', async () => {
       const attachments = Array.from({ length: 60 }, (_, i) =>
-        makeAttachment({ identifier: `a${i}`, name: `file${i}.jpg` })
+        makeAttachment({ id: `a${i}`, filename: `file${i}.jpg` })
       );
       const { service } = makeService({ attachments, noMedia: true });
 

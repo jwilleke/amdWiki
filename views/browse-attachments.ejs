@@ -222,10 +222,27 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function copyToClipboard(text) {
-        navigator.clipboard.writeText(text).then(function() {
+        function showToast() {
             var toast = new bootstrap.Toast(document.getElementById('copyToast'), { delay: 1500 });
             toast.show();
-        });
+        }
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(text).then(showToast).catch(function() { fallbackCopy(text, showToast); });
+        } else {
+            fallbackCopy(text, showToast);
+        }
+    }
+
+    function fallbackCopy(text, onSuccess) {
+        var ta = document.createElement('textarea');
+        ta.value = text;
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.focus();
+        ta.select();
+        try { if (document.execCommand('copy') && onSuccess) onSuccess(); } catch (e) { /* silent */ }
+        document.body.removeChild(ta);
     }
 
     function insertIntoEditor(url, filename, mimeType) {
