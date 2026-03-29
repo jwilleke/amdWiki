@@ -1,7 +1,35 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
-  <rect width="32" height="32" fill="#1a0e08" rx="4"/>
-  <polygon points="16,4 28,28 4,28" fill="#5a2010"/>
-  <polygon points="16,10 24,28 8,28" fill="#8a3020"/>
-  <polygon points="14,14 18,14 20,10 16,4 12,10" fill="#c0392b"/>
-  <ellipse cx="16" cy="9" rx="3" ry="2" fill="#e85a20" opacity="0.8"/>
+  <defs>
+    <radialGradient id="glow" cx="50%" cy="40%" r="50%">
+      <stop offset="0%" stop-color="#ff6b00" stop-opacity="0.9"/>
+      <stop offset="100%" stop-color="#c0392b" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#1a0e08"/>
+      <stop offset="100%" stop-color="#2d1208"/>
+    </linearGradient>
+    <linearGradient id="cone" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#3d1a0e"/>
+      <stop offset="100%" stop-color="#5a2010"/>
+    </linearGradient>
+  </defs>
+  <!-- Sky background -->
+  <rect width="32" height="32" fill="url(#sky)" rx="4"/>
+  <!-- Lava glow at crater -->
+  <ellipse cx="16" cy="11" rx="7" ry="4" fill="url(#glow)"/>
+  <!-- Volcano cone -->
+  <polygon points="16,6 30,28 2,28" fill="url(#cone)"/>
+  <!-- Cone shading -->
+  <polygon points="16,6 30,28 22,28" fill="#2a0e06" opacity="0.4"/>
+  <!-- Crater rim -->
+  <ellipse cx="16" cy="9" rx="4" ry="2" fill="#8a3020"/>
+  <!-- Lava/eruption -->
+  <ellipse cx="16" cy="8" rx="2.5" ry="1.5" fill="#ff6b00"/>
+  <ellipse cx="16" cy="7.5" rx="1.5" ry="1" fill="#ffaa00"/>
+  <!-- Lava sparks -->
+  <circle cx="13" cy="6" r="0.8" fill="#ff6b00" opacity="0.9"/>
+  <circle cx="19" cy="5.5" r="0.6" fill="#ffaa00" opacity="0.8"/>
+  <circle cx="14.5" cy="4.5" r="0.5" fill="#ff8c00" opacity="0.7"/>
+  <!-- Ground/base -->
+  <rect x="0" y="26" width="32" height="6" fill="#1a0a04" rx="0"/>
 </svg>
