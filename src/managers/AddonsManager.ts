@@ -323,6 +323,56 @@ class AddonsManager extends BaseManager {
   }
 
   /**
+   * Seed wiki pages shipped with an add-on.
+   *
+   * If the add-on directory contains a `pages/` subdirectory, any `.md` files
+   * found there are copied to the instance pages directory — but only if a file
+   * with the same name does not already exist (user edits are never overwritten).
+   *
+   * This mirrors how `required-pages/` seeds core pages at install time.
+   *
+   * @param addonName  Name of the add-on (for logging)
+   * @param addonPath  Filesystem path to the add-on directory
+   */
+  private async seedAddonPages(addonName: string, addonPath: string): Promise<void> {
+    const addonPagesDir = path.join(addonPath, 'pages');
+
+    try {
+      await fs.promises.access(addonPagesDir);
+    } catch {
+      return; // No pages/ directory — nothing to seed
+    }
+
+    const configManager = this.engine.getManager<ConfigurationManager>('ConfigurationManager');
+    const pagesDir = (configManager?.getProperty(
+      'ngdpbase.page.provider.filesystem.storagedir',
+      './data/pages'
+    ) as string);
+
+    await fs.promises.mkdir(pagesDir, { recursive: true });
+
+    const files = (await fs.promises.readdir(addonPagesDir)).filter(f => f.endsWith('.md'));
+    let seeded = 0;
+
+    for (const file of files) {
+      const dest = path.join(pagesDir, file);
+      try {
+        await fs.promises.access(dest);
+        // File exists — skip to preserve user edits
+      } catch {
+        await fs.promises.copyFile(path.join(addonPagesDir, file), dest);
+        seeded++;
+      }
+    }
+
+    if (seeded > 0) {
+      logger.info(`[AddonsManager] Seeded ${seeded} page(s) from ${addonName}/pages/`);
+    } else {
+      logger.debug(`[AddonsManager] No new pages to seed for ${addonName}`);
+    }
+  }
+
+  /**
    * Load all enabled add-ons in dependency order
    */
   private async loadAddons(): Promise<void> {
@@ -425,6 +475,9 @@ class AddonsManager extends BaseManager {
 
       // Call the add-on's register function
       await addon.module.register(this.engine, addonConfig);
+
+      // Seed any pages shipped with the add-on (pages/ subdir)
+      await this.seedAddonPages(addonName, addon.path);
 
       addon.loaded = true;
       addon.error = null;
