@@ -278,19 +278,26 @@
                     <% if (currentUser.roles.includes('admin')) { %>
                     <div class="d-flex flex-wrap gap-2">
                         <span class="d-inline-flex align-items-center gap-1">
-                            <a href="/admin/media" class="btn btn-outline-secondary btn-sm">
+                            <button id="dashboard-rescan-btn" class="btn btn-outline-secondary btn-sm" onclick="dashboardMediaRescan()">
                                 <i class="fas fa-sync"></i> Reindex Media
-                            </a>
+                            </button>
                             <a href="/view/media" class="text-muted small" title="Documentation" target="_blank"><i class="fas fa-question-circle"></i></a>
                         </span>
 
                         <span class="d-inline-flex align-items-center gap-1">
-                            <a href="/admin/media" class="btn btn-warning btn-sm">
+                            <button id="dashboard-rebuild-btn" class="btn btn-warning btn-sm" onclick="dashboardMediaRebuild()">
                                 <i class="fas fa-database"></i> Rebuild Media
-                            </a>
+                            </button>
                             <a href="/view/media" class="text-muted small" title="Documentation" target="_blank"><i class="fas fa-question-circle"></i></a>
                         </span>
+
+                        <span class="d-inline-flex align-items-center gap-1">
+                            <a href="/admin/media" class="btn btn-secondary btn-sm">
+                                <i class="fas fa-photo-video"></i> Media Manager
+                            </a>
+                        </span>
                     </div>
+                    <div id="dashboard-media-status" class="mt-2" style="display:none;"></div>
                     <% } else { %>
                         <p class="text-muted">Admin role required for these tools.</p>
                     <% } %>
@@ -547,6 +554,69 @@ function showMessage(message, type) {
         messageEl.style.opacity = '0';
         setTimeout(() => messageEl.style.display = 'none', 300);
     }, 5000);
+}
+
+async function dashboardMediaRescan() {
+    const btn = document.getElementById('dashboard-rescan-btn');
+    const status = document.getElementById('dashboard-media-status');
+    const originalHTML = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Scanning…';
+    status.style.display = 'none';
+    try {
+        const csrfToken = document.querySelector('input[name="_csrf"]')?.value || '<%= csrfToken %>';
+        const enqueueRes = await fetch('/api/admin/jobs/media.rescan/enqueue', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'CSRF-Token': csrfToken }
+        });
+        const { runId } = await enqueueRes.json();
+        if (!runId) throw new Error('Failed to start rescan job');
+        const run = await pollJobStatus(runId);
+        status.className = run.status === 'completed' ? 'alert alert-success' : 'alert alert-danger';
+        status.innerHTML = run.status === 'completed'
+            ? `<i class="fas fa-check-circle"></i> ${run.result?.summary || 'Reindex complete'}`
+            : `<i class="fas fa-exclamation-triangle"></i> ${run.result?.error || 'Scan failed'}`;
+        status.style.display = 'block';
+    } catch (e) {
+        status.className = 'alert alert-danger';
+        status.innerHTML = `<i class="fas fa-exclamation-triangle"></i> ${e.message || 'Request failed'}`;
+        status.style.display = 'block';
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = originalHTML;
+    }
+}
+
+async function dashboardMediaRebuild() {
+    if (!confirm('Delete the existing media index and rebuild from scratch? This may take several minutes.')) return;
+    const btn = document.getElementById('dashboard-rebuild-btn');
+    const status = document.getElementById('dashboard-media-status');
+    const originalHTML = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Rebuilding…';
+    status.style.display = 'none';
+    try {
+        const csrfToken = document.querySelector('input[name="_csrf"]')?.value || '<%= csrfToken %>';
+        const enqueueRes = await fetch('/api/admin/jobs/media.rebuild/enqueue', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'CSRF-Token': csrfToken }
+        });
+        const { runId } = await enqueueRes.json();
+        if (!runId) throw new Error('Failed to start rebuild job');
+        const run = await pollJobStatus(runId, 1500, 3600000);
+        status.className = run.status === 'completed' ? 'alert alert-success' : 'alert alert-danger';
+        status.innerHTML = run.status === 'completed'
+            ? `<i class="fas fa-check-circle"></i> ${run.result?.summary || 'Rebuild complete'}`
+            : `<i class="fas fa-exclamation-triangle"></i> ${run.result?.error || 'Rebuild failed'}`;
+        status.style.display = 'block';
+    } catch (e) {
+        status.className = 'alert alert-danger';
+        status.innerHTML = `<i class="fas fa-exclamation-triangle"></i> ${e.message || 'Request failed'}`;
+        status.style.display = 'block';
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = originalHTML;
+    }
 }
 
 // Check for updates on page load (non-blocking)

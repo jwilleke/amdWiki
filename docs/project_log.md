@@ -2,6 +2,22 @@
 
 AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version history.
 
+## 2026-03-29-06
+
+- Agent: Claude Sonnet 4.6
+- Subject: Fix Media Management dashboard buttons (#397)
+- Current Issue: jwilleke/ngdpbase#397
+- Work Done:
+  - Replaced two dead `<a href="/admin/media">` links in dashboard Media Management card with real action buttons
+  - "Reindex Media" now triggers `media.rescan` background job inline with job polling
+  - "Rebuild Media" now triggers `media.rebuild` background job inline with confirmation + polling
+  - Added "Media Manager" navigation link to `/admin/media` for stats/details
+  - Added status feedback div below buttons
+  - `capabilities.media` guard unchanged (was already correct)
+  - Closed #397, confirmed #400 already closed
+- Files Modified:
+  - `views/admin-dashboard.ejs`
+
 ## 2026-03-29-05
 
 - Agent: Claude Sonnet 4.6
