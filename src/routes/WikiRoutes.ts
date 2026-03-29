@@ -2583,7 +2583,7 @@ class WikiRoutes {
    */
   async uploadAttachment(req: Request, res: Response) {
     try {
-      const { page: pageName } = req.params;
+      const pageName = req.params.page ? decodeURIComponent(req.params.page) : undefined;
       const attachmentManager = this.engine.getManager('AttachmentManager');
 
       // 🔒 SECURITY: Check authentication
@@ -5629,14 +5629,11 @@ class WikiRoutes {
         );
       }
 
-      const attachmentManager = this.engine.getManager('AttachmentManager');
-      const attachments = await attachmentManager.getAllAttachments();
       const commonData = await this.getCommonTemplateData(req);
 
       return res.render('browse-attachments', {
         ...commonData,
-        title: 'Browse Attachments',
-        attachments
+        title: 'Browse Assets'
       });
     } catch (err: unknown) {
       logger.error('Error loading attachment browser:', err);
@@ -5694,10 +5691,12 @@ class WikiRoutes {
       const offset = Math.max(parseInt(req.query.offset as string, 10) || 0, 0);
       const sort = req.query.sort === 'caption' ? 'caption' as const : 'date' as const;
       const order = req.query.order === 'desc' ? 'desc' as const : 'asc' as const;
+      const mimeCategoryRaw = req.query.mimeCategory as string;
+      const mimeCategory = (['image', 'document', 'other'] as const).find(c => c === mimeCategoryRaw);
 
       const wikiContext = this.createWikiContext(req);
 
-      const page = await assetService.search({ query, types, year, pageSize, offset, sort, order, wikiContext });
+      const page = await assetService.search({ query, types, year, pageSize, offset, sort, order, mimeCategory, wikiContext });
 
       return res.json({ success: true, ...page });
     } catch (err: unknown) {
@@ -6664,7 +6663,7 @@ class WikiRoutes {
     app.get('/attachments/browse/api', (req: Request, res: Response) => this.browseAttachmentsApi(req, res));
 
     // Attachment routes
-    app.post('/attachments/upload/:page', (req: Request, res: Response) => {
+    app.post('/attachments/upload/:page?', (req: Request, res: Response) => {
       attachmentUpload.single('file')(req, res, (err: unknown) => {
         if (err) {
           if (err instanceof multer.MulterError) {

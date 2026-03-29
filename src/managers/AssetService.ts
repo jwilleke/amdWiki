@@ -91,6 +91,8 @@ export interface AssetSearchOptions {
   sort?: 'date' | 'caption';
   /** Sort direction: 'asc' (default) or 'desc' */
   order?: 'asc' | 'desc';
+  /** Filter results to a MIME category: 'image', 'document', or 'other' */
+  mimeCategory?: 'image' | 'document' | 'other';
   /** WikiContext for media access-control evaluation */
   wikiContext?: WikiContext;
 }
@@ -108,7 +110,7 @@ class AssetService extends BaseManager {
    * slicing, and returns the page along with the total match count.
    */
   async search(options: AssetSearchOptions = {}): Promise<AssetSearchPage> {
-    const { query = '', types, year, pageSize = 48, offset = 0, sort = 'date', order = 'asc', wikiContext } = options;
+    const { query = '', types, year, pageSize = 48, offset = 0, sort = 'date', order = 'asc', mimeCategory, wikiContext } = options;
     const includeAttachments = !types || types.includes('attachment');
     const includeMedia = !types || types.includes('media');
 
@@ -130,12 +132,24 @@ class AssetService extends BaseManager {
       }
     }
 
-    this._sortResults(all, sort, order);
+    const filtered = mimeCategory ? all.filter(r => this._matchesMimeCategory(r.mimeType, mimeCategory)) : all;
 
-    const total = all.length;
-    const results = all.slice(offset, offset + pageSize);
+    this._sortResults(filtered, sort, order);
+
+    const total = filtered.length;
+    const results = filtered.slice(offset, offset + pageSize);
 
     return { results, total, hasMore: offset + results.length < total };
+  }
+
+  private _matchesMimeCategory(mimeType: string, category: 'image' | 'document' | 'other'): boolean {
+    const m = mimeType || '';
+    const isImage = m.startsWith('image/');
+    const isDocument = m.includes('pdf') || m.includes('document') ||
+      m.includes('spreadsheet') || m.startsWith('text/');
+    if (category === 'image') return isImage;
+    if (category === 'document') return isDocument;
+    return !isImage && !isDocument;
   }
 
   private _sortResults(items: AssetSearchResult[], sort: 'date' | 'caption', order: 'asc' | 'desc'): void {

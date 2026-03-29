@@ -1,0 +1,320 @@
+<%
+/*
+ * _asset-picker.ejs — shared Browse Assets component
+ *
+ * Expected locals:
+ *   assetPickerMode   : 'page' | 'modal'
+ *   assetPickerInsert : true | false   (show Insert button vs Copy button)
+ *   assetPickerPageName : string | undefined  (wiki page context for upload)
+ */
+var _apMode       = typeof assetPickerMode       !== 'undefined' ? assetPickerMode       : 'page';
+var _apInsert     = typeof assetPickerInsert      !== 'undefined' ? assetPickerInsert      : false;
+var _apPageName   = typeof assetPickerPageName    !== 'undefined' ? assetPickerPageName    : '';
+%>
+
+<!-- Controls bar -->
+<div class="row g-2 mb-3">
+    <div class="col">
+        <input type="text" id="ap-query" class="form-control"
+               placeholder="Search by filename, description, year&hellip;"
+               autocomplete="off">
+    </div>
+    <div class="col-auto">
+        <select id="ap-source" class="form-select" title="Asset source">
+            <option value="">All sources</option>
+            <option value="attachment">Attachments only</option>
+            <option value="media">Media library only</option>
+        </select>
+    </div>
+    <div class="col-auto">
+        <select id="ap-mime" class="form-select" title="File type">
+            <option value="">All formats</option>
+            <option value="image">Images</option>
+            <option value="document">Documents</option>
+            <option value="other">Other</option>
+        </select>
+    </div>
+    <div class="col-auto">
+        <select id="ap-sort" class="form-select" title="Sort order">
+            <option value="date-desc">Date &darr; (newest)</option>
+            <option value="date-asc">Date &uarr; (oldest)</option>
+            <option value="caption-asc">Name A&ndash;Z</option>
+            <option value="caption-desc">Name Z&ndash;A</option>
+        </select>
+    </div>
+    <div class="col-auto d-flex gap-2">
+        <button type="button" class="btn btn-primary" id="ap-search-btn">
+            <i class="fas fa-search"></i> <span class="d-none d-sm-inline">Search</span>
+        </button>
+        <button type="button" class="btn btn-outline-secondary" id="ap-upload-btn" title="Upload Attachment">
+            <i class="fas fa-upload"></i> <span class="d-none d-sm-inline">Upload</span>
+        </button>
+    </div>
+</div>
+
+<!-- Results grid -->
+<div id="ap-results" class="row g-2<% if (_apMode === 'modal') { %> ap-modal-scroll<% } %>">
+    <div class="col-12 text-center text-muted py-5" id="ap-placeholder">
+        <i class="fas fa-search fa-2x mb-2 d-block"></i>
+        Enter a search term or leave blank to browse all assets.
+    </div>
+</div>
+
+<!-- Pagination footer -->
+<div class="d-flex flex-wrap justify-content-between align-items-center mt-3 gap-2">
+    <small class="text-muted" id="ap-count"></small>
+    <nav aria-label="Asset browser pagination">
+        <ul class="pagination pagination-sm mb-0" id="ap-pagination"></ul>
+    </nav>
+</div>
+
+<% if (_apMode === 'modal') { %>
+<style>
+.ap-modal-scroll { max-height: 55vh; overflow-y: auto; }
+</style>
+<% } %>
+
+<script>
+(function () {
+    var AP_PAGE_SIZE = 48;
+    var _apPage   = 0;      // zero-based page index
+    var _apTotal  = 0;
+    var _apItems  = [];     // current page results (for index-based insert/copy)
+    var _apTimer  = null;
+    var _apInsert = <%- _apInsert ? 'true' : 'false' %>;
+    var _apPage_  = <%- JSON.stringify(_apPageName) %>;  // wiki page name for upload
+
+    // DOM refs
+    var qEl     = document.getElementById('ap-query');
+    var srcEl   = document.getElementById('ap-source');
+    var mimeEl  = document.getElementById('ap-mime');
+    var sortEl  = document.getElementById('ap-sort');
+    var resEl   = document.getElementById('ap-results');
+    var cntEl   = document.getElementById('ap-count');
+    var pagEl   = document.getElementById('ap-pagination');
+
+    // Wire controls
+    qEl.addEventListener('input', function () {
+        clearTimeout(_apTimer);
+        _apTimer = setTimeout(function () { _apSearch(0); }, 350);
+    });
+    qEl.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') { clearTimeout(_apTimer); _apSearch(0); }
+    });
+    srcEl.addEventListener('change',  function () { _apSearch(0); });
+    mimeEl.addEventListener('change', function () { _apSearch(0); });
+    sortEl.addEventListener('change', function () { _apSearch(0); });
+    document.getElementById('ap-search-btn').addEventListener('click', function () { _apSearch(0); });
+    document.getElementById('ap-upload-btn').addEventListener('click', function () {
+        if (typeof window.showUploadAttachment === 'function') {
+            window.showUploadAttachment(_apPage_ || null);
+        }
+    });
+
+    // Expose for modal wrapper to call on open
+    window.apRunSearch = function () { _apSearch(0); };
+
+    // ------------------------------------------------------------------ search
+
+    async function _apSearch(page) {
+        _apPage = page;
+        var q       = qEl.value.trim();
+        var src     = srcEl.value;
+        var mime    = mimeEl.value;
+        var sortVal = sortEl.value;
+        var parts   = sortVal.split('-');
+        var sortField = parts[0];
+        var sortOrder = parts[1];
+
+        resEl.innerHTML = '<div class="col-12 text-center py-5"><i class="fas fa-spinner fa-spin fa-2x text-muted"></i></div>';
+        cntEl.textContent = '';
+        pagEl.innerHTML = '';
+
+        try {
+            var params = new URLSearchParams({
+                pageSize : String(AP_PAGE_SIZE),
+                offset   : String(page * AP_PAGE_SIZE),
+                sort     : sortField,
+                order    : sortOrder
+            });
+            if (q)    params.set('q',            q);
+            if (src)  params.set('types',         src);
+            if (mime) params.set('mimeCategory',  mime);
+
+            var resp = await fetch('/api/assets/search?' + params.toString());
+            if (!resp.ok) throw new Error('Search failed (' + resp.status + ')');
+            var data = await resp.json();
+
+            if (!data.success || !data.results || !data.results.length) {
+                _apItems = [];
+                _apTotal = 0;
+                resEl.innerHTML = '<div class="col-12 text-center text-muted py-5">No assets found.</div>';
+                return;
+            }
+
+            _apItems = data.results;
+            _apTotal = data.total || data.results.length;
+
+            var totalPages  = Math.ceil(_apTotal / AP_PAGE_SIZE);
+            var start       = page * AP_PAGE_SIZE + 1;
+            var end         = Math.min(page * AP_PAGE_SIZE + data.results.length, _apTotal);
+
+            cntEl.textContent = _apTotal.toLocaleString() + ' result' + (_apTotal !== 1 ? 's' : '') +
+                (_apTotal > AP_PAGE_SIZE ? ' \u00b7 showing ' + start + '\u2013' + end : '');
+
+            resEl.innerHTML = data.results.map(function (asset, idx) {
+                return _apCard(asset, idx);
+            }).join('');
+
+            if (totalPages > 1) {
+                WikiPagination.renderNav(pagEl, page + 1, totalPages, function (oneBased) {
+                    resEl.scrollTop = 0;
+                    _apSearch(oneBased - 1);
+                });
+            }
+
+        } catch (err) {
+            _apItems = [];
+            resEl.innerHTML = '<div class="col-12 text-center text-danger py-4"><i class="fas fa-exclamation-triangle"></i> ' + _esc(err.message) + '</div>';
+        }
+    }
+
+    // ------------------------------------------------------------------ card
+
+    function _apCard(asset, idx) {
+        var isImage  = asset.mimeType && asset.mimeType.startsWith('image/');
+        var isMedia  = asset.assetType === 'media';
+        var thumb;
+
+        if (isMedia && asset.thumbUrl) {
+            thumb = '<img src="' + _esc(asset.thumbUrl) + '" class="img-fluid rounded mb-1" style="max-height:110px;object-fit:cover;width:100%;" loading="lazy" alt="">';
+        } else if (isImage && asset.url) {
+            thumb = '<img src="' + _esc(asset.url) + '" class="img-fluid rounded mb-1" style="max-height:110px;object-fit:cover;width:100%;" loading="lazy" alt="">';
+        } else {
+            var icon = isMedia ? 'fa-photo-video' : 'fa-paperclip';
+            thumb = '<div class="text-center text-muted py-3"><i class="fas ' + icon + ' fa-2x"></i></div>';
+        }
+
+        var badge = isMedia
+            ? '<span class="badge bg-info text-dark">media</span>'
+            : '<span class="badge bg-secondary">attachment</span>';
+        var year  = asset.year ? '<small class="text-muted me-1">' + _esc(String(asset.year)) + '</small>' : '';
+        var name  = asset.caption || asset.filename || asset.id;
+
+        var actionBtn;
+        if (_apInsert) {
+            actionBtn = '<button type="button" class="btn btn-sm btn-primary w-100" onclick="apAction(' + idx + ')" title="' + _esc(asset.insertSnippet) + '">' +
+                '<i class="fas fa-code"></i> Insert</button>';
+        } else {
+            actionBtn = '<button type="button" class="btn btn-sm btn-outline-secondary w-100" onclick="apAction(' + idx + ')" title="Copy wiki syntax">' +
+                '<i class="fas fa-copy"></i> Copy</button>';
+        }
+
+        return '<div class="col-6 col-md-3 col-lg-2">' +
+            '<div class="card h-100 border-0 shadow-sm">' +
+                '<div class="card-body p-2">' +
+                    thumb +
+                    '<div class="small text-truncate" title="' + _esc(name) + '">' + _esc(name) + '</div>' +
+                    '<div class="mt-1">' + year + badge + '</div>' +
+                '</div>' +
+                '<div class="card-footer p-1 text-center">' + actionBtn + '</div>' +
+            '</div>' +
+        '</div>';
+    }
+
+    // ------------------------------------------------------------------ action (insert or copy)
+
+    window.apAction = function (idx) {
+        var asset = _apItems[idx];
+        if (!asset) return;
+
+        if (_apInsert) {
+            // Insert wiki markup at cursor in the editor textarea
+            var ta = document.getElementById('content');
+            if (ta) {
+                var s = ta.selectionStart, e = ta.selectionEnd;
+                ta.value = ta.value.substring(0, s) + asset.insertSnippet + ta.value.substring(e);
+                ta.focus();
+                ta.setSelectionRange(s + asset.insertSnippet.length, s + asset.insertSnippet.length);
+                if (typeof updatePreview === 'function') updatePreview();
+            }
+<% if (_apMode === 'modal') { %>
+            var modalEl = document.getElementById('assetPickerModal');
+            if (modalEl) { var m = bootstrap.Modal.getInstance(modalEl); if (m) m.hide(); }
+<% } %>
+        } else {
+            // Copy wiki syntax to clipboard
+            _apCopy(asset.insertSnippet);
+        }
+    };
+
+    // ------------------------------------------------------------------ clipboard
+
+    function _apCopy(text) {
+        function showCopyToast() {
+            var toastEl = document.getElementById('ap-copy-toast');
+            if (toastEl) { new bootstrap.Toast(toastEl, { delay: 1500 }).show(); }
+        }
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(text).then(showCopyToast).catch(function () { _apCopyFallback(text, showCopyToast); });
+        } else {
+            _apCopyFallback(text, showCopyToast);
+        }
+    }
+
+    function _apCopyFallback(text, onSuccess) {
+        var ta = document.createElement('textarea');
+        ta.value = text;
+        ta.style.cssText = 'position:fixed;opacity:0;top:0;left:0;';
+        document.body.appendChild(ta);
+        ta.focus(); ta.select();
+        try { if (document.execCommand('copy') && onSuccess) onSuccess(); } catch (e) { /* silent */ }
+        document.body.removeChild(ta);
+    }
+
+    // ------------------------------------------------------------------ keyboard + swipe
+
+<% if (_apMode === 'page') { %>
+    WikiPagination.attachKeyboard(
+        function () { if (_apPage > 0) _apSearch(_apPage - 1); },
+        function () { if (_apPage + 1 < Math.ceil(_apTotal / AP_PAGE_SIZE)) _apSearch(_apPage + 1); }
+    );
+    WikiPagination.attachSwipe(document.body,
+        function () { if (_apPage > 0) _apSearch(_apPage - 1); },
+        function () { if (_apPage + 1 < Math.ceil(_apTotal / AP_PAGE_SIZE)) _apSearch(_apPage + 1); }
+    );
+<% } else { %>
+    WikiPagination.attachKeyboard(
+        function () { if (window._apModalOpen && _apPage > 0) _apSearch(_apPage - 1); },
+        function () { var tp = Math.ceil(_apTotal / AP_PAGE_SIZE); if (window._apModalOpen && _apPage + 1 < tp) _apSearch(_apPage + 1); }
+    );
+    WikiPagination.attachSwipe(
+        document.getElementById('assetPickerModal') || document.body,
+        function () { if (window._apModalOpen && _apPage > 0) _apSearch(_apPage - 1); },
+        function () { var tp = Math.ceil(_apTotal / AP_PAGE_SIZE); if (window._apModalOpen && _apPage + 1 < tp) _apSearch(_apPage + 1); }
+    );
+<% } %>
+
+    // ------------------------------------------------------------------ utils
+
+    function _esc(str) {
+        return String(str == null ? '' : str)
+            .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;').replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    }
+
+    // Auto-load on init
+    _apSearch(0);
+})();
+</script>
+
+<!-- Toast for copy confirmation -->
+<div class="position-fixed bottom-0 end-0 p-3" style="z-index:1100;">
+    <div id="ap-copy-toast" class="toast align-items-center text-bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+            <div class="toast-body"><i class="fas fa-check me-1"></i> Copied to clipboard</div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+        </div>
+    </div>
+</div>

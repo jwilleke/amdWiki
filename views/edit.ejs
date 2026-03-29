@@ -489,51 +489,13 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                <!-- Search bar -->
-                <div class="row g-2 mb-3">
-                    <div class="col">
-                        <input type="text" id="assetPickerQuery" class="form-control" placeholder="Search by filename, keyword, year…" oninput="debounceAssetSearch()">
-                    </div>
-                    <div class="col-auto">
-                        <select id="assetPickerType" class="form-select" onchange="runAssetSearch()">
-                            <option value="">All types</option>
-                            <option value="attachment">Attachments only</option>
-                            <option value="media">Media library only</option>
-                        </select>
-                    </div>
-                    <div class="col-auto">
-                        <select id="assetPickerSort" class="form-select" onchange="runAssetSearch(0)" title="Sort order">
-                            <option value="date-asc">Date ↑</option>
-                            <option value="date-desc">Date ↓</option>
-                            <option value="caption-asc">Caption A–Z</option>
-                            <option value="caption-desc">Caption Z–A</option>
-                        </select>
-                    </div>
-                    <div class="col-auto">
-                        <button type="button" class="btn btn-primary" onclick="runAssetSearch()">
-                            <i class="fas fa-search"></i> Search
-                        </button>
-                    </div>
-                </div>
-                <!-- Results grid -->
-                <div id="assetPickerResults" class="row g-2" style="max-height: 60vh; overflow-y: auto;">
-                    <div class="col-12 text-center text-muted py-5" id="assetPickerPlaceholder">
-                        <i class="fas fa-search fa-2x mb-2"></i><br>
-                        Enter a search term or leave blank to browse all assets.
-                    </div>
-                </div>
+                <%- include('_asset-picker', {
+                    assetPickerMode:     'modal',
+                    assetPickerInsert:   true,
+                    assetPickerPageName: pageName
+                }) %>
             </div>
-            <div class="modal-footer flex-wrap gap-2">
-                <small class="text-muted me-auto" id="assetPickerCount"></small>
-                <div id="assetPickerPagination" class="d-none d-flex align-items-center gap-2">
-                    <button type="button" class="btn btn-sm btn-outline-secondary" id="assetPickerPrev" onclick="assetPickerPage(-1)">
-                        <i class="fas fa-chevron-left"></i> Prev
-                    </button>
-                    <span id="assetPickerPageInfo" class="small text-muted"></span>
-                    <button type="button" class="btn btn-sm btn-outline-secondary" id="assetPickerNext" onclick="assetPickerPage(1)">
-                        Next <i class="fas fa-chevron-right"></i>
-                    </button>
-                </div>
+            <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
             </div>
         </div>
@@ -542,168 +504,13 @@
 
 <script>
 (function () {
-    const PAGE_SIZE = 48;
-    let _assetDebounceTimer = null;
-    let _assetCurrentPage = 0;   // zero-based page index
-    let _assetTotal = 0;
-    let _assetResults = [];       // current page's result objects (for index-based insert)
-
-    let _assetModalOpen = false;
-    document.getElementById('assetPickerModal').addEventListener('shown.bs.modal',  function () { _assetModalOpen = true; });
-    document.getElementById('assetPickerModal').addEventListener('hidden.bs.modal', function () { _assetModalOpen = false; });
+    var modalEl = document.getElementById('assetPickerModal');
+    modalEl.addEventListener('shown.bs.modal',  function () { window._apModalOpen = true;  if (typeof window.apRunSearch === 'function') window.apRunSearch(); });
+    modalEl.addEventListener('hidden.bs.modal', function () { window._apModalOpen = false; });
 
     window.openAssetPicker = function () {
-        const modal = new bootstrap.Modal(document.getElementById('assetPickerModal'));
-        modal.show();
-        runAssetSearch();
+        new bootstrap.Modal(modalEl).show();
     };
-
-    WikiPagination.attachKeyboard(
-        function () { if (_assetModalOpen) assetPickerPage(-1); },
-        function () { if (_assetModalOpen) assetPickerPage(1); }
-    );
-    WikiPagination.attachSwipe(
-        document.getElementById('assetPickerModal') || document.body,
-        function () { if (_assetModalOpen) assetPickerPage(-1); },
-        function () { if (_assetModalOpen) assetPickerPage(1); }
-    );
-
-    window.debounceAssetSearch = function () {
-        clearTimeout(_assetDebounceTimer);
-        _assetDebounceTimer = setTimeout(function () { runAssetSearch(0); }, 350);
-    };
-
-    window.runAssetSearch = async function (page) {
-        if (page === undefined) page = 0;
-        _assetCurrentPage = page;
-
-        const query = document.getElementById('assetPickerQuery').value.trim();
-        const type = document.getElementById('assetPickerType').value;
-        const sortVal = document.getElementById('assetPickerSort').value; // e.g. "date-asc"
-        const [sortField, sortOrder] = sortVal.split('-');
-        const resultsEl = document.getElementById('assetPickerResults');
-        const countEl = document.getElementById('assetPickerCount');
-        const paginationEl = document.getElementById('assetPickerPagination');
-
-        resultsEl.innerHTML = '<div class="col-12 text-center py-4"><i class="fas fa-spinner fa-spin fa-2x text-muted"></i></div>';
-        countEl.textContent = '';
-        paginationEl.classList.add('d-none');
-
-        try {
-            const params = new URLSearchParams({
-                pageSize: String(PAGE_SIZE),
-                offset: String(page * PAGE_SIZE),
-                sort: sortField,
-                order: sortOrder
-            });
-            if (query) params.set('q', query);
-            if (type) params.set('types', type);
-
-            const resp = await fetch('/api/assets/search?' + params.toString());
-            if (!resp.ok) throw new Error('Search failed (' + resp.status + ')');
-            const data = await resp.json();
-
-            if (!data.success || !data.results || !data.results.length) {
-                _assetResults = [];
-                _assetTotal = 0;
-                resultsEl.innerHTML = '<div class="col-12 text-center text-muted py-5">No assets found.</div>';
-                countEl.textContent = '';
-                return;
-            }
-
-            _assetResults = data.results;
-            _assetTotal = data.total || data.results.length;
-
-            const totalPages = Math.ceil(_assetTotal / PAGE_SIZE);
-            const start = page * PAGE_SIZE + 1;
-            const end = Math.min(page * PAGE_SIZE + data.results.length, _assetTotal);
-
-            countEl.textContent = _assetTotal.toLocaleString() + ' result' + (_assetTotal !== 1 ? 's' : '') +
-                (_assetTotal > PAGE_SIZE ? ' · showing ' + start + '–' + end : '');
-
-            if (totalPages > 1) {
-                document.getElementById('assetPickerPageInfo').textContent =
-                    'Page ' + (page + 1) + ' of ' + totalPages;
-                document.getElementById('assetPickerPrev').disabled = page === 0;
-                document.getElementById('assetPickerNext').disabled = page >= totalPages - 1;
-                paginationEl.classList.remove('d-none');
-            }
-
-            resultsEl.innerHTML = data.results.map(function (asset, idx) {
-                return renderAssetCard(asset, idx);
-            }).join('');
-        } catch (err) {
-            _assetResults = [];
-            resultsEl.innerHTML = '<div class="col-12 text-center text-danger py-4"><i class="fas fa-exclamation-triangle"></i> ' + escHtml(err.message) + '</div>';
-        }
-    };
-
-    window.assetPickerPage = function (delta) {
-        const totalPages = Math.ceil(_assetTotal / PAGE_SIZE);
-        const next = _assetCurrentPage + delta;
-        if (next < 0 || next >= totalPages) return;
-        document.getElementById('assetPickerResults').scrollTop = 0;
-        runAssetSearch(next);
-    };
-
-    function renderAssetCard(asset, idx) {
-        const isImage = asset.mimeType && asset.mimeType.startsWith('image/');
-        const isMedia = asset.assetType === 'media';
-
-        let thumb;
-        if (isMedia && asset.thumbUrl) {
-            thumb = '<img src="' + escHtml(asset.thumbUrl) + '" class="img-fluid rounded mb-1" style="max-height:120px;object-fit:cover;width:100%;" loading="lazy" alt="' + escHtml(asset.filename) + '">';
-        } else if (isImage && asset.url) {
-            thumb = '<img src="' + escHtml(asset.url) + '" class="img-fluid rounded mb-1" style="max-height:120px;object-fit:cover;width:100%;" loading="lazy" alt="' + escHtml(asset.filename) + '">';
-        } else {
-            const icon = isMedia ? 'fa-photo-video' : 'fa-paperclip';
-            thumb = '<div class="text-center text-muted py-3"><i class="fas ' + icon + ' fa-2x"></i></div>';
-        }
-
-        const badge = isMedia
-            ? '<span class="badge bg-info text-dark">media</span>'
-            : '<span class="badge bg-secondary">attachment</span>';
-        const year = asset.year ? '<small class="text-muted">' + escHtml(String(asset.year)) + '</small> ' : '';
-        const displayName = asset.caption || asset.filename;
-
-        return '<div class="col-6 col-md-3 col-lg-2">' +
-            '<div class="card h-100 border-0 shadow-sm">' +
-                '<div class="card-body p-2">' +
-                    thumb +
-                    '<div class="small text-truncate" title="' + escHtml(asset.filename) + '">' + escHtml(displayName) + '</div>' +
-                    '<div>' + year + badge + '</div>' +
-                '</div>' +
-                '<div class="card-footer p-1 text-center">' +
-                    '<button type="button" class="btn btn-sm btn-primary w-100" onclick="insertAsset(' + idx + ')" title="' + escHtml(asset.insertSnippet) + '">' +
-                        '<i class="fas fa-code"></i> Insert' +
-                    '</button>' +
-                '</div>' +
-            '</div>' +
-        '</div>';
-    }
-
-    window.insertAsset = function (idx) {
-        const asset = _assetResults[idx];
-        if (!asset) return;
-        const snippet = asset.insertSnippet;
-        const textarea = document.getElementById('content');
-        const start = textarea.selectionStart;
-        const end = textarea.selectionEnd;
-        textarea.value = textarea.value.substring(0, start) + snippet + textarea.value.substring(end);
-        textarea.focus();
-        textarea.setSelectionRange(start + snippet.length, start + snippet.length);
-        if (typeof updatePreview === 'function') updatePreview();
-        bootstrap.Modal.getInstance(document.getElementById('assetPickerModal'))?.hide();
-    };
-
-    function escHtml(str) {
-        return String(str)
-            .replace(/&/g, '&amp;')
-            .replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;')
-            .replace(/"/g, '&quot;')
-            .replace(/'/g, '&#39;');
-    }
 })();
 </script>
 

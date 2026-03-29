@@ -2,6 +2,32 @@
 
 AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version history.
 
+## 2026-03-29-02
+
+- Agent: Claude Sonnet 4.6
+- Subject: Unified Browse Assets dialog (#404)
+- Current Issue: jwilleke/ngdpbase#404
+- Key Decision: Extracted shared `_asset-picker.ejs` partial used by both the standalone `/attachments/browse` page and the editor modal. Both now use `/api/assets/search`, WikiPagination renderNav, and consistent filters. Upload decoupled from page context per #405 direction.
+- Testing:
+  - AssetService unit tests: 32 passed
+  - Build successful, server restarted
+- Work Done:
+  - Created `views/_asset-picker.ejs` — card grid, source + MIME category filters, sort dropdown, upload button, WikiPagination, keyboard/swipe nav
+  - Added `mimeCategory` filter to `AssetService.search()` and `/api/assets/search` route
+  - Rewrote `views/browse-attachments.ejs` as thin wrapper (title "Browse Assets", no server-side data injection)
+  - Replaced 230-line asset picker block in `views/edit.ejs` with modal shell + partial include
+  - Simplified `browseAttachments()` route handler — no longer calls `getAllAttachments()`
+  - Made `POST /attachments/upload/:page?` param optional; handler accepts undefined pageName
+  - Refactored `showUploadAttachment()` in `header.ejs` to accept optional pageName arg
+  - Removed legacy popup fallback from `openBrowseAttachments()`
+- Files Modified:
+  - `views/_asset-picker.ejs` (new)
+  - `views/browse-attachments.ejs`
+  - `views/edit.ejs`
+  - `views/header.ejs`
+  - `src/managers/AssetService.ts`
+  - `src/routes/WikiRoutes.ts`
+
 ## 2026-03-29-01
 
 - Agent: Claude Sonnet 4.6
