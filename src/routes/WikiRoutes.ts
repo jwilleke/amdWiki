@@ -6663,7 +6663,18 @@ class WikiRoutes {
     app.get('/attachments/browse/api', (req: Request, res: Response) => this.browseAttachmentsApi(req, res));
 
     // Attachment routes
-    app.post('/attachments/upload/:page?', (req: Request, res: Response) => {
+    app.post('/attachments/upload', (req: Request, res: Response) => {
+      attachmentUpload.single('file')(req, res, (err: unknown) => {
+        if (err) {
+          if (err instanceof multer.MulterError) {
+            res.status(400).json({ success: false, error: `Upload error: ${err.message}` }); return;
+          }
+          res.status(500).json({ success: false, error: 'Upload failed' }); return;
+        }
+        void this.uploadAttachment(req, res);
+      });
+    });
+    app.post('/attachments/upload/:page', (req: Request, res: Response) => {
       attachmentUpload.single('file')(req, res, (err: unknown) => {
         if (err) {
           if (err instanceof multer.MulterError) {
