@@ -414,6 +414,22 @@ class ConfigurationManager extends BaseManager {
   }
 
   /**
+   * Get a property value only if it was explicitly set in the custom config
+   * (i.e. not inherited from app-default-config.json).
+   * Returns null if the key is not present in the custom config.
+   *
+   * Use this when a theme or other subsystem should own a value by default and
+   * the config should only override it when the operator has explicitly said so.
+   *
+   * @param {string} key - Configuration key
+   * @returns {unknown} Custom config value, or null if not explicitly set
+   */
+  getCustomProperty(key: string): unknown {
+    if (!this.customConfig) return null;
+    return (this.customConfig as Record<string, unknown>)[key] ?? null;
+  }
+
+  /**
    * Get application name
    *
    * @returns {string} Application name (defaults to 'ngdpbase')
