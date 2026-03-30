@@ -1,0 +1,160 @@
+<%- include('header', { pageName: 'Add-ons' }) %>
+
+<div class="container mt-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1><i class="fas fa-puzzle-piece"></i> Add-ons</h1>
+        <a href="/admin" class="btn btn-sm btn-secondary">
+            <i class="fas fa-arrow-left"></i> Admin
+        </a>
+    </div>
+
+    <% if (success) { %>
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle"></i> <%= success %>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    <% } %>
+    <% if (error) { %>
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-triangle"></i> <%= error %>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    <% } %>
+
+    <% if (!addons || addons.length === 0) { %>
+        <div class="alert alert-info">
+            <i class="fas fa-info-circle"></i> No add-ons discovered. Configure <code>ngdpbase.addons.path</code> to point to your add-ons directory.
+        </div>
+    <% } else { %>
+        <div class="alert alert-warning" role="alert">
+            <i class="fas fa-exclamation-triangle"></i> <strong>Note:</strong> Enabling or disabling an add-on saves the configuration but requires a <strong>server restart</strong> to take effect.
+        </div>
+
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="fas fa-list"></i> Discovered Add-ons (<%= addons.length %>)</h5>
+                <div>
+                    <span class="badge bg-success me-1"><%= addons.filter(a => a.loaded).length %> loaded</span>
+                    <span class="badge bg-danger me-1"><%= addons.filter(a => a.error).length %> errored</span>
+                    <span class="badge bg-secondary"><%= addons.filter(a => !a.enabled).length %> disabled</span>
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Version</th>
+                            <th>Description</th>
+                            <th>Author</th>
+                            <th>Dependencies</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% addons.forEach(addon => { %>
+                        <tr>
+                            <td><strong><%= addon.name %></strong></td>
+                            <td><code><%= addon.version || '—' %></code></td>
+                            <td><%= addon.description || '<span class="text-muted">—</span>' %></td>
+                            <td><%= addon.author || '<span class="text-muted">—</span>' %></td>
+                            <td>
+                                <% if (addon.dependencies && addon.dependencies.length > 0) { %>
+                                    <% addon.dependencies.forEach(dep => { %>
+                                        <span class="badge bg-secondary me-1"><%= dep %></span>
+                                    <% }); %>
+                                <% } else { %>
+                                    <span class="text-muted">—</span>
+                                <% } %>
+                            </td>
+                            <td>
+                                <% if (!addon.enabled) { %>
+                                    <span class="badge bg-secondary">Disabled</span>
+                                <% } else if (addon.loaded) { %>
+                                    <span class="badge bg-success">Loaded</span>
+                                <% } else if (addon.error) { %>
+                                    <span class="badge bg-danger" title="<%= addon.error %>">Error</span>
+                                <% } else { %>
+                                    <span class="badge bg-warning text-dark">Not Loaded</span>
+                                <% } %>
+                            </td>
+                            <td>
+                                <form method="POST" action="/admin/addons/<%= encodeURIComponent(addon.name) %>/toggle" class="d-inline">
+                                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                                    <% if (addon.enabled) { %>
+                                        <input type="hidden" name="enabled" value="false">
+                                        <button type="submit" class="btn btn-outline-warning btn-sm"
+                                            onclick="return confirm('Disable add-on &quot;<%= addon.name %>&quot;? A restart is required for this to take effect.')">
+                                            <i class="fas fa-pause"></i> Disable
+                                        </button>
+                                    <% } else { %>
+                                        <input type="hidden" name="enabled" value="true">
+                                        <button type="submit" class="btn btn-outline-success btn-sm"
+                                            onclick="return confirm('Enable add-on &quot;<%= addon.name %>&quot;? A restart is required for this to take effect.')">
+                                            <i class="fas fa-play"></i> Enable
+                                        </button>
+                                    <% } %>
+                                </form>
+                            </td>
+                        </tr>
+                        <% if (addon.error) { %>
+                        <tr>
+                            <td colspan="7" class="border-top-0 pt-0">
+                                <div class="alert alert-danger mb-0 py-1">
+                                    <small><i class="fas fa-exclamation-triangle me-1"></i><strong>Error:</strong> <%= addon.error %></small>
+                                </div>
+                            </td>
+                        </tr>
+                        <% } %>
+                        <% if (addon.details) { %>
+                        <tr>
+                            <td colspan="7" class="border-top-0 pt-0">
+                                <details>
+                                    <summary style="cursor: pointer;" class="text-muted">
+                                        <small><i class="fas fa-info-circle me-1"></i>Add-on details</small>
+                                        <% if (addon.details.healthy === false) { %>
+                                            <span class="badge bg-warning text-dark ms-2">unhealthy</span>
+                                        <% } %>
+                                    </summary>
+                                    <div class="mt-2 ms-3">
+                                        <% if (addon.details.message) { %>
+                                            <div><small><strong>Message:</strong> <%= addon.details.message %></small></div>
+                                        <% } %>
+                                        <% if (addon.details.database) { %>
+                                            <div><small><strong>Database:</strong> <code><%= addon.details.database %></code></small></div>
+                                        <% } %>
+                                        <% if (typeof addon.details.records !== 'undefined') { %>
+                                            <div><small><strong>Records:</strong> <%= addon.details.records %></small></div>
+                                        <% } %>
+                                        <%
+                                          const extraKeys = Object.keys(addon.details).filter(k => !['healthy','message','database','records'].includes(k));
+                                        %>
+                                        <% extraKeys.forEach(key => { %>
+                                            <div><small><strong><%= key %>:</strong> <%= JSON.stringify(addon.details[key]) %></small></div>
+                                        <% }); %>
+                                    </div>
+                                </details>
+                            </td>
+                        </tr>
+                        <% } %>
+                        <% if (addon.statusError) { %>
+                        <tr>
+                            <td colspan="7" class="border-top-0 pt-0">
+                                <div class="alert alert-warning mb-0 py-1">
+                                    <small><i class="fas fa-exclamation-circle me-1"></i><strong>Status error:</strong> <%= addon.statusError %></small>
+                                </div>
+                            </td>
+                        </tr>
+                        <% } %>
+                        <% }); %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    <% } %>
+
+</div>
+
+<%- include('footer') %>

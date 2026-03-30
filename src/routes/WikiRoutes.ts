@@ -3528,6 +3528,23 @@ class WikiRoutes {
         // non-fatal — badge just won't show
       }
 
+      // Gather add-ons summary for dashboard card
+      let addonsSummary = { total: 0, loaded: 0, errored: 0, disabled: 0 };
+      try {
+        const addonsManager = this.engine.getManager('AddonsManager');
+        if (addonsManager) {
+          const addonStatuses = await addonsManager.getStatus();
+          addonsSummary = {
+            total: addonStatuses.length,
+            loaded: addonStatuses.filter((a: { loaded: boolean }) => a.loaded).length,
+            errored: addonStatuses.filter((a: { error: string | null }) => a.error).length,
+            disabled: addonStatuses.filter((a: { enabled: boolean }) => !a.enabled).length
+          };
+        }
+      } catch {
+        // non-fatal — summary card just won't show counts
+      }
+
       const templateData = {
         ...commonData,
         title: 'Admin Dashboard',
@@ -3545,7 +3562,8 @@ class WikiRoutes {
           this.engine.config?.features?.maintenance?.enabled || false,
         csrfToken: req.session.csrfToken,
         successMessage: req.query.success || null,
-        errorMessage: req.query.error || null
+        errorMessage: req.query.error || null,
+        addonsSummary
       };
 
       res.render('admin-dashboard', templateData);
@@ -6130,6 +6148,61 @@ class WikiRoutes {
   }
 
   /**
+   * GET /admin/addons — Add-ons status page
+   */
+  async adminAddons(req: Request, res: Response) {
+    try {
+      const userManager = this.engine.getManager('UserManager');
+      const currentUser = req.userContext;
+      if (
+        !currentUser ||
+        !(await userManager.hasPermission(currentUser.username, 'admin:system'))
+      ) {
+        return await this.renderError(req, res, 403, 'Access Denied', 'You do not have permission to manage add-ons');
+      }
+      const addonsManager = this.engine.getManager('AddonsManager');
+      const addons = addonsManager ? await addonsManager.getStatus() : [];
+      const commonData = await this.getCommonTemplateData(req);
+      return res.render('admin-addons', {
+        ...commonData,
+        title: 'Add-ons',
+        addons,
+        csrfToken: req.session.csrfToken,
+        success: req.query.success as string | undefined,
+        error: req.query.error as string | undefined
+      });
+    } catch (err: unknown) {
+      logger.error('Error loading admin addons:', err);
+      return res.status(500).send('Error loading add-ons');
+    }
+  }
+
+  /**
+   * POST /admin/addons/:name/toggle — Enable or disable an add-on
+   */
+  async adminAddonToggle(req: Request, res: Response) {
+    try {
+      const userManager = this.engine.getManager('UserManager');
+      const currentUser = req.userContext;
+      if (
+        !currentUser ||
+        !(await userManager.hasPermission(currentUser.username, 'admin:system'))
+      ) {
+        return res.status(403).json({ error: 'Access denied' });
+      }
+      const addonName = req.params.name;
+      const { enabled } = req.body as { enabled: string };
+      const configManager = this.engine.getManager('ConfigurationManager');
+      await configManager.setProperty(`ngdpbase.addons.${addonName}.enabled`, enabled === 'true');
+      const state = enabled === 'true' ? 'enabled' : 'disabled';
+      return res.redirect(`/admin/addons?success=${encodeURIComponent(`Add-on "${addonName}" ${state}. Restart required for changes to take effect.`)}`);
+    } catch (err: unknown) {
+      logger.error('Error toggling add-on:', err);
+      return res.redirect(`/admin/addons?error=${encodeURIComponent('Failed to update add-on configuration')}`);
+    }
+  }
+
+  /**
    * Get raw page source (markdown content) for viewing/copying
    */
   async getPageSource(req: Request, res: Response) {
@@ -6612,6 +6685,8 @@ class WikiRoutes {
     app.post('/admin/settings/theme', (req: Request, res: Response) => this.adminUpdateTheme(req, res));
     app.post('/admin/settings/general', (req: Request, res: Response) => this.adminUpdateGeneralSettings(req, res));
     app.get('/admin/logs', (req: Request, res: Response) => this.adminLogs(req, res));
+    app.get('/admin/addons', (req: Request, res: Response) => void this.adminAddons(req, res));
+    app.post('/admin/addons/:name/toggle', (req: Request, res: Response) => void this.adminAddonToggle(req, res));
     app.post('/admin/restart', (req: Request, res: Response) => this.adminRestart(req, res));
     app.post('/admin/reindex', (req: Request, res: Response) => this.adminReindex(req, res));
     app.get('/admin/required-pages', (req: Request, res: Response) =>
