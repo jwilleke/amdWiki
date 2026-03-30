@@ -92,13 +92,16 @@ describe('Policy System Integration', () => {
     if (engine) {
       await engine.shutdown();
     }
-    // Clean up ./data/ directories created by WikiEngine.createDefault() when
-    // FAST_STORAGE/SLOW_STORAGE env vars are not set in the test environment.
+    // Clean up only test-created subdirectories under ./data/ — never the
+    // whole tree, which would destroy live instance data.
     const dataDir = path.join(process.cwd(), 'data');
-    try {
-      fs.rmSync(dataDir, { recursive: true, force: true });
-    } catch {
-      // Ignore cleanup errors
+    const testSubdirs = ['sessions', 'logs', 'search-index'];
+    for (const sub of testSubdirs) {
+      try {
+        fs.rmSync(path.join(dataDir, sub), { recursive: true, force: true });
+      } catch {
+        // Ignore cleanup errors
+      }
     }
   });
 

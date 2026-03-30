@@ -97,12 +97,26 @@ jest.mock('../../WikiEngine', () => {
     getProperty: jest.fn().mockImplementation((key, defaultValue) => {
       if (key === 'ngdpbase.maintenance.enabled') return maintenanceModeEnabled;
       if (key === 'ngdpbase.maintenance.message') return 'Site is under maintenance';
+      if (key === 'ngdpbase.front-page') return 'Welcome';
+      if (key === 'ngdpbase.theme.active') return 'default';
+      if (key === 'ngdpbase.application-name') return 'ngdpbase';
+      if (key === 'ngdpbase.version') return '1.0.0';
       return defaultValue;
     }),
     setProperty: jest.fn().mockImplementation((key, value) => {
       if (key === 'ngdpbase.maintenance.enabled') maintenanceModeEnabled = value;
       return true;
-    })
+    }),
+    getCustomProperty: jest.fn().mockReturnValue(null),
+    getAllProperties: jest.fn().mockReturnValue({}),
+    getResolvedDataPath: jest.fn((key, defaultPath) => defaultPath),
+  };
+
+  const mockBackgroundJobManager = {
+    registerJob: jest.fn(),
+    enqueue: jest.fn().mockResolvedValue('mock-run-id'),
+    getStatus: jest.fn().mockReturnValue(null),
+    getActiveJobs: jest.fn().mockReturnValue([])
   };
 
   const managers = {
@@ -114,13 +128,17 @@ jest.mock('../../WikiEngine', () => {
     SearchManager: mockSearchManager,
     SchemaManager: mockSchemaManager,
     TemplateManager: mockTemplateManager,
-    ConfigurationManager: mockConfigManager
+    ConfigurationManager: mockConfigManager,
+    BackgroundJobManager: mockBackgroundJobManager
   };
 
   return jest.fn().mockImplementation(() => ({
     initialize: jest.fn().mockResolvedValue(true),
     shutdown: jest.fn().mockResolvedValue(true),
-    getManager: jest.fn().mockImplementation((name) => managers[name]),
+    getManager: jest.fn().mockImplementation((name) => managers[name] || {}),
+    getApplicationName: jest.fn().mockReturnValue('ngdpbase'),
+    getCapabilities: jest.fn().mockReturnValue({}),
+    config: { features: { maintenance: { enabled: false, allowAdmins: true } } },
     isInitialized: jest.fn().mockReturnValue(true),
     isMaintenanceMode: jest.fn().mockImplementation(() => maintenanceModeEnabled),
     enableMaintenanceMode: jest.fn().mockImplementation(() => {

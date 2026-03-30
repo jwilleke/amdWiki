@@ -224,8 +224,19 @@ jest.mock('../../WikiEngine', () => {
   };
 
   const mockConfigurationManager = {
-    getProperty: jest.fn().mockReturnValue([]),
-    get: jest.fn().mockReturnValue(null)
+    getProperty: jest.fn((key, defaultValue) => {
+      const defaults = {
+        'ngdpbase.front-page': 'Welcome',
+        'ngdpbase.theme.active': 'default',
+        'ngdpbase.application-name': 'ngdpbase',
+        'ngdpbase.version': '1.0.0',
+      };
+      return key in defaults ? defaults[key] : defaultValue;
+    }),
+    getCustomProperty: jest.fn().mockReturnValue(null),
+    get: jest.fn().mockReturnValue(null),
+    getAllProperties: jest.fn().mockReturnValue({}),
+    getResolvedDataPath: jest.fn((key, defaultPath) => defaultPath),
   };
 
   const mockVariableManager = {
@@ -278,6 +289,7 @@ jest.mock('../../WikiEngine', () => {
       return mockManagers[name] || {};
     }),
     getApplicationName: jest.fn().mockReturnValue('ngdpbase'),
+    getCapabilities: jest.fn().mockReturnValue({}),
     config: {
       features: {
         maintenance: { enabled: false, allowAdmins: true }

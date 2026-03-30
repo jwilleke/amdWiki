@@ -28,7 +28,8 @@ describe('AddonsManager', () => {
         return overrides.addonsConfig ?? {};
       }
       return defaultValue;
-    })
+    }),
+    getAllProperties: jest.fn(() => overrides.allProperties ?? {})
   });
 
   const makeEngine = (configManager) => ({

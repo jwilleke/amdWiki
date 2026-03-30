@@ -925,6 +925,16 @@ class VersioningFileProvider extends FileSystemProvider {
    * @param location - 'pages' or 'required-pages'
    * @returns Version directory path
    */
+  /** Public alias for external tools (VersioningMaintenance, VersioningAnalytics) */
+  public _getVersionDirectory(uuid: string, location: 'pages' | 'required-pages' | 'private' = 'pages'): string {
+    return this.getVersionDirectory(uuid, location);
+  }
+
+  /** Public alias for external tools (VersioningAnalytics) */
+  public _resolveIdentifier(identifier: string): Promise<{ uuid: string; location: 'pages' | 'required-pages' | 'private' } | null> {
+    return this.resolveIdentifier(identifier);
+  }
+
   private getVersionDirectory(uuid: string, location: 'pages' | 'required-pages' | 'private' = 'pages'): string {
     if (location === 'private') {
       if (!this.privateVersionsDir) {
@@ -1765,14 +1775,19 @@ class VersioningFileProvider extends FileSystemProvider {
    * - Optionally keep milestone versions (v1, every 10th version)
    *
    * @param identifier - Page UUID or title
-   * @param keepLatest - Minimum number of recent versions to keep
-   * @returns Number of versions purged
+   * @param options - Purge options (keepLatest, retentionDays, keepMilestones, dryRun)
+   * @returns PurgeResult with versionsRemoved count, purged version numbers, dryRun flag, and message
    * @throws {Error} If page not found or purge fails
    * @example
-   * const count = await provider.purgeOldVersions('Main', 20);
-   * console.log(`Removed ${count} versions`);
+   * const result = await provider.purgeOldVersions('Main', { keepLatest: 20 });
+   * console.log(`Removed ${result.versionsRemoved} versions`);
    */
-  async purgeOldVersions(identifier: string, keepLatest: number): Promise<number> {
+  async purgeOldVersions(identifier: string, options: { keepLatest?: number; retentionDays?: number; keepMilestones?: boolean; dryRun?: boolean } = {}): Promise<{ versionsRemoved: number; versionsPurged: number[]; dryRun: boolean; spaceFreed: number; message: string }> {
+    const keepLatest = options.keepLatest ?? this.maxVersions;
+    const retentionDays = options.retentionDays ?? this.retentionDays;
+    const keepMilestones = options.keepMilestones ?? true;
+    const dryRun = options.dryRun ?? false;
+
     // Resolve identifier to UUID and location
     const resolved = await this.resolveIdentifier(identifier);
     if (!resolved) {
@@ -1784,12 +1799,8 @@ class VersioningFileProvider extends FileSystemProvider {
     // Load manifest
     const manifest = await this.loadManifest(uuid, location);
     if (!manifest || manifest.versions.length === 0) {
-      return 0;
+      return { versionsRemoved: 0, versionsPurged: [], dryRun, spaceFreed: 0, message: 'No versions meet purge criteria' };
     }
-
-    // Use retention settings from config
-    const retentionDays = this.retentionDays;
-    const keepMilestones = true; // Always keep milestones
 
     // Calculate cutoff date for retention
     const cutoffDate = new Date();
@@ -1811,10 +1822,12 @@ class VersioningFileProvider extends FileSystemProvider {
         continue;
       }
 
-      // Check retention date
-      const versionDate = new Date(versionMeta.dateCreated);
-      if (versionDate >= cutoffDate) {
-        continue; // Too recent to purge
+      // Check retention date (skip if retentionDays is 0 — purge by count only)
+      if (retentionDays > 0) {
+        const versionDate = new Date(versionMeta.dateCreated);
+        if (versionDate >= cutoffDate) {
+          continue; // Too recent to purge
+        }
       }
 
       // Keep milestones (v1, every 10th version)
@@ -1827,13 +1840,23 @@ class VersioningFileProvider extends FileSystemProvider {
     }
 
     if (versionsToPurge.length === 0) {
-      return 0;
+      return { versionsRemoved: 0, versionsPurged: [], dryRun, spaceFreed: 0, message: 'No versions meet purge criteria' };
     }
+
+    if (dryRun) {
+      return { versionsRemoved: versionsToPurge.length, versionsPurged: versionsToPurge, dryRun: true, spaceFreed: 0, message: `Dry run: would remove ${versionsToPurge.length} versions` };
+    }
+
+    let spaceFreed = 0;
 
     // Perform purge
     for (const versionNum of versionsToPurge) {
       try {
         const vPath = path.join(versionDir, `v${versionNum}`);
+        try {
+          const stat = await fs.stat(vPath);
+          spaceFreed += stat.size;
+        } catch { /* ignore stat errors */ }
         await fs.remove(vPath);
         logger.info(`[VersioningFileProvider] Purged version ${versionNum} of page ${uuid}`);
       } catch (error) {
@@ -1847,7 +1870,7 @@ class VersioningFileProvider extends FileSystemProvider {
     await this.saveManifest(uuid, location, manifest);
 
     logger.info(`[VersioningFileProvider] Purged ${versionsToPurge.length} versions from page ${uuid}`);
-    return versionsToPurge.length;
+    return { versionsRemoved: versionsToPurge.length, versionsPurged: versionsToPurge, dryRun: false, spaceFreed, message: `Purged ${versionsToPurge.length} versions` };
   }
 
   /**

@@ -23,11 +23,15 @@ describe('WikiEngine', () => {
     } catch (err) {
       // Directory might not exist
     }
-    // Clean up ./data/ created when FAST_STORAGE/SLOW_STORAGE are not set in test env
-    try {
-      await fs.remove(path.join(process.cwd(), 'data'));
-    } catch {
-      // Ignore
+    // Clean up only test-created subdirectories under ./data/ — never the
+    // whole tree, which would destroy live instance data.
+    const dataDir = path.join(process.cwd(), 'data');
+    for (const sub of ['sessions', 'logs', 'search-index']) {
+      try {
+        await fs.remove(path.join(dataDir, sub));
+      } catch {
+        // Ignore
+      }
     }
   });
 

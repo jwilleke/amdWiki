@@ -272,10 +272,10 @@ abstract class BasePageProvider {
    * Always preserves v1 (needed for delta reconstruction) and recent versions.
    *
    * @param {string} identifier - Page UUID or title
-   * @param {number} keepLatest - Minimum number of recent versions to keep
-   * @returns {Promise<number>} Number of versions purged
+   * @param options - Purge options (keepLatest, retentionDays, keepMilestones, dryRun)
+   * @returns Purge result with versionsRemoved, versionsPurged, dryRun, spaceFreed, message
    */
-  purgeOldVersions(_identifier: string, _keepLatest: number): Promise<number> {
+  purgeOldVersions(_identifier: string, _options?: { keepLatest?: number; retentionDays?: number; keepMilestones?: boolean; dryRun?: boolean }): Promise<{ versionsRemoved: number; versionsPurged: number[]; dryRun: boolean; spaceFreed: number; message: string }> {
     throw new Error('purgeOldVersions() must be implemented by versioning providers');
   }
 
