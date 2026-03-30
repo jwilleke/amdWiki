@@ -2529,8 +2529,9 @@ class WikiRoutes {
    * Home page - show main index
    */
   homePage(_req: Request, res: Response) {
-    // Redirect to Welcome page instead of rendering a separate home page
-    res.redirect('/view/Welcome');
+    const configManager = this.engine.getManager('ConfigurationManager');
+    const frontPage = configManager.getProperty('ngdpbase.front-page', 'Welcome') as string;
+    res.redirect(`/view/${frontPage}`);
   }
 
   /**
