@@ -231,6 +231,16 @@ class VersioningFileProvider extends FileSystemProvider {
       // SLOW PATH: Fall back to parent's directory scanning
       logger.info('[VersioningFileProvider] Using standard initialization (directory scan)');
       await super.initialize();
+
+      // super.initialize() skips required-pages when installationComplete=true.
+      // Without a page-index those pages are unreachable, so force a full rescan
+      // that includes required-pages so the index can be rebuilt correctly.
+      if (this.installationComplete) {
+        logger.info('[VersioningFileProvider] Rescanning required-pages to rebuild index');
+        this.installationComplete = false;
+        await this.refreshPageList();
+        this.installationComplete = true;
+      }
     }
 
     // Create version directories
@@ -1509,6 +1519,24 @@ class VersioningFileProvider extends FileSystemProvider {
         uuid: identifier,
         location: this.pageIndex.pages[identifier].location || 'pages'
       });
+    }
+
+    // Try slug index before title lookup (handles URL-friendly slugs like 'volcanoes-and-earthquakes')
+    const slugKey = this.slugIndex.get(identifier.toLowerCase());
+    if (slugKey) {
+      return this.getPage(slugKey)
+        .then(pageInfo => {
+          if (pageInfo && pageInfo.uuid) {
+            const location = this.pageIndex?.pages[pageInfo.uuid]?.location || 'pages';
+            return { uuid: pageInfo.uuid, location };
+          }
+          return null;
+        })
+        .catch(error => {
+          const errorMessage = error instanceof Error ? error.message : String(error);
+          logger.warn(`[VersioningFileProvider] Failed to resolve slug '${identifier}':`, errorMessage);
+          return null;
+        });
     }
 
     // Try to find by title using pageExists and getPage
