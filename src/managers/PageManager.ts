@@ -1,3 +1,6 @@
+import * as path from 'path';
+import * as fse from 'fs-extra';
+import matter from 'gray-matter';
 import BaseManager, { BackupData } from './BaseManager';
 import logger from '../utils/logger';
 import { WikiEngine } from '../types/WikiEngine';
@@ -119,9 +122,81 @@ class PageManager extends BaseManager {
       if (info.features && info.features.length > 0) {
         logger.info(`📄 Provider features: ${info.features.join(', ')}`);
       }
+
+      await this.seedRequiredPages(configManager);
     } catch (error) {
       logger.error(`📄 Failed to initialize page provider: ${this.providerClass}`, error);
       throw error;
+    }
+  }
+
+  /**
+   * Seed required-pages into provider storage on fresh install.
+   * Runs only when data/pages/ is empty or .install-complete is missing.
+   * Uses the same syncFile logic as adminSyncRequiredPages() — provider-agnostic
+   * at the file level for FileSystemProvider-compatible storage.
+   */
+  private async seedRequiredPages(configManager: ConfigurationManager): Promise<void> {
+    try {
+      const pagesDirResolved: string = configManager.getResolvedDataPath(
+        'ngdpbase.page.provider.filesystem.storagedir',
+        './data/pages'
+      );
+      const dataDir = path.dirname(pagesDirResolved);
+      const installCompletePath = path.join(dataDir, '.install-complete');
+
+      // Check conditions: skip if install is already complete AND pages exist
+      const installComplete: boolean = await fse.pathExists(installCompletePath);
+      if (installComplete) {
+        const existing: string[] = await fse.readdir(pagesDirResolved).catch(() => []);
+        if (existing.filter((f: string) => f.endsWith('.md')).length > 0) {
+          logger.debug('[PageManager] Required pages seed skipped — installation already complete');
+          return;
+        }
+      }
+
+      const requiredDirRaw: string = configManager.getProperty(
+        'ngdpbase.page.provider.filesystem.requiredpagesdir',
+        './required-pages'
+      ) as string;
+      const requiredDir = path.isAbsolute(requiredDirRaw)
+        ? requiredDirRaw
+        : path.join(process.cwd(), requiredDirRaw);
+
+      if (!(await fse.pathExists(requiredDir))) {
+        logger.warn('[PageManager] Required pages directory not found, skipping seed:', requiredDir);
+        return;
+      }
+
+      await fse.ensureDir(pagesDirResolved);
+
+      const files: string[] = (await fse.readdir(requiredDir))
+        .filter((f: string) => f.endsWith('.md'));
+
+      let seeded = 0;
+      let skipped = 0;
+
+      for (const file of files) {
+        const srcPath = path.join(requiredDir, file);
+        const dstPath = path.join(pagesDirResolved, file);
+
+        if (await fse.pathExists(dstPath)) {
+          skipped++;
+          continue;
+        }
+
+        // Same logic as adminSyncRequiredPages syncFile(): strip user-modified on copy
+        const raw: string = await fse.readFile(srcPath, 'utf8');
+        const parsed = matter(raw) as { data: Record<string, unknown>; content: string };
+        delete parsed.data['user-modified'];
+        const cleaned: string = matter.stringify(parsed.content, parsed.data);
+        await fse.writeFile(dstPath, cleaned, 'utf8');
+        seeded++;
+      }
+
+      logger.info(`[PageManager] Required pages seeded: ${seeded} new, ${skipped} already present`);
+    } catch (err) {
+      logger.error('[PageManager] Failed to seed required pages:', err);
     }
   }
 
