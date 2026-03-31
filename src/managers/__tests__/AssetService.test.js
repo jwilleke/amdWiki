@@ -4,6 +4,14 @@
  * Covers search() fan-out across AttachmentManager and MediaManager,
  * result normalisation, insertSnippet generation, type filtering,
  * pagination, and graceful degradation when managers are unavailable.
+ *
+ * Result fields use schema.org names (AssetRecord):
+ *   providerId        — 'local' (attachment) or 'media-library' (media)
+ *   encodingFormat    — MIME type
+ *   thumbnailUrl      — thumbnail URL (media only)
+ *   dateCreated       — ISO timestamp
+ *   description       — caption / description text
+ *   mentions          — array of page names
  */
 
 const AssetService = require('../AssetService');
@@ -65,7 +73,7 @@ function makeService(engineOpts = {}) {
 // -------------------------------------------------------------------------
 
 describe('AssetService.search()', () => {
-  describe('return shape (AssetSearchPage)', () => {
+  describe('return shape (AssetPage)', () => {
     it('returns { results, total, hasMore } object', async () => {
       const { service } = makeService({ attachments: [makeAttachment()], noMedia: true });
 
@@ -110,7 +118,7 @@ describe('AssetService.search()', () => {
     });
   });
 
-  describe('result shape', () => {
+  describe('result shape (AssetRecord)', () => {
     it('attachment result has correct fields and insertSnippet for image', async () => {
       const { service } = makeService({ attachments: [makeAttachment()] });
 
@@ -118,12 +126,12 @@ describe('AssetService.search()', () => {
 
       expect(results).toHaveLength(1);
       const r = results[0];
-      expect(r.assetType).toBe('attachment');
+      expect(r.providerId).toBe('local');
       expect(r.id).toBe('att-1');
       expect(r.filename).toBe('photo.jpg');
-      expect(r.mimeType).toBe('image/jpeg');
+      expect(r.encodingFormat).toBe('image/jpeg');
       expect(r.url).toBe('/attachments/att-1');
-      expect(r.dateTimeOriginal).toBe('2024-01-01T00:00:00Z');
+      expect(r.dateCreated).toBe('2024-01-01T00:00:00Z');
       expect(r.insertSnippet).toBe("[{Image src='photo.jpg'}]");
     });
 
@@ -144,14 +152,13 @@ describe('AssetService.search()', () => {
 
       expect(results).toHaveLength(1);
       const r = results[0];
-      expect(r.assetType).toBe('media');
+      expect(r.providerId).toBe('media-library');
       expect(r.id).toBe('media-1');
       expect(r.filename).toBe('sunset.jpg');
-      expect(r.mimeType).toBe('image/jpeg');
+      expect(r.encodingFormat).toBe('image/jpeg');
       expect(r.url).toBe('/media/file/media-1');
-      expect(r.thumbUrl).toBe('/media/thumb/media-1?size=150x150');
-      expect(r.year).toBe(2023);
-      expect(r.linkedPageName).toBe('HolidayPage');
+      expect(r.thumbnailUrl).toBe('/media/thumb/media-1?size=150x150');
+      expect(r.mentions).toEqual(['HolidayPage']);
       expect(r.insertSnippet).toBe("[{Image src='media://sunset.jpg'}]");
     });
 
@@ -175,9 +182,9 @@ describe('AssetService.search()', () => {
 
       const { results } = await service.search();
 
-      const types = results.map(r => r.assetType);
-      expect(types).toContain('attachment');
-      expect(types).toContain('media');
+      const providerIds = results.map(r => r.providerId);
+      expect(providerIds).toContain('local');
+      expect(providerIds).toContain('media-library');
     });
 
     it('types=["attachment"] skips media search', async () => {
@@ -188,7 +195,7 @@ describe('AssetService.search()', () => {
 
       const { results } = await service.search({ types: ['attachment'] });
 
-      expect(results.every(r => r.assetType === 'attachment')).toBe(true);
+      expect(results.every(r => r.providerId === 'local')).toBe(true);
       expect(engine._mockMediaManager.search).not.toHaveBeenCalled();
     });
 
@@ -200,7 +207,7 @@ describe('AssetService.search()', () => {
 
       const { results } = await service.search({ types: ['media'] });
 
-      expect(results.every(r => r.assetType === 'media')).toBe(true);
+      expect(results.every(r => r.providerId === 'media-library')).toBe(true);
       expect(engine._mockAttachmentManager.getAllAttachments).not.toHaveBeenCalled();
     });
   });
@@ -265,7 +272,8 @@ describe('AssetService.search()', () => {
       const { results } = await service.search({ query: 'sunset', year: 2023, types: ['media'] });
 
       expect(engine._mockMediaManager.search).toHaveBeenCalled();
-      expect(results.every(r => r.year === 2023)).toBe(true);
+      expect(results).toHaveLength(1);
+      expect(results[0].id).toBe('m1');
     });
   });
 
@@ -319,7 +327,7 @@ describe('AssetService.search()', () => {
   });
 
   describe('sort', () => {
-    it('sort=date asc orders media by dateTimeOriginal oldest-first', async () => {
+    it('sort=date asc orders media by dateCreated oldest-first', async () => {
       const items = [
         makeMediaItem({ id: 'm1', filename: 'c.jpg', metadata: { dateTimeOriginal: '2024-06-15 10:00:00' } }),
         makeMediaItem({ id: 'm2', filename: 'a.jpg', metadata: { dateTimeOriginal: '2022-01-01 00:00:00' } }),
@@ -332,7 +340,7 @@ describe('AssetService.search()', () => {
       expect(results.map(r => r.filename)).toEqual(['a.jpg', 'b.jpg', 'c.jpg']);
     });
 
-    it('sort=date desc orders media by dateTimeOriginal newest-first', async () => {
+    it('sort=date desc orders media by dateCreated newest-first', async () => {
       const items = [
         makeMediaItem({ id: 'm1', filename: 'a.jpg', metadata: { dateTimeOriginal: '2022-01-01 00:00:00' } }),
         makeMediaItem({ id: 'm2', filename: 'c.jpg', metadata: { dateTimeOriginal: '2024-06-15 10:00:00' } }),
@@ -345,7 +353,7 @@ describe('AssetService.search()', () => {
       expect(results[1].filename).toBe('a.jpg');
     });
 
-    it('sort=caption asc orders media by caption alphabetically', async () => {
+    it('sort=caption asc orders media by description alphabetically', async () => {
       const items = [
         makeMediaItem({ id: 'm1', filename: 'z.jpg', metadata: { caption: 'Zebra' } }),
         makeMediaItem({ id: 'm2', filename: 'a.jpg', metadata: { caption: 'Apple' } }),
@@ -355,10 +363,10 @@ describe('AssetService.search()', () => {
 
       const { results } = await service.search({ types: ['media'], sort: 'caption', order: 'asc' });
 
-      expect(results.map(r => r.caption)).toEqual(['Apple', 'Mango', 'Zebra']);
+      expect(results.map(r => r.description)).toEqual(['Apple', 'Mango', 'Zebra']);
     });
 
-    it('sort=caption falls back to filename when no caption', async () => {
+    it('sort=caption falls back to filename when no description', async () => {
       const items = [
         makeMediaItem({ id: 'm1', filename: 'zebra.jpg', metadata: {} }),
         makeMediaItem({ id: 'm2', filename: 'apple.jpg', metadata: {} }),
@@ -371,22 +379,22 @@ describe('AssetService.search()', () => {
       expect(results[1].filename).toBe('zebra.jpg');
     });
 
-    it('media results expose caption field from metadata', async () => {
+    it('media results expose description field from metadata.caption', async () => {
       const item = makeMediaItem({ metadata: { caption: 'A lovely sunset' } });
       const { service } = makeService({ mediaItems: [item], noAttach: true });
 
       const { results } = await service.search({ types: ['media'] });
 
-      expect(results[0].caption).toBe('A lovely sunset');
+      expect(results[0].description).toBe('A lovely sunset');
     });
 
-    it('media results expose dateTimeOriginal field from metadata', async () => {
+    it('media results expose dateCreated field from metadata.dateTimeOriginal', async () => {
       const item = makeMediaItem({ metadata: { dateTimeOriginal: '2024-06-15 10:30:00' } });
       const { service } = makeService({ mediaItems: [item], noAttach: true });
 
       const { results } = await service.search({ types: ['media'] });
 
-      expect(results[0].dateTimeOriginal).toBe('2024-06-15 10:30:00');
+      expect(results[0].dateCreated).toBe('2024-06-15 10:30:00');
     });
 
     it('default sort is date asc', async () => {
@@ -408,7 +416,7 @@ describe('AssetService.search()', () => {
 
       const { results } = await service.search();
 
-      expect(results.every(r => r.assetType === 'media')).toBe(true);
+      expect(results.every(r => r.providerId === 'media-library')).toBe(true);
     });
 
     it('MediaManager unavailable → returns only attachment results', async () => {
@@ -416,7 +424,7 @@ describe('AssetService.search()', () => {
 
       const { results } = await service.search();
 
-      expect(results.every(r => r.assetType === 'attachment')).toBe(true);
+      expect(results.every(r => r.providerId === 'local')).toBe(true);
     });
 
     it('both managers unavailable → returns empty results', async () => {
@@ -436,7 +444,7 @@ describe('AssetService.search()', () => {
 
       const { results } = await service.search();
 
-      expect(results.some(r => r.assetType === 'media')).toBe(true);
+      expect(results.some(r => r.providerId === 'media-library')).toBe(true);
     });
 
     it('media search throws → returns attachment results without crashing', async () => {
@@ -446,7 +454,7 @@ describe('AssetService.search()', () => {
 
       const { results } = await service.search();
 
-      expect(results.some(r => r.assetType === 'attachment')).toBe(true);
+      expect(results.some(r => r.providerId === 'local')).toBe(true);
     });
   });
 });

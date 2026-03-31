@@ -182,14 +182,14 @@ var _apPageName   = typeof assetPickerPageName    !== 'undefined' ? assetPickerP
     // ------------------------------------------------------------------ card
 
     function _apCard(asset, idx) {
-        var isImage  = asset.mimeType && asset.mimeType.startsWith('image/');
-        var isMedia  = asset.assetType === 'media';
+        var isImage  = asset.encodingFormat && asset.encodingFormat.startsWith('image/');
+        var isMedia  = asset.providerId === 'media-library';
         var thumb;
 
-        if (isMedia && asset.thumbUrl) {
-            thumb = '<img src="' + _esc(asset.thumbUrl) + '" class="img-fluid rounded mb-1" style="max-height:110px;object-fit:cover;width:100%;" loading="lazy" alt="">';
+        if (isMedia && asset.thumbnailUrl) {
+            thumb = '<img src="' + _esc(asset.thumbnailUrl) + '" class="img-fluid rounded mb-1" style="max-height:110px;object-fit:cover;width:100%;" loading="lazy" alt="" itemprop="thumbnailUrl">';
         } else if (isImage && asset.url) {
-            thumb = '<img src="' + _esc(asset.url) + '" class="img-fluid rounded mb-1" style="max-height:110px;object-fit:cover;width:100%;" loading="lazy" alt="">';
+            thumb = '<img src="' + _esc(asset.url) + '" class="img-fluid rounded mb-1" style="max-height:110px;object-fit:cover;width:100%;" loading="lazy" alt="" itemprop="url">';
         } else {
             var icon = isMedia ? 'fa-photo-video' : 'fa-paperclip';
             thumb = '<div class="text-center text-muted py-3"><i class="fas ' + icon + ' fa-2x"></i></div>';
@@ -198,8 +198,9 @@ var _apPageName   = typeof assetPickerPageName    !== 'undefined' ? assetPickerP
         var badge = isMedia
             ? '<span class="badge bg-info text-dark">media</span>'
             : '<span class="badge bg-secondary">attachment</span>';
-        var year  = asset.year ? '<small class="text-muted me-1">' + _esc(String(asset.year)) + '</small>' : '';
-        var name  = asset.caption || asset.filename || asset.id;
+        var yearStr = asset.dateCreated ? String(new Date(asset.dateCreated).getFullYear()) : '';
+        var year  = yearStr ? '<small class="text-muted me-1" itemprop="dateCreated">' + _esc(yearStr) + '</small>' : '';
+        var name  = asset.description || asset.filename || asset.id;
 
         var actionBtn;
         if (_apInsert) {
@@ -211,10 +212,10 @@ var _apPageName   = typeof assetPickerPageName    !== 'undefined' ? assetPickerP
         }
 
         return '<div class="col-6 col-md-3 col-lg-2">' +
-            '<div class="card h-100 border-0 shadow-sm">' +
+            '<div class="card h-100 border-0 shadow-sm" itemscope itemtype="https://schema.org/MediaObject">' +
                 '<div class="card-body p-2">' +
                     thumb +
-                    '<div class="small text-truncate" title="' + _esc(name) + '">' + _esc(name) + '</div>' +
+                    '<div class="small text-truncate" title="' + _esc(name) + '" itemprop="name">' + _esc(name) + '</div>' +
                     '<div class="mt-1">' + year + badge + '</div>' +
                 '</div>' +
                 '<div class="card-footer p-1 text-center">' + actionBtn + '</div>' +

@@ -2444,17 +2444,17 @@ class WikiRoutes {
       const mediaOffset = (mediaPageParam - 1) * mediaPageSize;
 
       const assetService = this.engine.getManager('AssetService') as
-        | { search(opts: object): Promise<{ results: Array<{ id: string; filename: string; mimeType: string; url: string; thumbUrl?: string; year?: number; linkedPageName?: string; isPrivate?: boolean; assetType: string }>; total: number; hasMore: boolean }> }
+        | { search(opts: object): Promise<{ results: Array<{ id: string; filename: string; encodingFormat: string; url: string; thumbnailUrl?: string; dateCreated?: string; mentions?: string[]; isPrivate?: boolean; providerId: string }>; total: number; hasMore: boolean }> }
         | undefined;
 
-      let attachmentResults: Array<{ id: string; filename: string; mimeType: string; url: string; linkedPageName?: string }> = [];
-      let mediaPage: { results: Array<{ id: string; filename: string; mimeType: string; url: string; thumbUrl?: string; year?: number; linkedPageName?: string; isPrivate?: boolean }>; total: number; hasMore: boolean } = { results: [], total: 0, hasMore: false };
+      let attachmentResults: Array<{ id: string; filename: string; encodingFormat: string; url: string; mentions?: string[] }> = [];
+      let mediaPage: { results: Array<{ id: string; filename: string; encodingFormat: string; url: string; thumbnailUrl?: string; dateCreated?: string; mentions?: string[]; isPrivate?: boolean }>; total: number; hasMore: boolean } = { results: [], total: 0, hasMore: false };
 
       if (searchTab === 'attachments' && assetService) {
         try {
           const page = await assetService.search({ query: attachmentQuery, types: ['attachment'], pageSize: 500, wikiContext });
           attachmentResults = mimeType
-            ? page.results.filter(r => r.mimeType.toLowerCase().startsWith(mimeType.toLowerCase()))
+            ? page.results.filter(r => r.encodingFormat.toLowerCase().startsWith(mimeType.toLowerCase()))
             : page.results;
         } catch (attachErr) {
           logger.warn('Error searching attachments via AssetService:', attachErr);
