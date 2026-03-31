@@ -56,7 +56,14 @@
                     <tbody>
                         <% addons.forEach(addon => { %>
                         <tr>
-                            <td><strong><%= addon.name %></strong></td>
+                            <td>
+                                <strong><%= addon.name %></strong>
+                                <% if (addon.type === 'domain') { %>
+                                    <span class="badge bg-primary ms-1" title="This addon is the primary site identity">DOMAIN</span>
+                                <% } else if (addon.type === 'additive') { %>
+                                    <span class="badge bg-secondary ms-1" title="This addon augments an existing wiki">ADDITIVE</span>
+                                <% } %>
+                            </td>
                             <td><code><%= addon.version || '—' %></code></td>
                             <td><%= addon.description || '<span class="text-muted">—</span>' %></td>
                             <td><%= addon.author || '<span class="text-muted">—</span>' %></td>

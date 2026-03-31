@@ -123,6 +123,8 @@ export interface AddonStatus {
   loaded: boolean;
   dependencies: string[];
   error: string | null;
+  /** 'domain' | 'additive' | undefined (unset addons behave as additive) */
+  type?: 'domain' | 'additive';
   details?: AddonStatusDetails;
   statusError?: string;
 }
@@ -143,12 +145,16 @@ class AddonsManager extends BaseManager {
   /** Stylesheets registered by add-ons via registerStylesheet() */
   private registeredStylesheets: Array<{ url: string; addonName: string }>;
 
+  /** Name of the first domain addon loaded — only one is permitted */
+  private domainAddonName: string | null;
+
   constructor(engine: WikiEngine) {
     super(engine);
     this.addons = new Map();
     this.addonsPath = './addons';
     this.resolvedAddonsPath = null;
     this.registeredStylesheets = [];
+    this.domainAddonName = null;
   }
 
   /**
@@ -522,6 +528,21 @@ class AddonsManager extends BaseManager {
     }
 
     try {
+      // Enforce single domain addon: if a second addon declares type: 'domain',
+      // warn and treat it as additive so it does not clobber the first.
+      if (addon.manifest?.type === 'domain') {
+        if (this.domainAddonName && this.domainAddonName !== addonName) {
+          logger.warn(
+            `[AddonsManager] ${addonName} declares type: 'domain' but ${this.domainAddonName} is already the domain addon. ` +
+            `Loading ${addonName} as additive instead.`
+          );
+          addon.manifest = { ...addon.manifest, type: 'additive' };
+        } else {
+          this.domainAddonName = addonName;
+          logger.info(`[AddonsManager] Domain addon: ${addonName}`);
+        }
+      }
+
       // Inject domainDefaults before register() so the addon can read
       // any applied values from ConfigurationManager during startup
       this.applyDomainDefaults(addonName);
@@ -593,7 +614,8 @@ class AddonsManager extends BaseManager {
         enabled: addon.enabled,
         loaded: addon.loaded,
         dependencies: addon.module.dependencies || [],
-        error: addon.error
+        error: addon.error,
+        type: addon.manifest?.type
       };
 
       // Call add-on's status() if available and loaded

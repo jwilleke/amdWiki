@@ -575,6 +575,77 @@ describe('AddonsManager', () => {
     });
   });
 
+  describe('domain addon enforcement', () => {
+    const makeAddon = async (addonName, type) => {
+      const addonDir = path.join(tmpDir, addonName);
+      await fs.mkdir(addonDir);
+      await fs.writeFile(
+        path.join(addonDir, 'index.js'),
+        `module.exports = { name: '${addonName}', version: '1.0.0', register: () => {} };`,
+        'utf8'
+      );
+      const pkg = { name: addonName, version: '1.0.0' };
+      if (type) pkg.ngdpbase = { type };
+      await fs.writeJson(path.join(addonDir, 'package.json'), pkg);
+    };
+
+    test('first domain addon is accepted and status type is domain', async () => {
+      await makeAddon('first-domain', 'domain');
+
+      const configManager = makeConfigManager({ enabledAddons: ['first-domain'] });
+      const engine = makeEngine(configManager);
+      const manager = new AddonsManager(engine);
+      await manager.initialize();
+
+      const status = await manager.getStatus();
+      const entry = status.find(a => a.name === 'first-domain');
+      expect(entry.type).toBe('domain');
+    });
+
+    test('second domain addon is demoted to additive', async () => {
+      // Addons are loaded in discovery order — use alphabetically sorted names
+      await makeAddon('aaa-domain', 'domain');
+      await makeAddon('bbb-domain', 'domain');
+
+      const configManager = makeConfigManager({ enabledAddons: ['aaa-domain', 'bbb-domain'] });
+      const engine = makeEngine(configManager);
+      const manager = new AddonsManager(engine);
+      await manager.initialize();
+
+      const status = await manager.getStatus();
+      const first = status.find(a => a.name === 'aaa-domain');
+      const second = status.find(a => a.name === 'bbb-domain');
+      expect(first.type).toBe('domain');
+      expect(second.type).toBe('additive');
+    });
+
+    test('additive addon type is exposed in status', async () => {
+      await makeAddon('additive-one', 'additive');
+
+      const configManager = makeConfigManager({ enabledAddons: ['additive-one'] });
+      const engine = makeEngine(configManager);
+      const manager = new AddonsManager(engine);
+      await manager.initialize();
+
+      const status = await manager.getStatus();
+      const entry = status.find(a => a.name === 'additive-one');
+      expect(entry.type).toBe('additive');
+    });
+
+    test('addon with no type has undefined type in status', async () => {
+      await makeAddon('no-type-addon', null);
+
+      const configManager = makeConfigManager({ enabledAddons: ['no-type-addon'] });
+      const engine = makeEngine(configManager);
+      const manager = new AddonsManager(engine);
+      await manager.initialize();
+
+      const status = await manager.getStatus();
+      const entry = status.find(a => a.name === 'no-type-addon');
+      expect(entry.type).toBeUndefined();
+    });
+  });
+
   describe('backup and restore', () => {
     test('backup returns addon state', async () => {
       const addonDir = path.join(tmpDir, 'backup-addon');
