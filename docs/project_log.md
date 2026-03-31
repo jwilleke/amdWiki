@@ -22,6 +22,24 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - [file2.md]
 ```
 
+## 2026-03-31-02
+
+- Agent: Claude Code (Sonnet 4.6)
+- Subject: Fix search — empty query returns all pages; fix missing await on category/keyword paths
+- Key Decision: detect form submission via presence of `q` param rather than truthy query value, so empty-submit is distinguishable from bare page load
+- Current Issue: #417 (closed)
+- Testing:
+  - npm test: 92 suites passed, 2388 tests passed, 0 failed
+- Work Done:
+  - Added `getAllDocuments()` to `LunrSearchProvider` and `SearchManager`
+  - `searchPages()`: empty query + no filters → all pages; empty query + filters → category/keyword paths
+  - Fixed missing `await` on `searchByCategories` and `searchByUserKeywordsList` calls
+- Commits: 7b6370a4
+- Files Modified:
+  - `src/providers/LunrSearchProvider.ts`
+  - `src/managers/SearchManager.ts`
+  - `src/routes/WikiRoutes.ts`
+
 ## 2026-03-31-01
 
 - Agent: Claude Code (Sonnet 4.6)
