@@ -987,6 +987,21 @@ class UserManager extends BaseManager {
     return userWithoutPassword;
   }
 
+  async getUserByEmail(email: string): Promise<Omit<User, 'password'> | undefined> {
+    if (!this.provider) {
+      throw new Error('Provider not initialized');
+    }
+    const allUsers = await this.provider.getAllUsers();
+    const normalizedEmail = email.trim().toLowerCase();
+    const found = Array.from(allUsers.values()).find(
+      (u): u is User => u != null && typeof u.email === 'string' &&
+        u.email.toLowerCase() === normalizedEmail
+    );
+    if (!found) return undefined;
+    const { password: _pwd, ...userWithoutPassword } = found;
+    return userWithoutPassword;
+  }
+
   getRoles(): Role[] {
     return Array.from(this.roles.values());
   }

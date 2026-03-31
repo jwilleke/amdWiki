@@ -45,7 +45,27 @@
                         
                         <button type="submit" class="btn btn-primary w-100">Login</button>
                     </form>
-                    
+
+                    <% if (magicLinkEnabled) { %>
+                    <hr>
+                    <p class="text-center text-muted small mb-2">Or sign in without a password</p>
+                    <% if (magic === 'sent') { %>
+                        <div class="alert alert-success">
+                            If that email is registered, a magic link has been sent. Check your inbox.
+                        </div>
+                    <% } else { %>
+                        <form action="/auth/magic-link" method="POST">
+                            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                            <input type="hidden" name="redirect" value="<%= redirect || '/' %>">
+                            <div class="input-group">
+                                <input type="email" class="form-control" name="email"
+                                       placeholder="your@email.com" required>
+                                <button type="submit" class="btn btn-outline-secondary">Email me a link</button>
+                            </div>
+                        </form>
+                    <% } %>
+                    <% } %>
+
                     <hr>
                     
                     <div class="text-center">

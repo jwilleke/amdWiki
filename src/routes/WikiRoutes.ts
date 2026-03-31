@@ -2928,11 +2928,15 @@ class WikiRoutes {
 
       const commonData = await this.getCommonTemplateData(req);
 
+      const authManager = this.engine.getManager('AuthManager');
       res.render('login', {
         ...commonData,
         title: 'Login',
         error: req.query.error,
+        success: req.query.success,
+        magic: req.query.magic,
         redirect: req.query.redirect,
+        magicLinkEnabled: authManager?.isEnabled('magic-link') ?? false,
         csrfToken: req.session?.csrfToken || ''
       });
     } catch (err: unknown) {
@@ -2958,8 +2962,12 @@ class WikiRoutes {
 
       if (debugLogin) logger.debug('DEBUG: Login attempt for:', username);
 
-      const user = await userManager.authenticateUser(username, password);
-      if (!user) {
+      const authManager = this.engine.getManager('AuthManager');
+      const result = authManager
+        ? await authManager.authenticate('password', { username, password })
+        : { success: await userManager.authenticateUser(username, password).then(Boolean), username };
+
+      if (!result.success) {
         if (debugLogin)
           logger.debug('DEBUG: Authentication failed for:', username);
         return res.redirect(
@@ -2969,10 +2977,10 @@ class WikiRoutes {
       }
 
       // Store username in express-session
-      req.session.username = user.username;
+      req.session.username = result.username || username;
       req.session.isAuthenticated = true;
 
-      logger.info(`👤 User logged in: ${username}`);
+      logger.info(`👤 User logged in: ${result.username || username}`);
 
       if (debugLogin) {
         logger.debug('DEBUG: Session ID:', req.sessionID);
@@ -2996,6 +3004,71 @@ class WikiRoutes {
     } catch (err: unknown) {
       logger.error('Error processing login:', err);
       res.redirect('/login?error=Login failed');
+    }
+  }
+
+  /**
+   * Request a magic link — POST /auth/magic-link
+   */
+  async requestMagicLink(req: Request, res: Response) {
+    try {
+      const { email, redirect = '/' } = req.body;
+      const authManager = this.engine.getManager('AuthManager');
+      const configManager = this.engine.getManager('ConfigurationManager');
+
+      if (authManager?.isEnabled('magic-link')) {
+        const port = configManager?.getProperty('ngdpbase.server.port', 3000) as number;
+        const configuredBase = configManager?.getProperty('ngdpbase.auth.magic-link.base-url', '') as string;
+        const baseUrl = configuredBase?.trim() || `http://localhost:${port}`;
+        await authManager.initiate('magic-link', { email, redirect, baseUrl });
+      }
+
+      // Always redirect with success — never reveal whether email exists
+      res.redirect('/login?magic=sent' + (redirect !== '/' ? '&redirect=' + encodeURIComponent(redirect) : ''));
+    } catch (err: unknown) {
+      logger.error('Error requesting magic link:', err);
+      res.redirect('/login?error=Request+failed');
+    }
+  }
+
+  /**
+   * Verify a magic link token — GET /auth/magic-link/verify
+   */
+  async verifyMagicLink(req: Request, res: Response) {
+    try {
+      const token = req.query.token as string;
+      const authManager = this.engine.getManager('AuthManager');
+
+      if (!token || !authManager) {
+        return res.redirect('/login?error=Invalid+link');
+      }
+
+      // Get redirect before consuming (token is deleted in consumeToken)
+      const redirect = authManager.getMagicLinkRedirect(token);
+
+      const result = await authManager.authenticate('magic-link', { token });
+      if (!result.success) {
+        return res.redirect('/login?error=Link+expired+or+already+used');
+      }
+
+      // Consume token — single-use
+      authManager.consumeToken('magic-link', token);
+
+      req.session.username = result.username;
+      req.session.isAuthenticated = true;
+
+      logger.info(`👤 User logged in via magic link: ${result.username}`);
+
+      req.session.save((err) => {
+        if (err) {
+          logger.error('Error saving session after magic link login:', err);
+          return res.redirect('/login?error=Session+save+failed');
+        }
+        res.redirect(redirect || '/');
+      });
+    } catch (err: unknown) {
+      logger.error('Error verifying magic link:', err);
+      res.redirect('/login?error=Verification+failed');
     }
   }
 
@@ -6636,6 +6709,8 @@ class WikiRoutes {
     app.get('/search', (req: Request, res: Response) => this.searchPages(req, res));
     app.get('/login', (req: Request, res: Response) => this.loginPage(req, res));
     app.post('/login', (req: Request, res: Response) => this.processLogin(req, res));
+    app.post('/auth/magic-link', (req: Request, res: Response) => this.requestMagicLink(req, res));
+    app.get('/auth/magic-link/verify', (req: Request, res: Response) => this.verifyMagicLink(req, res));
     app.get('/logout', (req: Request, res: Response) => this.processLogout(req, res));
     app.post('/logout', (req: Request, res: Response) => this.processLogout(req, res));
     app.get('/register', (req: Request, res: Response) => this.registerPage(req, res));

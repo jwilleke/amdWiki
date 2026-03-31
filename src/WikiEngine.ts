@@ -28,6 +28,7 @@ import CacheManager from './managers/CacheManager';
 import AuditManager from './managers/AuditManager';
 import AddonsManager from './managers/AddonsManager';
 import ImportManager from './managers/ImportManager';
+import AuthManager from './managers/AuthManager';
 import MetricsManager from './managers/MetricsManager';
 import BackgroundJobManager from './managers/BackgroundJobManager';
 
@@ -174,6 +175,10 @@ class WikiEngine extends Engine {
     const userManager = new UserManager(this);
     this.registerManager('UserManager', userManager);
     await userManager.initialize();
+
+    const authManager = new AuthManager(this);
+    this.registerManager('AuthManager', authManager);
+    await authManager.initialize();
 
     // 4. Initialize other managers that may depend on the above
     const notificationManager = new NotificationManager(this);
