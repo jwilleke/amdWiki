@@ -22,6 +22,26 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - [file2.md]
 ```
 
+## 2026-03-31-05
+
+- Agent: Claude Code (Sonnet 4.6)
+- Subject: Fix /search badge escaping, add pagination, align with WikiPagination (#419)
+- Key Decision: URL builder uses `window.location` + `URLSearchParams.set('page', N)` — no template injection, all existing query params preserved automatically; page size 25
+- Current Issue: #419 (closed)
+- Testing:
+  - npm test: 92 suites passed, 2388 tests passed, 0 failed
+- Work Done:
+  - Fixed category/keyword badge HTML escaping (`<%= %>` → `<%- %>`)
+  - Added 25-per-page pagination to pages tab via `WikiPagination.renderNav()` (sliding window + ellipsis)
+  - `WikiPagination.attachKeyboard()` and `attachSwipe()` wired for arrow key and mobile swipe navigation
+  - Route passes `totalCount`, `currentPage`, `totalPages`, `pageSize`, `submitted` to template
+  - Results condition changed to `submitted` flag so empty-query submit shows all results
+  - Both top and bottom nav containers per #390 consistency requirement
+- Commits: 3a185f69
+- Files Modified:
+  - `src/routes/WikiRoutes.ts`
+  - `views/search-results.ejs`
+
 ## 2026-03-31-04
 
 - Agent: Claude Code (Sonnet 4.6)
