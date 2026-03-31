@@ -26,49 +26,25 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 - Agent: Claude Code (Sonnet 4.6)
 - Subject: Add `system-category: addon` — config entry, de-hardcode category lists, backfill ve-geology pages
-- Key Decision: `addon` storageLocation is `regular` (pages live in `data/pages/`, user-editable); conflict detection is handled by `addon:` front-matter provenance, not storage restriction
-- Current Issues: #411 (addon page provenance — follow-up to front-matter fix)
-
-### Work Done
-
-#### Backfill addon provenance front-matter (`data/pages/`)
-
-- Added `addon: ve-geology` and `system-category: addon` to all 6 ve-geology pages seeded before conflict detection existed (`ve-geology-{demo,earthquakes,hans,home,japan,volcanoes}.md`)
-- `data/pages/` is gitignored — changes are live-data only
-
-#### Config — new `addon` system-category (`config/app-default-config.json`)
-
-- Added `addon` entry to `ngdpbase.system-category` block alongside `general`, `system`, `documentation`, `developer`
-- `storageLocation: "regular"` — addon pages are user-editable; conflict detection uses `addon:` front-matter not storage location
-
-#### De-hardcode category lists (`src/routes/WikiRoutes.ts`, `src/managers/ValidationManager.ts`)
-
-- `getSystemCategories()` and `getRequiredPageCategories()` now return `[]` on config failure instead of stale hardcoded lists
-- `ValidationManager` constructor default for `validSystemCategories` changed from hardcoded list to `[]` (populated from config in `initialize()`)
-- All category lists must come from `ngdpbase.system-category` config — never hardcoded
-
-#### Test mocks updated (`routes.test.js`, `WikiRoutes-isRequiredPage.test.js`)
-
-- `ConfigurationManager` mocks now supply full `ngdpbase.system-category` structure instead of returning `null`
-- Tests now exercise the config-driven code path as production does
-
-### Files Modified
-
-- `config/app-default-config.json` — added `addon` system-category entry
-- `src/routes/WikiRoutes.ts` — removed hardcoded fallback lists from `getSystemCategories()` and `getRequiredPageCategories()`
-- `src/managers/ValidationManager.ts` — empty default for `validSystemCategories`
-- `src/routes/__tests__/WikiRoutes-isRequiredPage.test.js` — updated ConfigurationManager mock
-- `src/routes/__tests__/routes.test.js` — updated ConfigurationManager mock
-- `docs/project_log.md` — this entry
-
-### Testing Results
-
-- **92 suites passed, 0 failed**
-- 2388 passed, 11 skipped, 0 failed
-
-### Issues
-
-- jwilleke/ngdpbase#411 — commented with decisions on system-category: addon and de-hardcoding
+- Key Decision: `addon` storageLocation is `regular` (pages live in `data/pages/`, user-editable); conflict detection handled by `addon:` front-matter provenance not storage restriction
+- Current Issue: #411 (addon page provenance — follow-up to front-matter fix)
+- Testing:
+  - npm test: 92 suites passed, 2388 tests passed, 0 failed
+- Work Done:
+  - Backfilled `addon: ve-geology` and `system-category: addon` to all 6 ve-geology pages in `data/pages/` (gitignored, live-data only)
+  - Added `addon` entry to `ngdpbase.system-category` config (`storageLocation: regular`)
+  - `getSystemCategories()` and `getRequiredPageCategories()` now return `[]` on config failure — no more hardcoded lists
+  - `ValidationManager` constructor default for `validSystemCategories` changed to `[]`
+  - Updated `ConfigurationManager` mocks in `routes.test.js` and `WikiRoutes-isRequiredPage.test.js` to supply full system-category structure
+  - Commented decisions on #411
+- Commits: ae303224
+- Files Modified:
+  - `config/app-default-config.json`
+  - `src/routes/WikiRoutes.ts`
+  - `src/managers/ValidationManager.ts`
+  - `src/routes/__tests__/WikiRoutes-isRequiredPage.test.js`
+  - `src/routes/__tests__/routes.test.js`
+  - `docs/project_log.md`
 
 ## 2026-03-30-01
 
