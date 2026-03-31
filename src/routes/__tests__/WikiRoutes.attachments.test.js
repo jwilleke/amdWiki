@@ -137,6 +137,31 @@ describe('WikiRoutes - Attachment Security (Issue #22)', () => {
       expect(mockRes.json).toHaveBeenCalledWith({ error: 'No file uploaded' });
     });
 
+    test('should accept pageName from request body (no URL param needed)', async () => {
+      const mockReq = createMockReq(
+        { username: 'testuser', isAuthenticated: true },
+        {},  // no :page URL param
+        { pageName: 'MyPage', description: 'uploaded from picker' },
+        { buffer: Buffer.from('test'), originalname: 'photo.jpg', mimetype: 'image/jpeg', size: 4 }
+      );
+      const mockRes = createMockRes();
+
+      mockAttachmentManager.uploadAttachment.mockResolvedValue({
+        identifier: 'img-id',
+        filename: 'photo.jpg',
+        url: '/attachments/img-id'
+      });
+
+      await wikiRoutes.uploadAttachment(mockReq, mockRes);
+
+      expect(mockAttachmentManager.uploadAttachment).toHaveBeenCalledWith(
+        expect.any(Buffer),
+        expect.objectContaining({ originalName: 'photo.jpg' }),
+        expect.objectContaining({ pageName: 'MyPage' })
+      );
+      expect(mockRes.json).toHaveBeenCalledWith(expect.objectContaining({ success: true }));
+    });
+
     test('should handle upload errors gracefully', async () => {
       // Setup - authenticated user with file but upload fails
       const mockReq = createMockReq(

@@ -277,7 +277,10 @@ class AttachmentManager extends BaseManager {
       }
       : null;
 
-    // Resolve page privacy from the linked page's index entry
+    // Resolve page privacy from the page context entry.
+    // pageName is used for storage-location decisions (private/ dir) only —
+    // it does NOT create a mention. Page-asset linkage is driven by content
+    // scanning on page save (Phase 4 / #403).
     const pageName = options.pageName;
     let isPrivatePage = false;
     let pageCreator: string | undefined;
@@ -306,11 +309,6 @@ class AttachmentManager extends BaseManager {
 
     // Store attachment via provider
     const attachmentMetadata = await this.attachmentProvider.storeAttachment(fileBuffer, fileInfo, metadata, user);
-
-    // If pageName provided, add to mentions
-    if (options.pageName) {
-      await this.attachToPage(attachmentMetadata.identifier, options.pageName);
-    }
 
     logger.info(`📎 Uploaded attachment: ${fileInfo.originalName} (${attachmentMetadata.identifier})${isPrivatePage ? ` [private page: ${pageName ?? ''}, creator: ${pageCreator ?? 'unknown'}]` : ''}`);
     return attachmentMetadata;

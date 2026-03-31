@@ -2595,11 +2595,19 @@ class WikiRoutes {
   }
 
   /**
-   * Upload attachment for a page
+   * Upload attachment — page context is optional and used only for privacy
+   * detection (private/ storage dir). Page-asset linkage is driven by
+   * content scanning on page save, not by the upload itself (#403 / Phase 3).
+   *
+   * pageName may be supplied via:
+   *   - URL param  : POST /attachments/upload/:page  (legacy)
+   *   - Body field : POST /attachments/upload  { pageName: '...' }
    */
   async uploadAttachment(req: Request, res: Response) {
     try {
-      const pageName = req.params.page ? decodeURIComponent(req.params.page) : undefined;
+      const pageName = req.params.page
+        ? decodeURIComponent(req.params.page)
+        : (typeof req.body.pageName === 'string' ? req.body.pageName : undefined);
       const attachmentManager = this.engine.getManager('AttachmentManager');
 
       // 🔒 SECURITY: Check authentication
@@ -2623,7 +2631,8 @@ class WikiRoutes {
         size: req.file.size
       };
 
-      // Prepare options with full user context for permission checks
+      // Prepare options with full user context for permission checks.
+      // pageName is for private-page storage detection only — not for linkage.
       const options = {
         pageName: pageName,
         description: req.body.description || req.file.originalname,
