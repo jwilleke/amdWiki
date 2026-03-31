@@ -205,17 +205,17 @@ abstract class BaseMediaProvider implements AssetProvider {
   protected toAssetRecord(item: MediaItem): AssetRecord {
     const m = item.metadata ?? {};
 
-    const caption = typeof m['caption'] === 'string' && m['caption']
+    const description = typeof m['caption'] === 'string' && m['caption']
       ? m['caption']
       : (typeof m['imageDescription'] === 'string' ? m['imageDescription'] : undefined);
 
-    const title = typeof m['title'] === 'string' && m['title'] ? m['title'] : undefined;
+    const name = typeof m['title'] === 'string' && m['title'] ? m['title'] : undefined;
 
-    const uploadedAt = typeof m['dateTimeOriginal'] === 'string' ? m['dateTimeOriginal'] : undefined;
+    const dateCreated = typeof m['dateTimeOriginal'] === 'string' ? m['dateTimeOriginal'] : undefined;
 
-    // EXIF/IPTC keywords → tags
+    // EXIF/IPTC keywords → keywords
     const rawKeywords = m['keywords'];
-    const tags: string[] = Array.isArray(rawKeywords)
+    const keywords: string[] = Array.isArray(rawKeywords)
       ? (rawKeywords as unknown[]).filter((k): k is string => typeof k === 'string')
       : typeof rawKeywords === 'string' && rawKeywords ? [rawKeywords] : [];
 
@@ -230,15 +230,15 @@ abstract class BaseMediaProvider implements AssetProvider {
       id: item.id,
       providerId: this.id,
       filename: item.filename,
-      title,
-      mimeType: item.mimeType,
+      name,
+      encodingFormat: item.mimeType,
       url: `/media/file/${item.id}`,
-      thumbUrl: `/media/thumb/${item.id}?size=150x150`,
-      uploadedAt,
-      description: caption,
-      tags,
+      thumbnailUrl: `/media/thumb/${item.id}?size=150x150`,
+      dateCreated,
+      description,
+      keywords,
       dimensions,
-      usedOnPages: item.linkedPageName ? [item.linkedPageName] : [],
+      mentions: item.linkedPageName ? [item.linkedPageName] : [],
       isPrivate: item.isPrivate,
       metadata: item.metadata ?? {},
       insertSnippet: item.mimeType.startsWith('image/')
@@ -264,7 +264,7 @@ abstract class BaseMediaProvider implements AssetProvider {
         const isDoc = i.mimeType.includes('pdf') || i.mimeType.startsWith('text/');
         if (query.mimeCategory === 'image') return isImage;
         if (query.mimeCategory === 'document') return isDoc;
-        return !isImage && !isDoc;
+        return !isImage && !isDoc; // 'other'
       });
     }
 

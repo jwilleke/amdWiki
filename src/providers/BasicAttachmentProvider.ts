@@ -976,15 +976,15 @@ class BasicAttachmentProvider extends BaseAttachmentProvider implements AssetPro
       id: schema.identifier,
       providerId: this.id,
       filename: schema.name,
-      mimeType: schema.encodingFormat,
-      size: schema.contentSize,
+      encodingFormat: schema.encodingFormat,
+      contentSize: schema.contentSize,
       url: `/attachments/${schema.identifier}`,
-      uploadedAt: schema.dateCreated,
-      updatedAt: schema.dateModified,
-      uploadedBy: schema.author?.name,
+      dateCreated: schema.dateCreated,
+      dateModified: schema.dateModified,
+      author: schema.author?.name,
       description: schema.description,
-      tags: [],
-      usedOnPages: (schema.mentions ?? []).map(m => m.name ?? '').filter(Boolean),
+      keywords: [],
+      mentions: (schema.mentions ?? []).map(m => m.name ?? '').filter(Boolean),
       isPrivate: schema.isPrivate,
       metadata: {},
       insertSnippet: schema.encodingFormat.startsWith('image/')
@@ -1015,7 +1015,7 @@ class BasicAttachmentProvider extends BaseAttachmentProvider implements AssetPro
         const isDoc = s.encodingFormat.includes('pdf') || s.encodingFormat.startsWith('text/');
         if (mimeCategory === 'image') return isImage;
         if (mimeCategory === 'document') return isDoc;
-        return !isImage && !isDoc;
+        return !isImage && !isDoc; // 'other'
       });
     }
 

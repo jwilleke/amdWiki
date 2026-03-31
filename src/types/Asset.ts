@@ -49,13 +49,30 @@ export interface AssetUsageStats {
 /**
  * Unified asset record returned by all AssetProviders.
  *
+ * Field names follow schema.org CreativeWork / MediaObject where a direct
+ * equivalent exists. Non-schema fields (providerId, filename, dimensions,
+ * isPrivate, metadata, insertSnippet) are kept under their natural names.
+ *
+ * Schema.org equivalents used:
+ *   name            ← schema.org/name          (human-readable title)
+ *   description     ← schema.org/description
+ *   keywords        ← schema.org/keywords
+ *   encodingFormat  ← schema.org/encodingFormat (MIME type)
+ *   contentSize     ← schema.org/contentSize    (bytes)
+ *   url             ← schema.org/url
+ *   thumbnailUrl    ← schema.org/thumbnailUrl
+ *   dateCreated     ← schema.org/dateCreated
+ *   author          ← schema.org/author
+ *   dateModified    ← schema.org/dateModified
+ *   mentions        ← schema.org/mentions       (pages that reference this asset)
+ *
  * Covers all DAM core attribute categories:
- *   Identification  — id, providerId, filename, title
- *   Descriptive     — description, tags
- *   Technical       — mimeType, size, dimensions, url, thumbUrl
- *   Administrative  — uploadedAt, uploadedBy, updatedAt
+ *   Identification  — id, providerId, filename, name
+ *   Descriptive     — description, keywords
+ *   Technical       — encodingFormat, contentSize, dimensions, url, thumbnailUrl
+ *   Administrative  — dateCreated, author, dateModified
  *   Rights & Usage  — usageRights, usageStats
- *   Linkage         — usedOnPages, isPrivate
+ *   Linkage         — mentions, isPrivate
  *   Open metadata   — metadata (EXIF, IPTC, custom fields)
  *   Editor helper   — insertSnippet
  */
@@ -67,34 +84,34 @@ export interface AssetRecord {
   providerId: string;
   /** Original filename (basename) */
   filename: string;
-  /** Human-readable title; distinct from filename (e.g. from EXIF Title or user input) */
-  title?: string;
+  /** Human-readable title; distinct from filename (e.g. from EXIF Title or user input) — schema.org/name */
+  name?: string;
 
   // --- Descriptive ---
-  /** Detailed description or caption; used for searchability */
+  /** Detailed description or caption; used for searchability — schema.org/description */
   description?: string;
-  /** Controlled-vocabulary tags / keywords for categorisation */
-  tags: string[];
+  /** Controlled-vocabulary keywords / tags for categorisation — schema.org/keywords */
+  keywords: string[];
 
   // --- Technical ---
-  /** MIME type (e.g. "image/jpeg") */
-  mimeType: string;
-  /** File size in bytes */
-  size?: number;
+  /** MIME type (e.g. "image/jpeg") — schema.org/encodingFormat */
+  encodingFormat: string;
+  /** File size in bytes — schema.org/contentSize */
+  contentSize?: number;
   /** Image or video dimensions */
   dimensions?: AssetDimensions;
-  /** Browsable / embeddable URL */
+  /** Browsable / embeddable URL — schema.org/url */
   url: string;
-  /** Thumbnail URL (if available) */
-  thumbUrl?: string;
+  /** Thumbnail URL — schema.org/thumbnailUrl */
+  thumbnailUrl?: string;
 
   // --- Administrative ---
-  /** ISO 8601 timestamp when the asset was first ingested / uploaded */
-  uploadedAt?: string;
-  /** Username of the uploader or content creator / owner */
-  uploadedBy?: string;
-  /** ISO 8601 timestamp of the last metadata or file modification */
-  updatedAt?: string;
+  /** ISO 8601 timestamp when the asset was first ingested / uploaded — schema.org/dateCreated */
+  dateCreated?: string;
+  /** Username of the uploader or content creator / owner — schema.org/author */
+  author?: string;
+  /** ISO 8601 timestamp of the last metadata or file modification — schema.org/dateModified */
+  dateModified?: string;
 
   // --- Rights & Usage ---
   /** Licensing and rights information */
@@ -103,8 +120,8 @@ export interface AssetRecord {
   usageStats?: AssetUsageStats;
 
   // --- Linkage ---
-  /** Wiki pages this asset appears on */
-  usedOnPages: string[];
+  /** Wiki pages this asset appears on — schema.org/mentions */
+  mentions: string[];
   /** Whether the asset is gated by a private wiki page */
   isPrivate?: boolean;
 
