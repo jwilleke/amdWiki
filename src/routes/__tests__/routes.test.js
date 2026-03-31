@@ -230,6 +230,13 @@ jest.mock('../../WikiEngine', () => {
         'ngdpbase.theme.active': 'default',
         'ngdpbase.application-name': 'ngdpbase',
         'ngdpbase.version': '1.0.0',
+        'ngdpbase.system-category': {
+          general:       { label: 'general',       storageLocation: 'regular',  enabled: true },
+          system:        { label: 'system',        storageLocation: 'required', enabled: true },
+          documentation: { label: 'documentation', storageLocation: 'required', enabled: true },
+          developer:     { label: 'developer',     storageLocation: 'github',   enabled: true },
+          addon:         { label: 'addon',         storageLocation: 'regular',  enabled: true }
+        },
       };
       return key in defaults ? defaults[key] : defaultValue;
     }),

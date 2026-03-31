@@ -745,7 +745,7 @@ class WikiRoutes {
   getRequiredPageCategories(): string[] {
     try {
       const configManager = this.engine.getManager('ConfigurationManager');
-      if (!configManager) return ['system', 'documentation'];
+      if (!configManager) return [];
       const systemCategories = configManager.getProperty('ngdpbase.system-category', {}) as
         Record<string, { storageLocation?: string; label?: string; enabled?: boolean }>;
       const labels: string[] = [];
@@ -754,9 +754,9 @@ class WikiRoutes {
           labels.push((cfg.label || key).toLowerCase());
         }
       }
-      return labels.length > 0 ? labels : ['system', 'documentation'];
+      return labels;
     } catch {
-      return ['system', 'documentation'];
+      return [];
     }
   }
 
@@ -767,7 +767,7 @@ class WikiRoutes {
     try {
       const configManager = this.engine.getManager('ConfigurationManager');
       if (!configManager) {
-        return ['general', 'system', 'documentation', 'test'];
+        return [];
       }
 
       // Load system categories from configuration
@@ -787,12 +787,10 @@ class WikiRoutes {
       // Sort alphabetically for consistent ordering
       categories.sort();
 
-      return categories.length > 0
-        ? categories
-        : ['general', 'system', 'documentation', 'test'];
+      return categories;
     } catch (err: unknown) {
       logger.error('Error loading system categories:', err);
-      return ['general', 'system', 'documentation', 'test'];
+      return [];
     }
   }
 

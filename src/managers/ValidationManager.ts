@@ -153,8 +153,8 @@ class ValidationManager extends BaseManager {
   constructor(engine: WikiEngine) {
     super(engine);
     this.requiredMetadataFields = ['title', 'uuid', 'slug', 'system-category', 'user-keywords', 'lastModified'];
-    // Legacy hardcoded categories (fallback if config not available)
-    this.validSystemCategories = ['system', 'documentation', 'general', 'user', 'test', 'developer'];
+    // Populated from config in initialize() via loadSystemCategories()
+    this.validSystemCategories = [];
     this.systemCategoriesConfig = null;
   }
 

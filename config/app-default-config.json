@@ -446,6 +446,13 @@
       "default": false,
       "storageLocation": "github",
       "enabled": true
+    },
+    "addon": {
+      "label": "addon",
+      "description": "Pages seeded by an installed add-on",
+      "default": false,
+      "storageLocation": "regular",
+      "enabled": true
     }
   },
   "_comment_system_keywords": "System keyword definitions for controlled vocabulary",

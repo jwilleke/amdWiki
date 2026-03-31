@@ -30,7 +30,18 @@ describe('WikiRoutes.isRequiredPage()', () => {
         if (name === 'PageManager') return mockPageManager;
         if (name === 'ConfigurationManager') {
           return {
-            getProperty: jest.fn().mockReturnValue(null)
+            getProperty: jest.fn((key) => {
+              if (key === 'ngdpbase.system-category') {
+                return {
+                  general:       { label: 'general',       storageLocation: 'regular',  enabled: true },
+                  system:        { label: 'system',        storageLocation: 'required', enabled: true },
+                  documentation: { label: 'documentation', storageLocation: 'required', enabled: true },
+                  developer:     { label: 'developer',     storageLocation: 'github',   enabled: true },
+                  addon:         { label: 'addon',         storageLocation: 'regular',  enabled: true }
+                };
+              }
+              return null;
+            })
           };
         }
         return null;
