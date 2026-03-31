@@ -22,6 +22,40 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - [file2.md]
 ```
 
+## 2026-03-31-04
+
+- Agent: Claude Code (Sonnet 4.6)
+- Subject: LeftMenu default — add Home and Search links, remove Browse Media
+- Key Decision: use raw HTML `<a>` + Font Awesome icons directly in wiki markup (Showdown passes HTML through); both `required-pages/` and `data/pages/` updated
+- Current Issue: none
+- Testing: manual — left menu renders correctly in browser
+- Work Done:
+  - Added `<i class="fas fa-home"></i> Home` link to `/` at top of Navigation
+  - Added `<i class="fas fa-search"></i> Search` link to `/search` as second item
+  - Removed `Browse Media` link (media not enabled in this install)
+  - Updated both `required-pages/` (default) and `data/pages/` (live)
+- Commits: (this commit)
+- Files Modified:
+  - `required-pages/f6d47002-1631-4ef6-802b-fc3f7d04d50a.md`
+
+## 2026-03-31-03
+
+- Agent: Claude Code (Sonnet 4.6)
+- Subject: PageManager.seedRequiredPages() — seed required-pages into provider on initialize (#418)
+- Key Decision: seed only when `.install-complete` sentinel is absent OR `data/pages/` has no `.md` files; file-copy approach (not provider API) for fresh-install seeding; admin sync UI handles day-to-day updates
+- Current Issue: #418 (closed)
+- Testing:
+  - npm test: 92 suites passed, 2388 tests passed, 0 failed
+- Work Done:
+  - Added `seedRequiredPages(configManager)` to `PageManager` — reads `required-pages/`, copies `.md` files to `data/pages/` on fresh install, strips `user-modified` front-matter field, idempotent (skips existing files)
+  - Called from `PageManager.initialize()` after `provider.initialize()`
+  - Guard: skips if `.install-complete` exists AND `data/pages/` already has `.md` files
+  - Existing dev environment synced 82 pages via `/admin/required-pages` UI; Footer and LeftMenu now render
+  - Commented plan on #418 before implementation
+- Commits: 5a1d2409
+- Files Modified:
+  - `src/managers/PageManager.ts`
+
 ## 2026-03-31-02
 
 - Agent: Claude Code (Sonnet 4.6)
