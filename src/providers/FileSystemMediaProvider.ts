@@ -115,6 +115,11 @@ interface ScanCounters {
  * to thumbnailDir.
  */
 class FileSystemMediaProvider extends BaseMediaProvider {
+  // AssetProvider identity (Epic #405 Phase 1)
+  readonly id = 'media-library';
+  readonly displayName = 'Media Library';
+  readonly capabilities: import('../types/Asset').ProviderCapability[] = ['search', 'thumbnail'];
+
   private readonly config: FileSystemMediaProviderConfig;
   /** In-memory index: id → MediaIndexEntry */
   private index: Record<string, MediaIndexEntry> = {};
@@ -328,7 +333,7 @@ class FileSystemMediaProvider extends BaseMediaProvider {
    *
    * All query tokens must match (AND semantics).
    */
-  search(query: string): Promise<MediaItem[]> {
+  searchItems(query: string): Promise<MediaItem[]> {
     const lower = query.toLowerCase().trim();
     if (!lower) return Promise.resolve([]);
     const tokens = lower.split(/\s+/).filter(Boolean);
@@ -556,7 +561,7 @@ class FileSystemMediaProvider extends BaseMediaProvider {
           dateTimeOriginal: (() => {
             const dt = rawTags.DateTimeOriginal as { year?: number; month?: number; day?: number; hour?: number; minute?: number; second?: number } | null | undefined;
             if (!dt || typeof dt.year !== 'number') return null;
-            const pad = (n: number) => String(n).padStart(2, '0');
+            const pad = (n: number): string => String(n).padStart(2, '0');
             return `${dt.year}-${pad(dt.month ?? 1)}-${pad(dt.day ?? 1)} ${pad(dt.hour ?? 0)}:${pad(dt.minute ?? 0)}:${pad(dt.second ?? 0)}`;
           })()
         }

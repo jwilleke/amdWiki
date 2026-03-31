@@ -76,6 +76,19 @@ export {
   ManagerRegistry
 } from './WikiEngine';
 
+// Asset types (Epic #405 — unified AssetManager)
+export {
+  ProviderCapability,
+  AssetDimensions,
+  AssetUsageRights,
+  AssetUsageStats,
+  AssetRecord,
+  AssetQuery,
+  AssetPage,
+  AssetInput,
+  AssetProvider
+} from './Asset';
+
 // Type guards
 export {
   isPageFrontmatter,

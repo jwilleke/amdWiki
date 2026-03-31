@@ -5,8 +5,13 @@
  * MediaManager uses this interface to interact with the underlying
  * media storage / scanning implementation.
  *
+ * Implements AssetProvider (Epic #405 Phase 1) so the AssetManager can
+ * consume any media backend through a single interface.
+ *
  * @module BaseMediaProvider
  */
+
+import type { AssetProvider, AssetRecord, AssetQuery, AssetPage, AssetInput } from '../types/Asset';
 
 /**
  * Represents a single media item in the index.
@@ -60,7 +65,7 @@ export interface ScanResult {
  * Implement this class to add support for a new media storage backend
  * (filesystem, S3, etc.). MediaManager always interacts through this interface.
  */
-abstract class BaseMediaProvider {
+abstract class BaseMediaProvider implements AssetProvider {
   /**
    * Lifecycle method called once after construction to load persisted state.
    * Default implementation is a no-op; override to load an index from disk.
@@ -166,16 +171,139 @@ abstract class BaseMediaProvider {
   /**
    * Full-text / keyword search across the media index.
    *
+   * Renamed from `search` to avoid collision with the AssetProvider interface.
+   * MediaManager and all callers use this method name.
+   *
    * @param query - Search query string.
    * @returns Array of matching MediaItem objects (may be empty).
    */
-  abstract search(query: string): Promise<MediaItem[]>;
+  abstract searchItems(query: string): Promise<MediaItem[]>;
 
   /**
    * Release any resources held by the provider (open file handles, worker
    * processes, etc.).
    */
   abstract shutdown(): Promise<void>;
+
+  // -------------------------------------------------------------------------
+  // AssetProvider interface (Epic #405 Phase 1)
+  // -------------------------------------------------------------------------
+
+  /** Stable provider identifier — override in subclasses. */
+  abstract readonly id: string;
+
+  /** Human-readable display name — override in subclasses. */
+  abstract readonly displayName: string;
+
+  /** Capabilities — override in subclasses. */
+  abstract readonly capabilities: import('../types/Asset').ProviderCapability[];
+
+  /**
+   * Convert a MediaItem to a unified AssetRecord.
+   * Subclasses may override for provider-specific URL schemes.
+   */
+  protected toAssetRecord(item: MediaItem): AssetRecord {
+    const m = item.metadata ?? {};
+
+    const caption = typeof m['caption'] === 'string' && m['caption']
+      ? m['caption']
+      : (typeof m['imageDescription'] === 'string' ? m['imageDescription'] : undefined);
+
+    const title = typeof m['title'] === 'string' && m['title'] ? m['title'] : undefined;
+
+    const uploadedAt = typeof m['dateTimeOriginal'] === 'string' ? m['dateTimeOriginal'] : undefined;
+
+    // EXIF/IPTC keywords → tags
+    const rawKeywords = m['keywords'];
+    const tags: string[] = Array.isArray(rawKeywords)
+      ? (rawKeywords as unknown[]).filter((k): k is string => typeof k === 'string')
+      : typeof rawKeywords === 'string' && rawKeywords ? [rawKeywords] : [];
+
+    // Dimensions from EXIF
+    const imgWidth = typeof m['imageWidth'] === 'number' ? m['imageWidth'] : undefined;
+    const imgHeight = typeof m['imageHeight'] === 'number' ? m['imageHeight'] : undefined;
+    const dimensions = (imgWidth !== undefined || imgHeight !== undefined)
+      ? { width: imgWidth, height: imgHeight }
+      : undefined;
+
+    return {
+      id: item.id,
+      providerId: this.id,
+      filename: item.filename,
+      title,
+      mimeType: item.mimeType,
+      url: `/media/file/${item.id}`,
+      thumbUrl: `/media/thumb/${item.id}?size=150x150`,
+      uploadedAt,
+      description: caption,
+      tags,
+      dimensions,
+      usedOnPages: item.linkedPageName ? [item.linkedPageName] : [],
+      isPrivate: item.isPrivate,
+      metadata: item.metadata ?? {},
+      insertSnippet: item.mimeType.startsWith('image/')
+        ? `[{Image src='media://${item.filename}'}]`
+        : `[{ATTACH src='media://${item.filename}'}]`
+    };
+  }
+
+  /**
+   * AssetProvider.search() — fans out to searchItems() and maps results.
+   */
+  async search(query: AssetQuery): Promise<AssetPage> {
+    const { query: q = '', pageSize = 48, offset = 0 } = query;
+    let items = await this.searchItems(q);
+
+    if (query.year) {
+      items = items.filter(i => i.year === query.year);
+    }
+
+    if (query.mimeCategory) {
+      items = items.filter(i => {
+        const isImage = i.mimeType.startsWith('image/');
+        const isDoc = i.mimeType.includes('pdf') || i.mimeType.startsWith('text/');
+        if (query.mimeCategory === 'image') return isImage;
+        if (query.mimeCategory === 'document') return isDoc;
+        return !isImage && !isDoc;
+      });
+    }
+
+    const total = items.length;
+    const page = items.slice(offset, offset + pageSize).map(i => this.toAssetRecord(i));
+    return { results: page, total, hasMore: offset + page.length < total };
+  }
+
+  /**
+   * AssetProvider.getById() — delegates to getItem().
+   */
+  async getById(id: string): Promise<AssetRecord | null> {
+    const item = await this.getItem(id);
+    return item ? this.toAssetRecord(item) : null;
+  }
+
+  /**
+   * AssetProvider.getThumbnail() — delegates to getThumbnailBuffer().
+   * Default size "300x300" when not specified.
+   */
+  async getThumbnail(id: string, size: string): Promise<Buffer | null> {
+    return this.getThumbnailBuffer(id, size);
+  }
+
+  /**
+   * AssetProvider.store() — media providers are read-only; always throws.
+   * Declared to satisfy the interface typing; runtime guard via capabilities check.
+   */
+  store(_buffer: Buffer, _info: AssetInput): Promise<AssetRecord> {
+    return Promise.reject(new Error(`${this.displayName} is read-only; store() is not supported`));
+  }
+
+  /**
+   * AssetProvider.delete() — media providers are read-only; always returns false.
+   */
+  // eslint-disable-next-line @typescript-eslint/require-await
+  async delete(_id: string): Promise<boolean> {
+    return false;
+  }
 }
 
 export default BaseMediaProvider;

@@ -1,5 +1,6 @@
 import BaseAttachmentProvider, { FileInfo, User, AttachmentResult } from './BaseAttachmentProvider';
 import { AttachmentMetadata } from '../types';
+import type { AssetProvider, AssetRecord, AssetQuery, AssetPage, AssetInput } from '../types/Asset';
 import fs from 'fs-extra';
 import * as path from 'path';
 import * as crypto from 'crypto';
@@ -135,7 +136,7 @@ const EXTENSION_MIME_MAP: Record<string, string> = {
  * - Automatic metadata persistence
  * - Backup/restore support
  */
-class BasicAttachmentProvider extends BaseAttachmentProvider {
+class BasicAttachmentProvider extends BaseAttachmentProvider implements AssetProvider {
   private storageDirectory: string | null;
   private privateStorageDir: string | null;
   private metadataFile: string | null;
@@ -959,6 +960,122 @@ class BasicAttachmentProvider extends BaseAttachmentProvider {
     await this.saveMetadata();
 
     logger.info('[BasicAttachmentProvider] Restore completed successfully');
+  }
+
+  // -------------------------------------------------------------------------
+  // AssetProvider interface (Epic #405 Phase 1)
+  // -------------------------------------------------------------------------
+
+  readonly id = 'local';
+  readonly displayName = 'Local Attachments';
+  readonly capabilities: import('../types/Asset').ProviderCapability[] = ['upload', 'search', 'stream'];
+
+  /** Convert a SchemaCreativeWork record to a unified AssetRecord. */
+  private schemaToAssetRecord(schema: SchemaCreativeWork): AssetRecord {
+    return {
+      id: schema.identifier,
+      providerId: this.id,
+      filename: schema.name,
+      mimeType: schema.encodingFormat,
+      size: schema.contentSize,
+      url: `/attachments/${schema.identifier}`,
+      uploadedAt: schema.dateCreated,
+      updatedAt: schema.dateModified,
+      uploadedBy: schema.author?.name,
+      description: schema.description,
+      tags: [],
+      usedOnPages: (schema.mentions ?? []).map(m => m.name ?? '').filter(Boolean),
+      isPrivate: schema.isPrivate,
+      metadata: {},
+      insertSnippet: schema.encodingFormat.startsWith('image/')
+        ? `[{Image src='${schema.name}'}]`
+        : `[{ATTACH src='${schema.name}'}]`
+    };
+  }
+
+  /**
+   * AssetProvider.search() — searches by filename and description.
+   */
+  // eslint-disable-next-line @typescript-eslint/require-await -- synchronous in-memory scan wrapped in async interface
+  async search(query: AssetQuery): Promise<AssetPage> {
+    const { query: q = '', pageSize = 48, offset = 0, mimeCategory } = query;
+    const lower = q.toLowerCase();
+
+    let items = Array.from(this.attachmentMetadata.values());
+
+    if (lower) {
+      items = items.filter(s =>
+        s.name.toLowerCase().includes(lower) ||
+        (s.description ?? '').toLowerCase().includes(lower)
+      );
+    }
+
+    if (mimeCategory) {
+      items = items.filter(s => {
+        const isImage = s.encodingFormat.startsWith('image/');
+        const isDoc = s.encodingFormat.includes('pdf') || s.encodingFormat.startsWith('text/');
+        if (mimeCategory === 'image') return isImage;
+        if (mimeCategory === 'document') return isDoc;
+        return !isImage && !isDoc;
+      });
+    }
+
+    // Sort by dateCreated desc by default
+    items = items.sort((a, b) => new Date(b.dateCreated).getTime() - new Date(a.dateCreated).getTime());
+
+    const total = items.length;
+    const page = items.slice(offset, offset + pageSize).map(s => this.schemaToAssetRecord(s));
+    return { results: page, total, hasMore: offset + page.length < total };
+  }
+
+  /**
+   * AssetProvider.getById() — returns AssetRecord for the given attachment ID.
+   */
+  // eslint-disable-next-line @typescript-eslint/require-await -- synchronous map lookup wrapped in async interface
+  async getById(id: string): Promise<AssetRecord | null> {
+    const schema = this.attachmentMetadata.get(id);
+    return schema ? this.schemaToAssetRecord(schema) : null;
+  }
+
+  /**
+   * AssetProvider.store() — delegates to storeAttachment().
+   */
+  async store(buffer: Buffer, info: AssetInput): Promise<AssetRecord> {
+    const fileInfo: FileInfo = {
+      originalName: info.originalName,
+      mimeType: info.mimeType,
+      size: info.size
+    };
+    const user: User = info.uploadedBy ? { username: info.uploadedBy } : {};
+    const partialMeta: Partial<AttachmentMetadata> = {};
+    if (info.pageName) {
+      partialMeta['mentions'] = [{ '@type': 'Thing', name: info.pageName, url: `/view/${info.pageName}` }];
+    }
+    if (info.description) partialMeta['description'] = info.description;
+
+    const meta = await this.storeAttachment(buffer, fileInfo, partialMeta, user);
+    const id = meta.id ?? (meta as Record<string, unknown>)['identifier'] as string;
+    const schema = this.attachmentMetadata.get(id);
+    if (!schema) throw new Error(`[BasicAttachmentProvider] Failed to locate stored attachment ${id}`);
+    return this.schemaToAssetRecord(schema);
+  }
+
+  /**
+   * AssetProvider.delete() — delegates to deleteAttachment().
+   */
+  async delete(id: string): Promise<boolean> {
+    return this.deleteAttachment(id);
+  }
+
+  /**
+   * AssetProvider.stream() — opens a read stream for the attachment file.
+   */
+  async stream(id: string): Promise<NodeJS.ReadableStream | null> {
+    const schema = this.attachmentMetadata.get(id);
+    if (!schema) return null;
+    const filePath = schema.storageLocation;
+    if (!filePath || !(await fs.pathExists(filePath))) return null;
+    return fs.createReadStream(filePath);
   }
 }
 

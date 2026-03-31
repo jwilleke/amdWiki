@@ -261,7 +261,7 @@ class MediaManager extends BaseManager {
    */
   async search(query: string, wikiContext?: WikiContext): Promise<MediaItem[]> {
     if (!this.provider) return [];
-    const items = await this.provider.search(query);
+    const items = await this.provider.searchItems(query);
     return this.filterPrivateItems(items, wikiContext);
   }
 
