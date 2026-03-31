@@ -232,15 +232,6 @@ class VersioningFileProvider extends FileSystemProvider {
       logger.info('[VersioningFileProvider] Using standard initialization (directory scan)');
       await super.initialize();
 
-      // super.initialize() skips required-pages when installationComplete=true.
-      // Without a page-index those pages are unreachable, so force a full rescan
-      // that includes required-pages so the index can be rebuilt correctly.
-      if (this.installationComplete) {
-        logger.info('[VersioningFileProvider] Rescanning required-pages to rebuild index');
-        this.installationComplete = false;
-        await this.refreshPageList();
-        this.installationComplete = true;
-      }
     }
 
     // Create version directories

@@ -13,6 +13,7 @@
 
 import * as fs from 'fs';
 import * as path from 'path';
+import matter from 'gray-matter';
 import BaseManager from './BaseManager';
 import type { BackupData } from './BaseManager';
 import type { WikiEngine } from '../types/WikiEngine';
@@ -356,11 +357,25 @@ class AddonsManager extends BaseManager {
 
     for (const file of files) {
       const dest = path.join(pagesDir, file);
+      const src = path.join(addonPagesDir, file);
       try {
         await fs.promises.access(dest);
-        // File exists — skip to preserve user edits
+        // File exists — check if it was seeded by a different addon
+        const existing = await fs.promises.readFile(dest, 'utf8');
+        const parsed = matter(existing);
+        if (parsed.data.addon && parsed.data.addon !== addonName) {
+          logger.warn(
+            `[AddonsManager] Page conflict: ${addonName}/pages/${file} skipped — ` +
+            `already seeded by addon '${parsed.data.addon}' (${dest})`
+          );
+        }
+        // else: user-created page or same addon reloading — silent skip
       } catch {
-        await fs.promises.copyFile(path.join(addonPagesDir, file), dest);
+        // dest does not exist — seed it, stamping addon provenance in front-matter
+        const raw = await fs.promises.readFile(src, 'utf8');
+        const parsed = matter(raw);
+        parsed.data.addon = addonName;
+        await fs.promises.writeFile(dest, matter.stringify(parsed.content, parsed.data), 'utf8');
         seeded++;
       }
     }

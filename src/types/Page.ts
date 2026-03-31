@@ -55,6 +55,9 @@ export interface PageFrontmatter {
   /** Sort order for navigation */
   order?: number;
 
+  /** Name of the add-on that originally seeded this page, if any */
+  addon?: string;
+
   /** Additional custom metadata */
   [key: string]: unknown;
 }
