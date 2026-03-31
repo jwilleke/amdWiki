@@ -996,8 +996,7 @@ class BasicAttachmentProvider extends BaseAttachmentProvider implements AssetPro
   /**
    * AssetProvider.search() — searches by filename and description.
    */
-  // eslint-disable-next-line @typescript-eslint/require-await -- synchronous in-memory scan wrapped in async interface
-  async search(query: AssetQuery): Promise<AssetPage> {
+  search(query: AssetQuery): Promise<AssetPage> {
     const { query: q = '', pageSize = 48, offset = 0, mimeCategory } = query;
     const lower = q.toLowerCase();
 
@@ -1025,16 +1024,15 @@ class BasicAttachmentProvider extends BaseAttachmentProvider implements AssetPro
 
     const total = items.length;
     const page = items.slice(offset, offset + pageSize).map(s => this.schemaToAssetRecord(s));
-    return { results: page, total, hasMore: offset + page.length < total };
+    return Promise.resolve({ results: page, total, hasMore: offset + page.length < total });
   }
 
   /**
    * AssetProvider.getById() — returns AssetRecord for the given attachment ID.
    */
-  // eslint-disable-next-line @typescript-eslint/require-await -- synchronous map lookup wrapped in async interface
-  async getById(id: string): Promise<AssetRecord | null> {
+  getById(id: string): Promise<AssetRecord | null> {
     const schema = this.attachmentMetadata.get(id);
-    return schema ? this.schemaToAssetRecord(schema) : null;
+    return Promise.resolve(schema ? this.schemaToAssetRecord(schema) : null);
   }
 
   /**
