@@ -375,6 +375,9 @@ class AddonsManager extends BaseManager {
         const raw = await fs.promises.readFile(src, 'utf8');
         const parsed = matter(raw);
         parsed.data.addon = addonName;
+        if (!parsed.data['system-category']) {
+          parsed.data['system-category'] = 'addon';
+        }
         await fs.promises.writeFile(dest, matter.stringify(parsed.content, parsed.data), 'utf8');
         seeded++;
       }
