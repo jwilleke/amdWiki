@@ -110,51 +110,65 @@
         </div>
 
         <!-- Page Search Results -->
-        <% if (query || (categories && categories.length > 0) || (userKeywords && userKeywords.length > 0)) { %>
-            <div class="mb-3">
-                <span class="badge bg-info"><%= count %> result<%= count === 1 ? '' : 's' %></span>
-                <% if (query) { %><span class="ms-2">for "<strong><%= query %></strong>"</span><% } %>
-                <% if (categories && categories.length > 0) { %>
-                    <span class="ms-2">in <%= categories.map(c => `<span class="badge bg-primary">${c}</span>`).join(' ') %></span>
-                <% } %>
-                <% if (userKeywords && userKeywords.length > 0) { %>
-                    <span class="ms-2">with <%= userKeywords.map(k => `<span class="badge bg-info">${k}</span>`).join(' ') %></span>
+        <% if (submitted) { %>
+            <%
+              const pageStart = (currentPage - 1) * pageSize + 1;
+              const pageEnd = (currentPage - 1) * pageSize + results.length;
+            %>
+            <div id="pages-results">
+
+                <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
+                    <div>
+                        <span class="badge bg-info">
+                            <%= totalCount %> result<%= totalCount === 1 ? '' : 's' %>
+                            <% if (totalPages > 1) { %>&middot; showing <%= pageStart %>–<%= pageEnd %><% } %>
+                        </span>
+                        <% if (query) { %><span class="ms-2">for "<strong><%= query %></strong>"</span><% } %>
+                        <% if (categories && categories.length > 0) { %>
+                            <span class="ms-2">in <%- categories.map(c => `<span class="badge bg-primary">${c}</span>`).join(' ') %></span>
+                        <% } %>
+                        <% if (userKeywords && userKeywords.length > 0) { %>
+                            <span class="ms-2">with <%- userKeywords.map(k => `<span class="badge bg-secondary">${k}</span>`).join(' ') %></span>
+                        <% } %>
+                    </div>
+                    <div id="pages-pagination-top"></div>
+                </div>
+
+                <% if (results.length > 0) { %>
+                    <div class="list-group">
+                        <% results.forEach(result => { %>
+                            <a href="/view/<%= encodeURIComponent(result.name) %>" class="list-group-item list-group-item-action">
+                                <div class="d-flex w-100 justify-content-between align-items-start">
+                                    <div>
+                                        <h6 class="mb-0"><i class="fas fa-file-alt me-2 text-primary"></i><%= result.title %></h6>
+                                        <% if (result.metadata.category) { %>
+                                            <small class="text-muted"><%= result.metadata.category %></small>
+                                        <% } %>
+                                    </div>
+                                    <span class="badge bg-secondary"><%= result.score.toFixed(1) %></span>
+                                </div>
+                                <% if (result.snippet) { %>
+                                    <p class="mb-1 mt-2 small"><%- result.snippet %></p>
+                                <% } %>
+                                <% if (result.metadata.userKeywords && result.metadata.userKeywords.length > 0) { %>
+                                    <div class="mt-1">
+                                        <% const kws = Array.isArray(result.metadata.userKeywords) ? result.metadata.userKeywords : []; %>
+                                        <% kws.slice(0, 3).forEach(kw => { %>
+                                            <span class="badge bg-info me-1"><%= kw %></span>
+                                        <% }); %>
+                                        <% if (kws.length > 3) { %><span class="badge bg-secondary">+<%= kws.length - 3 %></span><% } %>
+                                    </div>
+                                <% } %>
+                            </a>
+                        <% }); %>
+                    </div>
+                    <div id="pages-pagination-bottom" class="mt-3 d-flex justify-content-center"></div>
+                <% } else { %>
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>No pages found matching your search.
+                    </div>
                 <% } %>
             </div>
-
-            <% if (results.length > 0) { %>
-                <div class="list-group">
-                    <% results.forEach(result => { %>
-                        <a href="/view/<%= encodeURIComponent(result.name) %>" class="list-group-item list-group-item-action">
-                            <div class="d-flex w-100 justify-content-between align-items-start">
-                                <div>
-                                    <h6 class="mb-0"><i class="fas fa-file-alt me-2 text-primary"></i><%= result.title %></h6>
-                                    <% if (result.metadata.category) { %>
-                                        <small class="text-muted"><%= result.metadata.category %></small>
-                                    <% } %>
-                                </div>
-                                <span class="badge bg-secondary"><%= result.score.toFixed(1) %></span>
-                            </div>
-                            <% if (result.snippet) { %>
-                                <p class="mb-1 mt-2 small"><%- result.snippet %></p>
-                            <% } %>
-                            <% if (result.metadata.userKeywords && result.metadata.userKeywords.length > 0) { %>
-                                <div class="mt-1">
-                                    <% const kws = Array.isArray(result.metadata.userKeywords) ? result.metadata.userKeywords : []; %>
-                                    <% kws.slice(0, 3).forEach(kw => { %>
-                                        <span class="badge bg-info me-1"><%= kw %></span>
-                                    <% }); %>
-                                    <% if (kws.length > 3) { %><span class="badge bg-secondary">+<%= kws.length - 3 %></span><% } %>
-                                </div>
-                            <% } %>
-                        </a>
-                    <% }); %>
-                </div>
-            <% } else { %>
-                <div class="alert alert-info">
-                    <i class="fas fa-info-circle me-2"></i>No pages found matching your search.
-                </div>
-            <% } %>
         <% } else { %>
             <!-- Quick Browse -->
             <div class="row">
@@ -513,6 +527,36 @@ if (document.readyState === 'loading') {
 } else {
     initSearchPageAutocomplete();
 }
+
+// Pages tab pagination — WikiPagination.renderNav + keyboard + swipe
+(function () {
+    var topNav = document.getElementById('pages-pagination-top');
+    var botNav = document.getElementById('pages-pagination-bottom');
+    if (!topNav && !botNav) return;
+
+    var currentPage = <%= currentPage %>;
+    var totalPages = <%= totalPages %>;
+
+    function buildPageUrl(page) {
+        var url = new URL(window.location.href);
+        url.searchParams.set('page', page);
+        return url.toString();
+    }
+
+    function navigate(page) { window.location.href = buildPageUrl(page); }
+
+    WikiPagination.renderNav(topNav, currentPage, totalPages, navigate);
+    WikiPagination.renderNav(botNav, currentPage, totalPages, navigate);
+
+    WikiPagination.attachKeyboard(
+        currentPage > 1 ? function () { navigate(currentPage - 1); } : null,
+        currentPage < totalPages ? function () { navigate(currentPage + 1); } : null
+    );
+    WikiPagination.attachSwipe(document.body,
+        currentPage > 1 ? function () { navigate(currentPage - 1); } : null,
+        currentPage < totalPages ? function () { navigate(currentPage + 1); } : null
+    );
+})();
 
 // Keyboard and swipe for media tab pagination (only when media tab is visible)
 (function () {

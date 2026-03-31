@@ -2412,6 +2412,15 @@ class WikiRoutes {
         }
       }
 
+      // Pagination for page results
+      const pageSize = 25;
+      const pageParam = Math.max(1, parseInt(req.query.page as string) || 1);
+      const totalCount = results.length;
+      const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
+      const currentPage = Math.min(pageParam, totalPages);
+      const pageOffset = (currentPage - 1) * pageSize;
+      results = results.slice(pageOffset, pageOffset + pageSize);
+
       // Get available categories and keywords for dropdowns
       // Ensure arrays are always returned (defensive handling)
       const availableCats = this.getSystemCategories();
@@ -2465,6 +2474,11 @@ class WikiRoutes {
         title: 'Search Results',
         results: results,
         count: results.length,
+        totalCount: totalCount,
+        currentPage: currentPage,
+        totalPages: totalPages,
+        pageSize: pageSize,
+        submitted: submitted,
         query: query,
         category: categories.length > 0 ? categories[0] : '', // Singular for template compat
         categories: categories,
