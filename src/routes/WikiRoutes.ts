@@ -2379,23 +2379,25 @@ class WikiRoutes {
       let results = [];
       let searchType = 'text';
 
-      // Determine search type and perform search
-      if (query.trim() || categories.length > 0 || userKeywords.length > 0) {
-        if (categories.length > 0 && !query && userKeywords.length === 0) {
+      // Determine whether the search form was submitted (q present, or filters selected)
+      const submitted = 'q' in req.query || categories.length > 0 || userKeywords.length > 0;
+
+      if (submitted) {
+        if (!query.trim() && categories.length === 0 && userKeywords.length === 0) {
+          // Empty query, no filters — return all indexed pages
+          results = await searchManager.getAllDocuments();
+          searchType = 'all';
+        } else if (categories.length > 0 && !query.trim() && userKeywords.length === 0) {
           // Category-only search
-          results = searchManager.searchByCategories
+          results = await (searchManager.searchByCategories
             ? searchManager.searchByCategories(categories)
-            : searchManager.searchByCategory(categories[0]);
+            : searchManager.searchByCategory(categories[0]));
           searchType = 'category';
-        } else if (
-          userKeywords.length > 0 &&
-          !query &&
-          categories.length === 0
-        ) {
+        } else if (userKeywords.length > 0 && !query.trim() && categories.length === 0) {
           // Keywords-only search
-          results = searchManager.searchByUserKeywordsList
+          results = await (searchManager.searchByUserKeywordsList
             ? searchManager.searchByUserKeywordsList(userKeywords)
-            : searchManager.searchByUserKeywords(userKeywords[0]);
+            : searchManager.searchByUserKeywords(userKeywords[0]));
           searchType = 'keywords';
         } else {
           // Advanced search with multiple criteria using WikiContext

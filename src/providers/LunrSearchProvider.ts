@@ -752,6 +752,23 @@ class LunrSearchProvider extends BaseSearchProvider {
    * @param {string} category - Category to search for
    * @returns {Promise<SearchResult[]>} Pages in category
    */
+  getAllDocuments(): Promise<SearchResult[]> {
+    const results = Object.values(this.documents).map(doc => ({
+      name: doc.id,
+      title: doc.title,
+      score: 1,
+      snippet: '',
+      metadata: {
+        wordCount: doc.content.split(/\s+/).length,
+        systemCategory: doc.systemCategory,
+        userKeywords: doc.userKeywords.split(' ').filter((k: string) => k.trim()),
+        tags: doc.tags.split(' ').filter((t: string) => t.trim()),
+        lastModified: doc.lastModified
+      }
+    }));
+    return Promise.resolve(results);
+  }
+
   searchByCategory(category: string): Promise<SearchResult[]> {
     if (!category) return Promise.resolve([] as SearchResult[]);
 

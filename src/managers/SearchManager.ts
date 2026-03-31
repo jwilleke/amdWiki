@@ -104,6 +104,7 @@ interface BaseSearchProvider {
   removePageFromIndex(pageName: string): Promise<void>;
   searchByCategory(category: string): Promise<SearchResult[]>;
   searchByUserKeywords(keyword: string): Promise<SearchResult[]>;
+  getAllDocuments(): Promise<SearchResult[]>;
   getAllCategories(): Promise<string[]>;
   getAllUserKeywords(): Promise<string[]>;
   getStatistics(): Promise<SearchStatistics>;
@@ -692,6 +693,19 @@ class SearchManager extends BaseManager {
       return await this.provider.searchByUserKeywords(keyword);
     } catch (err) {
       logger.error('[SearchManager] Search by user keywords failed:', err);
+      return [];
+    }
+  }
+
+  async getAllDocuments(): Promise<SearchResult[]> {
+    if (!this.provider) {
+      return [];
+    }
+
+    try {
+      return await this.provider.getAllDocuments();
+    } catch (err) {
+      logger.error('[SearchManager] getAllDocuments failed:', err);
       return [];
     }
   }
