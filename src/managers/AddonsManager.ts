@@ -60,6 +60,24 @@ export interface AddonModule {
 }
 
 /**
+ * Shape of the `ngdpbase` key in an add-on's package.json.
+ * All fields are optional — omitting the key entirely is valid.
+ */
+export interface AddonManifest {
+  /** 'domain' = this addon IS the site identity; 'additive' = augments an existing wiki */
+  type?: 'domain' | 'additive';
+  /**
+   * Config keys this addon wants applied by default at load time.
+   * Each key is only set if the operator has not already explicitly
+   * set it in custom config. Values are ephemeral (merged config only,
+   * not persisted to app-custom-config.json).
+   */
+  domainDefaults?: Record<string, unknown>;
+  /** Capability flags this addon advertises */
+  capabilities?: string[];
+}
+
+/**
  * Details returned by add-on's status() method
  */
 export interface AddonStatusDetails {
@@ -88,6 +106,9 @@ interface AddonEntry {
 
   /** Error message if loading failed */
   error: string | null;
+
+  /** Parsed ngdpbase key from the add-on's package.json, or null if absent */
+  manifest: AddonManifest | null;
 }
 
 /**
@@ -256,13 +277,26 @@ class AddonsManager extends BaseManager {
         // Check if enabled in configuration
         const enabled = this.isEnabled(addonModule.name);
 
+        // Read ngdpbase manifest from package.json (if present)
+        let manifest: AddonManifest | null = null;
+        const pkgPath = path.join(addonPath, 'package.json');
+        if (fs.existsSync(pkgPath)) {
+          try {
+            const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8')) as Record<string, unknown>;
+            manifest = (pkg.ngdpbase as AddonManifest) ?? null;
+          } catch {
+            logger.warn(`[AddonsManager] Could not parse package.json for ${entry.name}`);
+          }
+        }
+
         // Store the add-on entry
         this.addons.set(addonModule.name, {
           path: addonPath,
           module: addonModule,
           enabled,
           loaded: false,
-          error: null
+          error: null,
+          manifest
         });
 
         logger.info(
@@ -488,6 +522,10 @@ class AddonsManager extends BaseManager {
     }
 
     try {
+      // Inject domainDefaults before register() so the addon can read
+      // any applied values from ConfigurationManager during startup
+      this.applyDomainDefaults(addonName);
+
       // Get add-on specific configuration
       const addonConfig = this.getAddonConfig(addonName);
 
@@ -511,6 +549,32 @@ class AddonsManager extends BaseManager {
 
       logger.error(`Failed to load add-on ${addonName}: ${errorMessage}`);
       // Don't throw - allow other add-ons to load
+    }
+  }
+
+  /**
+   * Inject domainDefaults from the add-on's package.json ngdpbase key
+   * into the merged config, but only for keys not already explicitly
+   * set by the operator in custom config.
+   */
+  private applyDomainDefaults(addonName: string): void {
+    const addon = this.addons.get(addonName);
+    if (!addon?.manifest?.domainDefaults) return;
+
+    const configManager = this.engine.getManager<ConfigurationManager>('ConfigurationManager');
+    if (!configManager) return;
+
+    for (const [key, value] of Object.entries(addon.manifest.domainDefaults)) {
+      if (configManager.getCustomProperty(key) !== null) {
+        logger.debug(
+          `[AddonsManager] ${addonName}: domainDefault '${key}' skipped — operator has set it`
+        );
+        continue;
+      }
+      configManager.setRuntimeProperty(key, value);
+      logger.info(
+        `[AddonsManager] ${addonName}: applied domainDefault '${key}' = ${JSON.stringify(value)}`
+      );
     }
   }
 

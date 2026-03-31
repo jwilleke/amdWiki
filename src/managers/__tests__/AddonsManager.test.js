@@ -29,7 +29,9 @@ describe('AddonsManager', () => {
       }
       return defaultValue;
     }),
-    getAllProperties: jest.fn(() => overrides.allProperties ?? {})
+    getAllProperties: jest.fn(() => overrides.allProperties ?? {}),
+    getCustomProperty: jest.fn((key) => overrides.customProperties?.[key] ?? null),
+    setRuntimeProperty: jest.fn()
   });
 
   const makeEngine = (configManager) => ({
@@ -456,6 +458,120 @@ describe('AddonsManager', () => {
       // Check tracker
       const tracker = require(path.join(tmpDir, 'tracker.js'));
       expect(tracker.shutdownCalled).toBe(true);
+    });
+  });
+
+  describe('domainDefaults', () => {
+    const makeAddonWithDefaults = async (addonName, domainDefaults) => {
+      const addonDir = path.join(tmpDir, addonName);
+      await fs.mkdir(addonDir);
+      await fs.writeFile(
+        path.join(addonDir, 'index.js'),
+        `module.exports = { name: '${addonName}', version: '1.0.0', register: () => {} };`,
+        'utf8'
+      );
+      await fs.writeJson(path.join(addonDir, 'package.json'), {
+        name: addonName,
+        version: '1.0.0',
+        ngdpbase: { type: 'domain', domainDefaults }
+      });
+    };
+
+    test('applies domainDefaults when key not in custom config', async () => {
+      await makeAddonWithDefaults('domain-addon', {
+        'ngdpbase.front-page': 'my-home',
+        'ngdpbase.application-name': 'My App'
+      });
+
+      const configManager = makeConfigManager({ enabledAddons: ['domain-addon'] });
+      // getCustomProperty returns null for both keys (not in custom config)
+      const engine = makeEngine(configManager);
+
+      const manager = new AddonsManager(engine);
+      await manager.initialize();
+
+      expect(configManager.setRuntimeProperty).toHaveBeenCalledWith('ngdpbase.front-page', 'my-home');
+      expect(configManager.setRuntimeProperty).toHaveBeenCalledWith('ngdpbase.application-name', 'My App');
+    });
+
+    test('does not overwrite key already set by operator', async () => {
+      await makeAddonWithDefaults('domain-addon-2', {
+        'ngdpbase.front-page': 'addon-home',
+        'ngdpbase.application-name': 'Addon App'
+      });
+
+      const configManager = makeConfigManager({
+        enabledAddons: ['domain-addon-2'],
+        customProperties: {
+          'ngdpbase.front-page': 'operator-home' // operator has set this
+        }
+      });
+      const engine = makeEngine(configManager);
+
+      const manager = new AddonsManager(engine);
+      await manager.initialize();
+
+      // front-page is set by operator — must not be overwritten
+      expect(configManager.setRuntimeProperty).not.toHaveBeenCalledWith(
+        'ngdpbase.front-page',
+        expect.anything()
+      );
+      // application-name is not in custom config — should be injected
+      expect(configManager.setRuntimeProperty).toHaveBeenCalledWith(
+        'ngdpbase.application-name',
+        'Addon App'
+      );
+    });
+
+    test('no-op when addon has no package.json', async () => {
+      const addonDir = path.join(tmpDir, 'no-pkg-addon');
+      await fs.mkdir(addonDir);
+      await fs.writeFile(
+        path.join(addonDir, 'index.js'),
+        `module.exports = { name: 'no-pkg-addon', version: '1.0.0', register: () => {} };`,
+        'utf8'
+      );
+      // No package.json written
+
+      const configManager = makeConfigManager({ enabledAddons: ['no-pkg-addon'] });
+      const engine = makeEngine(configManager);
+
+      const manager = new AddonsManager(engine);
+      await expect(manager.initialize()).resolves.not.toThrow();
+      expect(configManager.setRuntimeProperty).not.toHaveBeenCalled();
+    });
+
+    test('no-op when package.json has no ngdpbase key', async () => {
+      const addonDir = path.join(tmpDir, 'no-manifest-addon');
+      await fs.mkdir(addonDir);
+      await fs.writeFile(
+        path.join(addonDir, 'index.js'),
+        `module.exports = { name: 'no-manifest-addon', version: '1.0.0', register: () => {} };`,
+        'utf8'
+      );
+      await fs.writeJson(path.join(addonDir, 'package.json'), {
+        name: 'no-manifest-addon',
+        version: '1.0.0'
+        // no ngdpbase key
+      });
+
+      const configManager = makeConfigManager({ enabledAddons: ['no-manifest-addon'] });
+      const engine = makeEngine(configManager);
+
+      const manager = new AddonsManager(engine);
+      await manager.initialize();
+      expect(configManager.setRuntimeProperty).not.toHaveBeenCalled();
+    });
+
+    test('no-op when domainDefaults is empty', async () => {
+      await makeAddonWithDefaults('empty-defaults-addon', {});
+
+      const configManager = makeConfigManager({ enabledAddons: ['empty-defaults-addon'] });
+      const engine = makeEngine(configManager);
+
+      const manager = new AddonsManager(engine);
+      await manager.initialize();
+      expect(configManager.setRuntimeProperty).not.toHaveBeenCalled();
     });
   });
 

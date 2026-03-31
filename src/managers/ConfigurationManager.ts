@@ -381,6 +381,23 @@ class ConfigurationManager extends BaseManager {
   }
 
   /**
+   * Apply a runtime-only config value (not persisted to custom config).
+   *
+   * Used by AddonsManager to inject domainDefaults without polluting
+   * the operator's app-custom-config.json. Because this only updates
+   * mergedConfig, the value disappears on next restart unless the addon
+   * is still loaded and re-injects it.
+   *
+   * @param key   Configuration property key
+   * @param value Value to apply
+   */
+  setRuntimeProperty(key: string, value: unknown): void {
+    if (this.mergedConfig) {
+      this.mergedConfig[key] = value;
+    }
+  }
+
+  /**
    * Save custom configuration to file
    *
    * Persists the current custom configuration to disk with proper formatting.
