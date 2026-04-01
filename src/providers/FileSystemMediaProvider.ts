@@ -539,6 +539,35 @@ class FileSystemMediaProvider extends BaseMediaProvider {
 
       const orientation = typeof rawTags.Orientation === 'number' ? rawTags.Orientation : 1;
 
+      // Build structured camera metadata from EXIF tags
+      const cameraObj: import('../types/Asset').AssetCamera = {};
+      if (typeof rawTags.Make === 'string') cameraObj.make = rawTags.Make;
+      if (typeof rawTags.Model === 'string') cameraObj.model = rawTags.Model;
+      const lensModel = typeof rawTags.LensModel === 'string' ? rawTags.LensModel
+        : (typeof rawTags.Lens === 'string' ? rawTags.Lens : undefined);
+      if (lensModel) cameraObj.lens = lensModel;
+      if (typeof rawTags.FocalLength === 'string') cameraObj.focalLength = rawTags.FocalLength;
+      else if (typeof rawTags.FocalLength === 'number') cameraObj.focalLength = `${rawTags.FocalLength} mm`;
+      if (typeof rawTags.FNumber === 'number') cameraObj.aperture = `f/${(rawTags.FNumber).toFixed(1)}`;
+      if (typeof rawTags.ExposureTime === 'string') cameraObj.shutterSpeed = rawTags.ExposureTime;
+      else if (typeof rawTags.ExposureTime === 'number') cameraObj.shutterSpeed = String(rawTags.ExposureTime);
+      if (typeof rawTags.ISO === 'number') cameraObj.iso = rawTags.ISO;
+      if (typeof rawTags.Flash === 'string') cameraObj.flash = rawTags.Flash;
+      const hasCamera = Object.values(cameraObj).some(v => v !== undefined);
+
+      // Build structured GPS from EXIF GPS tags
+      const lat = typeof rawTags.GPSLatitude === 'number' ? rawTags.GPSLatitude : undefined;
+      const lng = typeof rawTags.GPSLongitude === 'number' ? rawTags.GPSLongitude : undefined;
+      const alt = typeof rawTags.GPSAltitude === 'number' ? rawTags.GPSAltitude : undefined;
+      const gpsObj: import('../types/Asset').AssetGPS | undefined =
+        lat !== undefined && lng !== undefined ? { latitude: lat, longitude: lng, altitude: alt } : undefined;
+
+      // IPTC/XMP creator (may be an array — use first element)
+      const rawCreator = rawTags.Creator;
+      const creator: string | undefined = Array.isArray(rawCreator)
+        ? (typeof rawCreator[0] === 'string' ? rawCreator[0] : undefined)
+        : (typeof rawCreator === 'string' ? rawCreator : undefined);
+
       const entry: MediaIndexEntry = {
         id,
         filePath,
@@ -548,6 +577,14 @@ class FileSystemMediaProvider extends BaseMediaProvider {
         dirPath: path.dirname(filePath),
         mtime: stat.mtimeMs,
         metadata: {
+          // --- Structured fields (Phase 5) ---
+          camera: hasCamera ? cameraObj : undefined,
+          gps: gpsObj,
+          copyright: typeof rawTags.Copyright === 'string' ? rawTags.Copyright : undefined,
+          creator,
+          colorSpace: typeof rawTags.ColorSpace === 'string' ? rawTags.ColorSpace : undefined,
+          orientation,
+          // --- Legacy flat fields (kept for backward compat with pre-Phase-5 index entries) ---
           title: rawTags.Title ?? null,
           caption: (rawTags.Description ?? null) as string | null,
           imageDescription: (rawTags.ImageDescription ?? null) as string | null,
@@ -555,9 +592,8 @@ class FileSystemMediaProvider extends BaseMediaProvider {
           keywords: rawTags.Keywords ?? null,
           make: rawTags.Make ?? null,
           model: rawTags.Model ?? null,
-          gpsLatitude: rawTags.GPSLatitude ?? null,
-          gpsLongitude: rawTags.GPSLongitude ?? null,
-          orientation,
+          gpsLatitude: lat ?? null,
+          gpsLongitude: lng ?? null,
           dateTimeOriginal: (() => {
             const dt = rawTags.DateTimeOriginal as { year?: number; month?: number; day?: number; hour?: number; minute?: number; second?: number } | null | undefined;
             if (!dt || typeof dt.year !== 'number') return null;

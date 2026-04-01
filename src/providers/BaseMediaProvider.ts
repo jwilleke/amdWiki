@@ -11,7 +11,7 @@
  * @module BaseMediaProvider
  */
 
-import type { AssetProvider, AssetRecord, AssetQuery, AssetPage, AssetInput } from '../types/Asset';
+import type { AssetProvider, AssetRecord, AssetQuery, AssetPage, AssetInput, AssetMetadata } from '../types/Asset';
 
 /**
  * Represents a single media item in the index.
@@ -35,8 +35,8 @@ export interface MediaItem {
   isPrivate?: boolean;
   /** Username of the content creator */
   creator?: string;
-  /** Additional provider-specific metadata (EXIF fields, etc.) */
-  metadata?: Record<string, unknown>;
+  /** Structured metadata bag — EXIF, IPTC, XMP and custom fields */
+  metadata?: AssetMetadata;
 }
 
 /**
@@ -226,6 +226,34 @@ abstract class BaseMediaProvider implements AssetProvider {
       ? { width: imgWidth, height: imgHeight }
       : undefined;
 
+    // Build structured AssetMetadata.
+    // Prefer new structured fields (produced by processFile() after Phase 5 re-scan).
+    // Fall back to legacy flat fields for items loaded from a pre-Phase-5 index.
+    const assetMetadata: AssetMetadata = {};
+
+    const camera = m.camera;
+    if (camera && Object.values(camera).some(v => v !== undefined)) {
+      assetMetadata.camera = camera;
+    } else {
+      const make = typeof m['make'] === 'string' ? m['make'] : undefined;
+      const model = typeof m['model'] === 'string' ? m['model'] : undefined;
+      if (make !== undefined || model !== undefined) assetMetadata.camera = { make, model };
+    }
+
+    const gps = m.gps;
+    if (gps) {
+      assetMetadata.gps = gps;
+    } else {
+      const lat = typeof m['gpsLatitude'] === 'number' ? (m['gpsLatitude']) : undefined;
+      const lng = typeof m['gpsLongitude'] === 'number' ? (m['gpsLongitude']) : undefined;
+      if (lat !== undefined && lng !== undefined) assetMetadata.gps = { latitude: lat, longitude: lng };
+    }
+
+    if (typeof m.colorSpace === 'string') assetMetadata.colorSpace = m.colorSpace;
+    if (typeof m.copyright === 'string') assetMetadata.copyright = m.copyright;
+    if (typeof m.creator === 'string') assetMetadata.creator = m.creator;
+    if (typeof m.orientation === 'number') assetMetadata.orientation = m.orientation;
+
     return {
       id: item.id,
       providerId: this.id,
@@ -240,7 +268,7 @@ abstract class BaseMediaProvider implements AssetProvider {
       dimensions,
       mentions: item.linkedPageName ? [item.linkedPageName] : [],
       isPrivate: item.isPrivate,
-      metadata: item.metadata ?? {},
+      metadata: assetMetadata,
       insertSnippet: item.mimeType.startsWith('image/')
         ? `[{Image src='media://${item.filename}'}]`
         : `[{ATTACH src='media://${item.filename}'}]`

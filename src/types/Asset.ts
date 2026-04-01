@@ -13,6 +13,65 @@
 export type ProviderCapability = 'upload' | 'search' | 'thumbnail' | 'stream';
 
 /**
+ * GPS / geographic location data extracted from EXIF GPS tags.
+ */
+export interface AssetGPS {
+  /** Decimal degrees latitude, positive = North */
+  latitude: number;
+  /** Decimal degrees longitude, positive = East */
+  longitude: number;
+  /** Metres above sea level (EXIF GPSAltitude) */
+  altitude?: number;
+}
+
+/**
+ * Camera and capture-settings metadata extracted from EXIF.
+ */
+export interface AssetCamera {
+  /** Camera manufacturer (EXIF Make) */
+  make?: string;
+  /** Camera model (EXIF Model) */
+  model?: string;
+  /** Lens description (EXIF LensModel / Lens) */
+  lens?: string;
+  /** Focal length string e.g. "50 mm" (EXIF FocalLength) */
+  focalLength?: string;
+  /** Aperture string e.g. "f/2.8" (EXIF FNumber) */
+  aperture?: string;
+  /** Shutter speed string e.g. "1/250" (EXIF ExposureTime) */
+  shutterSpeed?: string;
+  /** ISO sensitivity value (EXIF ISO) */
+  iso?: number;
+  /** Flash description (EXIF Flash) */
+  flash?: string;
+}
+
+/**
+ * Structured metadata bag for AssetRecord.
+ *
+ * Typed fields cover the most common EXIF / IPTC / XMP values.
+ * The index signature allows any provider-specific or custom field
+ * to be stored without a type change ("custom field support").
+ */
+export interface AssetMetadata {
+  /** Camera and capture settings (EXIF) */
+  camera?: AssetCamera;
+  /** Geographic location (EXIF GPS tags) */
+  gps?: AssetGPS;
+  /** Colour space e.g. "srgb" (EXIF ColorSpace / sharp metadata) */
+  colorSpace?: string;
+  /** Copyright notice (EXIF / IPTC Copyright) */
+  copyright?: string;
+  /** Content creator / photographer (IPTC Creator / XMP Creator) —
+   *  distinct from schema.org/author which records the uploader */
+  creator?: string;
+  /** EXIF Orientation value (1–8) */
+  orientation?: number;
+  /** Provider-specific or custom metadata fields */
+  [key: string]: unknown;
+}
+
+/**
  * Image / video dimensions.
  */
 export interface AssetDimensions {
@@ -126,8 +185,8 @@ export interface AssetRecord {
   isPrivate?: boolean;
 
   // --- Open metadata ---
-  /** Provider-specific metadata (EXIF, IPTC, XMP, custom fields) */
-  metadata: Record<string, unknown>;
+  /** Structured metadata bag (EXIF, IPTC, XMP, custom fields) — see AssetMetadata */
+  metadata: AssetMetadata;
 
   // --- Editor helper ---
   /** Wiki markup snippet ready to paste into the editor */

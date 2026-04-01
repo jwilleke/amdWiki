@@ -1,6 +1,7 @@
 import BaseAttachmentProvider, { FileInfo, User, AttachmentResult } from './BaseAttachmentProvider';
 import { AttachmentMetadata } from '../types';
-import type { AssetProvider, AssetRecord, AssetQuery, AssetPage, AssetInput } from '../types/Asset';
+import type { AssetProvider, AssetRecord, AssetQuery, AssetPage, AssetInput, AssetMetadata } from '../types/Asset';
+import sharp from 'sharp';
 import fs from 'fs-extra';
 import * as path from 'path';
 import * as crypto from 'crypto';
@@ -50,6 +51,8 @@ interface SchemaCreativeWork {
   isPrivate?: boolean;
   /** Username of the page creator; set when isPrivate is true */
   creator?: string;
+  /** Structured metadata extracted at upload time (EXIF via sharp) — Phase 5 #405 */
+  assetMetadata?: AssetMetadata;
 }
 
 /**
@@ -423,7 +426,8 @@ class BasicAttachmentProvider extends BaseAttachmentProvider implements AssetPro
       'isBasedOn': metadata.isBasedOn,
       'mentions': [], // Array of pages using this attachment
       'isPrivate': isPrivatePage,
-      'creator': isPrivatePage && pageCreator ? pageCreator : undefined
+      'creator': isPrivatePage && pageCreator ? pageCreator : undefined,
+      'assetMetadata': (metadata).assetMetadata
     };
 
     // Store metadata
@@ -972,6 +976,19 @@ class BasicAttachmentProvider extends BaseAttachmentProvider implements AssetPro
 
   /** Convert a SchemaCreativeWork record to a unified AssetRecord. */
   private schemaToAssetRecord(schema: SchemaCreativeWork): AssetRecord {
+    // Populate dimensions from sharp-extracted metadata stored at upload time
+    const am = schema.assetMetadata ?? {};
+    const w = typeof am['imageWidth'] === 'number' ? (am['imageWidth']) : undefined;
+    const h = typeof am['imageHeight'] === 'number' ? (am['imageHeight']) : undefined;
+    const dpi = typeof am['dpi'] === 'number' ? (am['dpi']) : undefined;
+    const dimensions = w || h ? { width: w, height: h, dpi } : undefined;
+
+    const metadata: AssetMetadata = { ...am };
+    // Remove internal storage keys from the exposed metadata bag
+    delete metadata['imageWidth'];
+    delete metadata['imageHeight'];
+    delete metadata['dpi'];
+
     return {
       id: schema.identifier,
       providerId: this.id,
@@ -984,9 +1001,10 @@ class BasicAttachmentProvider extends BaseAttachmentProvider implements AssetPro
       author: schema.author?.name,
       description: schema.description,
       keywords: [],
+      dimensions,
       mentions: (schema.mentions ?? []).map(m => m.name ?? '').filter(Boolean),
       isPrivate: schema.isPrivate,
-      metadata: {},
+      metadata,
       insertSnippet: schema.encodingFormat.startsWith('image/')
         ? `[{Image src='${schema.name}'}]`
         : `[{ATTACH src='${schema.name}'}]`
@@ -1037,6 +1055,8 @@ class BasicAttachmentProvider extends BaseAttachmentProvider implements AssetPro
 
   /**
    * AssetProvider.store() — delegates to storeAttachment().
+   * For images, extracts basic metadata via sharp (dimensions, color space,
+   * orientation, DPI) and persists it on the schema entry. Phase 5 #405.
    */
   async store(buffer: Buffer, info: AssetInput): Promise<AssetRecord> {
     const fileInfo: FileInfo = {
@@ -1050,6 +1070,26 @@ class BasicAttachmentProvider extends BaseAttachmentProvider implements AssetPro
       partialMeta['mentions'] = [{ '@type': 'Thing', name: info.pageName, url: `/view/${info.pageName}` }];
     }
     if (info.description) partialMeta['description'] = info.description;
+
+    // Extract image metadata via sharp (non-critical — failures never block upload)
+    if (info.mimeType.startsWith('image/')) {
+      try {
+        const sm = await sharp(buffer).metadata();
+        const assetMeta: AssetMetadata = {};
+        if (sm.orientation) assetMeta.orientation = sm.orientation;
+        if (sm.space) assetMeta.colorSpace = sm.space;
+        if (sm.width || sm.height) {
+          assetMeta['imageWidth'] = sm.width;
+          assetMeta['imageHeight'] = sm.height;
+        }
+        if (sm.density) assetMeta['dpi'] = sm.density;
+        if (Object.keys(assetMeta).length > 0) {
+          (partialMeta as Record<string, unknown>)['assetMetadata'] = assetMeta;
+        }
+      } catch {
+        // Non-critical — proceed without extracted metadata
+      }
+    }
 
     const meta = await this.storeAttachment(buffer, fileInfo, partialMeta, user);
     const id = meta.id ?? (meta as Record<string, unknown>)['identifier'] as string;

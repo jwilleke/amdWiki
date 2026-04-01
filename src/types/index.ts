@@ -79,6 +79,9 @@ export {
 // Asset types (Epic #405 — unified AssetManager)
 export {
   ProviderCapability,
+  AssetGPS,
+  AssetCamera,
+  AssetMetadata,
   AssetDimensions,
   AssetUsageRights,
   AssetUsageStats,
