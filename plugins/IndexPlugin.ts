@@ -70,10 +70,15 @@ const IndexPlugin: SimplePlugin = {
       filteredPages.sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()));
 
       // Group pages by first letter
+      // Note: '#' is used as the display label for non-letter pages but 'num' is used as the
+      // safe ID key — Bootstrap's data-bs-target is a CSS selector, and '#' inside a selector
+      // (e.g. "#collapse-uid-#") is invalid and causes Bootstrap collapse to silently fail.
+      const NON_LETTER_KEY = 'num';
+      const NON_LETTER_LABEL = '#';
       const groupedPages: Record<string, string[]> = {};
       for (const page of filteredPages) {
         const firstLetter = page.charAt(0).toUpperCase();
-        const key = /[A-Z]/.test(firstLetter) ? firstLetter : '#'; // Use '#' for non-letters
+        const key = /[A-Z]/.test(firstLetter) ? firstLetter : NON_LETTER_KEY;
 
         if (!groupedPages[key]) {
           groupedPages[key] = [];
@@ -81,7 +86,12 @@ const IndexPlugin: SimplePlugin = {
         groupedPages[key].push(page);
       }
 
-      const sections = Object.keys(groupedPages).sort();
+      const sections = Object.keys(groupedPages).sort((a, b) => {
+        // 'num' sorts before A–Z to mirror '#' < 'A' in ASCII
+        if (a === NON_LETTER_KEY) return -1;
+        if (b === NON_LETTER_KEY) return 1;
+        return a.localeCompare(b);
+      });
 
       // Unique prefix so multiple [{IndexPlugin}] on one page don't collide
       const uid = Math.random().toString(36).slice(2, 8);
@@ -91,50 +101,52 @@ const IndexPlugin: SimplePlugin = {
       if (sections.length > 1) {
         html += '<div class="index-sections mb-2">\n';
         html += '<strong>Jump to:</strong> ';
-        html += sections.map(letter =>
-          `<a href="#index-${uid}-${letter}" ` +
-          `onclick="var el=document.getElementById(\'collapse-${uid}-${letter}\');` +
-          `if(el&&!el.classList.contains(\'show\')){bootstrap.Collapse.getOrCreateInstance(el).show();}"` +
-          `>${letter}</a>`
-        ).join(' | ');
+        html += sections.map(key => {
+          const label = key === NON_LETTER_KEY ? NON_LETTER_LABEL : key;
+          return `<a href="#index-${uid}-${key}" ` +
+            `onclick="var el=document.getElementById('collapse-${uid}-${key}');` +
+            'if(el&&!el.classList.contains(\'show\')){bootstrap.Collapse.getOrCreateInstance(el).show();}"' +
+            `>${label}</a>`;
+        }).join(' | ');
         html += '\n</div>\n';
       }
 
       // Expand / Collapse all controls
       html +=
-        `<div class="mb-3 d-flex gap-2 align-items-center">\n` +
-        `  <button type="button" class="btn btn-sm btn-outline-secondary" ` +
+        '<div class="mb-3 d-flex gap-2 align-items-center">\n' +
+        '  <button type="button" class="btn btn-sm btn-outline-secondary" ' +
         `onclick="document.querySelectorAll('.index-plugin-${uid} .collapse').forEach(` +
-        `el=>bootstrap.Collapse.getOrCreateInstance(el).show())">` +
-        `Expand all</button>\n` +
-        `  <button type="button" class="btn btn-sm btn-outline-secondary" ` +
+        'el=>bootstrap.Collapse.getOrCreateInstance(el).show())">' +
+        'Expand all</button>\n' +
+        '  <button type="button" class="btn btn-sm btn-outline-secondary" ' +
         `onclick="document.querySelectorAll('.index-plugin-${uid} .collapse').forEach(` +
-        `el=>bootstrap.Collapse.getOrCreateInstance(el).hide())">` +
-        `Collapse all</button>\n` +
+        'el=>bootstrap.Collapse.getOrCreateInstance(el).hide())">' +
+        'Collapse all</button>\n' +
         `  <span class="text-muted small">${filteredPages.length} page${filteredPages.length !== 1 ? 's' : ''}</span>\n` +
-        `</div>\n`;
+        '</div>\n';
 
       html = html.replace('class="index-plugin"', `class="index-plugin index-plugin-${uid}"`);
 
       // Collapsible letter sections
-      for (const letter of sections) {
-        const collapseId = `collapse-${uid}-${letter}`;
-        const headingId  = `index-${uid}-${letter}`;
-        const count = groupedPages[letter].length;
+      for (const key of sections) {
+        const label      = key === NON_LETTER_KEY ? NON_LETTER_LABEL : key;
+        const collapseId = `collapse-${uid}-${key}`;
+        const headingId  = `index-${uid}-${key}`;
+        const count = groupedPages[key].length;
         html += `<div class="index-section mb-1" id="${headingId}">\n`;
         html +=
-          `  <button class="btn btn-sm btn-outline-secondary w-100 text-start d-flex justify-content-between align-items-center" ` +
+          '  <button class="btn btn-sm btn-outline-secondary w-100 text-start d-flex justify-content-between align-items-center" ' +
           `type="button" data-bs-toggle="collapse" data-bs-target="#${collapseId}" ` +
           `aria-expanded="false" aria-controls="${collapseId}">\n` +
-          `    <strong>${letter}</strong>\n` +
+          `    <strong>${label}</strong>\n` +
           `    <span class="text-muted small">${count} page${count !== 1 ? 's' : ''}</span>\n` +
-          `  </button>\n`;
+          '  </button>\n';
         html += `  <div class="collapse" id="${collapseId}">\n`;
-        html += `    <ul class="list-unstyled ps-3 pt-1 mb-1">\n`;
-        for (const page of groupedPages[letter]) {
+        html += '    <ul class="list-unstyled ps-3 pt-1 mb-1">\n';
+        for (const page of groupedPages[key]) {
           html += `      <li><a class="wikipage" href="/view/${encodeURIComponent(page)}">${escapeHtml(page)}</a></li>\n`;
         }
-        html += `    </ul>\n  </div>\n</div>\n`;
+        html += '    </ul>\n  </div>\n</div>\n';
       }
 
       html += '</div>';
