@@ -2,7 +2,7 @@
   "ngdpbase.application-name": "ngdpbase",
   "ngdpbase.favicon-path": "/favicon.svg",
   "ngdpbase.application.category": "Digital Platform",
-  "ngdpbase.version": "3.0.10",
+  "ngdpbase.version": "3.0.11",
   "ngdpbase.github.repo": "jwilleke/ngdpbase",
   "ngdpbase.base-url": "http://localhost:3000",
   "ngdpbase.encoding": "UTF-8",
@@ -125,7 +125,9 @@
   "ngdpbase.user.security.defaultpassword": "admin123",
   "ngdpbase.user.security.sessionexpiration": 86400000,
   "_comment_auth": "Authentication provider chain — ngdpbase.auth.required-factors is an ordered list of provider IDs that must be satisfied for login (e.g. ['password'] or ['password','totp'] for MFA)",
-  "ngdpbase.auth.required-factors": ["password"],
+  "ngdpbase.auth.required-factors": [
+    "password"
+  ],
   "_comment_magic_link": "Magic link (passwordless) authentication — set enabled:true and configure mail transport",
   "ngdpbase.auth.magic-link.enabled": false,
   "ngdpbase.auth.magic-link.ttl-minutes": 15,
