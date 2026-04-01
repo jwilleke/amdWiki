@@ -1,4 +1,20 @@
 const path = require('path');
+const fs = require('fs');
+
+// Load .env into process.env if values are not already set.
+// Mirrors what server.sh does: source .env, then let shell exports override.
+// This ensures PM2 auto-restarts (which bypass server.sh) still pick up PORT,
+// FAST_STORAGE, SLOW_STORAGE, PM2_MAX_MEMORY, etc.
+const envFile = path.join(__dirname, '.env');
+if (fs.existsSync(envFile)) {
+  for (const line of fs.readFileSync(envFile, 'utf8').split('\n')) {
+    const m = line.match(/^\s*([A-Z_][A-Z0-9_]*)\s*=\s*(.*?)\s*$/);
+    if (m && !(m[1] in process.env)) {
+      // Strip surrounding quotes if present
+      process.env[m[1]] = m[2].replace(/^(['"])(.*)\1$/, '$2');
+    }
+  }
+}
 
 // Generate unique app name based on directory
 const dirName = path.basename(__dirname);
@@ -13,15 +29,25 @@ module.exports = {
     // Run pre-compiled JavaScript from dist/ (no tsx needed)
     // IMPORTANT: Run 'npm run build' before starting with PM2
 
-    // Environment
+    // Environment — PORT and storage paths read from .env above; forwarded
+    // explicitly so PM2 auto-restarts inherit the correct values.
     env: {
-      NODE_ENV: 'production'
+      NODE_ENV: 'production',
+      PORT: process.env.PORT || '3000',
+      FAST_STORAGE: process.env.FAST_STORAGE || process.env.INSTANCE_DATA_FOLDER || './data',
+      SLOW_STORAGE: process.env.SLOW_STORAGE || process.env.FAST_STORAGE || process.env.INSTANCE_DATA_FOLDER || './data'
     },
     env_development: {
-      NODE_ENV: 'development'
+      NODE_ENV: 'development',
+      PORT: process.env.PORT || '3000',
+      FAST_STORAGE: process.env.FAST_STORAGE || process.env.INSTANCE_DATA_FOLDER || './data',
+      SLOW_STORAGE: process.env.SLOW_STORAGE || process.env.FAST_STORAGE || process.env.INSTANCE_DATA_FOLDER || './data'
     },
     env_production: {
-      NODE_ENV: 'production'
+      NODE_ENV: 'production',
+      PORT: process.env.PORT || '3000',
+      FAST_STORAGE: process.env.FAST_STORAGE || process.env.INSTANCE_DATA_FOLDER || './data',
+      SLOW_STORAGE: process.env.SLOW_STORAGE || process.env.FAST_STORAGE || process.env.INSTANCE_DATA_FOLDER || './data'
     },
 
     // Logging - use FAST_STORAGE (operational data dir), falling back to legacy INSTANCE_DATA_FOLDER

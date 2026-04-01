@@ -61,11 +61,10 @@ is_container() {
 # Function to kill all ngdpbase processes (nuclear option)
 # Key insight: DELETE from PM2 first to disable autorestart, THEN kill processes
 kill_all_ngdpbase() {
-  # STEP 1: Delete ALL PM2 apps FIRST (disables autorestart before we kill anything)
+  # STEP 1: Delete THIS app from PM2 (disables autorestart before we kill anything)
   # This must happen before any kill commands to prevent respawn race condition
   echo "   Removing from PM2 (disabling autorestart)..."
   npx --no pm2 delete "$APP_NAME" 2>/dev/null || true
-  npx --no pm2 delete all 2>/dev/null || true
 
   # Wait for PM2 to process the delete
   sleep 1
@@ -251,7 +250,7 @@ case "${1:-}" in
           if echo "$PORT_CMD" | grep -q "$SCRIPT_DIR"; then
             echo "⚠️  Process still on port ${PORT:-3000} (PID $PORT_PID), retrying stop..."
             kill -9 "$PORT_PID" 2>/dev/null || true
-            npx --no pm2 delete all 2>/dev/null || true
+            npx --no pm2 delete "$APP_NAME" 2>/dev/null || true
             sleep 1
             STOP_ATTEMPTS=$((STOP_ATTEMPTS + 1))
             continue
@@ -378,7 +377,7 @@ case "${1:-}" in
     echo "   Stopping all ngdpbase processes..."
     kill_all_ngdpbase
 
-    # 2. Delete all PM2 apps and kill daemons
+    # 2. Kill PM2 daemon entirely (unlock is a nuclear option — intentional)
     DAEMON_COUNT=$(pgrep -f "PM2.*God Daemon" 2>/dev/null | wc -l | tr -d ' ')
     if [ "$DAEMON_COUNT" -gt 0 ]; then
       echo "   Killing $DAEMON_COUNT PM2 daemon(s)..."
