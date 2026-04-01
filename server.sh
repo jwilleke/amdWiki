@@ -77,13 +77,13 @@ kill_all_ngdpbase() {
     echo "$app_pids" | xargs kill -9 2>/dev/null || true
   fi
 
-  # STEP 3: Kill any process on port 3000 that's ours
+  # STEP 3: Kill any process on port ${PORT:-3000} that's ours
   if command -v lsof &> /dev/null; then
-    local port_pid=$(lsof -Pi :3000 -sTCP:LISTEN -t 2>/dev/null)
+    local port_pid=$(lsof -Pi :${PORT:-3000} -sTCP:LISTEN -t 2>/dev/null)
     if [ -n "$port_pid" ]; then
       local proc_cmd=$(ps -p "$port_pid" -o args= 2>/dev/null || true)
       if echo "$proc_cmd" | grep -q "$SCRIPT_DIR"; then
-        echo "   Killing port 3000 holder: $port_pid"
+        echo "   Killing port ${PORT:-3000} holder: $port_pid"
         kill -9 "$port_pid" 2>/dev/null || true
       fi
     fi
@@ -141,21 +141,21 @@ case "${1:-}" in
       fi
     fi
 
-    # STEP 3: Check if port 3000 is already in use
+    # STEP 3: Check if port ${PORT:-3000} is already in use
     if command -v lsof &> /dev/null; then
-      PORT_PID=$(lsof -Pi :3000 -sTCP:LISTEN -t 2>/dev/null)
+      PORT_PID=$(lsof -Pi :${PORT:-3000} -sTCP:LISTEN -t 2>/dev/null)
       if [ -n "$PORT_PID" ]; then
         # Check if it's OUR process (from this directory)
         PORT_CMD=$(ps -p "$PORT_PID" -o args= 2>/dev/null || true)
         if echo "$PORT_CMD" | grep -q "$SCRIPT_DIR"; then
-          echo "⚠️  Found orphaned ngdpbase on port 3000 (PID $PORT_PID), killing..."
+          echo "⚠️  Found orphaned ngdpbase on port ${PORT:-3000} (PID $PORT_PID), killing..."
           kill -9 "$PORT_PID" 2>/dev/null || true
           sleep 1
         else
-          echo "❌ ERROR: Port 3000 in use by another process (PID $PORT_PID)"
+          echo "❌ ERROR: Port ${PORT:-3000} in use by another process (PID $PORT_PID)"
           echo ""
           echo "This process is preventing ngdpbase from starting:"
-          lsof -i :3000 2>/dev/null | grep LISTEN || true
+          lsof -i :${PORT:-3000} 2>/dev/null | grep LISTEN || true
           echo ""
           echo "Options:"
           echo "  1. Kill that process: kill -9 $PORT_PID"
@@ -241,15 +241,15 @@ case "${1:-}" in
     kill_all_ngdpbase
     sleep 1
 
-    # Verify nothing is left on port 3000 (retry up to 3 times for PM2 race condition)
+    # Verify nothing is left on port ${PORT:-3000} (retry up to 3 times for PM2 race condition)
     STOP_ATTEMPTS=0
     while [ $STOP_ATTEMPTS -lt 3 ]; do
       if command -v lsof &> /dev/null; then
-        PORT_PID=$(lsof -Pi :3000 -sTCP:LISTEN -t 2>/dev/null)
+        PORT_PID=$(lsof -Pi :${PORT:-3000} -sTCP:LISTEN -t 2>/dev/null)
         if [ -n "$PORT_PID" ]; then
           PORT_CMD=$(ps -p "$PORT_PID" -o args= 2>/dev/null || true)
           if echo "$PORT_CMD" | grep -q "$SCRIPT_DIR"; then
-            echo "⚠️  Process still on port 3000 (PID $PORT_PID), retrying stop..."
+            echo "⚠️  Process still on port ${PORT:-3000} (PID $PORT_PID), retrying stop..."
             kill -9 "$PORT_PID" 2>/dev/null || true
             npx --no pm2 delete all 2>/dev/null || true
             sleep 1
@@ -263,7 +263,7 @@ case "${1:-}" in
 
     # Final check
     if command -v lsof &> /dev/null; then
-      PORT_PID=$(lsof -Pi :3000 -sTCP:LISTEN -t 2>/dev/null)
+      PORT_PID=$(lsof -Pi :${PORT:-3000} -sTCP:LISTEN -t 2>/dev/null)
       if [ -n "$PORT_PID" ]; then
         PORT_CMD=$(ps -p "$PORT_PID" -o args= 2>/dev/null || true)
         if echo "$PORT_CMD" | grep -q "$SCRIPT_DIR"; then
@@ -326,10 +326,10 @@ case "${1:-}" in
     npx --no pm2 list 2>/dev/null | grep -E "(id|$APP_NAME)" || echo "   No PM2 processes found"
 
     echo ""
-    echo "Port 3000:"
+    echo "Port ${PORT:-3000}:"
     if command -v lsof &> /dev/null; then
-      if lsof -Pi :3000 -sTCP:LISTEN -t >/dev/null 2>&1; then
-        lsof -i :3000 | grep LISTEN || echo "   Port in use (process unknown)"
+      if lsof -Pi :${PORT:-3000} -sTCP:LISTEN -t >/dev/null 2>&1; then
+        lsof -i :${PORT:-3000} | grep LISTEN || echo "   Port in use (process unknown)"
       else
         echo "   Port available"
       fi
@@ -412,7 +412,7 @@ case "${1:-}" in
     echo "  status       - Show comprehensive server status"
     echo "                 • PID lock validity"
     echo "                 • PM2 process list"
-    echo "                 • Port 3000 availability"
+    echo "                 • Port ${PORT:-3000} availability"
     echo "                 • Node processes"
     echo "  logs [n]     - Show server logs (n = line count, default: 50)"
     echo "  env          - Show current environment and available configs"
