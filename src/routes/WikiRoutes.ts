@@ -1598,6 +1598,10 @@ class WikiRoutes {
 
       await pageManager.savePageWithContext(wikiContext, metadata);
 
+      // Sync attachment mentions for any references in the new page content. #405 Phase 4
+      const _am1 = this.engine.getManager('AttachmentManager');
+      if (_am1?.syncPageMentions) _am1.syncPageMentions(pageName, content).catch(() => {});
+
       // Use incremental updates instead of full rebuilds for performance (#245)
       const renderingManager = this.engine.getManager('RenderingManager');
       const searchManager = this.engine.getManager('SearchManager');
@@ -1934,6 +1938,10 @@ class WikiRoutes {
       // Save the new page using WikiContext
       await pageManager.savePageWithContext(wikiContext, metadata);
 
+      // Sync attachment mentions for any references in the new page content. #405 Phase 4
+      const _am2 = this.engine.getManager('AttachmentManager');
+      if (_am2?.syncPageMentions) _am2.syncPageMentions(pageName, finalContent).catch(() => {});
+
       // Use incremental updates instead of full rebuilds for performance (#245)
       const renderingManager = this.engine.getManager('RenderingManager');
       const searchManager = this.engine.getManager('SearchManager');
@@ -2140,6 +2148,13 @@ class WikiRoutes {
 
       // Save the page using WikiContext (author is automatically extracted from context)
       await pageManager.savePageWithContext(wikiContext, metadata);
+
+      // Sync attachment mentions — fire-and-forget so a metadata write failure never blocks save.
+      // Replaces the per-render lazy attachToPage() with a deterministic save-time scan. #405 Phase 4
+      const attachmentManager = this.engine.getManager('AttachmentManager');
+      if (attachmentManager?.syncPageMentions) {
+        attachmentManager.syncPageMentions(pageName, content).catch(() => {});
+      }
 
       // Use incremental updates instead of full rebuilds for performance
       const isNewPage = !existingPage;

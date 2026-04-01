@@ -586,10 +586,6 @@ class AttachmentManager extends BaseManager {
     try {
       const globalMatch = await this.attachmentProvider.getAttachmentByFilename(src);
       if (globalMatch) {
-        // Lazily populate mentions on first render — fixes imported content automatically.
-        // Both [{Image}] and [{ATTACH}] share this path so both benefit. Fire-and-forget
-        // so a metadata write failure never breaks rendering. See #384.
-        this.attachToPage(globalMatch.identifier, pageName).catch(() => {});
         return {
           url: globalMatch.url || `/attachments/${globalMatch.identifier}`,
           mimeType: globalMatch.encodingFormat || ''
@@ -602,6 +598,69 @@ class AttachmentManager extends BaseManager {
     // Future steps (e.g. private folders #122) go here
 
     return null;
+  }
+
+  /**
+   * Scan page content for local attachment references and synchronise mentions.
+   *
+   * Parses [{Image src='...'}] and [{ATTACH src='...'}] directives, resolves
+   * each filename to an attachment identifier, then diffs against the current
+   * mentions stored on each attachment:
+   *   - newly referenced attachments gain a mention for pageName
+   *   - previously referenced attachments that are no longer in content lose it
+   *
+   * Replaces the lazy attachToPage() side-effect in resolveAttachmentSrc() with
+   * a deterministic, save-time update. See #405 Phase 4 / #403.
+   *
+   * @param {string} pageName - Name of the page being saved
+   * @param {string} content  - Raw wiki markup content
+   * @returns {Promise<void>}
+   */
+  async syncPageMentions(pageName: string, content: string): Promise<void> {
+    if (!this.attachmentProvider) return;
+
+    // Extract local filenames from [{Image src='...'}] and [{ATTACH src='...'}]
+    const srcPattern = /\[\{(?:Image|ATTACH)\s[^}]*?src='([^']+)'/gi;
+    const referencedFilenames = new Set<string>();
+    let match: RegExpExecArray | null;
+    while ((match = srcPattern.exec(content)) !== null) {
+      const src = match[1];
+      // Skip media:// URIs, external URLs, and absolute paths — not local attachments
+      if (src.startsWith('media://') || src.startsWith('http://') ||
+          src.startsWith('https://') || src.startsWith('/')) continue;
+      referencedFilenames.add(src);
+    }
+
+    // Resolve filenames → attachment identifiers
+    const currentIds = new Set<string>();
+    for (const filename of referencedFilenames) {
+      try {
+        const attachment = await this.attachmentProvider.getAttachmentByFilename(filename);
+        if (attachment) currentIds.add(attachment.identifier);
+      } catch {
+        // unresolvable filename — skip
+      }
+    }
+
+    // Get identifiers currently mentioning this page
+    const previousMentions = await this.attachmentProvider.getAttachmentsForPage(pageName);
+    const previousIds = new Set<string>(
+      previousMentions.map(a => a.identifier).filter(Boolean)
+    );
+
+    // Add mentions for newly referenced attachments
+    for (const id of currentIds) {
+      if (!previousIds.has(id)) {
+        await this.attachToPage(id, pageName).catch(() => {});
+      }
+    }
+
+    // Remove mentions for attachments no longer referenced
+    for (const id of previousIds) {
+      if (!currentIds.has(id)) {
+        await this.detachFromPage(id, pageName).catch(() => {});
+      }
+    }
   }
 
   /**
