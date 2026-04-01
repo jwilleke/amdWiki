@@ -1,5 +1,21 @@
 // @ts-check
 const { defineConfig, devices } = require('@playwright/test');
+const fs = require('fs');
+const path = require('path');
+
+// Load PORT from .env if not already set in the environment.
+// Mirrors what server.sh does: source .env, then let shell exports override.
+if (!process.env.PORT) {
+  const envFile = path.join(__dirname, '.env');
+  if (fs.existsSync(envFile)) {
+    for (const line of fs.readFileSync(envFile, 'utf8').split('\n')) {
+      const m = line.match(/^\s*PORT\s*=\s*(\d+)/);
+      if (m) { process.env.PORT = m[1]; break; }
+    }
+  }
+}
+
+const PORT = process.env.PORT || '3000';
 
 /**
  * Playwright E2E Test Configuration for ngdpbase
@@ -29,8 +45,8 @@ module.exports = defineConfig({
 
   // Shared settings for all projects
   use: {
-    // Base URL for the application (default to 3000 for local dev, 3099 for CI)
-    baseURL: process.env.E2E_BASE_URL || 'http://localhost:3000',
+    // Base URL for the application — reads PORT from .env, falls back to 3000
+    baseURL: process.env.E2E_BASE_URL || `http://localhost:${PORT}`,
 
     // Collect trace when retrying the failed test
     trace: 'on-first-retry',
@@ -43,7 +59,7 @@ module.exports = defineConfig({
   },
 
   // Configure the web server to start before running tests
-  // Only starts a new server in CI - locally, use existing server on port 3000
+  // Only starts a new server in CI - locally, use existing server on PORT
   webServer: process.env.CI ? {
     command: 'PORT=3099 NODE_ENV=test node app.js',
     url: 'http://localhost:3099',
