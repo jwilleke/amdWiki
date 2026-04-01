@@ -22,6 +22,7 @@ import ExportManager from './managers/ExportManager';
 import TemplateManager from './managers/TemplateManager';
 import AttachmentManager from './managers/AttachmentManager';
 import MediaManager from './managers/MediaManager';
+import AssetManager from './managers/AssetManager';
 import AssetService from './managers/AssetService';
 import BackupManager from './managers/BackupManager';
 import CacheManager from './managers/CacheManager';
@@ -275,7 +276,12 @@ class WikiEngine extends Engine {
       await mediaManager.initialize();
     }
 
-    // AssetService — unified search across AttachmentManager and MediaManager
+    // AssetManager — provider registry; must come after AttachmentManager/MediaManager
+    const assetManager = new AssetManager(this);
+    this.registerManager('AssetManager', assetManager);
+    await assetManager.initialize();
+
+    // AssetService — backward-compatible search facade over AssetManager
     const assetService = new AssetService(this);
     this.registerManager('AssetService', assetService);
     await assetService.initialize();

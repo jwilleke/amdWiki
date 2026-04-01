@@ -28,7 +28,12 @@ import type ConfigurationManager from './ConfigurationManager';
 
 class MediaManager extends BaseManager {
   /** Active media provider (null when not yet initialized) */
-  private provider: BaseMediaProvider | null = null;
+  private _provider: BaseMediaProvider | null = null;
+
+  /** Return the active media provider for use by AssetManager. */
+  get provider(): BaseMediaProvider | null {
+    return this._provider;
+  }
 
   /** Handle for the periodic rescan interval timer */
   private scanTimer: ReturnType<typeof setInterval> | null = null;
@@ -87,7 +92,7 @@ class MediaManager extends BaseManager {
     const extensionList = configManager.getProperty('ngdpbase.media.extensions', DEFAULT_MEDIA_EXTENSIONS) as string[];
     const extensions = new Set(extensionList.map(e => e.toLowerCase().replace(/^\./, '')));
 
-    this.provider = new FileSystemMediaProvider({
+    this._provider = new FileSystemMediaProvider({
       folders,
       ignoreDirs,
       maxDepth,
@@ -100,7 +105,7 @@ class MediaManager extends BaseManager {
     });
 
     // Load persisted index so queries work before the first background scan
-    await this.provider.initialize();
+    await this._provider.initialize();
 
     const scanInterval = configManager.getProperty('ngdpbase.media.scaninterval', 3600000) as number;
     if (scanInterval > 0) {
@@ -318,7 +323,7 @@ class MediaManager extends BaseManager {
     }
     if (this.provider) {
       await this.provider.shutdown();
-      this.provider = null;
+      this._provider = null;
     }
     await super.shutdown();
     logger.info('[MediaManager] Shutdown complete');

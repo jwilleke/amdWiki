@@ -162,6 +162,11 @@ class AttachmentManager extends BaseManager {
     this.providerClass = null;
   }
 
+  /** Return the active attachment provider for use by AssetManager. */
+  get provider(): BaseAttachmentProvider | null {
+    return this.attachmentProvider;
+  }
+
   /**
    * Initialize AttachmentManager and load the configured provider
    *

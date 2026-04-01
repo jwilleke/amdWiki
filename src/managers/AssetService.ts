@@ -66,14 +66,29 @@ class AssetService extends BaseManager {
   }
 
   /**
-   * Search across attachment and media stores with pagination.
+   * Search across all registered asset providers with pagination.
    *
-   * Fetches all matching items from both stores (in-memory operations),
-   * combines them (attachments first, then media), applies offset+pageSize
-   * slicing, and returns the page along with the total match count.
+   * Delegates to AssetManager when available (preferred path).  Falls back to
+   * the legacy hardcoded fan-out so the service remains functional even if
+   * AssetManager is not yet initialized (e.g. during early startup tests).
    */
   async search(options: AssetSearchOptions = {}): Promise<AssetPage> {
     const { query = '', types, year, pageSize = 48, offset = 0, sort = 'date', order = 'asc', mimeCategory, wikiContext } = options;
+
+    // --- Preferred path: delegate to AssetManager registry ---
+    type AssetManagerLike = { search(q: object): Promise<AssetPage> };
+    const assetManager = this.engine.getManager<AssetManagerLike>('AssetManager');
+    if (assetManager) {
+      // Map AssetSearchOptions types filter to provider IDs
+      let providerId: string | undefined;
+      if (types?.length === 1) {
+        providerId = types[0] === 'attachment' ? 'local' : 'media-library';
+      }
+      return assetManager.search({ query, year, mimeCategory, pageSize, offset, sort, order, ...(providerId ? { providerId } : {}), wikiContext });
+    }
+
+    // --- Legacy fallback (no AssetManager) ---
+    logger.warn('[AssetService] AssetManager not available — using legacy fan-out');
     const includeAttachments = !types || types.includes('attachment');
     const includeMedia = !types || types.includes('media');
 
@@ -96,12 +111,9 @@ class AssetService extends BaseManager {
     }
 
     const filtered = mimeCategory ? all.filter(r => this._matchesMimeCategory(r.encodingFormat, mimeCategory)) : all;
-
     this._sortResults(filtered, sort, order);
-
     const total = filtered.length;
     const results = filtered.slice(offset, offset + pageSize);
-
     return { results, total, hasMore: offset + results.length < total };
   }
 
