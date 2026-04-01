@@ -2,6 +2,7 @@ import BaseAttachmentProvider, { FileInfo, User, AttachmentResult } from './Base
 import { AttachmentMetadata } from '../types';
 import type { AssetProvider, AssetRecord, AssetQuery, AssetPage, AssetInput, AssetMetadata } from '../types/Asset';
 import sharp from 'sharp';
+import { transformImage, parseSize } from '../utils/imageTransform';
 import fs from 'fs-extra';
 import * as path from 'path';
 import * as crypto from 'crypto';
@@ -142,6 +143,7 @@ const EXTENSION_MIME_MAP: Record<string, string> = {
 class BasicAttachmentProvider extends BaseAttachmentProvider implements AssetProvider {
   private storageDirectory: string | null;
   private privateStorageDir: string | null;
+  private thumbDir: string | null;
   private metadataFile: string | null;
   private attachmentMetadata: Map<string, SchemaCreativeWork>;
   private maxFileSize: number;
@@ -152,6 +154,7 @@ class BasicAttachmentProvider extends BaseAttachmentProvider implements AssetPro
     super(engine);
     this.storageDirectory = null;
     this.privateStorageDir = null;
+    this.thumbDir = null;
     this.metadataFile = null;
     this.attachmentMetadata = new Map();
     this.maxFileSize = 10 * 1024 * 1024; // 10MB default
@@ -204,8 +207,9 @@ class BasicAttachmentProvider extends BaseAttachmentProvider implements AssetPro
       'sha256'
     ) as string;
 
-    // Derive private storage subdirectory
+    // Derive private storage and thumbnail subdirectories
     this.privateStorageDir = path.join(this.storageDirectory, 'private');
+    this.thumbDir = path.join(this.storageDirectory, '.thumbs');
 
     // Ensure directories exist
     await fs.ensureDir(this.storageDirectory);
@@ -972,7 +976,42 @@ class BasicAttachmentProvider extends BaseAttachmentProvider implements AssetPro
 
   readonly id = 'local';
   readonly displayName = 'Local Attachments';
-  readonly capabilities: import('../types/Asset').ProviderCapability[] = ['upload', 'search', 'stream'];
+  readonly capabilities: import('../types/Asset').ProviderCapability[] = ['upload', 'search', 'stream', 'thumbnail'];
+
+  /**
+   * AssetProvider.getThumbnail() — generate (and cache) a JPEG thumbnail for image attachments.
+   * Returns null for non-image attachments or when the source file cannot be processed.
+   */
+  async getThumbnail(id: string, size: string): Promise<Buffer | null> {
+    const schema = this.attachmentMetadata.get(id);
+    if (!schema || !schema.encodingFormat.startsWith('image/')) return null;
+    if (!this.thumbDir) return null;
+
+    const dims = parseSize(size);
+    if (!dims) return null;
+
+    const thumbPath = path.join(this.thumbDir, `${id}-${size}.jpg`);
+
+    if (await fs.pathExists(thumbPath)) {
+      return fs.readFile(thumbPath);
+    }
+
+    try {
+      const buffer = await transformImage(schema.storageLocation, {
+        width: dims.width,
+        height: dims.height,
+        fit: 'inside',
+        format: 'jpeg',
+        quality: 85
+      });
+      await fs.ensureDir(this.thumbDir);
+      await fs.writeFile(thumbPath, buffer);
+      return buffer;
+    } catch (err) {
+      logger.warn(`[BasicAttachmentProvider] Thumbnail generation failed for ${id}: ${String(err)}`);
+      return null;
+    }
+  }
 
   /** Convert a SchemaCreativeWork record to a unified AssetRecord. */
   private schemaToAssetRecord(schema: SchemaCreativeWork): AssetRecord {
@@ -996,6 +1035,9 @@ class BasicAttachmentProvider extends BaseAttachmentProvider implements AssetPro
       encodingFormat: schema.encodingFormat,
       contentSize: schema.contentSize,
       url: `/attachments/${schema.identifier}`,
+      thumbnailUrl: schema.encodingFormat.startsWith('image/')
+        ? `/attachments/thumb/${schema.identifier}?size=150x150`
+        : undefined,
       dateCreated: schema.dateCreated,
       dateModified: schema.dateModified,
       author: schema.author?.name,

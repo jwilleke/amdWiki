@@ -2760,6 +2760,32 @@ class WikiRoutes {
   }
 
   /**
+   * GET /attachments/thumb/:attachmentId
+   * Return a cached JPEG thumbnail for an image attachment.
+   * Query param: size (e.g. "150x150", default "150x150") — #405 Phase 6
+   */
+  async attachmentThumb(req: Request, res: Response) {
+    try {
+      const { attachmentId } = req.params;
+      const size = (req.query.size as string) || '150x150';
+      const attachmentManager = this.engine.getManager('AttachmentManager');
+      if (!attachmentManager) {
+        return res.status(503).send('Attachment manager not available');
+      }
+      const buffer = await attachmentManager.getThumbnail(attachmentId, size);
+      if (!buffer) {
+        return res.status(404).send('Thumbnail not available');
+      }
+      res.set('Content-Type', 'image/jpeg');
+      res.set('Cache-Control', 'public, max-age=86400');
+      return res.send(buffer);
+    } catch (err: unknown) {
+      logger.error('[attachments] Error generating thumbnail:', err);
+      return res.status(500).send('Internal server error');
+    }
+  }
+
+  /**
    * Delete attachment
    */
   async deleteAttachment(req: Request, res: Response) {
@@ -6887,6 +6913,11 @@ class WikiRoutes {
         return void this.uploadAttachment(req, res);
       });
     });
+
+    // Thumbnail must be registered before /:attachmentId to avoid wildcard match
+    app.get('/attachments/thumb/:attachmentId', (req: Request, res: Response) =>
+      void this.attachmentThumb(req, res)
+    );
 
     app.get('/attachments/:attachmentId', (req: Request, res: Response) =>
       this.serveAttachment(req, res)

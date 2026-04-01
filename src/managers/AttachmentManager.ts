@@ -27,6 +27,7 @@ interface BaseAttachmentProvider {
   updateAttachmentMetadata(attachmentId: string, updates: Partial<AttachmentMetadata>): Promise<boolean>;
   attachmentExists(attachmentId: string): Promise<boolean>;
   refreshAttachmentList(): Promise<void>;
+  getThumbnail?(id: string, size: string): Promise<Buffer | null>;
   backup(): Promise<unknown>;
   restore(backupData: unknown): Promise<void>;
   shutdown(): Promise<void>;
@@ -598,6 +599,22 @@ class AttachmentManager extends BaseManager {
     // Future steps (e.g. private folders #122) go here
 
     return null;
+  }
+
+  /**
+   * Generate (or return cached) thumbnail for an image attachment.
+   *
+   * Delegates to the provider's getThumbnail() implementation.
+   * Returns null for non-image attachments or when the provider has no
+   * thumbnail capability.
+   *
+   * @param {string} attachmentId - Attachment identifier
+   * @param {string} size         - Size string e.g. "150x150"
+   * @returns {Promise<Buffer|null>}
+   */
+  async getThumbnail(attachmentId: string, size: string): Promise<Buffer | null> {
+    if (!this.attachmentProvider?.getThumbnail) return null;
+    return this.attachmentProvider.getThumbnail(attachmentId, size);
   }
 
   /**

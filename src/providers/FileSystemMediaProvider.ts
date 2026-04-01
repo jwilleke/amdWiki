@@ -16,7 +16,7 @@
 import crypto from 'crypto';
 import path from 'path';
 import fs from 'fs-extra';
-import sharp from 'sharp';
+import { transformImage, parseSize } from '../utils/imageTransform';
 import { ExifTool } from 'exiftool-vendored';
 import { minimatch } from 'minimatch';
 import logger from '../utils/logger';
@@ -386,17 +386,17 @@ class FileSystemMediaProvider extends BaseMediaProvider {
       return fs.readFile(thumbPath);
     }
 
-    const parts = size.split('x');
-    const w = parseInt(parts[0] ?? '300', 10);
-    const h = parseInt(parts[1] ?? '300', 10);
-    if (!w || !h) return null;
+    const dims = parseSize(size);
+    if (!dims) return null;
 
     try {
-      const buffer = await sharp(item.filePath)
-        .rotate()                          // auto-rotate using EXIF Orientation (handles mirroring too)
-        .resize(w, h, { fit: 'inside' })  // preserve full image; no cropping
-        .jpeg({ quality: 85 })
-        .toBuffer();
+      const buffer = await transformImage(item.filePath, {
+        width: dims.width,
+        height: dims.height,
+        fit: 'inside',
+        format: 'jpeg',
+        quality: 85
+      });
       await fs.ensureDir(this.config.thumbnailDir);
       await fs.writeFile(thumbPath, buffer);
       return buffer;
