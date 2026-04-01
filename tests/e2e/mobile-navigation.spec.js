@@ -96,7 +96,7 @@ test.describe('Mobile Navigation', () => {
 
   test.describe('Page actions in offcanvas', () => {
     test('page actions section appears when on a wiki page', async ({ page }) => {
-      await page.goto('/view/Main');
+      await page.goto('/view/User%20Documentation');
       await page.waitForLoadState('networkidle');
 
       await page.locator('button[data-bs-toggle="offcanvas"][data-bs-target="#mobileNavOffcanvas"]').click();
@@ -120,7 +120,7 @@ test.describe('Mobile Navigation', () => {
     });
 
     test('Reader View link is present in page actions', async ({ page }) => {
-      await page.goto('/view/Main');
+      await page.goto('/view/User%20Documentation');
       await page.waitForLoadState('networkidle');
 
       await page.locator('button[data-bs-toggle="offcanvas"][data-bs-target="#mobileNavOffcanvas"]').click();
@@ -133,7 +133,7 @@ test.describe('Mobile Navigation', () => {
 
   test.describe('Navigation bar on mobile', () => {
     test('Info/Edit/More buttons are hidden on mobile', async ({ page }) => {
-      await page.goto('/view/Main');
+      await page.goto('/view/User%20Documentation');
       await page.waitForLoadState('networkidle');
 
       // The right actions container has d-none d-md-block
@@ -142,7 +142,7 @@ test.describe('Mobile Navigation', () => {
     });
 
     test('Trail dropdown is hidden on mobile', async ({ page }) => {
-      await page.goto('/view/Main');
+      await page.goto('/view/User%20Documentation');
       await page.waitForLoadState('networkidle');
 
       const trail = page.locator('#trail.d-none.d-md-block');
@@ -239,7 +239,7 @@ test.describe('Desktop Navigation', () => {
   });
 
   test('Info/Edit/More buttons visible on desktop', async ({ page }) => {
-    await page.goto('/view/Main');
+    await page.goto('/view/User%20Documentation');
     await page.waitForLoadState('networkidle');
 
     const infoBtn = page.locator('.navigation button:has-text("Info")');
@@ -250,7 +250,7 @@ test.describe('Desktop Navigation', () => {
   });
 
   test('Trail dropdown visible on desktop', async ({ page }) => {
-    await page.goto('/view/Main');
+    await page.goto('/view/User%20Documentation');
     await page.waitForLoadState('networkidle');
 
     const trail = page.locator('#trail');
@@ -262,7 +262,7 @@ test.describe('Mobile layout — main content fills viewport (#375)', () => {
   test.use({ storageState: './tests/e2e/.auth/user.json' });
 
   test('main content has no left blank column (fills viewport width)', async ({ page }) => {
-    await page.goto('/view/Main');
+    await page.goto('/view/User%20Documentation');
     await page.waitForLoadState('networkidle');
 
     const viewport = page.viewportSize();
@@ -275,7 +275,7 @@ test.describe('Mobile layout — main content fills viewport (#375)', () => {
   });
 
   test('no horizontal scrollbar on mobile', async ({ page }) => {
-    await page.goto('/view/Main');
+    await page.goto('/view/User%20Documentation');
     await page.waitForLoadState('networkidle');
 
     const scrollWidth = await page.evaluate(() => document.documentElement.scrollWidth);
@@ -289,7 +289,7 @@ test.describe('Responsive content rendering (#372)', () => {
 
   test('markdown images have max-width 100%', async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
-    await page.goto('/view/Main');
+    await page.goto('/view/User%20Documentation');
     await page.waitForLoadState('networkidle');
 
     // Check that any images in markdown content don't overflow viewport
@@ -306,7 +306,7 @@ test.describe('Responsive content rendering (#372)', () => {
 
   test('markdown tables are scrollable on mobile', async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
-    await page.goto('/view/Main');
+    await page.goto('/view/User%20Documentation');
     await page.waitForLoadState('networkidle');
 
     // Tables should have overflow-x: auto (block display)

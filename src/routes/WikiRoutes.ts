@@ -8024,41 +8024,25 @@ class WikiRoutes {
       });
 
       if (!pageManager) {
-        const templateData = this.getTemplateDataFromContext(wikiContext);
-        return res.status(500).render('error', {
-          ...templateData,
-          message: 'PageManager not available'
-        });
+        return this.renderError(req, res, 500, 'Server Error', 'PageManager not available');
       }
 
       const provider = pageManager.provider;
 
       // Check if provider supports versioning
       if (typeof provider.getVersionHistory !== 'function') {
-        const templateData = this.getTemplateDataFromContext(wikiContext);
-        return res.status(501).render('error', {
-          ...templateData,
-          message: 'Page versioning is not enabled. Please configure VersioningFileProvider.'
-        });
+        return this.renderError(req, res, 501, 'Not Implemented', 'Page versioning is not enabled. Please configure VersioningFileProvider.');
       }
 
       // Check if page exists
       if (!pageManager.pageExists(pageName)) {
-        const templateData = this.getTemplateDataFromContext(wikiContext);
-        return res.status(404).render('error', {
-          ...templateData,
-          message: `Page "${pageName}" not found`
-        });
+        return this.renderError(req, res, 404, 'Not Found', `Page "${pageName}" not found`);
       }
 
       // Check private page access for history
       const canAccessPrivateHistory = await this.checkPrivatePageAccess(wikiContext, pageName);
       if (!canAccessPrivateHistory) {
-        const templateData = this.getTemplateDataFromContext(wikiContext);
-        return res.status(403).render('error', {
-          ...templateData,
-          message: 'You do not have permission to view this page history.'
-        });
+        return this.renderError(req, res, 403, 'Access Denied', 'You do not have permission to view this page history.');
       }
 
       // Get page metadata (only need uuid and title)
@@ -8071,11 +8055,7 @@ class WikiRoutes {
       try {
         versions = await provider.getVersionHistory(pageName);
       } catch {
-        const templateData = this.getTemplateDataFromContext(wikiContext);
-        return res.status(501).render('error', {
-          ...templateData,
-          message: 'Page versioning is not enabled. Please configure VersioningFileProvider.'
-        });
+        return this.renderError(req, res, 501, 'Not Implemented', 'Page versioning is not enabled. Please configure VersioningFileProvider.');
       }
       logger.info(`[pageHistory] Found ${versions.length} versions`);
 
