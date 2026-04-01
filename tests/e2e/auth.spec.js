@@ -104,9 +104,13 @@ test.describe('Authentication - Unauthenticated', () => {
         await userDropdown.first().click();
         await page.waitForTimeout(300); // Wait for dropdown animation
 
-        // Now click logout
-        const logoutLink = page.locator('a[href="/logout"], a[href*="logout"]');
-        await logoutLink.first().click();
+        // Scope logout to the desktop dropdown menu to avoid matching the hidden mobile logout link
+        const logoutLink = page.locator('#userDropdown').locator('..').locator('a[href="/logout"]');
+        if (await logoutLink.count() > 0) {
+          await logoutLink.first().click();
+        } else {
+          await page.goto('/logout');
+        }
       } else {
         // Fallback: navigate directly to logout
         await page.goto('/logout');

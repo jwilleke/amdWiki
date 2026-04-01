@@ -56,7 +56,7 @@ test.describe('Admin Maintenance Mode', () => {
     expect(adminResponse?.status()).not.toBe(503);
 
     // Verify we see the admin dashboard content
-    await expect(page.locator('text=/admin|dashboard|configuration/i').first()).toBeVisible({ timeout: 5000 });
+    await expect(page.locator('h1:has-text("Admin Dashboard"), h2:has-text("Admin Dashboard")').first()).toBeVisible({ timeout: 5000 });
   });
 
   test('non-admin requests get 503 during maintenance', async ({ context }) => {

@@ -12,7 +12,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 - Key Decision: [decision]
 - Current Issue: [issue]
 - Testing:
-  - npm test: 58 suites passed, 1380 tests passed
+  - npm test: ??? suites passed, ??? tests passed tests skipped
 - Work Done:
   - [task 1]
   - [task 2]
@@ -21,6 +21,28 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - [file1.js]
   - [file2.md]
 ```
+
+## 2026-04-01-01
+
+- Agent: Claude Code (Sonnet 4.6)
+- Subject: Pull upstream changes, rebuild, fix E2E test failures
+- Key Decision: `nodemailer` was missing from `node_modules` after pull — installed it to unblock build; E2E logout test scoped to desktop `#userDropdown` parent to avoid hidden mobile logout link; admin-maintenance test replaced broad regex locator with `h1:has-text("Admin Dashboard")`
+- Current Issue: none
+- Testing:
+  - npm test: 95 suites passed, 2424 tests passed, 11 skipped
+  - E2E: 72 passed, 0 failed
+- Work Done:
+  - Pulled upstream (54 files, 4054 insertions): AuthManager + MagicLink, unified AssetRecord pipeline (Phases 1–6), EXIF/IPTC/XMP metadata, addon domain enforcement, search fixes, PageManager seeding
+  - Installed missing `nodemailer` + `@types/nodemailer` dependency
+  - Built `dist/` from source (TypeScript compile)
+  - Fixed E2E `auth.spec.js` logout test: scoped `logoutLink` to `#userDropdown` parent div to avoid matching hidden mobile nav logout link
+  - Fixed E2E `admin-maintenance.spec.js` admin-access test: replaced `text=/admin|dashboard|configuration/i` with `h1:has-text("Admin Dashboard")` to avoid matching non-visible elements
+- Commits: (this session)
+- Files Modified:
+  - `tests/e2e/auth.spec.js`
+  - `tests/e2e/admin-maintenance.spec.js`
+  - `package-lock.json` (nodemailer added)
+  - `package.json` (nodemailer added)
 
 ## 2026-03-31-05
 
