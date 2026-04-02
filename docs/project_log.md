@@ -22,6 +22,26 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - [file2.md]
 ```
 
+## 2026-04-02-02
+
+- Agent: Claude Code (Sonnet 4.6)
+- Subject: AssetProvider implementation guide for plugin authors (#436); SEMVER patch bump 3.0.12
+- Key Decision: Guide placed in docs/providers/ (alongside existing provider docs) rather than docs/managers/; AssetService.md updated with cross-link so plugin authors land on it from the consumer API doc. Testing checklist includes runnable Jest snippets so contributors can copy-paste directly into test files.
+- Current Issue: #436 (closed)
+- Testing:
+  - npm test: 96 suites passed, 2454 tests passed, 11 skipped
+- Work Done:
+  - Created `docs/providers/AssetProvider-Guide.md` — 10 sections covering interface contract, capability flags, required/optional methods, AssetRecord spec, thumbnail generation, addon registration, reference implementations, testing checklist
+  - Updated `docs/managers/AssetService.md` — added link to guide in Related section
+  - Version bump 3.0.11 → 3.0.12 via `node dist/src/utils/version.js patch`
+- Commits: 967e647b (guide), 28a0cf3a (version bump)
+- Files Modified:
+  - `docs/providers/AssetProvider-Guide.md` (new)
+  - `docs/managers/AssetService.md`
+  - `package.json`
+  - `config/app-default-config.json`
+  - `CHANGELOG.md`
+
 ## 2026-04-02-01
 
 - Agent: Claude Code (Sonnet 4.6)
