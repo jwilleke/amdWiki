@@ -2,7 +2,7 @@
 
 Complete index of ngdpbase developer documentation
 
-Last Updated: 2025-12-22
+Last Updated: 2026-04-02
 
 ---
 
@@ -10,9 +10,9 @@ Last Updated: 2025-12-22
 
 | Category | Count | Description |
 | ---------- | ------- | ------------- |
-| [Managers](#managers) | 21 | Core system managers (quick reference + complete guides) |
+| [Managers](#managers) | 24 | Core system managers (quick reference + complete guides) |
 | [Plugins](#plugins) | 12 | Plugin documentation (developer + user guides) |
-| [Providers](#providers) | 4 | Storage and service providers (quick reference + guides) |
+| [Providers](#providers) | 7 | Storage and service providers (quick reference + guides + implementation guide) |
 | [Architecture](#architecture) | 15+ | System design and patterns |
 | [Testing](#testing) | 3 | Testing guides and strategies |
 | [API] "#api" | Auto-gen | TypeDoc generated API reference |
@@ -28,6 +28,7 @@ Concise API reference for each manager (~100-200 lines):
 | Manager | Description |
 | --------- | ------------- |
 | [ACLManager](managers/ACLManager.md) | Access Control Lists and page permissions |
+| [AssetService](managers/AssetService.md) | Unified DAM search facade over the AssetManager provider registry |
 | [AttachmentManager](managers/AttachmentManager.md) | File attachment handling |
 | [AuditManager](managers/AuditManager.md) | Audit logging and compliance |
 | [BackupManager](managers/BackupManager.md) | System-wide backup and restore |
@@ -35,6 +36,8 @@ Concise API reference for each manager (~100-200 lines):
 | [CacheManager](managers/CacheManager.md) | Centralized cache management |
 | [ConfigurationManager](managers/ConfigurationManager.md) | Configuration management |
 | [ExportManager](managers/ExportManager.md) | Page export to HTML/Markdown |
+| [MediaManager](managers/MediaManager.md) | Read-only external photo/video library |
+| [MetricsManager](managers/MetricsManager.md) | System metrics and performance tracking |
 | [NotificationManager](managers/NotificationManager.md) | System notifications |
 | [PageManager](managers/PageManager.md) | Page CRUD and storage |
 | [PluginManager](managers/PluginManager.md) | Plugin discovery and execution |
@@ -62,12 +65,16 @@ In-depth documentation for each manager (500-1000+ lines):
 | CacheManager | [CacheManager-Complete-Guide.md](managers/CacheManager-Complete-Guide.md) |
 | ConfigurationManager | [ConfigurationManager-Complete-Guide.md](managers/ConfigurationManager-Complete-Guide.md) |
 | ExportManager | [ExportManager-Complete-Guide.md](managers/ExportManager-Complete-Guide.md) |
+| MediaManager | [MediaManager-Complete-Guide.md](managers/MediaManager-Complete-Guide.md) |
+| MetricsManager | [MetricsManager-Complete-Guide.md](managers/MetricsManager-Complete-Guide.md) |
 | NotificationManager | [NotificationManager-Complete-Guide.md](managers/NotificationManager-Complete-Guide.md) |
 | PageManager | [PageManager-Complete-Guide.md](managers/PageManager-Complete-Guide.md) |
 | PluginManager | [PluginManager-Complete-Guide.md](managers/PluginManager-Complete-Guide.md) |
 | RenderingManager | [RenderingManager-Complete-Guide.md](managers/RenderingManager-Complete-Guide.md) |
 | SchemaManager | [SchemaManager-Complete-Guide.md](managers/SchemaManager-Complete-Guide.md) |
+| SearchManager | [SearchManager-Complete-Guide.md](managers/SearchManager-Complete-Guide.md) |
 | TemplateManager | [TemplateManager-Complete-Guide.md](managers/TemplateManager-Complete-Guide.md) |
+| UserManager | [UserManager-Complete-Guide.md](managers/UserManager-Complete-Guide.md) |
 
 ---
 
@@ -121,7 +128,10 @@ Concise API reference for each provider (~150-250 lines):
 
 | Provider | Type | Description |
 | ---------- | ------ | ------------- |
+| [AssetProvider-Guide](providers/AssetProvider-Guide.md) | Asset (DAM) | Implementation guide for building a new `AssetProvider` backend |
+| [BaseMediaProvider](providers/BaseMediaProvider.md) | Asset (DAM) | Abstract base class for media providers |
 | [BasicAttachmentProvider](providers/BasicAttachmentProvider.md) | Attachment | File-based attachment storage with SHA-256 deduplication |
+| [FileSystemMediaProvider](providers/FileSystemMediaProvider.md) | Asset (DAM) | Read-only filesystem media library with EXIF indexing |
 | [FileSystemProvider](providers/FileSystemProvider.md) | Page | UUID-based file storage with YAML frontmatter |
 | [FileUserProvider](providers/FileUserProvider.md) | User | JSON file-based user and session storage |
 | [VersioningFileProvider](providers/VersioningFileProvider.md) | Page | File storage with delta-compressed version history |
@@ -255,19 +265,22 @@ Before contributing, please review:
 
 ### Completed (Issue #178)
 
-**Managers:** ✅ 21/21 complete (100%)
+**Managers:** ✅ 24/24 complete (100%)
 
-- ✅ Quick Reference guide (~100-200 lines)
-- ✅ Complete Guide (~500-1000+ lines)
+- ✅ Quick Reference guide (~100-200 lines) — 24 managers
+- ✅ Complete Guide (~500-1000+ lines) — 17 managers with complete guides
 
 **Plugins:** ✅ 12/12 complete (100%)
 
 - ✅ Developer documentation (~150-300 lines)
 - ✅ User documentation with examples
 
-**Providers:** ✅ 4/4 complete (100%)
+**Providers:** ✅ 7/7 complete (100%)
 
+- ✅ AssetProvider-Guide (DAM provider implementation guide — #436)
+- ✅ BaseMediaProvider (quick reference)
 - ✅ BasicAttachmentProvider (quick reference + complete guide)
+- ✅ FileSystemMediaProvider (quick reference)
 - ✅ FileSystemProvider (quick reference + complete guide)
 - ✅ FileUserProvider (quick reference + complete guide)
 - ✅ VersioningFileProvider (quick reference + complete guide)
