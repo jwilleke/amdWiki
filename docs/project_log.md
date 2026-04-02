@@ -22,6 +22,35 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - [file2.md]
 ```
 
+## 2026-04-02-01
+
+- Agent: Claude Code (Sonnet 4.6)
+- Subject: AssetManager health checking (#437); retire AssetService legacy fallback (#434); AssetManager unit tests (#435); DAM planning doc
+- Key Decision: healthCheck() skips degraded providers in fan-out rather than catching errors per-call — NAS/SMB unmount is detected at startup (initialize()) so degradation is visible immediately, not on the first user request. Partial folder failure in FileSystemMediaProvider still serves what it can. 'unknown' health status (not yet checked) passes through fan-out to preserve backward compatibility.
+- Current Issue: #434 (closed), #435 (closed), #437 (closed)
+- Testing:
+  - npm test: 96 suites passed, 2454 tests passed, 11 skipped
+- Work Done:
+  - Created `docs/planning/AssetManager-DAM-Summary.md` — completed phases, operational status, work defined in #423, 5 suggestions with GH issues
+  - Created GH issues #434–#438 from suggestions using feature_request template
+  - #435: `src/managers/__tests__/AssetManager.test.js` — 46 tests covering provider registry, search fan-out, getById, getThumbnail, initialize, plugin registration pattern
+  - #437: Added `ProviderHealthStatus`, `ProviderHealthReport`, `healthCheck?()` to `AssetProvider` interface (`src/types/Asset.ts`)
+  - #437: `BasicAttachmentProvider.healthCheck()` — `fs.access(storageDirectory)` detects unmounted NAS/SLOW_STORAGE
+  - #437: `FileSystemMediaProvider.healthCheck()` — probes all configured folders; false only when all unreachable
+  - #437: `AssetManager.checkProviderHealth()`, `getProviderHealth()`, degraded-provider skipping in `search()`/`getById()`; health check runs at `initialize()`
+  - #434: Retired `AssetService` legacy fallback — removed `_searchAttachments()`, `_searchMedia()`, `_sortResults()`, `_matchesMimeCategory()` (~200 lines); `search()` is now a pure translation layer; absent AssetManager logs error and returns empty page
+  - #434: Rewrote `AssetService.test.js` — 16 focused tests on parameter translation and delegation
+- Commits: 792b3ed9
+- Files Modified:
+  - `src/types/Asset.ts`
+  - `src/managers/AssetManager.ts`
+  - `src/managers/AssetService.ts`
+  - `src/managers/__tests__/AssetManager.test.js` (new)
+  - `src/managers/__tests__/AssetService.test.js`
+  - `src/providers/BasicAttachmentProvider.ts`
+  - `src/providers/FileSystemMediaProvider.ts`
+  - `docs/planning/AssetManager-DAM-Summary.md` (new)
+
 ## 2026-04-01-01
 
 - Agent: Claude Code (Sonnet 4.6)
