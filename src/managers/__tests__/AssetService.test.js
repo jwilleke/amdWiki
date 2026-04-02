@@ -1,9 +1,13 @@
 /**
- * Unit tests for AssetService
+ * Unit tests for AssetService (#434)
  *
- * Covers search() fan-out across AttachmentManager and MediaManager,
- * result normalisation, insertSnippet generation, type filtering,
- * pagination, and graceful degradation when managers are unavailable.
+ * AssetService is a pure translation layer over AssetManager.  These tests
+ * verify that search() correctly maps AssetSearchOptions to an AssetManager
+ * query and returns the AssetPage unchanged.
+ *
+ * Result normalisation (insertSnippet, field mapping, etc.) is the
+ * responsibility of the individual providers (BasicAttachmentProvider,
+ * FileSystemMediaProvider) and is tested there.
  *
  * Result fields use schema.org names (AssetRecord):
  *   providerId        — 'local' (attachment) or 'media-library' (media)
@@ -16,52 +20,45 @@
 
 const AssetService = require('../AssetService');
 
-// --- mock factories ---
+// ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
 
-function makeAttachment(overrides = {}) {
+function makeAssetRecord(overrides = {}) {
   return {
-    id: 'att-1',
+    id: 'a1',
+    providerId: 'local',
     filename: 'photo.jpg',
-    mimeType: 'image/jpeg',
-    uploadedAt: '2024-01-01T00:00:00Z',
-    description: '',
+    encodingFormat: 'image/jpeg',
+    url: '/attachments/a1',
+    keywords: [],
+    mentions: [],
+    metadata: {},
+    insertSnippet: "[{Image src='photo.jpg'}]",
     ...overrides,
   };
 }
 
-function makeMediaItem(overrides = {}) {
-  return {
-    id: 'media-1',
-    filename: 'sunset.jpg',
-    mimeType: 'image/jpeg',
-    year: 2023,
-    linkedPageName: 'HolidayPage',
-    isPrivate: false,
-    ...overrides,
-  };
+function makeAssetPage(records = [makeAssetRecord()]) {
+  return { results: records, total: records.length, hasMore: false };
 }
 
-function makeEngine({ attachments = [], mediaItems = [], noAttach = false, noMedia = false } = {}) {
-  const mockAttachmentManager = noAttach ? undefined : {
-    getAllAttachments: jest.fn().mockResolvedValue(attachments),
+/**
+ * Build a mock engine.  assetManagerSearch is the jest.fn() used for
+ * AssetManager.search() — callers can inspect its call args.
+ */
+function makeEngine({ assetManagerSearch, noAssetManager = false } = {}) {
+  const mockAssetManager = noAssetManager ? undefined : {
+    search: assetManagerSearch ?? jest.fn().mockResolvedValue(makeAssetPage()),
   };
-  const mockMediaManager = noMedia ? undefined : {
-    search: jest.fn().mockResolvedValue(mediaItems),
-    listByYear: jest.fn().mockResolvedValue(mediaItems),
-  };
-
   return {
     getManager: jest.fn((name) => {
-      if (name === 'AttachmentManager') return mockAttachmentManager;
-      if (name === 'MediaManager') return mockMediaManager;
+      if (name === 'AssetManager') return mockAssetManager;
       return undefined;
     }),
-    _mockAttachmentManager: mockAttachmentManager,
-    _mockMediaManager: mockMediaManager,
+    _mockAssetManager: mockAssetManager,
   };
 }
-
-// --- helpers ---
 
 function makeService(engineOpts = {}) {
   const engine = makeEngine(engineOpts);
@@ -70,391 +67,168 @@ function makeService(engineOpts = {}) {
   return { service, engine };
 }
 
-// -------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
+// AssetService.search() — return shape
+// ---------------------------------------------------------------------------
 
 describe('AssetService.search()', () => {
   describe('return shape (AssetPage)', () => {
-    it('returns { results, total, hasMore } object', async () => {
-      const { service } = makeService({ attachments: [makeAttachment()], noMedia: true });
+    it('returns { results, total, hasMore } from AssetManager unchanged', async () => {
+      const page = makeAssetPage([makeAssetRecord(), makeAssetRecord({ id: 'a2' })]);
+      const { service } = makeService({ assetManagerSearch: jest.fn().mockResolvedValue(page) });
 
-      const page = await service.search({ types: ['attachment'] });
+      const result = await service.search();
 
-      expect(page).toHaveProperty('results');
-      expect(page).toHaveProperty('total');
-      expect(page).toHaveProperty('hasMore');
-      expect(Array.isArray(page.results)).toBe(true);
+      expect(result).toBe(page);
     });
 
-    it('total equals full match count', async () => {
-      const attachments = Array.from({ length: 5 }, (_, i) =>
-        makeAttachment({ id: `a${i}`, filename: `file${i}.jpg` })
-      );
-      const { service } = makeService({ attachments, noMedia: true });
+    it('returns empty AssetPage when AssetManager is not registered', async () => {
+      const { service } = makeService({ noAssetManager: true });
 
-      const page = await service.search({ types: ['attachment'] });
+      const result = await service.search();
 
-      expect(page.total).toBe(5);
-    });
-
-    it('hasMore is false when all results fit on one page', async () => {
-      const { service } = makeService({ attachments: [makeAttachment()], noMedia: true });
-
-      const page = await service.search({ types: ['attachment'] });
-
-      expect(page.hasMore).toBe(false);
-    });
-
-    it('hasMore is true when total exceeds pageSize', async () => {
-      const attachments = Array.from({ length: 10 }, (_, i) =>
-        makeAttachment({ id: `a${i}`, filename: `f${i}.jpg` })
-      );
-      const { service } = makeService({ attachments, noMedia: true });
-
-      const page = await service.search({ types: ['attachment'], pageSize: 3 });
-
-      expect(page.hasMore).toBe(true);
-      expect(page.results.length).toBe(3);
-      expect(page.total).toBe(10);
+      expect(result).toEqual({ results: [], total: 0, hasMore: false });
     });
   });
 
-  describe('result shape (AssetRecord)', () => {
-    it('attachment result has correct fields and insertSnippet for image', async () => {
-      const { service } = makeService({ attachments: [makeAttachment()] });
+  // ---------------------------------------------------------------------------
+  // Delegation — AssetManager.search() is called with correct params
+  // ---------------------------------------------------------------------------
 
-      const { results } = await service.search({ types: ['attachment'] });
+  describe('delegation to AssetManager', () => {
+    it('calls AssetManager.search() once per search() call', async () => {
+      const assetManagerSearch = jest.fn().mockResolvedValue(makeAssetPage());
+      const { service } = makeService({ assetManagerSearch });
 
-      expect(results).toHaveLength(1);
-      const r = results[0];
-      expect(r.providerId).toBe('local');
-      expect(r.id).toBe('att-1');
-      expect(r.filename).toBe('photo.jpg');
-      expect(r.encodingFormat).toBe('image/jpeg');
-      expect(r.url).toBe('/attachments/att-1');
-      expect(r.dateCreated).toBe('2024-01-01T00:00:00Z');
-      expect(r.insertSnippet).toBe("[{Image src='photo.jpg'}]");
+      await service.search();
+
+      expect(assetManagerSearch).toHaveBeenCalledTimes(1);
     });
 
-    it('attachment insertSnippet uses ATTACH for non-image mimeType', async () => {
-      const { service } = makeService({
-        attachments: [makeAttachment({ filename: 'doc.pdf', mimeType: 'application/pdf' })],
-      });
+    it('passes query to AssetManager', async () => {
+      const assetManagerSearch = jest.fn().mockResolvedValue(makeAssetPage());
+      const { service } = makeService({ assetManagerSearch });
 
-      const { results } = await service.search({ types: ['attachment'] });
+      await service.search({ query: 'sunset' });
 
-      expect(results[0].insertSnippet).toBe("[{ATTACH src='doc.pdf'}]");
+      expect(assetManagerSearch).toHaveBeenCalledWith(expect.objectContaining({ query: 'sunset' }));
     });
 
-    it('media result has correct fields and insertSnippet', async () => {
-      const { service } = makeService({ mediaItems: [makeMediaItem()] });
+    it('passes year to AssetManager', async () => {
+      const assetManagerSearch = jest.fn().mockResolvedValue(makeAssetPage());
+      const { service } = makeService({ assetManagerSearch });
 
-      const { results } = await service.search({ types: ['media'] });
+      await service.search({ year: 2023 });
 
-      expect(results).toHaveLength(1);
-      const r = results[0];
-      expect(r.providerId).toBe('media-library');
-      expect(r.id).toBe('media-1');
-      expect(r.filename).toBe('sunset.jpg');
-      expect(r.encodingFormat).toBe('image/jpeg');
-      expect(r.url).toBe('/media/file/media-1');
-      expect(r.thumbnailUrl).toBe('/media/thumb/media-1?size=150x150');
-      expect(r.mentions).toEqual(['HolidayPage']);
-      expect(r.insertSnippet).toBe("[{Image src='media://sunset.jpg'}]");
+      expect(assetManagerSearch).toHaveBeenCalledWith(expect.objectContaining({ year: 2023 }));
     });
 
-    it('media insertSnippet uses ATTACH for video mimeType', async () => {
-      const { service } = makeService({
-        mediaItems: [makeMediaItem({ filename: 'clip.mp4', mimeType: 'video/mp4' })],
-      });
+    it('passes mimeCategory to AssetManager', async () => {
+      const assetManagerSearch = jest.fn().mockResolvedValue(makeAssetPage());
+      const { service } = makeService({ assetManagerSearch });
 
-      const { results } = await service.search({ types: ['media'] });
+      await service.search({ mimeCategory: 'image' });
 
-      expect(results[0].insertSnippet).toBe("[{ATTACH src='media://clip.mp4'}]");
-    });
-  });
-
-  describe('fan-out behaviour', () => {
-    it('returns both attachment and media results by default', async () => {
-      const { service } = makeService({
-        attachments: [makeAttachment()],
-        mediaItems: [makeMediaItem()],
-      });
-
-      const { results } = await service.search();
-
-      const providerIds = results.map(r => r.providerId);
-      expect(providerIds).toContain('local');
-      expect(providerIds).toContain('media-library');
+      expect(assetManagerSearch).toHaveBeenCalledWith(expect.objectContaining({ mimeCategory: 'image' }));
     });
 
-    it('types=["attachment"] skips media search', async () => {
-      const { service, engine } = makeService({
-        attachments: [makeAttachment()],
-        mediaItems: [makeMediaItem()],
-      });
+    it('passes pageSize and offset to AssetManager', async () => {
+      const assetManagerSearch = jest.fn().mockResolvedValue(makeAssetPage());
+      const { service } = makeService({ assetManagerSearch });
 
-      const { results } = await service.search({ types: ['attachment'] });
+      await service.search({ pageSize: 10, offset: 20 });
 
-      expect(results.every(r => r.providerId === 'local')).toBe(true);
-      expect(engine._mockMediaManager.search).not.toHaveBeenCalled();
+      expect(assetManagerSearch).toHaveBeenCalledWith(expect.objectContaining({ pageSize: 10, offset: 20 }));
     });
 
-    it('types=["media"] skips attachment search', async () => {
-      const { service, engine } = makeService({
-        attachments: [makeAttachment()],
-        mediaItems: [makeMediaItem()],
-      });
+    it('passes sort and order to AssetManager', async () => {
+      const assetManagerSearch = jest.fn().mockResolvedValue(makeAssetPage());
+      const { service } = makeService({ assetManagerSearch });
 
-      const { results } = await service.search({ types: ['media'] });
+      await service.search({ sort: 'caption', order: 'desc' });
 
-      expect(results.every(r => r.providerId === 'media-library')).toBe(true);
-      expect(engine._mockAttachmentManager.getAllAttachments).not.toHaveBeenCalled();
-    });
-  });
-
-  describe('query filtering', () => {
-    it('query filters attachments by filename substring (case-insensitive)', async () => {
-      const { service } = makeService({
-        attachments: [
-          makeAttachment({ id: 'a1', filename: 'beach.jpg' }),
-          makeAttachment({ id: 'a2', filename: 'mountain.jpg' }),
-        ],
-        noMedia: true,
-      });
-
-      const { results } = await service.search({ query: 'BEACH', types: ['attachment'] });
-
-      expect(results).toHaveLength(1);
-      expect(results[0].filename).toBe('beach.jpg');
+      expect(assetManagerSearch).toHaveBeenCalledWith(expect.objectContaining({ sort: 'caption', order: 'desc' }));
     });
 
-    it('empty query returns all attachments', async () => {
-      const { service } = makeService({
-        attachments: [
-          makeAttachment({ id: 'a1', filename: 'a.jpg' }),
-          makeAttachment({ id: 'a2', filename: 'b.jpg' }),
-        ],
-        noMedia: true,
-      });
+    it('passes wikiContext to AssetManager', async () => {
+      const assetManagerSearch = jest.fn().mockResolvedValue(makeAssetPage());
+      const { service } = makeService({ assetManagerSearch });
+      const ctx = { user: 'alice' };
 
-      const { results } = await service.search({ query: '', types: ['attachment'] });
+      await service.search({ wikiContext: ctx });
 
-      expect(results).toHaveLength(2);
+      expect(assetManagerSearch).toHaveBeenCalledWith(expect.objectContaining({ wikiContext: ctx }));
     });
 
-    it('passes query to MediaManager.search()', async () => {
-      const { service, engine } = makeService({ mediaItems: [] });
+    it('applies default query="" when not provided', async () => {
+      const assetManagerSearch = jest.fn().mockResolvedValue(makeAssetPage());
+      const { service } = makeService({ assetManagerSearch });
 
-      await service.search({ query: 'sunset', types: ['media'] });
+      await service.search();
 
-      expect(engine._mockMediaManager.search).toHaveBeenCalledWith('sunset', undefined);
+      expect(assetManagerSearch).toHaveBeenCalledWith(expect.objectContaining({ query: '' }));
+    });
+
+    it('applies default pageSize=48 when not provided', async () => {
+      const assetManagerSearch = jest.fn().mockResolvedValue(makeAssetPage());
+      const { service } = makeService({ assetManagerSearch });
+
+      await service.search();
+
+      expect(assetManagerSearch).toHaveBeenCalledWith(expect.objectContaining({ pageSize: 48 }));
+    });
+
+    it('applies default sort=date order=asc when not provided', async () => {
+      const assetManagerSearch = jest.fn().mockResolvedValue(makeAssetPage());
+      const { service } = makeService({ assetManagerSearch });
+
+      await service.search();
+
+      expect(assetManagerSearch).toHaveBeenCalledWith(expect.objectContaining({ sort: 'date', order: 'asc' }));
     });
   });
 
-  describe('year filter', () => {
-    it('year with no query uses listByYear', async () => {
-      const { service, engine } = makeService({ mediaItems: [makeMediaItem()] });
+  // ---------------------------------------------------------------------------
+  // types → providerId translation
+  // ---------------------------------------------------------------------------
 
-      await service.search({ year: 2023, types: ['media'] });
+  describe('types filter translation', () => {
+    it('types=["attachment"] passes providerId="local" to AssetManager', async () => {
+      const assetManagerSearch = jest.fn().mockResolvedValue(makeAssetPage());
+      const { service } = makeService({ assetManagerSearch });
 
-      expect(engine._mockMediaManager.listByYear).toHaveBeenCalledWith(2023, undefined);
-      expect(engine._mockMediaManager.search).not.toHaveBeenCalled();
+      await service.search({ types: ['attachment'] });
+
+      expect(assetManagerSearch).toHaveBeenCalledWith(expect.objectContaining({ providerId: 'local' }));
     });
 
-    it('year with query uses search() then filters by year', async () => {
-      const { service, engine } = makeService({
-        mediaItems: [
-          makeMediaItem({ id: 'm1', year: 2023 }),
-          makeMediaItem({ id: 'm2', year: 2022 }),
-        ],
-      });
+    it('types=["media"] passes providerId="media-library" to AssetManager', async () => {
+      const assetManagerSearch = jest.fn().mockResolvedValue(makeAssetPage());
+      const { service } = makeService({ assetManagerSearch });
 
-      const { results } = await service.search({ query: 'sunset', year: 2023, types: ['media'] });
+      await service.search({ types: ['media'] });
 
-      expect(engine._mockMediaManager.search).toHaveBeenCalled();
-      expect(results).toHaveLength(1);
-      expect(results[0].id).toBe('m1');
-    });
-  });
-
-  describe('pagination', () => {
-    it('pageSize limits results returned', async () => {
-      const attachments = Array.from({ length: 20 }, (_, i) =>
-        makeAttachment({ id: `a${i}`, filename: `file${i}.jpg` })
-      );
-      const { service } = makeService({ attachments, noMedia: true });
-
-      const { results } = await service.search({ types: ['attachment'], pageSize: 5 });
-
-      expect(results.length).toBe(5);
+      expect(assetManagerSearch).toHaveBeenCalledWith(expect.objectContaining({ providerId: 'media-library' }));
     });
 
-    it('offset skips earlier results', async () => {
-      const attachments = Array.from({ length: 10 }, (_, i) =>
-        makeAttachment({ id: `a${i}`, filename: `file${i}.jpg` })
-      );
-      const { service } = makeService({ attachments, noMedia: true });
+    it('types=["attachment","media"] does not pass providerId (search all)', async () => {
+      const assetManagerSearch = jest.fn().mockResolvedValue(makeAssetPage());
+      const { service } = makeService({ assetManagerSearch });
 
-      const page1 = await service.search({ types: ['attachment'], pageSize: 3, offset: 0 });
-      const page2 = await service.search({ types: ['attachment'], pageSize: 3, offset: 3 });
+      await service.search({ types: ['attachment', 'media'] });
 
-      expect(page1.results[0].filename).toBe('file0.jpg');
-      expect(page2.results[0].filename).toBe('file3.jpg');
+      const callArg = assetManagerSearch.mock.calls[0][0];
+      expect(callArg).not.toHaveProperty('providerId');
     });
 
-    it('total always reflects full match count regardless of page', async () => {
-      const attachments = Array.from({ length: 15 }, (_, i) =>
-        makeAttachment({ id: `a${i}`, filename: `file${i}.jpg` })
-      );
-      const { service } = makeService({ attachments, noMedia: true });
+    it('types omitted does not pass providerId (search all)', async () => {
+      const assetManagerSearch = jest.fn().mockResolvedValue(makeAssetPage());
+      const { service } = makeService({ assetManagerSearch });
 
-      const page = await service.search({ types: ['attachment'], pageSize: 5, offset: 10 });
+      await service.search({});
 
-      expect(page.total).toBe(15);
-      expect(page.results.length).toBe(5);
-    });
-
-    it('default pageSize is 48', async () => {
-      const attachments = Array.from({ length: 60 }, (_, i) =>
-        makeAttachment({ id: `a${i}`, filename: `file${i}.jpg` })
-      );
-      const { service } = makeService({ attachments, noMedia: true });
-
-      const { results } = await service.search({ types: ['attachment'] });
-
-      expect(results.length).toBe(48);
-    });
-  });
-
-  describe('sort', () => {
-    it('sort=date asc orders media by dateCreated oldest-first', async () => {
-      const items = [
-        makeMediaItem({ id: 'm1', filename: 'c.jpg', metadata: { dateTimeOriginal: '2024-06-15 10:00:00' } }),
-        makeMediaItem({ id: 'm2', filename: 'a.jpg', metadata: { dateTimeOriginal: '2022-01-01 00:00:00' } }),
-        makeMediaItem({ id: 'm3', filename: 'b.jpg', metadata: { dateTimeOriginal: '2023-03-20 08:00:00' } }),
-      ];
-      const { service } = makeService({ mediaItems: items, noAttach: true });
-
-      const { results } = await service.search({ types: ['media'], sort: 'date', order: 'asc' });
-
-      expect(results.map(r => r.filename)).toEqual(['a.jpg', 'b.jpg', 'c.jpg']);
-    });
-
-    it('sort=date desc orders media by dateCreated newest-first', async () => {
-      const items = [
-        makeMediaItem({ id: 'm1', filename: 'a.jpg', metadata: { dateTimeOriginal: '2022-01-01 00:00:00' } }),
-        makeMediaItem({ id: 'm2', filename: 'c.jpg', metadata: { dateTimeOriginal: '2024-06-15 10:00:00' } }),
-      ];
-      const { service } = makeService({ mediaItems: items, noAttach: true });
-
-      const { results } = await service.search({ types: ['media'], sort: 'date', order: 'desc' });
-
-      expect(results[0].filename).toBe('c.jpg');
-      expect(results[1].filename).toBe('a.jpg');
-    });
-
-    it('sort=caption asc orders media by description alphabetically', async () => {
-      const items = [
-        makeMediaItem({ id: 'm1', filename: 'z.jpg', metadata: { caption: 'Zebra' } }),
-        makeMediaItem({ id: 'm2', filename: 'a.jpg', metadata: { caption: 'Apple' } }),
-        makeMediaItem({ id: 'm3', filename: 'm.jpg', metadata: { caption: 'Mango' } }),
-      ];
-      const { service } = makeService({ mediaItems: items, noAttach: true });
-
-      const { results } = await service.search({ types: ['media'], sort: 'caption', order: 'asc' });
-
-      expect(results.map(r => r.description)).toEqual(['Apple', 'Mango', 'Zebra']);
-    });
-
-    it('sort=caption falls back to filename when no description', async () => {
-      const items = [
-        makeMediaItem({ id: 'm1', filename: 'zebra.jpg', metadata: {} }),
-        makeMediaItem({ id: 'm2', filename: 'apple.jpg', metadata: {} }),
-      ];
-      const { service } = makeService({ mediaItems: items, noAttach: true });
-
-      const { results } = await service.search({ types: ['media'], sort: 'caption', order: 'asc' });
-
-      expect(results[0].filename).toBe('apple.jpg');
-      expect(results[1].filename).toBe('zebra.jpg');
-    });
-
-    it('media results expose description field from metadata.caption', async () => {
-      const item = makeMediaItem({ metadata: { caption: 'A lovely sunset' } });
-      const { service } = makeService({ mediaItems: [item], noAttach: true });
-
-      const { results } = await service.search({ types: ['media'] });
-
-      expect(results[0].description).toBe('A lovely sunset');
-    });
-
-    it('media results expose dateCreated field from metadata.dateTimeOriginal', async () => {
-      const item = makeMediaItem({ metadata: { dateTimeOriginal: '2024-06-15 10:30:00' } });
-      const { service } = makeService({ mediaItems: [item], noAttach: true });
-
-      const { results } = await service.search({ types: ['media'] });
-
-      expect(results[0].dateCreated).toBe('2024-06-15 10:30:00');
-    });
-
-    it('default sort is date asc', async () => {
-      const items = [
-        makeMediaItem({ id: 'm1', filename: 'c.jpg', metadata: { dateTimeOriginal: '2024-01-01 00:00:00' } }),
-        makeMediaItem({ id: 'm2', filename: 'a.jpg', metadata: { dateTimeOriginal: '2022-01-01 00:00:00' } }),
-      ];
-      const { service } = makeService({ mediaItems: items, noAttach: true });
-
-      const { results } = await service.search({ types: ['media'] });
-
-      expect(results[0].filename).toBe('a.jpg');
-    });
-  });
-
-  describe('graceful degradation', () => {
-    it('AttachmentManager unavailable → returns only media results', async () => {
-      const { service } = makeService({ noAttach: true, mediaItems: [makeMediaItem()] });
-
-      const { results } = await service.search();
-
-      expect(results.every(r => r.providerId === 'media-library')).toBe(true);
-    });
-
-    it('MediaManager unavailable → returns only attachment results', async () => {
-      const { service } = makeService({ noMedia: true, attachments: [makeAttachment()] });
-
-      const { results } = await service.search();
-
-      expect(results.every(r => r.providerId === 'local')).toBe(true);
-    });
-
-    it('both managers unavailable → returns empty results', async () => {
-      const { service } = makeService({ noAttach: true, noMedia: true });
-
-      const page = await service.search();
-
-      expect(page.results).toEqual([]);
-      expect(page.total).toBe(0);
-      expect(page.hasMore).toBe(false);
-    });
-
-    it('attachment search throws → returns media results without crashing', async () => {
-      const engine = makeEngine({ mediaItems: [makeMediaItem()] });
-      engine._mockAttachmentManager.getAllAttachments.mockRejectedValue(new Error('disk error'));
-      const service = new AssetService(engine);
-
-      const { results } = await service.search();
-
-      expect(results.some(r => r.providerId === 'media-library')).toBe(true);
-    });
-
-    it('media search throws → returns attachment results without crashing', async () => {
-      const engine = makeEngine({ attachments: [makeAttachment()] });
-      engine._mockMediaManager.search.mockRejectedValue(new Error('index error'));
-      const service = new AssetService(engine);
-
-      const { results } = await service.search();
-
-      expect(results.some(r => r.providerId === 'local')).toBe(true);
+      const callArg = assetManagerSearch.mock.calls[0][0];
+      expect(callArg).not.toHaveProperty('providerId');
     });
   });
 });

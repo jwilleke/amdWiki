@@ -244,10 +244,35 @@ export interface AssetInput {
 }
 
 /**
+ * Health status of a registered AssetProvider as last reported by healthCheck().
+ *
+ * - 'healthy'  — healthCheck() returned true (or provider has no healthCheck)
+ * - 'degraded' — healthCheck() returned false or threw (storage unreachable)
+ * - 'unknown'  — healthCheck() has not been run yet
+ */
+export type ProviderHealthStatus = 'healthy' | 'degraded' | 'unknown';
+
+/**
+ * Snapshot of a single provider's health, returned by AssetManager.getProviderHealth().
+ */
+export interface ProviderHealthReport {
+  /** Provider identifier */
+  providerId: string;
+  /** Human-readable provider name */
+  displayName: string;
+  /** Current health status */
+  status: ProviderHealthStatus;
+  /** ISO 8601 timestamp of the last health check, or undefined if never checked */
+  checkedAt?: string;
+  /** Last error message when status is 'degraded' */
+  error?: string;
+}
+
+/**
  * AssetProvider — the single interface that all asset backends implement.
  *
  * Required methods: search, getById.
- * Optional (capability-gated) methods: store, delete, getThumbnail, stream.
+ * Optional (capability-gated) methods: store, delete, getThumbnail, stream, healthCheck.
  *
  * @see BasicAttachmentProvider  implements 'upload' | 'search' | 'stream'
  * @see BaseMediaProvider        implements 'search' | 'thumbnail'
@@ -298,4 +323,17 @@ export interface AssetProvider {
    * Only available when 'stream' is in capabilities.
    */
   stream?(id: string): Promise<NodeJS.ReadableStream | null>;
+
+  /**
+   * Optional liveness check for the underlying storage backend.
+   *
+   * Return true when the provider can serve requests normally.
+   * Return false (or throw) when storage is unreachable — e.g. a NAS volume
+   * that has been unmounted, an SMB share that dropped, or expired cloud
+   * credentials.  AssetManager calls this during initialize() and on demand
+   * (admin health-check endpoint) and skips degraded providers in fan-out.
+   *
+   * Providers without this method are always considered healthy.
+   */
+  healthCheck?(): Promise<boolean>;
 }

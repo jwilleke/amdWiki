@@ -156,6 +156,36 @@ class FileSystemMediaProvider extends BaseMediaProvider {
   }
 
   /**
+   * Verify that at least one configured media folder is accessible.
+   *
+   * Returns false when every configured folder is unreachable — e.g. a NAS or
+   * SLOW_STORAGE volume that has been unmounted or an SMB share that has dropped.
+   * A partial failure (some folders gone, others present) still returns true so
+   * the provider continues serving what it can; the warning log indicates which
+   * folders are missing.
+   */
+  async healthCheck(): Promise<boolean> {
+    const folders = this.config.folders ?? [];
+    if (folders.length === 0) {
+      return true; // no folders configured — nothing to check
+    }
+    let reachable = 0;
+    for (const folder of folders) {
+      try {
+        await fs.access(folder, fs.constants.R_OK);
+        reachable++;
+      } catch {
+        logger.warn(`[FileSystemMediaProvider] healthCheck — folder unreachable: ${folder}`);
+      }
+    }
+    if (reachable === 0) {
+      logger.warn('[FileSystemMediaProvider] healthCheck failed — all configured folders are unreachable');
+      return false;
+    }
+    return true;
+  }
+
+  /**
    * Rebuild the media index from scratch.
    *
    * Clears the in-memory index and deletes the persisted index file, then

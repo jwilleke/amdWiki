@@ -15,13 +15,15 @@
 
 import BaseManager from './BaseManager';
 import type { WikiEngine } from '../types/WikiEngine';
-import type { AssetProvider, AssetRecord, AssetPage, AssetQuery } from '../types/Asset';
+import type { AssetProvider, AssetRecord, AssetPage, AssetQuery, ProviderHealthStatus, ProviderHealthReport } from '../types/Asset';
 import logger from '../utils/logger';
 
 class AssetManager extends BaseManager {
   readonly description = 'Provider registry for the unified Digital Asset Management framework';
 
   private registry: Map<string, AssetProvider> = new Map();
+  /** Last known health status for each provider, keyed by provider.id */
+  private healthMap: Map<string, { status: ProviderHealthStatus; checkedAt: string; error?: string }> = new Map();
 
   constructor(engine: WikiEngine) {
     super(engine);
@@ -49,6 +51,10 @@ class AssetManager extends BaseManager {
     }
 
     logger.info(`[AssetManager] Initialized with ${this.registry.size} provider(s): ${[...this.registry.keys()].join(', ')}`);
+
+    // Run an initial health check so degraded storage (e.g. unmounted NAS/SMB
+    // volumes) is detected at startup rather than on the first user request.
+    await this.checkProviderHealth();
   }
 
   // ---------------------------------------------------------------------------
@@ -78,6 +84,64 @@ class AssetManager extends BaseManager {
   }
 
   // ---------------------------------------------------------------------------
+  // Health checking
+  // ---------------------------------------------------------------------------
+
+  /**
+   * Run healthCheck() on every registered provider that implements it.
+   *
+   * Updates the internal health map.  Providers without a healthCheck() method
+   * are marked 'healthy' (they are always assumed to be available).  Call this
+   * at startup and from the admin health-check endpoint to refresh status.
+   */
+  async checkProviderHealth(): Promise<void> {
+    for (const provider of this.registry.values()) {
+      const checkedAt = new Date().toISOString();
+      if (!provider.healthCheck) {
+        this.healthMap.set(provider.id, { status: 'healthy', checkedAt });
+        continue;
+      }
+      try {
+        const ok = await provider.healthCheck();
+        if (ok) {
+          this.healthMap.set(provider.id, { status: 'healthy', checkedAt });
+        } else {
+          this.healthMap.set(provider.id, { status: 'degraded', checkedAt, error: 'healthCheck returned false' });
+          logger.warn(`[AssetManager] Provider "${provider.id}" is degraded — will be skipped in fan-out`);
+        }
+      } catch (err) {
+        const error = err instanceof Error ? err.message : String(err);
+        this.healthMap.set(provider.id, { status: 'degraded', checkedAt, error });
+        logger.warn(`[AssetManager] Provider "${provider.id}" healthCheck threw — marking degraded: ${error}`);
+      }
+    }
+  }
+
+  /**
+   * Return a health report for every registered provider.
+   * Suitable for surfacing in an admin UI or REST endpoint.
+   */
+  getProviderHealth(): ProviderHealthReport[] {
+    return [...this.registry.values()].map(provider => {
+      const entry = this.healthMap.get(provider.id);
+      return {
+        providerId: provider.id,
+        displayName: provider.displayName,
+        status: entry?.status ?? 'unknown',
+        checkedAt: entry?.checkedAt,
+        error: entry?.error
+      };
+    });
+  }
+
+  /** True when the provider is healthy or has no health check. */
+  private isHealthy(provider: AssetProvider): boolean {
+    const entry = this.healthMap.get(provider.id);
+    // 'unknown' means checkProviderHealth hasn't run yet — allow through
+    return !entry || entry.status !== 'degraded';
+  }
+
+  // ---------------------------------------------------------------------------
   // Unified API
   // ---------------------------------------------------------------------------
 
@@ -95,6 +159,10 @@ class AssetManager extends BaseManager {
     const all: AssetRecord[] = [];
 
     for (const provider of providers) {
+      if (!this.isHealthy(provider)) {
+        logger.warn(`[AssetManager] Skipping degraded provider "${provider.id}" in search`);
+        continue;
+      }
       try {
         const page = await provider.search({ ...providerQuery, pageSize: 9999, offset: 0 });
         all.push(...page.results);
@@ -120,6 +188,10 @@ class AssetManager extends BaseManager {
       : [...this.registry.values()];
 
     for (const provider of providers) {
+      if (!this.isHealthy(provider)) {
+        logger.warn(`[AssetManager] Skipping degraded provider "${provider.id}" in getById`);
+        continue;
+      }
       try {
         const record = await provider.getById(id);
         if (record) return record;

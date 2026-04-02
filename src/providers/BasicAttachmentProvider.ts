@@ -229,6 +229,28 @@ class BasicAttachmentProvider extends BaseAttachmentProvider implements AssetPro
 
 
   /**
+   * Verify that the attachment storage directory is accessible.
+   *
+   * Returns false when the directory cannot be read — e.g. a NAS or SLOW_STORAGE
+   * volume that has been unmounted or an SMB share that has dropped.  AssetManager
+   * uses this to skip the provider during fan-out rather than surfacing I/O errors
+   * to end users.
+   */
+  async healthCheck(): Promise<boolean> {
+    if (!this.storageDirectory) {
+      // Not yet initialized — report degraded so the manager skips us
+      return false;
+    }
+    try {
+      await fs.access(this.storageDirectory, fs.constants.R_OK);
+      return true;
+    } catch (err) {
+      logger.warn(`[BasicAttachmentProvider] healthCheck failed — storage directory unreachable: ${this.storageDirectory}`, err);
+      return false;
+    }
+  }
+
+  /**
    * Format bytes to human-readable size
    * @param bytes - Size in bytes
    * @returns Formatted size

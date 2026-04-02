@@ -1,23 +1,19 @@
 /**
- * AssetService — unified search across AttachmentManager and MediaManager.
+ * AssetService — unified search facade over the AssetManager provider registry.
  *
- * Provides a single `search()` call that fans out to both asset stores and
- * returns a normalised `AssetPage` (results slice + total count).
- * Used by the editor picker and the `/api/assets/search` endpoint.
+ * Provides a single `search()` call that translates AssetSearchOptions (the
+ * service-level API used by routes and the editor picker) into an AssetManager
+ * query and returns the resulting AssetPage.
  *
- * Results are returned as `AssetRecord` (schema.org-aligned fields).
- * Both stores hold their working sets in memory so fetching all matches then
- * slicing for pagination is fast and accurate.
- *
- * Access control: MediaManager.search() accepts a WikiContext for private-page
- * filtering. Attachments have no per-item privacy model today — all are returned
- * for authenticated users.
+ * AssetManager owns all fan-out, sorting, pagination, and health-check logic.
+ * AssetService is a thin translation layer so callers are insulated from the
+ * provider registry details.
  */
 
 import BaseManager from './BaseManager';
 import type { WikiEngine } from '../types/WikiEngine';
 import WikiContext from '../context/WikiContext';
-import type { AssetRecord, AssetPage } from '../types/Asset';
+import type { AssetPage } from '../types/Asset';
 import logger from '../utils/logger';
 
 /**
@@ -48,17 +44,19 @@ export interface AssetSearchOptions {
 }
 
 // ---------------------------------------------------------------------------
-// Deprecated aliases — kept so existing imports compile during the transition
-// to AssetRecord / AssetPage. Will be removed in a future cleanup.
+// Deprecated aliases — kept so existing imports compile.
+// Use AssetRecord / AssetPage from src/types/Asset.ts directly.
 // ---------------------------------------------------------------------------
 
 /** @deprecated Use AssetRecord from src/types/Asset.ts */
-export type AssetSearchResult = AssetRecord;
+export type AssetSearchResult = import('../types/Asset').AssetRecord;
 
 /** @deprecated Use AssetPage from src/types/Asset.ts */
 export type AssetSearchPage = AssetPage;
 
 // ---------------------------------------------------------------------------
+
+type AssetManagerLike = { search(q: object): Promise<AssetPage> };
 
 class AssetService extends BaseManager {
   constructor(engine: WikiEngine) {
@@ -68,206 +66,32 @@ class AssetService extends BaseManager {
   /**
    * Search across all registered asset providers with pagination.
    *
-   * Delegates to AssetManager when available (preferred path).  Falls back to
-   * the legacy hardcoded fan-out so the service remains functional even if
-   * AssetManager is not yet initialized (e.g. during early startup tests).
+   * Translates AssetSearchOptions into an AssetManager query:
+   *   - types=['attachment'] → providerId='local'
+   *   - types=['media']      → providerId='media-library'
+   *   - types omitted/both   → no providerId (search all providers)
+   *
+   * All sorting, pagination, fan-out, and health-check logic lives in
+   * AssetManager.  AssetService is a pure translation layer.
    */
   async search(options: AssetSearchOptions = {}): Promise<AssetPage> {
     const { query = '', types, year, pageSize = 48, offset = 0, sort = 'date', order = 'asc', mimeCategory, wikiContext } = options;
 
-    // --- Preferred path: delegate to AssetManager registry ---
-    type AssetManagerLike = { search(q: object): Promise<AssetPage> };
     const assetManager = this.engine.getManager<AssetManagerLike>('AssetManager');
-    if (assetManager) {
-      // Map AssetSearchOptions types filter to provider IDs
-      let providerId: string | undefined;
-      if (types?.length === 1) {
-        providerId = types[0] === 'attachment' ? 'local' : 'media-library';
-      }
-      return assetManager.search({ query, year, mimeCategory, pageSize, offset, sort, order, ...(providerId ? { providerId } : {}), wikiContext });
+    if (!assetManager) {
+      logger.error('[AssetService] AssetManager is not registered — cannot search assets');
+      return { results: [], total: 0, hasMore: false };
     }
 
-    // --- Legacy fallback (no AssetManager) ---
-    logger.warn('[AssetService] AssetManager not available — using legacy fan-out');
-    const includeAttachments = !types || types.includes('attachment');
-    const includeMedia = !types || types.includes('media');
-
-    const all: AssetRecord[] = [];
-
-    if (includeAttachments) {
-      try {
-        all.push(...await this._searchAttachments(query));
-      } catch (err) {
-        logger.warn('[AssetService] Attachment search failed:', err);
-      }
+    let providerId: string | undefined;
+    if (types?.length === 1) {
+      providerId = types[0] === 'attachment' ? 'local' : 'media-library';
     }
 
-    if (includeMedia) {
-      try {
-        all.push(...await this._searchMedia(query, year, wikiContext));
-      } catch (err) {
-        logger.warn('[AssetService] Media search failed:', err);
-      }
-    }
-
-    const filtered = mimeCategory ? all.filter(r => this._matchesMimeCategory(r.encodingFormat, mimeCategory)) : all;
-    this._sortResults(filtered, sort, order);
-    const total = filtered.length;
-    const results = filtered.slice(offset, offset + pageSize);
-    return { results, total, hasMore: offset + results.length < total };
-  }
-
-  private _matchesMimeCategory(encodingFormat: string, category: 'image' | 'document' | 'other'): boolean {
-    const m = encodingFormat || '';
-    const isImage = m.startsWith('image/');
-    const isDocument = m.includes('pdf') || m.includes('document') ||
-      m.includes('spreadsheet') || m.startsWith('text/');
-    if (category === 'image') return isImage;
-    if (category === 'document') return isDocument;
-    return !isImage && !isDocument;
-  }
-
-  private _sortResults(items: AssetRecord[], sort: 'date' | 'caption', order: 'asc' | 'desc'): void {
-    const asc = order === 'asc';
-    items.sort((a, b) => {
-      let cmp = 0;
-      if (sort === 'caption') {
-        const getCaption = (r: AssetRecord) =>
-          (r.description ?? r.filename ?? '').toLowerCase();
-        cmp = getCaption(a).localeCompare(getCaption(b));
-      } else {
-        const getDate = (r: AssetRecord): number => {
-          if (r.dateCreated) {
-            const d = new Date(r.dateCreated);
-            if (!isNaN(d.getTime())) return d.getTime();
-          }
-          return 0;
-        };
-        cmp = getDate(a) - getDate(b);
-      }
-      return asc ? cmp : -cmp;
-    });
-  }
-
-  private async _searchAttachments(query: string): Promise<AssetRecord[]> {
-    type AttachmentManagerLike = {
-      getAllAttachments(): Promise<Array<{
-        id: string;
-        filename: string;
-        mimeType?: string;
-        description?: string;
-        uploadedAt?: string;
-        uploadedBy?: string;
-      }>>;
-    };
-    const attachmentManager = this.engine.getManager<AttachmentManagerLike>('AttachmentManager');
-
-    if (!attachmentManager) return [];
-
-    const all = await attachmentManager.getAllAttachments();
-    const q = query.toLowerCase();
-
-    return all
-      .filter(a => !q ||
-        (a.filename || '').toLowerCase().includes(q) ||
-        (a.description || '').toLowerCase().includes(q))
-      .map(a => {
-        const filename = a.filename || a.id;
-        const encodingFormat = a.mimeType || '';
-        return {
-          id: a.id,
-          providerId: 'local',
-          filename,
-          encodingFormat,
-          url: `/attachments/${a.id}`,
-          dateCreated: a.uploadedAt,
-          author: a.uploadedBy,
-          description: a.description || undefined,
-          keywords: [],
-          mentions: [],
-          metadata: {},
-          insertSnippet: encodingFormat.startsWith('image/')
-            ? `[{Image src='${filename}'}]`
-            : `[{ATTACH src='${filename}'}]`
-        };
-      });
-  }
-
-  private async _searchMedia(
-    query: string,
-    year: number | undefined,
-    wikiContext?: WikiContext
-  ): Promise<AssetRecord[]> {
-    type MediaManagerLike = {
-      search(q: string, ctx?: WikiContext): Promise<Array<{
-        id: string;
-        filename: string;
-        mimeType: string;
-        year?: number;
-        linkedPageName?: string;
-        isPrivate?: boolean;
-        metadata?: Record<string, unknown>;
-      }>>;
-      listByYear(y: number, ctx?: WikiContext): Promise<Array<{
-        id: string;
-        filename: string;
-        mimeType: string;
-        year?: number;
-        linkedPageName?: string;
-        isPrivate?: boolean;
-        metadata?: Record<string, unknown>;
-      }>>;
-    };
-    const mediaManager = this.engine.getManager<MediaManagerLike>('MediaManager');
-
-    if (!mediaManager) return [];
-
-    let items: Array<{
-      id: string;
-      filename: string;
-      mimeType: string;
-      year?: number;
-      linkedPageName?: string;
-      isPrivate?: boolean;
-      metadata?: Record<string, unknown>;
-    }>;
-
-    if (year && !query) {
-      items = await mediaManager.listByYear(year, wikiContext);
-    } else {
-      items = await mediaManager.search(query, wikiContext);
-      if (year) {
-        items = items.filter(i => i.year === year);
-      }
-    }
-
-    return items.map(item => {
-      const m = item.metadata ?? {};
-      const description = typeof m['caption'] === 'string' && m['caption']
-        ? m['caption']
-        : (typeof m['imageDescription'] === 'string' && m['imageDescription'] ? m['imageDescription'] : undefined);
-      const dateCreated = typeof m['dateTimeOriginal'] === 'string' ? m['dateTimeOriginal'] : undefined;
-      const rawKeywords = m['keywords'];
-      const keywords: string[] = Array.isArray(rawKeywords)
-        ? (rawKeywords as unknown[]).filter((k): k is string => typeof k === 'string')
-        : typeof rawKeywords === 'string' && rawKeywords ? [rawKeywords] : [];
-      return {
-        id: item.id,
-        providerId: 'media-library',
-        filename: item.filename,
-        encodingFormat: item.mimeType,
-        url: `/media/file/${item.id}`,
-        thumbnailUrl: `/media/thumb/${item.id}?size=150x150`,
-        dateCreated,
-        description,
-        keywords,
-        mentions: item.linkedPageName ? [item.linkedPageName] : [],
-        isPrivate: item.isPrivate,
-        metadata: item.metadata ?? {},
-        insertSnippet: item.mimeType.startsWith('image/')
-          ? `[{Image src='media://${item.filename}'}]`
-          : `[{ATTACH src='media://${item.filename}'}]`
-      };
+    return assetManager.search({
+      query, year, mimeCategory, pageSize, offset, sort, order,
+      ...(providerId ? { providerId } : {}),
+      wikiContext
     });
   }
 }
