@@ -1601,6 +1601,9 @@ class WikiRoutes {
       // Sync attachment mentions for any references in the new page content. #405 Phase 4
       const _am1 = this.engine.getManager('AttachmentManager');
       if (_am1?.syncPageMentions) _am1.syncPageMentions(pageName, content).catch(() => {});
+      // Sync pageAssets reverse index. #438
+      const _asm1 = this.engine.getManager('AssetManager');
+      if (_asm1?.syncPageAssets) _asm1.syncPageAssets(pageName, content).catch(() => {});
 
       // Use incremental updates instead of full rebuilds for performance (#245)
       const renderingManager = this.engine.getManager('RenderingManager');
@@ -1941,6 +1944,9 @@ class WikiRoutes {
       // Sync attachment mentions for any references in the new page content. #405 Phase 4
       const _am2 = this.engine.getManager('AttachmentManager');
       if (_am2?.syncPageMentions) _am2.syncPageMentions(pageName, finalContent).catch(() => {});
+      // Sync pageAssets reverse index. #438
+      const _asm2 = this.engine.getManager('AssetManager');
+      if (_asm2?.syncPageAssets) _asm2.syncPageAssets(pageName, finalContent).catch(() => {});
 
       // Use incremental updates instead of full rebuilds for performance (#245)
       const renderingManager = this.engine.getManager('RenderingManager');
@@ -2154,6 +2160,11 @@ class WikiRoutes {
       const attachmentManager = this.engine.getManager('AttachmentManager');
       if (attachmentManager?.syncPageMentions) {
         attachmentManager.syncPageMentions(pageName, content).catch(() => {});
+      }
+      // Sync pageAssets reverse index. #438
+      const assetManager = this.engine.getManager('AssetManager');
+      if (assetManager?.syncPageAssets) {
+        assetManager.syncPageAssets(pageName, content).catch(() => {});
       }
 
       // Use incremental updates instead of full rebuilds for performance

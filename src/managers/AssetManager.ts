@@ -13,9 +13,12 @@
  * modification.
  */
 
+import fs from 'fs-extra';
+import path from 'path';
 import BaseManager from './BaseManager';
 import type { WikiEngine } from '../types/WikiEngine';
 import type { AssetProvider, AssetRecord, AssetPage, AssetQuery, ProviderHealthStatus, ProviderHealthReport } from '../types/Asset';
+import type ConfigurationManager from './ConfigurationManager';
 import logger from '../utils/logger';
 
 class AssetManager extends BaseManager {
@@ -24,6 +27,17 @@ class AssetManager extends BaseManager {
   private registry: Map<string, AssetProvider> = new Map();
   /** Last known health status for each provider, keyed by provider.id */
   private healthMap: Map<string, { status: ProviderHealthStatus; checkedAt: string; error?: string }> = new Map();
+
+  // ---------------------------------------------------------------------------
+  // pageAssets reverse index — slug → Set<"providerId:assetId">
+  // ---------------------------------------------------------------------------
+
+  /** In-memory reverse index: page slug → set of composite asset keys */
+  private pageAssetsMap: Map<string, Set<string>> = new Map();
+  /** Absolute path to page-assets-index.json, set during initialize() */
+  private pageAssetsIndexPath: string | null = null;
+  /** Serialized write queue — prevents concurrent JSON saves from conflicting */
+  private pageAssetsWriteQueue: Promise<void> = Promise.resolve();
 
   constructor(engine: WikiEngine) {
     super(engine);
@@ -55,6 +69,16 @@ class AssetManager extends BaseManager {
     // Run an initial health check so degraded storage (e.g. unmounted NAS/SMB
     // volumes) is detected at startup rather than on the first user request.
     await this.checkProviderHealth();
+
+    // Resolve page-assets index path and load persisted data.
+    const configManager = this.engine.getManager<ConfigurationManager>('ConfigurationManager');
+    if (configManager) {
+      this.pageAssetsIndexPath = configManager.getResolvedDataPath(
+        'ngdpbase.asset.page-assets-index',
+        './data/page-assets-index.json'
+      );
+      await this._loadPageAssetsIndex();
+    }
   }
 
   // ---------------------------------------------------------------------------
@@ -131,6 +155,150 @@ class AssetManager extends BaseManager {
         checkedAt: entry?.checkedAt,
         error: entry?.error
       };
+    });
+  }
+
+  // ---------------------------------------------------------------------------
+  // pageAssets reverse index — public API
+  // ---------------------------------------------------------------------------
+
+  /**
+   * Scan wiki markup content for asset references and update the reverse index
+   * for the given page.  Call this fire-and-forget at page-save time.
+   *
+   * Handles two reference formats:
+   *   [{Image src='filename.jpg'}]    → local attachment  → "local:<id>"
+   *   [{ATTACH src='filename.pdf'}]   → local attachment  → "local:<id>"
+   *   [{Image src='media://img.jpg'}] → media library     → "media-library:<id>"
+   *
+   * Runs all provider lookups concurrently; unresolvable filenames are silently
+   * skipped so a missing asset never blocks the page save.
+   */
+  async syncPageAssets(pageName: string, content: string): Promise<void> {
+    const srcPattern = /\[\{(?:Image|ATTACH)\s[^}]*?src='([^']+)'/gi;
+    const composites = new Set<string>();
+    let m: RegExpExecArray | null;
+
+    type AttachmentManagerLike = { getAttachmentByFilename(f: string): Promise<{ id?: string; identifier?: string } | null> };
+    type MediaManagerLike = { findByFilename(f: string): Promise<{ id: string } | null> };
+
+    const attachmentManager = this.engine.getManager<AttachmentManagerLike>('AttachmentManager');
+    const mediaManager = this.engine.getManager<MediaManagerLike>('MediaManager');
+
+    const tasks: Promise<void>[] = [];
+
+    while ((m = srcPattern.exec(content)) !== null) {
+      const src = m[1];
+      if (src.startsWith('http://') || src.startsWith('https://') || src.startsWith('/')) continue;
+
+      if (src.startsWith('media://')) {
+        const filename = src.slice('media://'.length);
+        tasks.push(
+          (async () => {
+            try {
+              const item = await mediaManager?.findByFilename(filename);
+              if (item?.id) composites.add(`media-library:${item.id}`);
+            } catch { /* unresolvable — skip */ }
+          })()
+        );
+      } else {
+        tasks.push(
+          (async () => {
+            try {
+              const att = await attachmentManager?.getAttachmentByFilename(src);
+              const id = att?.id ?? att?.identifier;
+              if (id) composites.add(`local:${id}`);
+            } catch { /* unresolvable — skip */ }
+          })()
+        );
+      }
+    }
+
+    await Promise.all(tasks);
+
+    this.pageAssetsMap.set(pageName, composites);
+    this._savePageAssetsIndex();
+  }
+
+  /**
+   * Return all AssetRecords referenced by the given page slug.
+   *
+   * O(1) index lookup + one getById() call per referenced asset.
+   * Stale entries (asset deleted or provider removed) are silently filtered out.
+   */
+  async getAssetsForPage(slug: string): Promise<AssetRecord[]> {
+    const composites = this.pageAssetsMap.get(slug);
+    if (!composites || composites.size === 0) return [];
+
+    const results = await Promise.all(
+      [...composites].map(async composite => {
+        const colon = composite.indexOf(':');
+        if (colon < 1) return null;
+        const providerId = composite.slice(0, colon);
+        const assetId = composite.slice(colon + 1);
+        try {
+          return await this.getById(assetId, providerId);
+        } catch {
+          return null;
+        }
+      })
+    );
+
+    return results.filter((r): r is AssetRecord => r !== null);
+  }
+
+  /**
+   * Remove a page's entry from the reverse index.
+   * Call this when a page is deleted or renamed.
+   */
+  removePageAssets(slug: string): void {
+    if (!this.pageAssetsMap.has(slug)) return;
+    this.pageAssetsMap.delete(slug);
+    this._savePageAssetsIndex();
+  }
+
+  // ---------------------------------------------------------------------------
+  // pageAssets reverse index — persistence
+  // ---------------------------------------------------------------------------
+
+  private async _loadPageAssetsIndex(): Promise<void> {
+    if (!this.pageAssetsIndexPath) return;
+    try {
+      if (!await fs.pathExists(this.pageAssetsIndexPath)) return;
+      const raw = await fs.readJson(this.pageAssetsIndexPath) as Record<string, string[]>;
+      for (const [slug, ids] of Object.entries(raw)) {
+        this.pageAssetsMap.set(slug, new Set(ids));
+      }
+      logger.info(`[AssetManager] Loaded page-assets index — ${this.pageAssetsMap.size} pages`);
+    } catch (err) {
+      logger.warn('[AssetManager] Could not load page-assets-index.json — starting empty:', err);
+    }
+  }
+
+  /**
+   * Queue an atomic write of the page-assets index.
+   * Uses the same promise-chain pattern as VersioningFileProvider.savePageIndex()
+   * to prevent race conditions from concurrent page saves.
+   */
+  private _savePageAssetsIndex(): void {
+    if (!this.pageAssetsIndexPath) return;
+
+    const indexPath = this.pageAssetsIndexPath;
+    const data = JSON.stringify(
+      Object.fromEntries([...this.pageAssetsMap].map(([k, v]) => [k, [...v]])),
+      null, 2
+    );
+
+    this.pageAssetsWriteQueue = this.pageAssetsWriteQueue.then(async () => {
+      const tmpPath = `${indexPath}.tmp.${process.pid}.${Date.now()}`;
+      try {
+        await fs.ensureDir(path.dirname(indexPath));
+        await fs.writeFile(tmpPath, data, 'utf8');
+        await fs.rename(tmpPath, indexPath);
+      } catch (err) {
+        try { await fs.unlink(tmpPath); } catch { /* ignore */ }
+        logger.warn('[AssetManager] Failed to save page-assets-index.json:', err);
+      }
     });
   }
 
@@ -232,10 +400,10 @@ class AssetManager extends BaseManager {
     items.sort((a, b) => {
       let cmp = 0;
       if (sort === 'caption') {
-        const cap = (r: AssetRecord) => (r.description ?? r.filename ?? '').toLowerCase();
+        const cap = (r: AssetRecord): string => (r.description ?? r.filename ?? '').toLowerCase();
         cmp = cap(a).localeCompare(cap(b));
       } else {
-        const ts = (r: AssetRecord) => (r.dateCreated ? new Date(r.dateCreated).getTime() : 0);
+        const ts = (r: AssetRecord): number => (r.dateCreated ? new Date(r.dateCreated).getTime() : 0);
         cmp = ts(a) - ts(b);
       }
       return asc ? cmp : -cmp;
