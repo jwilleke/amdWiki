@@ -22,6 +22,29 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - [file2.md]
 ```
 
+## 2026-04-02-03
+
+- Agent: Claude Code (Sonnet 4.6)
+- Subject: pageAssets reverse index (#438); SEMVER patch bump 3.0.13
+- Key Decision: Composite key format `"providerId:assetId"` (colon-delimited) allows routing `getById()` to the correct provider without a full fan-out scan. `removePageAssets()` made synchronous (no `await`) since it only deletes from the in-memory map then queues a background write — no I/O on the hot path. Index stored in `FAST_STORAGE` alongside `page-index.json` and uses the same atomic `tmp→rename` + promise-chain queue pattern from VersioningFileProvider. ConfigurationManager returns null in unit tests (no real disk I/O).
+- Current Issue: #438 (closed)
+- Testing:
+  - npm test: 96 suites passed, 2482 tests passed, 11 skipped
+- Work Done:
+  - `AssetManager.syncPageAssets()` — content scan resolves both local attachment refs and `media://` URIs to composite keys; all lookups concurrent; unresolvable filenames silently skipped
+  - `AssetManager.getAssetsForPage()` — O(1) reverse index lookup + `getById()` per key; stale entries filtered
+  - `AssetManager.removePageAssets()` — synchronous removal, queued write
+  - `_loadPageAssetsIndex()` / `_savePageAssetsIndex()` — atomic write queue, persisted to `FAST_STORAGE/page-assets-index.json`
+  - `WikiRoutes.ts` — wired `syncPageAssets()` fire-and-forget at all 3 page-save points alongside `syncPageMentions()`
+  - 17 new unit tests (63 total in AssetManager.test.js)
+  - Version bump 3.0.12 → 3.0.13
+- Commits: 21e0b90a (feature), version bump commit
+- Files Modified:
+  - `src/managers/AssetManager.ts`
+  - `src/managers/__tests__/AssetManager.test.js`
+  - `src/routes/WikiRoutes.ts`
+  - `package.json`, `config/app-default-config.json`, `CHANGELOG.md`
+
 ## 2026-04-02-02
 
 - Agent: Claude Code (Sonnet 4.6)
