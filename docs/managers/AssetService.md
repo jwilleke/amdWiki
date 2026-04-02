@@ -135,3 +135,4 @@ Attachment thumbnails are loaded from the attachment URL directly; media thumbna
 - [AttachmentManager](AttachmentManager.md) — attachment store
 - [MediaManager](MediaManager.md) — media library, `findByFilename()`, `media://` URI
 - [AttachmentManager.md — Attachment Resolution Order](AttachmentManager.md#attachment-resolution-order) — step 0 (`media://`)
+- [AssetProvider Implementation Guide](../providers/AssetProvider-Guide.md) — build a custom asset backend or plugin-contributed provider
