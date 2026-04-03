@@ -5,7 +5,7 @@
 
   "_example_overrides": {
     "_comment_branding": "Customize application branding",
-    "ngdpbase.applicationName": "My Wiki",
+    "ngdpbase.application-name": "My Wiki",
     "ngdpbase.faviconPath": "/favicon.svg",
 
     "_comment_server": "Server configuration",
