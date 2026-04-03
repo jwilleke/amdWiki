@@ -1,52 +1,72 @@
 /* =============================================================
    Fairways Theme — CSS Custom Properties
-   Inspired by The Fairways Condominiums (Mount Vernon, Ohio).
-   Palette: golf-course greens, cream backgrounds, warm accents.
+   Palette derived from fairwayscondos.org Wix color variables (temp.css).
+   Primary: warm cream (#f3f2dc) background, slate blue (#5c739d) accents,
+   light navbar with gray pill nav items. Logo text brown (#6c3c17) is
+   decorative only — NOT a background color.
+   Fonts: Enriqueta (headings), Open Sans (body) — loaded via theme.json.
    Structural/layout CSS lives in themes/core.css.
    ============================================================= */
+
+/*
+  Wix source palette (temp.css):
+  color_11: 243,242,220 → #f3f2dc  body bg (cream)
+  color_12: 194,194,176 → #c2c2b0  secondary bg / nav pill buttons
+  color_13: 146,145,132 → #929184  muted text / borders
+  color_14:  97, 97, 88 → #616158  secondary text
+  color_15:  49, 48, 44 → #31302c  primary text (near-black warm)
+  color_16: 192,203,222 → #c0cbde  light slate blue
+  color_17: 150,164,190 → #96a4be  medium slate blue
+  color_18:  92,115,157 → #5c739d  action / accent / button bg
+  color_19:  61, 77,105 → #3d4d69  dark slate blue / links
+  color_20:  31, 38, 52 → #1f2634  darkest (dark mode bg)
+  color_6/7/10: 108,60,23 → #6c3c17  logo text brown (decorative only)
+*/
 
 /* Light mode (default) */
 :root {
   /* Bootstrap 5 native variables */
-  --bs-body-bg:                   #f8fef5;
-  --bs-body-color:                #1c2b18;
-  --bs-secondary-bg:              #eef6ea;
-  --bs-tertiary-bg:               #dcefd6;
-  --bs-secondary-color:           #4a6644;
-  --bs-tertiary-color:            #7a9e72;
-  --bs-emphasis-color:            #0d1a0a;
-  --bs-heading-color:             #1a3316;
-  --bs-link-color:                #2d6a22;
-  --bs-link-hover-color:          #1f4d18;
-  --bs-border-color:              #c4dbbf;
+  --bs-body-bg:                   #f3f2dc;
+  --bs-body-color:                #31302c;
+  --bs-secondary-bg:              #e5e4ce;
+  --bs-tertiary-bg:               #c2c2b0;
+  --bs-secondary-color:           #616158;
+  --bs-tertiary-color:            #929184;
+  --bs-emphasis-color:            #1f2634;
+  --bs-heading-color:             #31302c;
+  --bs-link-color:                #3d4d69;
+  --bs-link-hover-color:          #1f2634;
+  --bs-border-color:              #c2c2b0;
 
-  /* Semantic vars inherit from Bootstrap vars */
-  --bg-primary:        var(--bs-body-bg, #f8fef5);
-  --bg-secondary:      var(--bs-secondary-bg, #eef6ea);
-  --bg-tertiary:       var(--bs-tertiary-bg, #dcefd6);
-  --text-primary:      var(--bs-body-color, #1c2b18);
-  --text-secondary:    var(--bs-secondary-color, #4a6644);
-  --text-muted:        var(--bs-tertiary-color, #7a9e72);
-  --text-heading:      var(--bs-heading-color, #1a3316);
-  --text-content:      var(--bs-body-color, #1c2b18);
-  --border-color:      var(--bs-border-color, #c4dbbf);
-  --link-color:        var(--bs-link-color, #2d6a22);
-  --link-hover:        var(--bs-link-hover-color, #1f4d18);
-  --card-bg:           var(--bs-body-bg, #f8fef5);
-  --card-border:       var(--bs-border-color, #c4dbbf);
-  --input-bg:          #ffffff;
-  --code-bg:           var(--bs-tertiary-bg, #dcefd6);
+  /* Semantic vars */
+  --bg-primary:        var(--bs-body-bg, #f3f2dc);
+  --bg-secondary:      var(--bs-secondary-bg, #e5e4ce);
+  --bg-tertiary:       var(--bs-tertiary-bg, #c2c2b0);
+  --text-primary:      var(--bs-body-color, #31302c);
+  --text-secondary:    var(--bs-secondary-color, #616158);
+  --text-muted:        var(--bs-tertiary-color, #929184);
+  --text-heading:      var(--bs-heading-color, #31302c);
+  --text-content:      var(--bs-body-color, #31302c);
+  --border-color:      var(--bs-border-color, #c2c2b0);
+  --link-color:        var(--bs-link-color, #3d4d69);
+  --link-hover:        var(--bs-link-hover-color, #1f2634);
+  --card-bg:           #faf9ee;
+  --card-border:       var(--bs-border-color, #c2c2b0);
+  --input-bg:          #faf9ee;
+  --code-bg:           var(--bs-tertiary-bg, #c2c2b0);
 
-  /* Fairways-specific vars */
-  --border-color-strong: #8ab87e;
-  --navbar-bg:           #2d5a27;
-  --navbar-border:       #1e3f1b;
-  --navbar-text:         #f0faec;
-  --navbar-text-hover:   #a8e090;
-  --input-border:        #9ac48e;
-  --button-primary-bg:   #2d5a27;
-  --button-primary-hover: #1e3f1b;
-  --code-border:         #b8d8b0;
+  /* Fairways-specific vars
+     Navbar: light cream background matching the site header,
+     with dark warm text. Nav items styled via --button vars. */
+  --border-color-strong: #929184;
+  --navbar-bg:           #f3f2dc;
+  --navbar-border:       #c2c2b0;
+  --navbar-text:         #31302c;
+  --navbar-text-hover:   #5c739d;
+  --input-border:        #929184;
+  --button-primary-bg:   #5c739d;
+  --button-primary-hover: #3d4d69;
+  --code-border:         #c2c2b0;
 
   /* Alerts */
   --alert-success-bg:     #d4edda;
@@ -55,57 +75,57 @@
   --alert-danger-bg:      #f8d7da;
   --alert-danger-border:  #f5c2c7;
   --alert-danger-text:    #842029;
-  --alert-info-bg:        #d6eaf0;
-  --alert-info-border:    #b8d8e8;
-  --alert-info-text:      #0c5460;
+  --alert-info-bg:        #dce4f0;
+  --alert-info-border:    #bccde4;
+  --alert-info-text:      #3d4d69;
 
   /* Tables */
-  --table-stripe:     #e8f5e2;
-  --table-hover:      #d8edcf;
-  --zebra-row-even:   rgba(45, 90, 39, 0.06);
-  --zebra-row-odd:    rgba(45, 90, 39, 0);
-  --zebra-row-hover:  rgba(45, 90, 39, 0.14);
+  --table-stripe:     #ebe9d0;
+  --table-hover:      #dddbc2;
+  --zebra-row-even:   rgba(92, 115, 157, 0.06);
+  --zebra-row-odd:    rgba(92, 115, 157, 0);
+  --zebra-row-hover:  rgba(92, 115, 157, 0.14);
 }
 
 /* Dark mode */
 [data-bs-theme="dark"] {
-  --bs-body-bg:        #0d1a0a;
-  --bs-body-color:     #d4eece;
-  --bs-secondary-bg:   #131f10;
-  --bs-tertiary-bg:    #1b2e17;
-  --bs-secondary-color: #7aac6e;
-  --bs-tertiary-color: #4e7848;
-  --bs-emphasis-color: #e8f8e0;
-  --bs-heading-color:  #e8f8e0;
-  --bs-link-color:     #7ad460;
-  --bs-link-hover-color: #9ee084;
-  --bs-border-color:   #2a4a24;
+  --bs-body-bg:        #1f2634;
+  --bs-body-color:     #e8e6d0;
+  --bs-secondary-bg:   #282e3e;
+  --bs-tertiary-bg:    #333a4e;
+  --bs-secondary-color: #a0a898;
+  --bs-tertiary-color: #707868;
+  --bs-emphasis-color: #f3f2dc;
+  --bs-heading-color:  #f3f2dc;
+  --bs-link-color:     #96a4be;
+  --bs-link-hover-color: #c0cbde;
+  --bs-border-color:   #3a4258;
 
-  --bg-primary:        #0d1a0a;
-  --bg-secondary:      #131f10;
-  --bg-tertiary:       #1b2e17;
-  --text-primary:      #d4eece;
-  --text-secondary:    #7aac6e;
-  --text-muted:        #4e7848;
-  --text-heading:      #e8f8e0;
-  --text-content:      #d4eece;
-  --border-color:      #2a4a24;
-  --link-color:        #7ad460;
-  --link-hover:        #9ee084;
-  --card-bg:           #131f10;
-  --card-border:       #2a4a24;
-  --input-bg:          #0d1a0a;
-  --code-bg:           #1b2e17;
+  --bg-primary:        #1f2634;
+  --bg-secondary:      #282e3e;
+  --bg-tertiary:       #333a4e;
+  --text-primary:      #e8e6d0;
+  --text-secondary:    #a0a898;
+  --text-muted:        #707868;
+  --text-heading:      #f3f2dc;
+  --text-content:      #e8e6d0;
+  --border-color:      #3a4258;
+  --link-color:        #96a4be;
+  --link-hover:        #c0cbde;
+  --card-bg:           #282e3e;
+  --card-border:       #3a4258;
+  --input-bg:          #1f2634;
+  --code-bg:           #333a4e;
 
-  --border-color-strong: #3d6e34;
-  --navbar-bg:           #091406;
-  --navbar-border:       #1b2e17;
-  --navbar-text:         #d4eece;
-  --navbar-text-hover:   #9ee084;
-  --input-border:        #2a4a24;
-  --button-primary-bg:   #3a7a30;
-  --button-primary-hover: #4e9e42;
-  --code-border:         #1b2e17;
+  --border-color-strong: #5c6880;
+  --navbar-bg:           #282e3e;
+  --navbar-border:       #3a4258;
+  --navbar-text:         #e8e6d0;
+  --navbar-text-hover:   #96a4be;
+  --input-border:        #3a4258;
+  --button-primary-bg:   #5c739d;
+  --button-primary-hover: #96a4be;
+  --code-border:         #3a4258;
 
   --alert-success-bg:     #0d2e14;
   --alert-success-border: #1a5c26;
@@ -113,42 +133,42 @@
   --alert-danger-bg:      #2e0d0d;
   --alert-danger-border:  #5c1a1a;
   --alert-danger-text:    #f09090;
-  --alert-info-bg:        #0d1e2e;
-  --alert-info-border:    #1a3c5c;
-  --alert-info-text:      #7ab8e0;
+  --alert-info-bg:        #1c2438;
+  --alert-info-border:    #2e3e5c;
+  --alert-info-text:      #96a4be;
 
-  --table-stripe:    #131f10;
-  --table-hover:     #1b2e17;
-  --zebra-row-even:  rgba(122, 212, 96, 0.06);
-  --zebra-row-odd:   rgba(122, 212, 96, 0);
-  --zebra-row-hover: rgba(122, 212, 96, 0.14);
+  --table-stripe:    #252c3c;
+  --table-hover:     #2e3650;
+  --zebra-row-even:  rgba(150, 164, 190, 0.08);
+  --zebra-row-odd:   rgba(150, 164, 190, 0);
+  --zebra-row-hover: rgba(150, 164, 190, 0.16);
 }
 
 /* System dark mode */
 @media (prefers-color-scheme: dark) {
   :root:not([data-bs-theme]) {
-    --bs-body-bg:        #0d1a0a;
-    --bs-body-color:     #d4eece;
-    --bs-secondary-bg:   #131f10;
-    --bs-tertiary-bg:    #1b2e17;
-    --bs-secondary-color: #7aac6e;
-    --bs-tertiary-color: #4e7848;
-    --bs-border-color:   #2a4a24;
-    --bs-link-color:     #7ad460;
-    --bs-link-hover-color: #9ee084;
+    --bs-body-bg:        #1f2634;
+    --bs-body-color:     #e8e6d0;
+    --bs-secondary-bg:   #282e3e;
+    --bs-tertiary-bg:    #333a4e;
+    --bs-secondary-color: #a0a898;
+    --bs-tertiary-color: #707868;
+    --bs-border-color:   #3a4258;
+    --bs-link-color:     #96a4be;
+    --bs-link-hover-color: #c0cbde;
 
-    --border-color-strong: #3d6e34;
-    --navbar-bg:           #091406;
-    --navbar-border:       #1b2e17;
-    --navbar-text:         #d4eece;
-    --navbar-text-hover:   #9ee084;
-    --input-border:        #2a4a24;
-    --button-primary-bg:   #3a7a30;
-    --button-primary-hover: #4e9e42;
-    --table-stripe:    #131f10;
-    --table-hover:     #1b2e17;
-    --zebra-row-even:  rgba(122, 212, 96, 0.06);
-    --zebra-row-odd:   rgba(122, 212, 96, 0);
-    --zebra-row-hover: rgba(122, 212, 96, 0.14);
+    --border-color-strong: #5c6880;
+    --navbar-bg:           #282e3e;
+    --navbar-border:       #3a4258;
+    --navbar-text:         #e8e6d0;
+    --navbar-text-hover:   #96a4be;
+    --input-border:        #3a4258;
+    --button-primary-bg:   #5c739d;
+    --button-primary-hover: #96a4be;
+    --table-stripe:    #252c3c;
+    --table-hover:     #2e3650;
+    --zebra-row-even:  rgba(150, 164, 190, 0.08);
+    --zebra-row-odd:   rgba(150, 164, 190, 0);
+    --zebra-row-hover: rgba(150, 164, 190, 0.16);
   }
 }
