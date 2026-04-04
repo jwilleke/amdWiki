@@ -12246,6 +12246,49 @@ Subject: AGENTS.md implementation and project_log.md creation
 - Commits:
   - f462a29 - fix: preserve amdwiki-salt password hash value after rename
 
+## 2026-04-04-01
+
+- Agent: Claude Sonnet 4.6
+- Subject: Google OIDC auth, /admin/login route, fix test data isolation
+
+- Work Done:
+  - Implemented `GoogleOIDCProvider` (`src/providers/GoogleOIDCProvider.ts`) — OAuth2 authorization code flow via `google-auth-library` with state nonce CSRF guard and auto-provisioning
+  - Registered `google-oidc` provider in `AuthManager.initialize()` with per-user `allowedAuthMethods` check
+  - Added `/admin/login` emergency route in `WikiRoutes.ts` that always shows password form (bypasses Google OIDC)
+  - Added `/auth/oauth/google` (POST) and `/auth/oauth/google/callback` (GET) routes and handlers
+  - Restructured `views/login.ejs`: shows only Google button when OIDC enabled; password form otherwise
+  - Added `allowedAuthMethods?: string[]` field to `User` type
+  - Fixed `data/sessions` being deleted by unit tests: set `FAST_STORAGE=/tmp/ngdpbase-test-${JEST_WORKER_ID}` in `jest.setup.js` so tests never touch `./data/` directories
+  - Fixed `WikiEngine.test.js` and `policy-system.test.js` cleanup blocks to respect `FAST_STORAGE`
+  - Fixed `ConfigurationManager.test.js` to clear `FAST_STORAGE` in `beforeEach`
+  - Fixed E2E auth setup/tests to use `/admin/login`; fixed maintenance test to use `test.info().project.use.baseURL`
+  - Added `.env` loading to `app.js` for PORT discovery without `server.sh`
+  - All 95 unit test suites pass; 72/72 E2E tests pass
+
+- Files Modified:
+  - `src/providers/GoogleOIDCProvider.ts` (new)
+  - `src/managers/AuthManager.ts`
+  - `src/routes/WikiRoutes.ts`
+  - `src/types/User.ts`
+  - `views/login.ejs`
+  - `config/app-default-config.json`
+  - `jest.setup.js`
+  - `app.js`
+  - `src/__tests__/WikiEngine.test.js`
+  - `src/managers/__tests__/AuthManager.test.js`
+  - `src/managers/__tests__/ConfigurationManager.test.js`
+  - `src/managers/__tests__/policy-system.test.js`
+  - `tests/e2e/auth.setup.js`
+  - `tests/e2e/auth.spec.js`
+  - `tests/e2e/admin-maintenance.spec.js`
+  - `package.json` (added `google-auth-library`)
+
+- Issues Referenced:
+  - jwilleke/ngdpbase#447 — Google OIDC auth provider
+
+- Commits:
+  - 27456a61 — feat: add Google OIDC auth, /admin/login route, fix test data isolation
+
 ## 2026-03-22-07
 
 ### Rename ngdpbase to ngdpbase (#360)
