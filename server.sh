@@ -58,6 +58,68 @@ is_container() {
   return 1
 }
 
+# Check if dist/ is out of date relative to src/; prompt to build if so.
+# Pass "starting" as $1 when called from the start flow (server not yet up).
+check_build_needed() {
+  local context="${1:-}"   # "starting" = server not yet running
+
+  if [ ! -d "$SCRIPT_DIR/dist" ]; then
+    echo "❌ ERROR: dist/ not found. Run: npm run build"
+    exit 1
+  fi
+
+  # Find the most recently modified compiled JS in dist/
+  local NEWEST_DIST
+  NEWEST_DIST=$(find "$SCRIPT_DIR/dist" -name "*.js" -not -name "*.map" | xargs ls -t 2>/dev/null | head -1)
+
+  if [ -z "$NEWEST_DIST" ]; then
+    echo "⚠️  WARNING: No compiled JS found in dist/ — run: npm run build"
+    return
+  fi
+
+  # Check if any TS source is newer than the newest dist file
+  local STALE_SRC
+  STALE_SRC=$(find "$SCRIPT_DIR/src" -name "*.ts" -not -name "*.d.ts" -newer "$NEWEST_DIST" 2>/dev/null | head -5)
+
+  if [ -z "$STALE_SRC" ]; then
+    return   # dist is up to date
+  fi
+
+  echo "⚠️  Source files are newer than dist/ — rebuild needed:"
+  echo "$STALE_SRC" | while IFS= read -r f; do echo "     ${f#$SCRIPT_DIR/}"; done
+  echo ""
+
+  # Prompt user
+  printf "   Build now? [Y/n] "
+  read -r BUILD_ANSWER
+  case "${BUILD_ANSWER:-Y}" in
+    [Yy]*)
+      if [ "$context" != "starting" ]; then
+        # Server may be running — stop it first
+        echo "🛑 Stopping server before build..."
+        "$0" stop
+        sleep 1
+      fi
+      echo "🔨 Building..."
+      if npm run build; then
+        echo "✅ Build complete"
+        if [ "$context" != "starting" ]; then
+          echo "🚀 Restarting server..."
+          "$0" start
+          exit 0
+        fi
+      else
+        echo "❌ Build failed — fix errors before starting"
+        exit 1
+      fi
+      ;;
+    *)
+      echo "   Skipping build — starting with existing dist/"
+      ;;
+  esac
+  echo ""
+}
+
 # Function to kill all ngdpbase processes (nuclear option)
 # Key insight: DELETE from PM2 first to disable autorestart, THEN kill processes
 kill_all_ngdpbase() {
@@ -120,6 +182,9 @@ fi
 
 case "${1:-}" in
   start)
+    # STEP 0: Check if dist/ is stale and offer to build
+    check_build_needed "starting"
+
     # STEP 1: Ensure only one PM2 daemon is running
     ensure_single_pm2_daemon
 

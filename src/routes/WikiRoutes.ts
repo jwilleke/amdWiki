@@ -121,9 +121,26 @@ const imageUpload: Multer = multer({
 
 class WikiRoutes {
   private engine: WikiEngine;
+  /** Connected admin SSE clients — used to push real-time events to admin pages */
+  private sseAdminClients = new Set<Response>();
 
   constructor(engine: WikiEngine) {
     this.engine = engine;
+  }
+
+  /**
+   * Push a JSON event to all connected admin SSE clients.
+   * Automatically removes clients whose connections have closed.
+   */
+  private pushAdminEvent(event: string, data: Record<string, unknown>): void {
+    const payload = `event: ${event}\ndata: ${JSON.stringify(data)}\n\n`;
+    for (const client of this.sseAdminClients) {
+      try {
+        client.write(payload);
+      } catch {
+        this.sseAdminClients.delete(client);
+      }
+    }
   }
 
   /**
@@ -2156,6 +2173,31 @@ class WikiRoutes {
 
       // Save the page using WikiContext (author is automatically extracted from context)
       await pageManager.savePageWithContext(wikiContext, metadata);
+
+      // Notify admins when a required page is edited in the wiki UI
+      if (storageLocation === 'required') {
+        const pageTitle = (metadata.title as string) || pageName;
+        const editor = currentUser?.username || 'unknown';
+        try {
+          const notificationManager = this.engine.getManager('NotificationManager');
+          if (notificationManager?.createNotification) {
+            await notificationManager.createNotification({
+              type: 'system',
+              level: 'warning',
+              title: 'Required page edited in wiki UI',
+              message: `"${pageTitle}" was edited by ${editor}. Visit <a href="/admin/required-pages">Required Pages Sync</a> to review.`
+            });
+          }
+        } catch {
+          // non-fatal — save already succeeded
+        }
+        // Push real-time SSE event to connected admin clients
+        this.pushAdminEvent('required-page-modified', {
+          title: pageTitle,
+          editor,
+          url: '/admin/required-pages'
+        });
+      }
 
       // Sync attachment mentions — fire-and-forget so a metadata write failure never blocks save.
       // Replaces the per-render lazy attachToPage() with a deterministic save-time scan. #405 Phase 4
@@ -5223,6 +5265,44 @@ class WikiRoutes {
   }
 
   /**
+   * SSE endpoint for admin real-time events (e.g. required-page-modified).
+   * Keeps the connection open and pushes events via pushAdminEvent().
+   * Only accessible to authenticated admins.
+   */
+  adminEvents(req: Request, res: Response): void {
+    const currentUser = req.userContext;
+    const userManager = this.engine.getManager('UserManager');
+
+    // Auth check — must be a logged-in admin. Fire-and-forget async check then stream.
+    void (async () => {
+      if (!currentUser || !(await userManager.hasPermission(currentUser.username, 'admin:system'))) {
+        res.status(403).end();
+        return;
+      }
+
+      res.setHeader('Content-Type', 'text/event-stream');
+      res.setHeader('Cache-Control', 'no-cache');
+      res.setHeader('Connection', 'keep-alive');
+      res.flushHeaders();
+
+      // Send an initial heartbeat so the client knows it's connected
+      res.write(': connected\n\n');
+
+      this.sseAdminClients.add(res);
+
+      // Keep alive every 30s (prevents proxy timeouts)
+      const keepAlive = setInterval(() => {
+        try { res.write(': ping\n\n'); } catch { clearInterval(keepAlive); }
+      }, 30_000);
+
+      req.on('close', () => {
+        clearInterval(keepAlive);
+        this.sseAdminClients.delete(res);
+      });
+    })();
+  }
+
+  /**
    * Admin required-pages sync — compare required-pages/ source against live data/pages/
    */
   async adminRequiredPages(req: Request, res: Response) {
@@ -5428,11 +5508,13 @@ class WikiRoutes {
 
       const body = req.body as {
         uuids?: string[];
+        force?: boolean;
         reconcile?: { sourceUuid: string; liveUuid: string }[];
         adoptUuid?: { sourceUuid: string; liveUuid: string }[];
         pushToSource?: string[];
       };
       const uuids = Array.isArray(body.uuids) ? body.uuids : [];
+      const forceSync = body.force === true;
       const reconcileItems = Array.isArray(body.reconcile) ? body.reconcile : [];
       const adoptItems = Array.isArray(body.adoptUuid) ? body.adoptUuid : [];
       const pushToSourceUuids = Array.isArray(body.pushToSource) ? body.pushToSource : [];
@@ -5444,6 +5526,7 @@ class WikiRoutes {
       await fse.ensureDir(pagesDirResolved);
 
       const synced: string[] = [];
+      const protected_: string[] = [];
 
       /**
        * Write source content to dest, stripping user-modified so a synced page
@@ -5457,13 +5540,23 @@ class WikiRoutes {
         await fse.writeFile(dstPath, cleaned, 'utf8');
       };
 
-      // Normal sync: copy source UUID file to pages dir (stripping user-modified)
+      // Normal sync: copy source UUID file to pages dir (stripping user-modified).
+      // Pages with user-modified: true were edited in the wiki UI and are protected —
+      // skip them and return them in the protected list so the caller can inform the user.
       for (const uuid of uuids) {
         const fileName = `${uuid}.md`;
         const sourcePath = path.join(requiredDirResolved, fileName);
         const destPath = path.join(pagesDirResolved, fileName);
 
         if (await fse.pathExists(sourcePath)) {
+          if (!forceSync && await fse.pathExists(destPath)) {
+            const liveRaw: string = await fse.readFile(destPath, 'utf8');
+            const liveParsed = matter(liveRaw) as { data: Record<string, unknown> };
+            if (liveParsed.data['user-modified'] === true) {
+              protected_.push(uuid);
+              continue;
+            }
+          }
           await syncFile(sourcePath, destPath);
           synced.push(uuid);
         }
@@ -5572,14 +5665,19 @@ class WikiRoutes {
       });
 
       logger.info(
-        `Required pages sync: ${synced.length} pages synced by ${currentUser.username}`
+        `Required pages sync: ${synced.length} synced, ${protected_.length} protected (user-modified) by ${currentUser.username}`
       );
+
+      const parts: string[] = [];
+      if (synced.length > 0) parts.push(`${synced.length} page${synced.length !== 1 ? 's' : ''} synced`);
+      if (protected_.length > 0) parts.push(`${protected_.length} skipped (user-edited — use Push to Source or diff first)`);
 
       return res.json({
         success: true,
-        message: `${synced.length} page${synced.length !== 1 ? 's' : ''} synced successfully`,
+        message: parts.join('; ') || 'Nothing to sync',
         synced: synced.length,
-        uuids: synced
+        uuids: synced,
+        protected: protected_
       });
     } catch (err: unknown) {
       logger.error('Error syncing required pages:', err);
@@ -6940,6 +7038,7 @@ class WikiRoutes {
     app.post('/admin/addons/:name/toggle', (req: Request, res: Response) => void this.adminAddonToggle(req, res));
     app.post('/admin/restart', (req: Request, res: Response) => this.adminRestart(req, res));
     app.post('/admin/reindex', (req: Request, res: Response) => this.adminReindex(req, res));
+    app.get('/admin/events', (req: Request, res: Response) => this.adminEvents(req, res));
     app.get('/admin/required-pages', (req: Request, res: Response) =>
       this.adminRequiredPages(req, res)
     );

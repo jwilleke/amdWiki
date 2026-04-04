@@ -167,7 +167,7 @@
                             </thead>
                             <tbody>
                                 <% comparison.forEach(page => { %>
-                                <tr data-uuid="<%= page.uuid %>" data-status="<%= page.status %>" data-live-uuid="<%= page.liveUuid || '' %>">
+                                <tr data-uuid="<%= page.uuid %>" data-status="<%= page.status %>" data-live-uuid="<%= page.liveUuid || '' %>" data-user-modified="<%= page.userModified ? 'true' : 'false' %>">
                                     <td>
                                         <% if (page.status !== 'current') { %>
                                         <input type="checkbox" class="page-checkbox" value="<%= page.uuid %>">
@@ -242,10 +242,18 @@
                                         </button>
                                         <% } %>
                                         <% if (page.status !== 'current' && page.status !== 'uuid-mismatch') { %>
+                                        <% if (page.userModified) { %>
+                                        <button class="btn btn-sm btn-outline-danger"
+                                                onclick="syncOne('<%= page.uuid %>', '<%= page.title.replace(/'/g, '\\\'') %>', true)"
+                                                title="This page was edited in the wiki UI. Syncing will overwrite those edits with the source version.">
+                                            <i class="fas fa-sync-alt"></i> Force Sync
+                                        </button>
+                                        <% } else { %>
                                         <button class="btn btn-sm btn-outline-primary"
                                                 onclick="syncOne('<%= page.uuid %>', '<%= page.title.replace(/'/g, '\\\'') %>')">
                                             <i class="fas fa-sync-alt"></i> Sync
                                         </button>
+                                        <% } %>
                                         <% } %>
                                         <% if (page.userModified || page.titleDrift) { %>
                                         <button class="btn btn-sm btn-outline-warning"
@@ -393,6 +401,8 @@ function getUuidsByStatus(status) {
     document.querySelectorAll('tr[data-status]').forEach(row => {
         if (status === 'outdated') {
             if (row.dataset.status === 'new' || row.dataset.status === 'modified') {
+                // Skip user-edited pages — they are protected from bulk sync
+                if (row.dataset.userModified === 'true') return;
                 uuids.push(row.dataset.uuid);
             }
         } else if (row.dataset.status === status) {
@@ -406,8 +416,8 @@ function getSelectedUuids() {
     return Array.from(document.querySelectorAll('.page-checkbox:checked')).map(cb => cb.value);
 }
 
-async function syncOne(uuid, title) {
-    await doSync([uuid], `Syncing "${title}"…`);
+async function syncOne(uuid, title, force = false) {
+    await doSync([uuid], `Syncing "${title}"…`, force);
 }
 
 async function syncByStatus(status) {
@@ -428,7 +438,7 @@ async function syncSelected() {
     await doSync(uuids, `Syncing ${uuids.length} selected page${uuids.length !== 1 ? 's' : ''}…`);
 }
 
-async function doSync(uuids, statusMsg) {
+async function doSync(uuids, statusMsg, force = false) {
     showToast(statusMsg);
 
     try {
@@ -438,7 +448,7 @@ async function doSync(uuids, statusMsg) {
                 'Content-Type': 'application/json',
                 'X-CSRF-Token': CSRF_TOKEN
             },
-            body: JSON.stringify({ uuids })
+            body: JSON.stringify({ uuids, force })
         });
 
         const result = await response.json();
@@ -446,7 +456,7 @@ async function doSync(uuids, statusMsg) {
         if (result.success) {
             showToast(`✓ ${result.message}`);
             // Mark synced rows as current
-            result.uuids.forEach(uuid => {
+            (result.uuids || []).forEach(uuid => {
                 const row = document.querySelector(`tr[data-uuid="${uuid}"]`);
                 if (row) {
                     row.dataset.status = 'current';
@@ -456,6 +466,13 @@ async function doSync(uuids, statusMsg) {
                     row.querySelectorAll('td:last-child button').forEach(el => el.remove());
                 }
             });
+            // Highlight protected (user-edited) rows that were skipped
+            if (result.protected && result.protected.length > 0) {
+                result.protected.forEach(uuid => {
+                    const row = document.querySelector(`tr[data-uuid="${uuid}"]`);
+                    if (row) row.classList.add('table-warning');
+                });
+            }
             // Reload to update summary badges
             setTimeout(() => location.reload(), 2000);
         } else {
