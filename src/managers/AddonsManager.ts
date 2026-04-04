@@ -395,31 +395,46 @@ class AddonsManager extends BaseManager {
     const files = (await fs.promises.readdir(addonPagesDir)).filter(f => f.endsWith('.md'));
     let seeded = 0;
 
+    const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
     for (const file of files) {
-      const dest = path.join(pagesDir, file);
       const src = path.join(addonPagesDir, file);
       try {
-        await fs.promises.access(dest);
-        // File exists — check if it was seeded by a different addon
-        const existing = await fs.promises.readFile(dest, 'utf8');
-        const parsed = matter(existing);
-        if (parsed.data.addon && parsed.data.addon !== addonName) {
-          logger.warn(
-            `[AddonsManager] Page conflict: ${addonName}/pages/${file} skipped — ` +
-            `already seeded by addon '${parsed.data.addon}' (${dest})`
-          );
-        }
-        // else: user-created page or same addon reloading — silent skip
-      } catch {
-        // dest does not exist — seed it, stamping addon provenance in front-matter
+        // Read source to extract UUID — destination is always {uuid}.md
         const raw = await fs.promises.readFile(src, 'utf8');
         const parsed = matter(raw);
-        parsed.data.addon = addonName;
-        if (!parsed.data['system-category']) {
-          parsed.data['system-category'] = 'addon';
+        const uuid = parsed.data.uuid as string | undefined;
+
+        if (!uuid || !uuidPattern.test(uuid)) {
+          logger.warn(`[AddonsManager] Skipping ${addonName}/pages/${file} — missing or invalid uuid in frontmatter`);
+          continue;
         }
-        await fs.promises.writeFile(dest, matter.stringify(parsed.content, parsed.data), 'utf8');
-        seeded++;
+
+        const dest = path.join(pagesDir, `${uuid}.md`);
+
+        try {
+          await fs.promises.access(dest);
+          // UUID-named file already exists — check for addon conflict
+          const existing = await fs.promises.readFile(dest, 'utf8');
+          const existingParsed = matter(existing);
+          if (existingParsed.data.addon && existingParsed.data.addon !== addonName) {
+            logger.warn(
+              `[AddonsManager] Page conflict: ${addonName}/pages/${file} skipped — ` +
+              `already seeded by addon '${existingParsed.data.addon}' (${dest})`
+            );
+          }
+          // else: already seeded or user-edited — silent skip
+        } catch {
+          // dest does not exist — seed it using UUID filename
+          parsed.data.addon = addonName;
+          if (!parsed.data['system-category']) {
+            parsed.data['system-category'] = 'addon';
+          }
+          await fs.promises.writeFile(dest, matter.stringify(parsed.content, parsed.data), 'utf8');
+          seeded++;
+        }
+      } catch (err) {
+        logger.warn(`[AddonsManager] Could not read seed file ${src}:`, err);
       }
     }
 

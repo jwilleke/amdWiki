@@ -334,9 +334,10 @@ class WikiRoutes {
       capabilities: this.engine.getCapabilities?.() ?? {}
     };
 
-    // Load LeftMenu
+    // Load LeftMenu — prefer 'left-menu-content' page (instance/addon override) over 'LeftMenu'
     try {
-      const leftMenuContent = await pageManager.getPageContent('LeftMenu');
+      const leftMenuContent = await pageManager.getPageContent('left-menu-content')
+        ?? await pageManager.getPageContent('LeftMenu');
       logger.info(
         `[TEMPLATE] Loading LeftMenu for user=${
           userContext?.username
@@ -372,9 +373,10 @@ class WikiRoutes {
       templateData.leftMenu = '';
     }
 
-    // Load Footer
+    // Load Footer — prefer 'footer-content' page (instance/addon override) over 'Footer'
     try {
-      const footerContent = await pageManager.getPageContent('Footer');
+      const footerContent = await pageManager.getPageContent('footer-content')
+        ?? await pageManager.getPageContent('Footer');
       logger.info(
         `[TEMPLATE] Loading Footer for user=${
           userContext?.username
