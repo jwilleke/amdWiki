@@ -22,6 +22,31 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - [file2.md]
 ```
 
+## 2026-04-04-03
+
+- Agent: Claude Code (Sonnet 4.6)
+- Subject: stale-build detection in server.sh; required-page sync protection; admin Web Notifications via SSE
+- Key Decision: SSE (Server-Sent Events) chosen over WebSocket for admin push — one-way server→client fits the use case, no extra library needed, and auto-reconnect is trivial with EventSource. Required-page sync protection uses a `forceSync` flag on the backend so bulk "Sync All Outdated" silently skips user-modified pages but an explicit per-row "Force Sync" button can still override.
+- Current Issue: #447 (google-auth-library install fix commented)
+- Testing:
+  - npm test: 9 suites passed, 133 tests passed, 0 skipped
+- Work Done:
+  - Fixed build failure in GoogleOIDCProvider.ts — `google-auth-library` package was missing; TS2307 + TS18046 both resolved after `npm install google-auth-library`
+  - Added `check_build_needed()` to server.sh — on `./server.sh start`, compares newest .ts source vs newest dist .js; if stale, prompts user to build (Y/n default Y); builds inline if starting, does stop/build/restart if server was already running
+  - Required-pages sync protection: backend now checks `user-modified: true` on live page before overwriting during normal sync; protected pages returned in `protected[]` response array; `force: true` flag bypasses for explicit single-page override
+  - Bulk "Sync All Outdated" skips user-modified rows via `data-user-modified` attribute; user-modified pages show red "Force Sync" button instead of blue "Sync"
+  - Admin Web Notifications: after saving a required page in wiki UI, creates a persisted NotificationManager entry AND pushes a `required-page-modified` SSE event to all connected admin clients
+  - `GET /admin/events` SSE endpoint: persistent connection, 30s keepalive ping, admin:system permission guard, auto-cleanup on disconnect
+  - `public/js/admin-events.js`: subscribes to SSE, requests Notification.permission, shows browser Web Notification (clickable → /admin/required-pages), and live-prepends to System Notifications card on /admin without reload; self-limits to /admin* paths; auto-reconnects after 15s on error
+- Commits: dc2fa8bc
+- Files Modified:
+  - server.sh
+  - src/providers/GoogleOIDCProvider.ts (via npm install, package-lock.json)
+  - src/routes/WikiRoutes.ts
+  - views/admin-required-pages.ejs
+  - views/header.ejs
+  - public/js/admin-events.js (new)
+
 ## 2026-04-02-03
 
 - Agent: Claude Code (Sonnet 4.6)
