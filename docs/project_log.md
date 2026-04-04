@@ -12246,6 +12246,33 @@ Subject: AGENTS.md implementation and project_log.md creation
 - Commits:
   - f462a29 - fix: preserve amdwiki-salt password hash value after rename
 
+## 2026-04-04-03
+
+- Agent: Claude Sonnet 4.6
+- Subject: Switch ve-geology to VersioningFileProvider; add addon left-menu-content/footer-content seed pages
+
+- Work Done:
+  - Diagnosed render failure on `/view/volcanoes-and-earthquakes`: stale PM2 entry (`ngdpbase-ngdpbase`) was still running from the pre-rename path after `ngdpbase/` was renamed to `ngdpbase-veg/`; dynamic `require()` calls failed with "Cannot find module 'ejs'". Fixed by `./server.sh stop && ./server.sh start dev`.
+  - Converted all 8 ve-geology addon pages from fake UUIDs (`a1b2c3d4-...-ve0geology00N`) and slug-based filenames to real UUID v4 filenames — prerequisite for VersioningFileProvider. Used newest version for each (6 from UUID-named files, 2 from slug-named files); deleted 14 stale/duplicate files.
+  - Switched instance to `versioningfileprovider` in `data/config/app-custom-config.json`. All 90 pages auto-migrated on first boot (0 errors).
+  - Added `left-menu-content.md` and `footer-content.md` seed pages to `addons/ve-geology/pages/` — provides ve-geology nav and footer that override the system LeftMenu/Footer pages via the slug-priority mechanism added in session 2026-04-04-02.
+  - Documented the addon seed pages pattern (pages/ dir, UUID filenames, left-menu-content/footer-content override) in `docs/platform/addon-development-guide.md`.
+
+- Files Modified:
+  - `data/config/app-custom-config.json` — set `ngdpbase.page.provider: versioningfileprovider` (gitignored, instance config)
+  - `data/pages/` — 8 new UUID v4 files, 14 old slug/fake-UUID files deleted (gitignored)
+  - `docs/platform/addon-development-guide.md` — seed pages section, left-menu-content/footer-content override docs, checklist items
+  - `jwilleke/ve-geology: addons/ve-geology/pages/left-menu-content.md` (new)
+  - `jwilleke/ve-geology: addons/ve-geology/pages/footer-content.md` (new)
+
+- Issues Referenced:
+  - jwilleke/ngdpbase#442 — addon seed pages (working end-to-end, commented)
+  - jwilleke/ngdpbase#450 — VersioningFileProvider slug-named file migration (workaround applied for ve-geology, root bug still open)
+
+- Commits:
+  - 74c314db — docs: document addon seed pages and left-menu-content/footer-content override pattern
+  - jwilleke/ve-geology@638c6c5 — feat: add left-menu-content and footer-content seed pages
+
 ## 2026-04-04-02
 
 - Agent: Claude Sonnet 4.6
