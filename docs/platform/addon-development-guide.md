@@ -24,6 +24,7 @@ my-addon-repo/
         ├── managers/
         ├── routes/
         ├── plugins/
+        ├── pages/            ← wiki pages seeded into the instance on startup
         ├── public/           ← static assets (CSS, JS, images)
         └── README.md
 ```
@@ -160,6 +161,72 @@ async register(engine, config) {
 
 The URL is injected into every page's `<head>` via `res.locals.addonStylesheets`.
 Make sure the path is served (see static middleware above or `addons/` core serving).
+
+### Seed Wiki Pages
+
+Place `.md` files in your add-on's `pages/` directory. `AddonsManager` seeds them into the instance's `pages/` directory at startup (skipping any page whose slug already exists).
+
+Each page file must use a real UUID v4 as both its filename (`{uuid}.md`) and its `uuid` frontmatter field:
+
+```markdown
+---
+title: My Addon Home
+uuid: 4a266851-f3cd-4ba6-bbbe-5a408f3adf72
+slug: my-addon-home
+system-category: addon
+addon: my-addon
+author: my-addon
+---
+
+Welcome to my add-on.
+```
+
+Generate a UUID: `node -e "console.log(require('crypto').randomUUID())"`
+
+#### Overriding the Left Menu and Footer
+
+Two special slugs let an add-on replace the instance-wide navigation and footer without editing system pages:
+
+| File | Slug | Replaces |
+|------|------|----------|
+| `pages/left-menu-content.md` | `left-menu-content` | `LeftMenu` required page |
+| `pages/footer-content.md` | `footer-content` | `Footer` required page |
+
+When the server renders any page it checks for `left-menu-content` first; if found, it is used instead of `LeftMenu`. Same for `footer-content` vs `Footer`. This means an add-on can ship its own navigation without touching the core system pages.
+
+Example `left-menu-content.md`:
+
+```markdown
+---
+title: Left Menu Content
+uuid: 0c0cb715-a46c-4a91-9189-9e05b7f9e95f
+slug: left-menu-content
+system-category: addon
+addon: my-addon
+author: my-addon
+---
+- <a href="/"><i class="fas fa-home"></i> Home</a>
+- <a href="/search"><i class="fas fa-search"></i> Search</a>
+- [My Feature One]
+- [My Feature Two]
+- [Recent Changes]
+```
+
+Example `footer-content.md`:
+
+```markdown
+---
+title: Footer Content
+uuid: 2b04424b-5541-41e5-b85c-dee161f66945
+slug: footer-content
+system-category: addon
+addon: my-addon
+author: my-addon
+---
+<small>**[{$applicationname}]** v[{$version}] | Powered by my-addon</small>
+```
+
+---
 
 ### Register an Optional Capability
 
@@ -354,6 +421,8 @@ Keep core PRs self-contained — no add-on-specific code in the core repo.
 - [ ] `status()` returns `{ healthy: bool }` for admin health display
 - [ ] `shutdown()` closes any open connections or file handles
 - [ ] Dependencies declared in `dependencies[]` if your add-on relies on another
+- [ ] Seed pages in `pages/` use real UUID v4 filenames and matching `uuid` frontmatter
+- [ ] `pages/left-menu-content.md` and `pages/footer-content.md` present if the add-on owns the UI chrome
 
 ---
 
