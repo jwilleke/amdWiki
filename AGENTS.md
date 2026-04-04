@@ -85,3 +85,17 @@ Always use the appriate .github/ISSUE_TEMPLATE
 
 - server.sh to stop and start server
 - src/utils/version.ts to perform SEMVER updates.
+
+## Local Environment
+
+This instance is configured via a gitignored `.env` at the project root:
+
+```
+FAST_STORAGE=/Volumes/hd2/jimstest-wiki/data
+SLOW_STORAGE=/Volumes/hd2A/jimstest-wiki/data
+```
+
+- `FAST_STORAGE` — operational data: sessions, users, logs, config, search index, `page-index.json`
+- `SLOW_STORAGE` — bulk content: pages, attachments
+
+`server.sh` sources this file automatically on start. Without it the server falls back to `./data` and shows the install screen. Do not commit `.env`.
