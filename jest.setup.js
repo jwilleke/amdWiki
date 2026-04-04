@@ -205,3 +205,9 @@ global.console = {
 // Set test environment variables
 process.env.NODE_ENV = 'test';
 process.env.LOG_LEVEL = 'error';
+
+// Redirect all data storage to /tmp during tests.
+// Prevents tests from touching live data/sessions, data/logs, data/search-index.
+// JEST_WORKER_ID gives each parallel worker its own isolated directory.
+process.env.FAST_STORAGE = `/tmp/ngdpbase-test-${process.env.JEST_WORKER_ID || '0'}`;
+process.env.SLOW_STORAGE = process.env.FAST_STORAGE;

@@ -2998,10 +2998,39 @@ class WikiRoutes {
         magic: req.query.magic,
         redirect: req.query.redirect,
         magicLinkEnabled: authManager?.isEnabled('magic-link') ?? false,
+        googleOIDCEnabled: authManager?.isEnabled('google-oidc') ?? false,
         csrfToken: req.session?.csrfToken || ''
       });
     } catch (err: unknown) {
       logger.error('Error loading login page:', err);
+      res.status(500).send('Error loading login page');
+    }
+  }
+
+  /**
+   * Admin emergency login — always shows password form regardless of OAuth config.
+   * Accessible at /admin/login for situations where OAuth is unavailable.
+   */
+  async adminLoginPage(req: Request, res: Response) {
+    try {
+      const currentUser = req.userContext;
+      if (currentUser && currentUser.isAuthenticated) {
+        return res.redirect('/admin');
+      }
+      const commonData = await this.getCommonTemplateData(req);
+      res.render('login', {
+        ...commonData,
+        title: 'Admin Login',
+        error: req.query.error,
+        success: req.query.success,
+        magic: undefined,
+        redirect: req.query.redirect || '/admin',
+        magicLinkEnabled: false,
+        googleOIDCEnabled: false,
+        csrfToken: req.session?.csrfToken || ''
+      });
+    } catch (err: unknown) {
+      logger.error('Error loading admin login page:', err);
       res.status(500).send('Error loading login page');
     }
   }
@@ -3130,6 +3159,73 @@ class WikiRoutes {
     } catch (err: unknown) {
       logger.error('Error verifying magic link:', err);
       res.redirect('/login?error=Verification+failed');
+    }
+  }
+
+  /**
+   * Initiate Google OIDC sign-in — POST /auth/oauth/google
+   */
+  initiateGoogleOIDC(req: Request, res: Response) {
+    try {
+      const authManager = this.engine.getManager('AuthManager');
+      if (!authManager?.isEnabled('google-oidc')) {
+        return res.redirect('/login?error=Google+sign-in+not+enabled');
+      }
+      const redirect = (req.body.redirect as string) || '/';
+      const authUrl = authManager.initiateGoogleOIDC(redirect);
+      res.redirect(authUrl);
+    } catch (err: unknown) {
+      logger.error('Error initiating Google OIDC:', err);
+      res.redirect('/login?error=Google+sign-in+failed');
+    }
+  }
+
+  /**
+   * Handle Google OIDC callback — GET /auth/oauth/google/callback
+   */
+  async verifyGoogleOIDCCallback(req: Request, res: Response) {
+    try {
+      const code  = req.query.code  as string | undefined;
+      const state = req.query.state as string | undefined;
+      const error = req.query.error as string | undefined;
+
+      const authManager = this.engine.getManager('AuthManager');
+
+      if (error || !code || !state || !authManager) {
+        logger.warn(`[GoogleOIDC] Callback error: ${error ?? 'missing code/state'}`);
+        return res.redirect('/login?error=Google+sign-in+cancelled');
+      }
+
+      // Get redirect URL before consuming state (state deleted in consumeToken)
+      const redirect = authManager.getGoogleOIDCRedirect(state);
+
+      const result = await authManager.authenticate('google-oidc', {
+        token: code,
+        state
+      } as Parameters<typeof authManager.authenticate>[1]);
+
+      if (!result.success) {
+        return res.redirect('/login?error=Google+sign-in+failed');
+      }
+
+      // Consume state — single-use
+      authManager.consumeToken('google-oidc', state);
+
+      req.session.username = result.username;
+      req.session.isAuthenticated = true;
+
+      logger.info(`👤 User logged in via Google: ${result.username}`);
+
+      req.session.save((err) => {
+        if (err) {
+          logger.error('Error saving session after Google login:', err);
+          return res.redirect('/login?error=Session+save+failed');
+        }
+        res.redirect(redirect || '/');
+      });
+    } catch (err: unknown) {
+      logger.error('Error in Google OIDC callback:', err);
+      res.redirect('/login?error=Google+sign-in+failed');
     }
   }
 
@@ -6769,9 +6865,12 @@ class WikiRoutes {
     app.post('/delete/:page', (req: Request, res: Response) => this.deletePage(req, res));
     app.get('/search', (req: Request, res: Response) => this.searchPages(req, res));
     app.get('/login', (req: Request, res: Response) => this.loginPage(req, res));
+    app.get('/admin/login', (req: Request, res: Response) => this.adminLoginPage(req, res));
     app.post('/login', (req: Request, res: Response) => this.processLogin(req, res));
     app.post('/auth/magic-link', (req: Request, res: Response) => this.requestMagicLink(req, res));
     app.get('/auth/magic-link/verify', (req: Request, res: Response) => this.verifyMagicLink(req, res));
+    app.post('/auth/oauth/google', (req: Request, res: Response) => void this.initiateGoogleOIDC(req, res));
+    app.get('/auth/oauth/google/callback', (req: Request, res: Response) => void this.verifyGoogleOIDCCallback(req, res));
     app.get('/logout', (req: Request, res: Response) => this.processLogout(req, res));
     app.post('/logout', (req: Request, res: Response) => this.processLogout(req, res));
     app.get('/register', (req: Request, res: Response) => this.registerPage(req, res));

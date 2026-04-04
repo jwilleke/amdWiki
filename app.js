@@ -10,6 +10,17 @@ const session = require('express-session');
 const FileStore = require('session-file-store')(session);
 const fs = require('fs-extra');
 
+// Load .env file so PORT and other env vars are available without shell export
+const envPath = path.join(__dirname, '.env');
+if (fs.existsSync(envPath)) {
+  for (const line of fs.readFileSync(envPath, 'utf8').split('\n')) {
+    const m = line.match(/^\s*([A-Z_][A-Z0-9_]*)\s*=\s*(.*?)\s*$/);
+    if (m && !process.env[m[1]]) {
+      process.env[m[1]] = m[2].replace(/^["']|["']$/g, '');
+    }
+  }
+}
+
 // Require from dist/src/ (pre-compiled TypeScript)
 const logger = require('./dist/src/utils/logger').default;
 const WikiEngine = require('./dist/src/WikiEngine');

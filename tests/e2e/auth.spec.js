@@ -39,7 +39,8 @@ test.describe('Authentication - Unauthenticated', () => {
 
   test.describe('Login Page', () => {
     test('should display login form', async ({ page }) => {
-      await page.goto('/login');
+      // /admin/login always shows password form regardless of OAuth config
+      await page.goto('/admin/login');
 
       // Verify login form elements - use login form specifically (has password input)
       const loginForm = page.locator('form:has(input[type="password"])');
@@ -49,7 +50,7 @@ test.describe('Authentication - Unauthenticated', () => {
     });
 
     test('should show error for invalid credentials', async ({ page }) => {
-      await page.goto('/login');
+      await page.goto('/admin/login');
 
       await fillLoginForm(page, 'invaliduser', 'wrongpassword');
       await submitLogin(page);
@@ -62,20 +63,20 @@ test.describe('Authentication - Unauthenticated', () => {
     });
 
     test('should login successfully with valid credentials', async ({ page }) => {
-      await page.goto('/login');
+      await page.goto('/admin/login');
 
       await fillLoginForm(page, TEST_USER, TEST_PASS);
       await submitLogin(page);
 
       // Should redirect away from login page
-      await expect(page).not.toHaveURL(/\/login/);
+      await expect(page).not.toHaveURL(/\/login$/);
     });
   });
 
   test.describe('Session Management', () => {
     test('should maintain session across page navigation', async ({ page }) => {
       // Login first
-      await page.goto('/login');
+      await page.goto('/admin/login');
       await fillLoginForm(page, TEST_USER, TEST_PASS);
       await submitLogin(page);
 
@@ -92,7 +93,7 @@ test.describe('Authentication - Unauthenticated', () => {
   test.describe('Logout', () => {
     test('should logout successfully', async ({ page }) => {
       // Login first
-      await page.goto('/login');
+      await page.goto('/admin/login');
       await fillLoginForm(page, TEST_USER, TEST_PASS);
       await submitLogin(page);
 

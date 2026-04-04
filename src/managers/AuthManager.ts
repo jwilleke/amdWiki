@@ -24,6 +24,7 @@ import BaseManager from './BaseManager';
 import type { BackupData } from './BaseManager';
 import type { WikiEngine } from '../types/WikiEngine';
 import type ConfigurationManager from './ConfigurationManager';
+import type UserManager from './UserManager';
 import type {
   AuthProvider,
   AuthInitiateContext,
@@ -31,6 +32,7 @@ import type {
 } from '../providers/BaseAuthProvider';
 import { PasswordAuthProvider } from '../providers/PasswordAuthProvider';
 import { MagicLinkAuthProvider } from '../providers/MagicLinkAuthProvider';
+import { GoogleOIDCProvider } from '../providers/GoogleOIDCProvider';
 import { ConsoleMailProvider } from '../mail/MailProvider';
 import { NodemailerMailProvider } from '../mail/NodemailerMailProvider';
 import logger from '../utils/logger';
@@ -90,6 +92,20 @@ class AuthManager extends BaseManager {
       logger.info(`[AuthManager] Registered provider: magic-link (transport=${transport}, ttl=${ttlMinutes}min)`);
     }
 
+    // Register Google OIDC provider if enabled
+    if (configManager?.getProperty('ngdpbase.auth.google-oidc.enabled', false)) {
+      const googleConfig = {
+        clientId:      configManager.getProperty('ngdpbase.auth.google-oidc.client-id', '') as string,
+        clientSecret:  configManager.getProperty('ngdpbase.auth.google-oidc.client-secret', '') as string,
+        redirectUri:   configManager.getProperty('ngdpbase.auth.google-oidc.callback-url', '') as string,
+        autoProvision: configManager.getProperty('ngdpbase.auth.google-oidc.auto-provision', true) as boolean,
+        defaultRoles:  configManager.getProperty('ngdpbase.auth.google-oidc.default-roles', ['occupant']) as string[],
+        hostedDomain:  configManager.getProperty('ngdpbase.auth.google-oidc.hd', '') as string || undefined
+      };
+      this.providers.set('google-oidc', new GoogleOIDCProvider(this.engine, googleConfig));
+      logger.info('[AuthManager] Registered provider: google-oidc');
+    }
+
     // Load required-factors chain
     const factors = configManager?.getProperty('ngdpbase.auth.required-factors', ['password']);
     this.requiredFactors = Array.isArray(factors) ? (factors as string[]) : ['password'];
@@ -114,6 +130,19 @@ class AuthManager extends BaseManager {
     try {
       const result = await provider.verify(credentials);
       if (!result) return { success: false };
+
+      // Check per-user allowedAuthMethods if set
+      const userManager = this.engine.getManager<UserManager>('UserManager');
+      if (userManager) {
+        const user = await userManager.getUser(result.username);
+        if (user?.allowedAuthMethods && user.allowedAuthMethods.length > 0) {
+          if (!user.allowedAuthMethods.includes(providerId)) {
+            logger.warn(`[AuthManager] User ${result.username} not allowed to use provider: ${providerId}`);
+            return { success: false };
+          }
+        }
+      }
+
       return { success: true, username: result.username };
     } catch (err) {
       logger.error(`[AuthManager] Error authenticating via ${providerId}:`, err);
@@ -148,6 +177,25 @@ class AuthManager extends BaseManager {
   getMagicLinkRedirect(token: string): string {
     const provider = this.providers.get('magic-link') as MagicLinkAuthProvider | undefined;
     return provider?.getTokenRedirect(token) ?? '/';
+  }
+
+  /**
+   * Generate Google OIDC authorization URL and store state nonce.
+   * Returns the URL to redirect the browser to.
+   */
+  initiateGoogleOIDC(redirect: string = '/'): string {
+    const provider = this.providers.get('google-oidc') as GoogleOIDCProvider | undefined;
+    if (!provider) throw new Error('Google OIDC provider not registered');
+    return provider.generateAuthUrl(redirect);
+  }
+
+  /**
+   * Get the redirect URL stored with a Google OIDC state nonce.
+   * Returns '/' if provider or nonce not found.
+   */
+  getGoogleOIDCRedirect(nonce: string): string {
+    const provider = this.providers.get('google-oidc') as GoogleOIDCProvider | undefined;
+    return provider?.getStateRedirect(nonce) ?? '/';
   }
 
   /** Returns the ordered list of required auth factors from config. */

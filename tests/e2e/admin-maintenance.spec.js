@@ -66,7 +66,8 @@ test.describe('Admin Maintenance Mode', () => {
     const anonPage = await anonContext.newPage();
 
     try {
-      const baseURL = process.env.E2E_BASE_URL || 'http://localhost:3000';
+      const baseURL = test.info().project.use.baseURL;
+      if (!baseURL) throw new Error('baseURL not configured in playwright.config.js');
       const response = await anonPage.goto(baseURL);
       const status = response?.status();
 
@@ -88,7 +89,7 @@ test.describe('Admin Maintenance Mode', () => {
     const anonPage = await anonContext.newPage();
 
     try {
-      const baseURL = process.env.E2E_BASE_URL || 'http://localhost:3000';
+      const baseURL = process.env.E2E_BASE_URL || `http://localhost:${process.env.PORT || '2121'}`;
       const loginResponse = await anonPage.goto(baseURL + '/login');
       // Login should not be blocked by maintenance
       expect(loginResponse?.status()).not.toBe(503);
@@ -126,7 +127,8 @@ test.describe('Admin Maintenance Mode', () => {
     const anonPage = await anonContext.newPage();
 
     try {
-      const baseURL = process.env.E2E_BASE_URL || 'http://localhost:3000';
+      const baseURL = test.info().project.use.baseURL;
+      if (!baseURL) throw new Error('baseURL not configured in playwright.config.js');
       const response = await anonPage.goto(baseURL);
       const status = response?.status();
 

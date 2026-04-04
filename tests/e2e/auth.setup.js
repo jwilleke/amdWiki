@@ -18,8 +18,8 @@ setup('authenticate', async ({ page }) => {
   const adminUser = process.env.E2E_ADMIN_USER || 'admin';
   const adminPass = process.env.E2E_ADMIN_PASS || 'admin123';
 
-  // Navigate to login page
-  await page.goto('/login');
+  // Navigate to admin login page (always shows password form regardless of OAuth config)
+  await page.goto('/admin/login');
   await page.waitForSelector('form');
 
   // Fill in credentials - target inputs inside the login form specifically
@@ -34,7 +34,7 @@ setup('authenticate', async ({ page }) => {
   await page.getByRole('button', { name: /login/i }).click();
 
   // Wait for successful login - should redirect away from login page
-  await expect(page).not.toHaveURL(/\/login/);
+  await expect(page).not.toHaveURL(/\/login$/);
   await page.waitForLoadState('networkidle');
 
   // Save authentication state

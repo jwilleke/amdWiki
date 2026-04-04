@@ -53,8 +53,10 @@ describe('ConfigurationManager', () => {
     originalCwd = process.cwd();
     process.chdir(tempDir);
 
-    // Reset INSTANCE_DATA_FOLDER env var
+    // Reset storage env vars so tests see clean defaults
     delete process.env.INSTANCE_DATA_FOLDER;
+    delete process.env.FAST_STORAGE;
+    delete process.env.SLOW_STORAGE;
 
     // Create mock engine
     mockEngine = {

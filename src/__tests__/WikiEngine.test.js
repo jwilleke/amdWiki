@@ -23,16 +23,6 @@ describe('WikiEngine', () => {
     } catch (err) {
       // Directory might not exist
     }
-    // Clean up only test-created subdirectories under ./data/ — never the
-    // whole tree, which would destroy live instance data.
-    const dataDir = path.join(process.cwd(), 'data');
-    for (const sub of ['sessions', 'logs', 'search-index']) {
-      try {
-        await fs.remove(path.join(dataDir, sub));
-      } catch {
-        // Ignore
-      }
-    }
   });
 
   describe('initialization', () => {

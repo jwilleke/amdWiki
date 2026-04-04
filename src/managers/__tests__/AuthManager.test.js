@@ -86,7 +86,8 @@ describe('AuthManager', () => {
 
     test('delegates password auth to PasswordAuthProvider', async () => {
       const mockUserManager = {
-        authenticateUser: jest.fn().mockResolvedValue({ username: 'alice' })
+        authenticateUser: jest.fn().mockResolvedValue({ username: 'alice' }),
+        getUser: jest.fn().mockResolvedValue({ username: 'alice' })
       };
       const cm = makeConfigManager();
       const manager = new AuthManager(makeEngine(cm, { UserManager: mockUserManager }));
