@@ -12246,6 +12246,28 @@ Subject: AGENTS.md implementation and project_log.md creation
 - Commits:
   - f462a29 - fix: preserve amdwiki-salt password hash value after rename
 
+## 2026-04-04-02
+
+- Agent: Claude Sonnet 4.6
+- Subject: left-menu-content/footer-content overrides; fix addon seeder UUID filenames
+
+- Work Done:
+  - Fixed `AddonsManager.seedAddonPages()`: seed files now written as `{uuid}.md` instead of source filename — `VersioningFileProvider` recovery scan only reads UUID-named files, so slug-named seed files were invisible causing pages to appear missing
+  - Added `left-menu-content` / `footer-content` slug override in `WikiRoutes.getCommonTemplateData()`: tries those slugs before `LeftMenu` / `Footer` system pages, allowing addon/operator nav and footer customization via web UI without editing `required-pages`
+  - Cleaned up ~89 duplicate/slug-named page files from `data/pages` caused by seeder bug
+
+- Files Modified:
+  - `src/managers/AddonsManager.ts` — fix seedAddonPages to use UUID filenames
+  - `src/routes/WikiRoutes.ts` — left-menu-content/footer-content fallback logic
+
+- Issues Referenced:
+  - jwilleke/ngdpbase#420 — layout injection API (partial)
+  - jwilleke/ngdpbase#442 — addon seed pages
+  - jwilleke/ngdpbase#450 — VersioningFileProvider slug-named file bug
+
+- Commits:
+  - f53fcc94 — feat: left-menu-content/footer-content overrides; fix addon seeder UUID filenames
+
 ## 2026-04-04-01
 
 - Agent: Claude Sonnet 4.6
