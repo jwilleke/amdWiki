@@ -46,9 +46,9 @@
                     <% } %>
                   </td>
                   <td>
-                    <span title="<%= new Date(v.dateCreated).toLocaleString() %>">
-                      <%= new Date(v.dateCreated).toLocaleDateString() %>
-                      <%= new Date(v.dateCreated).toLocaleTimeString() %>
+                    <span title="<%= new Date(v.timestamp).toLocaleString() %>">
+                      <%= new Date(v.timestamp).toLocaleDateString() %>
+                      <%= new Date(v.timestamp).toLocaleTimeString() %>
                     </span>
                   </td>
                   <td><%= v.editor || v.author %></td>
@@ -112,7 +112,7 @@
               <label class="mr-2">From:</label>
               <select id="version1" class="form-control mr-3">
                 <% versions.forEach(v => { %>
-                  <option value="<%= v.version %>">v<%= v.version %> (<%= new Date(v.dateCreated).toLocaleDateString() %>)</option>
+                  <option value="<%= v.version %>">v<%= v.version %> (<%= new Date(v.timestamp).toLocaleDateString() %>)</option>
                 <% }); %>
               </select>
 
@@ -120,7 +120,7 @@
               <select id="version2" class="form-control mr-3">
                 <% versions.forEach(v => { %>
                   <option value="<%= v.version %>" <%= v.version === versions[0].version ? 'selected' : '' %>>
-                    v<%= v.version %> (<%= new Date(v.dateCreated).toLocaleDateString() %>)
+                    v<%= v.version %> (<%= new Date(v.timestamp).toLocaleDateString() %>)
                   </option>
                 <% }); %>
               </select>

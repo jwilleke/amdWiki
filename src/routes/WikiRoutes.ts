@@ -1279,7 +1279,7 @@ class WikiRoutes {
             versionInfo = {
               currentVersion: latestVersion.version,
               totalVersions: versions.length,
-              lastModified: latestVersion.dateCreated,
+              lastModified: latestVersion.timestamp,
               lastAuthor: latestVersion.author
             };
           }
@@ -7752,7 +7752,7 @@ class WikiRoutes {
               currentVersion: currentVersion.version,
               totalVersions: versions.length,
               lastAuthor: currentVersion.author,
-              lastModified: currentVersion.dateCreated,
+              lastModified: currentVersion.timestamp,
               changeType: currentVersion.changeType,
               comment: currentVersion.comment
             };
@@ -7770,8 +7770,8 @@ class WikiRoutes {
 
             // Average days between edits
             if (versions.length >= 2) {
-              const newest = new Date(versions[0].dateCreated).getTime();
-              const oldest = new Date(versions[versions.length - 1].dateCreated).getTime();
+              const newest = new Date(versions[0].timestamp).getTime();
+              const oldest = new Date(versions[versions.length - 1].timestamp).getTime();
               const daysDiff = (newest - oldest) / (1000 * 60 * 60 * 24);
               avgDaysBetweenEdits = Math.round((daysDiff / (versions.length - 1)) * 10) / 10;
             }
