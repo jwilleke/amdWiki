@@ -22,6 +22,29 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - [file2.md]
 ```
 
+## 2026-04-04-04
+
+- Agent: Claude Code (Sonnet 4.6)
+- Subject: fix Invalid Date in page history (#455); doc pages for left-menu/footer overrides; base URL on startup
+- Key Decision: `VersionHistoryEntry` type has always used `timestamp` — callers were reading the non-existent `dateCreated` field. Fix is purely in the template and route; no stored data changes. Both repos (amdWiki + ngdpbase) needed `npm install google-auth-library` run locally since `package.json` had the dep but the node_modules were stale.
+- Current Issue: #455 (closed)
+- Testing:
+  - npm test: not re-run (template + server.sh only changes, no logic touched)
+- Work Done:
+  - Fixed #455 Invalid Date in page history: `page-history.ejs` and two spots in `WikiRoutes.ts` were reading `v.dateCreated` (undefined); corrected to `v.timestamp` per `VersionHistoryEntry` type
+  - Added "page may already exist from an addon" section to both Customizing the Left Menu and Customizing the Footer required-pages — explains the "Page Already Exists" prompt is expected, user should choose Edit
+  - Created `docs/platform/page-overrides.md` documenting the override slot mechanism for platform/addon developers
+  - `server.sh` now prints `🌐 http://localhost:3000` (respects `$HOST`/`$PORT`) after successful start
+  - Ran `npm install google-auth-library` in `/Volumes/hd2A/workspaces/github/ngdpbase` to resolve same build error there
+- Commits: 399d0f81, 57016c01, 4dfe5dc8, 6780b787
+- Files Modified:
+  - views/page-history.ejs
+  - src/routes/WikiRoutes.ts
+  - required-pages/ed7d1b78-76c1-435d-8e12-9e0eb3d1ba94.md
+  - required-pages/ecd2e0cf-8ffa-4a73-85b4-448614e656e4.md
+  - docs/platform/page-overrides.md (new)
+  - server.sh
+
 ## 2026-04-04-03
 
 - Agent: Claude Code (Sonnet 4.6)
