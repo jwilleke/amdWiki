@@ -12294,7 +12294,7 @@ Subject: AGENTS.md implementation and project_log.md creation
 - Commits:
   - f462a29 - fix: preserve amdwiki-salt password hash value after rename
 
-## 2026-04-04-03
+## 2026-04-04-06
 
 - Agent: Claude Sonnet 4.6
 - Subject: Switch ve-geology to VersioningFileProvider; add addon left-menu-content/footer-content seed pages
@@ -12321,7 +12321,7 @@ Subject: AGENTS.md implementation and project_log.md creation
   - 74c314db — docs: document addon seed pages and left-menu-content/footer-content override pattern
   - jwilleke/ve-geology@638c6c5 — feat: add left-menu-content and footer-content seed pages
 
-## 2026-04-04-04
+## 2026-04-04-05
 
 - Agent: Claude Sonnet 4.6
 - Subject: Add documentation page — Customizing Left Menu and Footer
