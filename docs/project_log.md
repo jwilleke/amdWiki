@@ -12273,6 +12273,20 @@ Subject: AGENTS.md implementation and project_log.md creation
   - 74c314db — docs: document addon seed pages and left-menu-content/footer-content override pattern
   - jwilleke/ve-geology@638c6c5 — feat: add left-menu-content and footer-content seed pages
 
+## 2026-04-04-04
+
+- Agent: Claude Sonnet 4.6
+- Subject: Add documentation page — Customizing Left Menu and Footer
+
+- Work Done:
+  - Added `required-pages/a2c48b2d-8c91-43f5-9657-bc1d11315b66.md` — documentation page (slug: `customizing-left-menu-and-footer`, `system-category: documentation`) explaining how Editors and Admins can edit the `left-menu-content` and `footer-content` wiki pages to customize site navigation and footer without touching required-pages or restarting the server
+
+- Files Modified:
+  - `required-pages/a2c48b2d-8c91-43f5-9657-bc1d11315b66.md` — new documentation page
+
+- Commits:
+  - c1f333e7 — docs: add documentation page for customizing left menu and footer
+
 ## 2026-04-04-02
 
 - Agent: Claude Sonnet 4.6
