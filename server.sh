@@ -282,6 +282,7 @@ case "${1:-}" in
       if ps -p "$PM2_PID" > /dev/null 2>&1; then
         echo "$PM2_PID" > "$PID_FILE"
         echo "✅ Server started (PID: $PM2_PID)"
+        echo "🌐 http://${HOST:-localhost}:${PORT:-3000}"
       else
         echo "❌ ERROR: PID $PM2_PID reported but process not found"
         rm -f "$PID_FILE"
