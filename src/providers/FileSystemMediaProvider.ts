@@ -365,7 +365,7 @@ class FileSystemMediaProvider extends BaseMediaProvider {
    */
   searchItems(query: string): Promise<MediaItem[]> {
     const lower = query.toLowerCase().trim();
-    if (!lower) return Promise.resolve([]);
+    if (!lower) return Promise.resolve(Object.values(this.index));
     const tokens = lower.split(/\s+/).filter(Boolean);
 
     const toStr = (v: unknown): string => (typeof v === 'string' ? v : typeof v === 'number' ? String(v) : '');

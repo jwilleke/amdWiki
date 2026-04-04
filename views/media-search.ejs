@@ -65,9 +65,9 @@
                         <div class="col">
                             <a href="/media/item/<%= item.id %>?sort=<%= sort %>&order=<%= order %>" class="text-decoration-none">
                                 <div class="card h-100">
-                                    <% if (item.mimeType && item.mimeType.startsWith('image/')) { %>
+                                    <% if (item.encodingFormat && item.encodingFormat.startsWith('image/') && item.thumbnailUrl) { %>
                                         <img
-                                            src="/media/thumb/<%= item.id %>?size=300x300"
+                                            src="<%= item.thumbnailUrl %>"
                                             class="card-img-top"
                                             alt="<%= item.filename %>"
                                             style="object-fit:contain; height:140px; background:#f8f9fa;"
@@ -83,8 +83,8 @@
                                         </div>
                                     <% } %>
                                     <div class="card-body p-2">
-                                        <small class="text-muted d-block text-truncate" title="<%= item.filename %>"><%= (item.metadata && item.metadata.caption) ? item.metadata.caption : item.filename %></small>
-                                        <% if (item.year) { %><small class="text-muted"><%= item.year %></small><% } %>
+                                        <small class="text-muted d-block text-truncate" title="<%= item.filename %>"><%= item.description || item.filename %></small>
+                                        <% if (item.dateCreated) { %><small class="text-muted"><%= new Date(item.dateCreated).getFullYear() %></small><% } %>
                                     </div>
                                 </div>
                             </a>

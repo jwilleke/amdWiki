@@ -9081,21 +9081,24 @@ ${description}
    * Stub: returns empty results.
    */
   async mediaSearch(req: Request, res: Response) {
-    const mediaManager = this.engine.getManager('MediaManager');
-    if (!mediaManager) {
-      return res.status(503).send('Media manager not enabled');
+    const assetService = this.engine.getManager('AssetService') as
+      | import('../managers/AssetService').default
+      | undefined;
+    if (!assetService) {
+      return res.status(503).send('Asset service not enabled');
     }
     try {
       const query = (req.query.q as string) || '';
+      const sort = typeof req.query.sort === 'string' && req.query.sort === 'caption' ? 'caption' : 'date';
+      const order = typeof req.query.order === 'string' && req.query.order === 'desc' ? 'desc' : ('asc' as 'asc' | 'desc');
       const wikiContext = this.createWikiContext(req, { context: WikiContext.CONTEXT.VIEW });
-      const raw = query ? await mediaManager.search(query, wikiContext) : [];
-      const { sort, order, items } = this.applyMediaSort(req, raw as Record<string, unknown>[]);
+      const page = await assetService.search({ query, types: ['media'], sort, order, pageSize: 9999, wikiContext });
       const commonData = await this.getCommonTemplateData(req);
       return res.render('media-search', {
         ...commonData,
         wikiContext,
         query,
-        items,
+        items: page.results,
         sort,
         order,
         title: 'Media Search'

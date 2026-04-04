@@ -400,9 +400,9 @@
                         <div class="col-6 col-md-3 col-lg-2">
                             <div class="card h-100 border-0 shadow-sm">
                                 <div class="card-body p-2">
-                                    <% if (item.mimeType && item.mimeType.startsWith('image/') && item.thumbUrl) { %>
+                                    <% if (item.encodingFormat && item.encodingFormat.startsWith('image/') && item.thumbnailUrl) { %>
                                         <a href="<%= item.url %>" target="_blank">
-                                            <img src="<%= item.thumbUrl %>" class="img-fluid rounded mb-1"
+                                            <img src="<%= item.thumbnailUrl %>" class="img-fluid rounded mb-1"
                                                  style="max-height:120px;object-fit:cover;width:100%;" loading="lazy"
                                                  alt="<%= item.filename %>">
                                         </a>
@@ -415,10 +415,10 @@
                                         <a href="<%= item.url %>" target="_blank" class="text-body text-decoration-none"><%= item.filename %></a>
                                     </div>
                                     <div>
-                                        <% if (item.year) { %><small class="text-muted"><%= item.year %></small> <% } %>
-                                        <% if (item.linkedPageName) { %>
-                                            <a href="/view/<%= encodeURIComponent(item.linkedPageName) %>" class="badge bg-secondary text-decoration-none">
-                                                <%= item.linkedPageName %>
+                                        <% if (item.dateCreated) { %><small class="text-muted"><%= new Date(item.dateCreated).getFullYear() %></small> <% } %>
+                                        <% if (item.mentions && item.mentions[0]) { %>
+                                            <a href="/view/<%= encodeURIComponent(item.mentions[0]) %>" class="badge bg-secondary text-decoration-none">
+                                                <%= item.mentions[0] %>
                                             </a>
                                         <% } %>
                                     </div>
