@@ -22,6 +22,26 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - [file2.md]
 ```
 
+## 2026-04-05-06
+
+- Agent: Claude Code (Sonnet 4.6)
+- Subject: Bug fixes — #461 LeftMenu/Footer missing, #459 SMTP credentials, #458 CVE triage, #433 unified asset picker
+- Key Decision: `getPage()` returns null on missing page (safe for `??` fallback); `getPageContent()` throws — wrong method for the null-coalescing override pattern introduced in f53fcc94. PolicyEvaluator.matchesResource() only handles `type: 'page'`; `type: 'category'` resources silently never match (deny-anonymous-system-pages effectively inert). CVEs in #458 all in global npm tooling, not project deps.
+- Current Issue: #433 partially closed — Pages-as-format and PDF thumbnails still open
+- Testing:
+  - npm test: not run this session (EJS-only changes + route fix)
+- Work Done:
+  - Fixed LeftMenu/Footer missing (#461): switched getCommonTemplateData() from getPageContent() to getPage() so ?? fallback to 'LeftMenu'/'Footer' works when override pages absent
+  - Fixed SMTP example credentials (#459): replaced smtp.resend.com + re_xxxxxxxxxxxx with smtp.example.com + generic placeholders
+  - Closed #458 (CVE code scanning): all alerts in global npm tooling, not actionable in project
+  - Unified Browse Assets on /search attachments tab (#433): replaced custom server-side table with shared _asset-picker component; added assetPickerInitQuery/assetPickerInitSource params
+- Commits: ff635430 c536919c 010d5387
+- Files Modified:
+  - src/routes/WikiRoutes.ts
+  - docs/admin/email-setup.md
+  - views/_asset-picker.ejs
+  - views/search-results.ejs
+
 ## 2026-04-05-05
 
 - Agent: Claude Code (Sonnet 4.6)
