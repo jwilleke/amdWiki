@@ -22,6 +22,34 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - [file2.md]
 ```
 
+## 2026-04-05-09
+
+- Agent: Claude Code (Sonnet 4.6)
+- Subject: feat: plugin fetch() lifecycle + MarqueePlugin manager feed (#465)
+- Key Decision: Managers own their data and formatting — plugins never parse manager internals. `PluginObject` gains optional `fetch(engine)` lifecycle called before `execute()`. `MarqueePlugin` gains a `fetch='Manager.method(k=v,...)'` parameter that calls any manager method and uses the returned text. Raw key=value args passed directly to manager; managers parse via `ManagerFetchOptions` from new `src/utils/managerUtils.ts`. `BaseManager.toMarqueeText()` is the standard method name for marquee output — async, accepts options. Pattern extends to future plugins (SlideshowPlugin etc.) without further framework changes. `HansDataManager.toMarqueeText()` updated with limit + domain filters (alertLevel, colorCode, observatory).
+- Current Issue: jwilleke/ngdpbase#465 (complete)
+- Testing:
+  - npm test: 100 suites passed, 2605 tests passed, 11 skipped
+  - E2E: 65/72 passed (1 pre-existing startup-503 timing failure, unrelated)
+- Work Done:
+  - `plugins/types.ts`: `fetch?` added to `SimplePlugin`
+  - `src/managers/PluginManager.ts`: `fetch?` added to `PluginObject`; called before `execute()`
+  - `plugins/MarqueePlugin.ts`: `fetch='Manager.method(k=v,...)'` param; `execute()` now async; awaits manager method
+  - `plugins/__tests__/MarqueePlugin.test.js`: all tests updated to async/await; 3 new fetch= tests (not-found, text result, args passing)
+  - `src/utils/managerUtils.ts`: new file — `ManagerFetchOptions` interface + `parseManagerFetchOptions()` for managers to import
+  - `src/managers/BaseManager.ts`: `toMarqueeText()` now async, accepts `ManagerFetchOptions`
+  - `ve-geology/HansDataManager.js`: `toMarqueeText(options)` accepts limit, alertLevel, colorCode, observatory
+  - GH issue jwilleke/ngdpbase#465 filed and updated with final approach
+- Commits: 1d62cc48 (ngdpbase), 7577e2e (ve-geology)
+- Files Modified:
+  - plugins/types.ts
+  - src/managers/PluginManager.ts
+  - plugins/MarqueePlugin.ts
+  - plugins/__tests__/MarqueePlugin.test.js
+  - src/utils/managerUtils.ts (new)
+  - src/managers/BaseManager.ts
+  - ve-geology: addons/ve-geology/managers/HansDataManager.js
+
 ## 2026-04-05-08
 
 - Agent: Claude Code (Sonnet 4.6)
