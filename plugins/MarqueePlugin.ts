@@ -56,8 +56,32 @@ const MarqueePlugin: SimplePlugin = {
   author:      'ngdpbase',
   version:     '1.0.0',
 
-  execute(_context: PluginContext, params: PluginParams): string {
-    const text = String(params.text ?? '').trim();
+  async execute(context: PluginContext, params: PluginParams): Promise<string> {
+    let text = String(params.text ?? '').trim();
+
+    // If fetch param is set, call the specified manager method to get text.
+    // Syntax: fetch='ManagerName.methodName(k=v,...)' — e.g. fetch='HansDataManager.toMarqueeText(limit=3)'
+    // The raw key=value args object is passed to the method — the manager owns its own parsing.
+    if (params.fetch) {
+      const match = String(params.fetch).trim().match(/^([A-Za-z0-9_]+)\.([A-Za-z0-9_]+)\(([^)]*)\)$/);
+      if (match && context.engine) {
+        const [, managerName, methodName, argsStr] = match;
+        const fetchArgs: Record<string, string> = {};
+        if (argsStr) {
+          for (const pair of argsStr.split(',')) {
+            const eq = pair.indexOf('=');
+            if (eq > 0) fetchArgs[pair.slice(0, eq).trim()] = pair.slice(eq + 1).trim();
+          }
+        }
+        const manager = context.engine.getManager(managerName) as Record<string, unknown> | undefined;
+        if (manager && typeof manager[methodName] === 'function') {
+          text = String(await (manager[methodName] as (o: Record<string, string>) => unknown)(fetchArgs));
+        } else {
+          return `<span class="text-muted"><em>[MarqueePlugin: fetch target '${escapeHtml(String(params.fetch))}' not found]</em></span>`;
+        }
+      }
+    }
+
     if (!text) {
       return '<span class="text-muted"><em>[MarqueePlugin: no text provided]</em></span>';
     }

@@ -46,6 +46,7 @@ export interface SimplePlugin {
   author?: string;
   version?: string;
   initialize?: (engine: unknown) => Promise<void> | void;
+  fetch?:      (engine: unknown) => Promise<void> | void;
   execute?: (context: PluginContext, params: PluginParams) => Promise<string> | string;
 }
 

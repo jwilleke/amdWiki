@@ -23,6 +23,7 @@ export interface PluginObject {
   author?: string;
   version?: string;
   initialize?: (engine: WikiEngine) => Promise<void> | void;
+  fetch?:      (engine: WikiEngine) => Promise<void> | void;
   execute: (context: PluginContext, params: PluginParams) => Promise<string> | string;
 }
 
@@ -343,6 +344,9 @@ class PluginManager extends BaseManager {
 
       // Check if it's a new-style plugin with execute method
       if (isPluginObject(plugin)) {
+        if (typeof plugin.fetch === 'function') {
+          await plugin.fetch(this.engine);
+        }
         const result = await plugin.execute(pluginContext, params);
         return result;
       }

@@ -16,6 +16,7 @@
  */
 
 import type { WikiEngine } from '../types/WikiEngine';
+import type { ManagerFetchOptions } from '../utils/managerUtils';
 
 /**
  * Backup data structure returned by backup() method
@@ -207,6 +208,33 @@ abstract class BaseManager {
     if (!backupData) {
       throw new Error(`${this.constructor.name}: No backup data provided for restore`);
     }
+  }
+
+  /**
+   * Return a plain-text string suitable for use as MarqueePlugin banner text.
+   *
+   * Override in subclasses to expose live manager data as a scrolling banner:
+   *
+   *   [{MarqueePlugin fetch='PageManager.toMarqueeText()'}]
+   *   [{MarqueePlugin fetch='PageManager.toMarqueeText(limit=5,sort=date-desc)'}]
+   *
+   * The default returns '' (no output). Subclasses should return a concise,
+   * single-line summary. Common options (limit, sortBy, sortOrder, since, before)
+   * are available via ManagerFetchOptions; domain-specific keys are read directly
+   * from the raw options object passed by the caller.
+   *
+   * @param _options  Parsed fetch args from the plugin invocation.
+   * @returns Plain text, or '' if this manager has nothing to display.
+   *
+   * @example
+   * async toMarqueeText(options: ManagerFetchOptions = {}): Promise<string> {
+   *   const pages = await this.getRecentChanges(options.limit ?? 5);
+   *   return 'Recent: ' + pages.map(p => p.name).join('  •  ');
+   * }
+   */
+  // eslint-disable-next-line @typescript-eslint/require-await -- Base class defines async interface for subclasses
+  async toMarqueeText(_options: ManagerFetchOptions = {}): Promise<string> {
+    return '';
   }
 }
 
