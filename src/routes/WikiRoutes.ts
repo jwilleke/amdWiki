@@ -352,16 +352,18 @@ class WikiRoutes {
     };
 
     // Load LeftMenu — prefer 'left-menu-content' page (instance/addon override) over 'LeftMenu'
+    // Use getPage() (returns null) rather than getPageContent() (throws) so the ?? fallback works
     try {
-      const leftMenuContent = await pageManager.getPageContent('left-menu-content')
-        ?? await pageManager.getPageContent('LeftMenu');
+      const leftMenuPage = await pageManager.getPage('left-menu-content')
+        ?? await pageManager.getPage('LeftMenu');
+      const leftMenuContent = leftMenuPage?.content ?? null;
       logger.info(
         `[TEMPLATE] Loading LeftMenu for user=${
           userContext?.username
         } roles=${userContext?.roles?.join('|')}`
       );
 
-      const canViewLeftMenu = await aclManager.checkPagePermission(
+      const canViewLeftMenu = leftMenuContent !== null && await aclManager.checkPagePermission(
         'LeftMenu',
         'view',
         userContext,
@@ -369,7 +371,7 @@ class WikiRoutes {
       );
       logger.info(`[TEMPLATE] LeftMenu ACL decision: ${canViewLeftMenu}`);
 
-      if (canViewLeftMenu) {
+      if (canViewLeftMenu && leftMenuContent !== null) {
         const ctx = new WikiContext(this.engine as unknown as import('../types/WikiEngine').WikiEngine, {
           pageName: 'LeftMenu',
           content: leftMenuContent,
@@ -391,16 +393,18 @@ class WikiRoutes {
     }
 
     // Load Footer — prefer 'footer-content' page (instance/addon override) over 'Footer'
+    // Use getPage() (returns null) rather than getPageContent() (throws) so the ?? fallback works
     try {
-      const footerContent = await pageManager.getPageContent('footer-content')
-        ?? await pageManager.getPageContent('Footer');
+      const footerPage = await pageManager.getPage('footer-content')
+        ?? await pageManager.getPage('Footer');
+      const footerContent = footerPage?.content ?? null;
       logger.info(
         `[TEMPLATE] Loading Footer for user=${
           userContext?.username
         } roles=${userContext?.roles?.join('|')}`
       );
 
-      const canViewFooter = await aclManager.checkPagePermission(
+      const canViewFooter = footerContent !== null && await aclManager.checkPagePermission(
         'Footer',
         'view',
         userContext,
@@ -408,7 +412,7 @@ class WikiRoutes {
       );
       logger.info(`[TEMPLATE] Footer ACL decision: ${canViewFooter}`);
 
-      if (canViewFooter) {
+      if (canViewFooter && footerContent !== null) {
         const ctx = new WikiContext(this.engine as unknown as import('../types/WikiEngine').WikiEngine, {
           pageName: 'Footer',
           content: footerContent,
