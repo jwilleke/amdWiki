@@ -22,6 +22,29 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - [file2.md]
 ```
 
+## 2026-04-05-07
+
+- Agent: Claude Code (Sonnet 4.6)
+- Subject: feat: SlideshowPlugin — Bootstrap 5 image carousel (#453); MarqueePlugin docs (#454)
+- Key Decision: `height` param goes into a CSS `style` attribute — `escapeHtml()` doesn't strip semicolons, so strip non-CSS-unit chars via regex (`/[^a-zA-Z0-9.%-]/g`) to prevent style injection. Required-pages examples follow `[[{...}] renders as:` / `[{...}]` pattern (same as MarqueePlugin).
+- Current Issue: #453 closed. #433 Pages-as-format and PDF thumbnails still open.
+- Testing:
+  - npm test: 101 suites passed, 2603 tests passed, 11 skipped
+- Work Done:
+  - SlideshowPlugin (#453): Bootstrap 5 carousel from comma-separated images; params: images, captions, alts, interval (0=no autoplay), controls, indicators, height, max, cssclass; unique IDs via module-level counter; height sanitised against CSS injection
+  - 34 unit tests (SlideshowPlugin.test.js) — all passing
+  - docs/plugins/SlideshowPlugin.md: developer reference
+  - required-pages/f1f41a47…md: end-user wiki page (system-category: documentation) with live-render examples
+  - MarqueePlugin docs (#454): docs/plugins/MarqueePlugin.md + required-pages/654a0565…md created prior session; wiki page examples updated to match [[{...}] / renders as pattern
+  - Version bumped 3.1.1 → 3.1.2
+- Commits: 6f4a9997 267da48e
+- Files Modified:
+  - plugins/SlideshowPlugin.ts
+  - plugins/__tests__/SlideshowPlugin.test.js
+  - docs/plugins/SlideshowPlugin.md
+  - required-pages/f1f41a47-8d0d-4d46-a5e2-6208ba42e4a0.md
+  - package.json / package-lock.json
+
 ## 2026-04-05-06
 
 - Agent: Claude Code (Sonnet 4.6)
