@@ -164,9 +164,15 @@ Make sure the path is served (see static middleware above or `addons/` core serv
 
 ### Seed Wiki Pages
 
-Place `.md` files in your add-on's `pages/` directory. `AddonsManager` seeds them into the instance's `pages/` directory at startup (skipping any page whose slug already exists).
+Place `.md` files in your add-on's `pages/` directory. `AddonsManager` will copy them into the instance's pages directory automatically on startup.
 
-Each page file must use a real UUID v4 as both its filename (`{uuid}.md`) and its `uuid` frontmatter field:
+#### When does seeding run?
+
+Seeding runs once per addon per server startup, inside `AddonsManager.loadAddon()`, immediately after the addon's `register()` function completes. It is **not** triggered by install events or file-system watchers — a server restart is required to seed new pages.
+
+#### UUID requirements
+
+Each seed page **must** have a valid UUID v4 in its frontmatter `uuid` field. The destination filename in the instance pages directory is always `{uuid}.md` — the source filename is ignored.
 
 ```markdown
 ---
@@ -182,6 +188,39 @@ Welcome to my add-on.
 ```
 
 Generate a UUID: `node -e "console.log(require('crypto').randomUUID())"`
+
+If the `uuid` field is missing or does not match the UUID v4 format, the file is **skipped with a warning** and not seeded. Pages with invalid UUIDs are never written to disk.
+
+#### Idempotency — existing pages are never overwritten
+
+If `{uuid}.md` already exists in the instance pages directory, the seed file is silently skipped. This means:
+
+- User edits to seeded pages survive restarts.
+- Re-running the server never clobbers existing content.
+- To force a re-seed of a page, delete `{uuid}.md` from the instance pages directory and restart.
+
+#### Auto-set frontmatter fields
+
+`AddonsManager` adds two frontmatter fields to every seeded page:
+
+| Field | Value | Notes |
+|-------|-------|-------|
+| `addon` | the addon's name | Always set to the loading addon's name |
+| `system-category` | `addon` | Only set if not already present in the source file |
+
+#### Cross-addon UUID conflicts
+
+If `{uuid}.md` exists and its `addon` frontmatter field names a **different** addon, `AddonsManager` logs a warning and skips the incoming page. The existing file is never overwritten. This protects against two addons accidentally shipping pages with the same UUID.
+
+```
+[AddonsManager] Page conflict: my-addon/pages/home.md skipped — already seeded by addon 'other-addon' (…/pages/{uuid}.md)
+```
+
+Use a freshly generated UUID for every seed page to avoid conflicts.
+
+#### Admin reseed
+
+There is currently no admin UI or API endpoint to trigger a reseed. To re-seed a deleted or missing page, delete the corresponding `{uuid}.md` file from the instance pages directory and restart the server. A dedicated admin reseed endpoint (`POST /admin/addons/:addonName/reseed`) is a planned future enhancement (see GitHub issue #442).
 
 #### Overriding the Left Menu and Footer
 
@@ -437,4 +476,4 @@ Keep core PRs self-contained — no add-on-specific code in the core repo.
 
 ---
 
-Last updated: 2026-03-29
+Last updated: 2026-04-05

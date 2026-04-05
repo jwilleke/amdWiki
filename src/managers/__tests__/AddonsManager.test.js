@@ -14,6 +14,9 @@ describe('AddonsManager', () => {
       if (key === 'ngdpbase.managers.addons-manager.addons-path') {
         return overrides.addonsPath ?? tmpDir;
       }
+      if (key === 'ngdpbase.page.provider.filesystem.storagedir') {
+        return overrides.pagesDir ?? path.join(tmpDir, 'pages');
+      }
       if (key.startsWith('ngdpbase.addons.')) {
         const parts = key.split('.');
         const addonName = parts[2];
@@ -685,6 +688,225 @@ describe('AddonsManager', () => {
           data: {}
         })
       ).resolves.not.toThrow();
+    });
+  });
+
+  describe('seed pages', () => {
+    // Helpers ----------------------------------------------------------------
+
+    /**
+     * Write a seed page .md file with frontmatter into dir.
+     * uuid / systemCategory / addonName are optional; omitting uuid tests the
+     * "missing uuid" skip path.
+     */
+    const writeSeedPage = async (dir, filename, { uuid, title = 'Test Page', systemCategory, addonName } = {}) => {
+      let fm = `---\ntitle: ${title}\n`;
+      if (uuid)           fm += `uuid: ${uuid}\n`;
+      if (addonName)      fm += `addon: ${addonName}\n`;
+      if (systemCategory) fm += `system-category: ${systemCategory}\n`;
+      fm += `---\nPage content.\n`;
+      await fs.writeFile(path.join(dir, filename), fm, 'utf8');
+    };
+
+    /**
+     * Create a minimal addon directory (index.js + optional pages/ files).
+     * Returns { addonDir, addonPagesDir }.
+     */
+    const makeAddonWithSeedPages = async (addonName, pages = []) => {
+      const addonDir = path.join(tmpDir, addonName);
+      const addonPagesDir = path.join(addonDir, 'pages');
+      await fs.mkdir(addonPagesDir, { recursive: true });
+      await fs.writeFile(
+        path.join(addonDir, 'index.js'),
+        `module.exports = { name: '${addonName}', version: '1.0.0', register: () => {} };`,
+        'utf8'
+      );
+      for (const page of pages) {
+        await writeSeedPage(addonPagesDir, page.filename, page);
+      }
+      return { addonDir, addonPagesDir };
+    };
+
+    // Each test gets its own instance pages directory inside tmpDir
+    let instancePagesDir;
+    beforeEach(async () => {
+      instancePagesDir = path.join(tmpDir, 'instance-pages');
+      await fs.mkdir(instancePagesDir, { recursive: true });
+    });
+
+    // Tests ------------------------------------------------------------------
+
+    test('seeds pages from addon pages/ directory on startup', async () => {
+      const uuid = '550e8400-e29b-41d4-a716-446655440001';
+      await makeAddonWithSeedPages('seed-addon', [
+        { filename: 'home.md', uuid, title: 'Home' }
+      ]);
+
+      const configManager = makeConfigManager({ enabledAddons: ['seed-addon'], pagesDir: instancePagesDir });
+      const manager = new AddonsManager(makeEngine(configManager));
+      await manager.initialize();
+
+      expect(await fs.pathExists(path.join(instancePagesDir, `${uuid}.md`))).toBe(true);
+    });
+
+    test('seeds multiple pages from one addon', async () => {
+      const uuid1 = '550e8400-e29b-41d4-a716-446655440011';
+      const uuid2 = '550e8400-e29b-41d4-a716-446655440012';
+      await makeAddonWithSeedPages('multi-seed-addon', [
+        { filename: 'page1.md', uuid: uuid1, title: 'Page 1' },
+        { filename: 'page2.md', uuid: uuid2, title: 'Page 2' }
+      ]);
+
+      const configManager = makeConfigManager({ enabledAddons: ['multi-seed-addon'], pagesDir: instancePagesDir });
+      const manager = new AddonsManager(makeEngine(configManager));
+      await manager.initialize();
+
+      expect(await fs.pathExists(path.join(instancePagesDir, `${uuid1}.md`))).toBe(true);
+      expect(await fs.pathExists(path.join(instancePagesDir, `${uuid2}.md`))).toBe(true);
+    });
+
+    test('destination filename is {uuid}.md, not the source filename', async () => {
+      const uuid = '550e8400-e29b-41d4-a716-446655440021';
+      await makeAddonWithSeedPages('uuid-name-addon', [
+        { filename: 'descriptive-name.md', uuid, title: 'Home' }
+      ]);
+
+      const configManager = makeConfigManager({ enabledAddons: ['uuid-name-addon'], pagesDir: instancePagesDir });
+      const manager = new AddonsManager(makeEngine(configManager));
+      await manager.initialize();
+
+      // UUID-named file must exist; slug-named file must NOT
+      expect(await fs.pathExists(path.join(instancePagesDir, `${uuid}.md`))).toBe(true);
+      expect(await fs.pathExists(path.join(instancePagesDir, 'descriptive-name.md'))).toBe(false);
+    });
+
+    test('sets addon field on seeded pages', async () => {
+      const uuid = '550e8400-e29b-41d4-a716-446655440031';
+      await makeAddonWithSeedPages('meta-addon', [
+        { filename: 'page.md', uuid, title: 'Test' }
+      ]);
+
+      const configManager = makeConfigManager({ enabledAddons: ['meta-addon'], pagesDir: instancePagesDir });
+      const manager = new AddonsManager(makeEngine(configManager));
+      await manager.initialize();
+
+      const content = await fs.readFile(path.join(instancePagesDir, `${uuid}.md`), 'utf8');
+      expect(content).toContain('addon: meta-addon');
+    });
+
+    test('sets system-category: addon when not already present', async () => {
+      const uuid = '550e8400-e29b-41d4-a716-446655440032';
+      await makeAddonWithSeedPages('syscat-addon', [
+        { filename: 'page.md', uuid, title: 'Test' } // no systemCategory
+      ]);
+
+      const configManager = makeConfigManager({ enabledAddons: ['syscat-addon'], pagesDir: instancePagesDir });
+      const manager = new AddonsManager(makeEngine(configManager));
+      await manager.initialize();
+
+      const content = await fs.readFile(path.join(instancePagesDir, `${uuid}.md`), 'utf8');
+      expect(content).toContain('system-category: addon');
+    });
+
+    test('preserves existing system-category value if already set in source', async () => {
+      const uuid = '550e8400-e29b-41d4-a716-446655440033';
+      await makeAddonWithSeedPages('custom-cat-addon', [
+        { filename: 'page.md', uuid, title: 'Test', systemCategory: 'custom-cat' }
+      ]);
+
+      const configManager = makeConfigManager({ enabledAddons: ['custom-cat-addon'], pagesDir: instancePagesDir });
+      const manager = new AddonsManager(makeEngine(configManager));
+      await manager.initialize();
+
+      const content = await fs.readFile(path.join(instancePagesDir, `${uuid}.md`), 'utf8');
+      expect(content).toContain('system-category: custom-cat');
+      expect(content).not.toContain('system-category: addon');
+    });
+
+    test('skips page that already exists — user edits are never overwritten', async () => {
+      const uuid = '550e8400-e29b-41d4-a716-446655440041';
+      // Pre-create the destination with content different from the seed
+      await fs.writeFile(
+        path.join(instancePagesDir, `${uuid}.md`),
+        `---\ntitle: User Edited\nuuid: ${uuid}\n---\nUser content.\n`,
+        'utf8'
+      );
+      await makeAddonWithSeedPages('idem-addon', [
+        { filename: 'home.md', uuid, title: 'Addon Default Title' }
+      ]);
+
+      const configManager = makeConfigManager({ enabledAddons: ['idem-addon'], pagesDir: instancePagesDir });
+      const manager = new AddonsManager(makeEngine(configManager));
+      await manager.initialize();
+
+      const content = await fs.readFile(path.join(instancePagesDir, `${uuid}.md`), 'utf8');
+      expect(content).toContain('User content.');
+      expect(content).not.toContain('Addon Default Title');
+    });
+
+    test('skips page with missing uuid in frontmatter', async () => {
+      await makeAddonWithSeedPages('no-uuid-addon', [
+        { filename: 'no-uuid.md', title: 'No UUID' } // uuid intentionally omitted
+      ]);
+
+      const configManager = makeConfigManager({ enabledAddons: ['no-uuid-addon'], pagesDir: instancePagesDir });
+      const manager = new AddonsManager(makeEngine(configManager));
+      await manager.initialize();
+
+      const files = await fs.readdir(instancePagesDir);
+      expect(files).toHaveLength(0);
+    });
+
+    test('skips page with invalid uuid format', async () => {
+      await makeAddonWithSeedPages('bad-uuid-addon', [
+        { filename: 'bad.md', uuid: 'not-a-valid-uuid', title: 'Bad UUID' }
+      ]);
+
+      const configManager = makeConfigManager({ enabledAddons: ['bad-uuid-addon'], pagesDir: instancePagesDir });
+      const manager = new AddonsManager(makeEngine(configManager));
+      await manager.initialize();
+
+      const files = await fs.readdir(instancePagesDir);
+      expect(files).toHaveLength(0);
+    });
+
+    test('skips and warns on cross-addon UUID conflict — existing file untouched', async () => {
+      const uuid = '550e8400-e29b-41d4-a716-446655440051';
+      // Pre-create a file owned by a different addon
+      await fs.writeFile(
+        path.join(instancePagesDir, `${uuid}.md`),
+        `---\ntitle: Other Addon Page\nuuid: ${uuid}\naddon: other-addon\n---\nOther content.\n`,
+        'utf8'
+      );
+      await makeAddonWithSeedPages('conflict-addon', [
+        { filename: 'page.md', uuid, title: 'Conflict' }
+      ]);
+
+      const configManager = makeConfigManager({ enabledAddons: ['conflict-addon'], pagesDir: instancePagesDir });
+      const manager = new AddonsManager(makeEngine(configManager));
+      await expect(manager.initialize()).resolves.not.toThrow();
+
+      // Existing file must still belong to the original addon
+      const content = await fs.readFile(path.join(instancePagesDir, `${uuid}.md`), 'utf8');
+      expect(content).toContain('addon: other-addon');
+      expect(content).toContain('Other content.');
+    });
+
+    test('no-op when addon has no pages/ directory', async () => {
+      const addonDir = path.join(tmpDir, 'no-pages-addon');
+      await fs.mkdir(addonDir);
+      await fs.writeFile(
+        path.join(addonDir, 'index.js'),
+        `module.exports = { name: 'no-pages-addon', version: '1.0.0', register: () => {} };`,
+        'utf8'
+      );
+
+      const configManager = makeConfigManager({ enabledAddons: ['no-pages-addon'], pagesDir: instancePagesDir });
+      const manager = new AddonsManager(makeEngine(configManager));
+      await expect(manager.initialize()).resolves.not.toThrow();
+
+      const files = await fs.readdir(instancePagesDir);
+      expect(files).toHaveLength(0);
     });
   });
 });
