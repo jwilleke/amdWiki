@@ -22,6 +22,22 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - [file2.md]
 ```
 
+## 2026-04-05-02
+
+- Agent: Claude Code (Sonnet 4.6)
+- Subject: fix auto-migration skips slug-named pages (#450)
+- Key Decision: Root cause was `autoMigrateExistingPages()` hardcoding `{uuid}.md` as the source path, ignoring `pageCache.filePath`. Fix falls back to `filePath` when `{uuid}.md` is absent, renames the slug file to `{uuid}.md`, and logs a warning (not silence) if neither path exists.
+- Current Issue: #450 (open — fix committed, not yet closed)
+- Testing:
+  - npm test: 96 suites passed, 2487 tests passed, 11 skipped
+- Work Done:
+  - `VersioningFileProvider.autoMigrateExistingPages()`: when `{uuid}.md` not found, fall back to `pageCache.filePath`; rename slug-named file to `{uuid}.md`; log warning if file not found at either path (never silent)
+  - 5 new tests in `VersioningFileProvider.test.js` under `Auto-migration — slug-named files`
+- Commits: 537c9b13
+- Files Modified:
+  - src/providers/VersioningFileProvider.ts
+  - src/providers/__tests__/VersioningFileProvider.test.js
+
 ## 2026-04-05-01
 
 - Agent: Claude Code (Sonnet 4.6)
