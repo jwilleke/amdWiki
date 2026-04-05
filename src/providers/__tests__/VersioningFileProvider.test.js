@@ -1039,4 +1039,127 @@ describe('VersioningFileProvider', () => {
       await expect(provider.compareVersions('Test', 1, 99)).rejects.toThrow();
     });
   });
+
+  describe('Auto-migration — slug-named files', () => {
+    const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    const pagesDir = () => path.join(testDir, 'pages');
+    const indexPath = () => path.join(testDir, 'data', 'page-index.json');
+
+    /**
+     * Write a .md file into pagesDir (creates dir if needed).
+     * filename is the on-disk name (e.g. "my-page.md" or "{uuid}.md").
+     */
+    const writePage = async (filename, { uuid, title, content = 'Hello world.' } = {}) => {
+      await fs.ensureDir(pagesDir());
+      let fm = `---\ntitle: ${title}\n`;
+      if (uuid) fm += `uuid: ${uuid}\n`;
+      fm += `---\n${content}\n`;
+      await fs.writeFile(path.join(pagesDir(), filename), fm, 'utf8');
+    };
+
+    test('renames slug-named file to {uuid}.md and migrates correct content', async () => {
+      const uuid = 'a1b2c3d4-e5f6-7890-abcd-ef1234567801';
+      await writePage('my-addon-home.md', { uuid, title: 'Addon Home', content: 'Seeded content.' });
+
+      await provider.initialize();
+
+      // Slug-named file should be gone; UUID-named file should exist
+      expect(await fs.pathExists(path.join(pagesDir(), 'my-addon-home.md'))).toBe(false);
+      expect(await fs.pathExists(path.join(pagesDir(), `${uuid}.md`))).toBe(true);
+
+      // Page should be in the index
+      const index = JSON.parse(await fs.readFile(indexPath(), 'utf8'));
+      expect(index.pages[uuid]).toBeDefined();
+      expect(index.pages[uuid].title).toBe('Addon Home');
+
+      // v1 content should be the actual page content, not empty
+      const v1Content = await fs.readFile(
+        path.join(pagesDir(), 'versions', uuid, 'v1', 'content.md'),
+        'utf8'
+      );
+      expect(v1Content.trim()).toBe('Seeded content.');
+    });
+
+    test('migrates multiple slug-named files in the same run', async () => {
+      const uuid1 = 'a1b2c3d4-e5f6-7890-abcd-ef1234567811';
+      const uuid2 = 'a1b2c3d4-e5f6-7890-abcd-ef1234567812';
+      await writePage('page-one.md', { uuid: uuid1, title: 'Page One', content: 'Content one.' });
+      await writePage('page-two.md', { uuid: uuid2, title: 'Page Two', content: 'Content two.' });
+
+      await provider.initialize();
+
+      expect(await fs.pathExists(path.join(pagesDir(), `${uuid1}.md`))).toBe(true);
+      expect(await fs.pathExists(path.join(pagesDir(), `${uuid2}.md`))).toBe(true);
+      expect(await fs.pathExists(path.join(pagesDir(), 'page-one.md'))).toBe(false);
+      expect(await fs.pathExists(path.join(pagesDir(), 'page-two.md'))).toBe(false);
+
+      const index = JSON.parse(await fs.readFile(indexPath(), 'utf8'));
+      expect(index.pages[uuid1]).toBeDefined();
+      expect(index.pages[uuid2]).toBeDefined();
+    });
+
+    test('migrates mix of slug-named and UUID-named files correctly', async () => {
+      const slugUuid  = 'a1b2c3d4-e5f6-7890-abcd-ef1234567821';
+      const properUuid = 'a1b2c3d4-e5f6-7890-abcd-ef1234567822';
+
+      await writePage('addon-page.md', { uuid: slugUuid, title: 'Addon Page', content: 'From slug file.' });
+      await writePage(`${properUuid}.md`, { uuid: properUuid, title: 'Normal Page', content: 'From UUID file.' });
+
+      await provider.initialize();
+
+      // Slug file renamed
+      expect(await fs.pathExists(path.join(pagesDir(), 'addon-page.md'))).toBe(false);
+      expect(await fs.pathExists(path.join(pagesDir(), `${slugUuid}.md`))).toBe(true);
+
+      // Both pages in index with correct content
+      const index = JSON.parse(await fs.readFile(indexPath(), 'utf8'));
+      expect(index.pages[slugUuid]).toBeDefined();
+      expect(index.pages[properUuid]).toBeDefined();
+
+      const slugV1 = await fs.readFile(
+        path.join(pagesDir(), 'versions', slugUuid, 'v1', 'content.md'), 'utf8'
+      );
+      const normalV1 = await fs.readFile(
+        path.join(pagesDir(), 'versions', properUuid, 'v1', 'content.md'), 'utf8'
+      );
+      expect(slugV1.trim()).toBe('From slug file.');
+      expect(normalV1.trim()).toBe('From UUID file.');
+    });
+
+    test('slug-named file with no UUID frontmatter uses filename as uuid — still migrates', async () => {
+      // No uuid in frontmatter — FileSystemProvider uses filename as uuid
+      // Filename matches computed uuid, so {uuid}.md = slug.md → file found normally
+      await writePage('numeric-page.md', { title: 'Numeric Page', content: 'No UUID field.' });
+
+      // Should not throw
+      await expect(provider.initialize()).resolves.not.toThrow();
+
+      // File exists under its original name (filename == uuid key)
+      expect(await fs.pathExists(path.join(pagesDir(), 'numeric-page.md'))).toBe(true);
+
+      const index = JSON.parse(await fs.readFile(indexPath(), 'utf8'));
+      // Indexed under the slug-as-uuid key
+      expect(index.pages['numeric-page']).toBeDefined();
+    });
+
+    test('already-renamed slug file is not processed twice after restart', async () => {
+      const uuid = 'a1b2c3d4-e5f6-7890-abcd-ef1234567831';
+      await writePage('double-process.md', { uuid, title: 'Double Process', content: 'Once is enough.' });
+
+      // First boot — migrates and renames
+      await provider.initialize();
+      expect(await fs.pathExists(path.join(pagesDir(), `${uuid}.md`))).toBe(true);
+      expect(await fs.pathExists(path.join(pagesDir(), 'double-process.md'))).toBe(false);
+
+      // Second boot — index exists; fast path skips migration entirely
+      const provider2 = new (require('../VersioningFileProvider'))(engine);
+      await expect(provider2.initialize()).resolves.not.toThrow();
+
+      // Still just one UUID-named file
+      const files = (await fs.readdir(pagesDir())).filter(f => f.endsWith('.md') && !f.startsWith('.'));
+      const pageFiles = files.filter(f => !f.includes('versions'));
+      expect(pageFiles).toContain(`${uuid}.md`);
+      expect(pageFiles).not.toContain('double-process.md');
+    });
+  });
 });

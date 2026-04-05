@@ -774,6 +774,39 @@ class VersioningFileProvider extends FileSystemProvider {
           const parsed = matter(fileContent);
           content = parsed.content;
           metadata = parsed.data as PageFrontmatter;
+        } else {
+          // {uuid}.md not found — the page may have a slug-based filename on disk.
+          // pageCache.filePath holds the actual path discovered during directory scan.
+          const actualFilePath = (pageData as PageCacheInfo).filePath;
+          if (actualFilePath && await fs.pathExists(actualFilePath)) {
+            // Correct location based on which directory the file actually lives in
+            if (actualFilePath.startsWith(this.requiredPagesDirectory + path.sep)) {
+              location = 'required-pages';
+              pagePath = requiredPath;
+            } else {
+              location = 'pages';
+              pagePath = pagesPath;
+            }
+            const fileContent = await fs.readFile(actualFilePath, 'utf8');
+            const parsed = matter(fileContent);
+            content = parsed.content;
+            metadata = parsed.data as PageFrontmatter;
+            // Rename the slug-named file to its proper UUID filename
+            await fs.rename(actualFilePath, pagePath);
+            logger.info(
+              '[VersioningFileProvider] Auto-migration: renamed slug-named file ' +
+              `"${path.basename(actualFilePath)}" → "${path.basename(pagePath)}" ` +
+              `for page "${(pageData as PageCacheInfo).title}"`
+            );
+          } else {
+            logger.warn(
+              '[VersioningFileProvider] Auto-migration: file not found for page ' +
+              `"${(pageData as PageCacheInfo).title}" (uuid: ${uuid}); ` +
+              `expected "${pagePath}"` +
+              (actualFilePath ? `, also checked "${actualFilePath}"` : '') +
+              ' — creating v1 with empty content'
+            );
+          }
         }
 
         // Create v1
