@@ -1,0 +1,110 @@
+<%#
+  _media-lightbox.ejs — image lightbox with prev/next result-set browsing.
+
+  Include once per page that uses _media-card.ejs.
+  Wires click handlers onto .media-lightbox-trigger elements inside
+  a container identified by `lightboxContainerId` (default: 'media-results-grid').
+  Supports keyboard ← → and swipe left/right.
+%>
+<% var _containerId = typeof lightboxContainerId !== 'undefined' ? lightboxContainerId : 'media-results-grid'; %>
+
+<!-- Lightbox modal -->
+<div class="modal fade" id="mediaLightboxModal" tabindex="-1" aria-label="Image preview" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content bg-dark text-white border-0">
+            <div class="modal-header border-0 pb-0">
+                <small class="text-muted" id="mlb-name"></small>
+                <div class="ms-auto d-flex gap-2 align-items-center">
+                    <small class="text-muted" id="mlb-counter"></small>
+                    <a id="mlb-open-link" href="#" target="_blank" class="btn btn-sm btn-outline-light" title="Open full size">
+                        <i class="fas fa-external-link-alt"></i>
+                    </a>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+            </div>
+            <div class="modal-body text-center p-2 position-relative">
+                <button id="mlb-prev" class="btn btn-dark opacity-75 position-absolute start-0 top-50 translate-middle-y ms-2" style="z-index:10;" title="Previous">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+                <img id="mlb-img" src="" alt="" class="img-fluid" style="max-height:75vh;object-fit:contain;">
+                <button id="mlb-next" class="btn btn-dark opacity-75 position-absolute end-0 top-50 translate-middle-y me-2" style="z-index:10;" title="Next">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+(function () {
+    var _items  = [];   // [{url, name}]
+    var _idx    = 0;
+    var _modal  = null;
+
+    function _open(idx) {
+        if (!_items.length) return;
+        _idx = (idx + _items.length) % _items.length;
+        var item = _items[_idx];
+        document.getElementById('mlb-img').src = item.url;
+        document.getElementById('mlb-img').alt = item.name;
+        document.getElementById('mlb-name').textContent = item.name;
+        document.getElementById('mlb-open-link').href = item.url;
+        document.getElementById('mlb-counter').textContent = (_idx + 1) + ' / ' + _items.length;
+        document.getElementById('mlb-prev').style.display = _items.length > 1 ? '' : 'none';
+        document.getElementById('mlb-next').style.display = _items.length > 1 ? '' : 'none';
+        if (!_modal) _modal = new bootstrap.Modal(document.getElementById('mediaLightboxModal'));
+        _modal.show();
+    }
+
+    function _wire() {
+        var container = document.getElementById(<%- JSON.stringify(_containerId) %>);
+        if (!container) return;
+
+        var triggers = Array.from(container.querySelectorAll('.media-lightbox-trigger'));
+        _items = triggers.map(function (el) {
+            return { url: el.dataset.lightboxUrl, name: el.dataset.lightboxName || '' };
+        });
+
+        triggers.forEach(function (el, i) {
+            el.addEventListener('click', function (e) {
+                if (_items.length) { e.preventDefault(); _open(i); }
+            });
+        });
+    }
+
+    document.getElementById('mlb-prev').addEventListener('click', function () { _open(_idx - 1); });
+    document.getElementById('mlb-next').addEventListener('click', function () { _open(_idx + 1); });
+
+    // Keyboard navigation
+    document.addEventListener('keydown', function (e) {
+        var el = document.getElementById('mediaLightboxModal');
+        if (!el || !el.classList.contains('show')) return;
+        if (e.key === 'ArrowLeft')  { e.preventDefault(); _open(_idx - 1); }
+        if (e.key === 'ArrowRight') { e.preventDefault(); _open(_idx + 1); }
+    });
+
+    // Swipe navigation
+    (function () {
+        var el = document.getElementById('mediaLightboxModal');
+        var sx = null;
+        el.addEventListener('touchstart', function (e) { sx = e.touches[0].clientX; }, { passive: true });
+        el.addEventListener('touchend', function (e) {
+            if (sx === null) return;
+            var dx = e.changedTouches[0].clientX - sx;
+            sx = null;
+            if (Math.abs(dx) < 40) return;
+            if (dx < 0) _open(_idx + 1); else _open(_idx - 1);
+        });
+    })();
+
+    // Re-wire after dynamic content updates (e.g. pagination in asset picker)
+    window.mediaLightboxWire = _wire;
+
+    // Initial wire
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', _wire);
+    } else {
+        _wire();
+    }
+})();
+</script>

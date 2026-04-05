@@ -9,7 +9,10 @@
 <% const _imgHeight = typeof imgHeight !== 'undefined' ? imgHeight : 130; %>
 <div class="card h-100">
     <% if (item.encodingFormat && item.encodingFormat.startsWith('image/') && item.thumbnailUrl) { %>
-        <a href="<%= linkUrl %>" target="_blank">
+        <a href="<%= linkUrl %>" target="_blank"
+           class="media-lightbox-trigger"
+           data-lightbox-url="<%= item.url %>"
+           data-lightbox-name="<%= item.description || item.filename %>">
             <img
                 src="<%= item.thumbnailUrl %>"
                 class="card-img-top"

@@ -60,7 +60,7 @@
             <% } %>
 
             <% if (items && items.length > 0) { %>
-                <div class="row row-cols-2 row-cols-sm-3 row-cols-md-4 row-cols-lg-5 g-2">
+                <div id="media-results-grid" class="row row-cols-2 row-cols-sm-3 row-cols-md-4 row-cols-lg-5 g-2">
                     <% items.forEach(function(item) { %>
                         <div class="col">
                             <%- include('_media-card', { item, linkUrl: '/media/item/' + item.id + '?sort=' + sort + '&order=' + order, imgHeight: 140 }) %>
@@ -72,4 +72,5 @@
     </div>
 </div>
 
+<%- include('_media-lightbox') %>
 <%- include('footer') %>
