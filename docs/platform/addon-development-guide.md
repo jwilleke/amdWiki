@@ -32,7 +32,7 @@ my-addon-repo/
 The `addons/` subdirectory is what gets wired into ngdpbase via config.
 You can host multiple add-ons in one repo under the same `addons/` directory.
 
-Copy [`addons/template/`](../addons/template/) from the ngdpbase repo as your starting point.
+Use [`addons/calendar/`](../../addons/calendar/) in the ngdpbase repo as a reference implementation.
 
 ---
 
@@ -491,7 +491,7 @@ Keep core PRs self-contained — no add-on-specific code in the core repo.
 
 | Resource | Contents |
 |----------|----------|
-| [`addons/template/`](../addons/template/) | Starter scaffold — copy and rename |
+| [`addons/calendar/`](../../addons/calendar/) | Event calendar with FullCalendar UI — reference implementation |
 | [`docs/platform/ngdp-as-platform.md`](./ngdp-as-platform.md) | Platform overview, use-case analysis, roadmap |
 | [`docs/platform/platform-core-capabilities.md`](./platform-core-capabilities.md) | All built-in managers and APIs |
 | [AddonsManager source](../src/managers/AddonsManager.ts) | Discovery, loading, lifecycle implementation |

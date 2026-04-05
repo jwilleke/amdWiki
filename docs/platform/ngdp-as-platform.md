@@ -195,7 +195,7 @@ Tracked in [#397](https://github.com/jwilleke/ngdpbase/issues/397).
 | Phase | Status | Description |
 |-------|--------|-------------|
 | Phase 0 | ✅ Done | `registerPlugin()` [#358](https://github.com/jwilleke/ngdpbase/issues/358), `engine.expressApp` [#359](https://github.com/jwilleke/ngdpbase/issues/359) |
-| Phase 1 | ✅ Done | Addon development guide + `addons/template/` starter scaffold |
+| Phase 1 | ✅ Done | Addon development guide + `addons/calendar/` — event calendar with FullCalendar UI |
 | Phase 2 | Planned | Fairways Gen2 — `addons/fairways/`, EmbedPlugin, fairways theme |
 | Phase 3 | Next | Volcano Wiki — `addons/volcano-wiki/`, VolcanoDataManager, bulk importer, plugins |
 
@@ -218,7 +218,7 @@ Tracked in [#397](https://github.com/jwilleke/ngdpbase/issues/397).
 |----------|----------|
 | [`platform-core-capabilities.md`](./platform-core-capabilities.md) | Full inventory of what core provides |
 | [`addon-development-guide.md`](./addon-development-guide.md) | How to build an add-on (code patterns, checklist) |
-| [`addons/template/`](../../addons/template/) | Starter scaffold — copy and rename |
+| [`addons/calendar/`](../../addons/calendar/) | Event calendar with FullCalendar UI — reference implementation |
 
 | Issue | Description |
 |-------|-------------|
