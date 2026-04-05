@@ -232,95 +232,19 @@
 
     <!-- Attachments Search Tab -->
     <div class="tab-pane fade <%= searchTab === 'attachments' ? 'show active' : '' %>" id="attachments-search" role="tabpanel">
-        <div class="card mb-4 shadow-sm">
-            <div class="card-body" style="background-color: var(--card-bg);">
-                <form id="attachmentSearchForm" action="/search" method="GET">
-                    <input type="hidden" name="tab" value="attachments">
-                    <div class="row g-3">
-                        <!-- Filename Search -->
-                        <div class="col-md-6">
-                            <div class="input-group">
-                                <span class="input-group-text"><i class="fas fa-file"></i></span>
-                                <input type="text" class="form-control" id="attachmentQuery" name="attachmentQuery"
-                                       value="<%= attachmentQuery || '' %>" placeholder="Search by filename...">
-                            </div>
-                        </div>
-
-                        <!-- MIME Type Filter -->
-                        <div class="col-md-4">
-                            <select class="form-select" name="mimeType" id="mimeType">
-                                <option value="">All Types</option>
-                                <option value="image/" <%= mimeType === 'image/' ? 'selected' : '' %>>Images</option>
-                                <option value="application/pdf" <%= mimeType === 'application/pdf' ? 'selected' : '' %>>PDFs</option>
-                                <option value="text/" <%= mimeType === 'text/' ? 'selected' : '' %>>Text Files</option>
-                                <option value="application/" <%= mimeType === 'application/' ? 'selected' : '' %>>Applications</option>
-                            </select>
-                        </div>
-
-                        <div class="col-md-2">
-                            <button class="btn btn-primary w-100" type="submit">
-                                <i class="fas fa-search me-1"></i>Search
-                            </button>
-                        </div>
-                    </div>
-                </form>
-            </div>
-        </div>
-
-        <!-- Attachment Results -->
-        <% if (searchTab === 'attachments' && attachmentResults && attachmentResults.length > 0) { %>
-            <div class="mb-3">
-                <span class="badge bg-info"><%= attachmentResults.length %> attachment<%= attachmentResults.length === 1 ? '' : 's' %></span>
-            </div>
-
-            <div class="table-responsive">
-                <table class="table table-hover">
-                    <thead>
-                        <tr>
-                            <th>Filename</th>
-                            <th>Type</th>
-                            <th>Page</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <% attachmentResults.forEach(att => { %>
-                            <tr>
-                                <td>
-                                    <i class="fas fa-<%= att.mimeType && att.mimeType.startsWith('image/') ? 'image' : 'file' %> me-2"></i>
-                                    <%= att.filename %>
-                                </td>
-                                <td><code><%= att.mimeType || 'unknown' %></code></td>
-                                <td>
-                                    <% if (att.linkedPageName) { %>
-                                        <a href="/view/<%= encodeURIComponent(att.linkedPageName) %>"><%= att.linkedPageName %></a>
-                                    <% } else { %>
-                                        -
-                                    <% } %>
-                                </td>
-                                <td>
-                                    <a href="<%= att.url %>" class="btn btn-sm btn-outline-primary" target="_blank">
-                                        <i class="fas fa-download"></i>
-                                    </a>
-                                    <% if (att.mimeType && att.mimeType.startsWith('image/')) { %>
-                                        <a href="<%= att.url %>" class="btn btn-sm btn-outline-info" target="_blank">
-                                            <i class="fas fa-eye"></i>
-                                        </a>
-                                    <% } %>
-                                </td>
-                            </tr>
-                        <% }); %>
-                    </tbody>
-                </table>
-            </div>
-        <% } else if (searchTab === 'attachments' && (attachmentQuery || mimeType)) { %>
-            <div class="alert alert-info">
-                <i class="fas fa-info-circle me-2"></i>No attachments found matching your search.
-            </div>
-        <% } else if (searchTab === 'attachments') { %>
+        <% if (typeof currentUser !== 'undefined' && currentUser && currentUser.roles &&
+               (currentUser.roles.includes('admin') || currentUser.roles.includes('editor') || currentUser.roles.includes('contributor'))) { %>
+            <%- include('_asset-picker', {
+                assetPickerMode:       'page',
+                assetPickerInsert:     false,
+                assetPickerPageName:   undefined,
+                assetPickerInitQuery:  attachmentQuery || '',
+                assetPickerInitSource: 'attachment'
+            }) %>
+        <% } else { %>
             <div class="text-center py-4 text-muted">
-                <i class="fas fa-paperclip fa-3x mb-3"></i>
-                <p>Search for attachments by filename or filter by type.</p>
+                <i class="fas fa-lock fa-3x mb-3"></i>
+                <p>Sign in as a contributor or editor to browse attachments.</p>
             </div>
         <% } %>
     </div>

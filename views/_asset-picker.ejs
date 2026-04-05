@@ -3,13 +3,17 @@
  * _asset-picker.ejs — shared Browse Assets component
  *
  * Expected locals:
- *   assetPickerMode   : 'page' | 'modal'
- *   assetPickerInsert : true | false   (show Insert button vs Copy button)
- *   assetPickerPageName : string | undefined  (wiki page context for upload)
+ *   assetPickerMode       : 'page' | 'modal'
+ *   assetPickerInsert     : true | false   (show Insert button vs Copy button)
+ *   assetPickerPageName   : string | undefined  (wiki page context for upload)
+ *   assetPickerInitQuery  : string | undefined  (pre-populate query on load)
+ *   assetPickerInitSource : 'attachment' | 'media' | '' | undefined  (pre-select source filter)
  */
 var _apMode       = typeof assetPickerMode       !== 'undefined' ? assetPickerMode       : 'page';
 var _apInsert     = typeof assetPickerInsert      !== 'undefined' ? assetPickerInsert      : false;
 var _apPageName   = typeof assetPickerPageName    !== 'undefined' ? assetPickerPageName    : '';
+var _apInitQuery  = typeof assetPickerInitQuery   !== 'undefined' ? assetPickerInitQuery   : '';
+var _apInitSource = typeof assetPickerInitSource  !== 'undefined' ? assetPickerInitSource  : '';
 %>
 
 <!-- Controls bar -->
@@ -304,6 +308,14 @@ var _apPageName   = typeof assetPickerPageName    !== 'undefined' ? assetPickerP
             .replace(/>/g, '&gt;').replace(/"/g, '&quot;')
             .replace(/'/g, '&#39;');
     }
+
+    // Pre-populate query/source from caller (e.g. search page passing its query param)
+    <% if (_apInitQuery) { %>
+    qEl.value = <%- JSON.stringify(_apInitQuery) %>;
+    <% } %>
+    <% if (_apInitSource) { %>
+    srcEl.value = <%- JSON.stringify(_apInitSource) %>;
+    <% } %>
 
     // Auto-load on init
     _apSearch(0);
