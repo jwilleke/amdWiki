@@ -22,6 +22,34 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - [file2.md]
 ```
 
+## 2026-04-05-04
+
+- Agent: Claude Code (Sonnet 4.6)
+- Subject: Issue triage, GoogleOIDCProvider tests, #451 seed fix, #446 media card partial
+- Key Decision: EmailManager only registers when `ngdpbase.mail.enabled: true` — consistent with magic-link/google-oidc pattern. GoogleOIDC E2E tested via unit tests with mocked OAuth2Client (live Google OAuth not feasible in CI). #451 fix is config-driven via `storageLocation=github`, not hardcoded to 'developer'.
+- Current Issue: #457 (Phase 2 NotificationManager escalation) still open
+- Testing:
+  - npm test: 99 suites passed, 2530 tests passed, 11 skipped
+- Work Done:
+  - Fixed EmailManager to only register when `mail.enabled: true`
+  - Closed #456 (EmailManager), #442 (seed pages), #447 (Google OIDC), #451 (developer page seeding), #446 (media DRY)
+  - Labeled #422 on-hold (generic OAuth framework — future work)
+  - Added 23 unit tests for GoogleOIDCProvider (`src/providers/__tests__/GoogleOIDCProvider.test.js`)
+  - Fixed `seedRequiredPages()` to skip github-only pages (#451) — config-driven
+  - Added NotificationManager notification when github-only pages are skipped
+  - Extracted `views/_media-card.ejs` shared partial (#446)
+- Commits: 914a1e56, 1543ee89, 713165fb, 56d39b0f, 9d457e61
+- Files Modified:
+  - src/WikiEngine.ts
+  - src/managers/EmailManager.ts
+  - src/managers/__tests__/EmailManager.test.js
+  - src/providers/__tests__/GoogleOIDCProvider.test.js (new)
+  - src/managers/PageManager.ts
+  - src/managers/__tests__/PageManager.seedRequiredPages.test.js (new)
+  - views/_media-card.ejs (new)
+  - views/search-results.ejs
+  - views/media-search.ejs
+
 ## 2026-04-05-03
 
 - Agent: Claude Code (Sonnet 4.6)
