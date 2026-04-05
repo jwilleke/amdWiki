@@ -8,6 +8,7 @@ import { PageProvider, ProviderInfo } from '../types/Provider';
 import { WikiPage, PageFrontmatter } from '../types/Page';
 import type ConfigurationManager from './ConfigurationManager';
 import type ValidationManager from './ValidationManager';
+import type NotificationManager from './NotificationManager';
 
 /**
  * Minimal WikiContext interface for type safety
@@ -216,6 +217,22 @@ class PageManager extends BaseManager {
       }
 
       logger.info(`[PageManager] Required pages seeded: ${seeded} new, ${skipped} already present${devSkipped ? `, ${devSkipped} github-only skipped` : ''}`);
+
+      if (devSkipped > 0) {
+        try {
+          const notificationManager = this.engine.getManager<NotificationManager>('NotificationManager');
+          if (notificationManager?.createNotification) {
+            await notificationManager.createNotification({
+              type: 'system',
+              level: 'info',
+              title: 'Developer pages excluded from seed',
+              message: `${devSkipped} github-only page${devSkipped === 1 ? '' : 's'} in required-pages/ ${devSkipped === 1 ? 'was' : 'were'} skipped during seeding (system-category with storageLocation=github). These pages are source-tree only and will not appear in the wiki.`
+            });
+          }
+        } catch {
+          // non-fatal
+        }
+      }
     } catch (err) {
       logger.error('[PageManager] Failed to seed required pages:', err);
     }
