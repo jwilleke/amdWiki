@@ -21,7 +21,7 @@ test.describe('Admin Maintenance Mode', () => {
   test('admin can enable maintenance mode', async ({ page }) => {
     // Go to admin dashboard
     await page.goto('/admin');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Verify we're on the admin page
     await expect(page).toHaveURL(/\/admin/);
@@ -33,7 +33,7 @@ test.describe('Admin Maintenance Mode', () => {
       // Handle confirmation dialog
       page.on('dialog', dialog => dialog.accept());
       await enableButton.first().click();
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       // Verify maintenance mode is now active - look for indication on admin page
       // The admin page should show maintenance is enabled
@@ -101,7 +101,7 @@ test.describe('Admin Maintenance Mode', () => {
   test('admin can disable maintenance mode', async ({ page }) => {
     // Go to admin dashboard
     await page.goto('/admin');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Find and click the disable maintenance button
     const disableButton = page.locator('button:has-text("Disable Maintenance"), a:has-text("Disable Maintenance")');
@@ -110,7 +110,7 @@ test.describe('Admin Maintenance Mode', () => {
       // Handle confirmation dialog
       page.on('dialog', dialog => dialog.accept());
       await disableButton.first().click();
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       // Verify maintenance mode is now disabled
       const pageContent = await page.content();

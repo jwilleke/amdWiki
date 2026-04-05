@@ -22,7 +22,7 @@ test.describe('Mobile Navigation', () => {
   test.describe('Offcanvas sidebar on mobile', () => {
     test('hamburger button is visible on mobile', async ({ page }) => {
       await page.goto('/');
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       // Mobile hamburger uses data-bs-toggle=offcanvas
       const mobileHamburger = page.locator('button[data-bs-toggle="offcanvas"][data-bs-target="#mobileNavOffcanvas"]');
@@ -31,7 +31,7 @@ test.describe('Mobile Navigation', () => {
 
     test('desktop sidebar button is NOT visible on mobile', async ({ page }) => {
       await page.goto('/');
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       // Desktop toggle button has d-none d-md-inline-flex — hidden on mobile
       const desktopToggle = page.locator('button.d-none.d-md-inline-flex[onclick*="toggleLeftMenu"]');
@@ -40,7 +40,7 @@ test.describe('Mobile Navigation', () => {
 
     test('tapping hamburger opens the offcanvas drawer', async ({ page }) => {
       await page.goto('/');
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       const offcanvas = page.locator('#mobileNavOffcanvas');
       await expect(offcanvas).not.toHaveClass(/show/);
@@ -51,7 +51,7 @@ test.describe('Mobile Navigation', () => {
 
     test('offcanvas contains a search form', async ({ page }) => {
       await page.goto('/');
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       await page.locator('button[data-bs-toggle="offcanvas"][data-bs-target="#mobileNavOffcanvas"]').click();
       await page.locator('#mobileNavOffcanvas').waitFor({ state: 'visible' });
@@ -62,7 +62,7 @@ test.describe('Mobile Navigation', () => {
 
     test('offcanvas can be closed via Bootstrap API', async ({ page }) => {
       await page.goto('/');
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       await page.locator('button[data-bs-toggle="offcanvas"][data-bs-target="#mobileNavOffcanvas"]').click();
       const offcanvas = page.locator('#mobileNavOffcanvas');
@@ -80,7 +80,7 @@ test.describe('Mobile Navigation', () => {
 
     test('offcanvas search navigates to search results', async ({ page }) => {
       await page.goto('/');
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       await page.locator('button[data-bs-toggle="offcanvas"][data-bs-target="#mobileNavOffcanvas"]').click();
       await page.locator('#mobileNavOffcanvas').waitFor({ state: 'visible' });
@@ -97,7 +97,7 @@ test.describe('Mobile Navigation', () => {
   test.describe('Page actions in offcanvas', () => {
     test('page actions section appears when on a wiki page', async ({ page }) => {
       await page.goto('/view/User%20Documentation');
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       await page.locator('button[data-bs-toggle="offcanvas"][data-bs-target="#mobileNavOffcanvas"]').click();
       await page.locator('#mobileNavOffcanvas').waitFor({ state: 'visible' });
@@ -110,7 +110,7 @@ test.describe('Mobile Navigation', () => {
     test('page actions section not shown on non-page routes', async ({ page }) => {
       // Home/landing page has no pageName
       await page.goto('/search');
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       await page.locator('button[data-bs-toggle="offcanvas"][data-bs-target="#mobileNavOffcanvas"]').click();
       await page.locator('#mobileNavOffcanvas').waitFor({ state: 'visible' });
@@ -121,7 +121,7 @@ test.describe('Mobile Navigation', () => {
 
     test('Reader View link is present in page actions', async ({ page }) => {
       await page.goto('/view/User%20Documentation');
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       await page.locator('button[data-bs-toggle="offcanvas"][data-bs-target="#mobileNavOffcanvas"]').click();
       await page.locator('#mobileNavOffcanvas').waitFor({ state: 'visible' });
@@ -134,7 +134,7 @@ test.describe('Mobile Navigation', () => {
   test.describe('Navigation bar on mobile', () => {
     test('Info/Edit/More buttons are hidden on mobile', async ({ page }) => {
       await page.goto('/view/User%20Documentation');
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       // The right actions container has d-none d-md-block
       const actionCol = page.locator('.navigation .flex-shrink-0.d-none.d-md-block');
@@ -143,7 +143,7 @@ test.describe('Mobile Navigation', () => {
 
     test('Trail dropdown is hidden on mobile', async ({ page }) => {
       await page.goto('/view/User%20Documentation');
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       const trail = page.locator('#trail.d-none.d-md-block');
       await expect(trail).toBeHidden();
@@ -151,7 +151,7 @@ test.describe('Mobile Navigation', () => {
 
     test('logo is visible on mobile', async ({ page }) => {
       await page.goto('/');
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       const brand = page.locator('.jspwiki-header .navbar-brand');
       await expect(brand).toBeVisible();
@@ -159,7 +159,7 @@ test.describe('Mobile Navigation', () => {
 
     test('user icon link is visible on mobile (authenticated)', async ({ page }) => {
       await page.goto('/');
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       // Mobile compact user icon: anchor to /profile with d-flex d-md-none wrapper
       const mobileUserArea = page.locator('.jspwiki-header .d-flex.d-md-none');
@@ -168,7 +168,7 @@ test.describe('Mobile Navigation', () => {
 
     test('desktop search bar is NOT visible on mobile', async ({ page }) => {
       await page.goto('/');
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       // Search is inside .collapse.navbar-collapse — hidden on mobile
       const desktopSearch = page.locator('#headerNavCollapse');
@@ -190,7 +190,7 @@ test.describe('Desktop Navigation', () => {
 
   test('desktop hamburger is visible on desktop', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const desktopToggle = page.locator('button.d-none.d-md-inline-flex[onclick*="toggleLeftMenu"]');
     await expect(desktopToggle).toBeVisible();
@@ -198,7 +198,7 @@ test.describe('Desktop Navigation', () => {
 
   test('mobile offcanvas hamburger is NOT visible on desktop', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const mobileHamburger = page.locator('button.d-md-none[data-bs-toggle="offcanvas"]');
     await expect(mobileHamburger).toBeHidden();
@@ -206,7 +206,7 @@ test.describe('Desktop Navigation', () => {
 
   test('sidebar is visible by default on desktop', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const sidebar = page.locator('.sidebar.jspwiki-sidebar');
     await expect(sidebar).toBeVisible();
@@ -214,7 +214,7 @@ test.describe('Desktop Navigation', () => {
 
   test('desktop hamburger toggles sidebar visibility', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const sidebar = page.locator('.sidebar.jspwiki-sidebar');
     const desktopToggle = page.locator('button.d-none.d-md-inline-flex[onclick*="toggleLeftMenu"]');
@@ -232,7 +232,7 @@ test.describe('Desktop Navigation', () => {
 
   test('search bar is visible on desktop', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const searchInput = page.locator('#headerSearchInput');
     await expect(searchInput).toBeVisible();
@@ -240,7 +240,7 @@ test.describe('Desktop Navigation', () => {
 
   test('Info/Edit/More buttons visible on desktop', async ({ page }) => {
     await page.goto('/view/User%20Documentation');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const infoBtn = page.locator('.navigation button:has-text("Info")');
     await expect(infoBtn).toBeVisible();
@@ -251,7 +251,7 @@ test.describe('Desktop Navigation', () => {
 
   test('Trail dropdown visible on desktop', async ({ page }) => {
     await page.goto('/view/User%20Documentation');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const trail = page.locator('#trail');
     await expect(trail).toBeVisible();
@@ -263,7 +263,7 @@ test.describe('Mobile layout — main content fills viewport (#375)', () => {
 
   test('main content has no left blank column (fills viewport width)', async ({ page }) => {
     await page.goto('/view/User%20Documentation');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const viewport = page.viewportSize();
     const mainBox = await page.locator('main[role="main"]').boundingBox();
@@ -276,7 +276,7 @@ test.describe('Mobile layout — main content fills viewport (#375)', () => {
 
   test('no horizontal scrollbar on mobile', async ({ page }) => {
     await page.goto('/view/User%20Documentation');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const scrollWidth = await page.evaluate(() => document.documentElement.scrollWidth);
     const clientWidth = await page.evaluate(() => document.documentElement.clientWidth);
@@ -290,7 +290,7 @@ test.describe('Responsive content rendering (#372)', () => {
   test('markdown images have max-width 100%', async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto('/view/User%20Documentation');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Check that any images in markdown content don't overflow viewport
     const images = page.locator('.markdown-body img');
@@ -307,7 +307,7 @@ test.describe('Responsive content rendering (#372)', () => {
   test('markdown tables are scrollable on mobile', async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto('/view/User%20Documentation');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Tables should have overflow-x: auto (block display)
     const tables = page.locator('.markdown-body table');

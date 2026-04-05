@@ -16,7 +16,7 @@ test.describe('Page Operations', () => {
   test.describe('View Pages', () => {
     test('should display home page', async ({ page }) => {
       await page.goto('/');
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       // Page should load without error
       await expect(page).not.toHaveURL(/error|500|404/);
@@ -28,7 +28,7 @@ test.describe('Page Operations', () => {
 
     test('should navigate to wiki pages', async ({ page }) => {
       await page.goto('/view/Main');
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       // Should either show the page or a "create new page" option
       const hasContent = await page.locator('.wiki-content, .page-content, article, main').count() > 0;
@@ -51,7 +51,7 @@ test.describe('Page Operations', () => {
     test('should create a new wiki page', async ({ page }) => {
       // Navigate to create page (not /edit which is for editing existing pages)
       await page.goto('/create');
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       // Fill in page name - the create form uses #pageName
       const pageNameInput = page.locator('#pageName, input[name="pageName"]');
@@ -92,13 +92,13 @@ test.describe('Page Operations', () => {
       // Go to home or main page
       // Use Welcome — a required page that always exists
       await page.goto('/view/Welcome');
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       // Find and click edit button/link (rendered when canEdit=true for authenticated user)
       const editLink = page.locator('a[href*="/edit/"], a:has-text("Edit")');
       await editLink.first().waitFor({ state: 'visible', timeout: 5000 });
       await editLink.first().click();
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       // Should be on edit page
       const onEditPage = page.url().includes('edit');
@@ -110,7 +110,7 @@ test.describe('Page Operations', () => {
   test.describe('Page Navigation', () => {
     test('should show breadcrumbs or navigation', async ({ page }) => {
       await page.goto('/view/Main');
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       // Check for navigation elements
       const hasNav = await page.locator('nav, .breadcrumb, .navigation, .sidebar').count() > 0;
@@ -119,7 +119,7 @@ test.describe('Page Operations', () => {
 
     test('should handle non-existent pages gracefully', async ({ page }) => {
       await page.goto('/view/NonExistentPageXYZ123');
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       // Should either show 404, redirect, or offer to create
       const is404 = await page.locator('text=/not found|404|does not exist/i').count() > 0;
@@ -134,7 +134,7 @@ test.describe('Page Operations', () => {
     test('should show page version history', async ({ page }) => {
       // Use Welcome page which is a default required page
       await page.goto('/view/Welcome');
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       // Check if page exists (not a 404)
       const is404 = await page.locator('text=/not found|404|does not exist/i').count() > 0;
@@ -150,7 +150,7 @@ test.describe('Page Operations', () => {
       const historyLink = page.locator('.dropdown-menu a:has-text("History")');
       await historyLink.waitFor({ state: 'visible', timeout: 3000 });
       await historyLink.first().click();
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       // Should show version list or history content
       const hasVersionList = await page.locator('.version, .history-entry, table tr, .revision, .card').count() > 0;

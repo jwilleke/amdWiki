@@ -14,7 +14,7 @@ test.describe('Search', () => {
   test.describe('Search Page', () => {
     test('should display search interface', async ({ page }) => {
       await page.goto('/search');
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       // Should have search input - the actual input is #query with name="q"
       const searchInput = page.locator('#query, input[name="q"]');
@@ -23,7 +23,7 @@ test.describe('Search', () => {
 
     test('should perform basic text search', async ({ page }) => {
       await page.goto('/search');
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       // Enter search query - use the actual search input id
       const searchInput = page.locator('#query, input[name="q"]');
@@ -34,7 +34,7 @@ test.describe('Search', () => {
       const searchButton = page.locator('button[type="submit"]');
       await searchButton.first().click();
 
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       // Should show results or "no results" message
       const hasResults = await page.locator('.search-result, .result-item, .list-group-item, tr').count() > 0;
@@ -47,14 +47,14 @@ test.describe('Search', () => {
   test.describe('Search from Header', () => {
     test('should search from header search box', async ({ page }) => {
       await page.goto('/');
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       // Header always renders #headerSearchInput
       const headerSearch = page.locator('#headerSearchInput');
       await headerSearch.waitFor({ state: 'visible', timeout: 5000 });
       await headerSearch.fill('wiki');
       await headerSearch.press('Enter');
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       // Should navigate to search results
       expect(page.url()).toContain('search');
@@ -64,7 +64,7 @@ test.describe('Search', () => {
   test.describe('Search Results', () => {
     test('should display search results with links', async ({ page }) => {
       await page.goto('/search?q=test');
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       // Results should contain links
       const resultLinks = page.locator('.search-result a, .result a, .search-item a');
@@ -78,7 +78,7 @@ test.describe('Search', () => {
 
     test('should handle empty search gracefully', async ({ page }) => {
       await page.goto('/search?q=');
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       // Should not show error, just empty state or prompt
       const hasError = await page.locator('.error-500').count() > 0 ||
@@ -88,7 +88,7 @@ test.describe('Search', () => {
 
     test('should handle special characters in search', async ({ page }) => {
       await page.goto('/search');
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       // Use the actual search input id
       const searchInput = page.locator('#query, input[name="q"]');
@@ -98,7 +98,7 @@ test.describe('Search', () => {
       // Submit with button
       const searchButton = page.locator('button[type="submit"]');
       await searchButton.first().click();
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       // Should not cause server error - check for error page elements, not text in search results
       const hasErrorPage = await page.locator('.error-500, .error-page, [data-error="500"]').count() > 0;
@@ -115,7 +115,7 @@ test.describe('Search', () => {
   test.describe('Search Filters', () => {
     test('should have category/tag filters if available', async ({ page }) => {
       await page.goto('/search');
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       // Check for filter options - could be selects, checkboxes, or custom filters
       const filterSelects = page.locator('select.filter, select[name*="category"], select[name*="filter"]');

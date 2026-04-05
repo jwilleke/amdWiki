@@ -40,7 +40,7 @@ test.describe('LocationPlugin', () => {
     test('should render location link with name parameter', async ({ page }) => {
       // Create a page with Location plugin
       await page.goto('/create');
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       const pageNameInput = page.locator('#pageName, input[name="pageName"]');
       await pageNameInput.first().waitFor({ state: 'visible', timeout: 10000 });
@@ -97,7 +97,7 @@ test.describe('LocationPlugin', () => {
 
     test('should render location link with coordinates', async ({ page }) => {
       await page.goto('/create');
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       const pageNameInput = page.locator('#pageName, input[name="pageName"]');
       await pageNameInput.first().waitFor({ state: 'visible', timeout: 10000 });
@@ -150,7 +150,7 @@ test.describe('LocationPlugin', () => {
   test.describe('Map Providers', () => {
     test('should use Google Maps when provider=google', async ({ page }) => {
       await page.goto('/create');
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       const pageNameInput = page.locator('#pageName, input[name="pageName"]');
       await pageNameInput.first().waitFor({ state: 'visible', timeout: 10000 });
@@ -197,7 +197,7 @@ test.describe('LocationPlugin', () => {
 
     test('should use geo: URI when provider=geo', async ({ page }) => {
       await page.goto('/create');
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       const pageNameInput = page.locator('#pageName, input[name="pageName"]');
       await pageNameInput.first().waitFor({ state: 'visible', timeout: 10000 });
@@ -246,7 +246,7 @@ test.describe('LocationPlugin', () => {
   test.describe('Embedded Maps', () => {
     test('should show embedded map with embed=true', async ({ page }) => {
       await page.goto('/create');
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       const pageNameInput = page.locator('#pageName, input[name="pageName"]');
       await pageNameInput.first().waitFor({ state: 'visible', timeout: 10000 });
@@ -297,7 +297,7 @@ test.describe('LocationPlugin', () => {
 
     test('should show unavailable message for non-embeddable providers', async ({ page }) => {
       await page.goto('/create');
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       const pageNameInput = page.locator('#pageName, input[name="pageName"]');
       await pageNameInput.first().waitFor({ state: 'visible', timeout: 10000 });
@@ -349,7 +349,7 @@ test.describe('LocationPlugin', () => {
   test.describe('Error Handling', () => {
     test('should show error for missing parameters', async ({ page }) => {
       await page.goto('/create');
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       const pageNameInput = page.locator('#pageName, input[name="pageName"]');
       await pageNameInput.first().waitFor({ state: 'visible', timeout: 10000 });
@@ -400,7 +400,7 @@ test.describe('LocationPlugin', () => {
 
     test('should show error for invalid coordinates', async ({ page }) => {
       await page.goto('/create');
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       const pageNameInput = page.locator('#pageName, input[name="pageName"]');
       await pageNameInput.first().waitFor({ state: 'visible', timeout: 10000 });
@@ -453,7 +453,7 @@ test.describe('LocationPlugin', () => {
   test.describe('Link Attributes', () => {
     test('should open links in new tab with noopener', async ({ page }) => {
       await page.goto('/create');
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       const pageNameInput = page.locator('#pageName, input[name="pageName"]');
       await pageNameInput.first().waitFor({ state: 'visible', timeout: 10000 });
@@ -501,7 +501,7 @@ test.describe('LocationPlugin', () => {
 
     test('should have map marker icon', async ({ page }) => {
       await page.goto('/create');
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       const pageNameInput = page.locator('#pageName, input[name="pageName"]');
       await pageNameInput.first().waitFor({ state: 'visible', timeout: 10000 });

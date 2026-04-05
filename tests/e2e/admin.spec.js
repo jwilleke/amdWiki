@@ -14,7 +14,7 @@ test.describe('Admin Dashboard', () => {
   test.describe('Dashboard Access', () => {
     test('should access admin dashboard as admin user', async ({ page }) => {
       await page.goto('/admin');
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       // Should not be redirected to login
       const redirectedToLogin = page.url().includes('login');
@@ -27,7 +27,7 @@ test.describe('Admin Dashboard', () => {
 
     test('should display admin navigation/menu', async ({ page }) => {
       await page.goto('/admin');
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       // Should have admin navigation
       const hasNav = await page.locator('nav, .admin-menu, .sidebar, .admin-nav').count() > 0;
@@ -38,7 +38,7 @@ test.describe('Admin Dashboard', () => {
   test.describe('User Management', () => {
     test('should access user management section', async ({ page }) => {
       await page.goto('/admin/users');
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       // Check if redirected to login or access denied
       if (page.url().includes('login')) {
@@ -55,7 +55,7 @@ test.describe('Admin Dashboard', () => {
 
     test('should have add user option', async ({ page }) => {
       await page.goto('/admin/users');
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       if (page.url().includes('login')) {
         test.skip();
@@ -78,7 +78,7 @@ test.describe('Admin Dashboard', () => {
 
       for (const url of configUrls) {
         await page.goto(url);
-        await page.waitForLoadState('networkidle');
+        await page.waitForLoadState('domcontentloaded');
 
         // Check for 404/error pages (URL or content-based)
         const isError = page.url().includes('login') ||
@@ -101,7 +101,7 @@ test.describe('Admin Dashboard', () => {
   test.describe('System Information', () => {
     test('should display system information', async ({ page }) => {
       await page.goto('/admin');
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       // Look for system info section
       const hasSystemInfo = await page.locator('text=/version|system|status|info/i').count() > 0;
@@ -120,7 +120,7 @@ test.describe('Admin Dashboard', () => {
       const page = await context.newPage();
 
       await page.goto('/admin');
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       // Should be redirected to login or see access denied
       const protectedProperly =

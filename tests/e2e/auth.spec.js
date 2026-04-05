@@ -29,7 +29,7 @@ async function fillLoginForm(page, username, password) {
  */
 async function submitLogin(page) {
   await page.getByRole('button', { name: /login/i }).click();
-  await page.waitForLoadState('networkidle');
+  await page.waitForLoadState('domcontentloaded');
 }
 
 // Tests that need unauthenticated state
@@ -82,7 +82,7 @@ test.describe('Authentication - Unauthenticated', () => {
 
       // Navigate to different pages
       await page.goto('/');
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       // Should still be logged in (logout link visible or no login link)
       const logoutVisible = await page.locator('a[href*="logout"], button:has-text("Logout")').count() > 0;
@@ -116,7 +116,7 @@ test.describe('Authentication - Unauthenticated', () => {
         // Fallback: navigate directly to logout
         await page.goto('/logout');
       }
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       // Verify logged out - should see login option or be on login page
       const onLoginPage = page.url().includes('login');
@@ -130,7 +130,7 @@ test.describe('Authentication - Unauthenticated', () => {
     test('should redirect to login for protected pages when not authenticated', async ({ page }) => {
       // Try to access admin page (protected) without auth
       await page.goto('/admin');
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       // Should be redirected to login or see access denied
       const redirectedToLogin = page.url().includes('login');

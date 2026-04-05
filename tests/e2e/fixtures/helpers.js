@@ -55,7 +55,7 @@ async function waitForServerReady(page, { timeout = 120000, interval = 2000 } = 
  * @param {import('@playwright/test').Page} page
  */
 async function waitForPageReady(page) {
-  await page.waitForLoadState('networkidle');
+  // networkidle never fires when persistent polling connections are open (#460)
   await page.waitForLoadState('domcontentloaded');
 }
 

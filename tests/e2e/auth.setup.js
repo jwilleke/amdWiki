@@ -35,7 +35,9 @@ setup('authenticate', async ({ page }) => {
 
   // Wait for successful login - should redirect away from login page
   await expect(page).not.toHaveURL(/\/login$/);
-  await page.waitForLoadState('networkidle');
+  // Use domcontentloaded — networkidle never fires because admin dashboard
+  // keeps persistent polling connections open (#460)
+  await page.waitForLoadState('domcontentloaded');
 
   // Save authentication state
   await page.context().storageState({ path: STORAGE_STATE });

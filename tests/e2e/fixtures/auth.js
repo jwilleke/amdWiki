@@ -20,7 +20,7 @@ const test = base.extend({
       await page.getByLabel(/username/i).fill(username);
       await page.getByLabel(/password/i).fill(password);
       await page.getByRole('button', { name: /login/i }).click();
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
     };
     await use(loginFn);
   },
@@ -34,7 +34,7 @@ const test = base.extend({
       const logoutLink = page.locator('a[href*="logout"], button:has-text("Logout"), a:has-text("Logout")');
       if (await logoutLink.count() > 0) {
         await logoutLink.first().click();
-        await page.waitForLoadState('networkidle');
+        await page.waitForLoadState('domcontentloaded');
       } else {
         // Fallback: navigate directly to logout endpoint
         await page.goto('/logout');
