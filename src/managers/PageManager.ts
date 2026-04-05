@@ -173,8 +173,19 @@ class PageManager extends BaseManager {
       const files: string[] = (await fse.readdir(requiredDir))
         .filter((f: string) => f.endsWith('.md'));
 
+      // Build a set of system-category values whose storageLocation is 'github'
+      // (i.e. pages that live only in the source tree and must never be seeded to data/).
+      const systemCategories = configManager.getProperty('ngdpbase.system-category', {}) as
+        Record<string, { storageLocation?: string }>;
+      const githubOnlyCategories = new Set(
+        Object.entries(systemCategories)
+          .filter(([, cfg]) => cfg.storageLocation === 'github')
+          .map(([key]) => key)
+      );
+
       let seeded = 0;
       let skipped = 0;
+      let devSkipped = 0;
 
       for (const file of files) {
         const srcPath = path.join(requiredDir, file);
@@ -188,13 +199,23 @@ class PageManager extends BaseManager {
         // Same logic as adminSyncRequiredPages syncFile(): strip user-modified on copy
         const raw: string = await fse.readFile(srcPath, 'utf8');
         const parsed = matter(raw) as { data: Record<string, unknown>; content: string };
+
+        // Skip pages whose system-category is github-only (e.g. 'developer')
+        const pageCategory = parsed.data['system-category'] as string | undefined;
+        if (pageCategory && githubOnlyCategories.has(pageCategory)) {
+          const pageTitle = typeof parsed.data['title'] === 'string' ? parsed.data['title'] : file;
+          logger.debug(`[PageManager] Skipping github-only page (${pageCategory}): ${pageTitle}`);
+          devSkipped++;
+          continue;
+        }
+
         delete parsed.data['user-modified'];
         const cleaned: string = matter.stringify(parsed.content, parsed.data);
         await fse.writeFile(dstPath, cleaned, 'utf8');
         seeded++;
       }
 
-      logger.info(`[PageManager] Required pages seeded: ${seeded} new, ${skipped} already present`);
+      logger.info(`[PageManager] Required pages seeded: ${seeded} new, ${skipped} already present${devSkipped ? `, ${devSkipped} github-only skipped` : ''}`);
     } catch (err) {
       logger.error('[PageManager] Failed to seed required pages:', err);
     }
