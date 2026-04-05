@@ -22,6 +22,31 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - [file2.md]
 ```
 
+## 2026-04-05-08
+
+- Agent: Claude Code (Sonnet 4.6)
+- Subject: feat: AddonsManager multi-path support + calendar addon (#462)
+- Key Decision: `addons-path` accepts string or `string[]` — normalised to array internally, backwards-compatible. Generic addons live in `fairways-base/addons/`; non-generic/private addons live in external repos referenced via array. First path wins on duplicate addon name across paths. CalendarPlugin uses FullCalendar v6 from CDN (no build step). `required-pages/` end-user doc follows `[[{...}] renders as:` pattern from MarqueePlugin.
+- Current Issue: #462 open (implementation complete, documented)
+- Testing:
+  - npm test: 100 suites passed, 2602 tests passed, 11 skipped
+- Work Done:
+  - AddonsManager: `addonsPath: string` → `addonsPaths: string[]`; `discoverAddons()` loops all paths via new `scanAddonsDirectory()` helper; duplicate name: first wins with warning
+  - 3 new tests: discovers from array, handles missing path in array, first path wins on duplicate
+  - `addons/calendar/`: full calendar addon — CalendarDataManager (JSON store), CalendarPlugin ([{Calendar}] directive), REST API (/api/calendar/events FullCalendar feed-compatible), FullCalendar v6 CSS
+  - `docs/platform/addon-development-guide.md`: Section 2 updated with array syntax + generic vs non-generic convention
+  - `docs/plugins/CalendarPlugin.md`: developer reference
+  - `required-pages/cfb76570-1bed-4ad0-a72d-6bb44cdabc7a.md`: end-user wiki page (system-category: documentation)
+  - GH issue #462 filed and commented with test results
+- Commits: f8e5e6ce
+- Files Modified:
+  - src/managers/AddonsManager.ts
+  - src/managers/__tests__/AddonsManager.test.js
+  - docs/platform/addon-development-guide.md
+  - addons/calendar/ (7 files, new)
+  - docs/plugins/CalendarPlugin.md
+  - required-pages/cfb76570-1bed-4ad0-a72d-6bb44cdabc7a.md
+
 ## 2026-04-05-07
 
 - Agent: Claude Code (Sonnet 4.6)
