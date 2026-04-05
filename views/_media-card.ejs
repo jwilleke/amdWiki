@@ -1,0 +1,43 @@
+<%#
+  _media-card.ejs — shared media asset card partial.
+
+  Locals:
+    item      {AssetRecord}  required — asset to display
+    linkUrl   {string}       required — href for the card link
+    imgHeight {number}       optional — thumbnail max-height in px (default: 130)
+%>
+<% const _imgHeight = typeof imgHeight !== 'undefined' ? imgHeight : 130; %>
+<div class="card h-100">
+    <% if (item.encodingFormat && item.encodingFormat.startsWith('image/') && item.thumbnailUrl) { %>
+        <a href="<%= linkUrl %>" target="_blank">
+            <img
+                src="<%= item.thumbnailUrl %>"
+                class="card-img-top"
+                alt="<%= item.filename %>"
+                style="object-fit:cover; height:<%= _imgHeight %>px; background:#f8f9fa;"
+                loading="lazy"
+                onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"
+            >
+            <div class="d-none align-items-center justify-content-center bg-body-secondary" style="height:<%= _imgHeight %>px;">
+                <i class="fas fa-image fa-3x text-muted"></i>
+            </div>
+        </a>
+    <% } else { %>
+        <a href="<%= linkUrl %>" target="_blank" class="d-flex align-items-center justify-content-center bg-body-secondary text-decoration-none" style="height:<%= _imgHeight %>px;">
+            <i class="fas fa-film fa-3x text-muted"></i>
+        </a>
+    <% } %>
+    <div class="card-body p-2">
+        <small class="text-muted d-block text-truncate" title="<%= item.filename %>">
+            <a href="<%= linkUrl %>" target="_blank" class="text-body text-decoration-none"><%= item.description || item.filename %></a>
+        </small>
+        <% if (item.dateCreated) { %>
+            <small class="text-muted"><%= new Date(item.dateCreated).getFullYear() %></small>
+        <% } %>
+        <% if (item.mentions && item.mentions[0]) { %>
+            <a href="/view/<%= encodeURIComponent(item.mentions[0]) %>" class="badge bg-secondary text-decoration-none">
+                <%= item.mentions[0] %>
+            </a>
+        <% } %>
+    </div>
+</div>

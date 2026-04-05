@@ -63,31 +63,7 @@
                 <div class="row row-cols-2 row-cols-sm-3 row-cols-md-4 row-cols-lg-5 g-2">
                     <% items.forEach(function(item) { %>
                         <div class="col">
-                            <a href="/media/item/<%= item.id %>?sort=<%= sort %>&order=<%= order %>" class="text-decoration-none">
-                                <div class="card h-100">
-                                    <% if (item.encodingFormat && item.encodingFormat.startsWith('image/') && item.thumbnailUrl) { %>
-                                        <img
-                                            src="<%= item.thumbnailUrl %>"
-                                            class="card-img-top"
-                                            alt="<%= item.filename %>"
-                                            style="object-fit:contain; height:140px; background:#f8f9fa;"
-                                            loading="lazy"
-                                            onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"
-                                        >
-                                        <div class="d-none align-items-center justify-content-center bg-body-secondary" style="height:140px;">
-                                            <i class="fas fa-image fa-3x text-muted"></i>
-                                        </div>
-                                    <% } else { %>
-                                        <div class="d-flex align-items-center justify-content-center bg-body-secondary" style="height:140px;">
-                                            <i class="fas fa-film fa-3x text-muted"></i>
-                                        </div>
-                                    <% } %>
-                                    <div class="card-body p-2">
-                                        <small class="text-muted d-block text-truncate" title="<%= item.filename %>"><%= item.description || item.filename %></small>
-                                        <% if (item.dateCreated) { %><small class="text-muted"><%= new Date(item.dateCreated).getFullYear() %></small><% } %>
-                                    </div>
-                                </div>
-                            </a>
+                            <%- include('_media-card', { item, linkUrl: '/media/item/' + item.id + '?sort=' + sort + '&order=' + order, imgHeight: 140 }) %>
                         </div>
                     <% }); %>
                 </div>

@@ -398,32 +398,7 @@
                 <div class="row g-2">
                     <% mediaPage.results.forEach(item => { %>
                         <div class="col-6 col-md-3 col-lg-2">
-                            <div class="card h-100 border-0 shadow-sm">
-                                <div class="card-body p-2">
-                                    <% if (item.encodingFormat && item.encodingFormat.startsWith('image/') && item.thumbnailUrl) { %>
-                                        <a href="<%= item.url %>" target="_blank">
-                                            <img src="<%= item.thumbnailUrl %>" class="img-fluid rounded mb-1"
-                                                 style="max-height:120px;object-fit:cover;width:100%;" loading="lazy"
-                                                 alt="<%= item.filename %>">
-                                        </a>
-                                    <% } else { %>
-                                        <a href="<%= item.url %>" target="_blank" class="d-block text-center text-muted py-3">
-                                            <i class="fas fa-photo-video fa-2x"></i>
-                                        </a>
-                                    <% } %>
-                                    <div class="small text-truncate" title="<%= item.filename %>">
-                                        <a href="<%= item.url %>" target="_blank" class="text-body text-decoration-none"><%= item.filename %></a>
-                                    </div>
-                                    <div>
-                                        <% if (item.dateCreated) { %><small class="text-muted"><%= new Date(item.dateCreated).getFullYear() %></small> <% } %>
-                                        <% if (item.mentions && item.mentions[0]) { %>
-                                            <a href="/view/<%= encodeURIComponent(item.mentions[0]) %>" class="badge bg-secondary text-decoration-none">
-                                                <%= item.mentions[0] %>
-                                            </a>
-                                        <% } %>
-                                    </div>
-                                </div>
-                            </div>
+                            <%- include('_media-card', { item, linkUrl: item.url, imgHeight: 120 }) %>
                         </div>
                     <% }); %>
                 </div>
