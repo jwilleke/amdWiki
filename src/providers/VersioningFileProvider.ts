@@ -38,6 +38,10 @@ interface PageIndexEntry {
   /** Username that originally created the page (from metadata.author) */
   author?: string;
   hasVersions: boolean;
+  /** Roles/usernames from front matter audience or access.view — for index-level access checks */
+  audienceRoles?: string[];
+  /** True when user-keywords includes 'private' */
+  isPrivate?: boolean;
 }
 
 /**
@@ -1162,6 +1166,8 @@ class VersioningFileProvider extends FileSystemProvider {
     const creator = location === 'private'
       ? (newCreator || currentEntry?.creator || 'anonymous')
       : currentEntry?.creator;
+    const ar = (metadata.access as Record<string, unknown> | undefined)?.['view'] ?? metadata.audience;
+    const kws = metadata['user-keywords'];
     await this.updatePageInIndex(uuid, {
       title: (metadata.title as string) || pageName,
       uuid: uuid,
@@ -1173,7 +1179,9 @@ class VersioningFileProvider extends FileSystemProvider {
       lastModified: new Date().toISOString(),
       editor: metadata.editor || metadata.author || 'unknown',
       author: metadata.author ? String(metadata.author) : undefined,
-      hasVersions: true
+      hasVersions: true,
+      audienceRoles: Array.isArray(ar) && ar.length ? (ar as string[]) : undefined,
+      isPrivate: Array.isArray(kws) && (kws).includes('private')
     });
 
     logger.info(`[VersioningFileProvider] Saved page '${pageName}' with versioning`);

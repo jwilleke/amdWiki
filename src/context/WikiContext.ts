@@ -18,6 +18,7 @@ import type ACLManager from '../managers/ACLManager';
 import type MarkupParser from '../parsers/MarkupParser';
 import type { VariableContext } from '../managers/VariableManager';
 import type { ThemeInfo } from '../managers/ThemeManager';
+import type { PageFrontmatter } from '../types/Page';
 
 /**
  * Request information extracted from Express request
@@ -129,6 +130,8 @@ export interface WikiContextOptions {
   activeTheme?: string;
   /** Metadata from theme.json */
   themeInfo?: ThemeInfo | null;
+  /** Page front matter metadata — must be set before ACL checks */
+  pageMetadata?: PageFrontmatter;
 }
 
 /**
@@ -239,6 +242,9 @@ class WikiContext {
   /** Metadata from the active theme's theme.json */
   public readonly themeInfo: ThemeInfo | null;
 
+  /** Page front matter metadata — carries audience/access/user-keywords for ACL evaluation */
+  public readonly pageMetadata: PageFrontmatter | null;
+
   /** Fallback markdown converter */
   private readonly _fallbackConverter: Showdown.Converter;
 
@@ -273,6 +279,7 @@ class WikiContext {
     this.response = options.response || null;
     this.activeTheme = options.activeTheme || 'default';
     this.themeInfo = options.themeInfo ?? null;
+    this.pageMetadata = options.pageMetadata ?? null;
 
     // Ensure essential managers are available on the context
     this.pageManager = engine.getManager<PageManager>('PageManager')!;

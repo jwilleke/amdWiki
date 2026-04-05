@@ -397,6 +397,14 @@ class PageManager extends BaseManager {
     const pageName = wikiContext.pageName;
     const content = wikiContext.content;
 
+    // Reject deprecated inline ACL markup — authors must use the audience front matter field instead
+    if (content && /\[\{\s*(ALLOW|DENY)\b[^}]*\}\]/i.test(content)) {
+      throw new Error(
+        'Inline [{ALLOW}] / [{DENY}] markup is no longer supported. ' +
+        'Use the Audience field in the page editor to control access.'
+      );
+    }
+
     // Preserve author from existing page — author is the original creator and must
     // never change. Only set it when creating a new page (no existing author found).
     const existingPage = pageName ? await this.provider.getPage(pageName) : null;

@@ -58,6 +58,17 @@ export interface PageFrontmatter {
   /** Name of the add-on that originally seeded this page, if any */
   addon?: string;
 
+  /** Roles or usernames allowed to view this page (front matter access control) */
+  audience?: string[];
+
+  /** Per-action principal lists — overrides audience for the named action */
+  access?: {
+    view?: string[];
+    edit?: string[];
+    delete?: string[];
+    [key: string]: string[] | undefined;
+  };
+
   /** Additional custom metadata */
   [key: string]: unknown;
 }

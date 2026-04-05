@@ -1240,6 +1240,10 @@ class WikiRoutes {
         );
       }
 
+      // Load page metadata before ACL checks so Tier 0 / Tier 1.5 have full context
+      const metadata = await pageManager.getPageMetadata(pageName);
+      (wikiContext as { pageMetadata: unknown }).pageMetadata = metadata ?? null;
+
       // Check private page access before rendering
       const canAccessPrivate = await this.checkPrivatePageAccess(wikiContext, pageName);
       if (!canAccessPrivate) {
@@ -1264,9 +1268,6 @@ class WikiRoutes {
       // Check if user can edit this page
       const canEdit = await aclManager.checkPagePermissionWithContext(wikiContext, 'edit');
       const html = await renderingManager.textToHTML(wikiContext, markdown);
-
-      // Get page metadata for display
-      const metadata = await pageManager.getPageMetadata(pageName);
 
       // Get version information if versioning is enabled
       let versionInfo = null;
@@ -1712,6 +1713,8 @@ class WikiRoutes {
       } else {
         // For existing pages, check ACL edit permission
         if (pageData) {
+          // Load metadata before ACL check so Tier 0 / Tier 1.5 have full context
+          (wikiContext as { pageMetadata: unknown }).pageMetadata = pageData.metadata ?? null;
           // Update WikiContext with page content for ACL checking
           (wikiContext as { content: string | null }).content = pageData.content;
 
@@ -1802,6 +1805,12 @@ class WikiRoutes {
         ? configManager.getProperty('ngdpbase.maximum.user-keywords', 5)
         : 5;
 
+      // Build availableRoles for the audience picker
+      const rolesConfig = configManager
+        ? (configManager.getProperty('ngdpbase.roles.definitions', {}) as Record<string, { name: string; displayname: string; issystem?: boolean }>)
+        : {};
+      const availableRoles = Object.values(rolesConfig).filter(r => r.name && r.displayname);
+
       // Default system category — used when the page has no system-category in its metadata
       const validationManager = this.engine.getManager('ValidationManager');
       const defaultCategory = validationManager?.getDefaultSystemCategory?.() || 'general';
@@ -1830,6 +1839,8 @@ class WikiRoutes {
         userKeywords: userKeywords,
         selectedUserKeywords: selectedUserKeywords,
         maxUserKeywords: maxUserKeywords,
+        availableRoles: availableRoles,
+        pageData: pageData,
         defaultCategory: defaultCategory,
         pageAttachments: pageAttachments,
         csrfToken: req.session.csrfToken,
@@ -2096,11 +2107,20 @@ class WikiRoutes {
             : [];
       }
 
+      // Extract audience from POST body (checkbox array)
+      const submittedAudience = req.body['audience'];
+      const audienceArray: string[] = Array.isArray(submittedAudience)
+        ? submittedAudience.filter(Boolean)
+        : submittedAudience
+          ? [String(submittedAudience)]
+          : [];
+
       // Prepare metadata ONCE, preserving UUID if editing
       // Use matchedCategory (properly capitalized) instead of submitted systemCategory
       const metadata = this.buildNewPageMetadata(title || pageName, {
         'system-category': matchedCategory,
         'user-keywords': userKeywordsArray,
+        ...(audienceArray.length ? { audience: audienceArray } : {}),
         author: currentUser?.username || 'anonymous',
         uuid: existingPage?.metadata?.uuid || undefined
       });
@@ -2347,6 +2367,8 @@ class WikiRoutes {
         }
       } else {
         // Check ACL delete permission using WikiContext
+        // Load metadata before ACL check so Tier 0 / Tier 1.5 have full context
+        (wikiContext as { pageMetadata: unknown }).pageMetadata = pageData.metadata ?? null;
         // Update WikiContext with page content for ACL checking
         (wikiContext as { content: string | null }).content = pageData.content;
 

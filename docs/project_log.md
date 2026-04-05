@@ -22,6 +22,40 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - [file2.md]
 ```
 
+## 2026-04-05-05
+
+- Agent: Claude Code (Sonnet 4.6)
+- Subject: feat: Role-based page access via front matter (#449) — audience/access fields, Tier 0/1.5 ACL, deprecate inline [{ALLOW}]
+- Key Decision: Front matter `audience:` / `access:` fields become Tier 1.5 in ACL evaluation chain. `private` user-keyword is Tier 0 (hard, cannot be overridden). Inline `[{ALLOW}]` markup deprecated — save pipeline rejects it; existing pages still evaluated via Tier 2 until migrated. Asserted users now get `['anonymous']` role (not `['reader']`) to align with stated design intent. WikiContext carries `pageMetadata` loaded before ACL checks. Audience principals can be role names OR usernames.
+- Current Issue: Migration script for existing [{ALLOW}] pages deferred (needs standalone runner)
+- Testing:
+  - npm test: 99 suites passed, 2542 tests passed, 11 skipped
+- Work Done:
+  - Added `audience?` and `access?` to `PageFrontmatter` (src/types/Page.ts)
+  - Fixed asserted user role: `['reader']` → `['anonymous']` (UserManager.ts)
+  - Added `pageMetadata: PageFrontmatter | null` to WikiContext
+  - ACLManager: Tier 0 (private keyword hard deny), Tier 1.5 (`checkFrontmatterAccess()`), updated local WikiContext interface
+  - PageManager save pipeline rejects inline `[{ALLOW}]` / `[{DENY}]` markup
+  - VersioningFileProvider: added `audienceRoles` and `isPrivate` to page index
+  - WikiRoutes: load metadata before ACL in view/edit/delete; extract `audience` from POST; pass `availableRoles` to edit template
+  - edit.ejs: audience checkboxes UI in sidebar (role picker)
+  - 12 new ACLManager tests (Tier 0 × 4, Tier 1.5 × 8)
+  - Version bumped 3.0.15 → 3.1.0 (minor)
+- Commits: TBD
+- Files Modified:
+  - src/types/Page.ts
+  - src/managers/UserManager.ts
+  - src/context/WikiContext.ts
+  - src/managers/ACLManager.ts
+  - src/managers/PageManager.ts
+  - src/providers/VersioningFileProvider.ts
+  - src/routes/WikiRoutes.ts
+  - views/edit.ejs
+  - src/managers/__tests__/ACLManager.test.js
+  - package.json
+  - config/app-default-config.json
+  - CHANGELOG.md
+
 ## 2026-04-05-04
 
 - Agent: Claude Code (Sonnet 4.6)

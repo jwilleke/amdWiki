@@ -6,6 +6,7 @@ import type ConfigurationManager from './ConfigurationManager';
 import type UserManager from './UserManager';
 import type PolicyEvaluator from './PolicyEvaluator';
 import type NotificationManager from './NotificationManager';
+import type { PageFrontmatter } from '../types/Page';
 
 /**
  * Minimal WikiContext interface for type safety
@@ -16,6 +17,7 @@ interface WikiContext {
   content: string;
   context?: Record<string, unknown>;
   userContext?: UserContext;
+  pageMetadata?: PageFrontmatter | null;
 }
 
 /**
@@ -308,7 +310,25 @@ class ACLManager extends BaseManager {
     };
     const policyAction = actionMap[action.toLowerCase()] || action;
 
-    // 1. Evaluate Global Policies first
+    // Tier 0: private user-keyword — hard constraint, not overridable by front matter
+    const userKeywords: string[] = (wikiContext.pageMetadata?.['user-keywords']) ?? [];
+    if (userKeywords.includes('private')) {
+      const creator = (wikiContext.pageMetadata?.['page-creator'] as string | undefined) ?? '';
+      const userRoles = userContext?.roles ?? [];
+      const username  = userContext?.username ?? '';
+      const allowed   = userRoles.includes('admin') || username === creator;
+      this.logAccessDecision({
+        user: userContext,
+        pageName,
+        action,
+        allowed,
+        reason: allowed ? 'private_keyword_match' : 'private_keyword_deny',
+        context: { wikiContext: wikiContext.context }
+      });
+      return allowed;
+    }
+
+    // Tier 1: Evaluate Global Policies
     if (this.policyEvaluator) {
       try {
         const policyContext = { pageName, action: policyAction, userContext };
@@ -337,7 +357,23 @@ class ACLManager extends BaseManager {
       }
     }
 
-    // 2. Evaluate Page-Level ACLs if no global policy decided
+    // Tier 1.5: Front matter audience / access check
+    if (wikiContext.pageMetadata) {
+      const fm = this.checkFrontmatterAccess(wikiContext.pageMetadata, userContext, action);
+      if (fm.decided) {
+        this.logAccessDecision({
+          user: userContext,
+          pageName,
+          action,
+          allowed: fm.allowed,
+          reason: fm.reason,
+          context: { wikiContext: wikiContext.context }
+        });
+        return fm.allowed;
+      }
+    }
+
+    // Tier 2: Page-Level ACL markup (deprecated — blocked on new saves)
     if (pageContent && typeof pageContent === 'string') {
       const pageAcl = this.parsePageACL(pageContent);
       const principals = pageAcl.get(action.toLowerCase());
@@ -394,6 +430,35 @@ class ACLManager extends BaseManager {
       context: { wikiContext: wikiContext.context }
     });
     return false;
+  }
+
+  /**
+   * Check front matter audience / access fields (Tier 1.5).
+   * Returns a decision object; decided=false means no front matter restriction — fall through.
+   */
+  private checkFrontmatterAccess(
+    metadata: PageFrontmatter,
+    userContext: UserContext | null | undefined,
+    action: string
+  ): { decided: boolean; allowed: boolean; reason: string } {
+    let principals: string[] | undefined;
+    if (metadata.access && typeof metadata.access === 'object') {
+      const ar = (metadata.access as Record<string, unknown>)[action];
+      if (Array.isArray(ar)) principals = ar as string[];
+    }
+    if (!principals && action === 'view' && Array.isArray(metadata.audience)) {
+      principals = metadata.audience;
+    }
+    if (!principals?.length) return { decided: false, allowed: false, reason: '' };
+
+    const userRoles = userContext?.roles ?? [];
+    const username  = userContext?.username ?? '';
+    for (const p of principals) {
+      if (userRoles.includes(p) || username === p) {
+        return { decided: true, allowed: true, reason: `frontmatter_principal_${p}` };
+      }
+    }
+    return { decided: true, allowed: false, reason: 'frontmatter_deny' };
   }
 
   /**

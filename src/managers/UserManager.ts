@@ -624,9 +624,9 @@ class UserManager extends BaseManager {
       return this.getPermissionsFromPolicies(policyManager, userRoles);
     }
 
-    // Handle asserted user (has session cookie but expired/invalid)
+    // Handle asserted user (has session cookie but expired/invalid) — treat as anonymous
     if (username === 'asserted') {
-      const userRoles = ['reader', 'All'];
+      const userRoles = ['anonymous', 'All'];
       return this.getPermissionsFromPolicies(policyManager, userRoles);
     }
 
@@ -1102,7 +1102,7 @@ class UserManager extends BaseManager {
     return {
       username: 'asserted',
       displayName: 'Asserted User',
-      roles: ['reader'],
+      roles: ['anonymous'],
       isAuthenticated: false,
       authenticated: false,
       hasSessionCookie: true

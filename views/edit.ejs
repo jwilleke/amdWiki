@@ -78,7 +78,34 @@
                         </div>
                     </div>
                 </div>
-                
+
+                <!-- Audience (view access) -->
+                <% if (typeof availableRoles !== 'undefined' && availableRoles && availableRoles.length > 0) { %>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label style="font-weight:bold;"><i class="fas fa-lock"></i> Audience (view access):</label>
+                        <div class="border rounded p-2" style="max-height:140px;overflow-y:auto;">
+                            <% availableRoles.forEach(function(role) { %>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox"
+                                           name="audience" value="<%= role.name %>"
+                                           id="aud-<%= role.name %>"
+                                           <%= (pageData && pageData.metadata && pageData.metadata.audience &&
+                                                pageData.metadata.audience.includes(role.name)) ? 'checked' : '' %>>
+                                    <label class="form-check-label" for="aud-<%= role.name %>">
+                                        <%= role.displayname %>
+                                    </label>
+                                </div>
+                            <% }); %>
+                        </div>
+                        <small class="text-muted">
+                            Leave all unchecked = open access (global policies apply).
+                            The <strong>private</strong> keyword overrides all audience settings.
+                        </small>
+                    </div>
+                </div>
+                <% } %>
+
                 <!-- Content -->
                 <div class="form-group mb-3">
                     <label for="content" style="font-weight:bold;">Content:</label>
