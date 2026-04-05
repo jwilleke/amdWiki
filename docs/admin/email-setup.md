@@ -17,11 +17,11 @@ All settings live in your instance `app-custom-config.json`
 "ngdpbase.mail.enabled": true,
 "ngdpbase.mail.provider": "smtp",
 "ngdpbase.mail.from": "Wiki <noreply@yourdomain.com>",
-"ngdpbase.mail.provider.smtp.host": "smtp.resend.com",
+"ngdpbase.mail.provider.smtp.host": "smtp.example.com",
 "ngdpbase.mail.provider.smtp.port": 587,
 "ngdpbase.mail.provider.smtp.secure": false,
-"ngdpbase.mail.provider.smtp.user": "resend",
-"ngdpbase.mail.provider.smtp.pass": "re_xxxxxxxxxxxx"
+"ngdpbase.mail.provider.smtp.user": "YOUR_SMTP_USERNAME",
+"ngdpbase.mail.provider.smtp.pass": "YOUR_SMTP_PASSWORD_OR_API_KEY"
 ```
 
 ### All config keys
