@@ -136,11 +136,11 @@ class AddonsManager extends BaseManager {
   /** Map of discovered add-ons by name */
   private addons: Map<string, AddonEntry>;
 
-  /** Configured path to addons directory */
-  private addonsPath: string;
+  /** Configured paths to addons directories (one or more) */
+  private addonsPaths: string[];
 
-  /** Resolved absolute path to addons directory */
-  private resolvedAddonsPath: string | null;
+  /** Resolved absolute paths to addons directories */
+  private resolvedAddonsPaths: string[];
 
   /** Stylesheets registered by add-ons via registerStylesheet() */
   private registeredStylesheets: Array<{ url: string; addonName: string }>;
@@ -151,8 +151,8 @@ class AddonsManager extends BaseManager {
   constructor(engine: WikiEngine) {
     super(engine);
     this.addons = new Map();
-    this.addonsPath = './addons';
-    this.resolvedAddonsPath = null;
+    this.addonsPaths = ['./addons'];
+    this.resolvedAddonsPaths = [];
     this.registeredStylesheets = [];
     this.domainAddonName = null;
   }
@@ -184,15 +184,18 @@ class AddonsManager extends BaseManager {
         return;
       }
 
-      // Get configured addons path
-      this.addonsPath = configManager.getProperty(
+      // Get configured addons path(s) — accepts a string or array of strings
+      const raw = configManager.getProperty(
         'ngdpbase.managers.addons-manager.addons-path',
         './addons'
-      ) as string;
+      );
+      this.addonsPaths = Array.isArray(raw)
+        ? (raw as string[]).map(String)
+        : [String(raw)];
     }
 
-    // Resolve to absolute path
-    this.resolvedAddonsPath = path.resolve(this.addonsPath);
+    // Resolve every entry to an absolute path
+    this.resolvedAddonsPaths = this.addonsPaths.map(p => path.resolve(p));
 
     // Discover and load add-ons
     await this.discoverAddons();
@@ -205,32 +208,38 @@ class AddonsManager extends BaseManager {
   }
 
   /**
-   * Discover available add-ons by scanning the addons directory
+   * Discover available add-ons by scanning all configured addons directories.
    */
   async discoverAddons(): Promise<void> {
-    if (!this.resolvedAddonsPath) {
+    if (this.resolvedAddonsPaths.length === 0) {
       return;
     }
+    for (const dirPath of this.resolvedAddonsPaths) {
+      await this.scanAddonsDirectory(dirPath);
+    }
+  }
 
+  /**
+   * Scan a single addons directory and register any add-ons found.
+   */
+  private async scanAddonsDirectory(dirPath: string): Promise<void> {
     // Check if addons directory exists
-    if (!fs.existsSync(this.resolvedAddonsPath)) {
+    if (!fs.existsSync(dirPath)) {
       logger.debug(
-        `Addons directory not found: ${this.resolvedAddonsPath} (this is normal if no add-ons installed)`
+        `Addons directory not found: ${dirPath} (this is normal if no add-ons installed)`
       );
       return;
     }
 
     // Verify it's a directory
-    const stat = fs.statSync(this.resolvedAddonsPath);
+    const stat = fs.statSync(dirPath);
     if (!stat.isDirectory()) {
-      logger.warn(`Addons path is not a directory: ${this.resolvedAddonsPath}`);
+      logger.warn(`Addons path is not a directory: ${dirPath}`);
       return;
     }
 
     // Scan for add-on directories
-    const entries = fs.readdirSync(this.resolvedAddonsPath, {
-      withFileTypes: true
-    });
+    const entries = fs.readdirSync(dirPath, { withFileTypes: true });
 
     for (const entry of entries) {
       // Skip hidden files/folders and non-directories
@@ -243,7 +252,7 @@ class AddonsManager extends BaseManager {
         continue;
       }
 
-      const addonPath = path.join(this.resolvedAddonsPath, entry.name);
+      const addonPath = path.join(dirPath, entry.name);
       const indexPath = path.join(addonPath, 'index.js');
       const indexTsPath = path.join(addonPath, 'index.ts');
 
@@ -280,6 +289,14 @@ class AddonsManager extends BaseManager {
           continue;
         }
 
+        // Warn if a later path tries to register a name already discovered
+        if (this.addons.has(addonModule.name)) {
+          logger.warn(
+            `[AddonsManager] Duplicate add-on name '${addonModule.name}' found in ${dirPath} — skipping (already loaded from another path)`
+          );
+          continue;
+        }
+
         // Check if enabled in configuration
         const enabled = this.isEnabled(addonModule.name);
 
@@ -307,7 +324,7 @@ class AddonsManager extends BaseManager {
 
         logger.info(
           `📦 Discovered add-on: ${addonModule.name} v${addonModule.version || 'unknown'} ` +
-            `[${enabled ? 'enabled' : 'disabled'}]`
+            `[${enabled ? 'enabled' : 'disabled'}] (${dirPath})`
         );
       } catch (err) {
         logger.error(`Failed to load add-on from ${entry.name}:`, err);
@@ -758,7 +775,7 @@ class AddonsManager extends BaseManager {
       managerName: 'AddonsManager',
       timestamp: new Date().toISOString(),
       data: {
-        addonsPath: this.addonsPath,
+        addonsPaths: this.addonsPaths,
         addonStates
       }
     });

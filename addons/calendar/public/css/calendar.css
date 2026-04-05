@@ -1,0 +1,40 @@
+/* Calendar add-on styles */
+
+.calendar-container {
+  width: 100%;
+  margin: 1rem 0;
+  font-family: inherit;
+}
+
+/* Integrate FullCalendar toolbar with the host site's colour variables */
+.fc .fc-button-primary {
+  background-color: var(--bs-primary, #0d6efd);
+  border-color:     var(--bs-primary, #0d6efd);
+}
+
+.fc .fc-button-primary:not(:disabled):hover,
+.fc .fc-button-primary:not(:disabled).fc-button-active {
+  background-color: var(--bs-primary-rgb, #0a58ca);
+  border-color:     var(--bs-primary-rgb, #0a58ca);
+}
+
+.fc .fc-button-primary:focus {
+  box-shadow: 0 0 0 0.25rem rgba(var(--bs-primary-rgb, 13, 110, 253), 0.25);
+}
+
+/* Today highlight */
+.fc .fc-day-today {
+  background-color: color-mix(in srgb, var(--bs-primary, #0d6efd) 8%, transparent);
+}
+
+/* Event pill */
+.fc-event {
+  cursor: pointer;
+  border-radius: 3px;
+}
+
+.plugin-error {
+  color: var(--bs-danger, #dc3545);
+  font-style: italic;
+  font-size: 0.875em;
+}

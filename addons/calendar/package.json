@@ -1,0 +1,16 @@
+{
+  "name": "calendar",
+  "version": "1.0.0",
+  "description": "Calendar add-on for ngdpbase — event management with FullCalendar UI",
+  "private": true,
+  "dependencies": {
+    "express": "^5.2.1",
+    "uuid": "^9.0.0"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "ngdpbase": {
+    "type": "additive"
+  }
+}

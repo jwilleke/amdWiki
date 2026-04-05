@@ -51,6 +51,28 @@ Restart the server: `./server.sh restart`
 
 The `AddonsManager` scans the path, finds all subdirectories with `index.js`, and loads the enabled ones in dependency order.
 
+### Multiple Addon Paths
+
+`addons-path` accepts either a single string **or an array of strings**. This lets you mix generic
+add-ons (kept in `fairways-base/addons/`) with non-generic ones hosted in separate repositories:
+
+```json
+{
+  "ngdpbase.managers.addons-manager.addons-path": [
+    "./addons",
+    "/absolute/path/to/external-addon-repo/addons"
+  ],
+  "ngdpbase.addons.my-addon.enabled": true,
+  "ngdpbase.addons.external-addon.enabled": true
+}
+```
+
+Each path is scanned in order. If the same addon `name` appears in more than one path, the first
+occurrence wins and subsequent duplicates are skipped with a warning in the logs.
+
+**Convention:** keep generic/reusable add-ons in `fairways-base/addons/`; keep site-specific or
+private add-ons in their own external repo and reference that path in the array.
+
 ---
 
 ## 3. The AddonModule Interface
@@ -454,7 +476,7 @@ Keep core PRs self-contained — no add-on-specific code in the core repo.
 
 - [ ] `name` in `index.js` matches the folder name and config key
 - [ ] `"ngdpbase.addons.my-addon.enabled": true` in instance config
-- [ ] `addons-path` in instance config points to the repo's `addons/` directory
+- [ ] `addons-path` in instance config points to the repo's `addons/` directory (string or array of strings)
 - [ ] Static assets mounted via `engine.app.use()` in `register()`
 - [ ] `engine.setCapability('my-addon', true)` called if you have admin UI sections
 - [ ] `status()` returns `{ healthy: bool }` for admin health display

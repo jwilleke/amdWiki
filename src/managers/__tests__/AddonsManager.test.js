@@ -195,6 +195,81 @@ describe('AddonsManager', () => {
 
       expect(manager.hasAddon('no-register')).toBe(false);
     });
+
+    test('discovers addons from multiple paths when addons-path is an array', async () => {
+      const dir1 = path.join(tmpDir, 'dir1');
+      const dir2 = path.join(tmpDir, 'dir2');
+      await fs.mkdir(path.join(dir1, 'addon-a'), { recursive: true });
+      await fs.mkdir(path.join(dir2, 'addon-b'), { recursive: true });
+      await fs.writeFile(
+        path.join(dir1, 'addon-a', 'index.js'),
+        `module.exports = { name: 'addon-a', version: '1.0.0', register: async () => {} };`,
+        'utf8'
+      );
+      await fs.writeFile(
+        path.join(dir2, 'addon-b', 'index.js'),
+        `module.exports = { name: 'addon-b', version: '1.0.0', register: async () => {} };`,
+        'utf8'
+      );
+
+      const configManager = makeConfigManager({ addonsPath: [dir1, dir2] });
+      const engine = makeEngine(configManager);
+
+      const manager = new AddonsManager(engine);
+      await manager.initialize();
+
+      expect(manager.hasAddon('addon-a')).toBe(true);
+      expect(manager.hasAddon('addon-b')).toBe(true);
+    });
+
+    test('handles some paths in array not existing', async () => {
+      const dir1 = path.join(tmpDir, 'dir1');
+      const nonExistent = path.join(tmpDir, 'does-not-exist');
+      await fs.mkdir(path.join(dir1, 'addon-a'), { recursive: true });
+      await fs.writeFile(
+        path.join(dir1, 'addon-a', 'index.js'),
+        `module.exports = { name: 'addon-a', version: '1.0.0', register: async () => {} };`,
+        'utf8'
+      );
+
+      const configManager = makeConfigManager({ addonsPath: [dir1, nonExistent] });
+      const engine = makeEngine(configManager);
+
+      const manager = new AddonsManager(engine);
+      await manager.initialize();
+
+      expect(manager.hasAddon('addon-a')).toBe(true);
+      expect(manager.getAddonNames()).toHaveLength(1);
+    });
+
+    test('first path wins when same addon name appears in two paths', async () => {
+      const dir1 = path.join(tmpDir, 'dir1');
+      const dir2 = path.join(tmpDir, 'dir2');
+      await fs.mkdir(path.join(dir1, 'dup-addon'), { recursive: true });
+      await fs.mkdir(path.join(dir2, 'dup-addon'), { recursive: true });
+      await fs.writeFile(
+        path.join(dir1, 'dup-addon', 'index.js'),
+        `module.exports = { name: 'dup-addon', version: '1.0.0', register: async () => {} };`,
+        'utf8'
+      );
+      await fs.writeFile(
+        path.join(dir2, 'dup-addon', 'index.js'),
+        `module.exports = { name: 'dup-addon', version: '2.0.0', register: async () => {} };`,
+        'utf8'
+      );
+
+      const configManager = makeConfigManager({ addonsPath: [dir1, dir2] });
+      const engine = makeEngine(configManager);
+
+      const manager = new AddonsManager(engine);
+      await manager.initialize();
+
+      expect(manager.hasAddon('dup-addon')).toBe(true);
+      expect(manager.getAddonNames()).toHaveLength(1);
+      // dir1 version (1.0.0) should win over dir2 (2.0.0)
+      const status = await manager.getStatus();
+      expect(status.find(s => s.name === 'dup-addon').version).toBe('1.0.0');
+    });
   });
 
   describe('addon loading', () => {
