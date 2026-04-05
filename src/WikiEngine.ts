@@ -178,10 +178,12 @@ class WikiEngine extends Engine {
     this.registerManager('UserManager', userManager);
     await userManager.initialize();
 
-    // 3a. EmailManager must be registered before AuthManager (magic-link uses it)
-    const emailManager = new EmailManager(this);
-    this.registerManager('EmailManager', emailManager);
-    await emailManager.initialize();
+    // 3a. EmailManager — only register when mail is enabled; magic-link depends on it
+    if (configManager.getProperty('ngdpbase.mail.enabled', false)) {
+      const emailManager = new EmailManager(this);
+      this.registerManager('EmailManager', emailManager);
+      await emailManager.initialize();
+    }
 
     const authManager = new AuthManager(this);
     this.registerManager('AuthManager', authManager);

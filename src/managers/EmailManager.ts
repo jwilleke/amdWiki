@@ -83,17 +83,14 @@ class EmailManager extends BaseManager implements MailProvider {
       });
       this.providerName = 'smtp';
     } else {
-      // console provider
+      // console provider — always warn so operators know mail is not being sent
       this.from = globalFrom;
       this.provider = new ConsoleMailProvider();
       this.providerName = 'console';
-
-      if (this.enabled) {
-        logger.warn(
-          '[EmailManager] provider is "console" — emails will be printed to the server log, not sent. ' +
-          'Set ngdpbase.mail.provider: "smtp" for production. See docs/admin/email-setup.md'
-        );
-      }
+      logger.warn(
+        '[EmailManager] provider is "console" — emails will be printed to the server log, not sent. ' +
+        'Set ngdpbase.mail.provider: "smtp" for production. See docs/admin/email-setup.md'
+      );
     }
 
     logger.info(`[EmailManager] Initialized provider=${this.providerName} enabled=${this.enabled}` +

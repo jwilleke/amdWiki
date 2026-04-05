@@ -39,16 +39,15 @@ describe('EmailManager', () => {
   });
 
   describe('initialization', () => {
-    test('1. defaults to console provider with no warning when mail.enabled=false', async () => {
-      const cm = makeConfigManager({ enabled: false, provider: 'console' });
+    test('1. defaults to console provider and warns when provider=console', async () => {
+      const cm = makeConfigManager({ enabled: true, provider: 'console' });
       const manager = new EmailManager(makeEngine(cm));
       await manager.initialize();
 
       expect(manager.getProviderName()).toBe('console');
-      expect(manager.isEnabled()).toBe(false);
-      // No "printed to the server log" warning when disabled
+      expect(manager.isEnabled()).toBe(true);
       const warnCalls = mockLogger.warn.mock.calls.map((c) => c.join(' '));
-      expect(warnCalls.some((m) => m.includes('printed to the server log'))).toBe(false);
+      expect(warnCalls.some((m) => m.includes('printed to the server log'))).toBe(true);
     });
 
     test('2. warns when provider=console and mail.enabled=true', async () => {
@@ -60,8 +59,15 @@ describe('EmailManager', () => {
       expect(warnCalls.some((m) => m.includes('printed to the server log'))).toBe(true);
     });
 
-    test('3. no warning when provider=console and mail.enabled=false', async () => {
-      const cm = makeConfigManager({ enabled: false, provider: 'console' });
+    test('3. no console warning when provider=smtp', async () => {
+      const cm = makeConfigManager({
+        enabled: true,
+        provider: 'smtp',
+        smtpHost: 'smtp.example.com',
+        smtpFrom: 'noreply@example.com',
+        smtpUser: 'u',
+        smtpPass: 'p'
+      });
       const manager = new EmailManager(makeEngine(cm));
       await manager.initialize();
 
