@@ -22,6 +22,34 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - [file2.md]
 ```
 
+## 2026-04-05-03
+
+- Agent: Claude Code (Sonnet 4.6)
+- Subject: feat: EmailManager with pluggable SMTP transport (#456)
+- Key Decision: EmailManager extends BaseManager and implements MailProvider so it drops into MagicLinkAuthProvider unchanged. Single `ngdpbase.mail.*` config namespace replaces per-feature mail config. SMTP covers all relay providers (Gmail, Resend, SendGrid, SES) by config only — no per-provider classes.
+- Current Issue: #456 (committed), #457 Phase 2 not started
+- Testing:
+  - npm test: 97 suites passed, 2500 tests passed, 11 skipped
+- Work Done:
+  - Created `src/managers/EmailManager.ts` (BaseManager + MailProvider)
+  - Updated `config/app-default-config.json` — replaced `auth.magic-link.smtp.*` with `ngdpbase.mail.*`
+  - Updated `src/managers/AuthManager.ts` — use EmailManager instead of inline mail factory
+  - Updated `src/WikiEngine.ts` — register EmailManager before AuthManager
+  - Created `src/managers/__tests__/EmailManager.test.js` — 13 unit tests
+  - Updated `src/managers/__tests__/AuthManager.test.js` — mock EmailManager
+  - Created `docs/admin/email-setup.md` — provider-agnostic SMTP setup guide
+  - Created `docs/planning/email-manager-plan.md` — two-phase design doc
+- Commits: bb707ae9
+- Files Modified:
+  - config/app-default-config.json
+  - src/WikiEngine.ts
+  - src/managers/AuthManager.ts
+  - src/managers/EmailManager.ts (new)
+  - src/managers/__tests__/AuthManager.test.js
+  - src/managers/__tests__/EmailManager.test.js (new)
+  - docs/admin/email-setup.md (new)
+  - docs/planning/email-manager-plan.md (new)
+
 ## 2026-04-05-02
 
 - Agent: Claude Code (Sonnet 4.6)
