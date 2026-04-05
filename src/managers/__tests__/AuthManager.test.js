@@ -11,18 +11,18 @@ describe('AuthManager', () => {
         'ngdpbase.auth.magic-link.enabled': overrides.magicLinkEnabled ?? false,
         'ngdpbase.auth.magic-link.ttl-minutes': 15,
         'ngdpbase.auth.magic-link.base-url': '',
-        'ngdpbase.auth.magic-link.mail-transport': 'console',
-        'ngdpbase.auth.magic-link.smtp.host': '',
-        'ngdpbase.auth.magic-link.smtp.port': 587,
-        'ngdpbase.auth.magic-link.smtp.secure': false,
-        'ngdpbase.auth.magic-link.smtp.user': '',
-        'ngdpbase.auth.magic-link.smtp.pass': '',
-        'ngdpbase.auth.magic-link.smtp.from': '',
         'ngdpbase.auth.required-factors': overrides.requiredFactors ?? ['password'],
         ...overrides.properties
       };
       return values[key] ?? defaultValue;
     })
+  });
+
+  const makeMockEmailManager = () => ({
+    send: jest.fn().mockResolvedValue(undefined),
+    sendTo: jest.fn().mockResolvedValue(undefined),
+    getProviderName: jest.fn().mockReturnValue('console'),
+    isEnabled: jest.fn().mockReturnValue(false)
   });
 
   beforeEach(() => {
@@ -36,6 +36,7 @@ describe('AuthManager', () => {
   const makeEngine = (configManager, extraManagers = {}) => ({
     getManager: jest.fn((name) => {
       if (name === 'ConfigurationManager') return configManager;
+      if (name === 'EmailManager') return extraManagers.EmailManager ?? makeMockEmailManager();
       return extraManagers[name] ?? null;
     })
   });

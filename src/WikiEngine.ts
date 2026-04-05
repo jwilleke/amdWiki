@@ -30,6 +30,7 @@ import AuditManager from './managers/AuditManager';
 import AddonsManager from './managers/AddonsManager';
 import ImportManager from './managers/ImportManager';
 import AuthManager from './managers/AuthManager';
+import EmailManager from './managers/EmailManager';
 import MetricsManager from './managers/MetricsManager';
 import BackgroundJobManager from './managers/BackgroundJobManager';
 
@@ -176,6 +177,11 @@ class WikiEngine extends Engine {
     const userManager = new UserManager(this);
     this.registerManager('UserManager', userManager);
     await userManager.initialize();
+
+    // 3a. EmailManager must be registered before AuthManager (magic-link uses it)
+    const emailManager = new EmailManager(this);
+    this.registerManager('EmailManager', emailManager);
+    await emailManager.initialize();
 
     const authManager = new AuthManager(this);
     this.registerManager('AuthManager', authManager);

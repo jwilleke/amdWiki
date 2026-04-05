@@ -33,8 +33,7 @@ import type {
 import { PasswordAuthProvider } from '../providers/PasswordAuthProvider';
 import { MagicLinkAuthProvider } from '../providers/MagicLinkAuthProvider';
 import { GoogleOIDCProvider } from '../providers/GoogleOIDCProvider';
-import { ConsoleMailProvider } from '../mail/MailProvider';
-import { NodemailerMailProvider } from '../mail/NodemailerMailProvider';
+import type EmailManager from './EmailManager';
 import logger from '../utils/logger';
 
 export interface AuthenticateResult {
@@ -63,33 +62,24 @@ class AuthManager extends BaseManager {
 
     // Register magic-link provider if enabled
     if (configManager?.getProperty('ngdpbase.auth.magic-link.enabled', false)) {
-      const ttlMinutes = configManager.getProperty(
-        'ngdpbase.auth.magic-link.ttl-minutes', 15
-      ) as number;
-      const baseUrl = (configManager.getProperty(
-        'ngdpbase.auth.magic-link.base-url', ''
-      ) as string).replace(/\/$/, '');
-      const transport = configManager.getProperty(
-        'ngdpbase.auth.magic-link.mail-transport', 'console'
-      ) as string;
+      const emailManager = this.engine.getManager<EmailManager>('EmailManager');
+      if (!emailManager) {
+        logger.error('[AuthManager] EmailManager not available — magic-link provider not registered');
+      } else {
+        const ttlMinutes = configManager.getProperty(
+          'ngdpbase.auth.magic-link.ttl-minutes', 15
+        ) as number;
+        const baseUrl = (configManager.getProperty(
+          'ngdpbase.auth.magic-link.base-url', ''
+        ) as string).replace(/\/$/, '');
 
-      const mailProvider = transport === 'smtp'
-        ? new NodemailerMailProvider({
-          host: configManager.getProperty('ngdpbase.auth.magic-link.smtp.host', '') as string,
-          port: configManager.getProperty('ngdpbase.auth.magic-link.smtp.port', 587) as number,
-          secure: configManager.getProperty('ngdpbase.auth.magic-link.smtp.secure', false) as boolean,
-          user: configManager.getProperty('ngdpbase.auth.magic-link.smtp.user', '') as string,
-          pass: configManager.getProperty('ngdpbase.auth.magic-link.smtp.pass', '') as string,
-          from: configManager.getProperty('ngdpbase.auth.magic-link.smtp.from', '') as string
-        })
-        : new ConsoleMailProvider();
-
-      this.providers.set('magic-link', new MagicLinkAuthProvider(this.engine, {
-        ttlMs: ttlMinutes * 60_000,
-        baseUrl,
-        mailProvider
-      }));
-      logger.info(`[AuthManager] Registered provider: magic-link (transport=${transport}, ttl=${ttlMinutes}min)`);
+        this.providers.set('magic-link', new MagicLinkAuthProvider(this.engine, {
+          ttlMs: ttlMinutes * 60_000,
+          baseUrl,
+          mailProvider: emailManager
+        }));
+        logger.info(`[AuthManager] Registered provider: magic-link (transport=${emailManager.getProviderName()}, ttl=${ttlMinutes}min)`);
+      }
     }
 
     // Register Google OIDC provider if enabled
