@@ -17,6 +17,7 @@ PluginManager handles plugin discovery, registration, and execution. Similar to 
 - Secure path validation (plugins only from allowed roots)
 - Plugin metadata and information retrieval
 - Support for both function-style and class-style plugins
+- Optional `fetch(engine)` lifecycle — called before `execute()` so plugins can pre-load data
 
 ## Quick Example
 
@@ -60,6 +61,31 @@ Examples:
 {
   "ngdpbase.managers.plugin-manager.search-paths": ["./plugins"]
 }
+```
+
+## Plugin Lifecycle
+
+Each plugin invocation follows this sequence:
+
+1. `initialize(engine)` — called **once at startup** if present
+2. `fetch(engine)` — called **before each `execute()`** if present; use to pre-load data from managers
+3. `execute(context, params)` — called **each render**; returns HTML string
+
+```ts
+// Example plugin using fetch() to pre-load data
+module.exports = {
+  name: 'MyPlugin',
+  _data: [],
+
+  async fetch(engine) {
+    const mgr = engine.getManager('MyDataManager');
+    this._data = mgr ? mgr.getItems() : [];
+  },
+
+  execute(context, params) {
+    return this._data.map(d => `<li>${d.title}</li>`).join('');
+  }
+};
 ```
 
 ## Related Documentation

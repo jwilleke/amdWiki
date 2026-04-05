@@ -50,6 +50,7 @@ class MyManager extends BaseManager {
 | `shutdown()` | Clean shutdown |
 | `backup()` | Backup manager data |
 | `restore(backupData)` | Restore from backup |
+| `toMarqueeText(options)` | Return plain-text summary for [MarqueePlugin](../plugins/MarqueePlugin.md). Default returns `''`. Override in subclasses. |
 
 ## Properties
 
@@ -80,6 +81,36 @@ All managers in `src/managers/` extend BaseManager:
 - [UserManager](UserManager.md)
 - [ValidationManager](ValidationManager.md)
 - [VariableManager](VariableManager.md)
+
+## Plugin Content Methods
+
+Managers can expose live data to plugins by overriding standard methods.
+These methods receive a raw `Record<string, string>` options object parsed
+from the plugin's `fetch=` parameter.
+
+### `toMarqueeText(options)`
+
+Returns a single-line plain-text string for use by [MarqueePlugin](../plugins/MarqueePlugin.md).
+
+```ts
+import { parseManagerFetchOptions } from '../utils/managerUtils';
+
+async toMarqueeText(raw: Record<string, string> = {}): Promise<string> {
+  const { limit } = parseManagerFetchOptions(raw);
+  const items = await this.getRecentItems(limit ?? 5);
+  return items.length === 0 ? '' : items.map(i => i.title).join('  •  ');
+}
+```
+
+Wiki usage:
+
+```wiki
+[{MarqueePlugin fetch='MyManager.toMarqueeText(limit=5,sort=date-desc)'}]
+```
+
+Common options (`limit`, `sort`, `sortBy`, `sortOrder`, `since`, `before`) are
+parsed by `parseManagerFetchOptions()` from `src/utils/managerUtils.ts`.
+Domain-specific options are read directly from the raw object.
 
 ## Developer Documentation
 

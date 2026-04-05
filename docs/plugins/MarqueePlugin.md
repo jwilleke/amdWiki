@@ -3,8 +3,8 @@ name: "MarqueePlugin"
 description: "CSS-based horizontally scrolling text banner"
 dateModified: "2026-04-05"
 category: "plugins"
-relatedModules: ["PluginManager"]
-version: "1.0.0"
+relatedModules: ["PluginManager", "BaseManager"]
+version: "1.1.0"
 ---
 
 # MarqueePlugin
@@ -48,7 +48,8 @@ never interfere with each other.
 
 | Parameter | Type | Default | Required | Description |
 | --- | --- | --- | --- | --- |
-| `text` | string | — | **Yes** | The message to scroll. |
+| `text` | string | — | Yes (unless `fetch` used) | The message to scroll. |
+| `fetch` | string | — | No | `'ManagerName.methodName(k=v,...)'` — calls a manager method to get text dynamically. Takes precedence over `text`. See [Manager Feed](#manager-feed-fetch-parameter) below. |
 | `speed` | string \| number | `medium` | No | `slow` (30 s), `medium` (20 s), `fast` (10 s), or a number of seconds per cycle. |
 | `direction` | string | `left` | No | `left` or `right`. |
 | `behavior` | string | `scroll` | No | `scroll` (seamless loop), `slide` (enter and stop), `alternate` (bounce). |
@@ -111,6 +112,52 @@ movement is controlled by `direction`.
 [{MarqueePlugin text='News item one' separator=' | '}]
 ```
 
+## Manager Feed (`fetch=` parameter)
+
+`fetch='ManagerName.methodName(k=v,...)'` calls any registered manager method
+and uses the returned string as the banner text.  This allows live data to
+flow into the banner without hardcoding text in the page.
+
+```wiki
+[{MarqueePlugin fetch='HansDataManager.toMarqueeText()'}]
+[{MarqueePlugin fetch='HansDataManager.toMarqueeText(limit=3,alertLevel=WATCH)'}]
+```
+
+### How it works
+
+1. `execute()` parses the `fetch` param with the regex
+   `^([A-Za-z0-9_]+)\.([A-Za-z0-9_]+)\(([^)]*)\)$`
+2. Splits the arg string on `,` into a `Record<string, string>` of raw key=value pairs
+3. Calls `context.engine.getManager(managerName)[methodName](fetchArgs)`
+4. Awaits the result and coerces to string
+
+The raw args object is passed directly to the manager — the manager owns
+its own option parsing.  Common options (`limit`, `sort`, `since`, `before`)
+are parsed via `parseManagerFetchOptions()` from `src/utils/managerUtils.ts`.
+
+### Adding `toMarqueeText()` to a manager
+
+Any manager that extends `BaseManager` inherits a default `toMarqueeText()`
+that returns `''`.  Override it to expose live data:
+
+```ts
+import { ManagerFetchOptions, parseManagerFetchOptions } from '../utils/managerUtils';
+
+async toMarqueeText(raw: Record<string, string> = {}): Promise<string> {
+  const { limit } = parseManagerFetchOptions(raw);
+  const pages = await this.getRecentChanges(limit ?? 5);
+  return 'Recent: ' + pages.map(p => p.name).join('  •  ');
+}
+```
+
+### Error handling
+
+| Condition | Output |
+| --- | --- |
+| Manager not found | `[MarqueePlugin: fetch target '…' not found]` |
+| Method not found on manager | `[MarqueePlugin: fetch target '…' not found]` |
+| Method returns empty string | Falls through to `[MarqueePlugin: no text provided]` |
+
 ## Technical Implementation
 
 ### Output Structure
@@ -155,19 +202,23 @@ definition.
 
 ## Tests
 
-`plugins/__tests__/MarqueePlugin.test.js` — 27 tests covering metadata,
+`plugins/__tests__/MarqueePlugin.test.js` — 30 tests covering metadata,
 missing-text guard, XSS safety, speed presets, direction, all three
-behaviors, styling parameters, hover pause, aria-label, and unique keyframe
-names per instance.
+behaviors, styling parameters, hover pause, aria-label, unique keyframe
+names per instance, and 3 `fetch=` tests (not-found error, text result,
+args forwarding).
 
 ## Related Documentation
 
 - [Plugin System Architecture](../architecture/Plugin-Architecture.md)
 - [PluginManager](../managers/PluginManager.md)
+- [BaseManager](../managers/BaseManager.md)
+- [managerUtils](../../src/utils/managerUtils.ts) — `ManagerFetchOptions`, `parseManagerFetchOptions()`
 - [pluginFormatters utility](../../src/utils/pluginFormatters.ts)
 
 ## Version History
 
 | Version | Date | Changes |
 | --- | --- | --- |
+| 1.1.0 | 2026-04-05 | `fetch=` parameter — live data from any manager (#465); `execute()` now async |
 | 1.0.0 | 2026-04-05 | Initial implementation (#454) |
