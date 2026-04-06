@@ -22,6 +22,34 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - [file2.md]
 ```
 
+## 2026-04-06-04
+
+- Agent: Claude Code (Sonnet 4.6)
+- Subject: feat: import 16 Wix pages into data/pages
+- Key Decision: Pages with matching slug (or fairways- prefixed slug) already in data/pages were skipped. 16 new pages imported with UUID, system-category: addon, user-keywords: fairways, audience: [admin,editor,contributor,reader,occupant]. 34 skipped as duplicates. One-time script removed after use.
+- Current Issue: none
+- Testing:
+  - npm test: 100 suites passed, 2609 tests passed, 11 skipped
+- Work Done:
+  - Imported 16 pages: about-us, blank (Your Profile), board, calendar, clubhouse-calendar, clubhouse-checklist, contacts, directory, mount-vernon-life, news, photos, so-39msi4eud, so-78ml4zpnn, so-8amoyejfi, so-9mcj9tpu, so-demycihje
+  - 34 pages skipped (already existed by slug)
+  - Version bump 3.1.3 → 3.1.4
+- Commits: (pending)
+- Files Modified:
+  - data/pages/7C0CCDAE-*.md (about-us)
+  - data/pages/5DC1FC74-*.md (blank)
+  - data/pages/35E5AEC5-*.md (board)
+  - data/pages/9ECC44C2-*.md (calendar)
+  - data/pages/2AEA3F75-*.md (clubhouse-calendar)
+  - data/pages/42B399A6-*.md (clubhouse-checklist)
+  - data/pages/E9BFCA5C-*.md (contacts)
+  - data/pages/934CB591-*.md (directory)
+  - data/pages/214AF829-*.md (mount-vernon-life)
+  - data/pages/9E76A0AF-*.md (news)
+  - data/pages/35015212-*.md (photos)
+  - data/pages/1F4D4F63-*.md through E4EA3E79-*.md (5 newsletter archives)
+  - config/app-default-config.json (version)
+
 ## 2026-04-06-03
 
 - Agent: Claude Code (Sonnet 4.6)
