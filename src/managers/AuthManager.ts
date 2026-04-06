@@ -56,9 +56,11 @@ class AuthManager extends BaseManager {
 
     const configManager = this.engine.getManager<ConfigurationManager>('ConfigurationManager');
 
-    // Always register password provider
-    this.providers.set('password', new PasswordAuthProvider(this.engine));
-    logger.debug('[AuthManager] Registered provider: password');
+    // Register password provider if enabled (default: true)
+    if (configManager?.getProperty('ngdpbase.auth.password.enabled', true) !== false) {
+      this.providers.set('password', new PasswordAuthProvider(this.engine));
+      logger.debug('[AuthManager] Registered provider: password');
+    }
 
     // Register magic-link provider if enabled
     if (configManager?.getProperty('ngdpbase.auth.magic-link.enabled', false)) {

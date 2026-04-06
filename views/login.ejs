@@ -34,7 +34,9 @@
                             Sign in with Google
                         </button>
                     </form>
-                    <% } else { %>
+                    <% } %>
+                    <% if (passwordAuthEnabled || !googleOIDCEnabled) { %>
+                    <% if (googleOIDCEnabled) { %><hr class="my-3"><% } %>
                     <form action="/login" method="POST">
                         <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                         <input type="hidden" name="redirect" value="<%= redirect || '/' %>">

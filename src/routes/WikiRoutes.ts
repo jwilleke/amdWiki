@@ -3119,6 +3119,7 @@ class WikiRoutes {
         redirect: req.query.redirect,
         magicLinkEnabled: authManager?.isEnabled('magic-link') ?? false,
         googleOIDCEnabled: authManager?.isEnabled('google-oidc') ?? false,
+        passwordAuthEnabled: authManager?.isEnabled('password') ?? true,
         csrfToken: req.session?.csrfToken || ''
       });
     } catch (err: unknown) {
