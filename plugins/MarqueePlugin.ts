@@ -107,6 +107,8 @@ const MarqueePlugin: SimplePlugin = {
     const wrapStyle  = [
       'overflow:hidden',
       'white-space:nowrap',
+      'line-height:1.4',
+      'padding:0.2em 0',
       bgcolor   ? `background:${bgcolor}`   : '',
       color     ? `color:${color}`          : '',
       fontsize  ? `font-size:${fontsize}`   : ''
