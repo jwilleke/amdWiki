@@ -119,13 +119,14 @@
                   <td><%= user.loginCount || 0 %></td>
                   <td>
                     <div class="btn-group btn-group-sm">
-                      <button class="btn btn-outline-primary edit-user-btn" 
+                      <button class="btn btn-outline-primary edit-user-btn"
                               title="Edit User"
                               data-username="<%= user.username %>"
                               data-displayname="<%= user.displayName || '' %>"
                               data-email="<%= user.email || '' %>"
                               data-roles="<%= JSON.stringify(user.roles) %>"
-                              data-isactive="<%= user.isActive %>">
+                              data-isactive="<%= user.isActive %>"
+                              data-isexternal="<%= user.isExternal || false %>">
                         <i class="fas fa-edit"></i>
                       </button>
                       <% if (!user.isSystem) { %>
@@ -262,15 +263,30 @@
           </div>
           
           <div class="mb-3">
-            <label for="editPassword" class="form-label">New Password</label>
-            <input type="password" class="form-control" id="editPassword" name="password">
-            <div class="form-text">Leave blank to keep current password.</div>
+            <label class="form-label">Account Type</label>
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" id="editIsExternal">
+              <label class="form-check-label" for="editIsExternal">
+                External OAuth account (no local password)
+              </label>
+            </div>
+            <div class="form-text text-danger" id="editIsExternalAdminWarning" style="display:none">
+              Admin accounts cannot be set as external OAuth accounts.
+            </div>
           </div>
-          
-          <div class="mb-3">
-            <label for="editConfirmPassword" class="form-label">Confirm New Password</label>
-            <input type="password" class="form-control" id="editConfirmPassword">
-            <div class="form-text">Must match the new password if changing password.</div>
+
+          <div id="editPasswordSection">
+            <div class="mb-3">
+              <label for="editPassword" class="form-label">New Password</label>
+              <input type="password" class="form-control" id="editPassword" name="password">
+              <div class="form-text">Leave blank to keep current password.</div>
+            </div>
+
+            <div class="mb-3">
+              <label for="editConfirmPassword" class="form-label">Confirm New Password</label>
+              <input type="password" class="form-control" id="editConfirmPassword">
+              <div class="form-text">Must match the new password if changing password.</div>
+            </div>
           </div>
           
           <div class="mb-3">
@@ -375,7 +391,8 @@ document.addEventListener('DOMContentLoaded', function() {
       const email = this.dataset.email;
       const roles = JSON.parse(this.dataset.roles);
       const isActive = this.dataset.isactive === 'true';
-      
+      const isExternal = this.dataset.isexternal === 'true';
+
       // Populate the form
       document.getElementById('editUsername').value = username;
       document.getElementById('editDisplayName').value = displayName;
@@ -383,6 +400,9 @@ document.addEventListener('DOMContentLoaded', function() {
       document.getElementById('editPassword').value = '';
       document.getElementById('editConfirmPassword').value = '';
       document.getElementById('editIsActive').checked = isActive;
+      document.getElementById('editIsExternal').checked = isExternal;
+      document.getElementById('editPasswordSection').style.display = isExternal ? 'none' : '';
+      document.getElementById('editIsExternalAdminWarning').style.display = 'none';
       
       // Clear all role checkboxes first
       document.getElementById('editRoleReader').checked = false;
@@ -402,6 +422,24 @@ document.addEventListener('DOMContentLoaded', function() {
       const modal = new bootstrap.Modal(editModal);
       modal.show();
     });
+  });
+
+  // Toggle password section and admin warning when isExternal changes
+  document.getElementById('editIsExternal').addEventListener('change', function() {
+    const isExternal = this.checked;
+    document.getElementById('editPasswordSection').style.display = isExternal ? 'none' : '';
+    const isAdmin = document.getElementById('editRoleAdmin').checked;
+    document.getElementById('editIsExternalAdminWarning').style.display = (isExternal && isAdmin) ? '' : 'none';
+    if (isExternal) {
+      document.getElementById('editPassword').value = '';
+      document.getElementById('editConfirmPassword').value = '';
+    }
+  });
+
+  // Also check when admin role is toggled
+  document.getElementById('editRoleAdmin').addEventListener('change', function() {
+    const isExternal = document.getElementById('editIsExternal').checked;
+    document.getElementById('editIsExternalAdminWarning').style.display = (isExternal && this.checked) ? '' : 'none';
   });
   
   // Edit form submission
@@ -434,10 +472,17 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // Prepare update data
+    const isExternal = document.getElementById('editIsExternal').checked;
+    if (isExternal && Array.from(selectedRoles).some(cb => cb.value === 'admin')) {
+      alert('Admin accounts cannot be set as external OAuth accounts.');
+      return;
+    }
+
     const updateData = {
       displayName: formData.get('displayName'),
       email: formData.get('email'),
       isActive: formData.has('isActive'),
+      isExternal: isExternal,
       roles: Array.from(selectedRoles).map(cb => cb.value)
     };
     

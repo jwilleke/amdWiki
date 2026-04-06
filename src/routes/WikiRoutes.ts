@@ -4346,6 +4346,16 @@ class WikiRoutes {
       const username = req.params.username;
       const updates = req.body;
 
+      // Normalise isExternal from JSON body (may arrive as string or boolean)
+      if ('isExternal' in updates) {
+        updates.isExternal = updates.isExternal === true || updates.isExternal === 'true';
+      }
+
+      // Admin-role users must always be local accounts
+      if (updates.isExternal === true && Array.isArray(updates.roles) && updates.roles.includes('admin')) {
+        return res.status(400).json({ success: false, message: 'Admin users cannot be marked as external OAuth accounts.' });
+      }
+
       const success = await userManager.updateUser(username, updates);
 
       if (success) {

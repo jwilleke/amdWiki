@@ -80,6 +80,7 @@ interface UserUpdateInput {
   password?: string;
   roles?: string[];
   isActive?: boolean;
+  isExternal?: boolean;
   preferences?: Partial<UserPreferences>;
   profilePage?: string;
 }
@@ -888,8 +889,10 @@ class UserManager extends BaseManager {
     }
 
     if (updates.password) {
-      if (user.isExternal) {
-        throw new Error('Cannot change password for external OAuth users');
+      // Use the incoming isExternal value if being changed in the same request
+      const willBeExternal = updates.isExternal !== undefined ? updates.isExternal : user.isExternal;
+      if (willBeExternal) {
+        throw new Error('Cannot set a password for an external OAuth user. Change the account type to Local first.');
       }
       updates.password = this.hashPassword(updates.password);
     }
