@@ -1,0 +1,146 @@
+# ImportManager Complete Guide
+
+## Overview
+
+`ImportManager` manages the import of content from external sources into ngdpbase. It uses an extensible **converter registry** to support multiple source formats. The admin UI at `/admin/import` is the primary interface; the manager can also be used programmatically.
+
+**Source:** `src/managers/ImportManager.ts`  
+**Converters:** `src/converters/`
+
+---
+
+## Supported Formats
+
+| Format ID | Class | Extensions | Notes |
+|-----------|-------|------------|-------|
+| `jspwiki` | `JSPWikiConverter` | `.txt` | Converts JSPWiki markup to Markdown |
+| `html` | `HtmlConverter` | `.html`, `.htm` | Extracts article content, converts to Markdown |
+| `markdown` | *(pending #467)* | `.md`, `.markdown` | Pass-through — see [ngdpbase#467](https://github.com/jwilleke/ngdpbase/issues/467) |
+
+Select **Auto-detect** (`format: 'auto'`) to let the system choose based on file extension and content sniffing via `canHandle()`.
+
+---
+
+## Architecture: Converter Registry
+
+All converters implement `IContentConverter` (`src/converters/IContentConverter.ts`):
+
+```typescript
+interface IContentConverter {
+  readonly formatId: string;       // e.g. 'jspwiki'
+  readonly formatName: string;     // e.g. 'JSPWiki' (shown in UI)
+  readonly fileExtensions: string[]; // e.g. ['.txt']
+
+  convert(content: string): ConversionResult;
+  canHandle(content: string, filename: string): boolean;
+}
+
+interface ConversionResult {
+  content: string;                      // converted Markdown
+  metadata: Record<string, unknown>;    // extracted frontmatter fields
+  warnings: string[];                   // non-fatal issues
+}
+```
+
+Built-in converters are registered in the constructor:
+
+```typescript
+this.registerConverter(new JSPWikiConverter());
+this.registerConverter(new HtmlConverter());
+```
+
+The UI dropdown is auto-populated from `getConverterInfo()`, which returns the `formatId`, `formatName`, and `fileExtensions` of every registered converter.
+
+---
+
+## Adding a New Converter
+
+1. Create `src/converters/MyFormatConverter.ts` implementing `IContentConverter`.
+2. Export it from `src/converters/index.ts`.
+3. Register it in `ImportManager` constructor:
+
+   ```typescript
+   this.registerConverter(new MyFormatConverter());
+   ```
+
+4. The format will automatically appear in the `/admin/import` dropdown.
+
+No other changes are needed — the registry handles discovery.
+
+---
+
+## Import Options
+
+```typescript
+interface ImportOptions {
+  sourceDir: string;          // directory or zip containing source files
+  targetDir?: string;         // destination (default: data/pages)
+  format?: string;            // converter formatId, or 'auto'
+  preserveOriginals?: boolean; // keep source files (default: true)
+  dryRun?: boolean;           // preview without writing (default: false)
+  generateUUIDs?: boolean;    // generate UUIDs for new pages (default: true)
+  fileExtensions?: string[];  // override extensions to process
+  limit?: number;             // max files (for large imports)
+  offset?: number;            // skip first N files (for resuming)
+  onProgress?: (event: ImportProgressEvent) => void;
+}
+```
+
+---
+
+## What Happens During Import
+
+1. Archive is extracted to a temporary directory (if `.zip` source).
+2. Each file is matched to a converter via `format` option or auto-detection.
+3. Converter runs `convert()` → returns Markdown + metadata + warnings.
+4. UUID is generated (or preserved if present in frontmatter).
+5. Frontmatter is written: `title`, `uuid`, `slug`, `lastModified`, plus any converter-extracted metadata.
+6. File is written to `targetDir` (default: `data/pages`).
+7. Page index is rebuilt after all files are processed.
+8. Attachments in the archive are imported alongside pages.
+
+Duplicate detection: if a page with the same slug already exists, the **Overwrite** / **Skip** option in the UI controls behavior.
+
+---
+
+## Programmatic Usage
+
+```typescript
+const importManager = engine.getManager('ImportManager') as ImportManager;
+
+// List available converters
+const converters = importManager.getConverterInfo();
+
+// Dry run (preview)
+const preview = await importManager.previewImport({
+  sourceDir: '/path/to/wiki',
+  format: 'auto'
+});
+
+// Execute import
+const result = await importManager.importPages({
+  sourceDir: '/path/to/wiki',
+  format: 'jspwiki',
+  dryRun: false,
+  onProgress: (event) => console.log(event)
+});
+
+// Register a custom converter at runtime
+importManager.registerConverter(new MyFormatConverter());
+```
+
+---
+
+## Pending Work
+
+- **[#467](https://github.com/jwilleke/ngdpbase/issues/467)** — Add `MarkdownConverter` for `.md`/`.markdown` files. Currently `.md` files cannot be imported via `/admin/import`. See issue for scope and acceptance criteria.
+
+---
+
+## Related
+
+- `src/converters/IContentConverter.ts` — converter interface
+- `src/converters/JSPWikiConverter.ts` — JSPWiki implementation
+- `src/converters/HtmlConverter.ts` — HTML implementation
+- `docs/managers/ExportManager.md` — companion export functionality
+- Admin UI: `/admin/import`
