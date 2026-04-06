@@ -3275,7 +3275,7 @@ class WikiRoutes {
       } as Parameters<typeof authManager.authenticate>[1]);
 
       if (!result.success) {
-        return res.redirect('/login?error=Google+sign-in+failed');
+        return res.redirect('/view/Fairways Registration');
       }
 
       // Consume state — single-use

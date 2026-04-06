@@ -328,36 +328,7 @@ class ACLManager extends BaseManager {
       return allowed;
     }
 
-    // Tier 1: Evaluate Global Policies
-    if (this.policyEvaluator) {
-      try {
-        const policyContext = { pageName, action: policyAction, userContext };
-
-        const policyResult = await this.policyEvaluator.evaluateAccess(policyContext);
-
-        logger.info(`[ACL] PolicyEvaluator decision hasDecision=${policyResult.hasDecision} allowed=${policyResult.allowed} policy=${policyResult.policyName}`);
-
-        if (policyResult.hasDecision) {
-          // Log access decision for audit
-          this.logAccessDecision({
-            user: userContext,
-            pageName,
-            action,
-
-            allowed: policyResult.allowed,
-
-            reason: policyResult.policyName || 'global_policy',
-            context: { wikiContext: wikiContext.context }
-          });
-
-          return policyResult.allowed;
-        }
-      } catch (e) {
-        logger.warn('[ACL] PolicyEvaluator error', { error: e instanceof Error ? e.message : String(e), stack: e instanceof Error ? e.stack : undefined });
-      }
-    }
-
-    // Tier 1.5: Front matter audience / access check
+    // Tier 1: Front matter audience / access check — page-level overrides global policies
     if (wikiContext.pageMetadata) {
       const fm = this.checkFrontmatterAccess(wikiContext.pageMetadata, userContext, action);
       if (fm.decided) {
@@ -373,7 +344,33 @@ class ACLManager extends BaseManager {
       }
     }
 
-    // Tier 2: Page-Level ACL markup (deprecated — blocked on new saves)
+    // Tier 2: Evaluate Global Policies (fallback when no frontmatter audience set)
+    if (this.policyEvaluator) {
+      try {
+        const policyContext = { pageName, action: policyAction, userContext };
+
+        const policyResult = await this.policyEvaluator.evaluateAccess(policyContext);
+
+        logger.info(`[ACL] PolicyEvaluator decision hasDecision=${policyResult.hasDecision} allowed=${policyResult.allowed} policy=${policyResult.policyName}`);
+
+        if (policyResult.hasDecision) {
+          this.logAccessDecision({
+            user: userContext,
+            pageName,
+            action,
+            allowed: policyResult.allowed,
+            reason: policyResult.policyName || 'global_policy',
+            context: { wikiContext: wikiContext.context }
+          });
+
+          return policyResult.allowed;
+        }
+      } catch (e) {
+        logger.warn('[ACL] PolicyEvaluator error', { error: e instanceof Error ? e.message : String(e), stack: e instanceof Error ? e.stack : undefined });
+      }
+    }
+
+    // Tier 3: Page-Level ACL markup (deprecated — blocked on new saves)
     if (pageContent && typeof pageContent === 'string') {
       const pageAcl = this.parsePageACL(pageContent);
       const principals = pageAcl.get(action.toLowerCase());

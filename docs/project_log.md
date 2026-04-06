@@ -22,6 +22,31 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - [file2.md]
 ```
 
+## 2026-04-06-03
+
+- Agent: Claude Code (Sonnet 4.6)
+- Subject: fix: ACL tier ordering + policy permissions + access control hardening
+- Key Decision: (1) Frontmatter `audience` check moved to Tier 1 (before PolicyEvaluator) so page-level restrictions always beat global policies — anonymous was getting `view: true` on Members Only because `default-view-for-all` (role `All`) fired first. (2) `reader-permissions` policy was missing `attachment:read` despite role definition listing it — fixed in app-default-config.json. (3) Google OIDC `auto-provision` disabled; default roles changed to `["occupant","reader"]`; unknown Google accounts redirected to new Fairways Registration page instead of login error. (4) ACLManager-Complete-Guide.md updated with full tier evaluation order and role/policy table.
+- Current Issue: none
+- Testing:
+  - npm test: 100 suites passed, 2609 tests passed, 11 skipped
+  - E2E: 72/72 passed
+- Work Done:
+  - `src/managers/ACLManager.ts`: swapped Tier 1 (PolicyEvaluator) and Tier 1.5 (frontmatter audience) — frontmatter now Tier 1, policies now Tier 2
+  - `config/app-default-config.json`: added `attachment:read` to `reader-permissions` policy; bumped version 3.1.2 → 3.1.3
+  - `data/config/app-custom-config.json`: `auto-provision: false`; default roles `["occupant","reader"]`
+  - `src/routes/WikiRoutes.ts`: unknown Google OIDC user redirected to `/view/Fairways Registration`
+  - `data/pages/59476BDC-8409-4EC9-A510-C0CABDB48CC9.md`: new Fairways Registration page (stub, audience: All)
+  - `docs/managers/ACLManager-Complete-Guide.md`: added Permission Evaluation Order section
+- Commits: (pending)
+- Files Modified:
+  - src/managers/ACLManager.ts
+  - config/app-default-config.json
+  - data/config/app-custom-config.json
+  - src/routes/WikiRoutes.ts
+  - data/pages/59476BDC-8409-4EC9-A510-C0CABDB48CC9.md
+  - docs/managers/ACLManager-Complete-Guide.md
+
 ## 2026-04-06-02
 
 - Agent: Claude Code (Sonnet 4.6)

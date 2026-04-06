@@ -9,14 +9,96 @@
 ## Table of Contents
 
 1. [Architecture](#architecture)
-2. [Initialization](#initialization)
-3. [Configuration](#configuration)
-4. [ACL Markup Syntax](#acl-markup-syntax)
-5. [Permission Checking Methods](#permission-checking-methods)
-6. [Context-Aware Restrictions](#context-aware-restrictions)
-7. [Audit Logging](#audit-logging)
-8. [API Reference](#api-reference)
-9. [Integration Examples](#integration-examples)
+2. [Permission Evaluation Order](#permission-evaluation-order)
+3. [Initialization](#initialization)
+4. [Configuration](#configuration)
+5. [ACL Markup Syntax](#acl-markup-syntax)
+6. [Permission Checking Methods](#permission-checking-methods)
+7. [Context-Aware Restrictions](#context-aware-restrictions)
+8. [Audit Logging](#audit-logging)
+9. [API Reference](#api-reference)
+10. [Integration Examples](#integration-examples)
+
+---
+
+## Permission Evaluation Order
+
+Every page access call goes through `checkPagePermissionWithContext(wikiContext, action)`.
+The method evaluates tiers in order and **returns on the first decision**. Later tiers are
+only reached if earlier ones did not decide.
+
+```text
+Tier 0  — private keyword        hard deny; only admin or page creator allowed
+Tier 1  — frontmatter audience   page-level restriction; overrides all global policies
+Tier 2  — global PolicyEvaluator site-wide policy fallback (ngdpbase.access.policies)
+Tier 3  — legacy page ACL markup deprecated [{ALLOW}]/[{DENY}] — blocked on new saves
+Default — deny                   if nothing matched, access is denied
+```
+
+### What WikiContext carries at evaluation time
+
+By the time `checkPagePermissionWithContext` is called the WikiContext already holds:
+
+| Field | Source | Used by |
+|---|---|---|
+| `userContext.roles` | `req.userContext` (set at login) | All tiers |
+| `userContext.username` | `req.userContext` | Tier 0, Tier 1 |
+| `pageMetadata.audience` | loaded from page frontmatter | Tier 1 |
+| `pageMetadata.user-keywords` | loaded from page frontmatter | Tier 0 |
+| `content` | loaded from page file | Tier 3 (legacy) |
+
+### Tier 1 — frontmatter `audience` (page-level override)
+
+If the page frontmatter contains an `audience` array, only users whose role appears
+in that list (or whose username matches) can view the page — **regardless of what
+global policies say**.
+
+```yaml
+---
+audience:
+  - admin
+  - reader
+  - occupant
+---
+```
+
+A page with no `audience` field skips Tier 1 entirely and falls through to the
+global policies in Tier 2.
+
+> **Key rule:** page-level `audience` always wins over site-wide policies.
+> This is why restricted pages (Members Only, admin pages) use `audience`
+> rather than relying solely on global policies.
+
+### Tier 2 — global policies (`ngdpbase.access.policies`)
+
+Policies are defined in `config/app-default-config.json` and can be overridden or
+extended (by `id`) in `data/config/app-custom-config.json`. The merge is by `id` —
+a custom entry with the same `id` replaces the default; a new `id` is appended.
+
+Default policy evaluation order (by priority, highest first):
+
+| id | priority | role | effect | actions |
+|---|---|---|---|---|
+| `deny-anonymous-system-pages` | 90 | anonymous | deny | `*` on system/admin categories |
+| `admin-full-access` | 100 | admin | allow | all |
+| `editor-permissions` | 80 | editor | allow | read/write/create/delete |
+| `contributor-permissions` | 70 | contributor | allow | read/create/edit |
+| `reader-permissions` | 60 | reader | allow | `page:read`, `attachment:read`, `search:all`, `export:pages` |
+| `anonymous-read-only` | 50 | anonymous | allow | `page:read` |
+| `default-view-for-all` | 1 | All | allow | `page:read` |
+
+`ngdpbase.access.policies.default-policy: "deny"` — if no policy matches, access is denied.
+
+### Role hierarchy summary
+
+| Role | Assigned to | Permissions |
+|---|---|---|
+| `admin` | Administrators | Full access |
+| `editor` | Content editors | Read + write + create + delete |
+| `contributor` | Content contributors | Read + create + edit |
+| `reader` | Residents (also assigned to `unit-N` users) | Read pages/attachments, search, export |
+| `occupant` | Google OIDC auto-provisioned users (default role) | Identity label; also gets `reader` via `default-roles` config |
+| `anonymous` | Unauthenticated visitors | Read public pages only |
 
 ---
 

@@ -2,7 +2,7 @@
   "ngdpbase.application-name": "Jimstest",
   "ngdpbase.favicon-path": "/favicon.svg",
   "ngdpbase.application.category": "Digital Platform",
-  "ngdpbase.version": "3.1.1",
+  "ngdpbase.version": "3.1.3",
   "ngdpbase.github.repo": "jwilleke/ngdpbase",
   "ngdpbase.base-url": "http://localhost:3000",
   "ngdpbase.encoding": "UTF-8",
@@ -1132,7 +1132,7 @@
     {
       "id": "reader-permissions",
       "name": "Reader Permissions",
-      "description": "Read-only access - can view pages, search, and export",
+      "description": "Read-only access - can view pages and attachments, search, and export",
       "priority": 60,
       "effect": "allow",
       "subjects": [
@@ -1149,6 +1149,7 @@
       ],
       "actions": [
         "page:read",
+        "attachment:read",
         "search:all",
         "export:pages"
       ]
