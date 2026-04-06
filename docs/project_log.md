@@ -22,6 +22,28 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - [file2.md]
 ```
 
+## 2026-04-06-05
+
+- Agent: Claude Code (Sonnet 4.6)
+- Subject: UI improvements, page title validation, OIDC deny-redirect config
+
+- Work Done:
+  - edit.ejs: Audience (view access) field replaced with Bootstrap dropdown+checkboxes to match User Keywords pattern; button label updates live on change
+  - WikiRoutes.ts + edit.ejs: Page titles/names now validated client-side and server-side to reject characters that break URL routing or YAML parsing: `/ \ # ? % " ' < > | *`
+  - WikiRoutes.ts: Google OIDC deny-redirect destination moved from hardcoded `/view/Fairways Registration` to config key `ngdpbase.auth.google-oidc.deny-redirect`
+  - app-default-config.json: Added `ngdpbase.auth.google-oidc.deny-redirect` defaulting to `/login?error=Access+denied`
+  - data/pages: Fixed 5 pages with backslash-quoted YAML titles (`NEWS \"FORE\" YOU`) — re-quoted with single quotes
+
+- Files Modified:
+  - `views/edit.ejs` — audience dropdown, client-side title validation
+  - `src/routes/WikiRoutes.ts` — server-side title validation, configurable OIDC deny-redirect
+  - `config/app-default-config.json` — new deny-redirect config key
+  - `data/config/app-custom-config.json` — set deny-redirect to `/view/Occupancy%20Information`
+  - `data/pages/E4EA3E79-*.md`, `92AA4D2C-*.md`, `1F4D4F63-*.md`, `4FCA7E7A-*.md`, `B065BD75-*.md` — title YAML quoting fixed
+
+- Commits:
+  - 587bc976 — feat: audience dropdown, page title validation, configurable OIDC deny-redirect
+
 ## 2026-04-06-04
 
 - Agent: Claude Code (Sonnet 4.6)
