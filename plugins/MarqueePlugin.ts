@@ -18,6 +18,7 @@
  *   bgcolor   — CSS background-color for the banner strip (optional).
  *   color     — CSS text color (optional).
  *   separator — String inserted between repetitions (default '   •   ').  Only used by scroll.
+ *   fontsize  — CSS font-size for the banner text (e.g. '1.5em', '24px', '2rem'). Default: inherits.
  *   cssclass  — Extra CSS class added to the outer wrapper (optional).
  */
 
@@ -95,6 +96,7 @@ const MarqueePlugin: SimplePlugin = {
     const separator = params.separator !== undefined ? String(params.separator) : '   \u2022   ';
     const bgcolor   = params.bgcolor   ? String(params.bgcolor)   : '';
     const color     = params.color     ? String(params.color)     : '';
+    const fontsize  = params.fontsize  ? String(params.fontsize).replace(/[^a-zA-Z0-9.%]/g, '') : '';
     const cssclass  = params.cssclass  ? String(params.cssclass)  : '';
 
     const id = `ngdp-mq-${++_idCounter}`;
@@ -105,8 +107,9 @@ const MarqueePlugin: SimplePlugin = {
     const wrapStyle  = [
       'overflow:hidden',
       'white-space:nowrap',
-      bgcolor ? `background:${bgcolor}` : '',
-      color   ? `color:${color}`        : ''
+      bgcolor   ? `background:${bgcolor}`   : '',
+      color     ? `color:${color}`          : '',
+      fontsize  ? `font-size:${fontsize}`   : ''
     ].filter(Boolean).join(';');
 
     // ── build keyframes + animation per behavior ─────────────────────────────

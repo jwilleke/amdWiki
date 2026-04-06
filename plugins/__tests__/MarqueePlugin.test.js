@@ -153,6 +153,22 @@ describe('MarqueePlugin — styling parameters', () => {
     const out = await MarqueePlugin.execute(ctx, { text: 'Hi', cssclass: 'my-banner' });
     expect(out).toContain('my-banner');
   });
+
+  test('fontsize is applied to wrapper style', async () => {
+    const out = await MarqueePlugin.execute(ctx, { text: 'Hi', fontsize: '1.5em' });
+    expect(out).toContain('font-size:1.5em');
+  });
+
+  test('fontsize strips non-CSS-unit characters', async () => {
+    const out = await MarqueePlugin.execute(ctx, { text: 'Hi', fontsize: '24px;color:red' });
+    expect(out).toContain('font-size:24px');
+    expect(out).not.toContain('color:red');
+  });
+
+  test('omitting fontsize does not add font-size style', async () => {
+    const out = await MarqueePlugin.execute(ctx, { text: 'Hi' });
+    expect(out).not.toContain('font-size');
+  });
 });
 
 describe('MarqueePlugin — pause on hover', () => {

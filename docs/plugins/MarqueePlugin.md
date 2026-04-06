@@ -56,6 +56,7 @@ never interfere with each other.
 | `loop` | string \| number | `infinite` | No | Number of passes or `infinite`. Applies to `slide` / `alternate` only; `scroll` is always infinite. |
 | `bgcolor` | string | — | No | CSS `background` value for the banner strip (e.g. `#ffe` or `rgba(0,0,0,.1)`). |
 | `color` | string | — | No | CSS `color` value for the text. |
+| `fontsize` | string | — | No | CSS `font-size` for the banner text (e.g. `1.5em`, `24px`, `2rem`). Defaults to the surrounding element's size. Non-CSS-unit characters are stripped to prevent style injection. |
 | `separator` | string | `•` | No | String inserted between the two repetitions in `scroll` mode. |
 | `cssclass` | string | — | No | Extra CSS class added to the outer wrapper `<div>`. |
 
