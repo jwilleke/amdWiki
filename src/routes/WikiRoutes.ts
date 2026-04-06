@@ -1496,6 +1496,14 @@ class WikiRoutes {
         return res.status(400).send('Page name and template are required');
       }
 
+      // Reject page names with characters that break URL routing or YAML parsing
+      const invalidChars = /[/\\#?%"'<>|*]/;
+      if (invalidChars.test(pageName)) {
+        return res.status(400).send(
+          'Page name contains invalid characters. The following are not allowed: / \\ # ? % " \' < > | *'
+        );
+      }
+
       // Validate system-category against allowed list (case-insensitive)
       const validCategories = this.getSystemCategories();
       const normalizedSubmitted = systemCategory.trim().toLowerCase();
@@ -2032,6 +2040,16 @@ class WikiRoutes {
       logger.debug(`💾 Save request received for page: ${pageName}`);
       logger.debug(`💾 Request body keys: ${Object.keys(req.body).join(', ')}`);
       const { content: _rawContent, title, categories: _categories, userKeywords: _userKeywords } = req.body;
+
+      // Reject titles containing characters that break URL routing or YAML parsing
+      if (title && typeof title === 'string') {
+        const invalidChars = /[/\\#?%"'<>|*]/;
+        if (invalidChars.test(title)) {
+          return res.status(400).send(
+            'Page title contains invalid characters. The following are not allowed: / \\ # ? % " \' < > | *'
+          );
+        }
+      }
 
       // Section editing: if a section index was submitted, splice edited section
       // back into the full page content before saving
@@ -3275,7 +3293,11 @@ class WikiRoutes {
       } as Parameters<typeof authManager.authenticate>[1]);
 
       if (!result.success) {
-        return res.redirect('/view/Fairways Registration');
+        const configManager = this.engine.getManager('ConfigurationManager');
+        const denyRedirect = configManager
+          ? (configManager.getProperty('ngdpbase.auth.google-oidc.deny-redirect', '/login?error=Access+denied') as string)
+          : '/login?error=Access+denied';
+        return res.redirect(denyRedirect);
       }
 
       // Consume state — single-use

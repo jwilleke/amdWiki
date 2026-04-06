@@ -84,19 +84,27 @@
                 <div class="row mb-3">
                     <div class="col-md-6">
                         <label style="font-weight:bold;"><i class="fas fa-lock"></i> Audience (view access):</label>
-                        <div class="border rounded p-2" style="max-height:140px;overflow-y:auto;">
-                            <% availableRoles.forEach(function(role) { %>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox"
-                                           name="audience" value="<%= role.name %>"
-                                           id="aud-<%= role.name %>"
-                                           <%= (pageData && pageData.metadata && pageData.metadata.audience &&
-                                                pageData.metadata.audience.includes(role.name)) ? 'checked' : '' %>>
-                                    <label class="form-check-label" for="aud-<%= role.name %>">
-                                        <%= role.displayname %>
-                                    </label>
-                                </div>
-                            <% }); %>
+                        <div class="dropdown">
+                            <button class="btn btn-outline-secondary dropdown-toggle w-100 text-start" type="button" id="audienceDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                <span id="selectedAudienceText">Select audience...</span>
+                            </button>
+                            <ul class="dropdown-menu w-100" aria-labelledby="audienceDropdown">
+                                <% availableRoles.forEach(function(role) { %>
+                                    <li>
+                                        <div class="dropdown-item-checkbox px-3 py-2">
+                                            <div class="form-check">
+                                                <input class="form-check-input audience-checkbox" type="checkbox"
+                                                       name="audience" value="<%= role.name %>"
+                                                       data-label="<%= role.displayname %>"
+                                                       id="aud-<%= role.name %>"
+                                                       <%= (pageData && pageData.metadata && pageData.metadata.audience &&
+                                                            pageData.metadata.audience.includes(role.name)) ? 'checked' : '' %>>
+                                                <label class="form-check-label ms-2" for="aud-<%= role.name %>"><%= role.displayname %></label>
+                                            </div>
+                                        </div>
+                                    </li>
+                                <% }); %>
+                            </ul>
                         </div>
                         <small class="text-muted">
                             Leave all unchecked = open access (global policies apply).
@@ -263,6 +271,18 @@
             console.log('System category field not found (non-admin user)');
         }
 
+        // Validate title — reject special characters that break URLs
+        const titleField = document.getElementById('title');
+        if (titleField) {
+            const titleVal = titleField.value;
+            if (/[\/\\#?%"'<>|*]/.test(titleVal)) {
+                e.preventDefault();
+                alert('Page title contains invalid characters.\nThe following are not allowed: / \\ # ? % " \' < > | *');
+                titleField.focus();
+                return false;
+            }
+        }
+
         // Validate user-keywords (max <%= maxUserKeywords %>, optional)
         const checkedKeywords = document.querySelectorAll('.user-keyword-checkbox:checked').length;
         if (checkedKeywords > <%= maxUserKeywords %>) {
@@ -279,8 +299,19 @@
         const text = checkedKeywords.length > 0 ? checkedKeywords.join(', ') : 'Select user keywords...';
         document.getElementById('selectedUserKeywordsText').textContent = text;
     }
+    function updateSelectedAudienceText() {
+        const checked = Array.from(document.querySelectorAll('.audience-checkbox:checked')).map(cb => cb.dataset.label || cb.value);
+        const el = document.getElementById('selectedAudienceText');
+        if (el) el.textContent = checked.length > 0 ? checked.join(', ') : 'Select audience...';
+    }
     // Initialize dropdowns
     updateSelectedUserKeywordsText();
+    updateSelectedAudienceText();
+    // Keep dropdown button text in sync as checkboxes change
+    document.addEventListener('change', function(e) {
+        if (e.target.classList.contains('user-keyword-checkbox')) updateSelectedUserKeywordsText();
+        if (e.target.classList.contains('audience-checkbox')) updateSelectedAudienceText();
+    });
 
     // Insert attachment markup at cursor position
     function insertAttachmentMarkup(url, name, mimeType) {

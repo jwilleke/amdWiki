@@ -153,6 +153,7 @@
     "occupant"
   ],
   "ngdpbase.auth.google-oidc.hd": "",
+  "ngdpbase.auth.google-oidc.deny-redirect": "/login?error=Access+denied",
   "_comment_user_defaults": "Default user settings (ALL LOWERCASE)",
   "ngdpbase.user.defaults.timezone": "utc",
   "ngdpbase.user.defaults.locale": "en-us",
