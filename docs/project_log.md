@@ -22,6 +22,20 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - [file2.md]
 ```
 
+## 2026-04-06-02
+
+- Agent: Claude Code (Sonnet 4.6)
+- Subject: fix: prevent literal `${SLOW_STORAGE}` directories being created when env var unset
+- Key Decision: `InstallService` was calling `getProperty()` for all path config keys; if `SLOW_STORAGE`/`FAST_STORAGE` were unset the placeholder string was passed verbatim to `fs.ensureDir()`, creating literal `${SLOW_STORAGE}/pages` directories. Fix: expose `getResolvedDataPath()` on the `ConfigManager` interface and use it everywhere a path is fetched in `InstallService`.
+- Current Issue: none
+- Testing:
+  - npm test: not run
+- Work Done:
+  - `src/services/InstallService.ts`: added `getResolvedDataPath` to `ConfigManager` interface; replaced all 8 path-fetching `getProperty()` calls with `getResolvedDataPath()` across `isInstalled`, `isPartiallyInstalled`, `checkMissingPages`, `createPagesFolder`, `resetInstallation`, `#writeOrganizationData`, and `#copyStartupPages`
+- Commits: (pending)
+- Files Modified:
+  - src/services/InstallService.ts
+
 ## 2026-04-06-01
 
 - Agent: Claude Code (Sonnet 4.6)

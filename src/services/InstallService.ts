@@ -15,6 +15,7 @@ interface WikiEngine {
  */
 interface ConfigManager {
   getProperty<T>(key: string, defaultValue?: T): T;
+  getResolvedDataPath(key: string, defaultValue: string): string;
   loadConfigurations(): Promise<void>;
   reload(): Promise<void>;
 }
@@ -196,7 +197,7 @@ class InstallService {
     const adminExists = await userManager.hasRole('admin', 'admin');
 
     // Check if pages directory is empty
-    const pagesDir = this.configManager.getProperty<string>('ngdpbase.page.provider.filesystem.storagedir');
+    const pagesDir = this.configManager.getResolvedDataPath('ngdpbase.page.provider.filesystem.storagedir', './data/pages');
     const pagesExist = await this.#hasPagesInDirectory(pagesDir);
 
     return !adminExists || !pagesExist;
@@ -217,13 +218,13 @@ class InstallService {
     const userManager = this.engine.getManager('UserManager') as UserManager;
     const adminExists = await userManager.hasRole('admin', 'admin');
 
-    const pagesDir = this.configManager.getProperty<string>('ngdpbase.page.provider.filesystem.storagedir');
+    const pagesDir = this.configManager.getResolvedDataPath('ngdpbase.page.provider.filesystem.storagedir', './data/pages');
     const pagesExist = await this.#hasPagesInDirectory(pagesDir);
 
     const customConfigPath = path.join(__dirname, '../../config/app-custom-config.json');
     const customConfigExists = await fs.pathExists(customConfigPath);
 
-    const usersDir = this.configManager.getProperty<string>('ngdpbase.user.provider.storagedir');
+    const usersDir = this.configManager.getResolvedDataPath('ngdpbase.user.provider.storagedir', './data/users');
     const organizationsPath = path.join(usersDir, 'organizations.json');
     const organizationsExist = await fs.pathExists(organizationsPath);
 
@@ -254,7 +255,7 @@ class InstallService {
       return { missingPagesOnly: false };
     }
 
-    const pagesDir = this.configManager.getProperty<string>('ngdpbase.page.provider.filesystem.storagedir');
+    const pagesDir = this.configManager.getResolvedDataPath('ngdpbase.page.provider.filesystem.storagedir', './data/pages');
     const pagesExist = await this.#hasPagesInDirectory(pagesDir);
 
     // Check if pages directory exists but is empty
@@ -283,12 +284,12 @@ class InstallService {
    */
   async createPagesFolder(): Promise<PagesFolderResult> {
     try {
-      const pagesDir = this.configManager.getProperty(
+      const pagesDir = this.configManager.getResolvedDataPath(
         'ngdpbase.page.provider.filesystem.storagedir',
         './data/pages'
       );
 
-      const requiredPagesDir = this.configManager.getProperty(
+      const requiredPagesDir = this.configManager.getResolvedDataPath(
         'ngdpbase.page.provider.filesystem.requiredpagesdir',
         './required-pages'
       );
@@ -476,7 +477,7 @@ class InstallService {
       }
 
       // 2. Remove organizations.json
-      const usersDir = this.configManager.getProperty<string>('ngdpbase.user.provider.storagedir');
+      const usersDir = this.configManager.getResolvedDataPath('ngdpbase.user.provider.storagedir', './data/users');
       const organizationsPath = path.join(usersDir, 'organizations.json');
       if (await fs.pathExists(organizationsPath)) {
         const backupPath = organizationsPath + '.backup-' + Date.now();
@@ -506,7 +507,7 @@ class InstallService {
       }
 
       // 4. Remove copied pages (only if they were copied during this installation)
-      const pagesDir = this.configManager.getProperty(
+      const pagesDir = this.configManager.getResolvedDataPath(
         'ngdpbase.page.provider.filesystem.storagedir',
         './data/pages'
       );
@@ -798,7 +799,7 @@ class InstallService {
    * @param data - Installation data
    */
   async #writeOrganizationData(data: InstallData): Promise<void> {
-    const usersDir = this.configManager.getProperty<string>('ngdpbase.user.provider.storagedir');
+    const usersDir = this.configManager.getResolvedDataPath('ngdpbase.user.provider.storagedir', './data/users');
     const organizationsPath = path.join(usersDir, 'organizations.json');
 
     const organization = {
@@ -903,13 +904,13 @@ class InstallService {
    * @private
    */
   async #copyStartupPages(): Promise<void> {
-    const requiredPagesDir = this.configManager.getProperty(
+    const requiredPagesDir = this.configManager.getResolvedDataPath(
       'ngdpbase.page.provider.filesystem.requiredpagesdir',
       './required-pages'
     );
-    const pagesDir = this.configManager.getProperty(
+    const pagesDir = this.configManager.getResolvedDataPath(
       'ngdpbase.page.provider.filesystem.storagedir',
-      './pages'
+      './data/pages'
     );
 
     // Ensure pages directory exists
