@@ -733,9 +733,11 @@ class UserManager extends BaseManager {
         return true;
       }
 
+      const profileTitle = `Profile: ${user.displayName}`;
+
       // Apply user page template with user data
       const populatedContent = templateManager.applyTemplate('user-page', {
-        pageName: user.displayName,
+        pageName: profileTitle,
         displayName: user.displayName,
         username: user.username,
         createdDate: new Date(user.createdAt).toLocaleDateString(),
@@ -749,7 +751,7 @@ class UserManager extends BaseManager {
         return false;
       }
 
-      const metadata = validationManager.generateValidMetadata(user.displayName, {
+      const metadata = validationManager.generateValidMetadata(profileTitle, {
         'user-keywords': ['user-page', user.displayName.toLowerCase().replace(/\s+/g, '-')],
         'system-category': 'User Pages',
         created: user.createdAt,
@@ -758,7 +760,7 @@ class UserManager extends BaseManager {
       });
 
       // Save the user page
-      await pageManager.savePage(user.displayName, populatedContent, metadata);
+      await pageManager.savePage(profileTitle, populatedContent, metadata);
       logger.info(`✅ Created user page for ${user.displayName}`);
       return true;
     } catch (error) {
