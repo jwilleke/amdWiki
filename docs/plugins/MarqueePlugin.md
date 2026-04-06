@@ -1,7 +1,7 @@
 ---
 name: "MarqueePlugin"
 description: "CSS-based horizontally scrolling text banner"
-dateModified: "2026-04-05"
+dateModified: "2026-04-06"
 category: "plugins"
 relatedModules: ["PluginManager", "BaseManager"]
 version: "1.1.0"
@@ -39,6 +39,7 @@ never interfere with each other.
 [{MarqueePlugin text='Breaking News: server maintenance at midnight'
                speed='fast'
                direction='left'
+               fontsize='1.5em'
                bgcolor='#fff3cd'
                color='#856404'
                separator=' ★ '}]
@@ -113,6 +114,24 @@ movement is controlled by `direction`.
 [{MarqueePlugin text='News item one' separator=' | '}]
 ```
 
+### Large Headline Banner
+
+```wiki
+[{MarqueePlugin text='Grand Opening — Saturday 10 AM'
+               fontsize='2em'
+               bgcolor='#0d6efd'
+               color='white'
+               speed='slow'}]
+```
+
+### Small Ticker Strip
+
+```wiki
+[{MarqueePlugin text='Latest scores: Home 3 — Away 1  •  Home 0 — Away 2'
+               fontsize='0.85em'
+               speed='fast'}]
+```
+
 ## Manager Feed (`fetch=` parameter)
 
 `fetch='ManagerName.methodName(k=v,...)'` calls any registered manager method
@@ -166,7 +185,7 @@ async toMarqueeText(raw: Record<string, string> = {}): Promise<string> {
 ```html
 <style>@keyframes ngdp-mq-N { from{…} to{…} }</style>
 <div class="ngdp-marquee-wrap [cssclass]"
-     style="overflow:hidden;white-space:nowrap;[bgcolor];[color]"
+     style="overflow:hidden;white-space:nowrap;[bgcolor];[color];[fontsize]"
      aria-label="[text]">
   <span class="ngdp-marquee-inner"
         style="display:inline-block;animation:ngdp-mq-N Xs linear infinite;…"
@@ -184,7 +203,9 @@ async toMarqueeText(raw: Record<string, string> = {}): Promise<string> {
 `src/utils/pluginFormatters.ts` before being written into the HTML output.
 `bgcolor` and `color` are written into a `style` attribute; values
 containing `"` or `;` are not further sanitised — authors should use only
-valid CSS colour values.
+valid CSS colour values.  `fontsize` is sanitised by stripping any character
+outside `[a-zA-Z0-9.%]` before insertion, preventing semicolon-based style
+injection.
 
 ### Unique Keyframe Names
 
@@ -203,11 +224,11 @@ definition.
 
 ## Tests
 
-`plugins/__tests__/MarqueePlugin.test.js` — 30 tests covering metadata,
+`plugins/__tests__/MarqueePlugin.test.js` — 33 tests covering metadata,
 missing-text guard, XSS safety, speed presets, direction, all three
-behaviors, styling parameters, hover pause, aria-label, unique keyframe
-names per instance, and 3 `fetch=` tests (not-found error, text result,
-args forwarding).
+behaviors, styling parameters (including `fontsize` applied, injection
+stripped, absent), hover pause, aria-label, unique keyframe names per
+instance, and 3 `fetch=` tests (not-found error, text result, args forwarding).
 
 ## Related Documentation
 
@@ -221,5 +242,6 @@ args forwarding).
 
 | Version | Date | Changes |
 | --- | --- | --- |
+| 1.2.0 | 2026-04-06 | `fontsize=` parameter — CSS font-size with style-injection sanitisation |
 | 1.1.0 | 2026-04-05 | `fetch=` parameter — live data from any manager (#465); `execute()` now async |
 | 1.0.0 | 2026-04-05 | Initial implementation (#454) |
