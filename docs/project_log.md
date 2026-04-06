@@ -32,7 +32,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - npm test: not run
 - Work Done:
   - `src/services/InstallService.ts`: added `getResolvedDataPath` to `ConfigManager` interface; replaced all 8 path-fetching `getProperty()` calls with `getResolvedDataPath()` across `isInstalled`, `isPartiallyInstalled`, `checkMissingPages`, `createPagesFolder`, `resetInstallation`, `#writeOrganizationData`, and `#copyStartupPages`
-- Commits: (pending)
+- Commits: 5f0e17be
 - Files Modified:
   - src/services/InstallService.ts
 
