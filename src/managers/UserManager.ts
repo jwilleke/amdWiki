@@ -753,7 +753,8 @@ class UserManager extends BaseManager {
         'user-keywords': ['user-page', user.displayName.toLowerCase().replace(/\s+/g, '-')],
         'system-category': 'User Pages',
         created: user.createdAt,
-        author: user.username
+        author: user.username,
+        'author-lock': true
       });
 
       // Save the user page

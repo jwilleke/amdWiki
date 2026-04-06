@@ -1744,6 +1744,21 @@ class WikiRoutes {
               'You do not have permission to edit this page'
             );
           }
+
+          // Author-lock check: if set, only the page author and admins may edit
+          if (pageData.metadata?.['author-lock']) {
+            const isAdmin = currentUser.roles?.includes('admin');
+            const isAuthor = pageData.metadata?.author === currentUser.username;
+            if (!isAdmin && !isAuthor) {
+              return await this.renderError(
+                req,
+                res,
+                403,
+                'Access Denied',
+                'This page is author-locked. Only the page author and administrators can edit it.'
+              );
+            }
+          }
         } else {
           // For new pages, check general page creation permission
           if (
@@ -2137,13 +2152,30 @@ class WikiRoutes {
           ? [String(submittedAudience)]
           : [];
 
+      // Resolve author-lock: only admins may set or clear it
+      const isAdmin = currentUser?.roles?.includes('admin');
+      let authorLock: boolean;
+      if (isAdmin) {
+        // Admin submitted the form — honour the checkbox (present = true, absent = false)
+        authorLock = req.body['author-lock-present'] === '1'
+          ? req.body['author-lock'] === 'true'
+          : (existingPage?.metadata?.['author-lock'] ?? false);
+      } else {
+        // Non-admin: preserve whatever was already stored, ignore submitted value
+        authorLock = existingPage?.metadata?.['author-lock'] ?? false;
+      }
+
+      // Preserve existing author on edits — never overwrite with the editor's username
+      const pageAuthor = existingPage?.metadata?.author || currentUser?.username || 'anonymous';
+
       // Prepare metadata ONCE, preserving UUID if editing
       // Use matchedCategory (properly capitalized) instead of submitted systemCategory
       const metadata = this.buildNewPageMetadata(title || pageName, {
         'system-category': matchedCategory,
         'user-keywords': userKeywordsArray,
         ...(audienceArray.length ? { audience: audienceArray } : {}),
-        author: currentUser?.username || 'anonymous',
+        ...(authorLock ? { 'author-lock': true } : {}),
+        author: pageAuthor,
         uuid: existingPage?.metadata?.uuid || undefined
       });
 
