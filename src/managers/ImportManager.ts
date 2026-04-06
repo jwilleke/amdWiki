@@ -35,6 +35,7 @@ import type { WikiEngine } from '../types/WikiEngine';
 import { IContentConverter, ConversionResult } from '../converters/IContentConverter';
 import JSPWikiConverter from '../converters/JSPWikiConverter';
 import HtmlConverter from '../converters/HtmlConverter';
+import MarkdownConverter from '../converters/MarkdownConverter';
 import type ConfigurationManager from './ConfigurationManager';
 import type ValidationManager from './ValidationManager';
 import logger from '../utils/logger';
@@ -195,6 +196,7 @@ class ImportManager extends BaseManager {
     // Register built-in converters
     this.registerConverter(new JSPWikiConverter());
     this.registerConverter(new HtmlConverter());
+    this.registerConverter(new MarkdownConverter());
 
     logger.info('[ImportManager] Initialized with converters:', this.getAvailableFormats());
   }
@@ -1060,7 +1062,7 @@ class ImportManager extends BaseManager {
     }
 
     // Add import metadata
-    frontmatter['importedFrom'] = 'jspwiki';
+    frontmatter['importedFrom'] = (result.metadata['importedFrom'] as string) || 'unknown';
     frontmatter['importedAt'] = new Date().toISOString();
 
     // Build YAML

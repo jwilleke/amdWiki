@@ -9,3 +9,4 @@
 
 export { IContentConverter, ConversionResult } from './IContentConverter';
 export { default as JSPWikiConverter } from './JSPWikiConverter';
+export { default as MarkdownConverter } from './MarkdownConverter';

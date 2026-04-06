@@ -55,6 +55,8 @@ class JSPWikiConverter implements IContentConverter {
     // Tables are NOT converted during import — JSPWikiPreprocessor handles
     // ||/| table syntax at render time, preserving wiki links inside cells
 
+    metadata['importedFrom'] = 'jspwiki';
+
     return {
       content: result.trim(),
       metadata,
