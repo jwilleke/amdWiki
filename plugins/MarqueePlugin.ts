@@ -93,7 +93,7 @@ const MarqueePlugin: SimplePlugin = {
       : 'scroll';
     const duration  = parseDuration(params.speed as string | number | undefined);
     const loop      = behavior === 'scroll' ? 'infinite' : parseLoop(params.loop as string | number | undefined);
-    const separator = params.separator !== undefined ? String(params.separator) : '   \u2022   ';
+    const separator = params.separator !== undefined ? String(params.separator) : '     \u2022     ';
     const bgcolor   = params.bgcolor   ? String(params.bgcolor)   : '';
     const color     = params.color     ? String(params.color)     : '';
     const fontsize  = params.fontsize  ? String(params.fontsize).replace(/[^a-zA-Z0-9.%]/g, '') : '';
@@ -143,10 +143,12 @@ const MarqueePlugin: SimplePlugin = {
     }
 
     // ── build inner content ──────────────────────────────────────────────────
+    // Wrap separator in white-space:pre so plain spaces are preserved in HTML.
+    const sepHtml = `<span style="display:inline-block;white-space:pre">${safeSep}</span>`;
     let innerContent: string;
     if (behavior === 'scroll') {
       // Duplicate for seamless loop
-      innerContent = `${safeText}${safeSep}${safeText}${safeSep}`;
+      innerContent = `${safeText}${sepHtml}${safeText}${sepHtml}`;
     } else {
       innerContent = safeText;
     }
