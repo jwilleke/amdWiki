@@ -22,6 +22,58 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - [file2.md]
 ```
 
+## 2026-04-06-07
+
+- Agent: Claude Code (Sonnet 4.6)
+- Subject: feat: config-driven password auth + new test coverage
+- Key Decision: AuthManager was always registering PasswordAuthProvider unconditionally. Changed to respect `ngdpbase.auth.password.enabled` (default true) so it follows the same pattern as magic-link and google-oidc. login.ejs changed from if/else to independent blocks so Google Sign-In and password form can show simultaneously. Three new test files added covering author-lock enforcement, page title validation, and UserManager.createUserPage profile title.
+- Current Issue: none
+- Testing:
+  - npm test: 104 suites passed, 2665 tests passed, 10 skipped
+- Work Done:
+  - `src/managers/AuthManager.ts`: PasswordAuthProvider registration now conditional on `ngdpbase.auth.password.enabled` (default true)
+  - `src/routes/WikiRoutes.ts`: loginPage passes `passwordAuthEnabled: authManager.isEnabled('password')` to template
+  - `views/login.ejs`: changed if/else to independent blocks — Google OIDC and password form can both be shown
+  - `data/config/app-custom-config.json`: set `ngdpbase.auth.password.enabled: true` for fairways-base (temporary, alongside OIDC)
+  - `src/routes/__tests__/WikiRoutes.authorLock.test.js`: new — tests author-lock 403 for non-author/non-admin, pass for author and admin
+  - `src/routes/__tests__/WikiRoutes.titleValidation.test.js`: new — tests savePage/createPageFromTemplate reject invalid chars in title/name
+  - `src/managers/__tests__/UserManager.createUserPage.test.js`: new — tests profile page title format, author-lock flag, system-category
+- Commits: 127e0c9d, 9b72cdb4
+- Files Modified:
+  - src/managers/AuthManager.ts
+  - src/routes/WikiRoutes.ts
+  - views/login.ejs
+  - data/config/app-custom-config.json
+  - src/managers/__tests__/UserManager.createUserPage.test.js
+  - src/routes/__tests__/WikiRoutes.authorLock.test.js
+  - src/routes/__tests__/WikiRoutes.titleValidation.test.js
+  - required-pages/02ed956a-b212-4486-bd34-9785a7efe978.md
+
+## 2026-04-06-06
+
+- Agent: Claude Code (Sonnet 4.6)
+- Subject: feat: author-lock, profile page titles, emoji tokenizer fix, required-pages docs
+- Key Decision: (1) author-lock frontmatter flag added — admin-only UI field; server enforces in editPage/savePage. (2) Profile page titles changed to "Profile: Name" format. (3) Tokenizer fixed for emoji/surrogate pairs using codePointAt(). (4) Profile Page required-pages doc added (audience: authenticated only, no anonymous).
+- Current Issue: none
+- Testing:
+  - npm test: 101 suites passed, 2630 tests passed, 10 skipped
+- Work Done:
+  - `views/edit.ejs`: author-lock checkbox in admin-only column; non-admin sees lock notice
+  - `src/routes/WikiRoutes.ts`: author-lock enforced in editPage (403 for non-author/non-admin); preserved in savePage; non-admin cannot set/clear it
+  - `src/managers/UserManager.ts`: createUserPage uses `Profile: {displayName}` title and sets `author-lock: true`
+  - `src/parsers/dom/Tokenizer.ts`: emoji/surrogate pair fix via codePointAt() + String.fromCodePoint()
+  - `required-pages/02ed956a-b212-4486-bd34-9785a7efe978.md`: Profile Page documentation (audience excludes anonymous)
+  - `data/pages/1c769ef7-*.md`: Jim Willeke profile page updated to "Profile: Jim Willeke" + author-lock
+- Commits: a15ab94, 2b59eaf, 76add2a (various session commits)
+- Files Modified:
+  - views/edit.ejs
+  - src/routes/WikiRoutes.ts
+  - src/managers/UserManager.ts
+  - src/parsers/dom/Tokenizer.ts
+  - src/parsers/dom/__tests__/Tokenizer.test.js
+  - required-pages/02ed956a-b212-4486-bd34-9785a7efe978.md
+  - data/pages/1c769ef7-d766-46e2-860c-83673ff5c8a3.md
+
 ## 2026-04-06-05
 
 - Agent: Claude Code (Sonnet 4.6)
