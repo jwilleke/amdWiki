@@ -38,7 +38,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - `src/routes/WikiRoutes.ts`: unknown Google OIDC user redirected to `/view/Fairways Registration`
   - `data/pages/59476BDC-8409-4EC9-A510-C0CABDB48CC9.md`: new Fairways Registration page (stub, audience: All)
   - `docs/managers/ACLManager-Complete-Guide.md`: added Permission Evaluation Order section
-- Commits: (pending)
+- Commits: 44d55d00
 - Files Modified:
   - src/managers/ACLManager.ts
   - config/app-default-config.json
