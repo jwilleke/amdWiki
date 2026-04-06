@@ -92,12 +92,16 @@ describe('Tokenizer', () => {
       expect(tokenizer.nextChar()).toBe('l');
     });
 
-    // Note: JavaScript strings use UTF-16 encoding where emojis are surrogate pairs
-    // This means emojis take 2 string positions. This is acceptable for wiki markup.
-    test.skip('emoji handling (known limitation)', () => {
+    test('emoji handling — surrogate pairs read as single characters', () => {
       const tokenizer = new Tokenizer('😀emoji🎉');
-      // This would fail because '😀' is a surrogate pair
       expect(tokenizer.nextChar()).toBe('😀');
+      expect(tokenizer.nextChar()).toBe('e');
+      expect(tokenizer.nextChar()).toBe('m');
+      expect(tokenizer.nextChar()).toBe('o');
+      expect(tokenizer.nextChar()).toBe('j');
+      expect(tokenizer.nextChar()).toBe('i');
+      expect(tokenizer.nextChar()).toBe('🎉');
+      expect(tokenizer.nextChar()).toBeNull();
     });
   });
 

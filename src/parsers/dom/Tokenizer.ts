@@ -208,7 +208,8 @@ export class Tokenizer {
       return null;
     }
 
-    return this.input[this.position];
+    const cp = this.input.codePointAt(this.position);
+    return cp !== undefined ? String.fromCodePoint(cp) : null;
   }
 
   /**
@@ -232,8 +233,10 @@ export class Tokenizer {
       return null;
     }
 
-    const char = this.input[this.position];
-    this.position++;
+    const cp = this.input.codePointAt(this.position);
+    if (cp === undefined) return null;
+    const char = String.fromCodePoint(cp);
+    this.position += char.length; // advance 2 for surrogate-pair emoji, 1 for BMP chars
 
     // Track line and column
     if (char === '\n') {
