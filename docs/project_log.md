@@ -22,6 +22,32 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - [file2.md]
 ```
 
+## 2026-04-06-01
+
+- Agent: Claude Code (Sonnet 4.6)
+- Subject: feat: fontsize param for MarqueePlugin; sample images for SlideshowPlugin docs
+- Key Decision: `fontsize` placed on the wrapper div (not the inner span) so it sizes the text via inheritance — consistent with how `bgcolor`/`color` are applied. Sanitised via `/[^a-zA-Z0-9.%]/g` strip (same pattern as SlideshowPlugin `height`) to prevent semicolon-based style injection. Sample images (1200×600 gradient JPEGs) generated with `sharp` from inline SVG — no external tools required.
+- Current Issue: none
+- Testing:
+  - npm test: 101 suites passed, 2623 tests passed, 11 skipped
+- Work Done:
+  - MarqueePlugin: added `fontsize` param; sanitises non-CSS-unit chars; 3 new tests
+  - required-pages/654a0565…md (MarqueePlugin wiki page): added Large Headline Banner and Small Ticker Strip demos with explanatory text; updated lastModified
+  - docs/plugins/MarqueePlugin.md: added fontsize to full example, two code examples, output structure, XSS safety note, test count, v1.2.0 version history entry
+  - public/images/sample-{mountains,forest,sunset,ocean}.jpg: 1200×600 gradient sample images for SlideshowPlugin docs
+  - required-pages/f1f41a47…md (SlideshowPlugin wiki page): all examples updated to use /images/sample-*.jpg so they render live
+- Commits: 892965ae 19a90508 aca21a04 ad5a7b82 267da48e
+- Files Modified:
+  - plugins/MarqueePlugin.ts
+  - plugins/__tests__/MarqueePlugin.test.js
+  - docs/plugins/MarqueePlugin.md
+  - required-pages/654a0565-a16f-46aa-b1ec-8f2dc0adc592.md
+  - required-pages/f1f41a47-8d0d-4d46-a5e2-6208ba42e4a0.md
+  - public/images/sample-mountains.jpg
+  - public/images/sample-forest.jpg
+  - public/images/sample-sunset.jpg
+  - public/images/sample-ocean.jpg
+
 ## 2026-04-05-09
 
 - Agent: Claude Code (Sonnet 4.6)
