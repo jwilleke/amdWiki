@@ -61,6 +61,12 @@ describe('MarqueePlugin — XSS safety', () => {
     expect(out).toContain('&lt;b&gt;SEP&lt;/b&gt;');
   });
 
+  test('separator=blank renders an invisible spacer span', async () => {
+    const out = await MarqueePlugin.execute(ctx, { text: 'Hi', separator: 'blank' });
+    expect(out).toContain('width:8em');
+    expect(out).not.toContain('blank');
+  });
+
   test('escapes HTML in cssclass', async () => {
     const out = await MarqueePlugin.execute(ctx, { text: 'Hi', cssclass: '"onmouseover=alert(1)' });
     expect(out).not.toContain('"onmouseover=alert(1)');

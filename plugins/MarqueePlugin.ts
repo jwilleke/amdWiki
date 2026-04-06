@@ -101,7 +101,9 @@ const MarqueePlugin: SimplePlugin = {
 
     const id = `ngdp-mq-${++_idCounter}`;
     const safeText = escapeHtml(text);
-    const safeSep  = escapeHtml(separator);
+    // 'blank' separator → invisible fixed-width gap (avoids whitespace-collapse in param parser)
+    const isSepBlank = separator.trim().toLowerCase() === 'blank';
+    const safeSep  = isSepBlank ? '' : escapeHtml(separator);
 
     // ── build inline styles ──────────────────────────────────────────────────
     const wrapStyle  = [
@@ -143,8 +145,11 @@ const MarqueePlugin: SimplePlugin = {
     }
 
     // ── build inner content ──────────────────────────────────────────────────
-    // Wrap separator in white-space:pre so plain spaces are preserved in HTML.
-    const sepHtml = `<span style="display:inline-block;white-space:pre">${safeSep}</span>`;
+    // 'blank' → a fixed-width invisible spacer; otherwise wrap in white-space:pre
+    // so any spaces in the separator string survive HTML rendering.
+    const sepHtml = isSepBlank
+      ? '<span style="display:inline-block;width:8em" aria-hidden="true"></span>'
+      : `<span style="display:inline-block;white-space:pre">${safeSep}</span>`;
     let innerContent: string;
     if (behavior === 'scroll') {
       // Duplicate for seamless loop
