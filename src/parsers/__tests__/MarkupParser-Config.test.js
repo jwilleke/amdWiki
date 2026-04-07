@@ -163,10 +163,10 @@ describe('MarkupParser Configuration Integration', () => {
 
       await markupParser.initialize();
 
-      // PluginSyntaxHandler is registered by initialize() — verify its own priority (90)
-      // is preserved and not overridden by the config value (95)
+      // PluginSyntaxHandler is registered by initialize() — verify the config priority (95)
+      // overrides the handler's hardcoded default (90)
       const registeredHandler = markupParser.getHandler('PluginSyntaxHandler');
-      expect(registeredHandler.priority).toBe(90); // Handler's own priority, not overridden
+      expect(registeredHandler.priority).toBe(95); // Config value applied
     });
   });
 
@@ -187,10 +187,7 @@ describe('MarkupParser Configuration Integration', () => {
       expect(markupParser.config.cacheTTL).toBe(600);
     });
 
-    // Skipped: cacheTTL config is read into markupParser.config.cacheTTL but cache.set
-    // still uses the strategy-level default TTL (300), not the top-level cacheTTL.
-    // Fixing this requires a source code change in the cache write path.
-    test.skip('should use cache TTL in caching operations', async () => {
+    test('should use cache TTL in caching operations', async () => {
       mockConfigManager.config['ngdpbase.markup.cache-ttl'] = 900;
 
       await markupParser.initialize();

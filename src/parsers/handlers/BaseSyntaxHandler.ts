@@ -163,7 +163,7 @@ export interface ParseContext {
  * BaseSyntaxHandler - Abstract base class for all markup syntax handlers
  */
 abstract class BaseSyntaxHandler {
-  readonly priority: number;
+  priority: number;
   readonly pattern: RegExp;
   readonly handlerId: string;
   readonly version: string;

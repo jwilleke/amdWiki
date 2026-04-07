@@ -297,15 +297,12 @@ describe('MarkupParser Modular Configuration System', () => {
   });
 
   describe('Priority Configuration Modularity', () => {
-    // Skipped: config priority values (e.g. ngdpbase.markup.handlers.plugin.priority=100) are
-    // read into markupParser.config but do NOT override the handler's own priority property (90).
-    // WikiStyleHandler is also deprecated and no longer registered.
-    test.skip('should respect custom handler priorities', async () => {
+    test('should respect custom handler priorities', async () => {
       const priorityConfig = {
-        'ngdpbase.markup.handlers.plugin.priority': 100,      // Increase from 90
-        'ngdpbase.markup.handlers.wikitag.priority': 85,      // Decrease from 95
-        'ngdpbase.markup.handlers.attachment.priority': 95,   // Increase from 75
-        'ngdpbase.markup.handlers.style.priority': 80        // Increase from 70
+        'ngdpbase.markup.handlers.plugin.priority': 100,      // Increase from default 90
+        'ngdpbase.markup.handlers.wikitag.priority': 85,      // Decrease from default 95
+        'ngdpbase.markup.handlers.attachment.priority': 95    // Increase from default 75
+        // WikiStyleHandler is deprecated and not registered
       };
 
       const engine = new ModularMockEngine(priorityConfig);
@@ -318,12 +315,10 @@ describe('MarkupParser Modular Configuration System', () => {
       const pluginHandler = handlers.find(h => h.handlerId === 'PluginSyntaxHandler');
       const wikiTagHandler = handlers.find(h => h.handlerId === 'WikiTagHandler');
       const attachmentHandler = handlers.find(h => h.handlerId === 'AttachmentHandler');
-      const styleHandler = handlers.find(h => h.handlerId === 'WikiStyleHandler');
 
-      expect(pluginHandler.priority).toBe(100);  // Custom value
-      expect(wikiTagHandler.priority).toBe(85);  // Custom value
-      expect(attachmentHandler.priority).toBe(95); // Custom value
-      expect(styleHandler.priority).toBe(80);    // Custom value
+      expect(pluginHandler.priority).toBe(100);   // Custom value applied
+      expect(wikiTagHandler.priority).toBe(85);   // Custom value applied
+      expect(attachmentHandler.priority).toBe(95); // Custom value applied
 
       // Verify execution order (higher priority first)
       const priorities = handlers.map(h => h.priority);
@@ -610,32 +605,31 @@ describe('MarkupParser Modular Configuration System', () => {
   });
 
   describe('Runtime Configuration Changes', () => {
-    // Skipped: WikiStyleHandler is deprecated and no longer registered by initialize()
-    test.skip('should support handler enable/disable at runtime', async () => {
+    test('should support handler enable/disable at runtime', async () => {
       const engine = new ModularMockEngine();
       const parser = new MarkupParser(engine);
       await parser.initialize();
 
-      // Verify handler is initially enabled
-      expect(parser.getHandler('WikiStyleHandler')).toBeTruthy();
+      // Verify AttachmentHandler is initially enabled
+      expect(parser.getHandler('AttachmentHandler')).toBeTruthy();
 
       // Disable handler at runtime
-      const success = parser.disableHandler('WikiStyleHandler');
+      const success = parser.disableHandler('AttachmentHandler');
       expect(success).toBe(true);
 
-      // Handler should be disabled in active list
+      // Handler should be absent from the enabled-only list
       const activeHandlers = parser.getHandlers(true); // enabledOnly = true
       const activeIds = activeHandlers.map(h => h.handlerId);
-      expect(activeIds).not.toContain('WikiStyleHandler');
+      expect(activeIds).not.toContain('AttachmentHandler');
 
       // Re-enable handler
-      const reenableSuccess = parser.enableHandler('WikiStyleHandler');
+      const reenableSuccess = parser.enableHandler('AttachmentHandler');
       expect(reenableSuccess).toBe(true);
 
       // Handler should be active again
       const reenabledHandlers = parser.getHandlers(true);
       const reenabledIds = reenabledHandlers.map(h => h.handlerId);
-      expect(reenabledIds).toContain('WikiStyleHandler');
+      expect(reenabledIds).toContain('AttachmentHandler');
 
       await parser.shutdown();
     });

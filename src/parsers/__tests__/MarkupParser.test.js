@@ -161,19 +161,19 @@ describe('MarkupParser', () => {
       expect(result).toContain('```\ncode block\n```');
     });
 
-    // Skipped: This test depends on internal phasePreprocessing implementation details
-    // that have changed. Code block protection may now be handled differently.
-    test.skip('should protect code blocks during preprocessing', async () => {
+    // Code block protection is now handled inside extractJSPWikiSyntax() using internal
+    // __CODEBLOCK_N__ placeholders — not through phasePreprocessing/parseContext.protectedBlocks.
+    // The observable contract: code block content is preserved and JSPWiki syntax inside
+    // code blocks is NOT processed.
+    test('should protect code blocks during preprocessing', async () => {
       const content = 'Text before\n\n```javascript\nconst x = 1;\n```\n\nText after';
+      const result = await markupParser.parse(content);
 
-      const parseContext = new ParseContext(content, {}, mockEngine);
-
-      // Test preprocessing phase directly
-      const result = await markupParser.phasePreprocessing(content, parseContext);
-
-      expect(parseContext.protectedBlocks).toHaveLength(1);
-      expect(parseContext.protectedBlocks[0]).toContain('const x = 1;');
-      expect(result).toContain('__CODE_BLOCK_0__');
+      // Code block content must survive the pipeline unchanged
+      expect(result).toContain('const x = 1;');
+      // Surrounding text must also be present
+      expect(result).toContain('Text before');
+      expect(result).toContain('Text after');
     });
 
     test('should restore protected blocks during post-processing', async () => {
@@ -184,9 +184,7 @@ describe('MarkupParser', () => {
       expect(result).toContain('```\ncode\n```');
     });
 
-    // Skipped: Variable expansion integration with VariableManager has changed.
-    // Variables may be expanded by DOMVariableHandler or different mechanism now.
-    test.skip('should expand variables during context resolution', async () => {
+    test('should expand variables during context resolution', async () => {
       const content = 'Page: ${pagename}, User: ${username}';
       const context = {
         pageName: 'MyPage',
@@ -311,10 +309,7 @@ describe('MarkupParser', () => {
       expect(markupParser.getHandler('MockHandler2')).toBeNull();
     });
 
-    // Skipped: handler.process() is registered but parse() does not invoke it for
-    // arbitrary content patterns — only built-in handler chains are called during parse().
-    // Fixing this requires changing the parse pipeline, not just the test.
-    test.skip('should execute registered handlers during content transformation', async () => {
+    test('should execute registered handlers during content transformation', async () => {
       const { BaseSyntaxHandler } = require('../handlers/BaseSyntaxHandler');
 
       class MockHandler extends BaseSyntaxHandler {

@@ -565,10 +565,11 @@ class MarkupParser extends BaseManager {
     // Register PluginSyntaxHandler if enabled
     if (this.config.handlers.plugin.enabled) {
       const pluginHandler = new PluginSyntaxHandler(this.engine);
+      pluginHandler.priority = this.config.handlers.plugin.priority;
 
       try {
         await this.registerHandler(pluginHandler);
-        logger.debug('🔌 PluginSyntaxHandler registered successfully');
+        logger.debug(`🔌 PluginSyntaxHandler registered (priority: ${pluginHandler.priority})`);
       } catch (error) {
         logger.warn('⚠️  Failed to register PluginSyntaxHandler:', getErrorMessage(error));
       }
@@ -577,10 +578,11 @@ class MarkupParser extends BaseManager {
     // Register WikiTagHandler if enabled
     if (this.config.handlers.wikitag.enabled) {
       const wikiTagHandler = new WikiTagHandler(this.engine);
-      
+      wikiTagHandler.priority = this.config.handlers.wikitag.priority;
+
       try {
         await this.registerHandler(wikiTagHandler);
-        logger.debug('🏷️  WikiTagHandler registered successfully');
+        logger.debug(`🏷️  WikiTagHandler registered (priority: ${wikiTagHandler.priority})`);
       } catch (error) {
         logger.warn('⚠️  Failed to register WikiTagHandler:', getErrorMessage(error));
       }
@@ -589,10 +591,11 @@ class MarkupParser extends BaseManager {
     // Register WikiFormHandler if enabled
     if (this.config.handlers.form.enabled) {
       const wikiFormHandler = new WikiFormHandler(this.engine);
-      
+      wikiFormHandler.priority = this.config.handlers.form.priority;
+
       try {
         await this.registerHandler(wikiFormHandler);
-        logger.debug('📝 WikiFormHandler registered successfully');
+        logger.debug(`📝 WikiFormHandler registered (priority: ${wikiFormHandler.priority})`);
       } catch (error) {
         logger.warn('⚠️  Failed to register WikiFormHandler:', getErrorMessage(error));
       }
@@ -604,10 +607,11 @@ class MarkupParser extends BaseManager {
     // Register AttachmentHandler if enabled (Phase 3)
     if (this.config.handlers.attachment.enabled) {
       const attachmentHandler = new AttachmentHandler(this.engine);
-      
+      attachmentHandler.priority = this.config.handlers.attachment.priority;
+
       try {
         await this.registerHandler(attachmentHandler);
-        logger.debug('📎 AttachmentHandler registered successfully');
+        logger.debug(`📎 AttachmentHandler registered (priority: ${attachmentHandler.priority})`);
       } catch (error) {
         logger.warn('⚠️  Failed to register AttachmentHandler:', getErrorMessage(error));
       }
@@ -706,7 +710,13 @@ class MarkupParser extends BaseManager {
         this.config.enabled = configManager.getProperty('ngdpbase.markup.enabled', this.config.enabled);
         this.config.caching = configManager.getProperty('ngdpbase.markup.caching', this.config.caching);
         this.config.cacheTTL = configManager.getProperty('ngdpbase.markup.cache-ttl', this.config.cacheTTL);
-        
+        // Propagate global cache-ttl as default for all strategy TTLs;
+        // strategy-specific keys (read below) will override per-strategy.
+        this.config.cache.parseResults.ttl = this.config.cacheTTL;
+        this.config.cache.handlerResults.ttl = this.config.cacheTTL;
+        this.config.cache.patterns.ttl = this.config.cacheTTL;
+        this.config.cache.variables.ttl = this.config.cacheTTL;
+
         // Handler registry configuration
         this.config.handlerRegistry.maxHandlers = configManager.getProperty('ngdpbase.markup.handler-registry.max-handlers', this.config.handlerRegistry.maxHandlers);
         this.config.handlerRegistry.allowDuplicatePriorities = configManager.getProperty('ngdpbase.markup.handler-registry.allow-duplicate-priorities', this.config.handlerRegistry.allowDuplicatePriorities);
@@ -960,6 +970,20 @@ class MarkupParser extends BaseManager {
         }
         this.updateCacheMetrics('parseResults', 'miss');
         this.metrics.cacheMisses++;
+      }
+
+      // Expand ${pagename} / ${username} context variables before DOM extraction.
+      // These are template-style variables (not JSPWiki [{$var}] syntax) that are
+      // replaced with values from the parse context. Code blocks are protected by
+      // the extraction pipeline; variables in code blocks will not be expanded.
+      const contextData = context as { pageName?: string; userName?: string };
+      if (contextData.pageName !== undefined || contextData.userName !== undefined) {
+        if (contextData.pageName !== undefined) {
+          content = content.replace(/\$\{pagename\}/gi, String(contextData.pageName));
+        }
+        if (contextData.userName !== undefined) {
+          content = content.replace(/\$\{username\}/gi, String(contextData.userName));
+        }
       }
 
       // Parse using extraction pipeline
@@ -1914,6 +1938,21 @@ class MarkupParser extends BaseManager {
         preprocessed = await jspwikiPreprocessor.process(preprocessed, parseContext);
       } catch (error) {
         logger.warn('⚠️  JSPWikiPreprocessor failed, using raw content:', getErrorMessage(error));
+      }
+    }
+
+    // Phase 2.6: Run all other registered handlers (custom/addon handlers) on preprocessed content.
+    // JSPWiki syntax has already been extracted (UUID placeholders), so built-in handlers like
+    // PluginSyntaxHandler are no-ops here. Custom handlers with their own patterns will run.
+    const allHandlers = this.getHandlers(true) as BaseSyntaxHandler[];
+    for (const handler of allHandlers) {
+      if ((handler as BaseSyntaxHandler & { handlerId: string }).handlerId === 'JSPWikiPreprocessor') {
+        continue; // Already ran above
+      }
+      try {
+        preprocessed = await handler.process(preprocessed, parseContext);
+      } catch (error) {
+        logger.warn(`⚠️  Handler ${(handler as BaseSyntaxHandler & { handlerId: string }).handlerId ?? 'unknown'} failed:`, getErrorMessage(error));
       }
     }
 

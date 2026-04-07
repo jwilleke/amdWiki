@@ -294,23 +294,15 @@ describe('MarkupParser Advanced Caching and Performance', () => {
       markupParser.config.performance.alertThresholds.errorRate = 0.1; // 10%
     });
 
-    // Skipped: Alert generation depends on timing thresholds that may not trigger consistently
-    test.skip('should generate slow parsing alert', async () => {
-      // Mock slow parsing by adding artificial delay
-      const originalPhase = markupParser.phases[0].process;
-      markupParser.phases[0].process = async (content, context) => {
-        await new Promise(resolve => setTimeout(resolve, 10)); // 10ms delay
-        return await originalPhase.call(markupParser, content, context);
-      };
+    test('should generate slow parsing alert', () => {
+      // checkPerformanceThresholds() uses performanceMonitor.recentParseTimes (last 20 non-cached entries).
+      // Inject 20 entries at 50ms each — well above the 5ms threshold set in beforeEach.
+      markupParser.performanceMonitor.recentParseTimes = Array.from({ length: 20 }, () => ({
+        time: 50,
+        cacheHit: false
+      }));
 
-      const content = 'Test content';
-
-      // Force threshold check by simulating multiple recent parses
-      for (let i = 0; i < 25; i++) {
-        await markupParser.parse(content);
-      }
-
-      // Force threshold check
+      // Force threshold check (bypass the checkInterval guard)
       markupParser.performanceMonitor.lastCheck = 0;
       markupParser.checkPerformanceThresholds();
 
