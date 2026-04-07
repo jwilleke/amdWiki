@@ -1,0 +1,214 @@
+<%- include('header', { pageName: '' }) %>
+
+<style>
+.ngdp-slideshow-wrap {
+    position: relative;
+    width: 100%;
+    height: calc(100vh - 120px);
+    min-height: 400px;
+    background: #111;
+    overflow: hidden;
+}
+.ngdp-slideshow-frame {
+    width: 100%;
+    height: 100%;
+    border: none;
+    display: block;
+    background: #fff;
+}
+.ngdp-slideshow-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(transparent, rgba(0,0,0,0.7));
+    color: #fff;
+    padding: 1rem 1.5rem 0.75rem;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1rem;
+    pointer-events: none;
+}
+.ngdp-slideshow-overlay .controls {
+    pointer-events: all;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-shrink: 0;
+}
+.ngdp-slideshow-overlay .info {
+    overflow: hidden;
+}
+.ngdp-slideshow-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.ngdp-slideshow-counter {
+    font-size: 0.8rem;
+    opacity: 0.75;
+}
+#ngdp-ss-progress {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 3px;
+    background: var(--bs-primary, #0d6efd);
+    transition: width linear;
+    width: 0%;
+}
+.ngdp-slideshow-wrap:hover #ngdp-ss-progress { opacity: 0.4; }
+</style>
+
+<div class="container-fluid px-0">
+    <!-- Toolbar -->
+    <div class="d-flex align-items-center gap-2 px-3 py-2 bg-dark text-white">
+        <a href="/" class="btn btn-sm btn-outline-light me-2">
+            <i class="fas fa-home"></i>
+        </a>
+        <span class="fw-semibold me-auto">
+            <i class="fas fa-play-circle me-1"></i> Slideshow
+        </span>
+        <form class="d-flex align-items-center gap-2" method="get" action="/slideshow">
+            <label class="small text-white-50 mb-0">Pages:</label>
+            <input type="number" name="count" value="<%= count %>" min="1" max="50"
+                   class="form-control form-control-sm" style="width:60px;">
+            <label class="small text-white-50 mb-0">Interval (s):</label>
+            <input type="number" name="interval" value="<%= interval %>" min="1" max="120"
+                   class="form-control form-control-sm" style="width:60px;">
+            <button type="submit" class="btn btn-sm btn-primary">
+                <i class="fas fa-sync-alt"></i> Reload
+            </button>
+        </form>
+    </div>
+
+    <!-- Slideshow area -->
+    <div class="ngdp-slideshow-wrap" id="ngdp-ss-wrap">
+        <div id="ngdp-ss-progress"></div>
+        <iframe class="ngdp-slideshow-frame" id="ngdp-ss-frame"
+                src="" title="Slideshow page"></iframe>
+
+        <div class="ngdp-slideshow-overlay">
+            <div class="info">
+                <div class="ngdp-slideshow-title" id="ngdp-ss-title"></div>
+                <div class="ngdp-slideshow-counter" id="ngdp-ss-counter"></div>
+            </div>
+            <div class="controls">
+                <button class="btn btn-sm btn-outline-light" id="ngdp-ss-prev" title="Previous">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+                <button class="btn btn-sm btn-outline-light" id="ngdp-ss-playpause" title="Pause">
+                    <i class="fas fa-pause" id="ngdp-ss-pp-icon"></i>
+                </button>
+                <button class="btn btn-sm btn-outline-light" id="ngdp-ss-next" title="Next">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+                <a href="#" class="btn btn-sm btn-outline-light" id="ngdp-ss-open" title="Open page" target="_top">
+                    <i class="fas fa-external-link-alt"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+(function () {
+    var pages    = <%- JSON.stringify(pages) %>;
+    var interval = <%- interval %> * 1000;
+
+    var idx      = 0;
+    var playing  = true;
+    var timer    = null;
+    var progTimer = null;
+
+    var frame    = document.getElementById('ngdp-ss-frame');
+    var titleEl  = document.getElementById('ngdp-ss-title');
+    var counterEl= document.getElementById('ngdp-ss-counter');
+    var openEl   = document.getElementById('ngdp-ss-open');
+    var ppIcon   = document.getElementById('ngdp-ss-pp-icon');
+    var progEl   = document.getElementById('ngdp-ss-progress');
+
+    function goTo(i) {
+        idx = ((i % pages.length) + pages.length) % pages.length;
+        var name = pages[idx];
+        var url  = '/view/' + encodeURIComponent(name);
+        frame.src = url;
+        titleEl.textContent  = name;
+        counterEl.textContent = (idx + 1) + ' / ' + pages.length;
+        openEl.href = url;
+        startProgress();
+    }
+
+    function startProgress() {
+        progEl.style.transition = 'none';
+        progEl.style.width = '0%';
+        clearTimeout(progTimer);
+        if (!playing) return;
+        // Force reflow so the transition reset takes effect
+        void progEl.offsetWidth;
+        progEl.style.transition = 'width ' + (interval / 1000) + 's linear';
+        progEl.style.width = '100%';
+    }
+
+    function scheduleNext() {
+        clearTimeout(timer);
+        if (playing) {
+            timer = setTimeout(function () { goTo(idx + 1); scheduleNext(); }, interval);
+        }
+    }
+
+    function pause() {
+        playing = false;
+        clearTimeout(timer);
+        progEl.style.transition = 'none';
+        progEl.style.width = '0%';
+        ppIcon.className = 'fas fa-play';
+    }
+
+    function play() {
+        playing = true;
+        ppIcon.className = 'fas fa-pause';
+        scheduleNext();
+        startProgress();
+    }
+
+    document.getElementById('ngdp-ss-prev').addEventListener('click', function () {
+        clearTimeout(timer);
+        goTo(idx - 1);
+        if (playing) scheduleNext();
+    });
+    document.getElementById('ngdp-ss-next').addEventListener('click', function () {
+        clearTimeout(timer);
+        goTo(idx + 1);
+        if (playing) scheduleNext();
+    });
+    document.getElementById('ngdp-ss-playpause').addEventListener('click', function () {
+        if (playing) { pause(); } else { play(); }
+    });
+
+    // Pause on mouse-over the iframe area, resume on leave
+    document.getElementById('ngdp-ss-wrap').addEventListener('mouseenter', pause);
+    document.getElementById('ngdp-ss-wrap').addEventListener('mouseleave', function () {
+        if (!playing) play();
+    });
+
+    // Keyboard: left/right arrows, space to pause
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'ArrowLeft')  { document.getElementById('ngdp-ss-prev').click(); }
+        if (e.key === 'ArrowRight') { document.getElementById('ngdp-ss-next').click(); }
+        if (e.key === ' ')          { document.getElementById('ngdp-ss-playpause').click(); e.preventDefault(); }
+    });
+
+    if (pages.length > 0) {
+        goTo(0);
+        scheduleNext();
+    } else {
+        frame.srcdoc = '<p style="padding:2rem;font-family:sans-serif">No pages available.</p>';
+    }
+})();
+</script>
+
+<%- include('footer') %>

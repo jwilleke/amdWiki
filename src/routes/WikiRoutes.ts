@@ -2486,6 +2486,47 @@ class WikiRoutes {
   /**
    * Search pages with advanced options
    */
+  /**
+   * GET /slideshow
+   *
+   * Full-page random-page slideshow.  Picks up to `count` random accessible
+   * page names and passes them to the view; the client-side JS loads each
+   * page in an iframe and auto-advances every `interval` seconds.
+   *
+   * Query params:
+   *   count    — number of random pages (default 10, max 50)
+   *   interval — seconds per slide (default 5)
+   */
+  async slideshow(req: Request, res: Response) {
+    try {
+      const count    = Math.min(50, Math.max(1, parseInt(req.query.count as string, 10) || 10));
+      const interval = Math.max(1, parseInt(req.query.interval as string, 10) || 5);
+
+      const pageManager = this.engine.getManager('PageManager') as { getAllPages(): Promise<string[]> };
+      const all   = await pageManager.getAllPages();
+
+      // Fisher-Yates shuffle then slice
+      const pool = [...all];
+      for (let i = pool.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [pool[i], pool[j]] = [pool[j], pool[i]];
+      }
+      const pages = pool.slice(0, count);
+
+      const commonData = await this.getCommonTemplateData(req);
+      return res.render('slideshow', {
+        ...commonData,
+        title: 'Slideshow',
+        pages,
+        interval,
+        count
+      });
+    } catch (err: unknown) {
+      logger.error('[slideshow] Error:', err);
+      return this.renderError(req, res, 500, 'Slideshow Error', 'Could not load slideshow.');
+    }
+  }
+
   async searchPages(req: Request, res: Response) {
     try {
       const query = (req.query.q as string) || '';
@@ -7149,6 +7190,7 @@ class WikiRoutes {
     app.post('/create', (req: Request, res: Response) => this.createPageFromTemplate(req, res));
     app.post('/delete/:page', (req: Request, res: Response) => this.deletePage(req, res));
     app.get('/search', (req: Request, res: Response) => this.searchPages(req, res));
+    app.get('/slideshow', (req: Request, res: Response) => this.slideshow(req, res));
     app.get('/login', (req: Request, res: Response) => this.loginPage(req, res));
     app.get('/admin/login', (req: Request, res: Response) => this.adminLoginPage(req, res));
     app.post('/login', (req: Request, res: Response) => this.processLogin(req, res));
