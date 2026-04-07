@@ -2502,7 +2502,7 @@ class WikiRoutes {
     try {
       const count     = Math.min(50, Math.max(1, parseInt(req.query.count as string, 10) || 10));
       const interval  = Math.max(1, parseInt(req.query.interval as string, 10) || 8);
-      const excerptLen = Math.max(50, parseInt(req.query.excerpt as string, 10) || 700);
+      const excerptLen = Math.max(50, parseInt(req.query.excerpt as string, 10) || 1500);
 
       const pageManager = this.engine.getManager('PageManager') as {
         getAllPages(): Promise<string[]>;
