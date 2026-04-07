@@ -196,7 +196,28 @@ var _apInitSource = typeof assetPickerInitSource  !== 'undefined' ? assetPickerI
         }
     }
 
-    // ------------------------------------------------------------------ card
+    // ------------------------------------------------------------------ card helpers
+
+    function _apMimeIcon(mime) {
+        if (!mime) return 'fa-paperclip';
+        if (mime === 'application/pdf')                      return 'fa-file-pdf';
+        if (mime.startsWith('image/'))                       return 'fa-file-image';
+        if (mime.startsWith('video/'))                       return 'fa-file-video';
+        if (mime.startsWith('audio/'))                       return 'fa-file-audio';
+        if (mime.startsWith('text/'))                        return 'fa-file-alt';
+        if (mime === 'application/zip' ||
+            mime === 'application/x-zip-compressed' ||
+            mime === 'application/x-tar' ||
+            mime === 'application/gzip')                     return 'fa-file-archive';
+        if (mime.includes('spreadsheet') ||
+            mime.includes('excel') ||
+            mime === 'text/csv')                             return 'fa-file-excel';
+        if (mime.includes('presentation') ||
+            mime.includes('powerpoint'))                     return 'fa-file-powerpoint';
+        if (mime.includes('word') ||
+            mime.includes('document'))                       return 'fa-file-word';
+        return 'fa-file';
+    }
 
     function _apCard(asset, idx) {
         var isPage   = asset.providerId === 'page';
@@ -211,7 +232,7 @@ var _apInitSource = typeof assetPickerInitSource  !== 'undefined' ? assetPickerI
         } else if (isImage && asset.url) {
             thumb = '<img src="' + _esc(asset.url) + '" class="img-fluid rounded mb-1" style="max-height:110px;object-fit:cover;width:100%;" loading="lazy" alt="" itemprop="url">';
         } else {
-            var icon = isMedia ? 'fa-photo-video' : 'fa-paperclip';
+            var icon = isMedia ? 'fa-photo-video' : _apMimeIcon(asset.encodingFormat);
             thumb = '<div class="text-center text-muted py-3"><i class="fas ' + icon + ' fa-2x"></i></div>';
         }
 
