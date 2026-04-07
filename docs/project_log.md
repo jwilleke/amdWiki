@@ -22,6 +22,28 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - [file2.md]
 ```
 
+## 2026-04-07-11
+
+- Agent: Claude Code (Sonnet 4.6)
+- Subject: feat: ConfigAccessorPlugin — add policies, authMethods, features, permissionsList types (#481)
+- Key Decision: Permission key is the canonical name (`page-edit`) — no separate `name` field added. Sensitivity masking (`/secret|password|token|credential/i`) applies for non-admin users only. ConfigAccessorPlugin doc rewritten as concise example-driven reference.
+- Current Issue: #481 (closed)
+- Testing:
+  - npm test: 105 suites passed, 2679 tests passed, 0 skipped
+- Work Done:
+  - Added `displayPolicies()`, `displayAuthMethods()`, `displayFeatures()`, `displayPermissionsList()` to ConfigAccessorPlugin
+  - Added `safeStr()` helper and `maskIfSensitive()` for credential masking
+  - New switch cases: `policies`, `authmethods`, `features`, `permissionslist`
+  - Bumped plugin version 2.7.0 → 2.8.0
+  - Updated `_comment_permissions` in app-default-config.json
+  - Rewrote ConfigAccessorPlugin required-page (b7980f86) — concise example-driven format
+  - Closed GH #481 with summary comment
+- Commits: c533730e, 87e55775, e2ba7660
+- Files Modified:
+  - plugins/ConfigAccessorPlugin.ts
+  - config/app-default-config.json
+  - required-pages/b7980f86-b9a0-42ba-b810-9f414fb6d399.md
+
 ## 2026-04-07-10
 
 - Agent: Claude Code (Sonnet 4.6)
