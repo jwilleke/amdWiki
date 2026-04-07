@@ -104,4 +104,44 @@ describe('PluginManager.registerPlugin()', () => {
     const result = await pm.execute('P', 'TestPage', {});
     expect(result).toBe('v2');
   });
+
+  test('calls fetch(engine) before execute() when fetch is present', async () => {
+    const pm = makeManager();
+    const callOrder = [];
+    const fetchFn = jest.fn().mockImplementation(() => { callOrder.push('fetch'); });
+    const executeFn = jest.fn().mockImplementation(() => { callOrder.push('execute'); return 'done'; });
+    const plugin = { name: 'FetchPlugin', fetch: fetchFn, execute: executeFn };
+
+    await pm.registerPlugin('FetchPlugin', plugin);
+    await pm.execute('FetchPlugin', 'TestPage', {});
+
+    expect(fetchFn).toHaveBeenCalledWith(mockEngine);
+    expect(executeFn).toHaveBeenCalled();
+    expect(callOrder).toEqual(['fetch', 'execute']);
+  });
+
+  test('fetch(engine) receives the engine instance', async () => {
+    const pm = makeManager();
+    let receivedEngine;
+    const plugin = {
+      name: 'EngineCheckPlugin',
+      fetch: jest.fn().mockImplementation((eng) => { receivedEngine = eng; }),
+      execute: jest.fn().mockResolvedValue('')
+    };
+
+    await pm.registerPlugin('EngineCheckPlugin', plugin);
+    await pm.execute('EngineCheckPlugin', 'TestPage', {});
+
+    expect(receivedEngine).toBe(mockEngine);
+  });
+
+  test('execute() works normally when fetch is absent', async () => {
+    const pm = makeManager();
+    const plugin = { name: 'NoFetchPlugin', execute: jest.fn().mockResolvedValue('result') };
+
+    await pm.registerPlugin('NoFetchPlugin', plugin);
+    const result = await pm.execute('NoFetchPlugin', 'TestPage', {});
+
+    expect(result).toBe('result');
+  });
 });
