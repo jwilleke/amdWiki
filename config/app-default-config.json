@@ -957,6 +957,26 @@
     "createdAt", "loginCount", "lastLogin",
     "preferences", "profilePage", "allowedAuthMethods", "avatar"
   ],
+  "_comment_permissions": "Canonical permission registry. Format: {target}-{action}. Target-first, hyphen-separated (URL-safe). asset-* = file/attachment operations.",
+  "ngdpbase.permissions.definitions": {
+    "page-read":    { "description": "View pages",                   "icon": "eye",         "color": "#6c757d" },
+    "page-edit":    { "description": "Edit pages",                   "icon": "edit",        "color": "#007bff" },
+    "page-create":  { "description": "Create new pages",             "icon": "plus",        "color": "#28a745" },
+    "page-delete":  { "description": "Delete pages",                 "icon": "trash",       "color": "#dc3545" },
+    "page-rename":  { "description": "Rename pages",                 "icon": "i-cursor",    "color": "#fd7e14" },
+    "page-export":  { "description": "Export pages",                 "icon": "file-export", "color": "#6c757d" },
+    "asset-read":   { "description": "View assets (attachments)",    "icon": "paperclip",   "color": "#6c757d" },
+    "asset-upload": { "description": "Upload assets",                "icon": "upload",      "color": "#28a745" },
+    "asset-delete": { "description": "Delete assets",                "icon": "trash",       "color": "#dc3545" },
+    "search-page":  { "description": "Search pages",                 "icon": "search",      "color": "#6c757d" },
+    "search-user":  { "description": "Search users",                 "icon": "search",      "color": "#6c757d" },
+    "user-read":    { "description": "View user list and profiles",  "icon": "users",       "color": "#6c757d" },
+    "user-edit":    { "description": "Edit user accounts",           "icon": "user-edit",   "color": "#007bff" },
+    "user-create":  { "description": "Create user accounts",         "icon": "user-plus",   "color": "#28a745" },
+    "user-delete":  { "description": "Delete user accounts",         "icon": "user-minus",  "color": "#dc3545" },
+    "admin-system": { "description": "System administration",        "icon": "cog",         "color": "#dc3545" },
+    "admin-roles":  { "description": "Role management",              "icon": "shield-alt",  "color": "#dc3545" }
+  },
   "_comment_roles": "Role definitions - metadata only, permissions defined via policies below (ALL LOWERCASE)",
   "ngdpbase.roles.definitions": {
     "admin": {
@@ -967,19 +987,38 @@
       "icon": "shield-alt",
       "color": "#dc3545",
       "permissions": [
-        "page:read",
-        "page:edit",
-        "page:create",
-        "page:delete",
-        "page:rename",
-        "attachment:read",
-        "attachment:upload",
-        "attachment:delete",
-        "search:all",
-        "export:pages",
-        "admin:system",
-        "admin:users",
-        "admin:roles"
+        "page-read",
+        "page-edit",
+        "page-create",
+        "page-delete",
+        "page-rename",
+        "page-export",
+        "asset-read",
+        "asset-upload",
+        "asset-delete",
+        "search-page",
+        "search-user",
+        "user-read",
+        "user-edit",
+        "user-create",
+        "user-delete",
+        "admin-system",
+        "admin-roles"
+      ]
+    },
+    "user-admin": {
+      "name": "user-admin",
+      "displayname": "User Administrator",
+      "description": "Can manage users — create, edit, deactivate, delete",
+      "issystem": true,
+      "icon": "user-cog",
+      "color": "#6610f2",
+      "permissions": [
+        "user-read",
+        "user-edit",
+        "user-create",
+        "user-delete",
+        "search-user"
       ]
     },
     "editor": {
@@ -990,15 +1029,16 @@
       "icon": "edit",
       "color": "#007bff",
       "permissions": [
-        "page:read",
-        "page:edit",
-        "page:create",
-        "page:delete",
-        "page:rename",
-        "attachment:read",
-        "attachment:upload",
-        "search:all",
-        "export:pages"
+        "page-read",
+        "page-edit",
+        "page-create",
+        "page-delete",
+        "page-rename",
+        "page-export",
+        "asset-read",
+        "asset-upload",
+        "asset-delete",
+        "search-page"
       ]
     },
     "contributor": {
@@ -1009,13 +1049,13 @@
       "icon": "user-edit",
       "color": "#28a745",
       "permissions": [
-        "page:read",
-        "page:edit",
-        "page:create",
-        "attachment:read",
-        "attachment:upload",
-        "search:all",
-        "export:pages"
+        "page-read",
+        "page-edit",
+        "page-create",
+        "page-export",
+        "asset-read",
+        "asset-upload",
+        "search-page"
       ]
     },
     "reader": {
@@ -1026,10 +1066,23 @@
       "icon": "book-reader",
       "color": "#6c757d",
       "permissions": [
-        "page:read",
-        "attachment:read",
-        "search:all",
-        "export:pages"
+        "page-read",
+        "page-export",
+        "asset-read",
+        "search-page"
+      ]
+    },
+    "member": {
+      "name": "member",
+      "displayname": "Member",
+      "description": "Community member — same read access as reader, placeholder for community-specific permissions",
+      "issystem": true,
+      "icon": "id-card",
+      "color": "#20c997",
+      "permissions": [
+        "page-read",
+        "asset-read",
+        "search-page"
       ]
     },
     "anonymous": {
@@ -1040,8 +1093,8 @@
       "icon": "user-secret",
       "color": "#adb5bd",
       "permissions": [
-        "page:read",
-        "attachment:read"
+        "page-read",
+        "asset-read"
       ]
     }
   },
@@ -1068,26 +1121,55 @@
         }
       ],
       "actions": [
-        "page:read",
-        "page:edit",
-        "page:create",
-        "page:delete",
-        "page:rename",
-        "attachment:upload",
-        "attachment:delete",
-        "export:pages",
-        "search:all",
-        "search:restricted",
-        "admin:users",
-        "admin:roles",
-        "admin:config",
-        "admin:system"
+        "page-read",
+        "page-edit",
+        "page-create",
+        "page-delete",
+        "page-rename",
+        "page-export",
+        "asset-read",
+        "asset-upload",
+        "asset-delete",
+        "search-page",
+        "search-user",
+        "user-read",
+        "user-edit",
+        "user-create",
+        "user-delete",
+        "admin-roles",
+        "admin-system"
+      ]
+    },
+    {
+      "id": "user-admin-permissions",
+      "name": "User Administrator Permissions",
+      "description": "Can manage users — create, edit, deactivate, delete",
+      "priority": 95,
+      "effect": "allow",
+      "subjects": [
+        {
+          "type": "role",
+          "value": "user-admin"
+        }
+      ],
+      "resources": [
+        {
+          "type": "page",
+          "pattern": "*"
+        }
+      ],
+      "actions": [
+        "user-read",
+        "user-edit",
+        "user-create",
+        "user-delete",
+        "search-user"
       ]
     },
     {
       "id": "editor-permissions",
       "name": "Editor Permissions",
-      "description": "Can create, edit, delete, and rename pages plus manage attachments",
+      "description": "Can create, edit, delete, and rename pages plus manage assets",
       "priority": 80,
       "effect": "allow",
       "subjects": [
@@ -1103,21 +1185,22 @@
         }
       ],
       "actions": [
-        "page:read",
-        "page:edit",
-        "page:create",
-        "page:delete",
-        "page:rename",
-        "attachment:upload",
-        "attachment:delete",
-        "export:pages",
-        "search:all"
+        "page-read",
+        "page-edit",
+        "page-create",
+        "page-delete",
+        "page-rename",
+        "page-export",
+        "asset-read",
+        "asset-upload",
+        "asset-delete",
+        "search-page"
       ]
     },
     {
       "id": "contributor-permissions",
       "name": "Contributor Permissions",
-      "description": "Can create and edit pages, upload attachments (no delete/rename)",
+      "description": "Can create and edit pages, upload assets (no delete/rename)",
       "priority": 70,
       "effect": "allow",
       "subjects": [
@@ -1133,18 +1216,19 @@
         }
       ],
       "actions": [
-        "page:read",
-        "page:edit",
-        "page:create",
-        "attachment:upload",
-        "export:pages",
-        "search:all"
+        "page-read",
+        "page-edit",
+        "page-create",
+        "page-export",
+        "asset-read",
+        "asset-upload",
+        "search-page"
       ]
     },
     {
       "id": "reader-permissions",
       "name": "Reader Permissions",
-      "description": "Read-only access - can view pages and attachments, search, and export",
+      "description": "Read-only access - can view pages and assets, search, and export",
       "priority": 60,
       "effect": "allow",
       "subjects": [
@@ -1160,10 +1244,34 @@
         }
       ],
       "actions": [
-        "page:read",
-        "attachment:read",
-        "search:all",
-        "export:pages"
+        "page-read",
+        "page-export",
+        "asset-read",
+        "search-page"
+      ]
+    },
+    {
+      "id": "member-permissions",
+      "name": "Member Permissions",
+      "description": "Community member read-only access",
+      "priority": 55,
+      "effect": "allow",
+      "subjects": [
+        {
+          "type": "role",
+          "value": "member"
+        }
+      ],
+      "resources": [
+        {
+          "type": "page",
+          "pattern": "*"
+        }
+      ],
+      "actions": [
+        "page-read",
+        "asset-read",
+        "search-page"
       ]
     },
     {
@@ -1185,7 +1293,7 @@
         }
       ],
       "actions": [
-        "page:read"
+        "page-read"
       ]
     },
     {
@@ -1233,7 +1341,7 @@
         }
       ],
       "actions": [
-        "page:read"
+        "page-read"
       ]
     }
   ],

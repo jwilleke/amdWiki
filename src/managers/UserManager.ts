@@ -261,19 +261,24 @@ class UserManager extends BaseManager {
    */
   private initializePermissions(): void {
     // Define all available permissions in the system
-    this.permissions.set('page:read', 'View wiki pages');
-    this.permissions.set('page:edit', 'Edit wiki pages');
-    this.permissions.set('page:create', 'Create new wiki pages');
-    this.permissions.set('page:delete', 'Delete wiki pages');
-    this.permissions.set('page:rename', 'Rename wiki pages');
-    this.permissions.set('attachment:read', 'View attachments');
-    this.permissions.set('attachment:upload', 'Upload attachments');
-    this.permissions.set('attachment:delete', 'Delete attachments');
-    this.permissions.set('search:all', 'Access search functionality');
-    this.permissions.set('export:pages', 'Export pages');
-    this.permissions.set('admin:system', 'System administration');
-    this.permissions.set('admin:users', 'User management');
-    this.permissions.set('admin:roles', 'Role management');
+    // Format: {target}-{action} — target-first, hyphen-separated (URL-safe)
+    this.permissions.set('page-read',    'View pages');
+    this.permissions.set('page-edit',    'Edit pages');
+    this.permissions.set('page-create',  'Create new pages');
+    this.permissions.set('page-delete',  'Delete pages');
+    this.permissions.set('page-rename',  'Rename pages');
+    this.permissions.set('page-export',  'Export pages');
+    this.permissions.set('asset-read',   'View assets (attachments)');
+    this.permissions.set('asset-upload', 'Upload assets');
+    this.permissions.set('asset-delete', 'Delete assets');
+    this.permissions.set('search-page',  'Search pages');
+    this.permissions.set('search-user',  'Search users');
+    this.permissions.set('user-read',    'View user list and profiles');
+    this.permissions.set('user-edit',    'Edit user accounts');
+    this.permissions.set('user-create',  'Create user accounts');
+    this.permissions.set('user-delete',  'Delete user accounts');
+    this.permissions.set('admin-system', 'System administration');
+    this.permissions.set('admin-roles',  'Role management');
 
     logger.info(`👤 Initialized ${this.permissions.size} permissions`);
   }
@@ -553,7 +558,7 @@ class UserManager extends BaseManager {
   /**
    * Check if user has permission using policy-based access control
    * @param {string} username - Username (null for anonymous)
-   * @param {string} action - Action/permission to check (e.g., 'page:create', 'admin:users')
+   * @param {string} action - Action/permission to check (e.g., 'page-create', 'user-read')
    * @returns {Promise<boolean>} True if user has permission via policies
    */
   async hasPermission(username: string, action: string): Promise<boolean> {

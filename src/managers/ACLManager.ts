@@ -301,12 +301,12 @@ class ACLManager extends BaseManager {
 
     // Map legacy action names to policy action names
     const actionMap: Record<string, string> = {
-      view: 'page:read',
-      edit: 'page:edit',
-      delete: 'page:delete',
-      create: 'page:create',
-      rename: 'page:rename',
-      upload: 'attachment:upload'
+      view: 'page-read',
+      edit: 'page-edit',
+      delete: 'page-delete',
+      create: 'page-create',
+      rename: 'page-rename',
+      upload: 'asset-upload'
     };
     const policyAction = actionMap[action.toLowerCase()] || action;
 
@@ -474,12 +474,12 @@ class ACLManager extends BaseManager {
 
     // Map legacy action names to policy action names
     const actionMap: Record<string, string> = {
-      view: 'page:read',
-      edit: 'page:edit',
-      delete: 'page:delete',
-      create: 'page:create',
-      rename: 'page:rename',
-      upload: 'attachment:upload'
+      view: 'page-read',
+      edit: 'page-edit',
+      delete: 'page-delete',
+      create: 'page-create',
+      rename: 'page-rename',
+      upload: 'asset-upload'
     };
     const policyAction = actionMap[action.toLowerCase()] || action;
 

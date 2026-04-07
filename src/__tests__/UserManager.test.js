@@ -214,7 +214,7 @@ describe('UserManager', () => {
     test('should check permissions include standard ones', () => {
       const permissions = userManager.getPermissions();
       // Standard permissions should be defined
-      expect(permissions.has('page:read') || permissions.has('admin:system')).toBe(true);
+      expect(permissions.has('page-read') || permissions.has('admin-system')).toBe(true);
     });
   });
 

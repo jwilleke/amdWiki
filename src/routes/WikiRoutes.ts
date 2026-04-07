@@ -1377,7 +1377,7 @@ class WikiRoutes {
 
       const hasPermission = await userManager.hasPermission(
         currentUser.username,
-        'page:create'
+        'page-create'
       );
       logger.debug('[CREATE-DEBUG] hasPermission result:', hasPermission);
 
@@ -1451,7 +1451,7 @@ class WikiRoutes {
 
       // Check if user has permission to edit pages
       if (
-        !(await userManager.hasPermission(currentUser.username, 'page:edit'))
+        !(await userManager.hasPermission(currentUser.username, 'page-edit'))
       ) {
         return await this.renderError(
           req,
@@ -1565,7 +1565,7 @@ class WikiRoutes {
 
       // Check if user has permission to create pages
       if (
-        !(await userManager.hasPermission(currentUser.username, 'page:create'))
+        !(await userManager.hasPermission(currentUser.username, 'page-create'))
       ) {
         return await this.renderError(
           req,
@@ -1711,7 +1711,7 @@ class WikiRoutes {
           !currentUser ||
           !(await userManager.hasPermission(
             currentUser.username,
-            'admin:system'
+            'admin-system'
           ))
         ) {
           return await this.renderError(
@@ -1765,7 +1765,7 @@ class WikiRoutes {
             !currentUser ||
             !(await userManager.hasPermission(
               currentUser.username,
-              'page:create'
+              'page-create'
             ))
           ) {
             return await this.renderError(
@@ -1944,7 +1944,7 @@ class WikiRoutes {
 
       // Check if user has permission to create pages
       if (
-        !(await userManager.hasPermission(currentUser.username, 'page:create'))
+        !(await userManager.hasPermission(currentUser.username, 'page-create'))
       ) {
         return await this.renderError(
           req,
@@ -2213,7 +2213,7 @@ class WikiRoutes {
           !currentUser ||
           !(await userManager.hasPermission(
             currentUser.username,
-            'admin:system'
+            'admin-system'
           ))
         ) {
           return await this.renderError(
@@ -2231,7 +2231,7 @@ class WikiRoutes {
             !currentUser ||
             !(await userManager.hasPermission(
               currentUser.username,
-              'page:create'
+              'page-create'
             ))
           ) {
             return await this.renderError(
@@ -2408,7 +2408,7 @@ class WikiRoutes {
           !currentUser ||
           !(await userManager.hasPermission(
             currentUser.username,
-            'admin:system'
+            'admin-system'
           ))
         ) {
           return await this.renderError(
@@ -3399,7 +3399,7 @@ class WikiRoutes {
         hasSessionCookie: !!sessionId,
         permissions: currentUser
           ? userManager.getUserPermissions(currentUser.username)
-          : (await userManager.hasPermission(null, 'page:read'))
+          : (await userManager.hasPermission(null, 'page-read'))
             ? ['anonymous permissions']
             : []
       };
@@ -3952,7 +3952,7 @@ class WikiRoutes {
 
       if (
         !currentUser ||
-        !(await userManager.hasPermission(currentUser.username, 'admin:system'))
+        !(await userManager.hasPermission(currentUser.username, 'admin-system'))
       ) {
         return res.status(403).send('Access denied');
       }
@@ -4044,7 +4044,7 @@ class WikiRoutes {
 
       if (
         !currentUser ||
-        !(await userManager.hasPermission(currentUser.username, 'admin:system'))
+        !(await userManager.hasPermission(currentUser.username, 'admin-system'))
       ) {
         return await this.renderError(
           req,
@@ -4095,7 +4095,7 @@ class WikiRoutes {
 
       if (
         !currentUser ||
-        !(await userManager.hasPermission(currentUser.username, 'admin:system'))
+        !(await userManager.hasPermission(currentUser.username, 'admin-system'))
       ) {
         return res.status(403).json({ error: 'Access denied' });
       }
@@ -4136,7 +4136,7 @@ class WikiRoutes {
 
       if (
         !currentUser ||
-        !(await userManager.hasPermission(currentUser.username, 'admin:system'))
+        !(await userManager.hasPermission(currentUser.username, 'admin-system'))
       ) {
         return res.status(403).json({ error: 'Access denied' });
       }
@@ -4174,7 +4174,7 @@ class WikiRoutes {
 
       if (
         !currentUser ||
-        !(await userManager.hasPermission(currentUser.username, 'admin:system'))
+        !(await userManager.hasPermission(currentUser.username, 'admin-system'))
       ) {
         return res.status(403).json({ error: 'Access denied' });
       }
@@ -4215,7 +4215,7 @@ class WikiRoutes {
 
       if (
         !currentUser ||
-        !(await userManager.hasPermission(currentUser.username, 'admin:system'))
+        !(await userManager.hasPermission(currentUser.username, 'admin-system'))
       ) {
         return res.status(403).json({ error: 'Access denied' });
       }
@@ -4256,7 +4256,7 @@ class WikiRoutes {
 
       if (
         !currentUser ||
-        !(await userManager.hasPermission(currentUser.username, 'admin:users'))
+        !(await userManager.hasPermission(currentUser.username, 'user-read'))
       ) {
         return await this.renderError(
           req,
@@ -4299,7 +4299,7 @@ class WikiRoutes {
 
       if (
         !currentUser ||
-        !(await userManager.hasPermission(currentUser.username, 'admin:users'))
+        !(await userManager.hasPermission(currentUser.username, 'user-read'))
       ) {
         return await this.renderError(
           req,
@@ -4359,7 +4359,7 @@ class WikiRoutes {
 
       if (
         !currentUser ||
-        !(await userManager.hasPermission(currentUser.username, 'admin:users'))
+        !(await userManager.hasPermission(currentUser.username, 'user-create'))
       ) {
         return res.status(403).send('Access denied');
       }
@@ -4399,7 +4399,7 @@ class WikiRoutes {
 
       if (
         !currentUser ||
-        !(await userManager.hasPermission(currentUser.username, 'admin:users'))
+        !(await userManager.hasPermission(currentUser.username, 'user-edit'))
       ) {
         return res
           .status(403)
@@ -4444,7 +4444,7 @@ class WikiRoutes {
 
       if (
         !currentUser ||
-        !(await userManager.hasPermission(currentUser.username, 'admin:users'))
+        !(await userManager.hasPermission(currentUser.username, 'user-delete'))
       ) {
         return res.status(403).send('Access denied');
       }
@@ -4475,7 +4475,7 @@ class WikiRoutes {
 
       if (
         !currentUser ||
-        !(await userManager.hasPermission(currentUser.username, 'admin:roles'))
+        !(await userManager.hasPermission(currentUser.username, 'admin-roles'))
       ) {
         return await this.renderError(
           req,
@@ -4515,7 +4515,7 @@ class WikiRoutes {
 
       if (
         !currentUser ||
-        !(await userManager.hasPermission(currentUser.username, 'admin:roles'))
+        !(await userManager.hasPermission(currentUser.username, 'admin-roles'))
       ) {
         return res
           .status(403)
@@ -4559,7 +4559,7 @@ class WikiRoutes {
 
       if (
         !currentUser ||
-        !(await userManager.hasPermission(currentUser.username, 'admin:roles'))
+        !(await userManager.hasPermission(currentUser.username, 'admin-roles'))
       ) {
         return res
           .status(403)
@@ -4614,7 +4614,7 @@ class WikiRoutes {
 
       if (
         !currentUser ||
-        !(await userManager.hasPermission(currentUser.username, 'admin:roles'))
+        !(await userManager.hasPermission(currentUser.username, 'admin-roles'))
       ) {
         return res
           .status(403)
@@ -4658,7 +4658,7 @@ class WikiRoutes {
     try {
       const userManager = this.engine.getManager('UserManager');
       const currentUser = req.userContext;
-      if (!currentUser || !(await userManager.hasPermission(currentUser.username, 'admin:system'))) {
+      if (!currentUser || !(await userManager.hasPermission(currentUser.username, 'admin-system'))) {
         return await this.renderError(req, res, 403, 'Access Denied', 'You do not have permission to manage backups');
       }
       const backupManager = this.engine.getManager('BackupManager');
@@ -4689,7 +4689,7 @@ class WikiRoutes {
     try {
       const userManager = this.engine.getManager('UserManager');
       const currentUser = req.userContext;
-      if (!currentUser || !(await userManager.hasPermission(currentUser.username, 'admin:system'))) {
+      if (!currentUser || !(await userManager.hasPermission(currentUser.username, 'admin-system'))) {
         return await this.renderError(req, res, 403, 'Access Denied', 'You do not have permission to manage backups');
       }
       const backupManager = this.engine.getManager('BackupManager');
@@ -4730,7 +4730,7 @@ class WikiRoutes {
       // Check admin permission for system operations
       if (
         !currentUser ||
-        !(await userManager.hasPermission(currentUser.username, 'admin:system'))
+        !(await userManager.hasPermission(currentUser.username, 'admin-system'))
       ) {
         return await this.renderError(
           req,
@@ -4787,7 +4787,7 @@ class WikiRoutes {
 
       if (
         !currentUser ||
-        !(await userManager.hasPermission(currentUser.username, 'admin:system'))
+        !(await userManager.hasPermission(currentUser.username, 'admin-system'))
       ) {
         return await this.renderError(
           req,
@@ -4833,7 +4833,7 @@ class WikiRoutes {
 
       if (
         !currentUser ||
-        !(await userManager.hasPermission(currentUser.username, 'admin:system'))
+        !(await userManager.hasPermission(currentUser.username, 'admin-system'))
       ) {
         return res.status(403).json({ error: 'Admin access required' });
       }
@@ -4888,7 +4888,7 @@ class WikiRoutes {
 
       if (
         !currentUser ||
-        !(await userManager.hasPermission(currentUser.username, 'admin:system'))
+        !(await userManager.hasPermission(currentUser.username, 'admin-system'))
       ) {
         return res.status(403).json({ error: 'Admin access required' });
       }
@@ -4914,7 +4914,7 @@ class WikiRoutes {
 
       if (
         !currentUser ||
-        !(await userManager.hasPermission(currentUser.username, 'admin:system'))
+        !(await userManager.hasPermission(currentUser.username, 'admin-system'))
       ) {
         return await this.renderError(
           req,
@@ -4960,7 +4960,7 @@ class WikiRoutes {
 
       if (
         !currentUser ||
-        !(await userManager.hasPermission(currentUser.username, 'admin:system'))
+        !(await userManager.hasPermission(currentUser.username, 'admin-system'))
       ) {
         return res.redirect('/admin/interwiki?error=Access denied');
       }
@@ -5012,7 +5012,7 @@ class WikiRoutes {
 
       if (
         !currentUser ||
-        !(await userManager.hasPermission(currentUser.username, 'admin:system'))
+        !(await userManager.hasPermission(currentUser.username, 'admin-system'))
       ) {
         return res.redirect('/admin/interwiki?error=Access denied');
       }
@@ -5044,7 +5044,7 @@ class WikiRoutes {
 
       if (
         !currentUser ||
-        !(await userManager.hasPermission(currentUser.username, 'admin:system'))
+        !(await userManager.hasPermission(currentUser.username, 'admin-system'))
       ) {
         return res.redirect('/admin/interwiki?error=Access denied');
       }
@@ -5083,7 +5083,7 @@ class WikiRoutes {
 
       if (
         !currentUser ||
-        !(await userManager.hasPermission(currentUser.username, 'admin:system'))
+        !(await userManager.hasPermission(currentUser.username, 'admin-system'))
       ) {
         return await this.renderError(
           req,
@@ -5143,7 +5143,7 @@ class WikiRoutes {
 
       if (
         !currentUser ||
-        !(await userManager.hasPermission(currentUser.username, 'admin:system'))
+        !(await userManager.hasPermission(currentUser.username, 'admin-system'))
       ) {
         return res.status(403).json({ error: 'Admin access required' });
       }
@@ -5197,7 +5197,7 @@ class WikiRoutes {
 
       if (
         !currentUser ||
-        !(await userManager.hasPermission(currentUser.username, 'admin:system'))
+        !(await userManager.hasPermission(currentUser.username, 'admin-system'))
       ) {
         return await this.renderError(
           req,
@@ -5249,7 +5249,7 @@ class WikiRoutes {
       const userManager = this.engine.getManager('UserManager');
       const currentUser = req.userContext;
 
-      if (!currentUser || !(await userManager.hasPermission(currentUser.username, 'admin:system'))) {
+      if (!currentUser || !(await userManager.hasPermission(currentUser.username, 'admin-system'))) {
         return res.status(403).redirect('/admin/settings?error=Access+denied');
       }
 
@@ -5280,7 +5280,7 @@ class WikiRoutes {
       const userManager = this.engine.getManager('UserManager');
       const currentUser = req.userContext;
 
-      if (!currentUser || !(await userManager.hasPermission(currentUser.username, 'admin:system'))) {
+      if (!currentUser || !(await userManager.hasPermission(currentUser.username, 'admin-system'))) {
         return res.redirect('/admin/settings?error=Access+denied');
       }
 
@@ -5318,7 +5318,7 @@ class WikiRoutes {
 
       if (
         !currentUser ||
-        !(await userManager.hasPermission(currentUser.username, 'admin:system'))
+        !(await userManager.hasPermission(currentUser.username, 'admin-system'))
       ) {
         return res.status(403).json({
           success: false,
@@ -5396,7 +5396,7 @@ class WikiRoutes {
 
       if (
         !currentUser ||
-        !(await userManager.hasPermission(currentUser.username, 'admin:system'))
+        !(await userManager.hasPermission(currentUser.username, 'admin-system'))
       ) {
         return res.status(403).json({
           success: false,
@@ -5429,7 +5429,7 @@ class WikiRoutes {
 
     // Auth check — must be a logged-in admin. Fire-and-forget async check then stream.
     void (async () => {
-      if (!currentUser || !(await userManager.hasPermission(currentUser.username, 'admin:system'))) {
+      if (!currentUser || !(await userManager.hasPermission(currentUser.username, 'admin-system'))) {
         res.status(403).end();
         return;
       }
@@ -5466,7 +5466,7 @@ class WikiRoutes {
 
       if (
         !currentUser ||
-        !(await userManager.hasPermission(currentUser.username, 'admin:system'))
+        !(await userManager.hasPermission(currentUser.username, 'admin-system'))
       ) {
         return res.status(403).send('Access denied');
       }
@@ -5636,7 +5636,7 @@ class WikiRoutes {
 
       if (
         !currentUser ||
-        !(await userManager.hasPermission(currentUser.username, 'admin:system'))
+        !(await userManager.hasPermission(currentUser.username, 'admin-system'))
       ) {
         return res.status(403).json({ success: false, error: 'Access denied' });
       }
@@ -5943,7 +5943,7 @@ class WikiRoutes {
 
       if (
         !currentUser ||
-        !(await userManager.hasPermission(currentUser.username, 'admin:system'))
+        !(await userManager.hasPermission(currentUser.username, 'admin-system'))
       ) {
         return res.status(403).send('Access denied');
       }
@@ -5992,7 +5992,7 @@ class WikiRoutes {
 
       if (
         !currentUser ||
-        !(await userManager.hasPermission(currentUser.username, 'admin:system'))
+        !(await userManager.hasPermission(currentUser.username, 'admin-system'))
       ) {
         return res.status(403).json({ error: 'Access denied' });
       }
@@ -6036,7 +6036,7 @@ class WikiRoutes {
 
       if (
         !currentUser ||
-        !(await userManager.hasPermission(currentUser.username, 'admin:system'))
+        !(await userManager.hasPermission(currentUser.username, 'admin-system'))
       ) {
         return await this.renderError(
           req,
@@ -6286,7 +6286,7 @@ class WikiRoutes {
 
       if (
         !currentUser ||
-        !(await userManager.hasPermission(currentUser.username, 'admin:system'))
+        !(await userManager.hasPermission(currentUser.username, 'admin-system'))
       ) {
         return res.status(403).json({
           success: false,
@@ -6338,7 +6338,7 @@ class WikiRoutes {
 
       if (
         !currentUser ||
-        !(await userManager.hasPermission(currentUser.username, 'admin:system'))
+        !(await userManager.hasPermission(currentUser.username, 'admin-system'))
       ) {
         return res.status(403).json({
           success: false,
@@ -6392,7 +6392,7 @@ class WikiRoutes {
 
       if (
         !currentUser ||
-        !(await userManager.hasPermission(currentUser.username, 'admin:system'))
+        !(await userManager.hasPermission(currentUser.username, 'admin-system'))
       ) {
         res.status(403).json({
           success: false,
@@ -6478,7 +6478,7 @@ class WikiRoutes {
 
       if (
         !currentUser ||
-        !(await userManager.hasPermission(currentUser.username, 'admin:system'))
+        !(await userManager.hasPermission(currentUser.username, 'admin-system'))
       ) {
         return res.status(403).json({
           success: false,
@@ -6525,7 +6525,7 @@ class WikiRoutes {
 
       if (
         !currentUser ||
-        !(await userManager.hasPermission(currentUser.username, 'admin:system'))
+        !(await userManager.hasPermission(currentUser.username, 'admin-system'))
       ) {
         return res.status(403).json({
           success: false,
@@ -6572,7 +6572,7 @@ class WikiRoutes {
 
       if (
         !currentUser ||
-        !(await userManager.hasPermission(currentUser.username, 'admin:system'))
+        !(await userManager.hasPermission(currentUser.username, 'admin-system'))
       ) {
         return await this.renderError(
           req,
@@ -6654,7 +6654,7 @@ class WikiRoutes {
       const currentUser = req.userContext;
       if (
         !currentUser ||
-        !(await userManager.hasPermission(currentUser.username, 'admin:system'))
+        !(await userManager.hasPermission(currentUser.username, 'admin-system'))
       ) {
         return await this.renderError(req, res, 403, 'Access Denied', 'You do not have permission to manage add-ons');
       }
@@ -6684,7 +6684,7 @@ class WikiRoutes {
       const currentUser = req.userContext;
       if (
         !currentUser ||
-        !(await userManager.hasPermission(currentUser.username, 'admin:system'))
+        !(await userManager.hasPermission(currentUser.username, 'admin-system'))
       ) {
         return res.status(403).json({ error: 'Access denied' });
       }
@@ -6736,7 +6736,7 @@ class WikiRoutes {
 
       if (
         !currentUser ||
-        !(await userManager.hasPermission(currentUser.username, 'admin:system'))
+        !(await userManager.hasPermission(currentUser.username, 'admin-system'))
       ) {
         return await this.renderError(
           req,
@@ -7003,7 +7003,7 @@ class WikiRoutes {
       const currentUser = req.userContext;
       if (
         !currentUser ||
-        !(await userManager.hasPermission(currentUser.username, 'admin:system'))
+        !(await userManager.hasPermission(currentUser.username, 'admin-system'))
       ) {
         return res.status(403).json({ error: 'Admin access required' });
       }
@@ -7037,7 +7037,7 @@ class WikiRoutes {
       const currentUser = req.userContext;
       if (
         !currentUser ||
-        !(await userManager.hasPermission(currentUser.username, 'admin:system'))
+        !(await userManager.hasPermission(currentUser.username, 'admin-system'))
       ) {
         return res.status(403).json({ error: 'Admin access required' });
       }
@@ -7418,7 +7418,7 @@ class WikiRoutes {
 
       if (
         !currentUser ||
-        !(await userManager.hasPermission(currentUser.username, 'admin:system'))
+        !(await userManager.hasPermission(currentUser.username, 'admin-system'))
       ) {
         return res.status(403).send('Access denied');
       }
@@ -7454,7 +7454,7 @@ class WikiRoutes {
 
       if (
         !currentUser ||
-        !(await userManager.hasPermission(currentUser.username, 'admin:system'))
+        !(await userManager.hasPermission(currentUser.username, 'admin-system'))
       ) {
         return res.status(403).send('Access denied');
       }
@@ -7483,7 +7483,7 @@ class WikiRoutes {
 
       if (
         !currentUser ||
-        !(await userManager.hasPermission(currentUser.username, 'admin:system'))
+        !(await userManager.hasPermission(currentUser.username, 'admin-system'))
       ) {
         return await this.renderError(
           req,
@@ -7539,7 +7539,7 @@ class WikiRoutes {
 
       if (
         !currentUser ||
-        !(await userManager.hasPermission(currentUser.username, 'admin:system'))
+        !(await userManager.hasPermission(currentUser.username, 'admin-system'))
       ) {
         return res.status(403).json({ error: 'Access denied' });
       }
@@ -7567,7 +7567,7 @@ class WikiRoutes {
 
       if (
         !currentUser ||
-        !(await userManager.hasPermission(currentUser.username, 'admin:system'))
+        !(await userManager.hasPermission(currentUser.username, 'admin-system'))
       ) {
         return res.status(403).json({ error: 'Access denied' });
       }
@@ -7602,7 +7602,7 @@ class WikiRoutes {
 
       if (
         !currentUser ||
-        !(await userManager.hasPermission(currentUser.username, 'admin:system'))
+        !(await userManager.hasPermission(currentUser.username, 'admin-system'))
       ) {
         return res.status(403).json({ error: 'Access denied' });
       }
@@ -7649,7 +7649,7 @@ class WikiRoutes {
 
       if (
         !currentUser ||
-        !(await userManager.hasPermission(currentUser.username, 'admin:system'))
+        !(await userManager.hasPermission(currentUser.username, 'admin-system'))
       ) {
         return await this.renderError(
           req,
@@ -7686,7 +7686,7 @@ class WikiRoutes {
 
       if (
         !currentUser ||
-        !(await userManager.hasPermission(currentUser.username, 'admin:system'))
+        !(await userManager.hasPermission(currentUser.username, 'admin-system'))
       ) {
         return res.status(403).json({ error: 'Access denied' });
       }
@@ -7734,7 +7734,7 @@ class WikiRoutes {
 
       if (
         !currentUser ||
-        !(await userManager.hasPermission(currentUser.username, 'admin:system'))
+        !(await userManager.hasPermission(currentUser.username, 'admin-system'))
       ) {
         return res.status(403).json({ error: 'Access denied' });
       }
@@ -7767,7 +7767,7 @@ class WikiRoutes {
 
       if (
         !currentUser ||
-        !(await userManager.hasPermission(currentUser.username, 'admin:system'))
+        !(await userManager.hasPermission(currentUser.username, 'admin-system'))
       ) {
         return res.status(403).send('Access denied');
       }
@@ -8547,7 +8547,7 @@ class WikiRoutes {
       const currentUser = req.userContext;
 
       // Check if user can edit (editor role or above)
-      if (!currentUser || !(await userManager.hasPermission(currentUser.username, 'page:edit'))) {
+      if (!currentUser || !(await userManager.hasPermission(currentUser.username, 'page-edit'))) {
         return await this.renderError(
           req,
           res,
@@ -8582,7 +8582,7 @@ class WikiRoutes {
       const currentUser = req.userContext;
 
       // Check if user can edit
-      if (!currentUser || !(await userManager.hasPermission(currentUser.username, 'page:edit'))) {
+      if (!currentUser || !(await userManager.hasPermission(currentUser.username, 'page-edit'))) {
         return res.status(403).json({ success: false, error: 'Access denied' });
       }
 
@@ -8705,7 +8705,7 @@ ${trimmedDescription}
       const currentUser = req.userContext;
 
       // Check if user can edit
-      if (!currentUser || !(await userManager.hasPermission(currentUser.username, 'page:edit'))) {
+      if (!currentUser || !(await userManager.hasPermission(currentUser.username, 'page-edit'))) {
         return res.status(403).json({ success: false, error: 'Access denied' });
       }
 
@@ -8823,7 +8823,7 @@ ${description}
 
       if (
         !currentUser ||
-        !(await userManager.hasPermission(currentUser.username, 'admin:system'))
+        !(await userManager.hasPermission(currentUser.username, 'admin-system'))
       ) {
         res.status(403).send('Access denied');
         return;
@@ -8909,7 +8909,7 @@ ${description}
 
       if (
         !currentUser ||
-        !(await userManager.hasPermission(currentUser.username, 'admin:system'))
+        !(await userManager.hasPermission(currentUser.username, 'admin-system'))
       ) {
         res.status(403).json({ error: 'Access denied' });
         return;
@@ -8972,7 +8972,7 @@ ${description}
 
       if (
         !currentUser ||
-        !(await userManager.hasPermission(currentUser.username, 'admin:system'))
+        !(await userManager.hasPermission(currentUser.username, 'admin-system'))
       ) {
         res.status(403).json({ error: 'Access denied' });
         return;
@@ -9014,7 +9014,7 @@ ${description}
 
       if (
         !currentUser ||
-        !(await userManager.hasPermission(currentUser.username, 'admin:system'))
+        !(await userManager.hasPermission(currentUser.username, 'admin-system'))
       ) {
         res.status(403).json({ error: 'Access denied' });
         return;
@@ -9067,7 +9067,7 @@ ${description}
 
       if (
         !currentUser ||
-        !(await userManager.hasPermission(currentUser.username, 'admin:system'))
+        !(await userManager.hasPermission(currentUser.username, 'admin-system'))
       ) {
         res.status(403).json({ error: 'Access denied' });
         return;
@@ -9145,7 +9145,7 @@ ${description}
 
       if (
         !currentUser ||
-        !(await userManager.hasPermission(currentUser.username, 'admin:system'))
+        !(await userManager.hasPermission(currentUser.username, 'admin-system'))
       ) {
         res.status(403).json({ error: 'Access denied' });
         return;
@@ -9602,7 +9602,7 @@ ${description}
     try {
       const userManager = this.engine.getManager('UserManager');
       const currentUser = req.userContext;
-      if (!currentUser || !(await userManager.hasPermission(currentUser.username, 'admin:system'))) {
+      if (!currentUser || !(await userManager.hasPermission(currentUser.username, 'admin-system'))) {
         return res.status(403).send('Access denied');
       }
       const mediaManager = this.engine.getManager('MediaManager');
@@ -9628,7 +9628,7 @@ ${description}
     try {
       const userManager = this.engine.getManager('UserManager');
       const currentUser = req.userContext;
-      if (!currentUser || !(await userManager.hasPermission(currentUser.username, 'admin:system'))) {
+      if (!currentUser || !(await userManager.hasPermission(currentUser.username, 'admin-system'))) {
         return res.status(403).json({ error: 'Access denied' });
       }
       const mediaManager = this.engine.getManager('MediaManager');
@@ -9652,7 +9652,7 @@ ${description}
     try {
       const userManager = this.engine.getManager('UserManager');
       const currentUser = req.userContext;
-      if (!currentUser || !(await userManager.hasPermission(currentUser.username, 'admin:system'))) {
+      if (!currentUser || !(await userManager.hasPermission(currentUser.username, 'admin-system'))) {
         return res.status(403).json({ error: 'Access denied' });
       }
       const mediaManager = this.engine.getManager('MediaManager');
@@ -9676,7 +9676,7 @@ ${description}
     try {
       const userManager = this.engine.getManager('UserManager');
       const currentUser = req.userContext;
-      if (!currentUser || !(await userManager.hasPermission(currentUser.username, 'admin:system'))) {
+      if (!currentUser || !(await userManager.hasPermission(currentUser.username, 'admin-system'))) {
         return res.status(403).json({ error: 'Access denied' });
       }
       const { jobId } = req.params;
@@ -9699,7 +9699,7 @@ ${description}
     try {
       const userManager = this.engine.getManager('UserManager');
       const currentUser = req.userContext;
-      if (!currentUser || !(await userManager.hasPermission(currentUser.username, 'admin:system'))) {
+      if (!currentUser || !(await userManager.hasPermission(currentUser.username, 'admin-system'))) {
         return res.status(403).json({ error: 'Access denied' });
       }
       const { runId } = req.params;
@@ -9721,7 +9721,7 @@ ${description}
     try {
       const userManager = this.engine.getManager('UserManager');
       const currentUser = req.userContext;
-      if (!currentUser || !(await userManager.hasPermission(currentUser.username, 'admin:system'))) {
+      if (!currentUser || !(await userManager.hasPermission(currentUser.username, 'admin-system'))) {
         return res.status(403).json({ error: 'Access denied' });
       }
       const jobManager = this.engine.getManager('BackgroundJobManager');

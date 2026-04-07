@@ -738,9 +738,9 @@ describe('WikiRoutes - Comprehensive Route Testing', () => {
           content: '# Test Page\nThis is a test page.',
           metadata: { title: 'TestPage', 'system-category': 'system' }
         });
-        // User does NOT have admin:system permission - hasPermission(username, permission)
+        // User does NOT have admin-system permission - hasPermission(username, permission)
         mockUserManager.hasPermission.mockImplementation((username, perm) => {
-          if (perm === 'admin:system') return false;
+          if (perm === 'admin-system') return false;
           return true;
         });
 
