@@ -63,11 +63,11 @@
         }
 
         .ss-excerpt {
-            font-size: clamp(1rem, 2vw, 1.5rem);
+            font-size: clamp(1.05rem, 2vw, 1.4rem);
             font-weight: 400;
-            line-height: 1.7;
+            line-height: 1.75;
             color: rgba(255,255,255,0.72);
-            max-width: 72ch;
+            max-width: 90ch;
             text-shadow: 0 1px 8px rgba(0,0,0,0.5);
         }
 
@@ -170,7 +170,7 @@
         <% if (slide.excerpt) { %>
         <div class="ss-excerpt"><%= slide.excerpt %></div>
         <% } %>
-        <div class="ss-readmore"><i class="fas fa-external-link-alt" style="font-size:0.75em;margin-right:0.4em;"></i>Open page</div>
+        <div class="ss-readmore"><i class="fas fa-external-link-alt" style="font-size:0.75em;margin-right:0.4em;"></i>Open page &nbsp;·&nbsp; <kbd style="font-size:0.8em;opacity:0.55;">Space</kbd></div>
     </a>
 <% }); %>
 </div>
@@ -303,7 +303,8 @@
         if (panel.classList.contains('open')) return;
         if (e.key === 'ArrowLeft')       { document.getElementById('ss-prev').click(); }
         else if (e.key === 'ArrowRight') { document.getElementById('ss-next').click(); }
-        else if (e.key === ' ')          { document.getElementById('ss-pp').click(); e.preventDefault(); }
+        else if (e.key === ' ')          { e.preventDefault(); slides[idx].click(); }
+        else if (e.key === 'p' || e.key === 'P') { document.getElementById('ss-pp').click(); }
         else if (e.key === 'f' || e.key === 'F') { document.getElementById('ss-fs').click(); }
     });
 
