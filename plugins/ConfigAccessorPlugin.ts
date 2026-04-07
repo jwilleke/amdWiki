@@ -20,6 +20,10 @@
  *   [{ConfigAccessor type='userKeywords' enabled='true'}]                       - Display enabled keywords
  *   [{ConfigAccessor type='userKeywords' category='access'}]                    - Display keywords by category
  *   [{ConfigAccessor type='userKeywords' enabled='true' valueonly='true'}]      - Return enabled keyword labels only
+ *   [{ConfigAccessor type='policies'}]                                         - Display ACL policies table (sorted by priority)
+ *   [{ConfigAccessor type='authMethods'}]                                      - Auth providers; sensitive fields masked for non-admins
+ *   [{ConfigAccessor type='features'}]                                         - Feature flags grouped by feature name
+ *   [{ConfigAccessor type='permissionsList'}]                                  - All permissions grouped by target with name/icon/description
  *
  * Note: Plugin names are case-insensitive. [{configaccessor}], [{ConfigAccessor}], and [{CONFIGACCESSOR}] all work the same.
  * Default 'after' value: '' (empty) for single values, '\n' (newline) for multiple values (wildcards)
@@ -63,10 +67,6 @@ interface UserManager {
   getPermissions(): Map<string, string>;
 }
 
-interface AccessPolicy {
-  actions?: string[];
-}
-
 interface UserKeyword {
   label: string;
   description?: string;
@@ -91,6 +91,24 @@ interface SystemCategory {
   enabled?: boolean;
   default?: boolean;
   storageLocation?: string;
+}
+
+interface PermissionDefinition {
+  name?: string;
+  description?: string;
+  icon?: string;
+  color?: string;
+}
+
+interface AccessPolicy {
+  id?: string;
+  name?: string;
+  description?: string;
+  priority?: number;
+  effect?: string;
+  subjects?: Array<{ type?: string; value?: string }>;
+  resources?: Array<{ type?: string; pattern?: string }>;
+  actions?: string[];
 }
 
 interface ConfigAccessorParams extends PluginParams {
@@ -1032,6 +1050,246 @@ function displaySystemCategories(
   }
 }
 
+// ─── Sensitivity masking ───────────────────────────────────────────────────
+
+const SENSITIVE_KEY_PATTERNS = /secret|password|token|credential/i;
+
+function safeStr(value: unknown): string {
+  if (value === undefined || value === null) return '';
+  if (typeof value === 'object') return JSON.stringify(value);
+  return String(value as string | number | boolean);
+}
+
+function maskIfSensitive(key: string, value: unknown, isAdmin: boolean): string {
+  if (isAdmin) {
+    return value !== undefined && value !== null && value !== '' ? safeStr(value) : '';
+  }
+  if (SENSITIVE_KEY_PATTERNS.test(key)) {
+    const v = value !== undefined && value !== null && value !== '';
+    return v ? '<em class="text-muted">[set]</em>' : '<em class="text-muted">[not set]</em>';
+  }
+  return safeStr(value);
+}
+
+// ─── displayPolicies ───────────────────────────────────────────────────────
+
+function displayPolicies(configManager: ConfigurationManager): string {
+  const policies = configManager.getProperty('ngdpbase.access.policies', []) as AccessPolicy[];
+
+  if (!Array.isArray(policies) || policies.length === 0) {
+    return '<p class="text-muted">No access policies configured.</p>';
+  }
+
+  const sorted = [...policies].sort((a, b) => (b.priority ?? 0) - (a.priority ?? 0));
+
+  let html = '<div class="config-accessor-plugin">\n';
+  html += '  <div class="card">\n';
+  html += '    <div class="card-header"><h6 class="mb-0"><i class="fas fa-shield-alt me-1"></i>Access Policies</h6>\n';
+  html += '      <small class="text-muted">Sorted by priority (highest first)</small></div>\n';
+  html += '    <div class="table-responsive"><table class="table table-sm table-hover mb-0">\n';
+  html += '      <thead class="table-light"><tr>\n';
+  html += '        <th>Name</th><th>Priority</th><th>Effect</th><th>Subjects</th><th>Resources</th><th>Actions</th>\n';
+  html += '      </tr></thead><tbody>\n';
+
+  for (const p of sorted) {
+    const effectBadge = p.effect === 'allow'
+      ? '<span class="badge bg-success">allow</span>'
+      : '<span class="badge bg-danger">deny</span>';
+    const priorityBadge = `<span class="badge bg-secondary">${escapeHtml(String(p.priority ?? 0))}</span>`;
+    const subjects = (p.subjects ?? []).map(s => escapeHtml(s.value ?? s.type ?? '')).join(', ') || '—';
+    const resources = (p.resources ?? []).map(r => `<code>${escapeHtml(r.pattern ?? r.type ?? '*')}</code>`).join(' ') || '—';
+    const actions = p.actions ?? [];
+    const actionsHtml = actions.length > 0
+      ? actions.map(a => `<code class="me-1">${escapeHtml(a)}</code>`).join('')
+      : '—';
+
+    html += '        <tr>\n';
+    html += `          <td><strong>${escapeHtml(p.name ?? p.id ?? '')}</strong>`;
+    if (p.description) html += `<br><small class="text-muted">${escapeHtml(p.description)}</small>`;
+    html += '</td>\n';
+    html += `          <td>${priorityBadge}</td>\n`;
+    html += `          <td>${effectBadge}</td>\n`;
+    html += `          <td><small>${subjects}</small></td>\n`;
+    html += `          <td><small>${resources}</small></td>\n`;
+    html += `          <td><small>${actionsHtml}</small></td>\n`;
+    html += '        </tr>\n';
+  }
+
+  html += '      </tbody></table></div>\n';
+  html += `    <div class="card-footer text-muted"><small>Total Policies: ${policies.length}</small></div>\n`;
+  html += '  </div>\n</div>\n';
+  return html;
+}
+
+// ─── displayAuthMethods ────────────────────────────────────────────────────
+
+function displayAuthMethods(configManager: ConfigurationManager, isAdmin: boolean): string {
+  const all = configManager.getAllProperties();
+
+  // Group keys by method name (first segment after ngdpbase.auth.)
+  const methods: Record<string, Record<string, unknown>> = {};
+  for (const [k, v] of Object.entries(all)) {
+    if (!k.startsWith('ngdpbase.auth.')) continue;
+    const rest = k.slice('ngdpbase.auth.'.length);
+    const dot = rest.indexOf('.');
+    if (dot === -1) continue; // e.g. ngdpbase.auth.required-factors — include under a special group
+    const method = rest.slice(0, dot);
+    const subkey = rest.slice(dot + 1);
+    if (!methods[method]) methods[method] = {};
+    methods[method][subkey] = v;
+  }
+
+  // Also capture top-level auth keys (no sub-key)
+  const topLevel: Record<string, unknown> = {};
+  for (const [k, v] of Object.entries(all)) {
+    if (!k.startsWith('ngdpbase.auth.')) continue;
+    const rest = k.slice('ngdpbase.auth.'.length);
+    if (!rest.includes('.')) topLevel[rest] = v;
+  }
+
+  if (Object.keys(methods).length === 0 && Object.keys(topLevel).length === 0) {
+    return '<p class="text-muted">No authentication methods configured.</p>';
+  }
+
+  let html = '<div class="config-accessor-plugin">\n';
+
+  for (const [method, props] of Object.entries(methods).sort()) {
+    const isEnabled = props['enabled'];
+    const enabledBadge = isEnabled === true || isEnabled === 'true'
+      ? '<span class="badge bg-success ms-2">Enabled</span>'
+      : '<span class="badge bg-secondary ms-2">Disabled</span>';
+
+    html += '  <div class="card mb-3">\n';
+    html += `    <div class="card-header"><strong><i class="fas fa-key me-1"></i>${escapeHtml(method)}</strong>${enabledBadge}</div>\n`;
+    html += '    <div class="table-responsive"><table class="table table-sm mb-0">\n';
+    html += '      <tbody>\n';
+
+    for (const [subkey, value] of Object.entries(props).sort()) {
+      if (subkey === 'enabled') continue; // shown in header
+      const displayVal = maskIfSensitive(subkey, value, isAdmin);
+      html += `        <tr><td style="width:40%"><code>${escapeHtml(subkey)}</code></td>`;
+      html += `<td>${displayVal !== '' ? displayVal : '<em class="text-muted">—</em>'}</td></tr>\n`;
+    }
+
+    html += '      </tbody></table></div>\n';
+    html += '  </div>\n';
+  }
+
+  if (Object.keys(topLevel).length > 0) {
+    html += '  <div class="card mb-3">\n';
+    html += '    <div class="card-header"><strong><i class="fas fa-cog me-1"></i>General</strong></div>\n';
+    html += '    <div class="table-responsive"><table class="table table-sm mb-0"><tbody>\n';
+    for (const [k, v] of Object.entries(topLevel).sort()) {
+      const displayVal = maskIfSensitive(k, v, isAdmin);
+      html += `      <tr><td style="width:40%"><code>${escapeHtml(k)}</code></td>`;
+      html += `<td>${displayVal !== '' ? displayVal : '<em class="text-muted">—</em>'}</td></tr>\n`;
+    }
+    html += '    </tbody></table></div>\n  </div>\n';
+  }
+
+  html += '</div>\n';
+  return html;
+}
+
+// ─── displayFeatures ───────────────────────────────────────────────────────
+
+function displayFeatures(configManager: ConfigurationManager): string {
+  const all = configManager.getAllProperties();
+
+  const groups: Record<string, Record<string, unknown>> = {};
+  for (const [k, v] of Object.entries(all)) {
+    if (!k.startsWith('ngdpbase.features.')) continue;
+    const rest = k.slice('ngdpbase.features.'.length);
+    const dot = rest.indexOf('.');
+    const group = dot === -1 ? rest : rest.slice(0, dot);
+    const subkey = dot === -1 ? '' : rest.slice(dot + 1);
+    if (!groups[group]) groups[group] = {};
+    if (subkey) groups[group][subkey] = v;
+  }
+
+  if (Object.keys(groups).length === 0) {
+    return '<p class="text-muted">No features configured.</p>';
+  }
+
+  let html = '<div class="config-accessor-plugin">\n';
+  html += '  <div class="card">\n';
+  html += '    <div class="card-header"><h6 class="mb-0"><i class="fas fa-puzzle-piece me-1"></i>Features</h6></div>\n';
+
+  for (const [group, props] of Object.entries(groups).sort()) {
+    const isEnabled = props['enabled'];
+    const enabledBadge = isEnabled === true || isEnabled === 'true'
+      ? '<span class="badge bg-success ms-2">Enabled</span>'
+      : isEnabled === false || isEnabled === 'false'
+        ? '<span class="badge bg-secondary ms-2">Disabled</span>'
+        : '';
+
+    html += '    <div class="card-body border-top py-2">\n';
+    html += `      <strong>${escapeHtml(group)}</strong>${enabledBadge}\n`;
+
+    const otherProps = Object.entries(props).filter(([k]) => k !== 'enabled');
+    if (otherProps.length > 0) {
+      html += '      <table class="table table-sm mb-0 mt-1"><tbody>\n';
+      for (const [subkey, value] of otherProps.sort()) {
+        const valStr = typeof value === 'object' ? JSON.stringify(value) : String(value as string | number | boolean);
+        html += `        <tr><td style="width:40%"><code class="text-muted">${escapeHtml(subkey)}</code></td>`;
+        html += `<td><small>${escapeHtml(valStr)}</small></td></tr>\n`;
+      }
+      html += '      </tbody></table>\n';
+    }
+    html += '    </div>\n';
+  }
+
+  html += '  </div>\n</div>\n';
+  return html;
+}
+
+// ─── displayPermissionsList ────────────────────────────────────────────────
+
+function displayPermissionsList(configManager: ConfigurationManager): string {
+  const defs = configManager.getProperty('ngdpbase.permissions.definitions', {}) as Record<string, PermissionDefinition>;
+
+  if (!defs || Object.keys(defs).length === 0) {
+    return '<p class="text-muted">No permission definitions found.</p>';
+  }
+
+  // Group by target (prefix before first hyphen)
+  const groups: Record<string, Array<{ key: string } & PermissionDefinition>> = {};
+  for (const [key, def] of Object.entries(defs)) {
+    const target = key.split('-')[0] ?? key;
+    if (!groups[target]) groups[target] = [];
+    groups[target].push({ key, ...def });
+  }
+
+  let html = '<div class="config-accessor-plugin">\n';
+
+  for (const [target, perms] of Object.entries(groups).sort()) {
+    html += '  <div class="card mb-3">\n';
+    html += `    <div class="card-header"><h6 class="mb-0"><i class="fas fa-tag me-1"></i>${escapeHtml(target.charAt(0).toUpperCase() + target.slice(1))} Permissions</h6></div>\n`;
+    html += '    <div class="table-responsive"><table class="table table-sm table-hover mb-0">\n';
+    html += '      <thead class="table-light"><tr><th>Permission</th><th>Name</th><th>Icon</th><th>Description</th></tr></thead>\n';
+    html += '      <tbody>\n';
+
+    for (const p of perms) {
+      const color = escapeHtml(p.color ?? '#6c757d');
+      const iconHtml = p.icon
+        ? `<i class="fas fa-${escapeHtml(p.icon)}" style="color:${color};"></i>`
+        : '—';
+      html += '        <tr>\n';
+      html += `          <td><code>${escapeHtml(p.key)}</code></td>\n`;
+      html += `          <td>${escapeHtml(p.name ?? p.key)}</td>\n`;
+      html += `          <td>${iconHtml}</td>\n`;
+      html += `          <td><small class="text-muted">${escapeHtml(p.description ?? '')}</small></td>\n`;
+      html += '        </tr>\n';
+    }
+
+    html += '      </tbody></table></div>\n  </div>\n';
+  }
+
+  html += `  <p class="text-muted"><small>Total: ${Object.keys(defs).length} permissions in ${Object.keys(groups).length} groups</small></p>\n`;
+  html += '</div>\n';
+  return html;
+}
+
 /**
  * Display config value(s) with optional wildcard support
  */
@@ -1306,7 +1564,7 @@ const ConfigAccessorPlugin: SimplePlugin = {
   name: 'ConfigAccessorPlugin',
   description: 'Access configuration values including roles, features, and system settings',
   author: 'ngdpbase',
-  version: '2.7.0',
+  version: '2.8.0',
 
   /**
    * Execute the plugin
@@ -1369,8 +1627,22 @@ const ConfigAccessorPlugin: SimplePlugin = {
       case 'systemcategories':
         return displaySystemCategories(configManager, opts, valueonly, before, after);
 
+      case 'policies':
+        return displayPolicies(configManager);
+
+      case 'authmethods': {
+        const isAdmin = ((context as ExtendedPluginContext).userContext?.roles ?? []).includes('admin');
+        return displayAuthMethods(configManager, isAdmin);
+      }
+
+      case 'features':
+        return displayFeatures(configManager);
+
+      case 'permissionslist':
+        return displayPermissionsList(configManager);
+
       default:
-        return `<p class="error">Unknown type: ${escapeHtml(type)}. Use 'roles', 'permissions', 'policy-summary', 'user-summary', 'actions', 'manager', 'feature', 'userKeywords', 'systemKeywords', or 'systemCategories'.</p>`;
+        return `<p class="error">Unknown type: ${escapeHtml(type)}. Valid types: 'roles', 'permissions', 'policy-summary', 'user-summary', 'actions', 'manager', 'feature', 'userKeywords', 'systemKeywords', 'systemCategories', 'policies', 'authMethods', 'features', 'permissionsList'.</p>`;
       }
 
     } catch (error) {
