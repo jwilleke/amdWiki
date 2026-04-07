@@ -28,9 +28,10 @@ var _apInitSource = typeof assetPickerInitSource  !== 'undefined' ? assetPickerI
             <option value="">All sources</option>
             <option value="attachment">Attachments only</option>
             <option value="media">Media library only</option>
+            <option value="page">Pages</option>
         </select>
     </div>
-    <div class="col-auto">
+    <div class="col-auto" id="ap-mime-col">
         <select id="ap-mime" class="form-select" title="File type">
             <option value="">All formats</option>
             <option value="image">Images</option>
@@ -38,7 +39,7 @@ var _apInitSource = typeof assetPickerInitSource  !== 'undefined' ? assetPickerI
             <option value="other">Other</option>
         </select>
     </div>
-    <div class="col-auto">
+    <div class="col-auto" id="ap-sort-col">
         <select id="ap-sort" class="form-select" title="Sort order">
             <option value="date-desc">Date &darr; (newest)</option>
             <option value="date-asc">Date &uarr; (oldest)</option>
@@ -105,7 +106,7 @@ var _apInitSource = typeof assetPickerInitSource  !== 'undefined' ? assetPickerI
     qEl.addEventListener('keydown', function (e) {
         if (e.key === 'Enter') { clearTimeout(_apTimer); _apSearch(0); }
     });
-    srcEl.addEventListener('change',  function () { _apSearch(0); });
+    srcEl.addEventListener('change',  function () { _apUpdateControls(); _apSearch(0); });
     mimeEl.addEventListener('change', function () { _apSearch(0); });
     sortEl.addEventListener('change', function () { _apSearch(0); });
     document.getElementById('ap-search-btn').addEventListener('click', function () { _apSearch(0); });
@@ -114,6 +115,18 @@ var _apInitSource = typeof assetPickerInitSource  !== 'undefined' ? assetPickerI
             window.showUploadAttachment(_apPage_ || null);
         }
     });
+
+    // Show/hide controls depending on source type
+    var mimeColEl   = document.getElementById('ap-mime-col');
+    var sortColEl   = document.getElementById('ap-sort-col');
+    var uploadBtnEl = document.getElementById('ap-upload-btn');
+    function _apUpdateControls() {
+        var isPage = srcEl.value === 'page';
+        if (mimeColEl)   mimeColEl.style.display   = isPage ? 'none' : '';
+        if (sortColEl)   sortColEl.style.display    = isPage ? 'none' : '';
+        if (uploadBtnEl) uploadBtnEl.style.display  = isPage ? 'none' : '';
+    }
+    _apUpdateControls();
 
     // Expose for modal wrapper to call on open
     window.apRunSearch = function () { _apSearch(0); };
@@ -186,11 +199,14 @@ var _apInitSource = typeof assetPickerInitSource  !== 'undefined' ? assetPickerI
     // ------------------------------------------------------------------ card
 
     function _apCard(asset, idx) {
-        var isImage  = asset.encodingFormat && asset.encodingFormat.startsWith('image/');
+        var isPage   = asset.providerId === 'page';
+        var isImage  = !isPage && asset.encodingFormat && asset.encodingFormat.startsWith('image/');
         var isMedia  = asset.providerId === 'media-library';
         var thumb;
 
-        if (isMedia && asset.thumbnailUrl) {
+        if (isPage) {
+            thumb = '<div class="text-center text-primary py-3"><i class="fas fa-file-alt fa-2x"></i></div>';
+        } else if (isMedia && asset.thumbnailUrl) {
             thumb = '<img src="' + _esc(asset.thumbnailUrl) + '" class="img-fluid rounded mb-1" style="max-height:110px;object-fit:cover;width:100%;" loading="lazy" alt="" itemprop="thumbnailUrl">';
         } else if (isImage && asset.url) {
             thumb = '<img src="' + _esc(asset.url) + '" class="img-fluid rounded mb-1" style="max-height:110px;object-fit:cover;width:100%;" loading="lazy" alt="" itemprop="url">';
@@ -199,9 +215,11 @@ var _apInitSource = typeof assetPickerInitSource  !== 'undefined' ? assetPickerI
             thumb = '<div class="text-center text-muted py-3"><i class="fas ' + icon + ' fa-2x"></i></div>';
         }
 
-        var badge = isMedia
-            ? '<span class="badge bg-info text-dark">media</span>'
-            : '<span class="badge bg-secondary">attachment</span>';
+        var badge = isPage
+            ? '<span class="badge bg-primary">page</span>'
+            : isMedia
+                ? '<span class="badge bg-info text-dark">media</span>'
+                : '<span class="badge bg-secondary">attachment</span>';
         var yearStr = asset.dateCreated ? String(new Date(asset.dateCreated).getFullYear()) : '';
         var year  = yearStr ? '<small class="text-muted me-1" itemprop="dateCreated">' + _esc(yearStr) + '</small>' : '';
         var name  = asset.description || asset.filename || asset.id;

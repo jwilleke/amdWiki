@@ -6202,12 +6202,42 @@ class WikiRoutes {
 
       const query = typeof req.query.q === 'string' ? req.query.q.trim() : '';
       const typesParam = typeof req.query.types === 'string' ? req.query.types : '';
+      const pageSize = Math.min(parseInt(req.query.pageSize as string, 10) || 48, 200);
+      const offset = Math.max(parseInt(req.query.offset as string, 10) || 0, 0);
+
+      // Pages are a separate data source — handled directly via PageManager
+      if (typesParam === 'page') {
+        const pageManager = this.engine.getManager('PageManager') as { getAllPages(): Promise<string[]> } | undefined;
+        if (!pageManager) {
+          return res.status(503).json({ success: false, error: 'PageManager unavailable' });
+        }
+        const allPages = await pageManager.getAllPages();
+        const qLower = query.toLowerCase();
+        const filtered = qLower
+          ? allPages.filter(p => p.toLowerCase().includes(qLower))
+          : allPages;
+        const total = filtered.length;
+        const slice = filtered.slice(offset, offset + pageSize);
+        const results = slice.map(pageName => ({
+          id: pageName,
+          providerId: 'page',
+          filename: pageName,
+          name: pageName,
+          description: pageName,
+          keywords: [],
+          encodingFormat: 'text/wiki',
+          url: '/wiki/' + encodeURIComponent(pageName),
+          mentions: [],
+          metadata: {},
+          insertSnippet: '[' + pageName + ']'
+        }));
+        return res.json({ success: true, results, total, hasMore: offset + pageSize < total });
+      }
+
       const types = typesParam
         ? (typesParam.split(',').filter(t => t === 'attachment' || t === 'media'))
         : undefined;
       const year = req.query.year ? parseInt(req.query.year as string, 10) || undefined : undefined;
-      const pageSize = Math.min(parseInt(req.query.pageSize as string, 10) || 48, 200);
-      const offset = Math.max(parseInt(req.query.offset as string, 10) || 0, 0);
       const sort = req.query.sort === 'caption' ? 'caption' as const : 'date' as const;
       const order = req.query.order === 'desc' ? 'desc' as const : 'asc' as const;
       const mimeCategoryRaw = req.query.mimeCategory as string;
