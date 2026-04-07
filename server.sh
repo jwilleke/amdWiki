@@ -132,9 +132,9 @@ kill_all_ngdpbase() {
   sleep 1
 
   # STEP 2: Now safe to kill processes - PM2 won't respawn them
-  local app_pids=$(pgrep -f "node.*$SCRIPT_DIR/app\.js" 2>/dev/null || true)
+  local app_pids=$(pgrep -f "node.*$SCRIPT_DIR/dist/src/app\.js" 2>/dev/null || true)
   if [ -n "$app_pids" ]; then
-    echo "   Killing app.js processes: $app_pids"
+    echo "   Killing dist/src/app.js processes: $app_pids"
     echo "$app_pids" | xargs kill -9 2>/dev/null || true
   fi
 
@@ -231,7 +231,7 @@ case "${1:-}" in
 
     # STEP 4: Clean up any orphaned Node processes running app.js FROM THIS DIRECTORY
     echo "🧹 Cleaning up any orphaned Node processes..."
-    pgrep -f "node.*$SCRIPT_DIR/app\.js" 2>/dev/null | xargs kill -9 2>/dev/null || true
+    pgrep -f "node.*$SCRIPT_DIR/dist/src/app\.js" 2>/dev/null | xargs kill -9 2>/dev/null || true
     sleep 1
 
     # STEP 5: Clean up any PM2-created PID files (.ngdpbase-*.pid) and legacy files
@@ -404,7 +404,7 @@ case "${1:-}" in
 
     echo ""
     echo "Node Processes (this project):"
-    ps aux | grep "$SCRIPT_DIR/app\.js" | grep -v grep || echo "   None found"
+    ps aux | grep "$SCRIPT_DIR/dist/src/app\.js" | grep -v grep || echo "   None found"
 
     # Check for PID file duplicates
     PID_COUNT=$(ls -1 "$SCRIPT_DIR"/.ngdpbase*.pid 2>/dev/null | wc -l | tr -d ' ')

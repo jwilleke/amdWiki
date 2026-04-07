@@ -23,7 +23,7 @@ const appName = `ngdpbase-${dirName}`;
 module.exports = {
   apps: [{
     name: appName,
-    script: 'app.js',
+    script: 'dist/src/app.js',
     cwd: __dirname,
 
     // Run pre-compiled JavaScript from dist/ (no tsx needed)
