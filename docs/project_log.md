@@ -22,6 +22,27 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - [file2.md]
 ```
 
+## 2026-04-07-10
+
+- Agent: Claude Code (Sonnet 4.6)
+- Subject: feat: reader-mode kiosk slideshow polish + docs (#482)
+- Key Decision: Reader mode uses `RenderingManager.textToHTML()` — full rendered HTML per slide, not plain-text excerpt; Space key opens page in new tab; P key pauses.
+- Current Issue: #482 (closed)
+- Testing:
+  - npm test: 105 suites passed, 2679 tests passed, 0 skipped
+- Work Done:
+  - Switched slideshow to full rendered HTML via `renderingManager.textToHTML()` per slide
+  - Reader pane: scrollable, fade-out at bottom, scoped dark-mode typography CSS
+  - Space → open page in new tab; P → pause; click in reader area scrolls without navigating
+  - Increased default interval and removed `_slideshowExcerpt()` helper (no longer needed)
+  - Added `Kiosk Mode` required-page (system-category: documentation)
+  - Commented final summary on GH #482
+- Commits: b3059c00, 6cce4f40
+- Files Modified:
+  - src/routes/WikiRoutes.ts
+  - views/slideshow.ejs
+  - required-pages/7e3a1b2c-4f5d-4e8a-9c6b-0d1e2f3a4b5c.md
+
 ## 2026-04-07-09
 
 - Agent: Claude Code (Sonnet 4.6)
