@@ -1,166 +1,242 @@
-<%- include('header', { pageName: '' }) %>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Slideshow</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-<style>
-.ngdp-slideshow-wrap {
-    position: relative;
-    width: 100%;
-    height: calc(100vh - 120px);
-    min-height: 400px;
-    background: #111;
-    overflow: hidden;
-}
-.ngdp-slideshow-frame {
-    width: 100%;
-    height: 100%;
-    border: none;
-    display: block;
-    background: #fff;
-}
-.ngdp-slideshow-overlay {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background: linear-gradient(transparent, rgba(0,0,0,0.7));
-    color: #fff;
-    padding: 1rem 1.5rem 0.75rem;
-    display: flex;
-    align-items: flex-end;
-    justify-content: space-between;
-    gap: 1rem;
-    pointer-events: none;
-}
-.ngdp-slideshow-overlay .controls {
-    pointer-events: all;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    flex-shrink: 0;
-}
-.ngdp-slideshow-overlay .info {
-    overflow: hidden;
-}
-.ngdp-slideshow-title {
-    font-size: 1.1rem;
-    font-weight: 600;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-.ngdp-slideshow-counter {
-    font-size: 0.8rem;
-    opacity: 0.75;
-}
-#ngdp-ss-progress {
-    position: absolute;
-    top: 0;
-    left: 0;
-    height: 3px;
-    background: var(--bs-primary, #0d6efd);
-    transition: width linear;
-    width: 0%;
-}
-.ngdp-slideshow-wrap:hover #ngdp-ss-progress { opacity: 0.4; }
-</style>
+        html, body {
+            height: 100%;
+            background: #0a0a0a;
+            color: #fff;
+            font-family: Georgia, 'Times New Roman', serif;
+            overflow: hidden;
+        }
 
-<div class="container-fluid px-0">
-    <!-- Toolbar -->
-    <div class="d-flex align-items-center gap-2 px-3 py-2 bg-dark text-white">
-        <a href="/" class="btn btn-sm btn-outline-light me-2">
-            <i class="fas fa-home"></i>
-        </a>
-        <span class="fw-semibold me-auto">
-            <i class="fas fa-play-circle me-1"></i> Slideshow
-        </span>
-        <form class="d-flex align-items-center gap-2" method="get" action="/slideshow">
-            <label class="small text-white-50 mb-0">Pages:</label>
-            <input type="number" name="count" value="<%= count %>" min="1" max="50"
-                   class="form-control form-control-sm" style="width:60px;">
-            <label class="small text-white-50 mb-0">Interval (s):</label>
-            <input type="number" name="interval" value="<%= interval %>" min="1" max="120"
-                   class="form-control form-control-sm" style="width:60px;">
-            <button type="submit" class="btn btn-sm btn-primary">
-                <i class="fas fa-sync-alt"></i> Reload
-            </button>
-        </form>
+        /* ── slide stage ───────────────────────────────── */
+        #ss-stage {
+            position: fixed;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .ss-slide {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: clamp(2rem, 8vw, 8rem) clamp(2rem, 10vw, 14rem);
+            text-align: center;
+            opacity: 0;
+            transition: opacity 0.8s ease;
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
+        }
+        .ss-slide.active  { opacity: 1; }
+        .ss-slide.exiting { opacity: 0; }
+
+        /* subtle radial glow behind active slide */
+        .ss-slide::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(ellipse 70% 60% at 50% 50%,
+                rgba(255,255,255,0.04) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .ss-title {
+            font-size: clamp(2rem, 5vw, 4.5rem);
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+            text-shadow: 0 2px 20px rgba(0,0,0,0.6);
+        }
+
+        .ss-excerpt {
+            font-size: clamp(1rem, 2vw, 1.5rem);
+            font-weight: 400;
+            line-height: 1.7;
+            color: rgba(255,255,255,0.72);
+            max-width: 72ch;
+            text-shadow: 0 1px 8px rgba(0,0,0,0.5);
+        }
+
+        .ss-readmore {
+            margin-top: 2.5rem;
+            font-size: 0.85rem;
+            font-family: system-ui, sans-serif;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.35);
+            transition: color 0.2s;
+        }
+        .ss-slide:hover .ss-readmore { color: rgba(255,255,255,0.75); }
+
+        /* ── progress bar ──────────────────────────────── */
+        #ss-progress {
+            position: fixed;
+            top: 0; left: 0;
+            height: 2px;
+            background: rgba(255,255,255,0.6);
+            width: 0%;
+            z-index: 10;
+        }
+
+        /* ── HUD (counter + controls) ──────────────────── */
+        #ss-hud {
+            position: fixed;
+            bottom: 0; left: 0; right: 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem 1.5rem;
+            background: linear-gradient(transparent, rgba(0,0,0,0.55));
+            opacity: 0;
+            transition: opacity 0.3s;
+            z-index: 10;
+        }
+        body:hover #ss-hud, #ss-hud:focus-within { opacity: 1; }
+
+        #ss-counter {
+            font-family: system-ui, sans-serif;
+            font-size: 0.8rem;
+            color: rgba(255,255,255,0.5);
+            letter-spacing: 0.08em;
+        }
+
+        .ss-controls { display: flex; gap: 0.5rem; align-items: center; }
+
+        .ss-btn {
+            background: rgba(255,255,255,0.12);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: #fff;
+            border-radius: 6px;
+            padding: 0.35rem 0.65rem;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: background 0.15s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+        .ss-btn:hover { background: rgba(255,255,255,0.25); color: #fff; }
+
+        /* ── settings panel ────────────────────────────── */
+        #ss-settings {
+            position: fixed;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(20,20,20,0.96);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 12px;
+            padding: 1.5rem 2rem;
+            z-index: 20;
+            display: none;
+            min-width: 280px;
+            font-family: system-ui, sans-serif;
+        }
+        #ss-settings.open { display: block; }
+        #ss-settings label { display: block; font-size: 0.85rem; color: rgba(255,255,255,0.6); margin-bottom: 0.25rem; margin-top: 0.75rem; }
+        #ss-settings input[type=number] {
+            width: 100%; padding: 0.4rem 0.6rem; border-radius: 6px;
+            border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.08);
+            color: #fff; font-size: 0.9rem;
+        }
+        #ss-settings .ss-settings-btns { display: flex; gap: 0.5rem; margin-top: 1.25rem; }
+        #ss-settings .ss-settings-btns button { flex: 1; }
+    </style>
+</head>
+<body>
+
+<div id="ss-progress"></div>
+
+<div id="ss-stage">
+<% slides.forEach(function(slide, i) { %>
+    <a href="<%= slide.url %>" target="_blank" rel="noopener"
+       class="ss-slide<% if (i === 0) { %> active<% } %>"
+       data-index="<%= i %>">
+        <div class="ss-title"><%= slide.title %></div>
+        <% if (slide.excerpt) { %>
+        <div class="ss-excerpt"><%= slide.excerpt %></div>
+        <% } %>
+        <div class="ss-readmore"><i class="fas fa-external-link-alt" style="font-size:0.75em;margin-right:0.4em;"></i>Open page</div>
+    </a>
+<% }); %>
+</div>
+
+<!-- HUD -->
+<div id="ss-hud">
+    <span id="ss-counter">1 / <%= slides.length %></span>
+    <div class="ss-controls">
+        <button class="ss-btn" id="ss-prev" title="Previous (←)"><i class="fas fa-chevron-left"></i></button>
+        <button class="ss-btn" id="ss-pp"   title="Pause (Space)"><i class="fas fa-pause" id="ss-pp-icon"></i></button>
+        <button class="ss-btn" id="ss-next" title="Next (→)"><i class="fas fa-chevron-right"></i></button>
+        <button class="ss-btn" id="ss-cfg"  title="Settings"><i class="fas fa-cog"></i></button>
+        <button class="ss-btn" id="ss-fs"   title="Fullscreen (F)"><i class="fas fa-expand" id="ss-fs-icon"></i></button>
+        <a class="ss-btn" href="/" title="Exit slideshow"><i class="fas fa-times"></i></a>
     </div>
+</div>
 
-    <!-- Slideshow area -->
-    <div class="ngdp-slideshow-wrap" id="ngdp-ss-wrap">
-        <div id="ngdp-ss-progress"></div>
-        <iframe class="ngdp-slideshow-frame" id="ngdp-ss-frame"
-                src="" title="Slideshow page"></iframe>
-
-        <div class="ngdp-slideshow-overlay">
-            <div class="info">
-                <div class="ngdp-slideshow-title" id="ngdp-ss-title"></div>
-                <div class="ngdp-slideshow-counter" id="ngdp-ss-counter"></div>
-            </div>
-            <div class="controls">
-                <button class="btn btn-sm btn-outline-light" id="ngdp-ss-prev" title="Previous">
-                    <i class="fas fa-chevron-left"></i>
-                </button>
-                <button class="btn btn-sm btn-outline-light" id="ngdp-ss-playpause" title="Pause">
-                    <i class="fas fa-pause" id="ngdp-ss-pp-icon"></i>
-                </button>
-                <button class="btn btn-sm btn-outline-light" id="ngdp-ss-next" title="Next">
-                    <i class="fas fa-chevron-right"></i>
-                </button>
-                <a href="#" class="btn btn-sm btn-outline-light" id="ngdp-ss-open" title="Open page" target="_top">
-                    <i class="fas fa-external-link-alt"></i>
-                </a>
-                <button class="btn btn-sm btn-outline-light" id="ngdp-ss-fullscreen" title="Fullscreen">
-                    <i class="fas fa-expand" id="ngdp-ss-fs-icon"></i>
-                </button>
-            </div>
-        </div>
+<!-- Settings panel -->
+<div id="ss-settings">
+    <strong style="color:#fff;">Slideshow settings</strong>
+    <label>Number of pages (1–50)</label>
+    <input type="number" id="cfg-count" min="1" max="50" value="<%= count %>">
+    <label>Seconds per slide</label>
+    <input type="number" id="cfg-interval" min="1" max="120" value="<%= interval %>">
+    <div class="ss-settings-btns">
+        <button class="ss-btn" id="cfg-cancel">Cancel</button>
+        <button class="ss-btn" id="cfg-apply" style="background:rgba(13,110,253,0.5);">Apply</button>
     </div>
 </div>
 
 <script>
 (function () {
-    var pages    = <%- JSON.stringify(pages) %>;
-    var interval = <%- interval %> * 1000;
-
+    var slides   = document.querySelectorAll('.ss-slide');
+    var total    = slides.length;
     var idx      = 0;
     var playing  = true;
     var timer    = null;
-    var progTimer = null;
+    var interval = <%- interval %> * 1000;
+    var progEl   = document.getElementById('ss-progress');
+    var counter  = document.getElementById('ss-counter');
+    var ppIcon   = document.getElementById('ss-pp-icon');
 
-    var frame    = document.getElementById('ngdp-ss-frame');
-    var titleEl  = document.getElementById('ngdp-ss-title');
-    var counterEl= document.getElementById('ngdp-ss-counter');
-    var openEl   = document.getElementById('ngdp-ss-open');
-    var ppIcon   = document.getElementById('ngdp-ss-pp-icon');
-    var progEl   = document.getElementById('ngdp-ss-progress');
+    if (total === 0) return;
 
-    function goTo(i) {
-        idx = ((i % pages.length) + pages.length) % pages.length;
-        var name = pages[idx];
-        var url  = '/view/' + encodeURIComponent(name);
-        frame.src = url;
-        titleEl.textContent  = name;
-        counterEl.textContent = (idx + 1) + ' / ' + pages.length;
-        openEl.href = url;
-        startProgress();
+    // ── navigation ───────────────────────────────────────
+    function goTo(i, userTriggered) {
+        slides[idx].classList.remove('active');
+        idx = ((i % total) + total) % total;
+        slides[idx].classList.add('active');
+        counter.textContent = (idx + 1) + ' / ' + total;
+        if (playing || userTriggered) startProgress();
     }
 
+    // ── progress bar ─────────────────────────────────────
     function startProgress() {
         progEl.style.transition = 'none';
         progEl.style.width = '0%';
-        clearTimeout(progTimer);
-        if (!playing) return;
-        // Force reflow so the transition reset takes effect
-        void progEl.offsetWidth;
+        void progEl.offsetWidth; // force reflow
+        if (!playing) { progEl.style.width = '0%'; return; }
         progEl.style.transition = 'width ' + (interval / 1000) + 's linear';
         progEl.style.width = '100%';
     }
 
     function scheduleNext() {
         clearTimeout(timer);
-        if (playing) {
-            timer = setTimeout(function () { goTo(idx + 1); scheduleNext(); }, interval);
-        }
+        if (playing) timer = setTimeout(function () { goTo(idx + 1); scheduleNext(); }, interval);
     }
 
     function pause() {
@@ -174,67 +250,67 @@
     function play() {
         playing = true;
         ppIcon.className = 'fas fa-pause';
-        scheduleNext();
         startProgress();
+        scheduleNext();
     }
 
-    document.getElementById('ngdp-ss-prev').addEventListener('click', function () {
+    // ── controls ─────────────────────────────────────────
+    document.getElementById('ss-prev').addEventListener('click', function () {
         clearTimeout(timer);
-        goTo(idx - 1);
+        goTo(idx - 1, true);
         if (playing) scheduleNext();
     });
-    document.getElementById('ngdp-ss-next').addEventListener('click', function () {
+    document.getElementById('ss-next').addEventListener('click', function () {
         clearTimeout(timer);
-        goTo(idx + 1);
+        goTo(idx + 1, true);
         if (playing) scheduleNext();
     });
-    document.getElementById('ngdp-ss-playpause').addEventListener('click', function () {
-        if (playing) { pause(); } else { play(); }
+    document.getElementById('ss-pp').addEventListener('click', function () {
+        if (playing) pause(); else play();
     });
 
-    // Pause on mouse-over the iframe area, resume on leave
-    document.getElementById('ngdp-ss-wrap').addEventListener('mouseenter', pause);
-    document.getElementById('ngdp-ss-wrap').addEventListener('mouseleave', function () {
-        if (!playing) play();
-    });
-
-    // Fullscreen
-    var wrap   = document.getElementById('ngdp-ss-wrap');
-    var fsIcon = document.getElementById('ngdp-ss-fs-icon');
-
-    document.getElementById('ngdp-ss-fullscreen').addEventListener('click', function () {
+    // ── fullscreen ────────────────────────────────────────
+    var fsIcon = document.getElementById('ss-fs-icon');
+    document.getElementById('ss-fs').addEventListener('click', function () {
         if (!document.fullscreenElement) {
-            void wrap.requestFullscreen();
+            void document.documentElement.requestFullscreen();
         } else {
             void document.exitFullscreen();
         }
     });
-
     document.addEventListener('fullscreenchange', function () {
-        if (document.fullscreenElement) {
-            fsIcon.className = 'fas fa-compress';
-            wrap.style.height = '100vh';
-        } else {
-            fsIcon.className = 'fas fa-expand';
-            wrap.style.height = '';
-        }
+        fsIcon.className = document.fullscreenElement ? 'fas fa-compress' : 'fas fa-expand';
     });
 
-    // Keyboard: left/right arrows, space to pause, f for fullscreen, Escape handled by browser
+    // ── settings panel ────────────────────────────────────
+    var panel = document.getElementById('ss-settings');
+    document.getElementById('ss-cfg').addEventListener('click', function () {
+        panel.classList.toggle('open');
+        if (panel.classList.contains('open')) pause();
+    });
+    document.getElementById('cfg-cancel').addEventListener('click', function () {
+        panel.classList.remove('open');
+        play();
+    });
+    document.getElementById('cfg-apply').addEventListener('click', function () {
+        var c = Math.min(50, Math.max(1, parseInt(document.getElementById('cfg-count').value, 10) || 10));
+        var s = Math.max(1, parseInt(document.getElementById('cfg-interval').value, 10) || 8);
+        window.location.href = '/slideshow?count=' + c + '&interval=' + s;
+    });
+
+    // ── keyboard ──────────────────────────────────────────
     document.addEventListener('keydown', function (e) {
-        if (e.key === 'ArrowLeft')  { document.getElementById('ngdp-ss-prev').click(); }
-        if (e.key === 'ArrowRight') { document.getElementById('ngdp-ss-next').click(); }
-        if (e.key === ' ')          { document.getElementById('ngdp-ss-playpause').click(); e.preventDefault(); }
-        if (e.key === 'f' || e.key === 'F') { document.getElementById('ngdp-ss-fullscreen').click(); }
+        if (panel.classList.contains('open')) return;
+        if (e.key === 'ArrowLeft')       { document.getElementById('ss-prev').click(); }
+        else if (e.key === 'ArrowRight') { document.getElementById('ss-next').click(); }
+        else if (e.key === ' ')          { document.getElementById('ss-pp').click(); e.preventDefault(); }
+        else if (e.key === 'f' || e.key === 'F') { document.getElementById('ss-fs').click(); }
     });
 
-    if (pages.length > 0) {
-        goTo(0);
-        scheduleNext();
-    } else {
-        frame.srcdoc = '<p style="padding:2rem;font-family:sans-serif">No pages available.</p>';
-    }
+    // ── start ─────────────────────────────────────────────
+    startProgress();
+    scheduleNext();
 })();
 </script>
-
-<%- include('footer') %>
+</body>
+</html>

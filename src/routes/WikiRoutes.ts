@@ -2487,23 +2487,29 @@ class WikiRoutes {
    * Search pages with advanced options
    */
   /**
-   * GET /slideshow
+   * GET /slideshow — kiosk-style page slideshow.
    *
-   * Full-page random-page slideshow.  Picks up to `count` random accessible
-   * page names and passes them to the view; the client-side JS loads each
-   * page in an iframe and auto-advances every `interval` seconds.
+   * Picks random accessible pages, extracts a plain-text excerpt from each,
+   * and renders them as full-screen kiosk cards.  Clicking a card opens the
+   * full page in a new tab.  No iframe used.
    *
    * Query params:
    *   count    — number of random pages (default 10, max 50)
-   *   interval — seconds per slide (default 5)
+   *   interval — seconds per slide (default 8)
+   *   excerpt  — max excerpt characters (default 400)
    */
   async slideshow(req: Request, res: Response) {
     try {
-      const count    = Math.min(50, Math.max(1, parseInt(req.query.count as string, 10) || 10));
-      const interval = Math.max(1, parseInt(req.query.interval as string, 10) || 5);
+      const count     = Math.min(50, Math.max(1, parseInt(req.query.count as string, 10) || 10));
+      const interval  = Math.max(1, parseInt(req.query.interval as string, 10) || 8);
+      const excerptLen = Math.max(50, parseInt(req.query.excerpt as string, 10) || 400);
 
-      const pageManager = this.engine.getManager('PageManager') as { getAllPages(): Promise<string[]> };
-      const all   = await pageManager.getAllPages();
+      const pageManager = this.engine.getManager('PageManager') as {
+        getAllPages(): Promise<string[]>;
+        getPage(name: string): Promise<{ title?: string; content?: string; rawContent?: string } | null>;
+      };
+
+      const all = await pageManager.getAllPages();
 
       // Fisher-Yates shuffle then slice
       const pool = [...all];
@@ -2511,13 +2517,28 @@ class WikiRoutes {
         const j = Math.floor(Math.random() * (i + 1));
         [pool[i], pool[j]] = [pool[j], pool[i]];
       }
-      const pages = pool.slice(0, count);
+      const names = pool.slice(0, count);
+
+      // Fetch each page and extract a plain-text excerpt
+      const slides: { name: string; title: string; excerpt: string; url: string }[] = [];
+      for (const name of names) {
+        const page = await pageManager.getPage(name);
+        if (!page) continue;
+        const raw = page.rawContent ?? page.content ?? '';
+        const excerpt = this._slideshowExcerpt(raw, excerptLen);
+        slides.push({
+          name,
+          title: page.title ?? name,
+          excerpt,
+          url: '/view/' + encodeURIComponent(name)
+        });
+      }
 
       const commonData = await this.getCommonTemplateData(req);
       return res.render('slideshow', {
         ...commonData,
         title: 'Slideshow',
-        pages,
+        slides,
         interval,
         count
       });
@@ -2525,6 +2546,27 @@ class WikiRoutes {
       logger.error('[slideshow] Error:', err);
       return this.renderError(req, res, 500, 'Slideshow Error', 'Could not load slideshow.');
     }
+  }
+
+  /** Strip markup from raw page content and return a plain-text excerpt. */
+  private _slideshowExcerpt(raw: string, maxLen: number): string {
+    const text = raw
+      .replace(/^---[\s\S]*?---\n?/, '')          // YAML frontmatter
+      .replace(/\[\{[\s\S]*?\}\]/g, '')            // [{Plugin ...}]
+      .replace(/!\[.*?\]\(.*?\)/g, '')             // markdown images
+      .replace(/^#{1,6}\s+/gm, '')                 // headings
+      .replace(/\*{1,3}([^*]+)\*{1,3}/g, '$1')    // bold/italic
+      .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')     // [label](url)
+      .replace(/\[([^\]]+)\]/g, '$1')              // [WikiLink]
+      .replace(/`{1,3}[^`]*`{1,3}/g, '')           // code
+      .replace(/^\s*[-*+]\s+/gm, '')               // list bullets
+      .replace(/\n{2,}/g, ' ')
+      .replace(/\n/g, ' ')
+      .trim();
+
+    if (text.length <= maxLen) return text;
+    const cut = text.lastIndexOf(' ', maxLen);
+    return (cut > 0 ? text.slice(0, cut) : text.slice(0, maxLen)) + '…';
   }
 
   async searchPages(req: Request, res: Response) {
