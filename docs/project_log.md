@@ -22,6 +22,79 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - [file2.md]
 ```
 
+## 2026-04-07-06
+
+- Agent: Claude Code (Sonnet 4.6)
+- Subject: feat: pages as asset format + type-specific icons in Browse Assets picker (#433)
+- Key Decision: Pages handled as a separate source type directly in the route (not through AssetService) since they come from PageManager, not file providers. getAllPages() backed by in-memory page-index so 14K pages filtered by substring in-process with no I/O. Insert snippet is `[PageName]` (JSPWiki link). True PDF first-page thumbnail requires ghostscript/pdf2pic — deferred. MIME/sort/upload controls hidden when source=page.
+- Current Issue: #433 (closed)
+- Testing:
+  - npm test: 105 suites passed
+- Work Done:
+  - `src/routes/WikiRoutes.ts`: assetSearch() — detect types='page', query PageManager, return AssetRecord-shaped results with pagination
+  - `views/_asset-picker.ejs`: Pages option in source dropdown; `_apUpdateControls()` hides MIME/sort/upload for page source; page cards show file-alt icon + blue 'page' badge
+  - `views/_asset-picker.ejs`: `_apMimeIcon()` helper — returns type-specific FA icon (file-pdf, file-video, file-audio, file-excel, file-word, file-archive, file-alt, file) for non-image attachments instead of generic paperclip
+- Commits: ec8627f7, dc165ed1
+- Files Modified:
+  - src/routes/WikiRoutes.ts
+  - views/_asset-picker.ejs
+
+## 2026-04-07-05
+
+- Agent: Claude Code (Sonnet 4.6)
+- Subject: fix: 7 MarkupParser bugs + drop 3 dead test.skip tests (#468–#477); E2E fix /admin/login 500; PluginManager fetch() tests (#465); permissions registry (#480)
+- Key Decision: Rather than converting skipped tests to test.skip, deleted dead tests for deprecated WikiStyleHandler and deferred nested JSPWiki (requires two-pass — won't-fix). BaseSyntaxHandler.priority changed from readonly to mutable to allow config overrides.
+- Current Issue: #468–#477 (7 closed, 3 won't-fix), #465 (closed), #480 (closed)
+- Testing:
+  - npm test: 105 suites passed, 2669 tests passed, 10 skipped
+- Work Done:
+  - E2E fix: adminLoginPage() was missing passwordAuthEnabled in render call → 500 on /admin/login
+  - #468: cacheTTL propagated to all 4 cache sub-configs after loading
+  - #470: handler priority applied from config before registering in initialize()
+  - #472: runtime enable/disable test fixed (AttachmentHandler, not removed WikiStyleHandler)
+  - #474: code block protection test rewritten to observable contract
+  - #475: variable expansion in parse() before parseWithDOMExtraction()
+  - #476: all registered handlers called in pipeline (skip JSPWikiPreprocessor)
+  - #477: performance thresholds test rewritten to inject recentParseTimes directly
+  - #465: 3 new PluginManager tests for optional fetch() lifecycle
+  - #469, #471, #473: closed won't-fix (deprecated, two-pass deferred)
+  - Deleted 3 dead test.skip blocks (2 in ModularConfig, 1 in Comprehensive)
+- Commits: 9bc3c85c, 480fb42a, b41569bb, 0c852872
+- Files Modified:
+  - src/parsers/MarkupParser.ts
+  - src/parsers/handlers/BaseSyntaxHandler.ts
+  - src/parsers/__tests__/MarkupParser.test.js
+  - src/parsers/__tests__/MarkupParser-Config.test.js
+  - src/parsers/__tests__/MarkupParser-ModularConfig.test.js
+  - src/parsers/__tests__/MarkupParser-Comprehensive.test.js
+  - src/parsers/__tests__/MarkupParser-Performance.test.js
+  - src/managers/__tests__/PluginManager.registerPlugin.test.js
+  - src/routes/WikiRoutes.ts
+
+## 2026-04-07-04
+
+- Agent: Claude Code (Sonnet 4.6)
+- Subject: feat: canonical permissions registry — hyphen format, asset-*, member + user-admin roles (#480); E2E test run
+- Key Decision: Permission strings changed from colon format (page:edit) to hyphen-separated target-first format (page-edit). attachment:*renamed to asset-* throughout. admin:users split into user-read/edit/create/delete. Added member role (community read-only placeholder). Added user-admin role with full user management. Updated all 3 other instances (fairways-base, ngdpbase-veg, amdWiki) via git pull/build/restart.
+- Current Issue: #480 (closed)
+- Testing:
+  - npm test: 105 suites passed, 2669 tests passed, 10 skipped
+- Work Done:
+  - config/app-default-config.json: added ngdpbase.permissions.definitions registry (18 entries), member/user-admin roles/policies, updated all role+policy permission strings to hyphen format
+  - UserManager.ts: updated initializePermissions() to new permission strings
+  - ACLManager.ts: updated action map (view→page-read, edit→page-edit, upload→asset-upload, etc.)
+  - WikiRoutes.ts: bulk replacement of colon to hyphen permissions; atomic user-* per admin handler
+  - E2E: full playwright suite run — pre-existing /admin/login 500 found and fixed
+  - Updated fairways-base, ngdpbase-veg instances
+- Commits: 9570cb34 (and prior)
+- Files Modified:
+  - config/app-default-config.json
+  - src/managers/UserManager.ts
+  - src/managers/ACLManager.ts
+  - src/routes/WikiRoutes.ts
+  - src/__tests__/UserManager.test.js
+  - src/routes/__tests__/routes.test.js
+
 ## 2026-04-07-03
 
 - Agent: Claude Code (Sonnet 4.6)
