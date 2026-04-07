@@ -22,6 +22,22 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - [file2.md]
 ```
 
+## 2026-04-07-12
+
+- Agent: Claude Code (Sonnet 4.6)
+- Subject: docs: add Supported File Types required-page (#440)
+- Key Decision: Documented what is *actually enforced* — attachment MIME filter config exists but is not enforced at runtime; image upload route strictly enforces jpeg/jpg/png/gif/webp/svg; media library enforces its own extension list.
+- Current Issue: #440 (closed)
+- Testing:
+  - npm test: 105 suites passed, 2679 tests passed, 0 skipped
+- Work Done:
+  - Created `required-pages/b957e4a8-5457-4371-95f0-40e86e1691b3.md` — Supported File Types
+  - Covers: page attachments (any file, icon types), image uploads (strict), media library (images + video)
+  - Closed GH #440 with summary comment
+- Commits: 4a918b5b
+- Files Modified:
+  - required-pages/b957e4a8-5457-4371-95f0-40e86e1691b3.md
+
 ## 2026-04-07-11
 
 - Agent: Claude Code (Sonnet 4.6)
