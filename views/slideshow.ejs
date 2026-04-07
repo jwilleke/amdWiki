@@ -109,6 +109,9 @@
                 <a href="#" class="btn btn-sm btn-outline-light" id="ngdp-ss-open" title="Open page" target="_top">
                     <i class="fas fa-external-link-alt"></i>
                 </a>
+                <button class="btn btn-sm btn-outline-light" id="ngdp-ss-fullscreen" title="Fullscreen">
+                    <i class="fas fa-expand" id="ngdp-ss-fs-icon"></i>
+                </button>
             </div>
         </div>
     </div>
@@ -195,11 +198,34 @@
         if (!playing) play();
     });
 
-    // Keyboard: left/right arrows, space to pause
+    // Fullscreen
+    var wrap   = document.getElementById('ngdp-ss-wrap');
+    var fsIcon = document.getElementById('ngdp-ss-fs-icon');
+
+    document.getElementById('ngdp-ss-fullscreen').addEventListener('click', function () {
+        if (!document.fullscreenElement) {
+            void wrap.requestFullscreen();
+        } else {
+            void document.exitFullscreen();
+        }
+    });
+
+    document.addEventListener('fullscreenchange', function () {
+        if (document.fullscreenElement) {
+            fsIcon.className = 'fas fa-compress';
+            wrap.style.height = '100vh';
+        } else {
+            fsIcon.className = 'fas fa-expand';
+            wrap.style.height = '';
+        }
+    });
+
+    // Keyboard: left/right arrows, space to pause, f for fullscreen, Escape handled by browser
     document.addEventListener('keydown', function (e) {
         if (e.key === 'ArrowLeft')  { document.getElementById('ngdp-ss-prev').click(); }
         if (e.key === 'ArrowRight') { document.getElementById('ngdp-ss-next').click(); }
         if (e.key === ' ')          { document.getElementById('ngdp-ss-playpause').click(); e.preventDefault(); }
+        if (e.key === 'f' || e.key === 'F') { document.getElementById('ngdp-ss-fullscreen').click(); }
     });
 
     if (pages.length > 0) {
