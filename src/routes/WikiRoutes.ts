@@ -3148,6 +3148,7 @@ class WikiRoutes {
         redirect: req.query.redirect || '/admin',
         magicLinkEnabled: false,
         googleOIDCEnabled: false,
+        passwordAuthEnabled: true,
         csrfToken: req.session?.csrfToken || ''
       });
     } catch (err: unknown) {
