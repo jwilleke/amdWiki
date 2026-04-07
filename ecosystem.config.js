@@ -16,9 +16,8 @@ if (fs.existsSync(envFile)) {
   }
 }
 
-// Generate unique app name based on directory
-const dirName = path.basename(__dirname);
-const appName = `ngdpbase-${dirName}`;
+// App name — fixed so it survives directory renames
+const appName = 'ngdpbase';
 
 module.exports = {
   apps: [{
