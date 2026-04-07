@@ -2,12 +2,12 @@
  * NodemailerMailProvider — SMTP mail transport using nodemailer.
  *
  * Configure via app-custom-config.json:
- *   ngdpbase.auth.magic-link.smtp.host
- *   ngdpbase.auth.magic-link.smtp.port
- *   ngdpbase.auth.magic-link.smtp.secure
- *   ngdpbase.auth.magic-link.smtp.user
- *   ngdpbase.auth.magic-link.smtp.pass
- *   ngdpbase.auth.magic-link.smtp.from
+ *   ngdpbase.mail.provider.smtp.host
+ *   ngdpbase.mail.provider.smtp.port
+ *   ngdpbase.mail.provider.smtp.secure
+ *   ngdpbase.mail.provider.smtp.user
+ *   ngdpbase.mail.provider.smtp.pass
+ *   ngdpbase.mail.provider.smtp.from
  */
 
 import nodemailer from 'nodemailer';

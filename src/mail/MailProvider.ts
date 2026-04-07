@@ -6,7 +6,7 @@
  *   NodemailerMailProvider — sends via SMTP using nodemailer
  *
  * The active transport is selected by the
- * `ngdpbase.auth.magic-link.mail-transport` config key ('console' | 'smtp').
+ * `ngdpbase.mail.provider` config key ('console' | 'smtp').
  */
 
 import logger from '../utils/logger';
