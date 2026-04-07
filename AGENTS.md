@@ -1,6 +1,6 @@
 ---
 project_state: "active"
-lastModified: '2026-01-27T00:00:00.000Z'
+lastModified: '2026-04-07T00:00:00.000Z'
 agent_priority_level: "medium"
 blockers: []
 requires_human_review: ["major architectural changes", "security policy modifications", "deployment to production"]
@@ -51,6 +51,40 @@ Always use the appriate .github/ISSUE_TEMPLATE
 
 - **Setup:** [SETUP.md](./SETUP.md)
 - **Contributing:** [CONTRIBUTING.md](./CONTRIBUTING.md) (Workflow, PRs)
+
+## Creating or Editing Pages Rendered on Any ngdpbase System
+
+These rules apply to any content page (required-pages, documentation, user-facing help) that will be rendered inside a running ngdpbase instance.
+
+### Never Use the Word "Wiki"
+
+ngdpbase is not just a wiki — it is a general-purpose platform. The word **"wiki" must not appear** in any user-facing page content, labels, or documentation rendered by the system. Use these instead:
+
+| Instead of | Use |
+|---|---|
+| wiki page | page |
+| wiki link | page link |
+| the wiki | [{$applicationname}] |
+| wiki's global policies | global access policies |
+| wiki content | content |
+| wiki links section | Page Links section |
+
+### Use Builtin Syntax
+
+Never hardcode values that the system can provide dynamically:
+
+- System categories → `[{ConfigAccessor type='systemCategories'}]` not a hardcoded list
+- Application name → `[{$applicationname}]` not a hardcoded name
+- Other config-driven values → check `ConfigurationManager` for a corresponding accessor before hardcoding
+
+### Use the Page Linking System
+
+Always use the platform's native link syntax — never construct raw `/view/` URLs in page content:
+
+- Preferred: `[Page Title]` — resolves by title, plural/singular matching included
+- With display text: `[Display Text|Page Title]`
+- Only use `[Text|/view/slug]` when linking to a slug that differs from the page title AND no page title match exists
+- The `PageNameMatcher` handles English plural↔singular resolution automatically in both directions (e.g., `[User Keyword]` resolves to a page titled **User Keywords**), so prefer the simplest form that works
 
 ## ⚠️ Critical Technical Mandates
 

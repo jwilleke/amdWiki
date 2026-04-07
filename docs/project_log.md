@@ -22,6 +22,32 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - [file2.md]
 ```
 
+## 2026-04-07-01
+
+- Agent: Claude Code (Sonnet 4.6)
+- Subject: feat: context-sensitive help icons on edit page fields (#479)
+- Key Decision: Reusable `views/_help-icon.ejs` partial renders `?` icon linking to a dedicated required-page for each field. All cross-links use native `[Title]` syntax (PageNameMatcher handles plural/singular). System Category page uses `[{ConfigAccessor type='systemCategories'}]` instead of hardcoded list. "wiki" terminology removed from all user-facing content — platform is not just a wiki.
+- Current Issue: #479 (Phase 1 complete; Phase 2 — create.ejs, edit-backup.ejs, create-fixed.ejs — is follow-on)
+- Testing:
+  - npm test: 105 suites passed, 2669 tests passed, 10 skipped
+- Work Done:
+  - Created `views/_help-icon.ejs` reusable partial
+  - Created 8 required-pages: Editing a Page, Page Title, System Category, Author Lock, User Keywords, Page Audience, Page Content, Page Attachments
+  - Updated `views/edit.ejs` — `?` icon on all 7 field labels (System Category in both admin and read-only blocks)
+  - Updated `AGENTS.md` — page authoring rules: no "wiki" in content, use builtin syntax, use page link system
+- Files Modified:
+  - views/_help-icon.ejs (new)
+  - views/edit.ejs
+  - AGENTS.md
+  - required-pages/51666223-22ef-4143-a34c-5902a3cf1ce0.md (new — Editing a Page)
+  - required-pages/c025ebd3-9994-40e3-9beb-a966e55bc6a4.md (new — Page Title)
+  - required-pages/ba8aab65-995d-421c-a997-34def8aaf3db.md (new — System Category)
+  - required-pages/c45b67f2-1b4b-4ee9-9672-d06738e490cf.md (new — Author Lock)
+  - required-pages/6f027ce7-dc75-48f3-9038-80990168d082.md (new — User Keywords)
+  - required-pages/b03c0bad-0b72-49c7-8810-cd6e14149938.md (new — Page Audience)
+  - required-pages/5edaba7f-e71c-4e7c-afc6-36d27ba6a9a0.md (new — Page Content)
+  - required-pages/eb4c4c0a-c757-4a56-bbcc-a07e598504ff.md (new — Page Attachments)
+
 ## 2026-04-06-07
 
 - Agent: Claude Code (Sonnet 4.6)

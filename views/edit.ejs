@@ -28,7 +28,7 @@
                 <% } %>
                 <!-- Page Title on its own row -->
                 <div class="form-group mb-3">
-                    <label for="title" style="font-weight:bold;">Page Title:</label>
+                    <label for="title" style="font-weight:bold;">Page Title: <%- include('_help-icon', { slug: 'page-title', label: 'Page Title' }) %></label>
                     <input type="text" id="title" name="title" class="form-control" value="<%= metadata.title || pageName %>" required>
                 </div>
                 
@@ -36,7 +36,7 @@
                 <div class="row mb-3">
                     <% if (user && user.roles && user.roles.includes('admin')) { %>
                     <div class="col-md-4">
-                        <label style="font-weight:bold;">System Category (Admin Only):</label>
+                        <label style="font-weight:bold;">System Category (Admin Only): <%- include('_help-icon', { slug: 'system-category', label: 'System Category' }) %></label>
                         <select class="form-control" id="systemCategory" name="system-category" required>
                             <% systemCategories.forEach(category => {
                                 const currentCategory = (metadata['system-category'] || defaultCategory || '').toLowerCase();
@@ -47,7 +47,7 @@
                         </select>
                     </div>
                     <div class="col-md-2">
-                        <label style="font-weight:bold;">Author Lock:</label>
+                        <label style="font-weight:bold;">Author Lock: <%- include('_help-icon', { slug: 'author-lock', label: 'Author Lock' }) %></label>
                         <div class="form-check mt-2">
                             <input class="form-check-input" type="checkbox" name="author-lock" id="authorLock" value="true" <%= metadata['author-lock'] ? 'checked' : '' %>>
                             <label class="form-check-label" for="authorLock" title="Only the page author and admins can edit this page">
@@ -58,7 +58,7 @@
                     </div>
                     <% } else { %>
                     <div class="col-md-6">
-                        <label style="font-weight:bold;">System Category:</label>
+                        <label style="font-weight:bold;">System Category: <%- include('_help-icon', { slug: 'system-category', label: 'System Category' }) %></label>
                         <input type="hidden" id="systemCategory" name="system-category" value="<%= metadata['system-category'] %>">
                         <input type="text" class="form-control" value="<%= metadata['system-category'] %>" readonly>
                     </div>
@@ -69,7 +69,7 @@
                     </div>
                     <% } %>
                     <div class="col-md-6">
-                        <label style="font-weight:bold;">User Keywords (Optional, Max <%= maxUserKeywords %>):</label>
+                        <label style="font-weight:bold;">User Keywords (Optional, Max <%= maxUserKeywords %>): <%- include('_help-icon', { slug: 'user-keywords', label: 'User Keywords' }) %></label>
                         <div class="dropdown">
                             <button class="btn btn-outline-secondary dropdown-toggle w-100 text-start" type="button" id="userKeywordsDropdown" data-bs-toggle="dropdown" aria-expanded="false">
                                 <span id="selectedUserKeywordsText">Select user keywords...</span>
@@ -98,7 +98,7 @@
                 <% if (typeof availableRoles !== 'undefined' && availableRoles && availableRoles.length > 0) { %>
                 <div class="row mb-3">
                     <div class="col-md-6">
-                        <label style="font-weight:bold;"><i class="fas fa-lock"></i> Audience (view access):</label>
+                        <label style="font-weight:bold;"><i class="fas fa-lock"></i> Audience (view access): <%- include('_help-icon', { slug: 'page-audience', label: 'Page Audience' }) %></label>
                         <div class="dropdown">
                             <button class="btn btn-outline-secondary dropdown-toggle w-100 text-start" type="button" id="audienceDropdown" data-bs-toggle="dropdown" aria-expanded="false">
                                 <span id="selectedAudienceText">Select audience...</span>
@@ -131,7 +131,7 @@
 
                 <!-- Content -->
                 <div class="form-group mb-3">
-                    <label for="content" style="font-weight:bold;">Content:</label>
+                    <label for="content" style="font-weight:bold;">Content: <%- include('_help-icon', { slug: 'page-content', label: 'Page Content' }) %></label>
                     <div class="row">
                         <div class="col-md-6">
                             <div class="card h-100">
@@ -156,7 +156,7 @@
                 <div class="form-group mb-3">
                     <div class="d-flex justify-content-between align-items-center mb-2">
                         <label style="font-weight:bold;" class="mb-0">
-                            <i class="fas fa-paperclip"></i> Page Attachments
+                            <i class="fas fa-paperclip"></i> Page Attachments <%- include('_help-icon', { slug: 'page-attachments', label: 'Page Attachments' }) %>
                             <span class="badge bg-secondary"><%= typeof pageAttachments !== 'undefined' ? pageAttachments.length : 0 %></span>
                         </label>
                         <div class="btn-group btn-group-sm">
