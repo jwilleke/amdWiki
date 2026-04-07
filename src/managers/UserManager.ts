@@ -83,6 +83,7 @@ interface UserUpdateInput {
   isExternal?: boolean;
   preferences?: Partial<UserPreferences>;
   profilePage?: string;
+  [key: string]: unknown; // allow addon/extended fields
 }
 
 /**

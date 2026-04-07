@@ -4287,6 +4287,69 @@ class WikiRoutes {
   }
 
   /**
+   * Render the full-page user edit form.
+   * Named userEdit (not adminUserEdit) so the handler is not conceptually
+   * locked to admin-only — future user-admin roles can reuse it by changing
+   * only the permission check.
+   */
+  async userEdit(req: Request, res: Response) {
+    try {
+      const userManager = this.engine.getManager('UserManager');
+      const currentUser = req.userContext;
+
+      if (
+        !currentUser ||
+        !(await userManager.hasPermission(currentUser.username, 'admin:users'))
+      ) {
+        return await this.renderError(
+          req,
+          res,
+          403,
+          'Access Denied',
+          'You do not have permission to edit users'
+        );
+      }
+
+      const username = req.params.username;
+      const user = await userManager.getUser(username);
+
+      if (!user) {
+        return await this.renderError(req, res, 404, 'Not Found', `User "${username}" not found`);
+      }
+
+      const configManager = this.engine.getManager('ConfigurationManager');
+      const coreFields: string[] = configManager.getProperty('ngdpbase.user.coreFields', [
+        'username', 'email', 'displayName', 'password',
+        'roles', 'isActive', 'isExternal', 'isSystem',
+        'createdAt', 'loginCount', 'lastLogin',
+        'preferences', 'profilePage', 'allowedAuthMethods', 'avatar'
+      ]) as string[];
+
+      const extendedFields: Record<string, unknown> = {};
+      for (const [key, value] of Object.entries(user)) {
+        if (!coreFields.includes(key)) {
+          extendedFields[key] = value;
+        }
+      }
+
+      const commonData = await this.getCommonTemplateData(req);
+      const roles = userManager.getRoles();
+
+      return res.render('admin-user-edit', {
+        ...commonData,
+        title: `Edit User: ${username}`,
+        editUser: user,
+        roles,
+        extendedFields,
+        csrfToken: req.session.csrfToken
+      });
+    } catch (err: unknown) {
+      logger.error('Error loading user edit page:', err);
+      return res.status(500).send('Error loading user edit page');
+    }
+  }
+
+  /**
    * Create new user (admin)
    */
   async adminCreateUser(req: Request, res: Response) {
@@ -7108,6 +7171,7 @@ class WikiRoutes {
       this.adminToggleMaintenance(req, res)
     );
     app.get('/admin/users', (req: Request, res: Response) => this.adminUsers(req, res));
+    app.get('/admin/users/:username/edit', (req: Request, res: Response) => this.userEdit(req, res));
     app.post('/admin/users', (req: Request, res: Response) => this.adminCreateUser(req, res));
     app.put('/admin/users/:username', (req: Request, res: Response) =>
       this.adminUpdateUser(req, res)

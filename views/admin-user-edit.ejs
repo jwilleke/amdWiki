@@ -1,0 +1,253 @@
+<%- include('header', { pageName: 'Edit User' }) %>
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-12">
+
+      <!-- Page header -->
+      <div class="d-flex align-items-center mb-4">
+        <a href="/admin/users" class="btn btn-outline-secondary btn-sm me-3">
+          <i class="fas fa-arrow-left"></i> Back to Users
+        </a>
+        <h1 class="mb-0">
+          <i class="fas fa-user-edit"></i> Edit User: <code><%= editUser.username %></code>
+        </h1>
+      </div>
+
+      <!-- Hidden: full user JSON for merge on save (no password — already stripped server-side) -->
+      <input type="hidden" id="currentUserJson" value="<%- JSON.stringify(editUser) %>">
+
+      <!-- ── Section 1: Core Fields ── -->
+      <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center"
+             style="cursor:pointer" data-bs-toggle="collapse" data-bs-target="#coreFieldsBody">
+          <span><i class="fas fa-user me-2"></i><strong>Core Fields</strong></span>
+          <i class="fas fa-chevron-up"></i>
+        </div>
+        <div class="collapse show" id="coreFieldsBody">
+          <div class="card-body">
+
+            <div class="mb-3">
+              <label for="editDisplayName" class="form-label">Display Name</label>
+              <input type="text" class="form-control" id="editDisplayName"
+                     value="<%= editUser.displayName || '' %>">
+              <div class="form-text">Optional: full name or preferred display name.</div>
+            </div>
+
+            <div class="mb-3">
+              <label for="editEmail" class="form-label">Email</label>
+              <input type="email" class="form-control" id="editEmail"
+                     value="<%= editUser.email || '' %>">
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Account Type</label>
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="editIsExternal"
+                       <%= editUser.isExternal ? 'checked' : '' %>>
+                <label class="form-check-label" for="editIsExternal">
+                  External OAuth account (no local password)
+                </label>
+              </div>
+              <div class="form-text text-danger" id="editIsExternalAdminWarning" style="display:none">
+                Admin accounts cannot be set as external OAuth accounts.
+              </div>
+            </div>
+
+            <div id="editPasswordSection" <%= editUser.isExternal ? 'style="display:none"' : '' %>>
+              <div class="mb-3">
+                <label for="editPassword" class="form-label">New Password</label>
+                <input type="password" class="form-control" id="editPassword" autocomplete="new-password">
+                <div class="form-text">Leave blank to keep current password.</div>
+              </div>
+              <div class="mb-3">
+                <label for="editConfirmPassword" class="form-label">Confirm New Password</label>
+                <input type="password" class="form-control" id="editConfirmPassword" autocomplete="new-password">
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Roles</label>
+              <% roles.forEach(function(role) { %>
+                <div class="form-check">
+                  <input class="form-check-input role-checkbox" type="checkbox"
+                         value="<%= role.name %>"
+                         id="editRole_<%= role.name %>"
+                         <%= (editUser.roles || []).includes(role.name) ? 'checked' : '' %>>
+                  <label class="form-check-label" for="editRole_<%= role.name %>">
+                    <%= role.displayname %> <small class="text-muted">— <%= role.description %></small>
+                  </label>
+                </div>
+              <% }); %>
+            </div>
+
+            <div class="mb-3">
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="editIsActive"
+                       <%= editUser.isActive ? 'checked' : '' %>>
+                <label class="form-check-label" for="editIsActive">User is active</label>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Section 2: Extended Fields (read-only, addon-owned) ── -->
+      <% const extKeys = Object.keys(extendedFields); %>
+      <% if (extKeys.length > 0) { %>
+      <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center"
+             style="cursor:pointer" data-bs-toggle="collapse" data-bs-target="#extendedFieldsBody">
+          <span>
+            <i class="fas fa-puzzle-piece me-2"></i><strong>Extended Fields</strong>
+            <span class="badge bg-secondary ms-2"><%= extKeys.length %></span>
+            <small class="text-muted ms-2">— managed by addons, read-only here</small>
+          </span>
+          <i class="fas fa-chevron-down"></i>
+        </div>
+        <div class="collapse" id="extendedFieldsBody">
+          <div class="card-body p-0">
+            <table class="table table-sm table-hover mb-0">
+              <thead class="table-light">
+                <tr><th>Field</th><th>Value</th></tr>
+              </thead>
+              <tbody>
+                <% extKeys.forEach(function(key) { %>
+                <tr>
+                  <td><code><%= key %></code></td>
+                  <td>
+                    <% const val = extendedFields[key]; %>
+                    <% if (val === null || val === undefined) { %>
+                      <span class="text-muted fst-italic">null</span>
+                    <% } else if (typeof val === 'object') { %>
+                      <pre class="mb-0 small"><%= JSON.stringify(val, null, 2) %></pre>
+                    <% } else { %>
+                      <%= String(val) %>
+                    <% } %>
+                  </td>
+                </tr>
+                <% }); %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <% } %>
+
+      <!-- ── Save / Cancel ── -->
+      <div class="d-flex gap-2 mb-5">
+        <button type="button" id="saveUserBtn" class="btn btn-primary btn-lg">
+          <i class="fas fa-save"></i> Save Changes
+        </button>
+        <a href="/admin/users" class="btn btn-secondary btn-lg">Cancel</a>
+      </div>
+
+      <!-- Status message -->
+      <div id="saveStatus" class="alert" style="display:none"></div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  const username = '<%- encodeURIComponent(editUser.username) %>';
+
+  // Full current user (no password) — used to preserve extended fields on save
+  const currentUser = JSON.parse(document.getElementById('currentUserJson').value);
+
+  // Toggle password section when isExternal changes
+  document.getElementById('editIsExternal').addEventListener('change', function () {
+    const isExternal = this.checked;
+    document.getElementById('editPasswordSection').style.display = isExternal ? 'none' : '';
+    const isAdmin = !!document.querySelector('.role-checkbox[value="admin"]:checked');
+    document.getElementById('editIsExternalAdminWarning').style.display =
+      (isExternal && isAdmin) ? '' : 'none';
+    if (isExternal) {
+      document.getElementById('editPassword').value = '';
+      document.getElementById('editConfirmPassword').value = '';
+    }
+  });
+
+  // Show admin warning when admin role toggled while external is checked
+  document.querySelectorAll('.role-checkbox').forEach(function (cb) {
+    cb.addEventListener('change', function () {
+      if (this.value === 'admin') {
+        const isExternal = document.getElementById('editIsExternal').checked;
+        document.getElementById('editIsExternalAdminWarning').style.display =
+          (isExternal && this.checked) ? '' : 'none';
+      }
+    });
+  });
+
+  document.getElementById('saveUserBtn').addEventListener('click', async function () {
+    const password = document.getElementById('editPassword').value;
+    const confirmPassword = document.getElementById('editConfirmPassword').value;
+    const isExternal = document.getElementById('editIsExternal').checked;
+    const selectedRoles = Array.from(document.querySelectorAll('.role-checkbox:checked'))
+      .map(cb => cb.value);
+
+    // Validate
+    if (password && password !== confirmPassword) {
+      showStatus('Passwords do not match.', 'danger');
+      return;
+    }
+    if (password && password.length < 6) {
+      showStatus('Password must be at least 6 characters.', 'danger');
+      return;
+    }
+    if (selectedRoles.length === 0) {
+      showStatus('Please select at least one role.', 'danger');
+      return;
+    }
+    if (isExternal && selectedRoles.includes('admin')) {
+      showStatus('Admin accounts cannot be set as external OAuth accounts.', 'danger');
+      return;
+    }
+
+    // Merge: start from the full current user (preserves extended fields),
+    // then overlay with form values so nothing is silently dropped.
+    const updateData = {
+      ...currentUser,
+      displayName: document.getElementById('editDisplayName').value,
+      email: document.getElementById('editEmail').value,
+      isActive: document.getElementById('editIsActive').checked,
+      isExternal: isExternal,
+      roles: selectedRoles
+    };
+    // Never send the stored password hash
+    delete updateData.password;
+    if (password) {
+      updateData.password = password;
+    }
+
+    try {
+      const response = await fetch(`/admin/users/${username}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updateData)
+      });
+      const result = await response.json();
+      if (result.success) {
+        showStatus('User updated successfully.', 'success');
+        setTimeout(() => { window.location.href = '/admin/users'; }, 1000);
+      } else {
+        showStatus('Error: ' + result.message, 'danger');
+      }
+    } catch (err) {
+      showStatus('Error: ' + err.message, 'danger');
+    }
+  });
+
+  function showStatus(msg, type) {
+    const el = document.getElementById('saveStatus');
+    el.className = 'alert alert-' + type;
+    el.textContent = msg;
+    el.style.display = '';
+    el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+})();
+</script>
+
+<%- include('footer') %>

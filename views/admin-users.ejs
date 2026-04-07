@@ -119,16 +119,11 @@
                   <td><%= user.loginCount || 0 %></td>
                   <td>
                     <div class="btn-group btn-group-sm">
-                      <button class="btn btn-outline-primary edit-user-btn"
-                              title="Edit User"
-                              data-username="<%= user.username %>"
-                              data-displayname="<%= user.displayName || '' %>"
-                              data-email="<%= user.email || '' %>"
-                              data-roles="<%= JSON.stringify(user.roles) %>"
-                              data-isactive="<%= user.isActive %>"
-                              data-isexternal="<%= user.isExternal || false %>">
+                      <a href="/admin/users/<%= encodeURIComponent(user.username) %>/edit"
+                         class="btn btn-outline-primary"
+                         title="Edit User">
                         <i class="fas fa-edit"></i>
-                      </button>
+                      </a>
                       <% if (!user.isSystem) { %>
                         <button class="btn btn-outline-danger" title="Delete User">
                           <i class="fas fa-trash"></i>
@@ -236,132 +231,25 @@
   </div>
 </div>
 
-<!-- Edit User Modal -->
-<div class="modal fade" id="editUserModal" tabindex="-1" aria-labelledby="editUserModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="editUserModalLabel">
-          <i class="fas fa-user-edit"></i> Edit User
-        </h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <form id="editUserForm">
-        <div class="modal-body">
-          <input type="hidden" id="editUsername" name="username">
-          
-          <div class="mb-3">
-            <label for="editDisplayName" class="form-label">Display Name</label>
-            <input type="text" class="form-control" id="editDisplayName" name="displayName">
-            <div class="form-text">Optional: Full name or preferred display name.</div>
-          </div>
-          
-          <div class="mb-3">
-            <label for="editEmail" class="form-label">Email</label>
-            <input type="email" class="form-control" id="editEmail" name="email">
-            <div class="form-text">Optional: Email address for notifications.</div>
-          </div>
-          
-          <div class="mb-3">
-            <label class="form-label">Account Type</label>
-            <div class="form-check">
-              <input class="form-check-input" type="checkbox" id="editIsExternal">
-              <label class="form-check-label" for="editIsExternal">
-                External OAuth account (no local password)
-              </label>
-            </div>
-            <div class="form-text text-danger" id="editIsExternalAdminWarning" style="display:none">
-              Admin accounts cannot be set as external OAuth accounts.
-            </div>
-          </div>
-
-          <div id="editPasswordSection">
-            <div class="mb-3">
-              <label for="editPassword" class="form-label">New Password</label>
-              <input type="password" class="form-control" id="editPassword" name="password">
-              <div class="form-text">Leave blank to keep current password.</div>
-            </div>
-
-            <div class="mb-3">
-              <label for="editConfirmPassword" class="form-label">Confirm New Password</label>
-              <input type="password" class="form-control" id="editConfirmPassword">
-              <div class="form-text">Must match the new password if changing password.</div>
-            </div>
-          </div>
-          
-          <div class="mb-3">
-            <label class="form-label">Roles</label>
-            <div class="form-check">
-              <input class="form-check-input" type="checkbox" value="reader" id="editRoleReader" name="roles">
-              <label class="form-check-label" for="editRoleReader">
-                Reader (Read-only access)
-              </label>
-            </div>
-            <div class="form-check">
-              <input class="form-check-input" type="checkbox" value="contributor" id="editRoleContributor" name="roles">
-              <label class="form-check-label" for="editRoleContributor">
-                Contributor (Can edit and create pages)
-              </label>
-            </div>
-            <div class="form-check">
-              <input class="form-check-input" type="checkbox" value="editor" id="editRoleEditor" name="roles">
-              <label class="form-check-label" for="editRoleEditor">
-                Editor (Can edit and create pages, and delete)
-              </label>
-            </div>
-            <div class="form-check">
-              <input class="form-check-input" type="checkbox" value="admin" id="editRoleAdmin" name="roles">
-              <label class="form-check-label" for="editRoleAdmin">
-                Admin (Full administrative access)
-              </label>
-            </div>
-          </div>
-          
-          <div class="mb-3">
-            <div class="form-check">
-              <input class="form-check-input" type="checkbox" id="editIsActive" name="isActive">
-              <label class="form-check-label" for="editIsActive">
-                User is active
-              </label>
-            </div>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-          <button type="submit" class="btn btn-primary">
-            <i class="fas fa-save"></i> Update User
-          </button>
-        </div>
-      </form>
-    </div>
-  </div>
-</div>
-
 <script>
-// Form validation
 document.addEventListener('DOMContentLoaded', function() {
   const form = document.querySelector('#createUserModal form');
   const password = document.getElementById('password');
   const confirmPassword = document.getElementById('confirmPassword');
-  
+
   form.addEventListener('submit', function(e) {
-    // Check password match
     if (password.value !== confirmPassword.value) {
       e.preventDefault();
       confirmPassword.setCustomValidity('Passwords do not match');
       confirmPassword.reportValidity();
       return false;
     }
-    
-    // Check password length
     if (password.value.length < 6) {
       e.preventDefault();
       password.setCustomValidity('Password must be at least 6 characters');
       password.reportValidity();
       return false;
     }
-    
-    // Check at least one role is selected
     const roles = document.querySelectorAll('input[name="roles"]:checked');
     if (roles.length === 0) {
       e.preventDefault();
@@ -369,159 +257,10 @@ document.addEventListener('DOMContentLoaded', function() {
       return false;
     }
   });
-  
-  // Clear custom validity on input
-  confirmPassword.addEventListener('input', function() {
-    this.setCustomValidity('');
-  });
-  
-  password.addEventListener('input', function() {
-    this.setCustomValidity('');
-  });
 
-  // Edit user functionality
-  const editButtons = document.querySelectorAll('.edit-user-btn');
-  const editModal = document.getElementById('editUserModal');
-  const editForm = document.getElementById('editUserForm');
-  
-  editButtons.forEach(button => {
-    button.addEventListener('click', function() {
-      const username = this.dataset.username;
-      const displayName = this.dataset.displayname;
-      const email = this.dataset.email;
-      const roles = JSON.parse(this.dataset.roles);
-      const isActive = this.dataset.isactive === 'true';
-      const isExternal = this.dataset.isexternal === 'true';
-
-      // Populate the form
-      document.getElementById('editUsername').value = username;
-      document.getElementById('editDisplayName').value = displayName;
-      document.getElementById('editEmail').value = email;
-      document.getElementById('editPassword').value = '';
-      document.getElementById('editConfirmPassword').value = '';
-      document.getElementById('editIsActive').checked = isActive;
-      document.getElementById('editIsExternal').checked = isExternal;
-      document.getElementById('editPasswordSection').style.display = isExternal ? 'none' : '';
-      document.getElementById('editIsExternalAdminWarning').style.display = 'none';
-      
-      // Clear all role checkboxes first
-      document.getElementById('editRoleReader').checked = false;
-      document.getElementById('editRoleContributor').checked = false;
-      document.getElementById('editRoleEditor').checked = false;
-      document.getElementById('editRoleAdmin').checked = false;
-      
-      // Set role checkboxes based on user's roles
-      roles.forEach(role => {
-        const checkbox = document.getElementById('editRole' + role.charAt(0).toUpperCase() + role.slice(1));
-        if (checkbox) {
-          checkbox.checked = true;
-        }
-      });
-      
-      // Show the modal
-      const modal = new bootstrap.Modal(editModal);
-      modal.show();
-    });
-  });
-
-  // Toggle password section and admin warning when isExternal changes
-  document.getElementById('editIsExternal').addEventListener('change', function() {
-    const isExternal = this.checked;
-    document.getElementById('editPasswordSection').style.display = isExternal ? 'none' : '';
-    const isAdmin = document.getElementById('editRoleAdmin').checked;
-    document.getElementById('editIsExternalAdminWarning').style.display = (isExternal && isAdmin) ? '' : 'none';
-    if (isExternal) {
-      document.getElementById('editPassword').value = '';
-      document.getElementById('editConfirmPassword').value = '';
-    }
-  });
-
-  // Also check when admin role is toggled
-  document.getElementById('editRoleAdmin').addEventListener('change', function() {
-    const isExternal = document.getElementById('editIsExternal').checked;
-    document.getElementById('editIsExternalAdminWarning').style.display = (isExternal && this.checked) ? '' : 'none';
-  });
-  
-  // Edit form submission
-  editForm.addEventListener('submit', async function(e) {
-    e.preventDefault();
-    
-    const formData = new FormData(this);
-    const username = formData.get('username');
-    const password = formData.get('password');
-    const confirmPassword = document.getElementById('editConfirmPassword').value;
-    
-    // Validate password if provided
-    if (password && password !== confirmPassword) {
-      document.getElementById('editConfirmPassword').setCustomValidity('Passwords do not match');
-      document.getElementById('editConfirmPassword').reportValidity();
-      return;
-    }
-    
-    if (password && password.length < 6) {
-      document.getElementById('editPassword').setCustomValidity('Password must be at least 6 characters');
-      document.getElementById('editPassword').reportValidity();
-      return;
-    }
-    
-    // Check at least one role is selected
-    const selectedRoles = document.querySelectorAll('#editUserModal input[name="roles"]:checked');
-    if (selectedRoles.length === 0) {
-      alert('Please select at least one role for the user.');
-      return;
-    }
-    
-    // Prepare update data
-    const isExternal = document.getElementById('editIsExternal').checked;
-    if (isExternal && Array.from(selectedRoles).some(cb => cb.value === 'admin')) {
-      alert('Admin accounts cannot be set as external OAuth accounts.');
-      return;
-    }
-
-    const updateData = {
-      displayName: formData.get('displayName'),
-      email: formData.get('email'),
-      isActive: formData.has('isActive'),
-      isExternal: isExternal,
-      roles: Array.from(selectedRoles).map(cb => cb.value)
-    };
-    
-    // Only include password if it's provided
-    if (password) {
-      updateData.password = password;
-    }
-    
-    try {
-      const response = await fetch(`/admin/users/${username}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(updateData)
-      });
-      
-      const result = await response.json();
-      
-      if (result.success) {
-        // Close modal and reload page
-        bootstrap.Modal.getInstance(editModal).hide();
-        window.location.reload();
-      } else {
-        alert('Error updating user: ' + result.message);
-      }
-    } catch (error) {
-      alert('Error updating user: ' + error.message);
-    }
-  });
-  
-  // Clear edit form validation on input
-  document.getElementById('editConfirmPassword').addEventListener('input', function() {
-    this.setCustomValidity('');
-  });
-  
-  document.getElementById('editPassword').addEventListener('input', function() {
-    this.setCustomValidity('');
-  });
-});</script>
+  confirmPassword.addEventListener('input', function() { this.setCustomValidity(''); });
+  password.addEventListener('input', function() { this.setCustomValidity(''); });
+});
+</script>
 
 <%- include('footer') %>

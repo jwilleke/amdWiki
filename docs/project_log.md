@@ -22,6 +22,29 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - [file2.md]
 ```
 
+## 2026-04-07-02
+
+- Agent: Claude Code (Sonnet 4.6)
+- Subject: fix: admin user edit modal replaced with full-page form; extended fields preserved (#478)
+- Key Decision: Moved user edit from modal to full page `/admin/users/:username/edit`. Route handler named `userEdit()` (not `adminUserEdit()`) so it is not conceptually locked to admin-only — future user-admin roles can reuse it by changing only the permission check. Save merges form values over full preserved user JSON so no extended/addon fields are ever dropped. `ngdpbase.user.coreFields` added to config as canonical registry of platform-owned fields; everything else is addon-owned and shown read-only. Filed #480 for permissions registry.
+- Current Issue: #480 (permissions registry — next)
+- Testing:
+  - npm test: 105 suites passed, 2669 tests passed, 10 skipped
+- Work Done:
+  - Added `ngdpbase.user.coreFields` to `config/app-default-config.json`
+  - Added `[key: string]: unknown` index signature to `UserUpdateInput` in `UserManager.ts`
+  - Added `GET /admin/users/:username/edit` route + `userEdit()` method in `WikiRoutes.ts`
+  - Created `views/admin-user-edit.ejs` — full page with collapsible Core Fields and Extended Fields sections
+  - Updated `views/admin-users.ejs` — edit button → direct link; modal + modal JS removed
+  - Filed jwilleke/ngdpbase#480 — permissions registry feature
+- Commits: (pending)
+- Files Modified:
+  - config/app-default-config.json
+  - src/managers/UserManager.ts
+  - src/routes/WikiRoutes.ts
+  - views/admin-user-edit.ejs (new)
+  - views/admin-users.ejs
+
 ## 2026-04-07-01
 
 - Agent: Claude Code (Sonnet 4.6)
