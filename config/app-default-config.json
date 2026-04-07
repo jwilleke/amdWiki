@@ -2,7 +2,7 @@
   "ngdpbase.application-name": "Jimstest",
   "ngdpbase.favicon-path": "/favicon.svg",
   "ngdpbase.application.category": "Digital Platform",
-  "ngdpbase.version": "3.1.4",
+  "ngdpbase.version": "3.2.0",
   "ngdpbase.github.repo": "jwilleke/ngdpbase",
   "ngdpbase.base-url": "http://localhost:3000",
   "ngdpbase.encoding": "UTF-8",
@@ -952,30 +952,109 @@
   },
   "_comment_user_coreFields": "Fields owned by the core platform on user records. Any field NOT in this list is treated as an extended/addon field and rendered read-only in the admin user edit page.",
   "ngdpbase.user.coreFields": [
-    "username", "email", "displayName", "password",
-    "roles", "isActive", "isExternal", "isSystem",
-    "createdAt", "loginCount", "lastLogin",
-    "preferences", "profilePage", "allowedAuthMethods", "avatar"
+    "username",
+    "email",
+    "displayName",
+    "password",
+    "roles",
+    "isActive",
+    "isExternal",
+    "isSystem",
+    "createdAt",
+    "loginCount",
+    "lastLogin",
+    "preferences",
+    "profilePage",
+    "allowedAuthMethods",
+    "avatar"
   ],
   "_comment_permissions": "Canonical permission registry. Format: {target}-{action}. Target-first, hyphen-separated (URL-safe). asset-* = file/attachment operations.",
   "ngdpbase.permissions.definitions": {
-    "page-read":    { "description": "View pages",                   "icon": "eye",         "color": "#6c757d" },
-    "page-edit":    { "description": "Edit pages",                   "icon": "edit",        "color": "#007bff" },
-    "page-create":  { "description": "Create new pages",             "icon": "plus",        "color": "#28a745" },
-    "page-delete":  { "description": "Delete pages",                 "icon": "trash",       "color": "#dc3545" },
-    "page-rename":  { "description": "Rename pages",                 "icon": "i-cursor",    "color": "#fd7e14" },
-    "page-export":  { "description": "Export pages",                 "icon": "file-export", "color": "#6c757d" },
-    "asset-read":   { "description": "View assets (attachments)",    "icon": "paperclip",   "color": "#6c757d" },
-    "asset-upload": { "description": "Upload assets",                "icon": "upload",      "color": "#28a745" },
-    "asset-delete": { "description": "Delete assets",                "icon": "trash",       "color": "#dc3545" },
-    "search-page":  { "description": "Search pages",                 "icon": "search",      "color": "#6c757d" },
-    "search-user":  { "description": "Search users",                 "icon": "search",      "color": "#6c757d" },
-    "user-read":    { "description": "View user list and profiles",  "icon": "users",       "color": "#6c757d" },
-    "user-edit":    { "description": "Edit user accounts",           "icon": "user-edit",   "color": "#007bff" },
-    "user-create":  { "description": "Create user accounts",         "icon": "user-plus",   "color": "#28a745" },
-    "user-delete":  { "description": "Delete user accounts",         "icon": "user-minus",  "color": "#dc3545" },
-    "admin-system": { "description": "System administration",        "icon": "cog",         "color": "#dc3545" },
-    "admin-roles":  { "description": "Role management",              "icon": "shield-alt",  "color": "#dc3545" }
+    "page-read": {
+      "description": "View pages",
+      "icon": "eye",
+      "color": "#6c757d"
+    },
+    "page-edit": {
+      "description": "Edit pages",
+      "icon": "edit",
+      "color": "#007bff"
+    },
+    "page-create": {
+      "description": "Create new pages",
+      "icon": "plus",
+      "color": "#28a745"
+    },
+    "page-delete": {
+      "description": "Delete pages",
+      "icon": "trash",
+      "color": "#dc3545"
+    },
+    "page-rename": {
+      "description": "Rename pages",
+      "icon": "i-cursor",
+      "color": "#fd7e14"
+    },
+    "page-export": {
+      "description": "Export pages",
+      "icon": "file-export",
+      "color": "#6c757d"
+    },
+    "asset-read": {
+      "description": "View assets (attachments)",
+      "icon": "paperclip",
+      "color": "#6c757d"
+    },
+    "asset-upload": {
+      "description": "Upload assets",
+      "icon": "upload",
+      "color": "#28a745"
+    },
+    "asset-delete": {
+      "description": "Delete assets",
+      "icon": "trash",
+      "color": "#dc3545"
+    },
+    "search-page": {
+      "description": "Search pages",
+      "icon": "search",
+      "color": "#6c757d"
+    },
+    "search-user": {
+      "description": "Search users",
+      "icon": "search",
+      "color": "#6c757d"
+    },
+    "user-read": {
+      "description": "View user list and profiles",
+      "icon": "users",
+      "color": "#6c757d"
+    },
+    "user-edit": {
+      "description": "Edit user accounts",
+      "icon": "user-edit",
+      "color": "#007bff"
+    },
+    "user-create": {
+      "description": "Create user accounts",
+      "icon": "user-plus",
+      "color": "#28a745"
+    },
+    "user-delete": {
+      "description": "Delete user accounts",
+      "icon": "user-minus",
+      "color": "#dc3545"
+    },
+    "admin-system": {
+      "description": "System administration",
+      "icon": "cog",
+      "color": "#dc3545"
+    },
+    "admin-roles": {
+      "description": "Role management",
+      "icon": "shield-alt",
+      "color": "#dc3545"
+    }
   },
   "_comment_roles": "Role definitions - metadata only, permissions defined via policies below (ALL LOWERCASE)",
   "ngdpbase.roles.definitions": {

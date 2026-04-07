@@ -22,6 +22,48 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - [file2.md]
 ```
 
+## 2026-04-07-08
+
+- Agent: Claude Code (Sonnet 4.6)
+- Subject: chore: version bump 3.1.4 → 3.2.0
+- Key Decision: MINOR bump — new features added this session: Pages as asset source (#433), app.ts TypeScript entry point (#483), type-specific asset icons, permissions registry (#480), MarkupParser bug fixes (#468–#477).
+- Current Issue: none
+- Testing:
+  - npm test: 105 suites passed, 2679 tests passed
+  - E2E: 72 tests passed
+- Work Done:
+  - `npm run version:minor` — bumped package.json and config/app-default-config.json to 3.2.0
+  - Pushed git tag v3.2.0
+- Commits: (see below)
+- Files Modified:
+  - package.json
+  - config/app-default-config.json
+
+## 2026-04-07-07
+
+- Agent: Claude Code (Sonnet 4.6)
+- Subject: refactor: migrate app.js to src/app.ts — TypeScript entry point (#483)
+- Key Decision: app.js was the last major plain-JS file at project root. Moved to src/app.ts (compiles to dist/src/app.js). All project-root paths changed from `__dirname` to `process.cwd()` since `__dirname` resolves to `dist/src/` after compilation. FileStore typed via @types/session-file-store (was untyped require()). InstallService imported at top level instead of inline require(). Per-request console.log gated behind `ngdpbase.logging.debug.requests` config flag. Async SIGINT/SIGTERM handlers wrapped with void IIFEs for no-misused-promises. Deleted root app.js after migration confirmed working.
+- Current Issue: #483 (closed)
+- Testing:
+  - npm test: 105 suites passed, 2679 tests passed
+  - E2E: 72 tests passed
+- Work Done:
+  - Created `src/app.ts` — TypeScript entry point with full type annotations
+  - `ecosystem.config.js`: `script: 'app.js'` → `script: 'dist/src/app.js'`
+  - `package.json`: main + all start scripts updated to `dist/src/app.js`
+  - `server.sh`: 4 pgrep/grep/ps patterns updated to `dist/src/app.js`
+  - Deleted `app.js` (git rm)
+  - Installed `@types/cookie-parser` and `@types/session-file-store`
+  - Filed and closed jwilleke/ngdpbase#483
+- Commits: 4da358dc, ac84334f
+- Files Modified:
+  - src/app.ts (new)
+  - app.js (deleted)
+  - ecosystem.config.js
+  - package.json
+  - server.sh
+
 ## 2026-04-07-06
 
 - Agent: Claude Code (Sonnet 4.6)
