@@ -2500,13 +2500,15 @@ class WikiRoutes {
    */
   async slideshow(req: Request, res: Response) {
     try {
-      const count     = Math.min(50, Math.max(1, parseInt(req.query.count as string, 10) || 10));
-      const interval  = Math.max(1, parseInt(req.query.interval as string, 10) || 8);
-      const excerptLen = Math.max(50, parseInt(req.query.excerpt as string, 10) || 1500);
+      const count    = Math.min(50, Math.max(1, parseInt(req.query.count as string, 10) || 10));
+      const interval = Math.max(1, parseInt(req.query.interval as string, 10) || 8);
 
-      const pageManager = this.engine.getManager('PageManager') as {
+      const pageManager      = this.engine.getManager('PageManager') as {
         getAllPages(): Promise<string[]>;
         getPage(name: string): Promise<{ title?: string; content?: string; rawContent?: string } | null>;
+      };
+      const renderingManager = this.engine.getManager('RenderingManager') as {
+        textToHTML(ctx: unknown, markdown: string): Promise<string>;
       };
 
       const all = await pageManager.getAllPages();
@@ -2519,17 +2521,18 @@ class WikiRoutes {
       }
       const names = pool.slice(0, count);
 
-      // Fetch each page and extract a plain-text excerpt
-      const slides: { name: string; title: string; excerpt: string; url: string }[] = [];
+      // Render each page through the wiki engine (reader mode — full HTML)
+      const slides: { name: string; title: string; html: string; url: string }[] = [];
       for (const name of names) {
         const page = await pageManager.getPage(name);
         if (!page) continue;
-        const raw = page.rawContent ?? page.content ?? '';
-        const excerpt = this._slideshowExcerpt(raw, excerptLen);
+        const raw = String(page.rawContent ?? page.content ?? '');
+        const wikiCtx = this.createWikiContext(req, { pageName: name });
+        const html = await renderingManager.textToHTML(wikiCtx, raw);
         slides.push({
           name,
-          title: page.title ?? name,
-          excerpt,
+          title: String(page.title ?? name),
+          html,
           url: '/view/' + encodeURIComponent(name)
         });
       }
@@ -2546,27 +2549,6 @@ class WikiRoutes {
       logger.error('[slideshow] Error:', err);
       return this.renderError(req, res, 500, 'Slideshow Error', 'Could not load slideshow.');
     }
-  }
-
-  /** Strip markup from raw page content and return a plain-text excerpt. */
-  private _slideshowExcerpt(raw: string, maxLen: number): string {
-    const text = raw
-      .replace(/^---[\s\S]*?---\n?/, '')          // YAML frontmatter
-      .replace(/\[\{[\s\S]*?\}\]/g, '')            // [{Plugin ...}]
-      .replace(/!\[.*?\]\(.*?\)/g, '')             // markdown images
-      .replace(/^#{1,6}\s+/gm, '')                 // headings
-      .replace(/\*{1,3}([^*]+)\*{1,3}/g, '$1')    // bold/italic
-      .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')     // [label](url)
-      .replace(/\[([^\]]+)\]/g, '$1')              // [WikiLink]
-      .replace(/`{1,3}[^`]*`{1,3}/g, '')           // code
-      .replace(/^\s*[-*+]\s+/gm, '')               // list bullets
-      .replace(/\n{2,}/g, ' ')
-      .replace(/\n/g, ' ')
-      .trim();
-
-    if (text.length <= maxLen) return text;
-    const cut = text.lastIndexOf(' ', maxLen);
-    return (cut > 0 ? text.slice(0, cut) : text.slice(0, maxLen)) + '…';
   }
 
   async searchPages(req: Request, res: Response) {

@@ -10,8 +10,8 @@
 
         html, body {
             height: 100%;
-            background: #0a0a0a;
-            color: #fff;
+            background: #111;
+            color: #e8e6e3;
             font-family: Georgia, 'Times New Roman', serif;
             overflow: hidden;
         }
@@ -20,9 +20,6 @@
         #ss-stage {
             position: fixed;
             inset: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
         }
 
         .ss-slide {
@@ -30,66 +27,128 @@
             inset: 0;
             display: flex;
             flex-direction: column;
-            align-items: flex-start;
-            justify-content: flex-start;
-            padding: clamp(3rem, 5vh, 5rem) clamp(2rem, 6vw, 7rem) 5rem;
+            padding: clamp(2rem, 4vh, 3.5rem) clamp(2rem, 5vw, 6rem) 4.5rem;
             overflow: hidden;
             opacity: 0;
             transition: opacity 0.8s ease;
-            cursor: pointer;
             text-decoration: none;
             color: inherit;
         }
         .ss-slide.active  { opacity: 1; }
         .ss-slide.exiting { opacity: 0; }
 
-        /* subtle radial glow behind active slide */
-        .ss-slide::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: radial-gradient(ellipse 80% 70% at 30% 30%,
-                rgba(255,255,255,0.04) 0%, transparent 65%);
-            pointer-events: none;
-        }
-
+        /* ── title bar ──────────────────────────────────── */
         .ss-title {
-            font-size: clamp(1.6rem, 3.5vw, 3rem);
+            font-size: clamp(1.4rem, 3vw, 2.5rem);
             font-weight: 700;
             letter-spacing: -0.02em;
             line-height: 1.15;
-            margin-bottom: 1.25rem;
-            text-shadow: 0 2px 20px rgba(0,0,0,0.6);
-        }
-
-        .ss-excerpt {
-            font-size: clamp(1rem, 1.6vw, 1.25rem);
-            font-weight: 400;
-            line-height: 1.8;
-            color: rgba(255,255,255,0.78);
-            text-shadow: 0 1px 8px rgba(0,0,0,0.5);
-            flex: 1;
-            overflow: hidden;
-        }
-
-        .ss-readmore {
-            margin-top: 1.5rem;
+            margin-bottom: 0.6rem;
             flex-shrink: 0;
-            font-size: 0.82rem;
+            color: #fff;
+            text-shadow: 0 1px 12px rgba(0,0,0,0.5);
+        }
+
+        .ss-divider {
+            flex-shrink: 0;
+            height: 1px;
+            background: rgba(255,255,255,0.12);
+            margin-bottom: 1.25rem;
+        }
+
+        /* ── reader pane ────────────────────────────────── */
+        .ss-reader {
+            flex: 1;
+            overflow-y: auto;
+            overflow-x: hidden;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(255,255,255,0.18) transparent;
+            padding-right: 0.75rem;
+            /* fade-out bottom so text trails off gracefully */
+            -webkit-mask-image: linear-gradient(to bottom, black 80%, transparent 100%);
+            mask-image: linear-gradient(to bottom, black 80%, transparent 100%);
+            font-size: clamp(0.95rem, 1.5vw, 1.15rem);
+            line-height: 1.8;
+            color: rgba(232,230,227,0.88);
+            cursor: pointer;
+        }
+
+        /* ── reader content typography ──────────────────── */
+        .ss-reader h1, .ss-reader h2, .ss-reader h3,
+        .ss-reader h4, .ss-reader h5, .ss-reader h6 {
+            color: #fff;
+            font-weight: 600;
+            line-height: 1.25;
+            margin: 1.1em 0 0.45em;
+        }
+        .ss-reader h1 { font-size: 1.55em; }
+        .ss-reader h2 { font-size: 1.3em; }
+        .ss-reader h3 { font-size: 1.12em; }
+        .ss-reader h4, .ss-reader h5, .ss-reader h6 { font-size: 1em; }
+        .ss-reader p  { margin: 0 0 0.85em; }
+        .ss-reader ul, .ss-reader ol { margin: 0 0 0.85em 1.6em; }
+        .ss-reader li { margin-bottom: 0.3em; }
+        .ss-reader a  { color: rgba(130,190,255,0.9); text-decoration: none; pointer-events: none; }
+        .ss-reader blockquote {
+            border-left: 3px solid rgba(255,255,255,0.25);
+            margin: 0 0 0.85em;
+            padding: 0.3em 0 0.3em 1em;
+            color: rgba(232,230,227,0.6);
+            font-style: italic;
+        }
+        .ss-reader code {
+            background: rgba(255,255,255,0.1);
+            padding: 0.15em 0.35em;
+            border-radius: 3px;
+            font-family: 'Menlo', 'Consolas', monospace;
+            font-size: 0.88em;
+        }
+        .ss-reader pre {
+            background: rgba(255,255,255,0.07);
+            border: 1px solid rgba(255,255,255,0.1);
+            padding: 0.8em 1em;
+            border-radius: 6px;
+            overflow-x: auto;
+            margin: 0 0 0.85em;
+        }
+        .ss-reader pre code { background: none; padding: 0; }
+        .ss-reader table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 0 0 0.85em;
+            font-size: 0.93em;
+        }
+        .ss-reader th, .ss-reader td {
+            border: 1px solid rgba(255,255,255,0.14);
+            padding: 0.4em 0.7em;
+            text-align: left;
+        }
+        .ss-reader th { background: rgba(255,255,255,0.07); color: #fff; font-weight: 600; }
+        .ss-reader img { max-width: 100%; height: auto; border-radius: 5px; margin: 0.5em 0; }
+        .ss-reader hr { border: none; border-top: 1px solid rgba(255,255,255,0.12); margin: 1em 0; }
+        /* hide Bootstrap alerts/badges noise in reader mode */
+        .ss-reader .alert { background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.14); border-radius: 6px; padding: 0.6em 0.9em; margin: 0 0 0.85em; }
+        .ss-reader .badge { display: none; }
+
+        /* ── open-page hint ─────────────────────────────── */
+        .ss-readmore {
+            flex-shrink: 0;
+            margin-top: 0.75rem;
+            font-size: 0.78rem;
             font-family: system-ui, sans-serif;
-            letter-spacing: 0.12em;
+            letter-spacing: 0.1em;
             text-transform: uppercase;
-            color: rgba(255,255,255,0.35);
+            color: rgba(255,255,255,0.28);
             transition: color 0.2s;
         }
-        .ss-slide:hover .ss-readmore { color: rgba(255,255,255,0.75); }
+        .ss-slide:hover .ss-readmore { color: rgba(255,255,255,0.65); }
 
         /* ── progress bar ──────────────────────────────── */
         #ss-progress {
             position: fixed;
             top: 0; left: 0;
             height: 2px;
-            background: rgba(255,255,255,0.6);
+            background: rgba(255,255,255,0.55);
             width: 0%;
             z-index: 10;
         }
@@ -101,8 +160,8 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 1rem 1.5rem;
-            background: linear-gradient(transparent, rgba(0,0,0,0.55));
+            padding: 0.75rem 1.5rem;
+            background: linear-gradient(transparent, rgba(0,0,0,0.6));
             opacity: 0;
             transition: opacity 0.3s;
             z-index: 10;
@@ -112,19 +171,19 @@
         #ss-counter {
             font-family: system-ui, sans-serif;
             font-size: 0.8rem;
-            color: rgba(255,255,255,0.5);
+            color: rgba(255,255,255,0.45);
             letter-spacing: 0.08em;
         }
 
-        .ss-controls { display: flex; gap: 0.5rem; align-items: center; }
+        .ss-controls { display: flex; gap: 0.4rem; align-items: center; }
 
         .ss-btn {
-            background: rgba(255,255,255,0.12);
-            border: 1px solid rgba(255,255,255,0.2);
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.18);
             color: #fff;
             border-radius: 6px;
-            padding: 0.35rem 0.65rem;
-            font-size: 0.9rem;
+            padding: 0.3rem 0.6rem;
+            font-size: 0.88rem;
             cursor: pointer;
             transition: background 0.15s;
             text-decoration: none;
@@ -132,15 +191,15 @@
             align-items: center;
             gap: 0.3rem;
         }
-        .ss-btn:hover { background: rgba(255,255,255,0.25); color: #fff; }
+        .ss-btn:hover { background: rgba(255,255,255,0.22); color: #fff; }
 
         /* ── settings panel ────────────────────────────── */
         #ss-settings {
             position: fixed;
             top: 50%; left: 50%;
             transform: translate(-50%, -50%);
-            background: rgba(20,20,20,0.96);
-            border: 1px solid rgba(255,255,255,0.15);
+            background: rgba(18,18,18,0.97);
+            border: 1px solid rgba(255,255,255,0.14);
             border-radius: 12px;
             padding: 1.5rem 2rem;
             z-index: 20;
@@ -149,10 +208,10 @@
             font-family: system-ui, sans-serif;
         }
         #ss-settings.open { display: block; }
-        #ss-settings label { display: block; font-size: 0.85rem; color: rgba(255,255,255,0.6); margin-bottom: 0.25rem; margin-top: 0.75rem; }
+        #ss-settings label { display: block; font-size: 0.85rem; color: rgba(255,255,255,0.55); margin-bottom: 0.25rem; margin-top: 0.75rem; }
         #ss-settings input[type=number] {
             width: 100%; padding: 0.4rem 0.6rem; border-radius: 6px;
-            border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.18); background: rgba(255,255,255,0.07);
             color: #fff; font-size: 0.9rem;
         }
         #ss-settings .ss-settings-btns { display: flex; gap: 0.5rem; margin-top: 1.25rem; }
@@ -165,15 +224,16 @@
 
 <div id="ss-stage">
 <% slides.forEach(function(slide, i) { %>
-    <a href="<%= slide.url %>" target="_blank" rel="noopener"
-       class="ss-slide<% if (i === 0) { %> active<% } %>"
-       data-index="<%= i %>">
+    <div class="ss-slide<% if (i === 0) { %> active<% } %>"
+         data-index="<%= i %>" data-url="<%= slide.url %>">
         <div class="ss-title"><%= slide.title %></div>
-        <% if (slide.excerpt) { %>
-        <div class="ss-excerpt"><%= slide.excerpt %></div>
-        <% } %>
-        <div class="ss-readmore"><i class="fas fa-external-link-alt" style="font-size:0.75em;margin-right:0.4em;"></i>Open page &nbsp;·&nbsp; <kbd style="font-size:0.8em;opacity:0.55;">Space</kbd></div>
-    </a>
+        <div class="ss-divider"></div>
+        <div class="ss-reader"><%- slide.html %></div>
+        <div class="ss-readmore">
+            <i class="fas fa-external-link-alt" style="font-size:0.75em;margin-right:0.35em;"></i>Open page
+            &nbsp;·&nbsp; <kbd style="font-size:0.85em;opacity:0.6;">Space</kbd>
+        </div>
+    </div>
 <% }); %>
 </div>
 
@@ -182,7 +242,7 @@
     <span id="ss-counter">1 / <%= slides.length %></span>
     <div class="ss-controls">
         <button class="ss-btn" id="ss-prev" title="Previous (←)"><i class="fas fa-chevron-left"></i></button>
-        <button class="ss-btn" id="ss-pp"   title="Pause (Space)"><i class="fas fa-pause" id="ss-pp-icon"></i></button>
+        <button class="ss-btn" id="ss-pp"   title="Pause (P)"><i class="fas fa-pause" id="ss-pp-icon"></i></button>
         <button class="ss-btn" id="ss-next" title="Next (→)"><i class="fas fa-chevron-right"></i></button>
         <button class="ss-btn" id="ss-cfg"  title="Settings"><i class="fas fa-cog"></i></button>
         <button class="ss-btn" id="ss-fs"   title="Fullscreen (F)"><i class="fas fa-expand" id="ss-fs-icon"></i></button>
@@ -199,14 +259,14 @@
     <input type="number" id="cfg-interval" min="1" max="120" value="<%= interval %>">
     <div class="ss-settings-btns">
         <button class="ss-btn" id="cfg-cancel">Cancel</button>
-        <button class="ss-btn" id="cfg-apply" style="background:rgba(13,110,253,0.5);">Apply</button>
+        <button class="ss-btn" id="cfg-apply" style="background:rgba(13,110,253,0.45);">Apply</button>
     </div>
 </div>
 
 <script>
 (function () {
-    var slides   = document.querySelectorAll('.ss-slide');
-    var total    = slides.length;
+    var slideEls = document.querySelectorAll('.ss-slide');
+    var total    = slideEls.length;
     var idx      = 0;
     var playing  = true;
     var timer    = null;
@@ -217,11 +277,19 @@
 
     if (total === 0) return;
 
+    function openCurrent() {
+        var url = slideEls[idx].getAttribute('data-url');
+        if (url) window.open(url, '_blank', 'noopener');
+    }
+
     // ── navigation ───────────────────────────────────────
     function goTo(i, userTriggered) {
-        slides[idx].classList.remove('active');
+        slideEls[idx].classList.remove('active');
+        // reset scroll on departing slide
+        var oldReader = slideEls[idx].querySelector('.ss-reader');
+        if (oldReader) oldReader.scrollTop = 0;
         idx = ((i % total) + total) % total;
-        slides[idx].classList.add('active');
+        slideEls[idx].classList.add('active');
         counter.textContent = (idx + 1) + ' / ' + total;
         if (playing || userTriggered) startProgress();
     }
@@ -230,7 +298,7 @@
     function startProgress() {
         progEl.style.transition = 'none';
         progEl.style.width = '0%';
-        void progEl.offsetWidth; // force reflow
+        void progEl.offsetWidth;
         if (!playing) { progEl.style.width = '0%'; return; }
         progEl.style.transition = 'width ' + (interval / 1000) + 's linear';
         progEl.style.width = '100%';
@@ -256,24 +324,38 @@
         scheduleNext();
     }
 
+    // ── click on slide opens page ─────────────────────────
+    slideEls.forEach(function (el) {
+        el.addEventListener('click', function (e) {
+            // Don't open if click was inside the scrollable reader (user may be scrolling)
+            var reader = el.querySelector('.ss-reader');
+            if (reader && reader.contains(e.target)) return;
+            openCurrent();
+        });
+    });
+
     // ── controls ─────────────────────────────────────────
-    document.getElementById('ss-prev').addEventListener('click', function () {
+    document.getElementById('ss-prev').addEventListener('click', function (e) {
+        e.stopPropagation();
         clearTimeout(timer);
         goTo(idx - 1, true);
         if (playing) scheduleNext();
     });
-    document.getElementById('ss-next').addEventListener('click', function () {
+    document.getElementById('ss-next').addEventListener('click', function (e) {
+        e.stopPropagation();
         clearTimeout(timer);
         goTo(idx + 1, true);
         if (playing) scheduleNext();
     });
-    document.getElementById('ss-pp').addEventListener('click', function () {
+    document.getElementById('ss-pp').addEventListener('click', function (e) {
+        e.stopPropagation();
         if (playing) pause(); else play();
     });
 
     // ── fullscreen ────────────────────────────────────────
     var fsIcon = document.getElementById('ss-fs-icon');
-    document.getElementById('ss-fs').addEventListener('click', function () {
+    document.getElementById('ss-fs').addEventListener('click', function (e) {
+        e.stopPropagation();
         if (!document.fullscreenElement) {
             void document.documentElement.requestFullscreen();
         } else {
@@ -286,7 +368,8 @@
 
     // ── settings panel ────────────────────────────────────
     var panel = document.getElementById('ss-settings');
-    document.getElementById('ss-cfg').addEventListener('click', function () {
+    document.getElementById('ss-cfg').addEventListener('click', function (e) {
+        e.stopPropagation();
         panel.classList.toggle('open');
         if (panel.classList.contains('open')) pause();
     });
@@ -303,11 +386,11 @@
     // ── keyboard ──────────────────────────────────────────
     document.addEventListener('keydown', function (e) {
         if (panel.classList.contains('open')) return;
-        if (e.key === 'ArrowLeft')       { document.getElementById('ss-prev').click(); }
-        else if (e.key === 'ArrowRight') { document.getElementById('ss-next').click(); }
-        else if (e.key === ' ')          { e.preventDefault(); slides[idx].click(); }
-        else if (e.key === 'p' || e.key === 'P') { document.getElementById('ss-pp').click(); }
-        else if (e.key === 'f' || e.key === 'F') { document.getElementById('ss-fs').click(); }
+        if (e.key === 'ArrowLeft')                { document.getElementById('ss-prev').click(); }
+        else if (e.key === 'ArrowRight')           { document.getElementById('ss-next').click(); }
+        else if (e.key === ' ')                    { e.preventDefault(); openCurrent(); }
+        else if (e.key === 'p' || e.key === 'P')  { document.getElementById('ss-pp').click(); }
+        else if (e.key === 'f' || e.key === 'F')  { document.getElementById('ss-fs').click(); }
     });
 
     // ── start ─────────────────────────────────────────────
