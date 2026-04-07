@@ -243,30 +243,6 @@ describe('MarkupParser Modular Configuration System', () => {
       await parser.shutdown();
     });
 
-    // Skipped: WikiStyleHandler is deprecated and no longer registered by initialize()
-    test.skip('should configure WikiStyleHandler security settings', async () => {
-      const securityConfig = {
-        'ngdpbase.style.security.allow-inline-css': true,    // Enable inline CSS
-        'ngdpbase.style.security.allowed-properties': 'color,font-weight,text-align', // Custom properties
-        'ngdpbase.style.custom-classes.enabled': false,     // Disable custom classes
-        'ngdpbase.style.predefined.text': 'text-primary,text-warning' // Custom predefined
-      };
-      
-      const engine = new ModularMockEngine(securityConfig);
-      const parser = new MarkupParser(engine);
-      await parser.initialize();
-      
-      const styleHandler = parser.getHandler('WikiStyleHandler');
-      expect(styleHandler).toBeTruthy();
-      
-      const config = styleHandler.getConfigurationSummary();
-      expect(config.features.allowInlineCSS).toBe(true);  // Custom override
-      expect(config.features.customClasses).toBe(false);  // Custom override
-      expect(config.security.allowedCSSPropertyCount).toBe(3); // Custom properties
-      
-      await parser.shutdown();
-    });
-
     test('should allow complete handler disable via configuration', async () => {
       const disabledConfig = {
         'ngdpbase.markup.handlers.attachment.enabled': false,
@@ -374,29 +350,6 @@ describe('MarkupParser Modular Configuration System', () => {
       await parser.shutdown();
     });
 
-    // Skipped: WikiStyleHandler is deprecated and no longer registered by initialize()
-    test.skip('should configure style security settings individually', async () => {
-      const securityConfig = {
-        'ngdpbase.style.security.allow-inline-css': true,           // Enable inline CSS
-        'ngdpbase.style.security.allowed-properties': 'color,font-size', // Specific properties
-        'ngdpbase.style.custom-classes.enabled': false,           // Disable custom classes
-        'ngdpbase.style.bootstrap.integration': true             // Keep Bootstrap
-      };
-
-      const engine = new ModularMockEngine(securityConfig);
-      const parser = new MarkupParser(engine);
-      await parser.initialize();
-
-      const styleHandler = parser.getHandler('WikiStyleHandler');
-      const config = styleHandler.getConfigurationSummary();
-
-      expect(config.features.allowInlineCSS).toBe(true);     // Custom enable
-      expect(config.features.customClasses).toBe(false);     // Custom disable
-      expect(config.features.bootstrap).toBe(true);          // Default
-      expect(config.security.allowedCSSPropertyCount).toBe(2); // Custom properties
-
-      await parser.shutdown();
-    });
   });
 
   describe('Cache Configuration Modularity', () => {

@@ -436,17 +436,6 @@ You are on: [{$pagename}]`;
       expect(result).not.toContain('<!--JSPWIKI-');
     });
 
-    // Skipped: nested JSPWiki inside plugin params (e.g. [{INSERT text="[{$username}]"}])
-    // is not resolved in the current implementation — the inner variable placeholder
-    // remains unresolved inside the plugin's rendered output.
-    test.skip('nested JSPWiki syntax (plugin with variable)', async () => {
-      const content = '[{INSERT text="User: [{$username}]"}]';
-      const result = await parser.parseWithDOMExtraction(content, context);
-
-      expect(result).toContain('User:');
-      expect(result).toContain('JohnDoe');
-    });
-
     test('JSPWiki syntax in markdown code blocks NOT processed', async () => {
       const content = '```\n[{$username}]\n[{TOC}]\n[HomePage]\n```';
       const result = await parser.parseWithDOMExtraction(content, context);
