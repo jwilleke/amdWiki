@@ -22,6 +22,24 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - [file2.md]
 ```
 
+## 2026-04-07-09
+
+- Agent: Claude Code (Sonnet 4.6)
+- Subject: feat: kiosk-style random-page slideshow at /slideshow (#482)
+- Key Decision: Standalone full-page kiosk approach (no iframe, no plugin required) — slide clicks open wiki page in new tab; server-side excerpt extraction strips markup noise.
+- Current Issue: #482
+- Testing:
+  - Manual: GET /slideshow returns 200 with kiosk slide UI
+- Work Done:
+  - Added `slideshow()` handler and `_slideshowExcerpt()` to WikiRoutes.ts — server-side random page fetch + excerpt extraction
+  - Rewrote views/slideshow.ejs as standalone full-viewport kiosk page: CSS opacity fade transitions, hover-reveal HUD, settings panel, fullscreen toggle, keyboard nav (←→ Space F)
+  - Built, restarted server, verified 200 on /slideshow
+  - Updated fairways-base and ngdpbase-veg (git pull + npm install + npm run build)
+- Commits: 8c81dde7
+- Files Modified:
+  - src/routes/WikiRoutes.ts
+  - views/slideshow.ejs
+
 ## 2026-04-07-08
 
 - Agent: Claude Code (Sonnet 4.6)
