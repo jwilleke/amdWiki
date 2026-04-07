@@ -22,6 +22,34 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - [file2.md]
 ```
 
+## 2026-04-07-03
+
+- Agent: Claude Code (Sonnet 4.6)
+- Subject: feat: canonical permissions registry — hyphen format, asset-*, member + user-admin roles (#480)
+- Key Decision: Permission strings changed from colon format (page:edit) to hyphen-separated target-first format (page-edit). attachment:*renamed to asset-* throughout. admin:users split into user-read/edit/create/delete (atomic, role-assignable). Added member role (community read-only placeholder). Added user-admin role with full user management permissions. ngdpbase.permissions.definitions added to config as canonical registry. ACLManager action map updated to produce new permission strings.
+- Current Issue: #480 (closed), #465 (next — optional fetch() on PluginObject)
+- Testing:
+  - npm test: 105 suites passed, 2669 tests passed, 10 skipped
+- Work Done:
+  - Added `ngdpbase.permissions.definitions` registry to `config/app-default-config.json`
+  - Updated all role permission arrays to use new hyphen format (page-read, page-edit, etc.)
+  - Updated all policy action arrays to use new hyphen format
+  - Added `member` role definition and `member-permissions` policy
+  - Added `user-admin` role definition and `user-admin-permissions` policy
+  - Replaced coarse `admin:users` with atomic user-read/edit/create/delete in `WikiRoutes.ts` (each handler gets its specific permission)
+  - Updated all `hasPermission()` call sites in `WikiRoutes.ts` to new format
+  - Updated `UserManager.initializePermissions()` to new format + new permissions
+  - Updated `ACLManager.ts` action map (view→page-read, edit→page-edit, upload→asset-upload, etc.)
+  - Updated failing tests to use new permission strings
+- Commits: 9570cb34
+- Files Modified:
+  - config/app-default-config.json
+  - src/managers/UserManager.ts
+  - src/managers/ACLManager.ts
+  - src/routes/WikiRoutes.ts
+  - src/__tests__/UserManager.test.js
+  - src/routes/__tests__/routes.test.js
+
 ## 2026-04-07-02
 
 - Agent: Claude Code (Sonnet 4.6)
