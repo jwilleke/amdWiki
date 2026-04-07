@@ -968,106 +968,89 @@
     "allowedAuthMethods",
     "avatar"
   ],
-  "_comment_permissions": "Canonical permission registry. Format: {target}-{action}. Target-first, hyphen-separated (URL-safe). asset-* = file/attachment operations. Each entry: name (human-readable Title Case label), description, icon (Font Awesome name), color (hex).",
+  "_comment_permissions": "Canonical permission registry. Format: {target}-{action}. Target-first, hyphen-separated (URL-safe, matches the 'permissions' array in role definitions). Each entry: description, icon (Font Awesome name), color (hex). The key itself is the permission name.",
   "ngdpbase.permissions.definitions": {
     "page-read": {
-      "name": "Read Page",
       "description": "View pages",
       "icon": "eye",
       "color": "#6c757d"
     },
     "page-edit": {
-      "name": "Edit Page",
       "description": "Edit pages",
       "icon": "edit",
       "color": "#007bff"
     },
     "page-create": {
-      "name": "Create Page",
       "description": "Create new pages",
       "icon": "plus",
       "color": "#28a745"
     },
     "page-delete": {
-      "name": "Delete Page",
       "description": "Delete pages",
       "icon": "trash",
       "color": "#dc3545"
     },
     "page-rename": {
-      "name": "Rename Page",
       "description": "Rename pages",
       "icon": "i-cursor",
       "color": "#fd7e14"
     },
     "page-export": {
-      "name": "Export Page",
       "description": "Export pages",
       "icon": "file-export",
       "color": "#6c757d"
     },
     "asset-read": {
-      "name": "Read Asset",
       "description": "View assets (attachments)",
       "icon": "paperclip",
       "color": "#6c757d"
     },
     "asset-upload": {
-      "name": "Upload Asset",
       "description": "Upload assets",
       "icon": "upload",
       "color": "#28a745"
     },
     "asset-delete": {
-      "name": "Delete Asset",
       "description": "Delete assets",
       "icon": "trash",
       "color": "#dc3545"
     },
     "search-page": {
-      "name": "Search Pages",
       "description": "Search pages",
       "icon": "search",
       "color": "#6c757d"
     },
     "search-user": {
-      "name": "Search Users",
       "description": "Search users",
       "icon": "search",
       "color": "#6c757d"
     },
     "user-read": {
-      "name": "Read User",
       "description": "View user list and profiles",
       "icon": "users",
       "color": "#6c757d"
     },
     "user-edit": {
-      "name": "Edit User",
       "description": "Edit user accounts",
       "icon": "user-edit",
       "color": "#007bff"
     },
     "user-create": {
-      "name": "Create User",
       "description": "Create user accounts",
       "icon": "user-plus",
       "color": "#28a745"
     },
     "user-delete": {
-      "name": "Delete User",
       "description": "Delete user accounts",
       "icon": "user-minus",
       "color": "#dc3545"
     },
     "admin-system": {
-      "name": "System Admin",
       "description": "System administration",
       "icon": "cog",
       "color": "#dc3545"
     },
     "admin-roles": {
-      "name": "Role Management",
       "description": "Role management",
       "icon": "shield-alt",
       "color": "#dc3545"
