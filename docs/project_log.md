@@ -75,7 +75,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 - Agent: Claude Code (Sonnet 4.6)
 - Subject: feat: canonical permissions registry — hyphen format, asset-*, member + user-admin roles (#480); E2E test run
-- Key Decision: Permission strings changed from colon format (page:edit) to hyphen-separated target-first format (page-edit). attachment:*renamed to asset-* throughout. admin:users split into user-read/edit/create/delete. Added member role (community read-only placeholder). Added user-admin role with full user management. Updated all 3 other instances (fairways-base, ngdpbase-veg, amdWiki) via git pull/build/restart.
+- Key Decision: Permission strings changed from colon format (page:edit) to hyphen-separated target-first format (page-edit). attachment:\* renamed to asset-\* throughout. admin:users split into user-read/edit/create/delete. Added member role (community read-only placeholder). Added user-admin role with full user management. Updated all 3 other instances (fairways-base, ngdpbase-veg, amdWiki) via git pull/build/restart.
 - Current Issue: #480 (closed)
 - Testing:
   - npm test: 105 suites passed, 2669 tests passed, 10 skipped
@@ -99,7 +99,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 - Agent: Claude Code (Sonnet 4.6)
 - Subject: feat: canonical permissions registry — hyphen format, asset-*, member + user-admin roles (#480)
-- Key Decision: Permission strings changed from colon format (page:edit) to hyphen-separated target-first format (page-edit). attachment:*renamed to asset-* throughout. admin:users split into user-read/edit/create/delete (atomic, role-assignable). Added member role (community read-only placeholder). Added user-admin role with full user management permissions. ngdpbase.permissions.definitions added to config as canonical registry. ACLManager action map updated to produce new permission strings.
+- Key Decision: Permission strings changed from colon format (page:edit) to hyphen-separated target-first format (page-edit). attachment:\* renamed to asset-\* throughout. admin:users split into user-read/edit/create/delete (atomic, role-assignable). Added member role (community read-only placeholder). Added user-admin role with full user management permissions. ngdpbase.permissions.definitions added to config as canonical registry. ACLManager action map updated to produce new permission strings.
 - Current Issue: #480 (closed), #465 (next — optional fetch() on PluginObject)
 - Testing:
   - npm test: 105 suites passed, 2669 tests passed, 10 skipped
