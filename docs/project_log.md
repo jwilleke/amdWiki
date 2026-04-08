@@ -2,6 +2,37 @@
 
 AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version history.
 
+## 2026-04-08-03
+
+- Agent: Claude Code (Sonnet 4.6)
+- Subject: #464 verification + fix addon session middleware ordering
+
+### Fix — Addon routes ran before session middleware (`7b6c7382`)
+
+**Root cause**: `WikiEngine.initialize()` called `addonsManager.initialize()` (which registers Express routes) before `app.ts` added `express-session` and the `userContext` middleware. Every request to an addon route ran before `req.session` or `req.userContext` was populated, so `ApiContext.from()` always returned an unauthenticated context — 401 on every authenticated request.
+
+**Fix**:
+
+- `WikiEngine.initialize()` now creates and registers `AddonsManager` but defers `addonsManager.initialize()` (the part that calls `addon.register()` and mounts routes)
+- New `engine.initializeAddons(): Promise<void>` method added to `WikiEngine` and its type interface
+- `app.ts` calls `engine.initializeAddons()` after all middleware (session, userContext) is registered
+
+Files changed: `src/WikiEngine.ts`, `src/app.ts`, `src/types/WikiEngine.ts`, `addons/calendar/tsconfig.json`
+
+### Verification checklist — #464 complete
+
+| Check | Result |
+|-------|--------|
+| Server starts, addon loads | ✅ |
+| `POST /api/calendar/reservations` → 401 unauth / 201 auth | ✅ |
+| `GET /api/calendar/events` anon → no `_private` | ✅ |
+| `GET /api/calendar/events` as admin → `_private` present | ✅ |
+| `GET /api/calendar/clubhouse/feed.ics` → valid VCALENDAR | ✅ |
+| `GET /admin/calendar` as admin → 200 | ✅ |
+| MarqueePlugin / Calendar modal | browser testing pending |
+
+CONFIDENTIAL reservations correctly stripped from anonymous `.ics` feed.
+
 ## 2026-04-08-02
 
 - Agent: Claude Code (Sonnet 4.6)
