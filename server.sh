@@ -32,9 +32,25 @@ if [ -f "$_FAST/.env" ]; then
 fi
 unset _FAST
 
-# Generate unique PM2 app name from directory name
-DIR_NAME=$(basename "$SCRIPT_DIR")
-APP_NAME="ngdpbase-$DIR_NAME"
+# Derive PM2 app name from config files (same priority as the app itself):
+#   1. Instance override: ${FAST_STORAGE}/config/app-custom-config.json
+#   2. Base default:      ./config/app-default-config.json
+#   3. .env PROJECT_NAME
+#   4. Directory basename
+_FAST_CFG="${FAST_STORAGE:-${INSTANCE_DATA_FOLDER:-./data}}/config/app-custom-config.json"
+_DEFAULT_CFG="$SCRIPT_DIR/config/app-default-config.json"
+_get_app_name() {
+  local v
+  for f in "$_FAST_CFG" "$_DEFAULT_CFG"; do
+    [ -f "$f" ] || continue
+    v=$(grep -oE '"ngdpbase\.(application-name|applicationName)"[[:space:]]*:[[:space:]]*"[^"]*"' "$f" \
+        | sed 's/.*"[^"]*"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/' | head -1)
+    [ -n "$v" ] && echo "$v" && return
+  done
+  echo "${PROJECT_NAME:-$(basename "$SCRIPT_DIR")}"
+}
+APP_NAME="$(_get_app_name)"
+unset _FAST_CFG _DEFAULT_CFG _get_app_name
 
 # Function to ensure PM2 daemon is healthy (only one running)
 ensure_single_pm2_daemon() {

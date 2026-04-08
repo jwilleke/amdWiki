@@ -16,10 +16,27 @@ if (fs.existsSync(envFile)) {
   }
 }
 
-// App name — use PROJECT_NAME from .env if set, else fall back to directory name.
-// This lets multiple instances (fairways-base, ngdpbase-veg, jimstest) each get
-// a unique PM2 app name so they don't clobber each other.
-const appName = process.env.PROJECT_NAME || path.basename(__dirname);
+// Derive PM2 app name from config files (mirrors server.sh priority):
+//   1. ${FAST_STORAGE}/config/app-custom-config.json  ngdpbase.application-name
+//   2. ./config/app-default-config.json               ngdpbase.application-name
+//   3. PROJECT_NAME from .env
+//   4. Directory basename
+function readAppName() {
+  const fastStorage = process.env.FAST_STORAGE || process.env.INSTANCE_DATA_FOLDER || path.join(__dirname, 'data');
+  const candidates = [
+    path.join(fastStorage, 'config', 'app-custom-config.json'),
+    path.join(__dirname, 'config', 'app-default-config.json'),
+  ];
+  for (const cfgPath of candidates) {
+    try {
+      const cfg = JSON.parse(fs.readFileSync(cfgPath, 'utf8'));
+      const name = cfg['ngdpbase.application-name'] || cfg['ngdpbase.applicationName'];
+      if (name) return name;
+    } catch (_) { /* file absent or unparseable — try next */ }
+  }
+  return process.env.PROJECT_NAME || path.basename(__dirname);
+}
+const appName = readAppName();
 
 module.exports = {
   apps: [{
