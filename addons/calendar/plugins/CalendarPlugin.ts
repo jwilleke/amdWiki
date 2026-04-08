@@ -1,6 +1,6 @@
 'use strict';
 
-import type { PluginContext, PluginParams } from '../../../plugins/types';
+import type { PluginContext, PluginParams } from '../../../src/managers/PluginManager';
 
 /**
  * CalendarPlugin — renders a FullCalendar widget into the wiki page body.
@@ -39,6 +39,7 @@ const CalendarPlugin = {
   name: 'Calendar',
 
   execute(context: PluginContext, params: PluginParams): string {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const mgr = context.engine?.getManager('CalendarDataManager');
     if (!mgr) {
       return '<span class="plugin-error">Calendar: CalendarDataManager not available</span>';

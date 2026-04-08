@@ -43,7 +43,7 @@ const calendarAddon = {
     const dataPath = typeof config['dataPath'] === 'string'
       ? config['dataPath']
       : './data/calendar';
-    dataManager = new CalendarDataManager(dataPath);
+    dataManager = new CalendarDataManager(engine, dataPath);
     await dataManager.load();
     engine.registerManager('CalendarDataManager', dataManager);
 
