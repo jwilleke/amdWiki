@@ -4,7 +4,9 @@
     "rootDir": "../..",
     "outDir": "../..",
     "tsBuildInfoFile": "./.tsbuildinfo",
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "declaration": false,
+    "declarationMap": false
   },
   "include": [
     "index.ts",
