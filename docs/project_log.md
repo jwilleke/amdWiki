@@ -2,6 +2,47 @@
 
 AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version history.
 
+## 2026-04-08-04
+
+- Agent: Claude Code (Sonnet 4.6)
+- Subject: Calendar docs, addon build pipeline fix
+
+### Docs — Calendar add-on (`ce59df56`)
+
+Developer docs added to `addons/calendar/docs/`:
+
+- `README.md` — architecture, startup sequence, auth model, extension guide
+- `configuration.md` — all config keys, N-calendar setup, plugin/marquee params
+- `api-reference.md` — all 10 endpoints with request/response shapes and error codes
+- `data-model.md` — TypeScript interfaces, RFC 5545 mapping, `_private` visibility rules
+
+End-user wiki pages added to `addons/calendar/pages/` (seeded on first install, never overwrites user edits):
+
+- `Calendar` — main calendar page with `[{Calendar}]` + marquee
+- `CalendarHelp` — viewing, `.ics` subscription, reservation FAQ
+- `MakeAReservation` — step-by-step reservation form and policies
+- `UpcomingEvents` — 90-day list view + marquee
+
+### Fix — addon build pipeline (`eb9fff13`)
+
+The calendar addon tsconfig uses `outDir: ../..` so compiled JS lands in-place
+(`addons/calendar/index.js`). A side effect is that transitively-imported `src/`
+files are also compiled in-place (`src/managers/BaseManager.js` etc.); these are
+required at runtime by the addon's compiled requires.
+
+- `package.json`: added `build:addons` step — `npm run build` now also runs
+  `cd addons/calendar && npx tsc -p tsconfig.json` so addon JS is always rebuilt
+- `.gitignore`: ignore in-place addon build outputs and `src/` side-effect files
+- 106 test suites / 2703 tests — all passing
+
+### Checklist
+
+- Build: `npm run build` — clean ✅
+- Tests: 106 / 2703 — all pass ✅
+- Server: running on port 3000, calendar addon loaded ✅
+- Issues: #464 updated and closed ✅
+- Commits pushed ✅
+
 ## 2026-04-08-03
 
 - Agent: Claude Code (Sonnet 4.6)
