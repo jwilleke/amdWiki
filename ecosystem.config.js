@@ -16,8 +16,10 @@ if (fs.existsSync(envFile)) {
   }
 }
 
-// App name — fixed so it survives directory renames
-const appName = 'ngdpbase';
+// App name — use PROJECT_NAME from .env if set, else fall back to directory name.
+// This lets multiple instances (fairways-base, ngdpbase-veg, jimstest) each get
+// a unique PM2 app name so they don't clobber each other.
+const appName = process.env.PROJECT_NAME || path.basename(__dirname);
 
 module.exports = {
   apps: [{
