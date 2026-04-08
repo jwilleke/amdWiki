@@ -387,6 +387,22 @@ caller identity for free and establishes a consistent pattern.
 Do **not** access `req.userContext`, `req.session`, or `req.session.isAuthenticated` directly
 in route handlers. `ApiContext` wraps these correctly and handles TypeScript typing.
 
+**`ApiContext.from()` always succeeds — it never throws for anonymous callers.**
+On an unauthenticated request it returns a context with `isAuthenticated: false`,
+`username: 'Anonymous'`, and `roles: ['Anonymous', 'All']`. The guard methods
+(`requireAuthenticated`, `requireRole`) are opt-in — a public route simply does not call them:
+
+```typescript
+// Fully public route — no guards, but ApiContext still used for consistency
+// and in case you need ctx.isAuthenticated for conditional behaviour
+router.get('/feed.ics', async (req, res) => {
+  const ctx = ApiContext.from(req, engine); // safe for anonymous callers
+  // ctx.isAuthenticated, ctx.username etc. available if needed
+  const events = await mgr.query({ calendarId: 'events' });
+  res.type('text/calendar').send(generateIcs(events));
+});
+```
+
 ```typescript
 // routes/api.ts
 import express from 'express';
