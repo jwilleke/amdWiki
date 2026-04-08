@@ -84,6 +84,11 @@ export interface WikiEngine {
   initialize(config?: WikiConfig): Promise<any>;
 
   /**
+   * Initialize AddonsManager — call from app.ts after session/userContext middleware.
+   */
+  initializeAddons(): Promise<void>;
+
+  /**
    * Get a manager by name
    * @param managerName - Name of the manager
    * @returns Manager instance or undefined

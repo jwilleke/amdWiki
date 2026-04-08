@@ -228,11 +228,12 @@ class WikiEngine extends Engine {
     this.registerManager('PluginManager', pluginManager);
     await pluginManager.initialize();
 
-    // Initialize AddonsManager after PluginManager (add-ons may use plugins)
-    // Add-ons can register their own syntax handlers before MarkupParser initializes
+    // Create AddonsManager after PluginManager so it is available via getManager(),
+    // but do NOT initialize it here — initialization registers Express routes and must
+    // happen after session/userContext middleware are set up in app.ts.
+    // Call engine.initializeAddons() from app.ts after session middleware.
     const addonsManager = new AddonsManager(this);
     this.registerManager('AddonsManager', addonsManager);
-    await addonsManager.initialize();
 
     // Initialize MarkupParser before RenderingManager (RenderingManager depends on it)
     const markupParser = new MarkupParser(this);
@@ -311,6 +312,21 @@ class WikiEngine extends Engine {
     metricsManager.recordEngineInit(Date.now() - this.startTime);
 
     logger.info('All managers initialized');
+  }
+
+  /**
+   * Initialize the AddonsManager — must be called from app.ts AFTER session and
+   * userContext middleware have been registered on the Express app, so that addon
+   * route handlers can read req.session and req.userContext normally.
+   */
+  async initializeAddons(): Promise<void> {
+    const addonsManager = this.getManager<AddonsManager>('AddonsManager');
+    if (!addonsManager) {
+      logger.warn('[WikiEngine] initializeAddons: AddonsManager not registered');
+      return;
+    }
+    await addonsManager.initialize();
+    logger.info('[WikiEngine] Addons initialized');
   }
 
   /**

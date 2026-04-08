@@ -382,6 +382,10 @@ void (async (): Promise<void> => {
     });
   });
 
+  // 6b. Initialize addons NOW — after session + userContext middleware — so addon
+  //     route handlers can read req.session and req.userContext normally.
+  await engine.initializeAddons();
+
   // 7. Register Routes
   const installRoutes = new InstallRoutes(engine);
   app.use('/install', installRoutes.getRouter());
