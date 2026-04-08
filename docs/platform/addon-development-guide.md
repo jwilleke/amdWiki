@@ -378,31 +378,74 @@ async register(engine, config) {
 
 ## 7. Writing Routes
 
-```javascript
-// routes/api.js
-const express = require('express');
+### ApiContext — authentication and authorisation
 
-/**
- * @param {import('../../../src/types/WikiEngine').WikiEngine} engine
- * @param {Record<string, unknown>} config
- */
-module.exports = function apiRoutes(engine, config) {
+All addon API routes **MUST** use `ApiContext` for any route that restricts access.
+All addon API routes **SHOULD** use `ApiContext` even for public routes — it gives you
+caller identity for free and establishes a consistent pattern.
+
+Do **not** access `req.userContext`, `req.session`, or `req.session.isAuthenticated` directly
+in route handlers. `ApiContext` wraps these correctly and handles TypeScript typing.
+
+```typescript
+// routes/api.ts
+import express from 'express';
+import { ApiContext, ApiError } from '../../../src/context/ApiContext';
+import type { WikiEngine } from '../../../src/types/WikiEngine';
+
+export default function apiRoutes(engine: WikiEngine, _config: Record<string, unknown>) {
   const router = express.Router();
 
+  // Public route — SHOULD use ApiContext for consistent caller identity
   router.get('/search', async (req, res) => {
     try {
+      const ctx = ApiContext.from(req, engine);
       const mgr = engine.getManager('MyDataManager');
       const q = String(req.query.q || '');
       const results = await mgr.search(q);
+      // Optionally filter results based on ctx.isAuthenticated or ctx.roles
       res.json({ results });
     } catch (err) {
-      res.status(500).json({ error: err.message });
+      if (err instanceof ApiError) return res.status(err.status).json({ error: err.message });
+      res.status(500).json({ error: String(err) });
+    }
+  });
+
+  // Protected route — MUST use ApiContext
+  router.post('/items', async (req, res) => {
+    try {
+      const ctx = ApiContext.from(req, engine);
+      ctx.requireAuthenticated();            // → 401 if not logged in
+      ctx.requireRole('admin', 'editor');    // → 403 if neither role
+
+      const mgr = engine.getManager('MyDataManager');
+      const item = await mgr.create(req.body);
+      res.status(201).json(item);
+    } catch (err) {
+      if (err instanceof ApiError) return res.status(err.status).json({ error: err.message });
+      res.status(500).json({ error: String(err) });
     }
   });
 
   return router;
-};
+}
 ```
+
+### ApiContext reference
+
+| Method / Property | Description |
+|---|---|
+| `ApiContext.from(req, engine)` | Build from an Express request — always succeeds |
+| `ctx.isAuthenticated` | `true` if caller has an active session |
+| `ctx.username` | Caller's username, or `null` for anonymous |
+| `ctx.roles` | Caller's role array — always an array, never undefined |
+| `ctx.email` | Caller's email, or `null` |
+| `ctx.hasRole(...roles)` | Returns `true` if caller has at least one of the given roles |
+| `ctx.requireAuthenticated()` | Throws `ApiError(401)` if not authenticated |
+| `ctx.requireRole(...roles)` | Throws `ApiError(403)` if no matching role |
+| `ctx.engine` | Reference to the wiki engine |
+
+`ApiError` carries a `status` number — catch it and forward to `res.status(err.status)`.
 
 ---
 
