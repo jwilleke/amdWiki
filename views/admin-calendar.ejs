@@ -1,0 +1,296 @@
+<%- include('header', { pageName: 'Calendar Admin' }) %>
+
+<div class="container mt-4">
+
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1><i class="fas fa-calendar-alt"></i> Calendar Admin</h1>
+    <a href="/admin" class="btn btn-sm btn-secondary">
+      <i class="fas fa-arrow-left"></i> Admin
+    </a>
+  </div>
+
+  <% if (successMessage) { %>
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+      <i class="fas fa-check-circle"></i> <%= successMessage %>
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+  <% } %>
+  <% if (errorMessage) { %>
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+      <i class="fas fa-exclamation-triangle"></i> <%= errorMessage %>
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+  <% } %>
+
+  <% if (!calendarSections || calendarSections.length === 0) { %>
+    <div class="alert alert-info">
+      <i class="fas fa-info-circle"></i>
+      No calendars configured. Add a <code>calendars</code> map under
+      <code>ngdpbase.addons.calendar</code> in <code>app-custom-config.json</code>.
+    </div>
+  <% } else { %>
+
+    <% calendarSections.forEach(function(section) { %>
+      <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <div>
+            <h5 class="mb-0">
+              <i class="fas <%= section.workflow === 'reservation' ? 'fa-door-open' : 'fa-calendar-check' %>"></i>
+              <%= section.calendarId %>
+              <span class="badge bg-<%= section.workflow === 'reservation' ? 'warning text-dark' : 'primary' %> ms-2">
+                <%= section.workflow %>
+              </span>
+              <span class="badge bg-secondary ms-1"><%= section.visibility %></span>
+            </h5>
+          </div>
+          <div class="d-flex gap-2 align-items-center">
+            <span class="badge bg-info"><%= section.eventCount %> event<%= section.eventCount !== 1 ? 's' : '' %></span>
+            <a href="/api/calendar/<%= section.calendarId %>/feed.ics"
+               class="btn btn-sm btn-outline-secondary"
+               title="Download .ics feed">
+              <i class="fas fa-rss"></i> .ics
+            </a>
+            <% if (section.workflow === 'managed') { %>
+              <button class="btn btn-sm btn-success"
+                      onclick="calAdmin.openCreateModal('<%= section.calendarId %>')"
+                      title="Create new event">
+                <i class="fas fa-plus"></i> New Event
+              </button>
+            <% } %>
+          </div>
+        </div>
+
+        <% if (section.events.length === 0) { %>
+          <div class="card-body text-muted">
+            <i class="fas fa-calendar-times"></i> No events yet.
+          </div>
+        <% } else { %>
+          <div class="table-responsive">
+            <table class="table table-hover table-sm mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th>Title</th>
+                  <th>Start</th>
+                  <th>End</th>
+                  <th>Status</th>
+                  <% if (section.workflow === 'reservation') { %>
+                    <th>Requester</th>
+                    <th>Email</th>
+                    <th>Notes</th>
+                  <% } %>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% section.events.forEach(function(event) { %>
+                  <tr>
+                    <td>
+                      <strong><%= event.title %></strong>
+                      <% if (event.location) { %>
+                        <br><small class="text-muted"><i class="fas fa-map-marker-alt"></i> <%= event.location %></small>
+                      <% } %>
+                    </td>
+                    <td><small><%= event.start %></small></td>
+                    <td><small><%= event.end || '—' %></small></td>
+                    <td>
+                      <span class="badge bg-<%= event.status === 'CONFIRMED' ? 'success' : event.status === 'CANCELLED' ? 'danger' : 'warning text-dark' %>">
+                        <%= event.status || 'CONFIRMED' %>
+                      </span>
+                    </td>
+                    <% if (section.workflow === 'reservation') { %>
+                      <td><small><%= (event._private && event._private.requester) ? event._private.requester : '—' %></small></td>
+                      <td><small><%= (event._private && event._private.requesterEmail) ? event._private.requesterEmail : '—' %></small></td>
+                      <td><small><%= (event._private && event._private.notes) ? event._private.notes : '—' %></small></td>
+                    <% } %>
+                    <td>
+                      <% if (section.workflow === 'managed') { %>
+                        <button class="btn btn-xs btn-outline-primary me-1"
+                                onclick="calAdmin.openEditModal('<%= event.id %>')"
+                                title="Edit">
+                          <i class="fas fa-pencil-alt"></i>
+                        </button>
+                      <% } %>
+                      <button class="btn btn-xs btn-outline-danger"
+                              onclick="calAdmin.deleteEvent('<%= event.id %>', '<%= section.workflow %>')"
+                              title="<%= section.workflow === 'reservation' ? 'Cancel reservation' : 'Delete event' %>">
+                        <i class="fas fa-trash-alt"></i>
+                      </button>
+                    </td>
+                  </tr>
+                <% }); %>
+              </tbody>
+            </table>
+          </div>
+        <% } %>
+      </div>
+    <% }); %>
+
+  <% } %>
+</div>
+
+<!-- Create / Edit Event Modal (managed calendars only) -->
+<div class="modal fade" id="calEventModal" tabindex="-1" aria-labelledby="calEventModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="calEventModalLabel">Event</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <form id="calEventForm">
+        <input type="hidden" id="calEventId">
+        <input type="hidden" id="calEventCalendarId">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label">Title <span class="text-danger">*</span></label>
+            <input type="text" id="calEventTitle" class="form-control" required>
+          </div>
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Start <span class="text-danger">*</span></label>
+              <input type="datetime-local" id="calEventStart" class="form-control" required>
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label">End</label>
+              <input type="datetime-local" id="calEventEnd" class="form-control">
+            </div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Location</label>
+            <input type="text" id="calEventLocation" class="form-control">
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Description</label>
+            <textarea id="calEventDescription" class="form-control" rows="3"></textarea>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Status</label>
+            <select id="calEventStatus" class="form-select">
+              <option value="CONFIRMED">Confirmed</option>
+              <option value="TENTATIVE">Tentative</option>
+              <option value="CANCELLED">Cancelled</option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="calEventSaveBtn">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+const calAdmin = (function () {
+  const modal = new bootstrap.Modal(document.getElementById('calEventModal'));
+  const form  = document.getElementById('calEventForm');
+  const csrf  = '<%= csrfToken %>';
+
+  function toast(msg, type) {
+    const el = document.createElement('div');
+    el.className = `alert alert-${type} alert-dismissible fade show position-fixed bottom-0 end-0 m-3`;
+    el.style.zIndex = 9999;
+    el.innerHTML = msg + '<button type="button" class="btn-close" data-bs-dismiss="alert"></button>';
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 4000);
+  }
+
+  function openCreateModal(calendarId) {
+    document.getElementById('calEventModalLabel').textContent = 'New Event';
+    document.getElementById('calEventId').value = '';
+    document.getElementById('calEventCalendarId').value = calendarId;
+    document.getElementById('calEventTitle').value = '';
+    document.getElementById('calEventStart').value = '';
+    document.getElementById('calEventEnd').value = '';
+    document.getElementById('calEventLocation').value = '';
+    document.getElementById('calEventDescription').value = '';
+    document.getElementById('calEventStatus').value = 'CONFIRMED';
+    modal.show();
+  }
+
+  function openEditModal(eventId) {
+    fetch(`/api/calendar/events/${eventId}`)
+      .then(r => r.json())
+      .then(fc => {
+        document.getElementById('calEventModalLabel').textContent = 'Edit Event';
+        document.getElementById('calEventId').value = fc.id;
+        document.getElementById('calEventCalendarId').value =
+          (fc.extendedProps && fc.extendedProps.calendarId) || '';
+        document.getElementById('calEventTitle').value = fc.title || '';
+        document.getElementById('calEventStart').value = (fc.start || '').slice(0, 16);
+        document.getElementById('calEventEnd').value   = (fc.end   || '').slice(0, 16);
+        document.getElementById('calEventLocation').value =
+          (fc.extendedProps && fc.extendedProps.location) || '';
+        document.getElementById('calEventDescription').value =
+          (fc.extendedProps && fc.extendedProps.description) || '';
+        document.getElementById('calEventStatus').value =
+          (fc.extendedProps && fc.extendedProps.status) || 'CONFIRMED';
+        modal.show();
+      })
+      .catch(() => toast('Could not load event', 'danger'));
+  }
+
+  function deleteEvent(eventId, workflow) {
+    const label = workflow === 'reservation' ? 'Cancel this reservation?' : 'Delete this event?';
+    if (!confirm(label)) return;
+    const url = workflow === 'reservation'
+      ? `/api/calendar/reservations/${eventId}`
+      : `/api/calendar/events/${eventId}`;
+    fetch(url, {
+      method: 'DELETE',
+      headers: { 'X-CSRF-Token': csrf }
+    })
+      .then(r => {
+        if (r.ok || r.status === 204) {
+          toast('Deleted.', 'success');
+          setTimeout(() => location.reload(), 800);
+        } else {
+          return r.json().then(b => { throw new Error(b.error || 'Delete failed'); });
+        }
+      })
+      .catch(e => toast(e.message, 'danger'));
+  }
+
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    const id = document.getElementById('calEventId').value;
+    const body = {
+      calendarId:  document.getElementById('calEventCalendarId').value,
+      title:       document.getElementById('calEventTitle').value,
+      start:       document.getElementById('calEventStart').value,
+      end:         document.getElementById('calEventEnd').value || undefined,
+      location:    document.getElementById('calEventLocation').value || undefined,
+      description: document.getElementById('calEventDescription').value || undefined,
+      status:      document.getElementById('calEventStatus').value
+    };
+
+    const url    = id ? `/api/calendar/events/${id}` : '/api/calendar/events';
+    const method = id ? 'PUT' : 'POST';
+
+    fetch(url, {
+      method,
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-Token': csrf
+      },
+      body: JSON.stringify(body)
+    })
+      .then(r => r.json().then(b => ({ ok: r.ok, body: b })))
+      .then(({ ok, body }) => {
+        if (ok) {
+          modal.hide();
+          toast('Saved.', 'success');
+          setTimeout(() => location.reload(), 800);
+        } else {
+          toast(body.error || 'Save failed', 'danger');
+        }
+      })
+      .catch(e => toast(e.message, 'danger'));
+  });
+
+  return { openCreateModal, openEditModal, deleteEvent };
+}());
+</script>
+
+<%- include('footer') %>
