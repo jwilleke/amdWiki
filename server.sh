@@ -37,7 +37,13 @@ unset _FAST
 #   2. Base default:      ./config/app-default-config.json
 #   3. .env PROJECT_NAME
 #   4. Directory basename
-_FAST_CFG="${FAST_STORAGE:-${INSTANCE_DATA_FOLDER:-./data}}/config/app-custom-config.json"
+# Resolve FAST_STORAGE relative to SCRIPT_DIR if it's a relative path
+_FAST_RESOLVED="${FAST_STORAGE:-${INSTANCE_DATA_FOLDER:-}}"
+if [ -z "$_FAST_RESOLVED" ] || [[ "$_FAST_RESOLVED" != /* ]]; then
+  _FAST_RESOLVED="$SCRIPT_DIR/${_FAST_RESOLVED:-data}"
+fi
+_FAST_CFG="$_FAST_RESOLVED/config/app-custom-config.json"
+unset _FAST_RESOLVED
 _DEFAULT_CFG="$SCRIPT_DIR/config/app-default-config.json"
 _get_app_name() {
   local v

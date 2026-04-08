@@ -22,7 +22,9 @@ if (fs.existsSync(envFile)) {
 //   3. PROJECT_NAME from .env
 //   4. Directory basename
 function readAppName() {
-  const fastStorage = process.env.FAST_STORAGE || process.env.INSTANCE_DATA_FOLDER || path.join(__dirname, 'data');
+  // Resolve FAST_STORAGE relative to __dirname if it's a relative path
+  const rawFast = process.env.FAST_STORAGE || process.env.INSTANCE_DATA_FOLDER || 'data';
+  const fastStorage = path.isAbsolute(rawFast) ? rawFast : path.join(__dirname, rawFast);
   const candidates = [
     path.join(fastStorage, 'config', 'app-custom-config.json'),
     path.join(__dirname, 'config', 'app-default-config.json'),
