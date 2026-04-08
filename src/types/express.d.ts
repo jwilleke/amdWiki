@@ -26,6 +26,8 @@ declare global {
         email?: string;
         displayName?: string;
         roles?: string[];
+        isAuthenticated?: boolean;
+        authenticated?: boolean;
         isSystem?: boolean;
         permissions?: string[];
         [key: string]: unknown;
