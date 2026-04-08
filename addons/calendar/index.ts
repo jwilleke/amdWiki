@@ -9,78 +9,72 @@
  *   ngdpbase.addons.calendar.enabled      — true/false
  *   ngdpbase.addons.calendar.dataPath     — path to JSON event store (default: ./data/calendar)
  *
- * Markup directive:
+ * Markup directives:
  *   [{Calendar}]
  *   [{Calendar view='timeGridWeek'}]
- *   [{Calendar calendarId='project-x' height='500'}]
- *
- * @type {import('../../src/managers/AddonsManager').AddonModule}
+ *   [{Calendar calendarId='events' height='500'}]
+ *   [{MarqueePlugin fetch='CalendarDataManager.toMarqueeText(calendarId=events,days=30)'}]
  */
 
-const path = require('path');
-const express = require('express');
+import * as path from 'path';
+import * as express from 'express';
+import type { WikiEngine } from '../../src/types/WikiEngine';
+import type { AddonStatusDetails } from '../../src/managers/AddonsManager';
+import type PluginManager from '../../src/managers/PluginManager';
+import type AddonsManager from '../../src/managers/AddonsManager';
+import CalendarDataManager from './managers/CalendarDataManager';
+import CalendarPlugin from './plugins/CalendarPlugin';
+import apiRoutes from './routes/api';
 
-const CalendarDataManager = require('./managers/CalendarDataManager');
-const CalendarPlugin = require('./plugins/CalendarPlugin');
+let dataManager: CalendarDataManager | null = null;
 
-/** @type {CalendarDataManager | null} */
-let dataManager = null;
-
-module.exports = {
+const calendarAddon = {
   name: 'calendar',
-  version: '1.0.0',
-  description: 'Event calendar with FullCalendar UI',
+  version: '2.0.0',
+  description: 'Event calendar with FullCalendar UI and RFC 5545 support',
   author: '',
-  dependencies: [],
+  dependencies: [] as string[],
 
   /**
    * Called at startup when the add-on is enabled.
-   *
-   * @param {import('../../src/types/WikiEngine').WikiEngine} engine
-   * @param {Record<string, unknown>} config  — keys from ngdpbase.addons.calendar.*
    */
-  async register(engine, config) {
+  async register(engine: WikiEngine, config: Record<string, unknown>): Promise<void> {
     // ── 1. Initialize data manager ───────────────────────────────────────────
-    const dataPath = String(config.dataPath || './data/calendar');
+    const dataPath = typeof config['dataPath'] === 'string'
+      ? config['dataPath']
+      : './data/calendar';
     dataManager = new CalendarDataManager(dataPath);
     await dataManager.load();
     engine.registerManager('CalendarDataManager', dataManager);
 
     // ── 2. Register markup plugin ────────────────────────────────────────────
-    const pluginManager = engine.getManager('PluginManager');
+    const pluginManager = engine.getManager<PluginManager>('PluginManager');
     if (pluginManager) {
       await pluginManager.registerPlugin('Calendar', CalendarPlugin);
     }
 
     // ── 3. Serve static assets ───────────────────────────────────────────────
-    //  Files in public/ are served at /addons/calendar/...
-    engine.app.use(
+    engine.app?.use(
       '/addons/calendar',
       express.static(path.join(__dirname, 'public'))
     );
 
     // ── 4. Register stylesheet ───────────────────────────────────────────────
-    const addonsManager = engine.getManager('AddonsManager');
+    const addonsManager = engine.getManager<AddonsManager>('AddonsManager');
     if (addonsManager) {
-      addonsManager.registerStylesheet(
-        '/addons/calendar/css/calendar.css',
-        'calendar'
-      );
+      addonsManager.registerStylesheet('/addons/calendar/css/calendar.css', 'calendar');
     }
 
     // ── 5. Mount API routes ──────────────────────────────────────────────────
-    const apiRouter = require('./routes/api')(engine, config);
-    engine.app.use('/api/calendar', apiRouter);
+    engine.app?.use('/api/calendar', apiRoutes(engine, config));
 
     // ── 6. Announce capability ───────────────────────────────────────────────
     engine.setCapability('calendar', true);
   },
 
-  /**
-   * Health check — shown in /admin add-ons panel.
-   * @returns {import('../../src/managers/AddonsManager').AddonStatusDetails}
-   */
-  async status() {
+  /** Health check — shown in /admin add-ons panel. */
+  // eslint-disable-next-line @typescript-eslint/require-await
+  async status(): Promise<AddonStatusDetails> {
     const count = dataManager ? dataManager.count() : 0;
     return {
       healthy: true,
@@ -89,10 +83,12 @@ module.exports = {
     };
   },
 
-  /**
-   * Cleanup on graceful shutdown.
-   */
-  async shutdown() {
+  /** Cleanup on graceful shutdown. */
+  // eslint-disable-next-line @typescript-eslint/require-await
+  async shutdown(): Promise<void> {
     dataManager = null;
   }
 };
+
+export default calendarAddon;
+module.exports = calendarAddon;

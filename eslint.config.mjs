@@ -20,7 +20,10 @@ export default tseslint.config(
         ...globals.es2020,
       },
       parserOptions: {
-        project: "./tsconfig.json",
+        project: [
+          "./tsconfig.json",
+          "./addons/calendar/tsconfig.json"
+        ],
         tsconfigRootDir: import.meta.dirname,
       },
     },

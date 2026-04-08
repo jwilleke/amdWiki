@@ -1,11 +1,19 @@
 {
   "name": "calendar",
-  "version": "1.0.0",
-  "description": "Calendar add-on for ngdpbase — event management with FullCalendar UI",
+  "version": "2.0.0",
+  "description": "Calendar add-on for ngdpbase — event management with FullCalendar UI, RFC 5545 compliant",
   "private": true,
   "dependencies": {
+    "date-fns": "^3.0.0",
     "express": "^5.2.1",
+    "ts-ics": "^2.4.4",
     "uuid": "^9.0.0"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.0",
+    "@types/node": "^18.0.0",
+    "@types/uuid": "^9.0.0",
+    "typescript": "^5.0.0"
   },
   "engines": {
     "node": ">=18"
