@@ -2,6 +2,71 @@
 
 AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version history.
 
+## 2026-04-08-02
+
+- Agent: Claude Code (Sonnet 4.6)
+- Subject: #464 Calendar addon — Phases 2–8 implementation
+
+### Phases 2–8 — Calendar Addon
+
+Complete implementation of all remaining phases for #464.
+
+**Phase 2 — CalendarDataManager extensions** (`b404500b`)
+
+- Extends `BaseManager` (constructor: `engine, dataPath`)
+- RFC 5545 fields added: `location`, `status`, `class`, `transp`, `dtstamp`, `organizer`, `rrule`
+- `_private` block for reservation metadata (stripped per caller roles)
+- Per-calendar JSON storage: `data/calendar/<calendarId>.json`
+- `checkConflict()` — `areIntervalsOverlapping` from date-fns
+- `stripPrivate()` — admin/clubhouse-manager/requester see full `_private`
+- `cancelReservation()` — role-gated delete
+- `toFullCalendar()` — translate to FullCalendar EventInput
+- `toMarqueeText()` — BaseManager override; never exposes CONFIDENTIAL events
+
+**Phase 3 — routes/api.ts** (`06427344`)
+
+- All GET routes: `toFullCalendar() + stripPrivate()` per caller's ApiContext
+- POST/PUT/DELETE: `requireAuthenticated() + requireRole(admin, clubhouse-manager)`
+- `GET /api/calendar/:calendarId/feed.ics` — ts-ics RFC 5545 export (CONFIDENTIAL excluded)
+- tsconfig: include `src/types/**/*.d.ts` for express type augmentations
+
+**Phase 4 — reservations route** (`1ff07c68`)
+
+- `POST /api/calendar/reservations` — auth, conflict→409, CLASS: CONFIDENTIAL, email notification
+- `DELETE /api/calendar/reservations/:id` — owner/manager/admin only
+- `CalendarConfig.ts` — typed per-calendar config interface
+
+**Phase 5 — admin** (`440cec30`)
+
+- `GET /admin/calendar` — role-gated management dashboard
+- `views/admin-calendar.ejs` — per-calendar cards with reservation private columns, CRUD modals
+
+**Phase 7+8 — modal + wiring** (`c03a6ffb`)
+
+- `CalendarPlugin` `modal='true'` param — wires `dateClick`/`eventClick` to modal
+- `public/js/calendar-modal.js` — vanilla JS Bootstrap 5 create/edit/delete modal
+- `eslint.config.mjs`: ignore `addons/*/public/` (plain JS assets)
+
+- Files Added:
+  - `addons/calendar/managers/CalendarConfig.ts`
+  - `addons/calendar/routes/reservations.ts`
+  - `addons/calendar/routes/admin.ts`
+  - `addons/calendar/public/js/calendar-modal.js`
+  - `views/admin-calendar.ejs`
+
+- Files Modified:
+  - `addons/calendar/managers/CalendarDataManager.ts`
+  - `addons/calendar/routes/api.ts`
+  - `addons/calendar/plugins/CalendarPlugin.ts`
+  - `addons/calendar/index.ts`
+  - `addons/calendar/tsconfig.json`
+  - `eslint.config.mjs`
+
+- Issues Closed:
+  - #464 — Calendar addon (all phases complete)
+
+- Commits: b404500b, 06427344, 1ff07c68, 440cec30, c03a6ffb
+
 ## 2026-04-08-01
 
 - Agent: Claude Code (Sonnet 4.6)
