@@ -2,6 +2,48 @@
 
 AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version history.
 
+## 2026-04-08-05
+
+- Agent: Claude Code (Sonnet 4.6)
+- Subject: PM2 app naming — read application-name from config; update all instances
+
+### Fix — PM2 app name derived from `app-custom-config.json` (`3a48f0be`)
+
+`server.sh` and `ecosystem.config.js` now read the PM2 process name from the same
+source as the application itself:
+
+1. `${FAST_STORAGE}/config/app-custom-config.json` — `ngdpbase.application-name` or `ngdpbase.applicationName`
+2. `./config/app-default-config.json` — same keys
+3. `PROJECT_NAME` from `.env`
+4. Directory basename
+
+Handles relative `FAST_STORAGE` paths (resolved relative to `$SCRIPT_DIR` / `__dirname`).
+Supports both kebab-case (`application-name`) and camelCase (`applicationName`) config key variants.
+
+**Result** — all three instances now start with correct, unique PM2 names:
+
+| Instance | Port | PM2 name |
+|----------|------|----------|
+| ngdpbase | 3000 | `jimstest` |
+| fairways-base | 2121 | `The Fairways` |
+| ngdpbase-veg | 3333 | `ve-geology` |
+
+### All instances updated
+
+| Instance | Build | Unit tests | E2E tests | Status |
+|----------|-------|------------|-----------|--------|
+| ngdpbase (jimstest) | ✅ | 2703/2703 | 72/72 | running |
+| fairways-base (The Fairways) | ✅ | 2699/2699 | 72/72 | running |
+| ngdpbase-veg (ve-geology) | ✅ | 2699/2699 | 72/72 | running |
+
+### Checklist
+
+- Build: all three instances — clean ✅
+- Tests: all instances pass ✅
+- Server: all three running with correct PM2 names ✅
+- Committed and pushed (`3a48f0be`) ✅
+- All instances pulled and restarted ✅
+
 ## 2026-04-08-04
 
 - Agent: Claude Code (Sonnet 4.6)
