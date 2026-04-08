@@ -29,7 +29,8 @@ Files changed: `src/WikiEngine.ts`, `src/app.ts`, `src/types/WikiEngine.ts`, `ad
 | `GET /api/calendar/events` as admin → `_private` present | ✅ |
 | `GET /api/calendar/clubhouse/feed.ics` → valid VCALENDAR | ✅ |
 | `GET /admin/calendar` as admin → 200 | ✅ |
-| MarqueePlugin / Calendar modal | browser testing pending |
+| `[{MarqueePlugin fetch='CalendarDataManager.toMarqueeText(calendarId=events,days=365)'}]` → scrolling events | ✅ |
+| `[{Calendar calendarId='events' modal='true'}]` → dateClick opens modal, script injected | ✅ |
 
 CONFIDENTIAL reservations correctly stripped from anonymous `.ics` feed.
 
