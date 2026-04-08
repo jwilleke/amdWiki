@@ -1,20 +1,25 @@
 'use strict';
 
 import { Router, type Request, type Response } from 'express';
+import { generateIcsCalendar } from 'ts-ics';
+import type { IcsEvent } from 'ts-ics';
+import { ApiContext, ApiError } from '../../../src/context/ApiContext';
 import type { WikiEngine } from '../../../src/types/WikiEngine';
 import type CalendarDataManager from '../managers/CalendarDataManager';
+import type { CalendarEvent } from '../managers/CalendarDataManager';
 
 /**
  * API routes for the calendar add-on.
  * Mounted at /api/calendar in register().
  *
  * Endpoints:
- *   GET    /api/calendar/events           — list / FullCalendar feed
- *   POST   /api/calendar/events           — create event
- *   GET    /api/calendar/events/search    — keyword search
- *   GET    /api/calendar/events/:id       — get single event
- *   PUT    /api/calendar/events/:id       — update event (partial)
- *   DELETE /api/calendar/events/:id       — delete event
+ *   GET    /api/calendar/events                  — list / FullCalendar feed
+ *   POST   /api/calendar/events                  — create event (admin/clubhouse-manager)
+ *   GET    /api/calendar/events/search            — keyword search
+ *   GET    /api/calendar/events/:id               — get single event
+ *   PUT    /api/calendar/events/:id               — update event (admin/clubhouse-manager)
+ *   DELETE /api/calendar/events/:id               — delete event (admin/clubhouse-manager)
+ *   GET    /api/calendar/:calendarId/feed.ics     — RFC 5545 .ics feed
  */
 export default function apiRoutes(engine: WikiEngine, _config: Record<string, unknown>): Router {
   const router = Router();
@@ -28,19 +33,33 @@ export default function apiRoutes(engine: WikiEngine, _config: Record<string, un
     return typeof v === 'string' ? v : undefined;
   }
 
+  /** Centralised ApiError handler — keeps route handlers DRY. */
+  function handleError(err: unknown, res: Response): void {
+    if (err instanceof ApiError) {
+      res.status(err.status).json({ error: err.message });
+      return;
+    }
+    const msg = err instanceof Error ? err.message : String(err);
+    const status = msg.includes('not found') ? 404
+      : msg.includes('Forbidden') ? 403
+        : 400;
+    res.status(status).json({ error: msg });
+  }
+
   // ── GET /api/calendar/events ─────────────────────────────────────────────
   router.get('/events', (req: Request, res: Response) => {
     try {
       const m = mgr();
       if (!m) { res.status(503).json({ error: 'CalendarDataManager not available' }); return; }
+      const ctx = ApiContext.from(req, engine);
       const events = m.query({
         start:      qs(req.query['start']),
         end:        qs(req.query['end']),
         calendarId: qs(req.query['calendarId'])
       });
-      res.json(events);
+      res.json(events.map(e => m.toFullCalendar(e, ctx)));
     } catch (err) {
-      res.status(500).json({ error: err instanceof Error ? err.message : String(err) });
+      handleError(err, res);
     }
   });
 
@@ -48,11 +67,12 @@ export default function apiRoutes(engine: WikiEngine, _config: Record<string, un
   router.get('/events/search', (req: Request, res: Response) => {
     try {
       const m = mgr();
+      const ctx = ApiContext.from(req, engine);
       const q = qs(req.query['q']) ?? '';
-      const results = m ? m.search(q) : [];
+      const results = m ? m.search(q).map(e => m.toFullCalendar(e, ctx)) : [];
       res.json({ results });
     } catch (err) {
-      res.status(500).json({ error: err instanceof Error ? err.message : String(err) });
+      handleError(err, res);
     }
   });
 
@@ -61,19 +81,28 @@ export default function apiRoutes(engine: WikiEngine, _config: Record<string, un
     try {
       const m = mgr();
       if (!m) { res.status(503).json({ error: 'CalendarDataManager not available' }); return; }
+      const ctx = ApiContext.from(req, engine);
+      ctx.requireAuthenticated();
+      ctx.requireRole('admin', 'clubhouse-manager');
       const event = await m.create(req.body as Parameters<typeof m.create>[0]);
-      res.status(201).json(event);
+      res.status(201).json(m.toFullCalendar(event, ctx));
     } catch (err) {
-      res.status(400).json({ error: err instanceof Error ? err.message : String(err) });
+      handleError(err, res);
     }
   });
 
   // ── GET /api/calendar/events/:id ─────────────────────────────────────────
   router.get('/events/:id', (req: Request, res: Response) => {
-    const id = String(req.params['id']);
-    const event = mgr()?.getById(id);
-    if (!event) { res.status(404).json({ error: 'Event not found' }); return; }
-    res.json(event);
+    try {
+      const m = mgr();
+      if (!m) { res.status(503).json({ error: 'CalendarDataManager not available' }); return; }
+      const ctx = ApiContext.from(req, engine);
+      const event = m.getById(String(req.params['id']));
+      if (!event) { res.status(404).json({ error: 'Event not found' }); return; }
+      res.json(m.toFullCalendar(event, ctx));
+    } catch (err) {
+      handleError(err, res);
+    }
   });
 
   // ── PUT /api/calendar/events/:id ─────────────────────────────────────────
@@ -81,11 +110,13 @@ export default function apiRoutes(engine: WikiEngine, _config: Record<string, un
     try {
       const m = mgr();
       if (!m) { res.status(503).json({ error: 'CalendarDataManager not available' }); return; }
+      const ctx = ApiContext.from(req, engine);
+      ctx.requireAuthenticated();
+      ctx.requireRole('admin', 'clubhouse-manager');
       const event = await m.update(String(req.params['id']), req.body as Parameters<typeof m.update>[1]);
-      res.json(event);
+      res.json(m.toFullCalendar(event, ctx));
     } catch (err) {
-      const msg = err instanceof Error ? err.message : String(err);
-      res.status(msg.includes('not found') ? 404 : 400).json({ error: msg });
+      handleError(err, res);
     }
   });
 
@@ -94,15 +125,102 @@ export default function apiRoutes(engine: WikiEngine, _config: Record<string, un
     try {
       const m = mgr();
       if (!m) { res.status(503).json({ error: 'CalendarDataManager not available' }); return; }
+      const ctx = ApiContext.from(req, engine);
+      ctx.requireAuthenticated();
+      ctx.requireRole('admin', 'clubhouse-manager');
       await m.delete(String(req.params['id']));
       res.status(204).end();
     } catch (err) {
-      const msg = err instanceof Error ? err.message : String(err);
-      res.status(msg.includes('not found') ? 404 : 400).json({ error: msg });
+      handleError(err, res);
+    }
+  });
+
+  // ── GET /api/calendar/:calendarId/feed.ics ────────────────────────────────
+  //
+  // RFC 5545 iCalendar feed. Subscribable from Apple Calendar, Google Calendar, etc.
+  // PUBLIC events only — CONFIDENTIAL events are never exported.
+  router.get('/:calendarId/feed.ics', (req: Request, res: Response) => {
+    try {
+      const m = mgr();
+      if (!m) { res.status(503).json({ error: 'CalendarDataManager not available' }); return; }
+
+      const calendarId = String(req.params['calendarId']);
+      const events = m.query({ calendarId })
+        .filter(e => e.class !== 'CONFIDENTIAL');
+
+      const icsEvents: IcsEvent[] = events.map(e => toIcsEvent(e));
+
+      const feed = generateIcsCalendar({
+        prodId: '-//ngdpbase//Calendar//EN',
+        version: '2.0',
+        events: icsEvents
+      });
+
+      res.setHeader('Content-Type', 'text/calendar; charset=utf-8');
+      res.setHeader('Content-Disposition', `attachment; filename="${calendarId}.ics"`);
+      res.send(feed);
+    } catch (err) {
+      handleError(err, res);
     }
   });
 
   return router;
+}
+
+/**
+ * Translate a CalendarEvent to a ts-ics IcsEvent object.
+ * Used by the feed.ics endpoint.
+ *
+ * RFC 5545 requires either DTEND or DURATION. We always supply DTEND:
+ * for events without an explicit end, fall back to start + 1 hour.
+ */
+function toIcsEvent(e: CalendarEvent): IcsEvent {
+  const now = new Date();
+  const startDate = new Date(e.start);
+  // RFC 5545 DTEND is required (or DURATION) — default to start + 1 hour
+  const endDate = e.end
+    ? new Date(e.end)
+    : new Date(startDate.getTime() + 60 * 60 * 1000);
+
+  const event: IcsEvent = {
+    uid:   e.id,
+    summary: e.title,
+    stamp: { date: e.dtstamp ? new Date(e.dtstamp) : now },
+    start: { date: startDate },
+    end:   { date: endDate }
+  };
+
+  if (e.description)  event.description  = e.description;
+  if (e.location)     event.location     = e.location;
+  if (e.url)          event.url          = e.url;
+  if (e.created)      event.created      = { date: new Date(e.created) };
+  if (e.updated)      event.lastModified = { date: new Date(e.updated) };
+
+  // RFC 5545 CLASS
+  if (e.class === 'PUBLIC' || e.class === 'PRIVATE' || e.class === 'CONFIDENTIAL') {
+    event.class = e.class;
+  }
+
+  // RFC 5545 STATUS
+  if (e.status === 'CONFIRMED' || e.status === 'TENTATIVE' || e.status === 'CANCELLED') {
+    event.status = e.status;
+  }
+
+  // RFC 5545 TRANSP
+  if (e.transp === 'OPAQUE' || e.transp === 'TRANSPARENT') {
+    event.timeTransparent = e.transp;
+  }
+
+  // RFC 5545 ORGANIZER — ts-ics IcsOrganizer requires email
+  if (e.organizer) {
+    // If organizer looks like an email use it; otherwise treat as display name
+    const isEmail = e.organizer.includes('@');
+    event.organizer = isEmail
+      ? { email: e.organizer }
+      : { email: 'noreply@calendar', name: e.organizer };
+  }
+
+  return event;
 }
 
 module.exports = apiRoutes;

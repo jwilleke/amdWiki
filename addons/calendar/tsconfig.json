@@ -10,7 +10,8 @@
     "index.ts",
     "managers/**/*.ts",
     "routes/**/*.ts",
-    "plugins/**/*.ts"
+    "plugins/**/*.ts",
+    "../../src/types/**/*.d.ts"
   ],
   "exclude": [
     "node_modules",
