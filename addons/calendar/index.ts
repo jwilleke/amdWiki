@@ -25,6 +25,7 @@ import type AddonsManager from '../../src/managers/AddonsManager';
 import CalendarDataManager from './managers/CalendarDataManager';
 import CalendarPlugin from './plugins/CalendarPlugin';
 import apiRoutes from './routes/api';
+import reservationRoutes from './routes/reservations';
 
 let dataManager: CalendarDataManager | null = null;
 
@@ -67,6 +68,7 @@ const calendarAddon = {
 
     // ── 5. Mount API routes ──────────────────────────────────────────────────
     engine.app?.use('/api/calendar', apiRoutes(engine, config));
+    engine.app?.use('/api/calendar', reservationRoutes(engine, config));
 
     // ── 6. Announce capability ───────────────────────────────────────────────
     engine.setCapability('calendar', true);
