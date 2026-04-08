@@ -18,6 +18,7 @@ import type { PluginContext, PluginParams } from '../../../src/managers/PluginMa
  *   editable    — Allow drag-drop/resize (default: true)
  *   weekNumbers — Show week numbers (default: false)
  *   firstDay    — First day of week: 0=Sun, 1=Mon (default: 0)
+ *   modal       — Enable create/edit/delete modal for managed calendars (default: false)
  */
 
 const FULLCALENDAR_VERSION = '6.1.15';
@@ -52,16 +53,31 @@ const CalendarPlugin = {
     const editable     = params.editable     !== 'false';
     const weekNumbers  = params.weekNumbers  === 'true';
     const firstDay     = parseInt(String(params.firstDay ?? '0'), 10);
+    const modalEnabled = params.modal        === 'true' || params.modal === true;
 
     const eventsUrl = calendarId
       ? `/api/calendar/events?calendarId=${encodeURIComponent(calendarId)}`
       : '/api/calendar/events';
 
-    const loaderHtml = `<link id="fc-css" rel="stylesheet" href="${FC_CSS}">\n<script id="fc-js" src="${FC_JS}"></script>`;
+    const loaderHtml = [
+      `<link id="fc-css" rel="stylesheet" href="${FC_CSS}">`,
+      `<script id="fc-js" src="${FC_JS}"></script>`,
+      modalEnabled
+        ? '<script src="/addons/calendar/js/calendar-modal.js"></script>'
+        : ''
+    ].filter(Boolean).join('\n');
+
+    // data-* attributes let calendar-modal.js discover config without inline JS
+    const dataAttrs = [
+      `data-calendar-id="${calendarId}"`,
+      `data-events-url="${eventsUrl}"`,
+      `data-modal="${modalEnabled}"`
+    ].join(' ');
 
     return `
 ${loaderHtml}
-<div id="${instanceId}" class="calendar-container" style="min-height:${height}px"></div>
+<div id="${instanceId}" class="calendar-container" style="min-height:${height}px"
+     ${dataAttrs}></div>
 <script>
 (function () {
   function initCalendar() {
@@ -88,11 +104,17 @@ ${loaderHtml}
         }
       },
       eventClick: function (info) {
-        if (info.event.url) {
+        if (${modalEnabled} && window.calendarModal) {
+          info.jsEvent.preventDefault();
+          window.calendarModal.openEdit(info.event);
+        } else if (info.event.url) {
           info.jsEvent.preventDefault();
           window.location.href = info.event.url;
         }
-      }
+      },
+      dateClick: ${modalEnabled}
+        ? 'function (info) { if (window.calendarModal) window.calendarModal.openCreate(info.dateStr, "${calendarId}"); }'
+        : 'undefined'
     }).render();
   }
 

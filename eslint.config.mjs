@@ -8,7 +8,7 @@ import globals from "globals";
 export default tseslint.config(
   {
     // Ignore config and common root files from type-aware linting
-    ignores: ["eslint.config.mjs", "node_modules/", "dist/"],
+    ignores: ["eslint.config.mjs", "node_modules/", "dist/", "addons/*/public/"],
   },
   eslint.configs.recommended,
   ...tseslint.configs.recommended,

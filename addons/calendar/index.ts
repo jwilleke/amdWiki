@@ -6,13 +6,31 @@
  * Provides event/calendar management with a FullCalendar UI.
  *
  * Configuration keys (in app-custom-config.json):
- *   ngdpbase.addons.calendar.enabled      — true/false
- *   ngdpbase.addons.calendar.dataPath     — path to JSON event store (default: ./data/calendar)
+ *   ngdpbase.addons.calendar.enabled                        — true/false
+ *   ngdpbase.addons.calendar.dataPath                       — JSON store root (default: ./data/calendar)
+ *   ngdpbase.addons.calendar.clubhouse-manager-email        — email for reservation notifications
+ *   ngdpbase.addons.calendar.calendars.<id>.workflow        — reservation | managed
+ *   ngdpbase.addons.calendar.calendars.<id>.visibility      — public | authenticated | private
+ *   ngdpbase.addons.calendar.calendars.<id>.enabled         — true/false
+ *
+ * API routes (mounted at /api/calendar):
+ *   GET    /api/calendar/events                  — FullCalendar event feed (stripPrivate applied)
+ *   POST   /api/calendar/events                  — create event (admin/clubhouse-manager)
+ *   GET    /api/calendar/events/search            — keyword search
+ *   GET    /api/calendar/events/:id               — single event
+ *   PUT    /api/calendar/events/:id               — update (admin/clubhouse-manager)
+ *   DELETE /api/calendar/events/:id               — delete (admin/clubhouse-manager)
+ *   GET    /api/calendar/:calendarId/feed.ics     — RFC 5545 .ics subscription feed
+ *   POST   /api/calendar/reservations             — submit reservation (authenticated)
+ *   DELETE /api/calendar/reservations/:id         — cancel reservation (owner/manager/admin)
+ *
+ * Admin route:
+ *   GET    /admin/calendar                        — management dashboard (admin/clubhouse-manager)
  *
  * Markup directives:
  *   [{Calendar}]
  *   [{Calendar view='timeGridWeek'}]
- *   [{Calendar calendarId='events' height='500'}]
+ *   [{Calendar calendarId='events' height='500' modal='true'}]
  *   [{MarqueePlugin fetch='CalendarDataManager.toMarqueeText(calendarId=events,days=30)'}]
  */
 
