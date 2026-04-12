@@ -233,6 +233,10 @@ src/mail/*.js
 src/mail/*.js.map
 src/mail/*.d.ts
 src/mail/*.d.ts.map
+src/types/Asset.js
+src/types/Asset.js.map
+src/types/Asset.d.ts
+src/types/Asset.d.ts.map
 src/types/Config.js
 src/types/Config.js.map
 src/types/Config.d.ts
