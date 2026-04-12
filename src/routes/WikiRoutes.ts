@@ -312,6 +312,7 @@ class WikiRoutes {
     const templateData: {
       currentUser: UserContext | null;
       user: UserContext | null;
+      userContext: UserContext | null;
       appName: unknown;
       applicationName: unknown;
       faviconPath: unknown;
@@ -328,7 +329,8 @@ class WikiRoutes {
       footer?: string;
     } = {
       currentUser: userContext,
-      user: userContext, // Add alias for consistency
+      user: userContext,       // alias
+      userContext: userContext, // used by page-history.ejs and other templates
       appName: configManager?.getProperty(
         'ngdpbase.application-name',
         'ngdpbase'
