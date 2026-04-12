@@ -493,6 +493,16 @@ class ConfigurationManager extends BaseManager {
   }
 
   /**
+   * Get the set of recognised fenced code block language tags.
+   * Tags not in this set should be flagged as unknown on page save.
+   * @returns {Set<string>} Lower-cased tag names
+   */
+  getFencedCodeTags(): Set<string> {
+    const tags = this.getProperty('ngdpbase.markup.fenced-code-tags', []) as string[];
+    return new Set(Array.isArray(tags) ? tags.map(t => t.toLowerCase()) : []);
+  }
+
+  /**
    * Get server host
    * @returns {string} Server host
    */

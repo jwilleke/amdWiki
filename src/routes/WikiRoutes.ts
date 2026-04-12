@@ -1304,9 +1304,16 @@ class WikiRoutes {
       const template = viewMode === 'reader' ? 'reader' : 'view';
 
       this.engine.getManager('MetricsManager')?.recordPageView?.(Date.now() - _metricsStart);
+      const _unknownTagsParam = Array.isArray(req.query['unknown-tags'])
+        ? (req.query['unknown-tags'] as unknown[]).filter(v => typeof v === 'string').join(',')
+        : typeof req.query['unknown-tags'] === 'string'
+          ? req.query['unknown-tags']
+          : '';
       const warningMessage = req.query.warning === 'github-page'
         ? 'This page is managed in GitHub — edits here will not be reflected in the source repository.'
-        : null;
+        : _unknownTagsParam
+          ? `This page contains unrecognised fenced code block language tag(s): ${_unknownTagsParam.replace(/,/g, ', ')}. Add them to <code>ngdpbase.markup.fenced-code-tags</code> in configuration if they are valid, or change the tag in the page content.`
+          : null;
       const sectionEditingEnabled =
         canEdit && !!userContext?.preferences?.['display.sectionEditing'];
 
@@ -2200,6 +2207,15 @@ class WikiRoutes {
         ? 'This page is managed in GitHub — edits here will not be reflected in the source repository.'
         : undefined;
 
+      // Warn about unrecognised fenced code block language tags
+      const _configManager = this.engine.getManager('ConfigurationManager');
+      const _knownTags = _configManager?.getFencedCodeTags?.() ?? new Set<string>();
+      const _tagMatches = content?.matchAll(/^```(\S+)/gm) ?? [];
+      const _unknownTags = [...new Set(
+        [..._tagMatches].map(m => m[1]).filter(t => !_knownTags.has(t.toLowerCase()))
+      )];
+      const unknownTagWarning = _unknownTags.length > 0 ? _unknownTags.join(',') : undefined;
+
       // Prevent required-pages from being marked private (they live in GitHub)
       const isCurrentlyRequired = await this.isRequiredPage(pageName);
       if (isCurrentlyRequired && userKeywordsArray.includes('private')) {
@@ -2339,7 +2355,10 @@ class WikiRoutes {
       // Redirect to the updated page title if it changed (fallback to original name)
       const redirectName = (metadata.title as string) || pageName;
       this.engine.getManager('MetricsManager')?.recordPageSave?.(Date.now() - _metricsStart);
-      const warnParam = saveWarning ? `?warning=${encodeURIComponent('github-page')}` : '';
+      const warnParams = new URLSearchParams();
+      if (saveWarning) warnParams.set('warning', 'github-page');
+      if (unknownTagWarning) warnParams.set('unknown-tags', unknownTagWarning);
+      const warnParam = warnParams.size > 0 ? `?${warnParams.toString()}` : '';
       res.redirect(`/view/${encodeURIComponent(redirectName)}${warnParam}`);
     } catch (err: unknown) {
       this.engine.getManager('MetricsManager')?.recordPageSave?.(Date.now() - _metricsStart);
