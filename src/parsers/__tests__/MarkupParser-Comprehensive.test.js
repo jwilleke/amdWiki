@@ -126,7 +126,7 @@ describe('WikiDocument DOM Pipeline - Comprehensive Integration', () => {
       const content = 'Use `const x = 1` in your code.';
       const result = await parser.parseWithDOMExtraction(content, context);
 
-      expect(result).toContain('<code>const x = 1</code>');
+      expect(result).toMatch(/<code[^>]*>const x = 1<\/code>/);
     });
 
     test('markdown links: [text](url)', async () => {
@@ -453,7 +453,7 @@ You are on: [{$pagename}]`;
       const content = 'Use `[{$username}]` to show the user.';
       const result = await parser.parseWithDOMExtraction(content, context);
 
-      expect(result).toContain('<code>[{$username}]</code>');
+      expect(result).toMatch(/<code[^>]*>\[{[^}]+}\]<\/code>/);
       expect(result).not.toContain('JohnDoe');
     });
 
@@ -485,7 +485,7 @@ You are on: [{$pagename}]`;
       test('[^1] inside backtick code span is not converted to footnote', async () => {
         const content = 'Use `[^1]` for footnotes.';
         const result = await parser.parseWithDOMExtraction(content, context);
-        expect(result).toContain('<code>[^1]</code>');
+        expect(result).toMatch(/<code[^>]*>\[\^1\]<\/code>/);
         expect(result).not.toContain('href="#footnote-1"');
       });
     });

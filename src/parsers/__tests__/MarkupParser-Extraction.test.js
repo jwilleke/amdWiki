@@ -266,11 +266,15 @@ describe('MarkupParser.extractJSPWikiSyntax()', () => {
       expect(sanitized).toContain('```');
     });
 
-    test('preserves markdown inline code', () => {
+    test('extracts inline code span as code DOM node', () => {
       const content = 'Use `const` for constants';
-      const { sanitized } = parser.extractJSPWikiSyntax(content);
+      const { sanitized, jspwikiElements } = parser.extractJSPWikiSyntax(content);
 
-      expect(sanitized).toContain('Use `const` for constants');
+      // Inline code is now extracted as a 'code' element (not preserved in sanitized)
+      expect(sanitized).not.toContain('`const`');
+      expect(jspwikiElements).toHaveLength(1);
+      expect(jspwikiElements[0].type).toBe('code');
+      expect(jspwikiElements[0].codeContent).toBe('const');
     });
 
     test('preserves markdown tables', () => {
