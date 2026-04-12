@@ -1577,47 +1577,12 @@ class MarkupParser extends BaseManager {
       'data-jspwiki-id': element.id.toString()
     });
 
-    // Use innerHTML for content with placeholders (they need to be rendered as HTML)
-    // For non-placeholder content, process wiki links so [PageName] becomes <a> tags
+    // Use innerHTML for content with placeholders (nested style block nodes — resolved by mergeDOMNodes)
+    // For all other content, scan for all wiki syntax and resolve directly to DOM nodes.
     if (hasPlaceholder) {
       node.innerHTML = content;
     } else {
-      const linkPattern = /\[([^\][{^][^\]]*)\](?!\()/g;
-      if (linkPattern.test(content)) {
-        // Has wiki links — build content as mix of text nodes and <a> elements
-        linkPattern.lastIndex = 0;
-        let lastIndex = 0;
-        let match: RegExpExecArray | null;
-        let linkIdCounter = element.id * 1000;
-        while ((match = linkPattern.exec(content)) !== null) {
-          if (match.index > lastIndex) {
-            node.appendChild(wikiDocument.createTextNode(content.substring(lastIndex, match.index)));
-          }
-          const linkElement = {
-            type: 'link' as const,
-            syntax: match[0],
-            target: match[1].trim(),
-            id: linkIdCounter++,
-            position: match.index
-          };
-          try {
-            const linkNode = await this.domLinkHandler.createNodeFromExtract(
-              linkElement as Parameters<typeof this.domLinkHandler.createNodeFromExtract>[0],
-              {} as Parameters<typeof this.domLinkHandler.createNodeFromExtract>[1],
-              wikiDocument
-            );
-            node.appendChild(linkNode);
-          } catch {
-            node.appendChild(wikiDocument.createTextNode(match[0]));
-          }
-          lastIndex = match.index + match[0].length;
-        }
-        if (lastIndex < content.length) {
-          node.appendChild(wikiDocument.createTextNode(content.substring(lastIndex)));
-        }
-      } else {
-        node.textContent = content;
-      }
+      await this.appendWikiNodes(content, node, context, wikiDocument, element.id * 1000);
     }
     return node;
   }
@@ -1631,6 +1596,103 @@ class MarkupParser extends BaseManager {
    * @param wikiDocument - WikiDocument to create node in
    * @returns HTML table element
    */
+  /**
+   * Scans `content` for all JSPWiki wiki syntax (mirrors Steps 1–4 of extractJSPWikiSyntax)
+   * and appends the resolved child nodes directly to `node`. Text between matches is appended
+   * as text nodes. Used by createNodeFromStyleBlock and populateCell (via createTableNode).
+   *
+   * @param content  - Raw cell/block text containing wiki syntax
+   * @param node     - Target element to append children to
+   * @param context  - ParseContext for variable/plugin resolution
+   * @param wikiDocument - WikiDocument for node creation
+   * @param idStart  - Starting ID for created elements (must not collide with outer IDs)
+   */
+  private async appendWikiNodes(
+    content: string,
+    node: ReturnType<typeof WikiDocument.prototype.createElement>,
+    context: ParseContext | undefined,
+    wikiDocument: WikiDocument,
+    idStart: number
+  ): Promise<void> {
+    // Combined pattern — mirrors Steps 1–4 of extractJSPWikiSyntax:
+    //   Group 1: [[{inner}]        escaped plugin literal → text [{inner}]
+    //   Group 2: [{$varname}]      variable (varname without $)
+    //   Group 3: [{PluginName...}] plugin
+    //   Group 4: [inner]           bracket (link, escaped [[, blank pass-through)
+    const wikiPattern = /\[\[\{([^}]*)\}\]|\[\{\$(\w+)\}\]|\[\{([A-Za-z]\w*[^}]*)\}\]|\[([^\]]*)\](?!\()/g;
+
+    if (!wikiPattern.test(content)) {
+      node.textContent = content;
+      return;
+    }
+
+    const handlerContext = (context ?? {}) as unknown as Record<string, unknown>;
+    let idCounter = idStart;
+    wikiPattern.lastIndex = 0;
+    let lastIndex = 0;
+    let match: RegExpExecArray | null;
+
+    while ((match = wikiPattern.exec(content)) !== null) {
+      if (match.index > lastIndex) {
+        node.appendChild(wikiDocument.createTextNode(content.substring(lastIndex, match.index)));
+      }
+
+      const elemId = idCounter++;
+
+      if (match[1] !== undefined) {
+        // Escaped plugin literal: [[{inner}] → literal [{inner}]
+        node.appendChild(wikiDocument.createTextNode(`[{${match[1]}}]`));
+
+      } else if (match[2] !== undefined) {
+        // Variable: [{$varname}]
+        const varElement = { type: 'variable' as const, syntax: match[0], varName: `$${match[2]}`, id: elemId, position: match.index };
+        try {
+          node.appendChild(await this.domVariableHandler.createNodeFromExtract(
+            varElement as Parameters<typeof this.domVariableHandler.createNodeFromExtract>[0],
+            handlerContext as Parameters<typeof this.domVariableHandler.createNodeFromExtract>[1],
+            wikiDocument
+          ));
+        } catch { node.appendChild(wikiDocument.createTextNode(match[0])); }
+
+      } else if (match[3] !== undefined) {
+        // Plugin: [{PluginName...}]
+        const pluginElement = { type: 'plugin' as const, syntax: match[0], inner: match[3].trim(), id: elemId, position: match.index };
+        try {
+          node.appendChild(await this.domPluginHandler.createNodeFromExtract(
+            pluginElement as Parameters<typeof this.domPluginHandler.createNodeFromExtract>[0],
+            handlerContext as Parameters<typeof this.domPluginHandler.createNodeFromExtract>[1],
+            wikiDocument
+          ));
+        } catch { node.appendChild(wikiDocument.createTextNode(match[0])); }
+
+      } else if (match[4] !== undefined) {
+        // Bracket: [inner] — classify same as Step 4
+        const inner = match[4];
+        if (inner.trim() === '' || inner.startsWith('{')) {
+          node.appendChild(wikiDocument.createTextNode(match[0]));
+        } else if (inner.startsWith('[')) {
+          // Escaped: [[PageName] → literal [PageName]
+          node.appendChild(wikiDocument.createTextNode(inner + ']'));
+        } else {
+          const linkElement = { type: 'link' as const, syntax: match[0], target: inner.trim(), id: elemId, position: match.index };
+          try {
+            node.appendChild(await this.domLinkHandler.createNodeFromExtract(
+              linkElement as Parameters<typeof this.domLinkHandler.createNodeFromExtract>[0],
+              {} as Parameters<typeof this.domLinkHandler.createNodeFromExtract>[1],
+              wikiDocument
+            ));
+          } catch { node.appendChild(wikiDocument.createTextNode(match[0])); }
+        }
+      }
+
+      lastIndex = match.index + match[0].length;
+    }
+
+    if (lastIndex < content.length) {
+      node.appendChild(wikiDocument.createTextNode(content.substring(lastIndex)));
+    }
+  }
+
   private async createTableNode(content: string, className: string, elementId: number, wikiDocument: WikiDocument, context?: ParseContext): Promise<unknown> {
     const lines = content.split('\n').filter(line => /^\s*\|/.test(line));
 
@@ -1670,33 +1732,13 @@ class MarkupParser extends BaseManager {
     // Counter for link element IDs within this table
     let linkIdCounter = elementId * 1000;
 
-    // Helper: append text to a cell element, converting <br> to HTML line breaks
-    const appendTextWithBR = (el: ReturnType<typeof wikiDocument.createElement>, text: string) => {
-      if (!text) return;
-      if (/<br\s*\/?>/.test(text)) {
-        const span = wikiDocument.createElement('span', {});
-        const safe = text
-          .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-          .replace(/&lt;br\s*\/?&gt;/g, '<br>');
-        span.innerHTML = safe;
-        el.appendChild(span);
-      } else {
-        el.appendChild(wikiDocument.createTextNode(text));
-      }
-    };
-
-    // Helper: populate cell by scanning for all JSPWiki wiki syntax and resolving each
-    // pattern to its DOM node. Handles plugins, variables, links, and escaped syntax.
+    // Helper: populate a table cell, resolving all wiki syntax.
+    // For cells with no wiki syntax and possible <br> content, uses a fast path.
+    // Otherwise delegates to appendWikiNodes for the combined scanner.
     const populateCell = async (el: ReturnType<typeof wikiDocument.createElement>, cell: string) => {
-      // Combined pattern — mirrors Steps 1-4 of extractJSPWikiSyntax:
-      //   Group 1: [[{inner}]        escaped plugin literal → text [{inner}]
-      //   Group 2: [{$varname}]      variable (varname without $)
-      //   Group 3: [{PluginName...}] plugin
-      //   Group 4: [inner]           bracket (link, escaped [[, blank pass-through)
-      const wikiPattern = /\[\[\{([^}]*)\}\]|\[\{\$(\w+)\}\]|\[\{([A-Za-z]\w*[^}]*)\}\]|\[([^\]]*)\](?!\()/g;
-
-      if (!wikiPattern.test(cell)) {
-        // No wiki syntax — simple path with <br> support
+      const hasWiki = /\[\[\{|\[\{\$|\[\{[A-Za-z]|\[/.test(cell);
+      if (!hasWiki) {
+        // No wiki syntax — fast path with <br> support
         if (/<br\s*\/?>/.test(cell)) {
           const safe = cell
             .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
@@ -1707,103 +1749,8 @@ class MarkupParser extends BaseManager {
         }
         return;
       }
-
-      const handlerContext = (context ?? {}) as unknown as Record<string, unknown>;
-      wikiPattern.lastIndex = 0;
-      let lastIndex = 0;
-      let match: RegExpExecArray | null;
-
-      while ((match = wikiPattern.exec(cell)) !== null) {
-        // Append text before this match
-        if (match.index > lastIndex) {
-          appendTextWithBR(el, cell.substring(lastIndex, match.index));
-        }
-
-        const elemId = linkIdCounter++;
-
-        if (match[1] !== undefined) {
-          // Escaped plugin literal: [[{inner}] → literal [{inner}]
-          el.appendChild(wikiDocument.createTextNode(`[{${match[1]}}]`));
-
-        } else if (match[2] !== undefined) {
-          // Variable: [{$varname}]
-          const varElement = {
-            type: 'variable' as const,
-            syntax: match[0],
-            varName: `$${match[2]}`,
-            id: elemId,
-            position: match.index
-          };
-          try {
-            const varNode = await this.domVariableHandler.createNodeFromExtract(
-              varElement as Parameters<typeof this.domVariableHandler.createNodeFromExtract>[0],
-              handlerContext as Parameters<typeof this.domVariableHandler.createNodeFromExtract>[1],
-              wikiDocument
-            );
-            el.appendChild(varNode);
-          } catch {
-            el.appendChild(wikiDocument.createTextNode(match[0]));
-          }
-
-        } else if (match[3] !== undefined) {
-          // Plugin: [{PluginName...}]
-          const pluginElement = {
-            type: 'plugin' as const,
-            syntax: match[0],
-            inner: match[3].trim(),
-            id: elemId,
-            position: match.index
-          };
-          try {
-            const pluginNode = await this.domPluginHandler.createNodeFromExtract(
-              pluginElement as Parameters<typeof this.domPluginHandler.createNodeFromExtract>[0],
-              handlerContext as Parameters<typeof this.domPluginHandler.createNodeFromExtract>[1],
-              wikiDocument
-            );
-            el.appendChild(pluginNode);
-          } catch {
-            el.appendChild(wikiDocument.createTextNode(match[0]));
-          }
-
-        } else if (match[4] !== undefined) {
-          // Bracket: [inner] — classify same as Step 4
-          const inner = match[4];
-          if (inner.trim() === '' || inner.startsWith('{')) {
-            // Pass through (task-list checkbox, malformed JSPWiki)
-            el.appendChild(wikiDocument.createTextNode(match[0]));
-          } else if (inner.startsWith('[')) {
-            // Escaped: [[PageName] → literal [PageName]
-            // inner = "[PageName" (first [ consumed by outer match), so inner + ']' = "[PageName]"
-            el.appendChild(wikiDocument.createTextNode(inner + ']'));
-          } else {
-            // Wiki link
-            const linkElement = {
-              type: 'link' as const,
-              syntax: match[0],
-              target: inner.trim(),
-              id: elemId,
-              position: match.index
-            };
-            try {
-              const linkNode = await this.domLinkHandler.createNodeFromExtract(
-                linkElement as Parameters<typeof this.domLinkHandler.createNodeFromExtract>[0],
-                {} as Parameters<typeof this.domLinkHandler.createNodeFromExtract>[1],
-                wikiDocument
-              );
-              el.appendChild(linkNode);
-            } catch {
-              el.appendChild(wikiDocument.createTextNode(match[0]));
-            }
-          }
-        }
-
-        lastIndex = match.index + match[0].length;
-      }
-
-      // Append remaining text after last match
-      if (lastIndex < cell.length) {
-        appendTextWithBR(el, cell.substring(lastIndex));
-      }
+      await this.appendWikiNodes(cell, el, context, wikiDocument, linkIdCounter);
+      linkIdCounter += 100; // advance counter past any IDs appendWikiNodes may have used
     };
 
     // Create thead if there are header rows

@@ -532,6 +532,34 @@ You are on: [{$pagename}]`;
       });
     });
 
+    describe('Plugins in Style Blocks (non-table)', () => {
+      test('[{$pagename}] variable in style block resolves', async () => {
+        const content = '%%note\n[{$pagename}]\n/%';
+        const result = await parser.parseWithDOMExtraction(content, context);
+        expect(result).not.toContain('[{$pagename}]');
+        expect(result).toContain('TestPage');
+      });
+
+      test('[{TOC}] plugin in style block resolves', async () => {
+        const content = '%%note\n[{TableOfContents}]\n/%';
+        const result = await parser.parseWithDOMExtraction(content, context);
+        expect(result).not.toContain('[{TableOfContents}]');
+      });
+
+      test('[PageName] link in style block resolves', async () => {
+        const content = '%%note\n[SomePage]\n/%';
+        const result = await parser.parseWithDOMExtraction(content, context);
+        expect(result).toContain('href=');
+        expect(result).not.toContain('[SomePage]');
+      });
+
+      test('plain text in style block unchanged', async () => {
+        const content = '%%note\nhello world\n/%';
+        const result = await parser.parseWithDOMExtraction(content, context);
+        expect(result).toContain('hello world');
+      });
+    });
+
     test('user writes placeholder-like text (UUID prevents conflict)', async () => {
       const content = 'Debug: <!--JSPWIKI-12345678-0-->';
       const result = await parser.parseWithDOMExtraction(content, context);
