@@ -490,6 +490,48 @@ You are on: [{$pagename}]`;
       });
     });
 
+    describe('Plugins in Tables', () => {
+      // Note: populateCell applies to tables inside %%class.../%% style blocks.
+      // Bare |...|..| tables are handled by JSPWikiPreprocessor (not registered
+      // in this test context). We test the style-block table path here.
+
+      test('[{$pagename}] variable in style-block table cell resolves', async () => {
+        const content = '%%table-striped\n|[{$pagename}]|next cell|\n/%';
+        const result = await parser.parseWithDOMExtraction(content, context);
+        expect(result).not.toContain('[{$pagename}]');
+        expect(result).toContain('<td>');
+        expect(result).toContain('TestPage');
+      });
+
+      test('[{TOC}] plugin in style-block table cell resolves', async () => {
+        const content = '%%table-striped\n|[{TableOfContents}]|side|\n/%';
+        const result = await parser.parseWithDOMExtraction(content, context);
+        expect(result).not.toContain('[{TableOfContents}]');
+        expect(result).toContain('<td>');
+      });
+
+      test('[PageName] link in style-block table cell resolves to anchor', async () => {
+        const content = '%%table-striped\n|[SomePage]|text|\n/%';
+        const result = await parser.parseWithDOMExtraction(content, context);
+        expect(result).toContain('href=');
+        expect(result).not.toContain('[SomePage]');
+      });
+
+      test('plain text in style-block table cell unchanged', async () => {
+        const content = '%%table-striped\n|hello|world|\n/%';
+        const result = await parser.parseWithDOMExtraction(content, context);
+        expect(result).toContain('>hello<');
+        expect(result).toContain('>world<');
+      });
+
+      test('[[EscapedPage] in style-block table cell renders as literal [EscapedPage]', async () => {
+        const content = '%%table-striped\n|[[EscapedPage]|text|\n/%';
+        const result = await parser.parseWithDOMExtraction(content, context);
+        expect(result).toContain('[EscapedPage]');
+        expect(result).not.toContain('href=');
+      });
+    });
+
     test('user writes placeholder-like text (UUID prevents conflict)', async () => {
       const content = 'Debug: <!--JSPWIKI-12345678-0-->';
       const result = await parser.parseWithDOMExtraction(content, context);
