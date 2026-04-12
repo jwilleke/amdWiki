@@ -157,8 +157,9 @@ describe('MarkupParser', () => {
       // Should contain processed markdown
       expect(result).toContain('<h1>Test</h1>');
       
-      // Code blocks should be preserved
-      expect(result).toContain('```\ncode block\n```');
+      // Code blocks should be rendered as <pre><code>
+      expect(result).toContain('<pre');
+      expect(result).toContain('code block');
     });
 
     // Code block protection is now handled inside extractJSPWikiSyntax() using internal
@@ -176,12 +177,14 @@ describe('MarkupParser', () => {
       expect(result).toContain('Text after');
     });
 
-    test('should restore protected blocks during post-processing', async () => {
+    test('should render code blocks as pre/code elements', async () => {
       const content = 'Text\n\n```\ncode\n```\n\nMore text';
       const result = await markupParser.parse(content);
-      
-      // Code block should be restored
-      expect(result).toContain('```\ncode\n```');
+
+      // Code block should be rendered as <pre><code>, not raw fenced syntax
+      expect(result).toContain('<pre');
+      expect(result).toContain('code');
+      expect(result).not.toContain('```');
     });
 
     test('should expand variables during context resolution', async () => {

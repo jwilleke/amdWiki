@@ -166,7 +166,7 @@ export interface ParseContextData {
 /** Extracted JSPWiki element */
 export interface ExtractedElement {
   /** Element type */
-  type: 'variable' | 'plugin' | 'link' | 'escaped' | 'style' | 'footnote-ref' | 'footnote-def' | 'code';
+  type: 'variable' | 'plugin' | 'link' | 'escaped' | 'style' | 'footnote-ref' | 'footnote-def' | 'code' | 'fenced-code';
   /** Original syntax */
   syntax: string;
   /** Unique ID */
@@ -191,8 +191,10 @@ export interface ExtractedElement {
   footnoteId?: string;
   /** Footnote definition text — the content after [^id]: */
   footnoteText?: string;
-  /** Raw text content for inline code spans (`...`) */
+  /** Raw text content for inline code spans (`...`) and fenced code blocks (```...```) */
   codeContent?: string;
+  /** Language tag from fenced code blocks (e.g. 'javascript' from ```javascript) */
+  codeLanguage?: string;
 }
 
 /** Configuration manager interface for type safety */
@@ -1303,22 +1305,26 @@ class MarkupParser extends BaseManager {
 
     // IMPORTANT: Extraction order matters!
 
-    // Step 0: Protect code blocks from JSPWiki extraction
-    // Code blocks should not have JSPWiki syntax processed
-    const codeBlocks: Array<{ placeholder: string; content: string }> = [];
-    let codeBlockId = 0;
+    // Step 0: Extract code blocks as DOM nodes so their content is never re-parsed.
+    // Both fenced code blocks and inline code spans are extracted here.
+    // Using DOM nodes (textContent setter) is the only safe guarantee — restoring
+    // raw content back into the text pipeline (the old __CODEBLOCK_N__ approach)
+    // allowed PluginSyntaxHandler (Phase 2.6) to execute plugins inside code blocks.
 
-    // Protect fenced code blocks (```...```)
-    sanitized = sanitized.replace(/```[\s\S]*?```/g, (match) => {
-      const placeholder = `__CODEBLOCK_${codeBlockId++}__`;
-      codeBlocks.push({ placeholder, content: match });
-      return placeholder;
+    // Fenced code blocks (```[lang]\ncontent\n```)
+    sanitized = sanitized.replace(/^```(\S*)\n([\s\S]*?)^```\s*$/gm, (match: string, lang: string, inner: string, offset: number) => {
+      jspwikiElements.push({
+        type: 'fenced-code',
+        syntax: match,
+        codeLanguage: lang || '',
+        codeContent: inner,
+        id: id++,
+        position: offset
+      });
+      return `<span data-jspwiki-placeholder="${uuid}-${id - 1}"></span>`;
     });
 
-    // Protect inline code spans (`...`) by extracting them as 'code' DOM nodes.
-    // This prevents wiki syntax inside code spans from being expanded, and mirrors
-    // the scan-then-classify pattern used for [...]  brackets (Step 4).
-    // Fenced code blocks above still use __CODEBLOCK_N__ so Showdown handles them.
+    // Inline code spans (`...`) — single backtick, not fenced
     sanitized = sanitized.replace(/`([^`]+)`/g, (match: string, inner: string, offset: number) => {
       jspwikiElements.push({
         type: 'code',
@@ -1490,11 +1496,6 @@ class MarkupParser extends BaseManager {
         return `<span data-jspwiki-placeholder="${uuid}-${id - 1}"></span>`;
       }
     );
-
-    // Step 5: Restore code blocks
-    for (const { placeholder, content } of codeBlocks) {
-      sanitized = sanitized.replace(placeholder, content);
-    }
 
     return {
       sanitized,      // Content with JSPWiki syntax replaced by placeholders
@@ -1916,6 +1917,22 @@ class MarkupParser extends BaseManager {
       });
       codeNode.textContent = element.codeContent ?? '';
       return codeNode;
+    }
+
+    case 'fenced-code': {
+      // Fenced code block: ```lang\ncontent\n``` → <pre><code class="language-lang">content</code></pre>
+      // textContent setter safely escapes HTML — no wiki syntax can fire inside code blocks
+      const lang = element.codeLanguage ?? '';
+      const codeAttrs: Record<string, string> = {};
+      if (lang) {
+        codeAttrs['class'] = `language-${lang}`;
+      }
+      const innerCode = wikiDocument.createElement('code', codeAttrs);
+      innerCode.textContent = element.codeContent ?? '';
+      // data-jspwiki-id must be on the outermost node so mergeDOMNodes can find it
+      const preNode = wikiDocument.createElement('pre', { 'data-jspwiki-id': element.id.toString() });
+      preNode.appendChild(innerCode);
+      return preNode;
     }
 
     case 'style':

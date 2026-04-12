@@ -257,13 +257,17 @@ describe('MarkupParser.extractJSPWikiSyntax()', () => {
       expect(sanitized).toContain('* Item 3');
     });
 
-    test('preserves markdown code blocks', () => {
+    test('extracts fenced code block as fenced-code DOM node', () => {
       const content = '```javascript\nconst x = 1;\n```';
-      const { sanitized } = parser.extractJSPWikiSyntax(content);
+      const { sanitized, jspwikiElements } = parser.extractJSPWikiSyntax(content);
 
-      expect(sanitized).toContain('```javascript');
-      expect(sanitized).toContain('const x = 1;');
-      expect(sanitized).toContain('```');
+      // Fenced blocks are now DOM nodes — sanitized has a UUID placeholder, not raw markdown
+      expect(sanitized).not.toContain('```javascript');
+      expect(sanitized).not.toContain('const x = 1;');
+      expect(jspwikiElements).toHaveLength(1);
+      expect(jspwikiElements[0].type).toBe('fenced-code');
+      expect(jspwikiElements[0].codeLanguage).toBe('javascript');
+      expect(jspwikiElements[0].codeContent).toContain('const x = 1;');
     });
 
     test('extracts inline code span as code DOM node', () => {
