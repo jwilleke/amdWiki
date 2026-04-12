@@ -457,6 +457,39 @@ You are on: [{$pagename}]`;
       expect(result).not.toContain('JohnDoe');
     });
 
+    describe('Footnote Syntax', () => {
+      test('footnote reference [^1] renders as anchor link, not red link', async () => {
+        const content = 'Text with footnote[^1].\n\n[^1]: Footnote definition.';
+        const result = await parser.parseWithDOMExtraction(content, context);
+        expect(result).toContain('href="#footnote-1"');
+        expect(result).toContain('id="footnote-1"');
+        expect(result).not.toContain('class="redlink"');
+        expect(result).not.toContain('style="color: red;"');
+      });
+
+      test('[^my-note] text identifier renders as anchor', async () => {
+        const content = 'See note[^my-note].\n\n[^my-note]: The note text.';
+        const result = await parser.parseWithDOMExtraction(content, context);
+        expect(result).toContain('href="#footnote-my-note"');
+        expect(result).toContain('id="footnote-my-note"');
+      });
+
+      test('[[PageName] renders as escaped literal [PageName], not a wiki link', async () => {
+        const content = 'Type [[HomePage] to link.';
+        const result = await parser.parseWithDOMExtraction(content, context);
+        expect(result).toContain('[HomePage]');
+        expect(result).not.toContain('href="/view/HomePage"');
+        expect(result).not.toContain('href="/edit/HomePage"');
+      });
+
+      test('[^1] inside backtick code span is not converted to footnote', async () => {
+        const content = 'Use `[^1]` for footnotes.';
+        const result = await parser.parseWithDOMExtraction(content, context);
+        expect(result).toContain('<code>[^1]</code>');
+        expect(result).not.toContain('href="#footnote-1"');
+      });
+    });
+
     test('user writes placeholder-like text (UUID prevents conflict)', async () => {
       const content = 'Debug: <!--JSPWIKI-12345678-0-->';
       const result = await parser.parseWithDOMExtraction(content, context);

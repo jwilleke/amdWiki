@@ -166,7 +166,7 @@ export interface ParseContextData {
 /** Extracted JSPWiki element */
 export interface ExtractedElement {
   /** Element type */
-  type: 'variable' | 'plugin' | 'link' | 'escaped' | 'style';
+  type: 'variable' | 'plugin' | 'link' | 'escaped' | 'style' | 'footnote-ref' | 'footnote-def';
   /** Original syntax */
   syntax: string;
   /** Unique ID */
@@ -187,6 +187,10 @@ export interface ExtractedElement {
   styleContent?: string;
   /** Accumulated CSS classes from parent style blocks (for nested styles) */
   accumulatedClasses?: string[];
+  /** Footnote identifier — the id portion of [^id] or [^id]: text */
+  footnoteId?: string;
+  /** Footnote definition text — the content after [^id]: */
+  footnoteText?: string;
 }
 
 /** Configuration manager interface for type safety */
@@ -1396,22 +1400,86 @@ class MarkupParser extends BaseManager {
       return `<span data-jspwiki-placeholder="${uuid}-${id - 1}"></span>`;
     });
 
-    // Step 4: Extract wiki links [PageName] or [Text|Target]
-    // Matches: [HomePage], [Click Here|HomePage]
-    // Does NOT match: [text](url) - markdown links (negative lookahead)
-    // Does NOT match: [}] (malformed)
-    // Does NOT match: [^id] - markdown footnote references
-    // Note: This runs last to avoid conflicts with escaped/variable/plugin syntax
-    sanitized = sanitized.replace(/\[([^\][{^][^\]]*)\](?!\()/g, (match: string, target: string, offset: number) => {
-      jspwikiElements.push({
-        type: 'link',
-        syntax: match,
-        target: target.trim(),
-        id: id++,
-        position: offset
-      });
-      return `<span data-jspwiki-placeholder="${uuid}-${id - 1}"></span>`;
-    });
+    // Step 3.5: Extract single-line footnote definitions [^id]: text
+    // Must run BEFORE Step 4 so the [^id] on a definition line is not extracted
+    // as a footnote-ref, leaving a dangling ": text" in the content.
+    sanitized = sanitized.replace(/^\[\^([^\]\s]+)\]:\s*(.+)$/mg,
+      (match: string, fnId: string, fnText: string, offset: number) => {
+        jspwikiElements.push({
+          type: 'footnote-def',
+          syntax: match,
+          footnoteId: fnId,
+          footnoteText: fnText,
+          id: id++,
+          position: offset
+        });
+        return `<span data-jspwiki-placeholder="${uuid}-${id - 1}"></span>`;
+      }
+    );
+
+    // Step 3.6: Extract multi-paragraph footnote definitions [^id]: \n    continuation
+    sanitized = sanitized.replace(
+      /^\[\^([\d\w-]+)\]:\s*((\n+(\s{2,4}|\t).+)+)$/mg,
+      (match: string, fnId: string, fnText: string, _a: string, _b: string, offset: number) => {
+        jspwikiElements.push({
+          type: 'footnote-def',
+          syntax: match,
+          footnoteId: fnId,
+          footnoteText: fnText.trim(),
+          id: id++,
+          position: offset
+        });
+        return `<span data-jspwiki-placeholder="${uuid}-${id - 1}"></span>`;
+      }
+    );
+
+    // Step 4: Universal bracket scanner — extract ALL [content] not followed by (
+    // Classification is done on the inner content AFTER extraction, not during matching.
+    //   inner starts with [  → escaped literal  [[PageName] → literal [PageName]
+    //   inner starts with ^  → footnote-ref     [^1]        → <a href="#footnote-1">
+    //   inner is blank       → pass through     [ ]         → task-list checkbox
+    //   otherwise            → wiki link        [PageName], [Display|Target]
+    sanitized = sanitized.replace(/\[([^\]]*)\](?!\()/g,
+      (match: string, inner: string, offset: number) => {
+        // Pass through blank brackets (task-list checkboxes [ ])
+        if (inner.trim() === '') return match;
+
+        // Pass through malformed JSPWiki syntax [{...  (no closing }])
+        // Steps 2 and 3 already consumed valid [{$var}] and [{Plugin}]; anything
+        // starting with { here is malformed and should be left as literal text.
+        if (inner.startsWith('{')) return match;
+
+        if (inner.startsWith('[')) {
+          // [[text] → escaped literal [text]
+          jspwikiElements.push({
+            type: 'escaped',
+            syntax: match,
+            literal: inner + ']',  // inner is "[text", restore the closing ]
+            id: id++,
+            position: offset
+          });
+        } else if (inner.startsWith('^')) {
+          // [^id] → footnote reference
+          jspwikiElements.push({
+            type: 'footnote-ref',
+            syntax: match,
+            footnoteId: inner.slice(1),  // drop leading ^
+            id: id++,
+            position: offset
+          });
+        } else {
+          // Wiki link: [PageName] or [Display|Target]
+          jspwikiElements.push({
+            type: 'link',
+            syntax: match,
+            target: inner.trim(),
+            id: id++,
+            position: offset
+          });
+        }
+        return `<span data-jspwiki-placeholder="${uuid}-${id - 1}"></span>`;
+      }
+    );
 
     // Step 5: Restore code blocks
     for (const { placeholder, content } of codeBlocks) {
@@ -1794,8 +1862,42 @@ class MarkupParser extends BaseManager {
       );
 
     case 'escaped':
-      // Escaped: [[{$var}]] → [{$var}]
+      // Escaped: [[{$var}]] → [{$var}]  or  [[PageName] → [PageName]
       return this.createTextNodeForEscaped(element, wikiDocument);
+
+    case 'footnote-ref': {
+      // [^1] → <a href="#footnote-1"><sup>[1]</sup></a>
+      const fnId = element.footnoteId ?? '';
+      const refNode = wikiDocument.createElement('a', {
+        'href': `#footnote-${fnId}`,
+        'class': 'footnote-ref',
+        'data-jspwiki-id': element.id.toString()
+      });
+      const sup = wikiDocument.createElement('sup', {});
+      sup.textContent = `[${fnId}]`;
+      refNode.appendChild(sup);
+      return refNode;
+    }
+
+    case 'footnote-def': {
+      // [^1]: text → <small class="footnote" id="footnote-1"><a href="#footnote-1"><sup>[1]</sup></a>: text</small>
+      const fnId = element.footnoteId ?? '';
+      const defNode = wikiDocument.createElement('small', {
+        'class': 'footnote',
+        'id': `footnote-${fnId}`,
+        'data-jspwiki-id': element.id.toString()
+      });
+      const anchor = wikiDocument.createElement('a', { 'href': `#footnote-${fnId}` });
+      const defSup = wikiDocument.createElement('sup', {});
+      defSup.textContent = `[${fnId}]`;
+      anchor.appendChild(defSup);
+      defNode.appendChild(anchor);
+      // Append definition text safely — textContent escapes HTML entities
+      const textSpan = wikiDocument.createElement('span', {});
+      textSpan.textContent = `: ${element.footnoteText ?? ''}`;
+      defNode.appendChild(textSpan);
+      return defNode;
+    }
 
     case 'style':
       // Style block: %%class-name ... /%

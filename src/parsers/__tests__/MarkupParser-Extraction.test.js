@@ -143,6 +143,51 @@ describe('MarkupParser.extractJSPWikiSyntax()', () => {
       expect(jspwikiElements[0].type).toBe('escaped'); // First is escaped
       expect(jspwikiElements[1].type).toBe('variable'); // Second is processed
     });
+
+    test('extracts escaped plain link [[PageName]', () => {
+      const { jspwikiElements } = parser.extractJSPWikiSyntax('[[HomePage]');
+      expect(jspwikiElements).toHaveLength(1);
+      expect(jspwikiElements[0].type).toBe('escaped');
+      expect(jspwikiElements[0].literal).toBe('[HomePage]');
+    });
+  });
+
+  describe('Footnote Extraction', () => {
+    test('extracts footnote reference [^1]', () => {
+      const { jspwikiElements } = parser.extractJSPWikiSyntax('[^1]');
+      expect(jspwikiElements).toHaveLength(1);
+      expect(jspwikiElements[0].type).toBe('footnote-ref');
+      expect(jspwikiElements[0].footnoteId).toBe('1');
+    });
+
+    test('extracts footnote reference with text id [^my-note]', () => {
+      const { jspwikiElements } = parser.extractJSPWikiSyntax('[^my-note]');
+      expect(jspwikiElements).toHaveLength(1);
+      expect(jspwikiElements[0].type).toBe('footnote-ref');
+      expect(jspwikiElements[0].footnoteId).toBe('my-note');
+    });
+
+    test('extracts single-line footnote definition [^1]: text', () => {
+      const content = '[^1]: This is a footnote.';
+      const { jspwikiElements } = parser.extractJSPWikiSyntax(content);
+      expect(jspwikiElements).toHaveLength(1);
+      expect(jspwikiElements[0].type).toBe('footnote-def');
+      expect(jspwikiElements[0].footnoteId).toBe('1');
+      expect(jspwikiElements[0].footnoteText).toBe('This is a footnote.');
+    });
+
+    test('footnote definition extracted before reference on same line is not double-extracted', () => {
+      // [^1]: text should produce one footnote-def, not a footnote-def + footnote-ref
+      const content = '[^1]: Definition text.';
+      const { jspwikiElements } = parser.extractJSPWikiSyntax(content);
+      expect(jspwikiElements).toHaveLength(1);
+      expect(jspwikiElements[0].type).toBe('footnote-def');
+    });
+
+    test('blank brackets [ ] pass through (task-list checkbox)', () => {
+      const { jspwikiElements } = parser.extractJSPWikiSyntax('- [ ] todo item');
+      expect(jspwikiElements).toHaveLength(0);
+    });
   });
 
   describe('Wiki Link Extraction', () => {

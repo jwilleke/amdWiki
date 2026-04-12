@@ -17,8 +17,7 @@ function getErrorMessage(error: unknown): string {
 }
 import logger from '../utils/logger';
 import * as showdown from 'showdown';
-// Using fixed version of showdown-footnotes with global flag for all references
-import showdownFootnotes from '../extensions/showdown-footnotes-fixed';
+// Footnotes are now handled in the WikiDocument DOM pipeline (MarkupParser Steps 3.5/3.6/4)
 import showdownSubSuperscript from '../extensions/showdown-sub-superscript';
 import { LinkParser } from '../parsers/LinkParser';
 import PageNameMatcher from '../utils/PageNameMatcher';
@@ -168,7 +167,7 @@ class RenderingManager extends BaseManager {
       disableForced4SpacesIndentedSublists: true, // Allow 2-space indented sublists
       literalMidWordUnderscores: true, // Better underscore handling
       ghCodeBlocks: true, // GitHub-style code blocks
-      extensions: [showdownFootnotes, showdownSubSuperscript] // footnotes + sub/superscript
+      extensions: [showdownSubSuperscript] // footnotes handled by MarkupParser DOM pipeline
     });
 
     // Build initial link graph
