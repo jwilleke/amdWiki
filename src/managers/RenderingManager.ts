@@ -167,6 +167,7 @@ class RenderingManager extends BaseManager {
       disableForced4SpacesIndentedSublists: true, // Allow 2-space indented sublists
       literalMidWordUnderscores: true, // Better underscore handling
       ghCodeBlocks: true, // GitHub-style code blocks
+      ghHeaderIds: true, // Generate id attributes on headings for section linking (#500)
       extensions: [showdownSubSuperscript] // footnotes handled by MarkupParser DOM pipeline
     });
 

@@ -26,6 +26,7 @@
 import { LinkParser, Link } from '../../LinkParser';
 import logger from '../../../utils/logger';
 import PageNameMatcher from '../../../utils/PageNameMatcher';
+import { headingSlug } from '../../../utils/SectionUtils';
 import type WikiDocument from '../WikiDocument';
 import type { LinkedomElement } from '../WikiDocument';
 
@@ -418,7 +419,15 @@ class DOMLinkHandler {
    * @param _context - Rendering context (unused)
    */
   processInternalLink(linkElement: LinkedomElement, linkInfo: LinkInfo, _context: RenderContext): void {
-    const pageName = linkInfo.target || linkInfo.text;
+    const rawTarget = linkInfo.target || linkInfo.text;
+
+    // Split off any section fragment: "PageName#slug" or "PageName#section=Heading Name"
+    const hashIdx = rawTarget.indexOf('#');
+    const pageName = hashIdx === -1 ? rawTarget : rawTarget.slice(0, hashIdx);
+    const rawFragment = hashIdx === -1 ? '' : rawTarget.slice(hashIdx + 1);
+    const fragment = rawFragment.startsWith('section=')
+      ? headingSlug(rawFragment.slice('section='.length))
+      : rawFragment;
 
     // Try fuzzy matching if PageNameMatcher is available
     let matchedPage: string | null = null;
@@ -433,11 +442,12 @@ class DOMLinkHandler {
     const exists = matchedPage !== null;
     const targetPage = matchedPage || pageName;
 
-    // Set href
-    const href = exists
+    // Set href (append fragment if present)
+    const base = exists
       ? `/view/${encodeURIComponent(targetPage)}`
       : `/edit/${encodeURIComponent(pageName)}`;
-     
+    const href = fragment ? `${base}#${fragment}` : base;
+
     linkElement.setAttribute('href', href);
 
     // Set class

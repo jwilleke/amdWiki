@@ -224,6 +224,47 @@ describe('LinkParser', () => {
       expect(html).toContain('id="custom-id"');
       expect(html).toContain('title="Custom Title"');
     });
+
+    test('section link with plain #slug appended to href', () => {
+      const link = new Link({ text: 'PLA', target: 'ExistingPage#pla-polylactic-acid' });
+      const html = linkParser.generateInternalLink(link, {});
+
+      expect(html).toContain('href="/view/ExistingPage#pla-polylactic-acid"');
+      expect(html).toContain('class="wikipage"');
+      expect(html).toContain('>PLA</a>');
+    });
+
+    test('section link with #section=Name slugified in href', () => {
+      const link = new Link({ text: 'PLA', target: 'ExistingPage#section=PLA (Polylactic Acid)' });
+      const html = linkParser.generateInternalLink(link, {});
+
+      expect(html).toContain('href="/view/ExistingPage#pla-polylactic-acid"');
+    });
+
+    test('section link page existence check uses page name without fragment', () => {
+      // The page "ExistingPage" exists; existence check must not include the #fragment
+      const link = new Link({ text: 'Sec', target: 'ExistingPage#some-section' });
+      const html = linkParser.generateInternalLink(link, {});
+
+      expect(html).toContain('class="wikipage"');      // page exists
+      expect(html).not.toContain('redlink');
+    });
+
+    test('section link on non-existent page stays redlink with fragment', () => {
+      const link = new Link({ text: 'Sec', target: 'NoSuchPage#some-section' });
+      const html = linkParser.generateInternalLink(link, {});
+
+      expect(html).toContain('href="/edit/NoSuchPage#some-section"');
+      expect(html).toContain('class="redlink"');
+    });
+
+    test('link with no fragment is unaffected', () => {
+      const link = new Link({ text: 'ExistingPage' });
+      const html = linkParser.generateInternalLink(link, {});
+
+      expect(html).toContain('href="/view/ExistingPage"');
+      expect(html).not.toContain('#');
+    });
   });
 
   describe('External Link Generation', () => {

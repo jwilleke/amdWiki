@@ -1,6 +1,6 @@
 'use strict';
 
-const { extractSection, spliceSection, getSectionCount } = require('../SectionUtils');
+const { extractSection, spliceSection, getSectionCount, headingSlug } = require('../SectionUtils');
 
 const SIMPLE = `---
 title: Test Page
@@ -160,5 +160,39 @@ describe('SectionUtils — spliceSection', () => {
       // Content should be semantically identical (modulo trailing whitespace)
       expect(spliced.trim()).toBe(original.trim());
     }
+  });
+});
+
+// ---------------------------------------------------------------------------
+// headingSlug
+// ---------------------------------------------------------------------------
+
+describe('headingSlug()', () => {
+  test('lowercase and hyphenates spaces', () => {
+    expect(headingSlug('Hello World')).toBe('hello-world');
+  });
+
+  test('removes parentheses and special chars', () => {
+    expect(headingSlug('PLA (Polylactic Acid)')).toBe('pla-polylactic-acid');
+  });
+
+  test('handles digits', () => {
+    expect(headingSlug('3D Printing Filaments')).toBe('3d-printing-filaments');
+  });
+
+  test('collapses multiple spaces/hyphens', () => {
+    expect(headingSlug('Hello   World')).toBe('hello-world');
+  });
+
+  test('empty string returns empty string', () => {
+    expect(headingSlug('')).toBe('');
+  });
+
+  test('only special chars returns empty string', () => {
+    expect(headingSlug('(!) @#$')).toBe('');
+  });
+
+  test('preserves existing hyphens', () => {
+    expect(headingSlug('Step-by-Step Guide')).toBe('step-by-step-guide');
   });
 });

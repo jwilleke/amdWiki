@@ -2106,7 +2106,8 @@ class MarkupParser extends BaseManager {
         strikethrough: true,
         tasklists: true,
         simpleLineBreaks: false,
-        ghCodeBlocks: true
+        ghCodeBlocks: true,
+        ghHeaderIds: true
       });
       showdownHtml = converter.makeHtml(preprocessed);
     }

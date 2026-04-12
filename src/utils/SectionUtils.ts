@@ -9,6 +9,29 @@
  * ignored to avoid false positives.
  */
 
+/**
+ * Convert heading text to the anchor slug that Showdown (ghHeaderIds) generates.
+ *
+ * Algorithm mirrors GitHub Flavored Markdown:
+ *   1. Lowercase
+ *   2. Remove any character that is not a letter, digit, space, or hyphen
+ *   3. Replace whitespace runs with a single hyphen
+ *   4. Trim leading/trailing hyphens
+ *
+ * Examples:
+ *   "PLA (Polylactic Acid)"  → "pla-polylactic-acid"
+ *   "3D Printing Filaments"  → "3d-printing-filaments"
+ *   "Hello World"            → "hello-world"
+ */
+export function headingSlug(text: string): string {
+  return text
+    .toLowerCase()
+    .replace(/[^\w\s-]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
+
 /** Return the number of leading YAML frontmatter lines (including both --- delimiters), or 0 */
 function frontmatterEndLine(lines: string[]): number {
   if (lines.length === 0 || lines[0].trim() !== '---') return 0;

@@ -40,6 +40,7 @@
 
 import PageNameMatcher from '../utils/PageNameMatcher';
 import logger from '../utils/logger';
+import { headingSlug } from '../utils/SectionUtils';
 
 /**
  * Default CSS classes for different link types
@@ -486,8 +487,18 @@ export class LinkParser {
    * @returns {string} HTML link
    */
   generateInternalLink(link: Link, _context: ParserContext): string {
-    const pageName = link.target || link.text;
+    const rawTarget = link.target || link.text;
     const displayText = link.text;
+
+    // Split off any section fragment: "PageName#slug" or "PageName#section=Heading Name"
+    const hashIdx = rawTarget.indexOf('#');
+    const pageName = hashIdx === -1 ? rawTarget : rawTarget.slice(0, hashIdx);
+    const rawFragment = hashIdx === -1 ? '' : rawTarget.slice(hashIdx + 1);
+
+    // Resolve #section=Heading Name → slug; plain fragment used as-is
+    const fragment = rawFragment.startsWith('section=')
+      ? headingSlug(rawFragment.slice('section='.length))
+      : rawFragment;
 
     // Try fuzzy matching if PageNameMatcher is available
     let matchedPage: string | null = null;
@@ -502,9 +513,10 @@ export class LinkParser {
     const exists = matchedPage !== null;
     const targetPage = matchedPage || pageName;
 
-    const href = exists
+    const base = exists
       ? `/view/${encodeURIComponent(targetPage)}`
       : `/edit/${encodeURIComponent(pageName)}`;
+    const href = fragment ? `${base}#${fragment}` : base;
 
     const baseClass = exists
       ? this.options.defaultClasses.internal
