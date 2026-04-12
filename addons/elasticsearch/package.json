@@ -1,0 +1,19 @@
+{
+  "name": "elasticsearch",
+  "version": "1.0.0",
+  "description": "sist2/Elasticsearch NAS asset provider for ngdpbase",
+  "private": true,
+  "dependencies": {
+    "@elastic/elasticsearch": "^8.15.0"
+  },
+  "devDependencies": {
+    "@types/node": "^18.0.0",
+    "typescript": "^5.0.0"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "ngdpbase": {
+    "type": "additive"
+  }
+}

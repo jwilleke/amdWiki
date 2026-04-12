@@ -22,7 +22,8 @@ export default tseslint.config(
       parserOptions: {
         project: [
           "./tsconfig.json",
-          "./addons/calendar/tsconfig.json"
+          "./addons/calendar/tsconfig.json",
+          "./addons/elasticsearch/tsconfig.json"
         ],
         tsconfigRootDir: import.meta.dirname,
       },
