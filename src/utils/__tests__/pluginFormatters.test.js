@@ -4,6 +4,7 @@
  * Covers all exported utilities:
  *   parseMaxParam, applyMax, escapeHtml,
  *   formatAsList, formatAsCount,
+ *   resolveUserParam,
  *   parseSortParam,
  *   formatAsTable,
  *   parsePageParam, parsePageSizeParam, applyPagination, formatPaginationLinks
@@ -17,6 +18,7 @@ const {
   escapeHtml,
   formatAsList,
   formatAsCount,
+  resolveUserParam,
   parseSortParam,
   formatAsTable,
   parsePageParam,
@@ -203,6 +205,54 @@ describe('formatAsList', () => {
     const withTitle = [{ href: '/view/P', text: 'P', title: 'A & B' }];
     const out = formatAsList(withTitle);
     expect(out).toContain('title="A &amp; B"');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// resolveUserParam
+// ---------------------------------------------------------------------------
+
+describe('resolveUserParam', () => {
+  const loggedIn = { userName: 'alice', userContext: { username: 'alice' } };
+  const anon     = { userName: 'anonymous', userContext: { username: 'anonymous' } };
+  const asserted = { userName: 'asserted', userContext: { username: 'asserted' } };
+  const empty    = {};
+
+  test('returns undefined when value is undefined', () => {
+    expect(resolveUserParam(undefined, loggedIn)).toBeUndefined();
+  });
+
+  test('returns non-token value unchanged', () => {
+    expect(resolveUserParam('jim', loggedIn)).toBe('jim');
+  });
+
+  test('resolves $currentUser to logged-in username (exact case)', () => {
+    expect(resolveUserParam('$currentUser', loggedIn)).toBe('alice');
+  });
+
+  test('resolves $currentuser (all lowercase) to logged-in username', () => {
+    expect(resolveUserParam('$currentuser', loggedIn)).toBe('alice');
+  });
+
+  test('resolves $CURRENTUSER (uppercase) to logged-in username', () => {
+    expect(resolveUserParam('$CURRENTUSER', loggedIn)).toBe('alice');
+  });
+
+  test('returns undefined for $currentUser when user is anonymous', () => {
+    expect(resolveUserParam('$currentUser', anon)).toBeUndefined();
+  });
+
+  test('returns undefined for $currentUser when username is "asserted"', () => {
+    expect(resolveUserParam('$currentUser', asserted)).toBeUndefined();
+  });
+
+  test('returns undefined for $currentUser when context has no username', () => {
+    expect(resolveUserParam('$currentUser', empty)).toBeUndefined();
+  });
+
+  test('falls back to context.userName when userContext.username is absent', () => {
+    const ctx = { userName: 'bob' };
+    expect(resolveUserParam('$currentUser', ctx)).toBe('bob');
   });
 });
 

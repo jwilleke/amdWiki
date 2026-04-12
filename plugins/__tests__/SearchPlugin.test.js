@@ -329,3 +329,70 @@ describe('SearchPlugin — missing SearchManager', () => {
     expect(html).toContain('SearchManager');
   });
 });
+
+// ---------------------------------------------------------------------------
+// $currentUser token resolution
+// ---------------------------------------------------------------------------
+
+describe('SearchPlugin — $currentUser token', () => {
+  function makeLoggedInContext(username, opts = {}) {
+    const base = makeContext(opts);
+    base.context.userName = username;
+    base.context.userContext = { username };
+    return base;
+  }
+
+  function makeAnonContext(opts = {}) {
+    const base = makeContext(opts);
+    base.context.userName = 'anonymous';
+    base.context.userContext = { username: 'anonymous' };
+    return base;
+  }
+
+  test('$currentUser in author= resolves to logged-in username', async () => {
+    const results = [makeResult('MyPage', 'My Page', { author: 'alice' })];
+    const { context, mockSearchManager } = makeLoggedInContext('alice', {
+      advancedSearchResults: results
+    });
+    const html = await SearchPlugin.execute(context, { author: '$currentUser' });
+    expect(html).not.toContain('log in');
+    const call = mockSearchManager.advancedSearch.mock.calls[0][0];
+    expect(call.author).toBe('alice');
+  });
+
+  test('$currentUser (lowercase) in editor= resolves to logged-in username', async () => {
+    const results = [makeResult('EditedPage', 'Edited Page', { editor: 'bob' })];
+    const { context, mockSearchManager } = makeLoggedInContext('bob', {
+      advancedSearchResults: results
+    });
+    const html = await SearchPlugin.execute(context, { editor: '$currentuser' });
+    expect(html).not.toContain('log in');
+    const call = mockSearchManager.advancedSearch.mock.calls[0][0];
+    expect(call.editor).toBe('bob');
+  });
+
+  test('$currentUser in author= for anonymous user returns login prompt', async () => {
+    const { context } = makeAnonContext({ advancedSearchResults: [] });
+    const html = await SearchPlugin.execute(context, { author: '$currentUser' });
+    expect(html).toContain('log in');
+    expect(html).not.toContain('<table');
+  });
+
+  test('$currentUser in editor= for anonymous user returns login prompt', async () => {
+    const { context } = makeAnonContext({ advancedSearchResults: [] });
+    const html = await SearchPlugin.execute(context, { editor: '$currentUser' });
+    expect(html).toContain('log in');
+    expect(html).not.toContain('<table');
+  });
+
+  test('literal author value (not $currentUser) is passed through unchanged', async () => {
+    const results = [makeResult('SomePage', 'Some Page')];
+    const { context, mockSearchManager } = makeLoggedInContext('alice', {
+      advancedSearchResults: results
+    });
+    const html = await SearchPlugin.execute(context, { author: 'jim' });
+    expect(html).not.toContain('log in');
+    const call = mockSearchManager.advancedSearch.mock.calls[0][0];
+    expect(call.author).toBe('jim');
+  });
+});

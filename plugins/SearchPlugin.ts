@@ -16,13 +16,14 @@
  * [{Search author='jim'}]
  * [{Search editor='jim'}]
  * [{Search author='jim' format='titles'}]
+ * [{Search author='$currentUser' format='titles'}]
  *
  * Parameters:
  * - query: Search text query (default: '*' for all pages)
  * - system-category: Filter by system category
  * - user-keywords: Filter by user keywords (OR logic for multiple values)
- * - author: Filter by page author (original creator, from metadata.author)
- * - editor: Filter by last editor (from metadata.editor)
+ * - author: Filter by page author (original creator, from metadata.author); use '$currentUser' for the logged-in user
+ * - editor: Filter by last editor (from metadata.editor); use '$currentUser' for the logged-in user
  * - max: Maximum number of results (default: 50, 0 = unlimited)
  * - pageSize: Results per page — enables pagination (default: 0 = disabled)
  * - page: Current page number (default: 1, also read from ?page= query string)
@@ -47,6 +48,7 @@ import {
   formatAsTable,
   formatAsList,
   formatAsCount,
+  resolveUserParam,
   type PageLink
 } from '../src/utils/pluginFormatters';
 
@@ -266,8 +268,16 @@ const SearchPlugin: SimplePlugin = {
       const query = String(opts.query || '*');
       const systemCategory = opts['system-category'];
       const userKeywords = opts['user-keywords'];
-      const author = opts.author ? String(opts.author) : undefined;
-      const editor = opts.editor ? String(opts.editor) : undefined;
+      const rawAuthor = opts.author ? String(opts.author) : undefined;
+      const rawEditor = opts.editor ? String(opts.editor) : undefined;
+      const author = resolveUserParam(rawAuthor, context);
+      const editor = resolveUserParam(rawEditor, context);
+
+      // If $currentUser token was used but visitor is not logged in, prompt to log in
+      if ((rawAuthor?.toLowerCase() === '$currentuser' && author === undefined) ||
+          (rawEditor?.toLowerCase() === '$currentuser' && editor === undefined)) {
+        return '<p class="info">Please log in to see your contributions.</p>';
+      }
       const maxResults = parseMaxParam(opts.max, 50);
       const format = String(opts.format || 'table').toLowerCase();
 

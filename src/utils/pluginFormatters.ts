@@ -106,6 +106,46 @@ export function formatAsCount(n: number): string {
 }
 
 // ---------------------------------------------------------------------------
+// Current-user token resolution
+// ---------------------------------------------------------------------------
+
+/** Usernames that represent an unauthenticated visitor */
+const ANONYMOUS_NAMES = new Set(['anonymous', 'asserted', '']);
+
+/**
+ * Resolve a plugin parameter that may contain the special token `$currentUser`
+ * (case-insensitive) to the authenticated user's username.
+ *
+ * Rules:
+ * - Non-token values are returned unchanged.
+ * - `$currentUser` resolves to the username from `context.userContext.username`
+ *   or `context.userName`, whichever is set first.
+ * - Returns `undefined` when the token was used but the visitor is anonymous
+ *   (username is "anonymous", "asserted", or absent).  The caller can use this
+ *   to detect the "token present but not logged in" case and show a prompt.
+ *
+ * @example
+ * // In a plugin execute():
+ * const author = resolveUserParam(params.author, context);
+ * if (params.author?.toLowerCase() === '$currentuser' && !author) {
+ *   return '<p>Please log in.</p>';
+ * }
+ */
+export function resolveUserParam(
+  value: string | undefined,
+  context: { userName?: string; userContext?: { username?: string; [key: string]: unknown }; [key: string]: unknown }
+): string | undefined {
+  if (!value) return value;
+  if (String(value).toLowerCase() !== '$currentuser') return value;
+
+  const username = (context.userContext?.username)
+    || (context.userName)
+    || '';
+
+  return ANONYMOUS_NAMES.has(username.toLowerCase()) ? undefined : username;
+}
+
+// ---------------------------------------------------------------------------
 // Sort utilities
 // ---------------------------------------------------------------------------
 
