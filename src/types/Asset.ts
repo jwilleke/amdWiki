@@ -211,6 +211,12 @@ export interface AssetQuery {
   sort?: 'date' | 'caption';
   /** Sort direction */
   order?: 'asc' | 'desc';
+  /**
+   * Authenticated user's roles — passed from the request context so providers
+   * can apply role-based filtering (e.g. sist2 path access control).
+   * Providers that don't use roles simply ignore this field.
+   */
+  userRoles?: string[];
 }
 
 /**

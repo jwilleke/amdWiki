@@ -50,8 +50,23 @@ const elasticsearchAddon = {
     const rawIds   = Array.isArray(config['index-ids']) ? config['index-ids'] : [];
     const indexIds = rawIds.map(Number).filter((n) => !isNaN(n));
 
+    // path-access: role → string[] of allowed path prefixes.
+    // An absent key or absent config means no filtering.
+    // An empty array for a role means unrestricted access for that role.
+    let pathAccess: Record<string, string[]> | null = null;
+    const rawPathAccess = config['path-access'];
+    if (rawPathAccess !== null && rawPathAccess !== undefined && typeof rawPathAccess === 'object' && !Array.isArray(rawPathAccess)) {
+      const validated: Record<string, string[]> = {};
+      for (const [role, paths] of Object.entries(rawPathAccess as Record<string, unknown>)) {
+        if (Array.isArray(paths) && paths.every((p) => typeof p === 'string')) {
+          validated[role] = paths;
+        }
+      }
+      pathAccess = validated;
+    }
+
     const client = new Client({ node: esUrl });
-    provider = new Sist2AssetProvider(client, esIndex, sist2Url, indexIds);
+    provider = new Sist2AssetProvider(client, esIndex, sist2Url, indexIds, pathAccess);
 
     const assetManager = engine.getManager<AssetManager>('AssetManager');
     if (assetManager) {

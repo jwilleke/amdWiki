@@ -41,6 +41,8 @@ export interface AssetSearchOptions {
   mimeCategory?: 'image' | 'document' | 'other';
   /** WikiContext for media access-control evaluation */
   wikiContext?: WikiContext;
+  /** Authenticated user's roles — forwarded to providers for role-based filtering */
+  userRoles?: string[];
 }
 
 // ---------------------------------------------------------------------------
@@ -75,7 +77,7 @@ class AssetService extends BaseManager {
    * AssetManager.  AssetService is a pure translation layer.
    */
   async search(options: AssetSearchOptions = {}): Promise<AssetPage> {
-    const { query = '', types, year, pageSize = 48, offset = 0, sort = 'date', order = 'asc', mimeCategory, wikiContext } = options;
+    const { query = '', types, year, pageSize = 48, offset = 0, sort = 'date', order = 'asc', mimeCategory, wikiContext, userRoles } = options;
 
     const assetManager = this.engine.getManager<AssetManagerLike>('AssetManager');
     if (!assetManager) {
@@ -89,7 +91,7 @@ class AssetService extends BaseManager {
     }
 
     return assetManager.search({
-      query, year, mimeCategory, pageSize, offset, sort, order,
+      query, year, mimeCategory, pageSize, offset, sort, order, userRoles,
       ...(providerId ? { providerId } : {}),
       wikiContext
     });

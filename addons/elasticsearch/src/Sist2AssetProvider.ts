@@ -49,7 +49,16 @@ export class Sist2AssetProvider implements AssetProvider {
     private readonly esClient: Client,
     private readonly esIndex: string,
     private readonly sist2Url: string,
-    private readonly indexIds: number[]
+    private readonly indexIds: number[],
+    /**
+     * Role → allowed path prefixes map.
+     * An empty array for a role means that role can see all paths.
+     * If the config key is absent entirely, no path filtering is applied.
+     *
+     * Example:
+     *   { "admin": [], "editor": ["jims/", "family/"], "viewer": ["public/"] }
+     */
+    private readonly pathAccess: Record<string, string[]> | null = null
   ) {}
 
   // ---------------------------------------------------------------------------
@@ -91,6 +100,24 @@ export class Sist2AssetProvider implements AssetProvider {
       filter.push({ terms: { mime: DOCUMENT_MIMES } });
     }
     // 'other' handled via must_not below
+
+    // --- path access control (role-based) ---
+    if (this.pathAccess && query.userRoles && query.userRoles.length > 0) {
+      const allowedPaths = this._resolveAllowedPaths(query.userRoles);
+      // null = unrestricted (at least one role has an empty path list)
+      if (allowedPaths !== null && allowedPaths.length > 0) {
+        filter.push({
+          bool: {
+            should: allowedPaths.map((p) => ({ prefix: { path: p } })),
+            minimum_should_match: 1
+          }
+        });
+      }
+      // allowedPaths.length === 0 means no matching role/paths → return nothing
+      if (allowedPaths !== null && allowedPaths.length === 0) {
+        return { results: [], total: 0, hasMore: false };
+      }
+    }
 
     // --- must_not for 'other' ---
     const mustNot: QueryDslQueryContainer[] = [];
@@ -188,6 +215,45 @@ export class Sist2AssetProvider implements AssetProvider {
     } catch {
       return false;
     }
+  }
+
+  // ---------------------------------------------------------------------------
+  // _resolveAllowedPaths
+  // ---------------------------------------------------------------------------
+
+  /**
+   * Given a list of user roles, compute the union of allowed path prefixes.
+   *
+   * Returns:
+   *   null           — unrestricted (at least one matching role has an empty list)
+   *   string[]       — union of allowed prefixes across all matching roles
+   *   [] (empty)     — no matching role found in pathAccess; caller should deny
+   */
+  _resolveAllowedPaths(userRoles: string[]): string[] | null {
+    if (!this.pathAccess) return null;
+
+    const paths = new Set<string>();
+    let hasMatchingRole = false;
+
+    for (const role of userRoles) {
+      if (!(role in this.pathAccess)) continue;
+      hasMatchingRole = true;
+      const rolePaths = this.pathAccess[role];
+      if (rolePaths.length === 0) {
+        // Empty list = unrestricted for this role
+        return null;
+      }
+      for (const p of rolePaths) {
+        paths.add(p);
+      }
+    }
+
+    if (!hasMatchingRole) {
+      // No role in pathAccess matched — fall through to unrestricted
+      return null;
+    }
+
+    return [...paths];
   }
 
   // ---------------------------------------------------------------------------

@@ -6330,8 +6330,9 @@ class WikiRoutes {
       const mimeCategory = (['image', 'document', 'other'] as const).find(c => c === mimeCategoryRaw);
 
       const wikiContext = this.createWikiContext(req);
+      const userRoles = currentUser.roles ?? [];
 
-      const page = await assetService.search({ query, types, year, pageSize, offset, sort, order, mimeCategory, wikiContext });
+      const page = await assetService.search({ query, types, year, pageSize, offset, sort, order, mimeCategory, wikiContext, userRoles });
 
       return res.json({ success: true, ...page });
     } catch (err: unknown) {
