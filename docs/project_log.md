@@ -2,6 +2,103 @@
 
 AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version history.
 
+## 2026-04-12-02
+
+- Agent: Claude Code (Sonnet 4.6)
+- Subject: #500 section linking, #498 role-based path filtering for sist2
+
+### Feature — #500 Section Linking (`f83edd6b`)
+
+Headings now render with `id` attributes; internal links support `#fragment` and `#section=Name` anchors.
+
+- `ghHeaderIds: true` added to Showdown converter (`RenderingManager` + `MarkupParser` fallback) — every ATX heading gets a slug ID, e.g. `## PLA (Polylactic Acid)` → `<h2 id="pla-polylactic-acid">`
+- `headingSlug()` utility added to `SectionUtils.ts` — mirrors Showdown's GFM algorithm: lowercase, strip specials, spaces → hyphens
+- `LinkParser.generateInternalLink` and `DOMLinkHandler.processInternalLink` both split target on first `#`; page existence check uses only the page name; fragment appended to href
+- `#section=Heading Name` convenience syntax auto-slugified at render time
+
+Supported syntaxes:
+
+```
+[display|PageName#heading-slug]            direct anchor
+[display|PageName#section=Heading Name]    auto-slugified
+```
+
+12 new tests (2792 total).
+
+### Feature — #498 sist2 role-based path filtering (`0eb46441`)
+
+`Sist2AssetProvider` now supports a `path-access` config key mapping wiki roles to allowed NAS path prefixes.
+
+- `AssetQuery.userRoles?: string[]` added — threads `req.userContext.roles` from `WikiRoutes → AssetService → AssetManager → Sist2AssetProvider`
+- `pathAccess: Record<string, string[]> | null` constructor param; `_resolveAllowedPaths()` unions path sets across matching roles (empty array = unrestricted for that role)
+- ES query gains `bool.should + minimum_should_match: 1` path-prefix filter when roles resolve to a non-empty set
+- Absent `path-access` config key = no filtering (permissive default)
+
+Config format:
+
+```json
+"ngdpbase.addons.elasticsearch.path-access": {
+  "admin":  [],
+  "editor": ["jims/", "family/"],
+  "viewer": ["public/"]
+}
+```
+
+12 new tests (48 total in addon, all pass).
+
+### Checklist
+
+- Build: clean ✅
+- Tests: 2792/2792 pass ✅
+- Server: restarted (jimstest v3.3.1) ✅
+- Issues: #500 closed, #498 commented ✅
+- Commits pushed ✅
+
+## 2026-04-12-01
+
+- Agent: Claude Code (Sonnet 4.6)
+- Subject: #498 sist2/Elasticsearch addon, #497 $currentUser, #503 fenced code blocks, #493 backtick spans, v3.3.1 patch bump
+
+### Feature — #498 sist2/Elasticsearch Asset Provider Addon (`8962661f`)
+
+New `addons/elasticsearch/` addon registers a read-only `Sist2AssetProvider` with `AssetManager`.
+
+- Queries sist2 Elasticsearch index (`sist2` at `192.168.68.71:9200`) via `@elastic/elasticsearch`
+- Proxies thumbnails through ngdpbase via Node 24 native `fetch` (`/t/<id>`, `/f/<id>` on sist2 at port 4090)
+- Maps EXIF/GPS fields, `tag` → `keywords`, `insertSnippet = [{Image src=...}]`
+- Health check via `GET /i` on sist2 UI
+- `index-ids` filter: empty = all scan indices; `[1776001547]` = NAS Scan only
+- 36 unit tests; test `.js` files covered by `addons/*/**/*.js` gitignore rule
+- NAS automount sleep fixed: `TimeoutIdleSec=0` on deby systemd units (family/mjs/molly/shared were unmounting before sist2 scan reached them)
+
+### Feature — #497 `$currentUser` token in SearchPlugin (`8956a8e6`)
+
+`resolveUserParam()` in `pluginFormatters.ts` resolves `$currentUser` (case-insensitive) to the authenticated username; anonymous visitors see a login prompt. Applied to `author=` and `editor=` params in `SearchPlugin`.
+
+### Fix — #503 Plugins inside fenced code blocks executed (`cbc0ef14`)
+
+Step 0 of `MarkupParser` now extracts fenced code blocks as `type: 'fenced-code'` DOM nodes (mirrors Phase B inline backtick approach). `textContent` prevents any plugin/variable syntax from firing. `__CODEBLOCK_N__` restore loop (Step 5) removed.
+
+### Fix — #493 Backtick code spans don't protect wiki syntax (`51879bbd`)
+
+Step 0 inline backtick extraction replaced `__CODEBLOCK_N__` placeholder+restore with DOM extraction (`type: 'code'` ExtractedElement). `textContent` setter is a stronger guarantee than Showdown's code path.
+
+### Fix — `[{$applicationname}]` returning "ngdp-instance" on jimstest
+
+`app-custom-config.json` had `ngdpbase.applicationName` (camelCase); `VariableManager` reads `ngdpbase.application-name` (hyphenated). Renamed key in jimstest instance config.
+
+### Patch — v3.3.1 (`69617d98`)
+
+`package.json`, `config/app-default-config.json`, `CHANGELOG.md` bumped via `node dist/src/utils/version.js patch`.
+
+### Checklist
+
+- Build: clean ✅
+- Tests: 2780/2780 pass ✅
+- Server: jimstest restarted at v3.3.1 ✅
+- Issues: #497, #493, #503 closed; #498 opened and implemented ✅
+- Commits pushed ✅
+
 ## 2026-04-08-05
 
 - Agent: Claude Code (Sonnet 4.6)
