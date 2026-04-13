@@ -31,10 +31,12 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 - Testing:
   - npm test: 106 suites passed, 2801 tests passed, 0 tests skipped
 - Work Done:
-  - Root cause: LunrSearchProvider fast path loads persisted documents.json on startup, skipping PageManager re-read; addon pages were in page-index.json but not documents.json
+  - Root cause (code): LunrSearchProvider fast path loads persisted documents.json on startup, skipping PageManager re-read; addon pages were in page-index.json but not documents.json
+  - Root cause (operational): elasticsearch addon was failing on startup — Cannot find module src/utils/logger.js — because the addon's tsconfig emits side-effect JS into src/ and the file was deleted during stale-artifact cleanup; incremental tsbuildinfo prevented regeneration; fixed by deleting tsbuildinfo and recompiling clean
   - AddonsManager.seedAddonPages() now calls updatePageInIndex() for new pages after savePage(), and for already-existing pages reads them via pageManager.getPage() and re-indexes them
   - Added SearchManager import (type-only) to AddonsManager.ts
   - Added 4 new tests: re-indexes existing pages, indexes new pages, graceful when SearchManager unavailable; updated helpers with getPage mock and makeSearchManager
+  - nasfilesearch and nasfilesearchadmin now in documents.json with systemCategory=addon; category=addon search returns both pages
 - Commits: `f7030222`
 - Files Modified:
   - `src/managers/AddonsManager.ts`
