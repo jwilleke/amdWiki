@@ -19,6 +19,7 @@ import type { BackupData } from './BaseManager';
 import type { WikiEngine } from '../types/WikiEngine';
 import type ConfigurationManager from './ConfigurationManager';
 import type PageManager from './PageManager';
+import type SearchManager from './SearchManager';
 import logger from '../utils/logger';
 
 /**
@@ -431,8 +432,21 @@ class AddonsManager extends BaseManager {
           continue;
         }
 
-        // Skip if a page with this slug already exists (user edits are never overwritten)
+        // Skip save if a page with this slug already exists (user edits are never overwritten),
+        // but still ensure the page is present in the search index (index may not have been
+        // rebuilt since the page was seeded).
         if (pageManager.pageExists(slug)) {
+          const searchManager = this.engine.getManager<SearchManager>('SearchManager');
+          if (searchManager) {
+            const existingPage = await pageManager.getPage(slug);
+            if (existingPage) {
+              await searchManager.updatePageInIndex(slug, {
+                name: slug,
+                content: existingPage.content,
+                metadata: existingPage.metadata as Record<string, unknown>
+              });
+            }
+          }
           logger.debug(`[AddonsManager] Page '${slug}' already exists — skipping seed for ${addonName}`);
           continue;
         }
@@ -446,6 +460,17 @@ class AddonsManager extends BaseManager {
         };
 
         await pageManager.savePage(slug, parsed.content, metadata);
+
+        // Update search index so the page is discoverable via category search
+        const searchManager = this.engine.getManager<SearchManager>('SearchManager');
+        if (searchManager) {
+          await searchManager.updatePageInIndex(slug, {
+            name: slug,
+            content: parsed.content,
+            metadata
+          });
+        }
+
         seeded++;
       } catch (err) {
         logger.warn(`[AddonsManager] Could not seed ${addonName}/pages/${file}:`, err);

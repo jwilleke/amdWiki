@@ -805,19 +805,29 @@ describe('AddonsManager', () => {
 
     /**
      * Build a mock PageManager. existingSlugs controls which slugs report as existing.
+     * existingPages is a map of slug → page object returned by getPage().
      */
-    const makePageManager = (existingSlugs = []) => ({
+    const makePageManager = (existingSlugs = [], existingPages = {}) => ({
       pageExists: jest.fn((slug) => existingSlugs.includes(slug)),
-      savePage: jest.fn().mockResolvedValue(undefined)
+      savePage: jest.fn().mockResolvedValue(undefined),
+      getPage: jest.fn((slug) => Promise.resolve(existingPages[slug] ?? null))
     });
 
     /**
-     * Build an engine that returns both ConfigurationManager and PageManager.
+     * Build a mock SearchManager.
      */
-    const makeEngineWithPageManager = (configManager, pageManager) => ({
+    const makeSearchManager = () => ({
+      updatePageInIndex: jest.fn().mockResolvedValue(undefined)
+    });
+
+    /**
+     * Build an engine that returns ConfigurationManager, PageManager, and optionally SearchManager.
+     */
+    const makeEngineWithPageManager = (configManager, pageManager, searchManager = null) => ({
       getManager: jest.fn((name) => {
         if (name === 'ConfigurationManager') return configManager;
         if (name === 'PageManager') return pageManager;
+        if (name === 'SearchManager') return searchManager;
         return null;
       })
     });
@@ -910,11 +920,65 @@ describe('AddonsManager', () => {
 
       const configManager = makeConfigManager({ enabledAddons: ['idem-addon'] });
       // pageExists returns true for 'idem-home' — simulates a user-edited page
-      const pageManager = makePageManager(['idem-home']);
+      const pageManager = makePageManager(['idem-home'], {
+        'idem-home': { content: 'existing content', metadata: { title: 'User Edited', 'system-category': 'addon' } }
+      });
       const manager = new AddonsManager(makeEngineWithPageManager(configManager, pageManager));
       await manager.initialize();
 
       expect(pageManager.savePage).not.toHaveBeenCalled();
+    });
+
+    test('re-indexes already-existing pages via SearchManager on startup', async () => {
+      const uuid = '550e8400-e29b-41d4-a716-446655440042';
+      await makeAddonWithSeedPages('reindex-addon', [
+        { filename: 'page.md', uuid, slug: 'reindex-page', title: 'Test' }
+      ]);
+
+      const configManager = makeConfigManager({ enabledAddons: ['reindex-addon'] });
+      const existingPage = { content: 'existing content', metadata: { title: 'Test', 'system-category': 'addon' } };
+      const pageManager = makePageManager(['reindex-page'], { 'reindex-page': existingPage });
+      const searchManager = makeSearchManager();
+      const manager = new AddonsManager(makeEngineWithPageManager(configManager, pageManager, searchManager));
+      await manager.initialize();
+
+      expect(pageManager.savePage).not.toHaveBeenCalled();
+      expect(searchManager.updatePageInIndex).toHaveBeenCalledWith('reindex-page', {
+        name: 'reindex-page',
+        content: existingPage.content,
+        metadata: existingPage.metadata
+      });
+    });
+
+    test('indexes new pages in SearchManager after seeding', async () => {
+      const uuid = '550e8400-e29b-41d4-a716-446655440043';
+      await makeAddonWithSeedPages('index-addon', [
+        { filename: 'page.md', uuid, slug: 'index-page', title: 'Test' }
+      ]);
+
+      const configManager = makeConfigManager({ enabledAddons: ['index-addon'] });
+      const pageManager = makePageManager();
+      const searchManager = makeSearchManager();
+      const manager = new AddonsManager(makeEngineWithPageManager(configManager, pageManager, searchManager));
+      await manager.initialize();
+
+      expect(pageManager.savePage).toHaveBeenCalledTimes(1);
+      expect(searchManager.updatePageInIndex).toHaveBeenCalledWith('index-page',
+        expect.objectContaining({ name: 'index-page', metadata: expect.objectContaining({ 'system-category': 'addon' }) })
+      );
+    });
+
+    test('skips search indexing gracefully when SearchManager is unavailable', async () => {
+      const uuid = '550e8400-e29b-41d4-a716-446655440044';
+      await makeAddonWithSeedPages('no-search-addon', [
+        { filename: 'page.md', uuid, slug: 'no-search-page', title: 'Test' }
+      ]);
+
+      const configManager = makeConfigManager({ enabledAddons: ['no-search-addon'] });
+      const pageManager = makePageManager(); // no SearchManager wired
+      const manager = new AddonsManager(makeEngineWithPageManager(configManager, pageManager));
+      await expect(manager.initialize()).resolves.not.toThrow();
+      expect(pageManager.savePage).toHaveBeenCalledTimes(1);
     });
 
     test('skips page with missing uuid in frontmatter', async () => {
