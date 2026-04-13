@@ -22,6 +22,24 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - [file2.md]
 ```
 
+## 2026-04-13-04
+
+- Agent: Claude Code (Sonnet 4.6)
+- Subject: #433 fix category=addon search returning no results
+- Key Decision: seedAddonPages() now calls SearchManager.updatePageInIndex() on every startup for all addon pages — both new and already-existing — so Lunr's persisted documents.json stays in sync regardless of build order
+- Current Issue: #433
+- Testing:
+  - npm test: 106 suites passed, 2801 tests passed, 0 tests skipped
+- Work Done:
+  - Root cause: LunrSearchProvider fast path loads persisted documents.json on startup, skipping PageManager re-read; addon pages were in page-index.json but not documents.json
+  - AddonsManager.seedAddonPages() now calls updatePageInIndex() for new pages after savePage(), and for already-existing pages reads them via pageManager.getPage() and re-indexes them
+  - Added SearchManager import (type-only) to AddonsManager.ts
+  - Added 4 new tests: re-indexes existing pages, indexes new pages, graceful when SearchManager unavailable; updated helpers with getPage mock and makeSearchManager
+- Commits: `f7030222`
+- Files Modified:
+  - `src/managers/AddonsManager.ts`
+  - `src/managers/__tests__/AddonsManager.test.js`
+
 ## 2026-04-13-03
 
 - Agent: Claude Code (Sonnet 4.6)
