@@ -213,10 +213,15 @@ export interface AssetQuery {
   order?: 'asc' | 'desc';
   /**
    * Authenticated user's roles — passed from the request context so providers
-   * can apply role-based filtering (e.g. sist2 path access control).
+   * can apply principal-based filtering (e.g. sist2 path access control).
    * Providers that don't use roles simply ignore this field.
    */
   userRoles?: string[];
+  /**
+   * Authenticated username — passed alongside userRoles so providers can apply
+   * per-user path access rules (consistent with the audience/access principal model).
+   */
+  username?: string;
 }
 
 /**

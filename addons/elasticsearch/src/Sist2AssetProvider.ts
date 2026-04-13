@@ -51,12 +51,13 @@ export class Sist2AssetProvider implements AssetProvider {
     private readonly sist2Url: string,
     private readonly indexIds: number[],
     /**
-     * Role → allowed path prefixes map.
-     * An empty array for a role means that role can see all paths.
+     * Principal → allowed path prefixes map. Keys are role names or usernames
+     * (consistent with the page audience/access principal model).
+     * An empty array for a principal means unrestricted access.
      * If the config key is absent entirely, no path filtering is applied.
      *
      * Example:
-     *   { "admin": [], "editor": ["jims/", "family/"], "viewer": ["public/"] }
+     *   { "admin": [], "editor": ["family/"], "jim": ["jims/", "family/"] }
      */
     private readonly pathAccess: Record<string, string[]> | null = null
   ) {}
@@ -101,9 +102,9 @@ export class Sist2AssetProvider implements AssetProvider {
     }
     // 'other' handled via must_not below
 
-    // --- path access control (role-based) ---
-    if (this.pathAccess && query.userRoles && query.userRoles.length > 0) {
-      const allowedPaths = this._resolveAllowedPaths(query.userRoles);
+    // --- path access control (principal-based: roles + username) ---
+    if (this.pathAccess) {
+      const allowedPaths = this._resolveAllowedPaths(query.userRoles ?? [], query.username ?? '');
       // null = unrestricted (at least one role has an empty path list)
       if (allowedPaths !== null && allowedPaths.length > 0) {
         filter.push({
@@ -222,34 +223,38 @@ export class Sist2AssetProvider implements AssetProvider {
   // ---------------------------------------------------------------------------
 
   /**
-   * Given a list of user roles, compute the union of allowed path prefixes.
+   * Compute the union of allowed path prefixes for the given principals.
+   *
+   * Keys in pathAccess are principals — either role names or usernames —
+   * matching the same model used by page audience / access front matter.
+   * A key matches if it appears in userRoles OR equals username.
    *
    * Returns:
-   *   null           — unrestricted (at least one matching role has an empty list)
-   *   string[]       — union of allowed prefixes across all matching roles
-   *   [] (empty)     — no matching role found in pathAccess; caller should deny
+   *   null       — unrestricted (at least one matching principal has an empty list,
+   *                or no matching principal found — fall through)
+   *   string[]   — union of allowed prefixes across all matching principals
+   *   [] (empty) — matching principals found but none granted any paths → deny
    */
-  _resolveAllowedPaths(userRoles: string[]): string[] | null {
+  _resolveAllowedPaths(userRoles: string[], username: string): string[] | null {
     if (!this.pathAccess) return null;
 
     const paths = new Set<string>();
-    let hasMatchingRole = false;
+    let hasMatch = false;
 
-    for (const role of userRoles) {
-      if (!(role in this.pathAccess)) continue;
-      hasMatchingRole = true;
-      const rolePaths = this.pathAccess[role];
-      if (rolePaths.length === 0) {
-        // Empty list = unrestricted for this role
+    for (const [principal, principalPaths] of Object.entries(this.pathAccess)) {
+      if (!userRoles.includes(principal) && username !== principal) continue;
+      hasMatch = true;
+      if (principalPaths.length === 0) {
+        // Empty list = unrestricted for this principal
         return null;
       }
-      for (const p of rolePaths) {
+      for (const p of principalPaths) {
         paths.add(p);
       }
     }
 
-    if (!hasMatchingRole) {
-      // No role in pathAccess matched — fall through to unrestricted
+    if (!hasMatch) {
+      // No principal in pathAccess matched — fall through to unrestricted
       return null;
     }
 

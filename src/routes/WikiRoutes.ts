@@ -6331,8 +6331,9 @@ class WikiRoutes {
 
       const wikiContext = this.createWikiContext(req);
       const userRoles = currentUser.roles ?? [];
+      const username = currentUser.username ?? '';
 
-      const page = await assetService.search({ query, types, year, pageSize, offset, sort, order, mimeCategory, wikiContext, userRoles });
+      const page = await assetService.search({ query, types, year, pageSize, offset, sort, order, mimeCategory, wikiContext, userRoles, username });
 
       return res.json({ success: true, ...page });
     } catch (err: unknown) {

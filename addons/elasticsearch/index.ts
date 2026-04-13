@@ -50,9 +50,9 @@ const elasticsearchAddon = {
     const rawIds   = Array.isArray(config['index-ids']) ? config['index-ids'] : [];
     const indexIds = rawIds.map(Number).filter((n) => !isNaN(n));
 
-    // path-access: role → string[] of allowed path prefixes.
+    // path-access: principal (role name or username) → string[] of allowed path prefixes.
     // An absent key or absent config means no filtering.
-    // An empty array for a role means unrestricted access for that role.
+    // An empty array for a principal means unrestricted access.
     let pathAccess: Record<string, string[]> | null = null;
     const rawPathAccess = config['path-access'];
     if (rawPathAccess !== null && rawPathAccess !== undefined && typeof rawPathAccess === 'object' && !Array.isArray(rawPathAccess)) {
