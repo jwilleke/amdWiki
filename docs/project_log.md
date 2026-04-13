@@ -22,6 +22,23 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - [file2.md]
 ```
 
+## 2026-04-13-05
+
+- Agent: Claude Code (Sonnet 4.6)
+- Subject: #433 closed — all items verified complete
+- Key Decision: #433 is fully resolved; architectural debt from addon tsconfig side-effect JS tracked in #506
+- Current Issue: #506
+- Testing:
+  - npm test: 106 suites passed, 2801 tests passed, 0 tests skipped
+- Work Done:
+  - Verified all original #433 items done: unified asset picker, lightbox/swipe, Pages source, type icons, empty-search for images and addon pages
+  - Calendar addon recompiled (tsbuildinfo cleared) — was failing with Cannot find module ../../../src/context/ApiContext; same root cause as elasticsearch
+  - All 6 addon pages now in documents.json with systemCategory=addon
+  - Closed #433 with resolution summary comment
+- Commits: `c1c88a17` (project log)
+- Files Modified:
+  - `docs/project_log.md`
+
 ## 2026-04-13-04
 
 - Agent: Claude Code (Sonnet 4.6)
