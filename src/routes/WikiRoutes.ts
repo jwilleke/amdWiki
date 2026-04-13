@@ -1321,7 +1321,7 @@ class WikiRoutes {
       // CatalogManager.resolveUri() returns null until a provider populates URIs.
       const keywordUris: Record<string, string> = {};
       const catalogManager = this.engine.getManager('CatalogManager') as { resolveUri(term: string): Promise<string | null> } | undefined;
-      if (catalogManager && metadata) {
+      if (catalogManager && typeof catalogManager.resolveUri === 'function' && metadata) {
         const allKws = [
           ...((metadata['user-keywords'] as string[] | undefined) ?? []),
           ...((metadata['system-keywords'] as string[] | undefined) ?? []),
