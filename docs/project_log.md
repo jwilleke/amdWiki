@@ -22,6 +22,25 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - [file2.md]
 ```
 
+## 2026-04-13-03
+
+- Agent: Claude Code (Sonnet 4.6)
+- Subject: #498 path-access username support, elasticsearch pages not in jimstest — seedAddonPages bug fix
+- Key Decision: seedAddonPages must call PageManager.savePage() not raw fs.writeFile() — VersioningFileProvider uses page-index.json and never sees raw file writes; slug frontmatter now required alongside uuid
+- Current Issue: #498
+- Testing:
+  - npm test: 106 suites passed, 2797 tests passed, 0 tests skipped
+- Work Done:
+  - path-access: molly/ restricted to admin+molly; mjs/ to admin+jim+molly; jims/ to admin+jim; all ngdpbase.addons.* keys grouped together in jimstest config
+  - seedAddonPages() rewritten to use PageManager.savePage() — both NAS wiki pages (nasfilesearch, nasfilesearchadmin) now visible in jimstest
+  - Fixed stale compiled src/managers/*.js artifacts causing test loader to use old JS instead of TS source
+  - AddonsManager seed tests rewritten to mock PageManager, assert on savePage() calls
+- Commits: `5cb080cd` (path-access), `3f8f2255` (seedAddonPages fix)
+- Files Modified:
+  - `src/managers/AddonsManager.ts`
+  - `src/managers/__tests__/AddonsManager.test.js`
+  - `/Volumes/hd2/jimstest-wiki/data/config/app-custom-config.json`
+
 ## 2026-04-13-02
 
 - Agent: Claude Code (Sonnet 4.6)
