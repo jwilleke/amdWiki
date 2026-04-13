@@ -42,7 +42,7 @@ const DOCUMENT_MIMES: string[] = [
 
 export class Sist2AssetProvider implements AssetProvider {
   readonly id = 'sist2';
-  readonly displayName = 'sist2 NAS Index';
+  readonly displayName = 'External Asset Index';
   readonly capabilities: ProviderCapability[] = ['search', 'thumbnail'];
 
   constructor(

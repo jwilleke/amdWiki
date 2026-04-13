@@ -146,24 +146,36 @@ All configuration keys use **lowercase** format per Issue #102 refactoring.
 - Development and testing
 - No external dependencies required
 
-#### ElasticsearchProvider (Future)
+#### ElasticsearchSearchProvider
+
+Activate by setting `ngdpbase.search.provider=elasticsearchsearchprovider`. Lunr remains the default.
 
 ```json
 {
-  "_comment_search_provider_elasticsearch": "ElasticsearchProvider settings (future)",
+  "ngdpbase.search.provider": "elasticsearchsearchprovider",
   "ngdpbase.search.provider.elasticsearch.url": "http://localhost:9200",
-  "ngdpbase.search.provider.elasticsearch.indexname": "ngdpbase",
+  "ngdpbase.search.provider.elasticsearch.indexname": "ngdpbase-pages",
   "ngdpbase.search.provider.elasticsearch.connecttimeout": 5000,
   "ngdpbase.search.provider.elasticsearch.requesttimeout": 30000
 }
 ```
 
+Index `ngdpbase-pages` is created automatically on first `buildIndex()` call. Field mapping:
+
+| ES field | Front-matter key | Purpose |
+| --- | --- | --- |
+| `systemCategory` | `system-category` | Storage routing; facet filter |
+| `systemKeywords` | `system-keywords` | System-assigned classification |
+| `userKeywords` | `user-keywords` | User-assigned from vocabulary |
+
+See `docs/providers/ElasticsearchSearchProvider.md` for the full guide.
+
 **Best For:**
 
 - Large-scale wikis (10,000+ pages)
-- Distributed deployments
-- Real-time indexing requirements
-- Advanced analytics and aggregations
+- Distributed / multi-node deployments
+- Real-time incremental indexing
+- Advanced aggregations and analytics
 
 #### AlgoliaSearchProvider (Future)
 

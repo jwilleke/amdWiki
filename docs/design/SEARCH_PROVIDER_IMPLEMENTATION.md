@@ -137,9 +137,9 @@ Added comprehensive search configuration following Issue #102 pattern:
   "ngdpbase.search.provider.lunr.maxresults": 50,
   "ngdpbase.search.provider.lunr.snippetlength": 200,
 
-  "_comment_search_provider_elasticsearch": "ElasticsearchProvider settings (future)",
+  "_comment_search_provider_elasticsearch": "ElasticsearchSearchProvider settings — opt in via ngdpbase.search.provider=elasticsearchsearchprovider",
   "ngdpbase.search.provider.elasticsearch.url": "http://localhost:9200",
-  "ngdpbase.search.provider.elasticsearch.indexname": "ngdpbase",
+  "ngdpbase.search.provider.elasticsearch.indexname": "ngdpbase-pages",
   "ngdpbase.search.provider.elasticsearch.connecttimeout": 5000,
   "ngdpbase.search.provider.elasticsearch.requesttimeout": 30000
 }
@@ -180,7 +180,7 @@ ngdpbase.search.provider.{provider}.{setting}    → Provider-specific settings
 ### ✅ Scalability
 
 - LunrSearchProvider for small/medium wikis
-- Future ElasticsearchProvider for large wikis
+- ElasticsearchSearchProvider for large wikis (10k+ pages) — available, opt-in
 - Can add distributed search providers
 
 ### ✅ Maintainability

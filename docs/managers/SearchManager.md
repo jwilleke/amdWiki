@@ -138,7 +138,7 @@ await searchManager.advancedSearch({
 | Provider | Status | Description |
 | ---------- | -------- | ------------- |
 | `LunrSearchProvider` | ✅ Production | In-memory full-text search |
-| `ElasticsearchProvider` | 🔮 Planned | Distributed search via Elasticsearch |
+| `ElasticsearchSearchProvider` | ✅ Production | Distributed search via Elasticsearch — opt in via `ngdpbase.search.provider=elasticsearchsearchprovider` |
 | `SolrProvider` | 🔮 Planned | Distributed search via Apache Solr |
 | `NullSearchProvider` | 🔮 Planned | No-op search (for testing) |
 

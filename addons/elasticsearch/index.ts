@@ -1,10 +1,11 @@
 'use strict';
 
 /**
- * Elasticsearch / sist2 Add-on for ngdpbase
+ * Elasticsearch External Asset Add-on for ngdpbase
  *
  * Registers a read-only Sist2AssetProvider with the AssetManager so that
- * the sist2 NAS file index is browsable and searchable from the asset picker.
+ * an Elasticsearch-indexed asset source (NAS via sist2, S3, or any compatible
+ * crawler) is browsable and searchable from the asset picker.
  *
  * Configuration keys (in app-custom-config.json):
  *   ngdpbase.addons.elasticsearch.enabled    — true/false (default: false)
@@ -35,7 +36,7 @@ let provider: Sist2AssetProvider | null = null;
 const elasticsearchAddon = {
   name: 'elasticsearch',
   version: '1.0.0',
-  description: 'sist2/Elasticsearch NAS asset provider',
+  description: 'Elasticsearch external asset provider (sist2/S3/NAS)',
   author: '',
   dependencies: [] as string[],
 
