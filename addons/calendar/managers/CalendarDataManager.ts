@@ -5,9 +5,9 @@ import { readFile, writeFile } from 'fs/promises';
 import * as path from 'path';
 import { v4 as uuidv4 } from 'uuid';
 import { areIntervalsOverlapping, parseISO, addDays, format } from 'date-fns';
-import BaseManager from '../../../src/managers/BaseManager';
-import type { WikiEngine } from '../../../src/types/WikiEngine';
-import type { ManagerFetchOptions } from '../../../src/utils/managerUtils';
+import BaseManager from '../../../dist/src/managers/BaseManager';
+import type { WikiEngine } from '../../../dist/src/types/WikiEngine';
+import type { ManagerFetchOptions } from '../../../dist/src/utils/managerUtils';
 
 /**
  * CalendarEvent — internal storage shape.

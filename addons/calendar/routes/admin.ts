@@ -1,8 +1,8 @@
 'use strict';
 
 import { Router, type Request, type Response } from 'express';
-import { ApiContext, ApiError } from '../../../src/context/ApiContext';
-import type { WikiEngine } from '../../../src/types/WikiEngine';
+import { ApiContext, ApiError } from '../../../dist/src/context/ApiContext';
+import type { WikiEngine } from '../../../dist/src/types/WikiEngine';
 import type CalendarDataManager from '../managers/CalendarDataManager';
 import type { CalendarConfig } from '../managers/CalendarConfig';
 

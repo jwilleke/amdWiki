@@ -1,6 +1,6 @@
 'use strict';
 
-import type { PluginContext, PluginParams } from '../../../src/managers/PluginManager';
+import type { PluginContext, PluginParams } from '../../../dist/src/managers/PluginManager';
 
 /**
  * CalendarPlugin — renders a FullCalendar widget into the wiki page body.

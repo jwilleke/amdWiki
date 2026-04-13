@@ -19,7 +19,7 @@ import type {
   AssetPage,
   AssetQuery,
   ProviderCapability
-} from '../../../src/types/Asset';
+} from '../../../dist/src/types/Asset';
 import type { Sist2Document } from './types';
 
 /**

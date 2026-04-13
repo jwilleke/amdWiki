@@ -24,11 +24,11 @@
  */
 
 import { Client } from '@elastic/elasticsearch';
-import type { WikiEngine } from '../../src/types/WikiEngine';
-import type { AddonStatusDetails } from '../../src/managers/AddonsManager';
-import type AssetManager from '../../src/managers/AssetManager';
+import type { WikiEngine } from '../../dist/src/types/WikiEngine';
+import type { AddonStatusDetails } from '../../dist/src/managers/AddonsManager';
+import type AssetManager from '../../dist/src/managers/AssetManager';
 import { Sist2AssetProvider } from './src/Sist2AssetProvider';
-import logger from '../../src/utils/logger';
+import logger from '../../dist/src/utils/logger';
 
 let provider: Sist2AssetProvider | null = null;
 

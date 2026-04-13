@@ -36,10 +36,10 @@
 
 import * as path from 'path';
 import * as express from 'express';
-import type { WikiEngine } from '../../src/types/WikiEngine';
-import type { AddonStatusDetails } from '../../src/managers/AddonsManager';
-import type PluginManager from '../../src/managers/PluginManager';
-import type AddonsManager from '../../src/managers/AddonsManager';
+import type { WikiEngine } from '../../dist/src/types/WikiEngine';
+import type { AddonStatusDetails } from '../../dist/src/managers/AddonsManager';
+import type PluginManager from '../../dist/src/managers/PluginManager';
+import type AddonsManager from '../../dist/src/managers/AddonsManager';
 import CalendarDataManager from './managers/CalendarDataManager';
 import CalendarPlugin from './plugins/CalendarPlugin';
 import apiRoutes from './routes/api';
