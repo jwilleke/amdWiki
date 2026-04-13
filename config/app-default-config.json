@@ -80,6 +80,7 @@
   "ngdpbase.search.provider.elasticsearch.indexname": "ngdpbase-pages",
   "ngdpbase.search.provider.elasticsearch.connecttimeout": 5000,
   "ngdpbase.search.provider.elasticsearch.requesttimeout": 30000,
+  "ngdpbase.search.provider.elasticsearch.autotagging.enabled": false,
   "ngdpbase.diff-provider": "TraditionalDiffProvider",
   "ngdpbase.rss.generate": true,
   "ngdpbase.rss.file-name": "rss.xml",

@@ -38,6 +38,7 @@ import BaseSearchProvider, {
   type WikiEngine
 } from './BaseSearchProvider';
 import logger from '../utils/logger';
+import { TaggingService } from '../utils/TaggingService';
 
 // ---------------------------------------------------------------------------
 // Internal document shape stored in ES
@@ -96,6 +97,10 @@ interface PageManager {
   getPage(pageName: string): Promise<{ content?: string; metadata: Record<string, unknown> } | null>;
 }
 
+interface CatalogManager {
+  getTerms(domain?: string): Promise<{ term: string; label: string; category?: string }[]>;
+}
+
 // ---------------------------------------------------------------------------
 // Provider
 // ---------------------------------------------------------------------------
@@ -105,6 +110,7 @@ class ElasticsearchSearchProvider extends BaseSearchProvider {
   private indexName: string = 'ngdpbase-pages';
   private maxResults: number = 50;
   private snippetLength: number = 200;
+  private taggingService: TaggingService | null = null;
 
   constructor(engine: WikiEngine) {
     super(engine);
@@ -133,6 +139,20 @@ class ElasticsearchSearchProvider extends BaseSearchProvider {
 
     // Create index if it does not exist yet
     await this._ensureIndex();
+
+    // Auto-tagging (#507): load vocabulary from CatalogManager if enabled
+    const autoTagEnabled = cfg.getProperty<boolean>('ngdpbase.search.provider.elasticsearch.autotagging.enabled', false);
+    if (autoTagEnabled) {
+      const catalogManager = this.engine.getManager<CatalogManager>('CatalogManager');
+      if (catalogManager) {
+        const terms = await catalogManager.getTerms();
+        this.taggingService = new TaggingService();
+        this.taggingService.setVocabulary(terms);
+        logger.info(`[ElasticsearchSearchProvider] Auto-tagging enabled — vocabulary: ${this.taggingService.vocabularySize} terms`);
+      } else {
+        logger.warn('[ElasticsearchSearchProvider] Auto-tagging enabled but CatalogManager not available');
+      }
+    }
 
     this.initialized = true;
     logger.info(`[ElasticsearchSearchProvider] Initialized — index: ${this.indexName}, url: ${url}`);
@@ -559,12 +579,17 @@ class ElasticsearchSearchProvider extends BaseSearchProvider {
     const audienceRaw = metadata['audience'];
     const audience = toStrArr(audienceRaw);
 
+    const existingSystemKeywords = toStrArr(metadata['system-keywords']);
+    const autoTagged = this.taggingService
+      ? this.taggingService.tag(content, toStr(metadata.title) || name, existingSystemKeywords)
+      : [];
+
     return {
       name,
       title: toStr(metadata.title) || name,
       content,
       systemCategory: toStr(metadata['system-category']),
-      systemKeywords: toStrArr(metadata['system-keywords']),
+      systemKeywords: [...existingSystemKeywords, ...autoTagged],
       userKeywords: toStrArr(metadata['user-keywords']),
       author: toStr(metadata.author),
       editor: toStr(metadata.editor),

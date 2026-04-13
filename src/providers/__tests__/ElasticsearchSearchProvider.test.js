@@ -478,6 +478,115 @@ describe('getDocumentCount()', () => {
 // ---------------------------------------------------------------------------
 // isHealthy()
 // ---------------------------------------------------------------------------
+// Auto-tagging (#507)
+// ---------------------------------------------------------------------------
+
+describe('Auto-tagging via TaggingService', () => {
+  const mockCatalogManager = {
+    getTerms: jest.fn().mockResolvedValue([
+      { term: 'geology',      label: 'Geology',      category: 'subject' },
+      { term: 'medicine',     label: 'Medicine',     category: 'subject' },
+      { term: 'oceanography', label: 'Oceanography', category: 'subject' },
+      { term: 'draft',        label: 'Draft',        category: 'workflow-status' }
+    ])
+  };
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    mockClientInstance.indices.exists.mockResolvedValue(true);
+    mockClientInstance.indices.stats.mockResolvedValue({ indices: {} });
+  });
+
+  test('auto-tagging disabled by default — systemKeywords unchanged', async () => {
+    const engine = makeEngine({}, { CatalogManager: mockCatalogManager });
+    const provider = new ElasticsearchSearchProvider(engine);
+    await provider.initialize();
+
+    mockClientInstance.index.mockResolvedValue({});
+    await provider.updatePageInIndex('RockyPage', {
+      content: 'This page covers geology and volcanic rock formations.',
+      metadata: { title: 'Rocky Page', 'system-keywords': [], 'user-keywords': [] }
+    });
+
+    const indexed = mockClientInstance.index.mock.calls[0][0].document;
+    expect(indexed.systemKeywords).toEqual([]);
+  });
+
+  test('auto-tagging enabled — tags geology page with geology term', async () => {
+    const engine = makeEngine(
+      { 'ngdpbase.search.provider.elasticsearch.autotagging.enabled': true },
+      { CatalogManager: mockCatalogManager }
+    );
+    const provider = new ElasticsearchSearchProvider(engine);
+    await provider.initialize();
+
+    mockClientInstance.index.mockResolvedValue({});
+    await provider.updatePageInIndex('RockyPage', {
+      content: 'This page covers geology and volcanic rock formations.',
+      metadata: { title: 'Rocky Page', 'system-keywords': [], 'user-keywords': [] }
+    });
+
+    const indexed = mockClientInstance.index.mock.calls[0][0].document;
+    expect(indexed.systemKeywords).toContain('geology');
+  });
+
+  test('auto-tagging does not duplicate existing system-keywords', async () => {
+    const engine = makeEngine(
+      { 'ngdpbase.search.provider.elasticsearch.autotagging.enabled': true },
+      { CatalogManager: mockCatalogManager }
+    );
+    const provider = new ElasticsearchSearchProvider(engine);
+    await provider.initialize();
+
+    mockClientInstance.index.mockResolvedValue({});
+    await provider.updatePageInIndex('RockyPage', {
+      content: 'Geology is the study of rocks.',
+      metadata: { title: 'Rocky Page', 'system-keywords': ['geology'], 'user-keywords': [] }
+    });
+
+    const indexed = mockClientInstance.index.mock.calls[0][0].document;
+    const geologyCount = indexed.systemKeywords.filter(k => k === 'geology').length;
+    expect(geologyCount).toBe(1);
+  });
+
+  test('auto-tagging excludes workflow-status terms', async () => {
+    const engine = makeEngine(
+      { 'ngdpbase.search.provider.elasticsearch.autotagging.enabled': true },
+      { CatalogManager: mockCatalogManager }
+    );
+    const provider = new ElasticsearchSearchProvider(engine);
+    await provider.initialize();
+
+    mockClientInstance.index.mockResolvedValue({});
+    await provider.updatePageInIndex('DraftPage', {
+      content: 'This is a draft document under review for publication.',
+      metadata: { title: 'Draft Page', 'system-keywords': [], 'user-keywords': [] }
+    });
+
+    const indexed = mockClientInstance.index.mock.calls[0][0].document;
+    expect(indexed.systemKeywords).not.toContain('draft');
+  });
+
+  test('auto-tagging works gracefully when CatalogManager absent', async () => {
+    const engine = makeEngine(
+      { 'ngdpbase.search.provider.elasticsearch.autotagging.enabled': true }
+      // no CatalogManager in extraManagers
+    );
+    const provider = new ElasticsearchSearchProvider(engine);
+    await provider.initialize();
+
+    mockClientInstance.index.mockResolvedValue({});
+    await provider.updatePageInIndex('RockyPage', {
+      content: 'Geology rocks.',
+      metadata: { title: 'Rocky Page', 'system-keywords': [], 'user-keywords': [] }
+    });
+
+    const indexed = mockClientInstance.index.mock.calls[0][0].document;
+    expect(indexed.systemKeywords).toEqual([]);
+  });
+});
+
+// ---------------------------------------------------------------------------
 
 describe('isHealthy()', () => {
   test('returns true when ping succeeds', async () => {
