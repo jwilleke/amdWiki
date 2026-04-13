@@ -26,7 +26,8 @@
 import { Client } from '@elastic/elasticsearch';
 import type {
   AggregationsStringTermsBucket,
-  QueryDslQueryContainer
+  QueryDslQueryContainer,
+  SearchHit
 } from '@elastic/elasticsearch/lib/api/types';
 import BaseSearchProvider, {
   type SearchResult,
@@ -214,8 +215,8 @@ class ElasticsearchSearchProvider extends BaseSearchProvider {
     });
 
     return resp.hits.hits
-      .filter(h => h._source !== undefined)
-      .map(h => this._hitToResult(h._id ?? '', h._source as EsPageDocument, query, h.highlight));
+      .filter((h: SearchHit<EsPageDocument>) => h._source !== undefined)
+      .map((h: SearchHit<EsPageDocument>) => this._hitToResult(h._id ?? '', h._source as EsPageDocument, query, h.highlight));
   }
 
   // -------------------------------------------------------------------------
@@ -290,8 +291,8 @@ class ElasticsearchSearchProvider extends BaseSearchProvider {
     });
 
     return resp.hits.hits
-      .filter(h => h._source !== undefined)
-      .map(h => this._hitToResult(h._id ?? '', h._source as EsPageDocument, query, h.highlight));
+      .filter((h: SearchHit<EsPageDocument>) => h._source !== undefined)
+      .map((h: SearchHit<EsPageDocument>) => this._hitToResult(h._id ?? '', h._source as EsPageDocument, query, h.highlight));
   }
 
   // -------------------------------------------------------------------------
@@ -358,8 +359,8 @@ class ElasticsearchSearchProvider extends BaseSearchProvider {
     });
 
     return resp.hits.hits
-      .filter(h => h._source !== undefined)
-      .map(h => this._hitToResult(h._id ?? '', h._source as EsPageDocument, category));
+      .filter((h: SearchHit<EsPageDocument>) => h._source !== undefined)
+      .map((h: SearchHit<EsPageDocument>) => this._hitToResult(h._id ?? '', h._source as EsPageDocument, category));
   }
 
   async searchByUserKeywords(keyword: string): Promise<SearchResult[]> {
@@ -372,8 +373,8 @@ class ElasticsearchSearchProvider extends BaseSearchProvider {
     });
 
     return resp.hits.hits
-      .filter(h => h._source !== undefined)
-      .map(h => this._hitToResult(h._id ?? '', h._source as EsPageDocument, keyword));
+      .filter((h: SearchHit<EsPageDocument>) => h._source !== undefined)
+      .map((h: SearchHit<EsPageDocument>) => this._hitToResult(h._id ?? '', h._source as EsPageDocument, keyword));
   }
 
   // -------------------------------------------------------------------------
@@ -391,8 +392,8 @@ class ElasticsearchSearchProvider extends BaseSearchProvider {
     });
 
     return resp.hits.hits
-      .filter(h => h._source?.title)
-      .map(h => h._source!.title);
+      .filter((h: SearchHit<EsPageDocument>) => h._source?.title)
+      .map((h: SearchHit<EsPageDocument>) => h._source!.title);
   }
 
   // -------------------------------------------------------------------------
@@ -416,9 +417,9 @@ class ElasticsearchSearchProvider extends BaseSearchProvider {
     });
 
     return resp.hits.hits
-      .filter(h => h._id !== pageName && h._source !== undefined)
+      .filter((h: SearchHit<EsPageDocument>) => h._id !== pageName && h._source !== undefined)
       .slice(0, limit)
-      .map(h => this._hitToResult(h._id ?? '', h._source as EsPageDocument, ''));
+      .map((h: SearchHit<EsPageDocument>) => this._hitToResult(h._id ?? '', h._source as EsPageDocument, ''));
   }
 
   // -------------------------------------------------------------------------
@@ -499,7 +500,7 @@ class ElasticsearchSearchProvider extends BaseSearchProvider {
       size: 10000,
       query: { match_all: {} }
     });
-    resp.hits.hits.forEach(h => {
+    resp.hits.hits.forEach((h: SearchHit<EsPageDocument>) => {
       if (h._source) docs.push({ id: h._id, doc: h._source });
     });
 
