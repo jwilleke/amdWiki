@@ -22,6 +22,32 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - [file2.md]
 ```
 
+## 2026-04-13-11
+
+- Agent: Claude Code (Sonnet 4.6)
+- Subject: Auto-tagging for ElasticsearchSearchProvider (#507); routes test fix; v3.3.3 bump
+- Key Decision: statistical token-overlap TaggingService (no ML); subject-category terms only; workflow-status (draft/review/published) excluded — remain manual; disabled by default, enabled per-instance via config; temp instance (port 3001) is the evaluation target
+- Current Issue: #507 (open — temp instance only, pending promotion to production)
+- Testing:
+  - npm test: 109 suites passed, 2860 tests passed
+- Work Done:
+  - Fixed routes test failure (CatalogManager resolveUri guard) — 48/48 routes tests now pass
+  - Bumped version 3.3.2 → 3.3.3 (patch)
+  - `src/utils/TaggingService.ts` — new statistical tagger; setVocabulary(terms), tag(content, title, existingTags); threshold 0.5; subject category only; 17 unit tests
+  - `src/providers/ElasticsearchSearchProvider.ts` — loads TaggingService on init if autotagging.enabled; merges auto-tags into systemKeywords in _pageToDoc(); 5 new integration tests (28 total)
+  - `config/app-default-config.json` — added ngdpbase.search.provider.elasticsearch.autotagging.enabled: false
+  - Temp instance custom config: autotagging.enabled: true; dropped ES index; rebuilt — 103/103 indexed with auto-tags
+  - Verified: 4 pages got systemKeywords auto-populated (geology, medicine, oceanography, etc.)
+- Commits: f6c07de7 (routes fix + v3.3.3), 6828a25d (#507 TaggingService)
+- Files Modified:
+  - src/utils/TaggingService.ts (new)
+  - src/utils/__tests__/TaggingService.test.js (new)
+  - src/providers/ElasticsearchSearchProvider.ts
+  - src/providers/__tests__/ElasticsearchSearchProvider.test.js
+  - src/routes/WikiRoutes.ts
+  - config/app-default-config.json
+  - /Volumes/hd2/ngdp-temp-builds/ngdpbase/data/config/app-custom-config.json
+
 ## 2026-04-13-10
 
 - Agent: Claude Code (Sonnet 4.6)
