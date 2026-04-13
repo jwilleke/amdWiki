@@ -22,6 +22,21 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - [file2.md]
 ```
 
+## 2026-04-13-08
+
+- Agent: Claude Code (Sonnet 4.6)
+- Subject: Auto build and run server system (#508)
+- Key Decision: add `setup` subcommand to server.sh (single entry point); `--config` flag pre-places app-custom-config.json and sets HEADLESS_INSTALL=true; fix check_build_needed to auto-build when stdin is not a TTY or CI=true
+- Current Issue: #508 (closed)
+- Testing:
+  - bash -n server.sh (syntax check)
+- Work Done:
+  - server.sh: added `setup` subcommand (npm install + build + optional config placement + start)
+  - server.sh: fixed check_build_needed to be non-interactive in CI/non-TTY contexts
+- Commits: 3a47debc
+- Files Modified:
+  - server.sh
+
 ## 2026-04-13-07
 
 - Agent: Claude Code (Sonnet 4.6)
