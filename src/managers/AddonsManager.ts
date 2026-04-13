@@ -18,6 +18,7 @@ import BaseManager from './BaseManager';
 import type { BackupData } from './BaseManager';
 import type { WikiEngine } from '../types/WikiEngine';
 import type ConfigurationManager from './ConfigurationManager';
+import type PageManager from './PageManager';
 import logger from '../utils/logger';
 
 /**
@@ -401,13 +402,11 @@ class AddonsManager extends BaseManager {
       return; // No pages/ directory — nothing to seed
     }
 
-    const configManager = this.engine.getManager<ConfigurationManager>('ConfigurationManager');
-    const pagesDir = (configManager?.getProperty(
-      'ngdpbase.page.provider.filesystem.storagedir',
-      './data/pages'
-    ) as string);
-
-    await fs.promises.mkdir(pagesDir, { recursive: true });
+    const pageManager = this.engine.getManager<PageManager>('PageManager');
+    if (!pageManager) {
+      logger.warn(`[AddonsManager] PageManager not available — cannot seed pages for ${addonName}`);
+      return;
+    }
 
     const files = (await fs.promises.readdir(addonPagesDir)).filter(f => f.endsWith('.md'));
     let seeded = 0;
@@ -417,41 +416,39 @@ class AddonsManager extends BaseManager {
     for (const file of files) {
       const src = path.join(addonPagesDir, file);
       try {
-        // Read source to extract UUID — destination is always {uuid}.md
         const raw = await fs.promises.readFile(src, 'utf8');
         const parsed = matter(raw);
         const uuid = parsed.data.uuid as string | undefined;
+        const slug = parsed.data.slug as string | undefined;
 
         if (!uuid || !uuidPattern.test(uuid)) {
           logger.warn(`[AddonsManager] Skipping ${addonName}/pages/${file} — missing or invalid uuid in frontmatter`);
           continue;
         }
 
-        const dest = path.join(pagesDir, `${uuid}.md`);
-
-        try {
-          await fs.promises.access(dest);
-          // UUID-named file already exists — check for addon conflict
-          const existing = await fs.promises.readFile(dest, 'utf8');
-          const existingParsed = matter(existing);
-          if (existingParsed.data.addon && existingParsed.data.addon !== addonName) {
-            logger.warn(
-              `[AddonsManager] Page conflict: ${addonName}/pages/${file} skipped — ` +
-              `already seeded by addon '${existingParsed.data.addon}' (${dest})`
-            );
-          }
-          // else: already seeded or user-edited — silent skip
-        } catch {
-          // dest does not exist — seed it using UUID filename
-          parsed.data.addon = addonName;
-          if (!parsed.data['system-category']) {
-            parsed.data['system-category'] = 'addon';
-          }
-          await fs.promises.writeFile(dest, matter.stringify(parsed.content, parsed.data), 'utf8');
-          seeded++;
+        if (!slug) {
+          logger.warn(`[AddonsManager] Skipping ${addonName}/pages/${file} — missing slug in frontmatter`);
+          continue;
         }
+
+        // Skip if a page with this slug already exists (user edits are never overwritten)
+        if (pageManager.pageExists(slug)) {
+          logger.debug(`[AddonsManager] Page '${slug}' already exists — skipping seed for ${addonName}`);
+          continue;
+        }
+
+        // Seed through PageManager so all page providers (including VersioningFileProvider)
+        // update their index correctly
+        const metadata: Record<string, unknown> = {
+          ...(parsed.data as Record<string, unknown>),
+          addon: addonName,
+          'system-category': (parsed.data as Record<string, unknown>)['system-category'] ?? 'addon'
+        };
+
+        await pageManager.savePage(slug, parsed.content, metadata);
+        seeded++;
       } catch (err) {
-        logger.warn(`[AddonsManager] Could not read seed file ${src}:`, err);
+        logger.warn(`[AddonsManager] Could not seed ${addonName}/pages/${file}:`, err);
       }
     }
 
