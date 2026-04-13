@@ -39,7 +39,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - `managers/PageManager.ts` — added `getPageByUUID`, `getPageBySlug`, `getAllPageNames`; `savePageWithContext()` calls `checkConflicts()` before provider.savePage()
   - `ElasticsearchSearchProvider.test.js` — added `deleteByQuery` mock; updated `removePageFromIndex` tests; added tests verifying UUID as `_id` and slug stored in document; 28→30 tests
   - Dropped ES index on temp instance; rebuilt with UUID `_id`s — verified with curl
-- Commits: pending
+- Commits: 013770c2
 - Files Modified:
   - src/providers/ElasticsearchSearchProvider.ts
   - src/providers/BasePageProvider.ts
