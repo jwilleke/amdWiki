@@ -2,6 +2,51 @@
 
 AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version history.
 
+## Format for this file
+
+```
+## yyyy-MM-dd-##
+
+- Agent: [Claude/Gemini/Other]
+- Subject: [Brief description]
+- Key Decision: [decision]
+- Current Issue: [issue]
+- Testing:
+  - npm test: ??? suites passed, ??? tests passed tests skipped
+- Work Done:
+  - [task 1]
+  - [task 2]
+- Commits: [hash]
+- Files Modified:
+  - [file1.js]
+  - [file2.md]
+```
+
+## 2026-04-13-02
+
+- Agent: Claude Code (Sonnet 4.6)
+- Subject: #498 principal-based path access — usernames in path-access alongside roles
+- Key Decision: path-access keys are principals (role name OR username), consistent with page audience/access front matter model; same union logic as ACLManager.checkFrontmatterAccess
+- Current Issue: #498
+- Testing:
+  - npm test: 106 suites passed, 2797 tests passed, 0 tests skipped
+- Work Done:
+  - `username?: string` added to `AssetQuery` and `AssetSearchOptions`
+  - `WikiRoutes` passes `currentUser.username` to `assetService.search()`
+  - `_resolveAllowedPaths(roles, username)` checks `userRoles.includes(key) || username === key`
+  - jimstest `path-access` updated: `jim` username → `jims/`; `editor` role does not get `jims/`
+  - 4 new username tests added to `Sist2AssetProvider.test.js`
+  - Admin wiki page updated: section renamed to "Principal-Based Path Access", config example updated
+  - GH issue #498 commented with change summary
+- Commits: `5cb080cd`
+- Files Modified:
+  - `src/types/Asset.ts`
+  - `src/managers/AssetService.ts`
+  - `src/routes/WikiRoutes.ts`
+  - `addons/elasticsearch/src/Sist2AssetProvider.ts`
+  - `addons/elasticsearch/index.ts`
+  - `addons/elasticsearch/pages/4da88ee4-23c6-4c1c-82eb-1f20d82e1dcc.md`
+
 ## 2026-04-13-01
 
 - Agent: Claude Code (Sonnet 4.6)
@@ -308,26 +353,6 @@ New `ApiContext` class — lightweight typed request context for API route handl
   - 24 ApiContext tests pass
   - TypeScript clean (tsc --noEmit)
   - Existing WikiContext tests unaffected
-
-## Format
-
-```
-## yyyy-MM-dd-##
-
-- Agent: [Claude/Gemini/Other]
-- Subject: [Brief description]
-- Key Decision: [decision]
-- Current Issue: [issue]
-- Testing:
-  - npm test: ??? suites passed, ??? tests passed tests skipped
-- Work Done:
-  - [task 1]
-  - [task 2]
-- Commits: [hash]
-- Files Modified:
-  - [file1.js]
-  - [file2.md]
-```
 
 ## 2026-04-07-12
 
