@@ -22,6 +22,49 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - [file2.md]
 ```
 
+## 2026-04-13-13
+
+- Agent: Claude Code (Sonnet 4.6)
+- Subject: Search page System Keywords filter and browse (#509); fix duplicate auto-tag/user-keyword
+- Key Decision: temp instance only until testing complete; systemKeywords filter is a third parallel dimension alongside categories and user-keywords (not a replacement)
+- Current Issue: #509 (open — temp instance only, pending promotion to production)
+- Testing:
+  - npm run build clean
+- Work Done:
+  - `src/providers/BaseSearchProvider.ts` — added systemKeywords field to SearchCriteria
+  - `src/providers/ElasticsearchSearchProvider.ts` — advancedSearch filters by systemKeywords; getPageSystemKeywords() (single doc GET); getAllSystemKeywords() via terms agg
+  - `src/managers/SearchManager.ts` — getAllSystemKeywords(), searchBySystemKeywordsList(), getPageSystemKeywords() delegating to provider
+  - `src/routes/WikiRoutes.ts` — parse systemKeywords query param; fetch availableSystemKeywords; pass both to search template; systemKeywords-only search path
+  - `views/search-results.ejs` — 3-column filter panel (Categories / System Keywords / User Keywords); Browse by System Keyword card on landing; systemKeywords badges on result items; filter badge count includes systemKeywords
+  - Fixed: TaggingService was auto-tagging terms already in user-keywords (dedup now includes userKeywords in existingTags)
+- Commits: 95703fcd (#509 search page), 622d0cd6 (dedup fix)
+- Files Modified:
+  - src/providers/BaseSearchProvider.ts
+  - src/providers/ElasticsearchSearchProvider.ts
+  - src/managers/SearchManager.ts
+  - src/routes/WikiRoutes.ts
+  - views/search-results.ejs
+
+## 2026-04-13-12
+
+- Agent: Claude Code (Sonnet 4.6)
+- Subject: Auto-tagged keywords visible on page view (#507 follow-on)
+- Key Decision: auto-tags stored in ES only (not in page frontmatter); fetched at view time via single-doc GET; displayed as gray badges (fa-tag) separate from blue user-keyword badges (fa-tags)
+- Current Issue: #507 (open — temp instance only)
+- Testing:
+  - npm run build clean
+- Work Done:
+  - `src/providers/ElasticsearchSearchProvider.ts` — added getPageSystemKeywords(pageName): single ES doc GET returning systemKeywords[]
+  - `src/managers/SearchManager.ts` — added getPageSystemKeywords() delegating to provider
+  - `src/routes/WikiRoutes.ts` — fetch autoTaggedKeywords from SearchManager at page-view time; pass to template
+  - `views/view.ejs` — tag bar below page content: gray badges for auto-tags, blue badges for user-keywords; each links to /search?q=keyword
+- Commits: 1a898a1c, 5b388649
+- Files Modified:
+  - src/providers/ElasticsearchSearchProvider.ts
+  - src/managers/SearchManager.ts
+  - src/routes/WikiRoutes.ts
+  - views/view.ejs
+
 ## 2026-04-13-11
 
 - Agent: Claude Code (Sonnet 4.6)
