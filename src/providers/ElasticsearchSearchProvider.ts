@@ -604,8 +604,9 @@ class ElasticsearchSearchProvider extends BaseSearchProvider {
     const audience = toStrArr(audienceRaw);
 
     const existingSystemKeywords = toStrArr(metadata['system-keywords']);
+    const existingUserKeywords = toStrArr(metadata['user-keywords']);
     const autoTagged = this.taggingService
-      ? this.taggingService.tag(content, toStr(metadata.title) || name, existingSystemKeywords)
+      ? this.taggingService.tag(content, toStr(metadata.title) || name, [...existingSystemKeywords, ...existingUserKeywords])
       : [];
 
     return {
