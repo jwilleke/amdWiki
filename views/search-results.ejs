@@ -56,18 +56,18 @@
                     <!-- Collapsible Filters -->
                     <div class="mt-3">
                         <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="collapse"
-                                data-bs-target="#filterOptions" aria-expanded="<%= (categories && categories.length > 0) || (userKeywords && userKeywords.length > 0) ? 'true' : 'false' %>">
+                                data-bs-target="#filterOptions" aria-expanded="<%= (categories && categories.length > 0) || (userKeywords && userKeywords.length > 0) || (systemKeywords && systemKeywords.length > 0) ? 'true' : 'false' %>">
                             <i class="fas fa-filter me-1"></i>Filters
-                            <% if ((categories && categories.length > 0) || (userKeywords && userKeywords.length > 0)) { %>
-                                <span class="badge bg-primary ms-1"><%= (categories?.length || 0) + (userKeywords?.length || 0) %></span>
+                            <% if ((categories && categories.length > 0) || (userKeywords && userKeywords.length > 0) || (systemKeywords && systemKeywords.length > 0)) { %>
+                                <span class="badge bg-primary ms-1"><%= (categories?.length || 0) + (userKeywords?.length || 0) + (systemKeywords?.length || 0) %></span>
                             <% } %>
                         </button>
                     </div>
 
-                    <div class="collapse <%= (categories && categories.length > 0) || (userKeywords && userKeywords.length > 0) ? 'show' : '' %>" id="filterOptions">
+                    <div class="collapse <%= (categories && categories.length > 0) || (userKeywords && userKeywords.length > 0) || (systemKeywords && systemKeywords.length > 0) ? 'show' : '' %>" id="filterOptions">
                         <div class="row mt-3 g-3">
                             <!-- Categories -->
-                            <div class="col-md-6">
+                            <div class="col-md-4">
                                 <label class="form-label fw-bold"><i class="fas fa-folder me-1"></i>Categories</label>
                                 <div class="border rounded p-2" style="max-height: 150px; overflow-y: auto;">
                                     <% availableCategories.forEach(cat => { %>
@@ -82,8 +82,24 @@
                                 </div>
                             </div>
 
-                            <!-- Keywords -->
-                            <div class="col-md-6">
+                            <!-- System Keywords -->
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold"><i class="fas fa-tag me-1"></i>System Keywords</label>
+                                <div class="border rounded p-2" style="max-height: 150px; overflow-y: auto;">
+                                    <% (typeof availableSystemKeywords !== 'undefined' ? availableSystemKeywords : []).forEach(kw => { %>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox"
+                                                   id="skw_<%= kw.replace(/[^a-zA-Z0-9]/g, '_') %>"
+                                                   name="systemKeywords" value="<%= kw %>"
+                                                   <%= (Array.isArray(systemKeywords) ? systemKeywords.includes(kw) : systemKeywords === kw) ? 'checked' : '' %>>
+                                            <label class="form-check-label" for="skw_<%= kw.replace(/[^a-zA-Z0-9]/g, '_') %>"><%= kw %></label>
+                                        </div>
+                                    <% }); %>
+                                </div>
+                            </div>
+
+                            <!-- User Keywords -->
+                            <div class="col-md-4">
                                 <label class="form-label fw-bold"><i class="fas fa-tags me-1"></i>Keywords</label>
                                 <div class="border rounded p-2" style="max-height: 150px; overflow-y: auto;">
                                     <% availableKeywords.forEach(kw => {
@@ -127,8 +143,11 @@
                         <% if (categories && categories.length > 0) { %>
                             <span class="ms-2">in <%- categories.map(c => `<span class="badge bg-primary">${c}</span>`).join(' ') %></span>
                         <% } %>
+                        <% if (systemKeywords && systemKeywords.length > 0) { %>
+                            <span class="ms-2">tagged <%- systemKeywords.map(k => `<span class="badge bg-secondary">${k}</span>`).join(' ') %></span>
+                        <% } %>
                         <% if (userKeywords && userKeywords.length > 0) { %>
-                            <span class="ms-2">with <%- userKeywords.map(k => `<span class="badge bg-secondary">${k}</span>`).join(' ') %></span>
+                            <span class="ms-2">with <%- userKeywords.map(k => `<span class="badge bg-info">${k}</span>`).join(' ') %></span>
                         <% } %>
                     </div>
                     <div id="pages-pagination-top"></div>
@@ -150,8 +169,13 @@
                                 <% if (result.snippet) { %>
                                     <p class="mb-1 mt-2 small"><%- result.snippet %></p>
                                 <% } %>
-                                <% if (result.metadata.userKeywords && result.metadata.userKeywords.length > 0) { %>
+                                <% if ((result.metadata.systemKeywords && result.metadata.systemKeywords.length > 0) || (result.metadata.userKeywords && result.metadata.userKeywords.length > 0)) { %>
                                     <div class="mt-1">
+                                        <% const skws = Array.isArray(result.metadata.systemKeywords) ? result.metadata.systemKeywords : []; %>
+                                        <% skws.slice(0, 3).forEach(kw => { %>
+                                            <span class="badge bg-secondary me-1"><i class="fas fa-tag me-1"></i><%= kw %></span>
+                                        <% }); %>
+                                        <% if (skws.length > 3) { %><span class="badge bg-secondary">+<%= skws.length - 3 %></span><% } %>
                                         <% const kws = Array.isArray(result.metadata.userKeywords) ? result.metadata.userKeywords : []; %>
                                         <% kws.slice(0, 3).forEach(kw => { %>
                                             <span class="badge bg-info me-1"><%= kw %></span>
@@ -172,7 +196,7 @@
         <% } else { %>
             <!-- Quick Browse -->
             <div class="row">
-                <div class="col-md-6 mb-4">
+                <div class="col-md-4 mb-4">
                     <div class="card h-100">
                         <div class="card-header"><i class="fas fa-folder me-2"></i>Browse by Category</div>
                         <div class="card-body">
@@ -189,7 +213,24 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-md-6 mb-4">
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100">
+                        <div class="card-header"><i class="fas fa-tag me-2"></i>Browse by System Keyword</div>
+                        <div class="card-body">
+                            <div class="d-flex flex-wrap gap-2">
+                                <% (typeof availableSystemKeywords !== 'undefined' ? availableSystemKeywords : []).slice(0, 12).forEach(kw => { %>
+                                    <a href="/search?systemKeywords=<%= encodeURIComponent(kw) %>" class="btn btn-sm btn-outline-secondary">
+                                        <%= kw %>
+                                    </a>
+                                <% }); %>
+                                <% if ((typeof availableSystemKeywords !== 'undefined' ? availableSystemKeywords : []).length > 12) { %>
+                                    <span class="btn btn-sm btn-outline-secondary disabled">+<%= availableSystemKeywords.length - 12 %> more</span>
+                                <% } %>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4">
                     <div class="card h-100">
                         <div class="card-header"><i class="fas fa-tags me-2"></i>Browse by Keyword</div>
                         <div class="card-body">
@@ -373,7 +414,7 @@ document.addEventListener('DOMContentLoaded', function() {
     checkboxes.forEach(checkbox => {
         checkbox.addEventListener('change', function() {
             const hasQuery = document.getElementById('query').value.trim();
-            const hasFilter = document.querySelector('input[name="category"]:checked, input[name="keywords"]:checked');
+            const hasFilter = document.querySelector('input[name="category"]:checked, input[name="keywords"]:checked, input[name="systemKeywords"]:checked');
             if (hasQuery || hasFilter) {
                 form.submit();
             }

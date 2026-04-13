@@ -97,6 +97,9 @@ export interface SearchCriteria {
   /** User keywords to filter by */
   userKeywords?: string[];
 
+  /** System keywords to filter by (auto-tagged or manually set — #507/#509) */
+  systemKeywords?: string[];
+
   /** Fields to search in (title, content, category, keywords, or all) */
   searchIn?: string[];
 

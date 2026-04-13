@@ -660,6 +660,37 @@ class SearchManager extends BaseManager {
   }
 
   /**
+   * Return all systemKeywords present in the search index (union across all pages).
+   * Used to populate the "Browse / Filter by System Keyword" UI (#509).
+   * Returns [] if the active provider does not support this operation (e.g. Lunr).
+   */
+  async getAllSystemKeywords(): Promise<string[]> {
+    if (!this.provider) return [];
+    const p = this.provider as { getAllSystemKeywords?(): Promise<string[]> };
+    if (typeof p.getAllSystemKeywords !== 'function') return [];
+    try {
+      return await p.getAllSystemKeywords();
+    } catch (err) {
+      logger.error('[SearchManager] getAllSystemKeywords failed:', err);
+      return [];
+    }
+  }
+
+  /**
+   * Search pages that have all of the given system keywords.
+   * Returns [] if provider does not support systemKeywords filtering.
+   */
+  async searchBySystemKeywordsList(keywords: string[]): Promise<SearchResult[]> {
+    if (!this.provider || keywords.length === 0) return [];
+    try {
+      return await this.provider.advancedSearch({ systemKeywords: keywords });
+    } catch (err) {
+      logger.error('[SearchManager] searchBySystemKeywordsList failed:', err);
+      return [];
+    }
+  }
+
+  /**
    * Get systemKeywords stored in the search index for a specific page.
    * Returns auto-tagged terms added by TaggingService at index time (#507).
    * Returns [] if the active provider does not support this operation.

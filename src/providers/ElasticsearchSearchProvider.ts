@@ -250,11 +250,12 @@ class ElasticsearchSearchProvider extends BaseSearchProvider {
       query = '',
       categories = [],
       userKeywords = [],
+      systemKeywords = [],
       author = '',
       editor = '',
       dateRange,
       maxResults: maxR
-    } = criteria;
+    } = criteria as SearchCriteria & { systemKeywords?: string[] };
 
     const maxResults = (maxR) ?? this.maxResults;
     const { isPrivate: privateFilter, audience: audienceFilter } = this._buildPrivacyFilter(
@@ -282,6 +283,10 @@ class ElasticsearchSearchProvider extends BaseSearchProvider {
 
     if (userKeywords.length > 0) {
       filter.push({ terms: { userKeywords } });
+    }
+
+    if ((systemKeywords).length > 0) {
+      filter.push({ terms: { systemKeywords: systemKeywords } });
     }
 
     if (author) {

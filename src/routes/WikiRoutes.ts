@@ -2621,6 +2621,12 @@ class WikiRoutes {
         : typeof rawKeywords === 'string' ? [rawKeywords] : [];
       userKeywords = userKeywords.filter((kw: string) => kw.trim() !== '');
 
+      const rawSystemKeywords = req.query.systemKeywords;
+      let systemKeywords: string[] = Array.isArray(rawSystemKeywords)
+        ? rawSystemKeywords.filter((k): k is string => typeof k === 'string')
+        : typeof rawSystemKeywords === 'string' ? [rawSystemKeywords] : [];
+      systemKeywords = systemKeywords.filter((kw: string) => kw.trim() !== '');
+
       // Handle multiple searchIn values
       const rawSearchIn = req.query.searchIn;
       let searchIn: string[] = Array.isArray(rawSearchIn)
@@ -2638,21 +2644,27 @@ class WikiRoutes {
       let searchType = 'text';
 
       // Determine whether the search form was submitted (q present, or filters selected)
-      const submitted = 'q' in req.query || categories.length > 0 || userKeywords.length > 0;
+      const submitted = 'q' in req.query || categories.length > 0 || userKeywords.length > 0 || systemKeywords.length > 0;
 
       if (submitted) {
-        if (!query.trim() && categories.length === 0 && userKeywords.length === 0) {
+        if (!query.trim() && categories.length === 0 && userKeywords.length === 0 && systemKeywords.length === 0) {
           // Empty query, no filters — return all indexed pages
           results = await searchManager.getAllDocuments();
           searchType = 'all';
-        } else if (categories.length > 0 && !query.trim() && userKeywords.length === 0) {
+        } else if (systemKeywords.length > 0 && !query.trim() && categories.length === 0 && userKeywords.length === 0) {
+          // System keywords-only search (#509)
+          results = await (searchManager.searchBySystemKeywordsList
+            ? searchManager.searchBySystemKeywordsList(systemKeywords)
+            : []);
+          searchType = 'systemKeywords';
+        } else if (categories.length > 0 && !query.trim() && userKeywords.length === 0 && systemKeywords.length === 0) {
           // Category-only search
           results = await (searchManager.searchByCategories
             ? searchManager.searchByCategories(categories)
             : searchManager.searchByCategory(categories[0]));
           searchType = 'category';
-        } else if (userKeywords.length > 0 && !query.trim() && categories.length === 0) {
-          // Keywords-only search
+        } else if (userKeywords.length > 0 && !query.trim() && categories.length === 0 && systemKeywords.length === 0) {
+          // User keywords-only search
           results = await (searchManager.searchByUserKeywordsList
             ? searchManager.searchByUserKeywordsList(userKeywords)
             : searchManager.searchByUserKeywords(userKeywords[0]));
@@ -2663,6 +2675,7 @@ class WikiRoutes {
             query: query,
             categories: categories,
             userKeywords: userKeywords,
+            systemKeywords: systemKeywords,
             searchIn: searchIn,
             maxResults: 50
           });
@@ -2685,6 +2698,10 @@ class WikiRoutes {
       const systemCategories = Array.isArray(availableCats) ? availableCats : [];
       const availableKws = this.getUserKeywordsWithDescriptions();
       const userKeywordsList = Array.isArray(availableKws) ? availableKws : [];
+      // System keywords from index (#509) — only ES provider returns non-empty list
+      const availableSystemKeywords: string[] = searchManager.getAllSystemKeywords
+        ? await searchManager.getAllSystemKeywords()
+        : [];
 
       // Get stats for search results (optional, fallback to empty if not available)
       let stats = {};
@@ -2741,12 +2758,14 @@ class WikiRoutes {
         category: categories.length > 0 ? categories[0] : '', // Singular for template compat
         categories: categories,
         userKeywords: userKeywords,
+        systemKeywords: systemKeywords,
         searchIn: searchIn,
         searchType: searchType,
         systemCategories: systemCategories,
         userKeywordsList: userKeywordsList,
         availableCategories: systemCategories,
         availableKeywords: userKeywordsList,
+        availableSystemKeywords: availableSystemKeywords,
         stats: stats,
         // Asset tab search
         searchTab: searchTab,
