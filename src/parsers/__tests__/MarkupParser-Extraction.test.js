@@ -270,6 +270,31 @@ describe('MarkupParser.extractJSPWikiSyntax()', () => {
       expect(jspwikiElements[0].codeContent).toContain('const x = 1;');
     });
 
+    test('extracts fenced code block with CRLF line endings (view-path bug #503)', () => {
+      // Pages stored on disk may have \r\n; preview normalises to \n.
+      // The old regex failed on CRLF because \S* stopped at \r and then \n didn't match \r.
+      const content = '```\r\nFilesystem → Crawler/Extractor (JS) → Elasticsearch\r\n```';
+      const { sanitized, jspwikiElements } = parser.extractJSPWikiSyntax(content);
+
+      expect(jspwikiElements).toHaveLength(1);
+      expect(jspwikiElements[0].type).toBe('fenced-code');
+      expect(jspwikiElements[0].codeLanguage).toBe('');
+      expect(jspwikiElements[0].codeContent).toContain('Filesystem');
+      expect(sanitized).not.toContain('Filesystem');
+      expect(sanitized).not.toContain('```');
+    });
+
+    test('extracts fenced code block with no language tag', () => {
+      const content = '```\nsome plain text\n```';
+      const { sanitized, jspwikiElements } = parser.extractJSPWikiSyntax(content);
+
+      expect(jspwikiElements).toHaveLength(1);
+      expect(jspwikiElements[0].type).toBe('fenced-code');
+      expect(jspwikiElements[0].codeLanguage).toBe('');
+      expect(jspwikiElements[0].codeContent).toContain('some plain text');
+      expect(sanitized).not.toContain('```');
+    });
+
     test('extracts inline code span as code DOM node', () => {
       const content = 'Use `const` for constants';
       const { sanitized, jspwikiElements } = parser.extractJSPWikiSyntax(content);

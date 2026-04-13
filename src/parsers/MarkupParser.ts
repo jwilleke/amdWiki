@@ -1311,18 +1311,47 @@ class MarkupParser extends BaseManager {
     // raw content back into the text pipeline (the old __CODEBLOCK_N__ approach)
     // allowed PluginSyntaxHandler (Phase 2.6) to execute plugins inside code blocks.
 
-    // Fenced code blocks (```[lang]\ncontent\n```)
-    sanitized = sanitized.replace(/^```(\S*)\n([\s\S]*?)^```\s*$/gm, (match: string, lang: string, inner: string, offset: number) => {
-      jspwikiElements.push({
-        type: 'fenced-code',
-        syntax: match,
-        codeLanguage: lang || '',
-        codeContent: inner,
-        id: id++,
-        position: offset
-      });
-      return `<span data-jspwiki-placeholder="${uuid}-${id - 1}"></span>`;
-    });
+    // Fenced code blocks — line-scanner instead of regex.
+    // The regex approach failed on CRLF line endings (view path reads pages from disk
+    // with \r\n; preview path receives \n-normalized text from the browser editor).
+    // The scanner normalises line endings, finds opening/closing ``` fences reliably,
+    // and pushes each block directly into the WikiDocument node pipeline as literal text.
+    {
+      const inputLines = sanitized.split(/\r?\n/);
+      const outputLines: string[] = [];
+      let li = 0;
+      while (li < inputLines.length) {
+        const fenceOpen = inputLines[li].match(/^(`{3,})(\S*)\s*$/);
+        if (fenceOpen) {
+          const fence = fenceOpen[1]; // the actual backtick sequence (``` or longer)
+          const lang = fenceOpen[2] || '';
+          const contentLines: string[] = [];
+          const startLine = li;
+          li++;
+          // Collect lines until matching closing fence (same length, no language tag)
+          while (li < inputLines.length && !new RegExp(`^${fence}\\s*$`).test(inputLines[li])) {
+            contentLines.push(inputLines[li]);
+            li++;
+          }
+          if (li < inputLines.length) li++; // skip closing fence line
+          const codeContent = contentLines.join('\n') + (contentLines.length > 0 ? '\n' : '');
+          const syntax = `${fence}${lang}\n${codeContent}${fence}`;
+          jspwikiElements.push({
+            type: 'fenced-code',
+            syntax,
+            codeLanguage: lang,
+            codeContent,
+            id: id++,
+            position: startLine
+          });
+          outputLines.push(`<span data-jspwiki-placeholder="${uuid}-${id - 1}"></span>`);
+        } else {
+          outputLines.push(inputLines[li]);
+          li++;
+        }
+      }
+      sanitized = outputLines.join('\n');
+    }
 
     // Inline code spans (`...`) — single backtick, not fenced
     sanitized = sanitized.replace(/`([^`]+)`/g, (match: string, inner: string, offset: number) => {
