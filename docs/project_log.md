@@ -22,6 +22,48 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - [file2.md]
 ```
 
+## 2026-04-13-07
+
+- Agent: Claude Code (Sonnet 4.6)
+- Subject: ElasticsearchSearchProvider (#189, #504) + External Asset Search rename (#505)
+- Key Decision: implement Elasticsearch as opt-in search provider (Lunr stays default); drop legacy `tags` field (no pages use it); add `systemKeywords` field pre-wired for #507 auto-tagging; generic rename for sist2 addon (NAS→External Asset) so it works for S3/Azure/etc
+- Current Issue: #189 (closed), #504 (closed), #505 (closed)
+- Testing:
+  - npm test: 107 suites passed, 2823 tests passed (23 new tests)
+- Work Done:
+  - Created ElasticsearchSearchProvider extending BaseSearchProvider (18 methods)
+  - Index: ngdpbase-pages with explicit field mapping; created automatically on first buildIndex()
+  - Fields: systemCategory/systemKeywords/userKeywords (tags dropped — no pages use it)
+  - buildIndex() bulk-indexes all pages in 200-doc batches; updatePageInIndex() single upsert
+  - Private-page access control via isPrivate+audience fields; mirrors LunrSearchProvider
+  - Added @elastic/elasticsearch ^8.19.1 to root package.json
+  - Fixed app-default-config.json: indexname ngdpbase→ngdpbase-pages; updated comment
+  - Renamed addon pages NAS File Search→External Asset Search; Sist2AssetProvider.displayName updated
+  - Updated 3 developer docs (SearchManager.md, Complete Guide, SEARCH_PROVIDER_IMPLEMENTATION.md)
+  - Created 2 new provider docs (ElasticsearchSearchProvider.md + Complete Guide)
+  - Updated 4 required wiki pages (search-documentation, reindex, config-properties, performance)
+  - Added planning doc: docs/planning/elasticsearch-search-provider.md
+- Commits: `90dcb52e`
+- Files Modified:
+  - `src/providers/ElasticsearchSearchProvider.ts` (new)
+  - `src/providers/__tests__/ElasticsearchSearchProvider.test.js` (new)
+  - `package.json`, `package-lock.json`
+  - `config/app-default-config.json`
+  - `addons/elasticsearch/index.ts`
+  - `addons/elasticsearch/src/Sist2AssetProvider.ts`
+  - `addons/elasticsearch/pages/134fdcb0-95d9-4856-b25f-837793cc4e0a.md`
+  - `addons/elasticsearch/pages/4da88ee4-23c6-4c1c-82eb-1f20d82e1dcc.md`
+  - `docs/managers/SearchManager.md`
+  - `docs/managers/SearchManager-Complete-Guide.md`
+  - `docs/design/SEARCH_PROVIDER_IMPLEMENTATION.md`
+  - `docs/providers/ElasticsearchSearchProvider.md` (new)
+  - `docs/providers/ElasticsearchSearchProvider-Complete-Guide.md` (new)
+  - `docs/planning/elasticsearch-search-provider.md` (new)
+  - `required-pages/fe7a378d-dfa5-4e37-9891-637568ebe0b4.md`
+  - `required-pages/67b76b5c-81f0-4a00-9bb1-6a816d26e284.md`
+  - `required-pages/928a1050-3542-4140-9cd4-515bac154c84.md`
+  - `required-pages/e67d5e25-76d4-43fb-bce0-6f7675654f17.md`
+
 ## 2026-04-13-06
 
 - Agent: Claude Code (Sonnet 4.6)
