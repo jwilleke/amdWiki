@@ -22,6 +22,20 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - [file2.md]
 ```
 
+## 2026-04-13-09
+
+- Agent: Claude Code (Sonnet 4.6)
+- Subject: Fix missing lastModified in Startup Pages required page
+- Key Decision: add lastModified front-matter to c1d696da (Startup Pages) — ES date field rejects null, causing bulk index failure; used 2026-01-01 as a sentinel date for system pages
+- Current Issue: discovered during ElasticsearchSearchProvider temp-build testing (102/103 pages indexed)
+- Testing:
+  - manual: curl <http://localhost:9200/ngdpbase-pages/_count> confirms 103/103 after reindex
+- Work Done:
+  - required-pages/c1d696da: added lastModified: '2026-01-01T00:00:00.000Z'
+- Commits: TBD
+- Files Modified:
+  - required-pages/c1d696da-3a42-43b6-9775-a6587410d0c5.md
+
 ## 2026-04-13-08
 
 - Agent: Claude Code (Sonnet 4.6)
