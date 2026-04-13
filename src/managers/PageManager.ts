@@ -454,6 +454,17 @@ class PageManager extends BaseManager {
       ? validationManager.sanitizeMetadata(metadataWithLocation as Record<string, unknown>) as Partial<PageFrontmatter>
       : metadataWithLocation;
 
+    // Enforce uniqueness before delegating to provider — PageManager is the single
+    // authority on uuid/title/slug uniqueness across the system (#510 architecture)
+    if (validationManager) {
+      const uuid = (enrichedMetadata as Record<string, unknown>).uuid as string | undefined ?? '';
+      const slug = (enrichedMetadata as Record<string, unknown>).slug as string | undefined ?? '';
+      const conflict = await validationManager.checkConflicts(uuid, pageName, slug);
+      if (conflict.hasConflict) {
+        throw new Error(conflict.message ?? `Page conflict: ${conflict.conflictType}`);
+      }
+    }
+
     return this.provider.savePage(pageName, content, enrichedMetadata);
   }
 
@@ -572,6 +583,39 @@ class PageManager extends BaseManager {
       throw new Error('PageManager: Provider not initialized');
     }
     return this.provider.getAllPages();
+  }
+
+  /**
+   * Get all page titles (explicit alias for getAllPages)
+   * Prefer this for new code that only needs page names.
+   * Use getAllPageInfo() when you need uuid/slug/author etc.
+   */
+  async getAllPageNames(): Promise<string[]> {
+    return this.getAllPages();
+  }
+
+  /**
+   * Get a page by its UUID
+   * @param {string} uuid - Page UUID
+   * @returns {Promise<WikiPage | null>} Page or null if not found
+   */
+  async getPageByUUID(uuid: string): Promise<WikiPage | null> {
+    if (!this.provider) {
+      throw new Error('PageManager: Provider not initialized');
+    }
+    return this.provider.getPageByUUID(uuid);
+  }
+
+  /**
+   * Get a page by its slug
+   * @param {string} slug - URL-friendly slug
+   * @returns {Promise<WikiPage | null>} Page or null if not found
+   */
+  async getPageBySlug(slug: string): Promise<WikiPage | null> {
+    if (!this.provider) {
+      throw new Error('PageManager: Provider not initialized');
+    }
+    return this.provider.getPageBySlug(slug);
   }
 
   /**

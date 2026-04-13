@@ -11,13 +11,15 @@
 // ---------------------------------------------------------------------------
 
 const mockClientInstance = {
-  ping:    jest.fn(),
-  close:   jest.fn(),
-  index:   jest.fn(),
-  delete:  jest.fn(),
-  count:   jest.fn(),
-  bulk:    jest.fn(),
-  search:  jest.fn(),
+  ping:          jest.fn(),
+  close:         jest.fn(),
+  index:         jest.fn(),
+  delete:        jest.fn(),
+  deleteByQuery: jest.fn(),
+  count:         jest.fn(),
+  bulk:          jest.fn(),
+  search:        jest.fn(),
+  get:           jest.fn(),
   indices: {
     exists: jest.fn(),
     create: jest.fn(),
@@ -178,6 +180,38 @@ describe('buildIndex()', () => {
     expect(mockClientInstance.bulk).toHaveBeenCalledTimes(2);
   });
 
+  test('uses UUID as ES _id, not page name', async () => {
+    const pages = {
+      'my-page': makePage({ metadata: { ...makePage().metadata, uuid: 'uuid-aaa-111' } })
+    };
+    const pageManager = makePageManager(pages);
+    const engine = makeEngine({}, { PageManager: pageManager });
+
+    const provider = new ElasticsearchSearchProvider(engine);
+    await provider.initialize();
+    await provider.buildIndex();
+
+    const { body } = mockClientInstance.bulk.mock.calls[0][0];
+    // First op is the index action — its _id must be the UUID, not 'my-page'
+    expect(body[0]).toEqual({ index: { _index: 'ngdpbase-pages', _id: 'uuid-aaa-111' } });
+  });
+
+  test('stores slug field in document', async () => {
+    const pages = {
+      'my-page': makePage({ metadata: { ...makePage().metadata, slug: 'my-page-slug' } })
+    };
+    const pageManager = makePageManager(pages);
+    const engine = makeEngine({}, { PageManager: pageManager });
+
+    const provider = new ElasticsearchSearchProvider(engine);
+    await provider.initialize();
+    await provider.buildIndex();
+
+    const { body } = mockClientInstance.bulk.mock.calls[0][0];
+    // Second op is the document itself
+    expect(body[1].slug).toBe('my-page-slug');
+  });
+
   test('skips pages that getPage returns null for', async () => {
     const pageManager = {
       getAllPages: jest.fn().mockResolvedValue(['exists', 'missing']),
@@ -326,10 +360,11 @@ describe('updatePageInIndex()', () => {
       }
     });
 
+    // _id is now UUID, not page name
     expect(mockClientInstance.index).toHaveBeenCalledWith(
       expect.objectContaining({
         index: 'ngdpbase-pages',
-        id: 'my-page',
+        id: 'uuid-1',
         document: expect.objectContaining({
           title: 'My Page',
           systemCategory: 'documentation',
@@ -365,21 +400,24 @@ describe('updatePageInIndex()', () => {
 // ---------------------------------------------------------------------------
 
 describe('removePageFromIndex()', () => {
-  test('calls client.delete with correct index and id', async () => {
+  test('calls client.deleteByQuery with name term (not _id)', async () => {
     const engine = makeEngine();
     const provider = new ElasticsearchSearchProvider(engine);
     await provider.initialize();
 
     await provider.removePageFromIndex('old-page');
 
-    expect(mockClientInstance.delete).toHaveBeenCalledWith({
-      index: 'ngdpbase-pages',
-      id: 'old-page'
-    });
+    // Uses deleteByQuery on name field — _id is now UUID, not page name
+    expect(mockClientInstance.deleteByQuery).toHaveBeenCalledWith(
+      expect.objectContaining({
+        index: 'ngdpbase-pages',
+        query: { term: { name: 'old-page' } }
+      })
+    );
   });
 
-  test('does not throw on 404', async () => {
-    mockClientInstance.delete.mockRejectedValue({ statusCode: 404 });
+  test('resolves without error when page not found', async () => {
+    mockClientInstance.deleteByQuery.mockResolvedValue({ deleted: 0 });
 
     const engine = makeEngine();
     const provider = new ElasticsearchSearchProvider(engine);

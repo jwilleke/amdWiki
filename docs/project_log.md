@@ -22,6 +22,32 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - [file2.md]
 ```
 
+## 2026-04-13-14
+
+- Agent: Claude Code (Sonnet 4.6)
+- Subject: UUID as universal primary key — Phase 1, 2, 3 implementation
+- Key Decision: ES `_id` = UUID (not page name); PageManager calls `ValidationManager.checkConflicts()` before every save; `getAllPageNames()` added as explicit alias; `getAllPages()` return type kept as `string[]` to avoid breaking 30+ callers
+- Current Issue: architecture plan from plan mode (velvety-twirling-perlis)
+- Testing:
+  - 109 suites, 2864 tests passed
+  - Temp instance reindexed — verified `_id` is UUID, `name` is page title, `slug` is indexed
+- Work Done:
+  - `ElasticsearchSearchProvider.ts` — added `slug` to EsPageDocument interface and INDEX_MAPPING; `_pageToDoc()` populates slug; `removePageFromIndex()` uses `deleteByQuery` on `name` field; `getPageSystemKeywords()` searches by `name` field; `_hitToResult()` uses `src.name` not `h._id`; `suggestSimilarPages()` looks up UUID first then uses it for more_like_this
+  - `types/Provider.ts` — added `getPageByUUID`, `getPageBySlug`, `getAllPageNames` to `PageProvider` interface
+  - `providers/BasePageProvider.ts` — added abstract `getPageByUUID`, `getPageBySlug`; concrete `getAllPageNames()` delegation
+  - `providers/FileSystemProvider.ts` — implemented `getPageByUUID` and `getPageBySlug` (thin wrappers over `getPage()`)
+  - `managers/PageManager.ts` — added `getPageByUUID`, `getPageBySlug`, `getAllPageNames`; `savePageWithContext()` calls `checkConflicts()` before provider.savePage()
+  - `ElasticsearchSearchProvider.test.js` — added `deleteByQuery` mock; updated `removePageFromIndex` tests; added tests verifying UUID as `_id` and slug stored in document; 28→30 tests
+  - Dropped ES index on temp instance; rebuilt with UUID `_id`s — verified with curl
+- Commits: pending
+- Files Modified:
+  - src/providers/ElasticsearchSearchProvider.ts
+  - src/providers/BasePageProvider.ts
+  - src/providers/FileSystemProvider.ts
+  - src/managers/PageManager.ts
+  - src/types/Provider.ts
+  - src/providers/__tests__/ElasticsearchSearchProvider.test.js
+
 ## 2026-04-13-13
 
 - Agent: Claude Code (Sonnet 4.6)

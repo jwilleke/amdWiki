@@ -160,6 +160,16 @@ abstract class BasePageProvider {
   abstract getAllPages(): Promise<string[]>;
 
   /**
+   * Get all page titles (explicit alias for getAllPages)
+   * Prefer this for new code that only needs page names.
+   * Use getAllPageInfo() when you need uuid/slug/author etc.
+   * @returns {Promise<string[]>} Sorted array of page titles
+   */
+  async getAllPageNames(): Promise<string[]> {
+    return this.getAllPages();
+  }
+
+  /**
    * Get all page info objects
    * @param {PageListOptions} options - List options
    * @returns {Promise<PageInfo[]>} Array of page info objects
@@ -172,6 +182,20 @@ abstract class BasePageProvider {
    * @returns {string|null} Canonical page title or null
    */
   abstract findPage(identifier: string): string | null;
+
+  /**
+   * Get a page by its UUID
+   * @param {string} uuid - Page UUID
+   * @returns {Promise<WikiPage | null>} Page or null if not found
+   */
+  abstract getPageByUUID(uuid: string): Promise<WikiPage | null>;
+
+  /**
+   * Get a page by its slug
+   * @param {string} slug - URL-friendly slug
+   * @returns {Promise<WikiPage | null>} Page or null if not found
+   */
+  abstract getPageBySlug(slug: string): Promise<WikiPage | null>;
 
   /**
    * Refresh internal cache/index

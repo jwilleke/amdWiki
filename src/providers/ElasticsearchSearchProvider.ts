@@ -47,6 +47,7 @@ import { TaggingService } from '../utils/TaggingService';
 interface EsPageDocument {
   name: string;
   title: string;
+  slug: string;
   content: string;
   systemCategory: string;
   systemKeywords: string[];
@@ -70,6 +71,7 @@ const INDEX_MAPPING = {
     properties: {
       name:           { type: 'keyword' as const },
       title:          { type: 'text' as const, analyzer: 'english', fields: { keyword: { type: 'keyword' as const } } },
+      slug:           { type: 'keyword' as const },
       content:        { type: 'text' as const, analyzer: 'english' },
       systemCategory: { type: 'keyword' as const },
       systemKeywords: { type: 'keyword' as const },
@@ -185,7 +187,11 @@ class ElasticsearchSearchProvider extends BaseSearchProvider {
         const page = await pageManager.getPage(name);
         if (!page) continue;
         const doc = this._pageToDoc(name, page.content ?? '', page.metadata);
-        ops.push({ index: { _index: this.indexName, _id: name } });
+        // Use UUID as ES _id — UUIDs are guaranteed unique across the system
+        // (ValidationManager.checkConflicts enforces this on every page save).
+        // Falling back to page name only for legacy pages that pre-date UUID enforcement.
+        const esId = doc.uuid || name;
+        ops.push({ index: { _index: this.indexName, _id: esId } });
         ops.push(doc);
       }
 
@@ -330,10 +336,11 @@ class ElasticsearchSearchProvider extends BaseSearchProvider {
     const metadata = (pageData.metadata as Record<string, unknown>) ?? {};
     const content = typeof pageData.content === 'string' ? pageData.content : '';
     const doc = this._pageToDoc(pageName, content, metadata);
+    const esId = doc.uuid || pageName;
 
     await this.client.index({
       index: this.indexName,
-      id: pageName,
+      id: esId,
       document: doc
     });
 
@@ -346,12 +353,12 @@ class ElasticsearchSearchProvider extends BaseSearchProvider {
 
   async removePageFromIndex(pageName: string): Promise<void> {
     if (!this.client) return;
-    try {
-      await this.client.delete({ index: this.indexName, id: pageName });
-    } catch (err: unknown) {
-      // 404 means page was never indexed — not an error
-      if ((err as { statusCode?: number }).statusCode !== 404) throw err;
-    }
+    // Delete by name field because _id is now UUID — pageName is not the document ID
+    await this.client.deleteByQuery({
+      index: this.indexName,
+      query: { term: { name: pageName } },
+      conflicts: 'proceed'
+    });
   }
 
   // -------------------------------------------------------------------------
@@ -362,12 +369,14 @@ class ElasticsearchSearchProvider extends BaseSearchProvider {
   async getPageSystemKeywords(pageName: string): Promise<string[]> {
     if (!this.client) return [];
     try {
-      const resp = await this.client.get<EsPageDocument>({
+      // Search by name field because _id is now UUID — pageName is not the document ID
+      const resp = await this.client.search<EsPageDocument>({
         index: this.indexName,
-        id: pageName,
+        query: { term: { name: pageName } },
+        size: 1,
         _source: ['systemKeywords'] as unknown as boolean
       });
-      return (resp._source?.systemKeywords ?? []);
+      return resp.hits.hits[0]?._source?.systemKeywords ?? [];
     } catch {
       return [];
     }
@@ -447,12 +456,22 @@ class ElasticsearchSearchProvider extends BaseSearchProvider {
   async suggestSimilarPages(pageName: string, limit: number = 5): Promise<SearchResult[]> {
     if (!this.client) return [];
 
+    // more_like_this requires a document reference — look up the UUID (_id) first
+    const docResp = await this.client.search<EsPageDocument>({
+      index: this.indexName,
+      query: { term: { name: pageName } },
+      size: 1,
+      _source: ['uuid']
+    });
+    const docId = docResp.hits.hits[0]?._id;
+    if (!docId) return [];
+
     const resp = await this.client.search<EsPageDocument>({
       index: this.indexName,
       query: {
         more_like_this: {
           fields: ['title', 'content'],
-          like: [{ _index: this.indexName, _id: pageName }],
+          like: [{ _index: this.indexName, _id: docId }],
           min_term_freq: 1,
           min_doc_freq: 1
         }
@@ -461,7 +480,7 @@ class ElasticsearchSearchProvider extends BaseSearchProvider {
     });
 
     return resp.hits.hits
-      .filter((h: SearchHit<EsPageDocument>) => h._id !== pageName && h._source !== undefined)
+      .filter((h: SearchHit<EsPageDocument>) => h._source?.name !== pageName && h._source !== undefined)
       .slice(0, limit)
       .map((h: SearchHit<EsPageDocument>) => this._hitToResult(h._id ?? '', h._source as EsPageDocument, ''));
   }
@@ -612,6 +631,7 @@ class ElasticsearchSearchProvider extends BaseSearchProvider {
     return {
       name,
       title: toStr(metadata.title) || name,
+      slug: toStr(metadata.slug),
       content,
       systemCategory: toStr(metadata['system-category']),
       systemKeywords: [...existingSystemKeywords, ...autoTagged],
@@ -627,7 +647,7 @@ class ElasticsearchSearchProvider extends BaseSearchProvider {
 
   /** Convert an ES hit to a SearchResult */
   private _hitToResult(
-    id: string,
+    _id: string,
     src: EsPageDocument,
     _query: string,
     highlight?: Record<string, string[]>
@@ -636,8 +656,8 @@ class ElasticsearchSearchProvider extends BaseSearchProvider {
       ?? src.content.substring(0, this.snippetLength);
 
     return {
-      name: id,
-      title: src.title || id,
+      name: src.name,
+      title: src.title || src.name,
       score: 1.0,
       snippet,
       metadata: {

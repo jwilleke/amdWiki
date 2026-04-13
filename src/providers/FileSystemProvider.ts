@@ -405,6 +405,20 @@ class FileSystemProvider extends BasePageProvider {
   }
 
   /**
+   * Get a page by its UUID (delegates to getPage — resolvePageInfo checks uuidIndex first)
+   */
+  async getPageByUUID(uuid: string): Promise<WikiPage | null> {
+    return this.getPage(uuid);
+  }
+
+  /**
+   * Get a page by its slug (delegates to getPage — resolvePageInfo checks slugIndex)
+   */
+  async getPageBySlug(slug: string): Promise<WikiPage | null> {
+    return this.getPage(slug);
+  }
+
+  /**
    * Retrieves the raw markdown content of a page (without frontmatter).
    * @param {string} identifier - Page UUID or title
    * @returns {Promise<string>} The raw markdown content without frontmatter

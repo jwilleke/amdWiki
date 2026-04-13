@@ -129,6 +129,13 @@ export interface PageProvider extends BaseProvider {
   getAllPages(): Promise<string[]>;
 
   /**
+   * Get all page titles (explicit alias for getAllPages)
+   * Prefer this for new code that only needs page names.
+   * @returns Sorted array of page titles
+   */
+  getAllPageNames(): Promise<string[]>;
+
+  /**
    * Get all page info objects
    * @param options - List options
    * @returns Array of page info objects
@@ -141,6 +148,20 @@ export interface PageProvider extends BaseProvider {
    * @returns Canonical page title or null
    */
   findPage(identifier: string): string | null;
+
+  /**
+   * Get a page by its UUID
+   * @param uuid - Page UUID
+   * @returns Page or null if not found
+   */
+  getPageByUUID(uuid: string): Promise<WikiPage | null>;
+
+  /**
+   * Get a page by its slug
+   * @param slug - URL-friendly slug
+   * @returns Page or null if not found
+   */
+  getPageBySlug(slug: string): Promise<WikiPage | null>;
 
   /**
    * Refresh page cache
