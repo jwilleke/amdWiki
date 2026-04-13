@@ -22,6 +22,31 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - [file2.md]
 ```
 
+## 2026-04-13-06
+
+- Agent: Claude Code (Sonnet 4.6)
+- Subject: #506 fix addon imports from src/ → dist/src/ — eliminates side-effect JS emission
+- Key Decision: redirect all real-value and type imports from ../../src/ to ../../dist/src/ so TypeScript finds .d.ts declaration files, emits nothing for core project files; src/ stays clean
+- Current Issue: #506 (closed)
+- Testing:
+  - npm test: 105 suites passed, 2799 tests passed (1 flaky socket hang-up in WikiRoutes.versioning, passes on re-run)
+- Work Done:
+  - Root cause: TypeScript compiles all transitively-imported .ts source files (even via import type) and emits .js side-effects into src/ when outDir is ../..
+  - Changed all ../../src/ imports (both real-value and import type) to ../../dist/src/ in 8 addon source files
+  - After fresh recompile: find src/ -name "*.js" returns nothing — src/ is clean
+  - Both addons load cleanly on restart; Cannot find module errors eliminated structurally not just with recompile workarounds
+  - Closed #506
+- Commits: `464b86ee`
+- Files Modified:
+  - `addons/calendar/index.ts`
+  - `addons/calendar/managers/CalendarDataManager.ts`
+  - `addons/calendar/plugins/CalendarPlugin.ts`
+  - `addons/calendar/routes/admin.ts`
+  - `addons/calendar/routes/api.ts`
+  - `addons/calendar/routes/reservations.ts`
+  - `addons/elasticsearch/index.ts`
+  - `addons/elasticsearch/src/Sist2AssetProvider.ts`
+
 ## 2026-04-13-05
 
 - Agent: Claude Code (Sonnet 4.6)
