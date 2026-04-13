@@ -660,6 +660,23 @@ class SearchManager extends BaseManager {
   }
 
   /**
+   * Get systemKeywords stored in the search index for a specific page.
+   * Returns auto-tagged terms added by TaggingService at index time (#507).
+   * Returns [] if the active provider does not support this operation.
+   */
+  async getPageSystemKeywords(pageName: string): Promise<string[]> {
+    if (!this.provider) return [];
+    const p = this.provider as { getPageSystemKeywords?(n: string): Promise<string[]> };
+    if (typeof p.getPageSystemKeywords !== 'function') return [];
+    try {
+      return await p.getPageSystemKeywords(pageName);
+    } catch (err) {
+      logger.error('[SearchManager] getPageSystemKeywords failed:', err);
+      return [];
+    }
+  }
+
+  /**
    * Search by category only
    *
    * @param {string} category - Category to search for

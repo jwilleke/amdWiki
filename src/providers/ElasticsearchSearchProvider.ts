@@ -350,6 +350,25 @@ class ElasticsearchSearchProvider extends BaseSearchProvider {
   }
 
   // -------------------------------------------------------------------------
+  // getPageSystemKeywords — fetch systemKeywords for a single page from ES
+  // Used by WikiRoutes to show auto-tagged keywords on page view (#507)
+  // -------------------------------------------------------------------------
+
+  async getPageSystemKeywords(pageName: string): Promise<string[]> {
+    if (!this.client) return [];
+    try {
+      const resp = await this.client.get<EsPageDocument>({
+        index: this.indexName,
+        id: pageName,
+        _source: ['systemKeywords'] as unknown as boolean
+      });
+      return (resp._source?.systemKeywords ?? []);
+    } catch {
+      return [];
+    }
+  }
+
+  // -------------------------------------------------------------------------
   // getAllCategories / getAllUserKeywords / getAllSystemKeywords
   // -------------------------------------------------------------------------
 

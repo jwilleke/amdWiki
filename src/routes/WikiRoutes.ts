@@ -1333,6 +1333,14 @@ class WikiRoutes {
         }
       }
 
+      // #507: fetch auto-tagged systemKeywords from ES index (may include terms
+      // not in page frontmatter — auto-tagged at index time by TaggingService).
+      let autoTaggedKeywords: string[] = [];
+      const searchManager = this.engine.getManager('SearchManager') as { getPageSystemKeywords?(n: string): Promise<string[]> } | undefined;
+      if (searchManager && typeof searchManager.getPageSystemKeywords === 'function') {
+        autoTaggedKeywords = await searchManager.getPageSystemKeywords(pageName);
+      }
+
       res.render(template, {
         ...templateData,
         pageName,
@@ -1342,6 +1350,7 @@ class WikiRoutes {
         sectionEditingEnabled,
         metadata,
         keywordUris,
+        autoTaggedKeywords,
         pageIsPrivate: !canAccessPrivate ? false : await this._isPagePrivate(pageName),
         versionInfo,
         lastModified: metadata?.lastModified,
