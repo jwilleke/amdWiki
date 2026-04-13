@@ -111,9 +111,14 @@ check_build_needed() {
   echo "$STALE_SRC" | while IFS= read -r f; do echo "     ${f#$SCRIPT_DIR/}"; done
   echo ""
 
-  # Prompt user
-  printf "   Build now? [Y/n] "
-  read -r BUILD_ANSWER
+  # Prompt user (skip in CI or non-interactive contexts)
+  if [ -t 0 ] && [ -z "${CI:-}" ]; then
+    printf "   Build now? [Y/n] "
+    read -r BUILD_ANSWER
+  else
+    echo "   Non-interactive mode — building automatically..."
+    BUILD_ANSWER="Y"
+  fi
   case "${BUILD_ANSWER:-Y}" in
     [Yy]*)
       if [ "$context" != "starting" ]; then
@@ -486,12 +491,70 @@ case "${1:-}" in
     echo "✅ Server unlocked. Run: ./server.sh start"
     ;;
 
+  setup)
+    # Parse --config flag
+    SETUP_CONFIG=""
+    SETUP_ARGS=("${@:2}")
+    while [ ${#SETUP_ARGS[@]} -gt 0 ]; do
+      case "${SETUP_ARGS[0]}" in
+        --config)
+          SETUP_CONFIG="${SETUP_ARGS[1]:-}"
+          SETUP_ARGS=("${SETUP_ARGS[@]:2}")
+          ;;
+        *)
+          SETUP_ARGS=("${SETUP_ARGS[@]:1}")
+          ;;
+      esac
+    done
+
+    echo "🔧 ngdpbase setup"
+    echo ""
+
+    # Step 1: Install dependencies
+    echo "📦 Installing dependencies..."
+    if ! npm install; then
+      echo "❌ npm install failed"
+      exit 1
+    fi
+    echo ""
+
+    # Step 2: Build
+    echo "🔨 Building..."
+    if ! npm run build; then
+      echo "❌ Build failed — fix errors before starting"
+      exit 1
+    fi
+    echo ""
+
+    # Step 3: Place custom config if supplied
+    if [ -n "$SETUP_CONFIG" ]; then
+      if [ ! -f "$SETUP_CONFIG" ]; then
+        echo "❌ Config file not found: $SETUP_CONFIG"
+        exit 1
+      fi
+      _FAST_SETUP="${FAST_STORAGE:-${INSTANCE_DATA_FOLDER:-./data}}"
+      _CONFIG_DIR="$_FAST_SETUP/config"
+      mkdir -p "$_CONFIG_DIR"
+      cp "$SETUP_CONFIG" "$_CONFIG_DIR/app-custom-config.json"
+      echo "✅ Config installed: $_CONFIG_DIR/app-custom-config.json"
+      unset _FAST_SETUP _CONFIG_DIR
+      echo ""
+      export HEADLESS_INSTALL=true
+    fi
+
+    # Step 4: Start server
+    "$0" start
+    ;;
+
   *)
     echo "ngdpbase Server Management"
     echo ""
-    echo "Usage: $0 {start|stop|restart|status|logs|env|unlock} [environment]"
+    echo "Usage: $0 {setup|start|stop|restart|status|logs|env|unlock} [environment]"
     echo ""
     echo "Commands:"
+    echo "  setup        - Fresh-clone setup: install deps, build, and start"
+    echo "                 Options: --config <path>  supply app-custom-config.json"
+    echo "                          (implies HEADLESS_INSTALL=true — no wizard)"
     echo "  start [env]  - Start server (validates: no existing process, port available)"
     echo "                 env: dev, prod (default: production)"
     echo "  stop         - Stop server gracefully (with force-kill fallback)"
