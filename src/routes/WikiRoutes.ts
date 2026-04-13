@@ -1317,6 +1317,22 @@ class WikiRoutes {
       const sectionEditingEnabled =
         canEdit && !!userContext?.preferences?.['display.sectionEditing'];
 
+      // Phase 3 (#424): pre-resolve keyword URIs for microdata itemid attributes.
+      // CatalogManager.resolveUri() returns null until a provider populates URIs.
+      const keywordUris: Record<string, string> = {};
+      const catalogManager = this.engine.getManager('CatalogManager') as { resolveUri(term: string): Promise<string | null> } | undefined;
+      if (catalogManager && metadata) {
+        const allKws = [
+          ...((metadata['user-keywords'] as string[] | undefined) ?? []),
+          ...((metadata['system-keywords'] as string[] | undefined) ?? []),
+          ...(metadata['system-category'] ? [metadata['system-category'] as string] : [])
+        ];
+        for (const kw of allKws) {
+          const uri = await catalogManager.resolveUri(kw);
+          if (uri) keywordUris[kw] = uri;
+        }
+      }
+
       res.render(template, {
         ...templateData,
         pageName,
@@ -1325,6 +1341,7 @@ class WikiRoutes {
         canEdit,
         sectionEditingEnabled,
         metadata,
+        keywordUris,
         pageIsPrivate: !canAccessPrivate ? false : await this._isPagePrivate(pageName),
         versionInfo,
         lastModified: metadata?.lastModified,

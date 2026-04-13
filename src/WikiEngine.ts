@@ -33,6 +33,7 @@ import AuthManager from './managers/AuthManager';
 import EmailManager from './managers/EmailManager';
 import MetricsManager from './managers/MetricsManager';
 import BackgroundJobManager from './managers/BackgroundJobManager';
+import CatalogManager from './managers/CatalogManager';
 
 // Parsers
 import MarkupParser from './parsers/MarkupParser';
@@ -162,6 +163,12 @@ class WikiEngine extends Engine {
       maxFiles: configManager.getProperty('ngdpbase.logging.max-files', 5) as number
     });
     logger.info('Logger reconfigured from ConfigurationManager');
+
+    // 1b. Initialize CatalogManager right after ConfigurationManager so all later
+    //     managers (including addons) can call getManager('CatalogManager')
+    const catalogManager = new CatalogManager(this);
+    this.registerManager('CatalogManager', catalogManager);
+    await catalogManager.initialize();
 
     // 2. Initialize CacheManager early so other managers can use caching
     const cacheManager = new CacheManager(this);

@@ -141,6 +141,7 @@ class ValidationManager extends BaseManager {
   private requiredMetadataFields: string[];
   private validSystemCategories: string[];
   private systemCategoriesConfig: SystemCategoriesConfig | null;
+  private validSystemKeywords: string[];
   private maxUserKeywords!: number;
 
   /**
@@ -153,9 +154,10 @@ class ValidationManager extends BaseManager {
   constructor(engine: WikiEngine) {
     super(engine);
     this.requiredMetadataFields = ['title', 'uuid', 'slug', 'system-category', 'user-keywords', 'lastModified'];
-    // Populated from config in initialize() via loadSystemCategories()
+    // Populated from config in initialize() via loadSystemCategories() / loadSystemKeywords()
     this.validSystemCategories = [];
     this.systemCategoriesConfig = null;
+    this.validSystemKeywords = [];
   }
 
   /**
@@ -174,8 +176,9 @@ class ValidationManager extends BaseManager {
       ? (configManager.getProperty('ngdpbase.maximum.user-keywords', 5) as number)
       : (config.maxUserKeywords as number) || 5;
 
-    // Load system categories from configuration
+    // Load system categories and keywords from configuration
     this.loadSystemCategories(configManager);
+    this.loadSystemKeywords(configManager);
 
     logger.info('ValidationManager initialized');
     logger.info(`Loaded ${this.validSystemCategories.length} system categories: ${this.validSystemCategories.join(', ')}`);
@@ -221,6 +224,44 @@ class ValidationManager extends BaseManager {
       logger.error('Error loading system categories from configuration:', (error as Error).message);
       logger.warn('Falling back to hardcoded system categories');
     }
+  }
+
+  /**
+   * Load system keywords from ConfigurationManager.
+   * Mirrors loadSystemCategories() — populates this.validSystemKeywords.
+   * @param {ConfigurationManager | undefined} configManager
+   */
+  loadSystemKeywords(configManager: ConfigurationManager | undefined): void {
+    if (!configManager) {
+      logger.warn('[ValidationManager] ConfigurationManager not available, system keywords not loaded');
+      return;
+    }
+
+    try {
+      const raw = configManager.getProperty('ngdpbase.system-keywords', null) as Record<string, { label?: string; enabled?: boolean }> | null;
+
+      if (raw && typeof raw === 'object') {
+        const keywords: string[] = [];
+        for (const [key, cfg] of Object.entries(raw)) {
+          if (cfg.enabled !== false) {
+            keywords.push(cfg.label ?? key);
+          }
+        }
+        this.validSystemKeywords = keywords;
+        logger.info(`[ValidationManager] Loaded ${keywords.length} system keywords from configuration`);
+      } else {
+        logger.warn('[ValidationManager] System keywords configuration not found');
+      }
+    } catch (error) {
+      logger.error('[ValidationManager] Error loading system keywords:', (error as Error).message);
+    }
+  }
+
+  /**
+   * Get all valid system keyword strings.
+   */
+  getValidSystemKeywords(): string[] {
+    return [...this.validSystemKeywords];
   }
 
   /**
@@ -432,6 +473,27 @@ class ValidationManager extends BaseManager {
           if (typeof keyword !== 'string' || keyword.trim().length === 0) {
             validationErrors.push('All user keywords must be non-empty strings');
             break;
+          }
+        }
+      }
+    }
+
+    // System keywords validation (optional field — warn only, never block save)
+    if (metadata['system-keywords'] !== undefined) {
+      if (!Array.isArray(metadata['system-keywords'])) {
+        if (result.warnings) result.warnings.push('system-keywords must be an array');
+      } else {
+        for (const kw of metadata['system-keywords']) {
+          if (typeof kw !== 'string' || kw.trim().length === 0) {
+            if (result.warnings) result.warnings.push('All system keywords must be non-empty strings');
+            break;
+          }
+        }
+        if (this.validSystemKeywords.length > 0) {
+          const unknown = (metadata['system-keywords'] as string[])
+            .filter(kw => !this.validSystemKeywords.map(v => v.toLowerCase()).includes(kw.toLowerCase()));
+          if (unknown.length > 0 && result.warnings) {
+            result.warnings.push(`Unknown system keyword(s): ${unknown.join(', ')} — not in configured vocabulary`);
           }
         }
       }

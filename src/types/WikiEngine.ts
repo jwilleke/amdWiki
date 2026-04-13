@@ -34,7 +34,8 @@ export type ManagerName =
   | 'BackupManager'
   | 'CacheManager'
   | 'AuditManager'
-  | 'NotificationManager';
+  | 'NotificationManager'
+  | 'CatalogManager';
 
 /**
  * Manager registry - maps manager names to manager instances

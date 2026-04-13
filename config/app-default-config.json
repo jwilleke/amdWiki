@@ -534,7 +534,7 @@
       "enabled": true
     }
   },
-  "_comment_system_keywords": "System keyword definitions for controlled vocabulary",
+  "_comment_system_keywords": "System keyword definitions for controlled vocabulary (operator-curated; subject + workflow terms)",
   "ngdpbase.system-keywords": {
     "general": {
       "label": "general",
@@ -542,9 +542,85 @@
       "default": true,
       "category": "content-type",
       "enabled": true
+    },
+    "draft": {
+      "label": "draft",
+      "description": "Work in progress content",
+      "category": "workflow-status",
+      "enabled": true
+    },
+    "review": {
+      "label": "review",
+      "description": "Content under review",
+      "category": "workflow-status",
+      "enabled": true
+    },
+    "published": {
+      "label": "published",
+      "description": "Finalized and approved content",
+      "category": "workflow-status",
+      "enabled": true
+    },
+    "medicine": {
+      "label": "medicine",
+      "description": "Medical and healthcare-related content",
+      "category": "subject",
+      "enabled": true
+    },
+    "geology": {
+      "label": "geology",
+      "description": "Geological and earth science content",
+      "category": "subject",
+      "enabled": true
+    },
+    "meteorology": {
+      "label": "meteorology",
+      "description": "Weather and atmospheric science content",
+      "category": "subject",
+      "enabled": true
+    },
+    "oceanography": {
+      "label": "oceanography",
+      "description": "Ocean and marine science content",
+      "category": "subject",
+      "enabled": true
+    },
+    "psychology": {
+      "label": "psychology",
+      "description": "Psychological and behavioral science content",
+      "category": "subject",
+      "enabled": true
+    },
+    "sociology": {
+      "label": "sociology",
+      "description": "Social science and society-related content",
+      "category": "subject",
+      "enabled": true
+    },
+    "anthropology": {
+      "label": "anthropology",
+      "description": "Human culture and society content",
+      "category": "subject",
+      "enabled": true
+    },
+    "economics": {
+      "label": "economics",
+      "description": "Economic and financial content",
+      "category": "subject",
+      "enabled": true
+    },
+    "political-science": {
+      "label": "political-science",
+      "description": "Political science and governance content",
+      "category": "subject",
+      "enabled": true
     }
   },
-  "_comment_user_keywords": "User keyword definitions for flexible content tagging and organization",
+  "_comment_catalog_ai": "AI-based term suggestion (Phase 4 — requires an LLM addon to activate)",
+  "ngdpbase.catalog.ai.enabled": false,
+  "ngdpbase.catalog.ai.provider": null,
+  "ngdpbase.catalog.ai.threshold": 0.7,
+  "_comment_user_keywords": "User keyword definitions for flexible content tagging (user-invented tags; draft/review/published/subject terms are deprecated here — see system-keywords)",
   "ngdpbase.user-keywords": {
     "default": {
       "label": "default",
