@@ -740,6 +740,20 @@ class AddonsManager extends BaseManager {
   }
 
   /**
+   * Return the `pages/` directory path for each enabled addon that has one.
+   * Used by Required Pages Sync to surface addon pages alongside required pages.
+   */
+  getEnabledAddonPagesDirectories(): Array<{ name: string; pagesDir: string }> {
+    const result: Array<{ name: string; pagesDir: string }> = [];
+    for (const [name, addon] of this.addons) {
+      if (addon.enabled) {
+        result.push({ name, pagesDir: path.join(addon.path, 'pages') });
+      }
+    }
+    return result;
+  }
+
+  /**
    * Check if an add-on exists (discovered)
    */
   hasAddon(addonName: string): boolean {

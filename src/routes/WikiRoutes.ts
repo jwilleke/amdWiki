@@ -5742,12 +5742,80 @@ class WikiRoutes {
         titleDrift: comparison.filter(p => p.titleDrift).length
       };
 
+      // Scan enabled addon pages/ directories using the same comparison logic
+      const addonComparison: Array<{
+        addonName: string;
+        uuid: string;
+        title: string;
+        slug: string;
+        lastModified: string;
+        status: 'new' | 'modified' | 'current';
+        userModified: boolean;
+      }> = [];
+
+      const addonsManager = this.engine.getManager('AddonsManager');
+      if (addonsManager) {
+        const addonDirs = addonsManager.getEnabledAddonPagesDirectories();
+        for (const { name: addonName, pagesDir } of addonDirs) {
+          if (!(await fse.pathExists(pagesDir))) continue;
+          const addonFiles: string[] = (await fse.readdir(pagesDir) as string[]).filter((f: string) => f.endsWith('.md'));
+
+          for (const file of addonFiles) {
+            const uuid = path.basename(file, '.md');
+            const sourcePath = path.join(pagesDir, file);
+            const sourceContent: string = await fse.readFile(sourcePath, 'utf8');
+
+            let title = uuid;
+            let slug = '';
+            let lastModified = '';
+            try {
+              const { data } = matter(sourceContent);
+              title = (data.title as string) || uuid;
+              slug = (data.slug as string) || '';
+              lastModified = (data.lastModified as string) || '';
+            } catch { /* use defaults */ }
+            if (!lastModified) {
+              try {
+                const stat = await fse.stat(sourcePath);
+                lastModified = stat.mtime.toISOString();
+              } catch { /* leave empty */ }
+            }
+
+            const destPath = path.join(pagesDirResolved, file);
+            let status: 'new' | 'modified' | 'current';
+            let userModified = false;
+
+            if (!(await fse.pathExists(destPath))) {
+              status = 'new';
+            } else {
+              const destContent: string = await fse.readFile(destPath, 'utf8');
+              const { data: destData } = matter(destContent);
+              userModified = destData['user-modified'] === true;
+              status = normalizeForCompare(sourceContent) !== normalizeForCompare(destContent)
+                ? 'modified'
+                : 'current';
+            }
+
+            addonComparison.push({ addonName, uuid, title, slug, lastModified, status, userModified });
+          }
+        }
+        addonComparison.sort((a, b) => statusOrder[a.status] - statusOrder[b.status]);
+      }
+
+      const addonCounts = {
+        new: addonComparison.filter(p => p.status === 'new').length,
+        modified: addonComparison.filter(p => p.status === 'modified').length,
+        current: addonComparison.filter(p => p.status === 'current').length
+      };
+
       const commonData = await this.getCommonTemplateData(req);
       return res.render('admin-required-pages', {
         ...commonData,
         title: 'Required Pages Sync',
         comparison,
         counts,
+        addonComparison,
+        addonCounts,
         csrfToken: req.session.csrfToken,
         successMessage: req.query.success || null,
         errorMessage: req.query.error || null
@@ -5811,6 +5879,24 @@ class WikiRoutes {
 
       await fse.ensureDir(pagesDirResolved);
 
+      // Build a combined UUID → source-file-path map covering both required-pages/ and
+      // enabled addon pages/ directories. Required-pages takes precedence on collision.
+      const sourceFileMap = new Map<string, string>();
+      const addonsManagerPost = this.engine.getManager('AddonsManager');
+      if (addonsManagerPost) {
+        for (const { pagesDir } of addonsManagerPost.getEnabledAddonPagesDirectories()) {
+          if (await fse.pathExists(pagesDir)) {
+            for (const f of (await fse.readdir(pagesDir) as string[])) {
+              if (f.endsWith('.md')) sourceFileMap.set(path.basename(f, '.md'), path.join(pagesDir, f));
+            }
+          }
+        }
+      }
+      // Required-pages overrides addon pages on UUID collision
+      for (const f of (await fse.readdir(requiredDirResolved) as string[])) {
+        if (f.endsWith('.md')) sourceFileMap.set(path.basename(f, '.md'), path.join(requiredDirResolved, f));
+      }
+
       const synced: string[] = [];
       const protected_: string[] = [];
 
@@ -5831,7 +5917,7 @@ class WikiRoutes {
       // skip them and return them in the protected list so the caller can inform the user.
       for (const uuid of uuids) {
         const fileName = `${uuid}.md`;
-        const sourcePath = path.join(requiredDirResolved, fileName);
+        const sourcePath = sourceFileMap.get(uuid) ?? path.join(requiredDirResolved, fileName);
         const destPath = path.join(pagesDirResolved, fileName);
 
         if (await fse.pathExists(sourcePath)) {

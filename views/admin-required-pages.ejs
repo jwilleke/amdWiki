@@ -281,6 +281,119 @@
         </div>
     </div>
 
+    <!-- Addon Pages Section -->
+    <% if (typeof addonComparison !== 'undefined' && addonComparison.length > 0) { %>
+    <div class="row mt-2">
+        <div class="col-12">
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <div>
+                        <h5 class="mb-0"><i class="fas fa-puzzle-piece me-2"></i>Addon Pages</h5>
+                        <small class="text-muted">Pages shipped with enabled addons —
+                            <span class="badge bg-primary"><%= addonCounts.new %> New</span>
+                            <span class="badge bg-warning text-dark"><%= addonCounts.modified %> Modified</span>
+                            <span class="badge bg-success"><%= addonCounts.current %> Current</span>
+                        </small>
+                    </div>
+                    <% if (addonCounts.new > 0 || addonCounts.modified > 0) { %>
+                    <button class="btn btn-sm btn-warning" onclick="syncAddonOutdated()"
+                            title="Sync all new and modified addon pages">
+                        <i class="fas fa-sync me-1"></i> Sync All Outdated (<%= addonCounts.new + addonCounts.modified %>)
+                    </button>
+                    <% } %>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0" id="addonPagesTable">
+                            <thead class="table-light">
+                                <tr>
+                                    <th style="width:40px;">
+                                        <input type="checkbox" id="selectAllAddonCheck"
+                                               onchange="selectAllAddon(this.checked)" title="Select all addon pages">
+                                    </th>
+                                    <th>Title</th>
+                                    <th>Addon</th>
+                                    <th>Slug</th>
+                                    <th>Status</th>
+                                    <th>Source Modified</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% addonComparison.forEach(page => { %>
+                                <tr data-uuid="<%= page.uuid %>" data-status="<%= page.status %>"
+                                    data-user-modified="<%= page.userModified ? 'true' : 'false' %>"
+                                    class="addon-row">
+                                    <td>
+                                        <% if (page.status !== 'current') { %>
+                                        <input type="checkbox" class="addon-checkbox" value="<%= page.uuid %>">
+                                        <% } %>
+                                    </td>
+                                    <td>
+                                        <strong><%= page.title %></strong>
+                                        <br><small class="text-muted font-monospace"><%= page.uuid %></small>
+                                    </td>
+                                    <td><span class="badge bg-secondary"><%= page.addonName %></span></td>
+                                    <td><code><%= page.slug || '—' %></code></td>
+                                    <td>
+                                        <% if (page.status === 'new') { %>
+                                            <span class="badge bg-primary">New</span>
+                                        <% } else if (page.status === 'modified') { %>
+                                            <span class="badge bg-warning text-dark">Modified</span>
+                                            <% if (page.userModified) { %>
+                                            <br><span class="badge bg-secondary mt-1">
+                                                <i class="fas fa-user-edit me-1"></i>User Edited
+                                            </span>
+                                            <% } %>
+                                        <% } else { %>
+                                            <% if (page.userModified) { %>
+                                            <span class="badge bg-secondary">
+                                                <i class="fas fa-user-edit me-1"></i>User Edited
+                                            </span>
+                                            <% } %>
+                                            <span class="badge bg-success">Current</span>
+                                        <% } %>
+                                    </td>
+                                    <td><small class="text-muted"><%= page.lastModified || '—' %></small></td>
+                                    <td>
+                                        <% if (page.status === 'modified') { %>
+                                        <button class="btn btn-sm btn-outline-info"
+                                                onclick="showDiff('<%= page.uuid %>', '<%= page.title.replace(/'/g, '\\\'') %>')">
+                                            <i class="fas fa-code-branch"></i> Diff
+                                        </button>
+                                        <% } %>
+                                        <% if (page.status !== 'current') { %>
+                                        <% if (page.userModified) { %>
+                                        <button class="btn btn-sm btn-outline-danger"
+                                                onclick="syncOne('<%= page.uuid %>', '<%= page.title.replace(/'/g, '\\\'') %>', true)"
+                                                title="This page was edited in the wiki UI. Syncing will overwrite those edits.">
+                                            <i class="fas fa-sync-alt"></i> Force Sync
+                                        </button>
+                                        <% } else { %>
+                                        <button class="btn btn-sm btn-outline-primary"
+                                                onclick="syncOne('<%= page.uuid %>', '<%= page.title.replace(/'/g, '\\\'') %>')">
+                                            <i class="fas fa-sync-alt"></i> Sync
+                                        </button>
+                                        <% } %>
+                                        <% } %>
+                                        <% if (page.slug) { %>
+                                        <a href="/view/<%= encodeURIComponent(page.slug) %>"
+                                           class="btn btn-sm btn-outline-secondary" target="_blank">
+                                            <i class="fas fa-external-link-alt"></i>
+                                        </a>
+                                        <% } %>
+                                    </td>
+                                </tr>
+                                <% }); %>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <% } %>
+
     <!-- Diff Modal -->
     <div class="modal fade" id="diffModal" tabindex="-1" aria-labelledby="diffModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-xl modal-dialog-scrollable">
@@ -396,6 +509,20 @@ function selectAll(checked) {
     if (master) master.checked = checked;
 }
 
+function selectAllAddon(checked) {
+    document.querySelectorAll('.addon-checkbox').forEach(cb => cb.checked = checked);
+    const master = document.getElementById('selectAllAddonCheck');
+    if (master) master.checked = checked;
+}
+
+async function syncAddonOutdated() {
+    const uuids = Array.from(document.querySelectorAll('.addon-row[data-status="new"], .addon-row[data-status="modified"]'))
+        .filter(row => row.dataset.userModified !== 'true')
+        .map(row => row.dataset.uuid);
+    if (uuids.length === 0) { showToast('No addon pages to sync.'); return; }
+    await doSync(uuids, `Syncing ${uuids.length} addon page${uuids.length !== 1 ? 's' : ''}…`);
+}
+
 function getUuidsByStatus(status) {
     const uuids = [];
     document.querySelectorAll('tr[data-status]').forEach(row => {
@@ -413,7 +540,7 @@ function getUuidsByStatus(status) {
 }
 
 function getSelectedUuids() {
-    return Array.from(document.querySelectorAll('.page-checkbox:checked')).map(cb => cb.value);
+    return Array.from(document.querySelectorAll('.page-checkbox:checked, .addon-checkbox:checked')).map(cb => cb.value);
 }
 
 async function syncOne(uuid, title, force = false) {
