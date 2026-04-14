@@ -22,6 +22,25 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - [file2.md]
 ```
 
+## 2026-04-14-15
+
+- Agent: Claude Code (Sonnet 4.6)
+- Subject: Required-pages documentation overhaul (#511)
+- Key Decision: "wiki" branding replaced with "page"/"platform"/"site" everywhere except proper nouns (JSPWiki, WikiVariables, WikiStyle, WikiRoutes); excluded pages (LeftMenu, Footer, Welcome, Customizing the Left Menu, Customizing the Footer, Customizing Left Menu and Footer) do not get ReferringPagesPlugin footer
+- Current Issue: #511 (closed)
+- Testing:
+  - No code changes — docs only
+- Work Done:
+  - Replaced "wiki" branding → "page", "platform", "site" throughout all required-pages
+  - Converted all `## Related Pages` / `## See Also` / `## Related` static-link sections to inline references in body text
+  - Fixed `# Overview` headings → proper page-title headings
+  - Fixed ` ```wiki ` code fence language tags → ` ``` ` (no language tag)
+  - Removed Version/Audience/Last Updated blocks from page bodies
+  - Added missing `## More Information` / ReferringPagesPlugin footers where absent
+- Commits: 5e4d4e38
+- Files Modified:
+  - required-pages/*.md (63 files)
+
 ## 2026-04-13-14
 
 - Agent: Claude Code (Sonnet 4.6)
