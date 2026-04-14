@@ -53,7 +53,7 @@
     "lint:ci": "npm run lint:code && npm run lint:md",
     "format": "prettier --write \"src/**/*.ts\"",
     "format:check": "prettier --check \"src/**/*.ts\"",
-    "clean": "rm -rf dist .tsbuildinfo",
+    "clean": "rm -rf dist .tsbuildinfo && find src -name '*.js' -not -path '*/__tests__/*' -delete && find src -name '*.js.map' -not -path '*/__tests__/*' -delete",
     "prebuild": "npm run clean"
   },
   "dependencies": {
@@ -171,8 +171,8 @@
       "^.+\\.js$": "babel-jest"
     },
     "moduleFileExtensions": [
-      "js",
       "ts",
+      "js",
       "json"
     ]
   },
