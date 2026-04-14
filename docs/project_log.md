@@ -22,6 +22,27 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - [file2.md]
 ```
 
+## 2026-04-14-16
+
+- Agent: Claude Code (Sonnet 4.6)
+- Subject: Fix broken ToC anchor links in required-pages (#500 follow-up)
+- Key Decision: Two separate bugs: (1) `[text](#anchor)` Markdown syntax works via Showdown's `(?!\()` lookahead but `[text|#anchor]` JSPWiki syntax is the explicit form; (2) Showdown `ghHeaderIds` strips all non-alphanumeric chars — "Item Detail Page" → `id="itemdetailpage"` instead of `id="item-detail-page"`. Fixed by adding `showdown-heading-ids` output extension using `headingSlug()` algorithm.
+- Current Issue: (closed)
+- Testing:
+  - 328 tests passed (RenderingManager, MarkupParser, SectionUtils suites)
+- Work Done:
+  - Converted `[text](#anchor)` Markdown-style anchor links → `[text|#anchor]` JSPWiki pipe syntax in 3 files (Media Management, Private Pages, Frontmatter)
+  - Added `src/extensions/showdown-heading-ids.ts` — output extension that replaces Showdown-generated heading IDs with GitHub-standard slugs
+  - Wired `showdownHeadingIds` into `RenderingManager` converter extensions
+  - Verified all anchor links match headings via slug comparison script
+- Commits: f757ea03 (anchor syntax), c72ad879 (heading IDs)
+- Files Modified:
+  - src/extensions/showdown-heading-ids.ts (new)
+  - src/managers/RenderingManager.ts
+  - required-pages/e36d72ac-3d76-4fc8-9e55-47dfeb09d456.md
+  - required-pages/2586c69b-a604-4fcd-95a4-591ca45deacb.md
+  - required-pages/4a266851-f3cd-4ba6-bbbe-5a408f3adf72.md
+
 ## 2026-04-14-15
 
 - Agent: Claude Code (Sonnet 4.6)
