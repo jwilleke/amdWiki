@@ -35,9 +35,9 @@ audience:
 
 || Item || Description ||
 | [Page History] | View the revision history of the page |
-| Page Source | View the raw wiki markup source |
+| Page Source | View the raw markup source |
 | [Page Statistics] | View access and metadata statistics |
-| [Recent Changes] | View recently changed pages across the wiki |
+| [Recent Changes] | View recently changed pages across the platform |
 
 ## More Information
 

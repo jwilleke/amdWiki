@@ -10,13 +10,13 @@ author: admin
 ---
 # ImagePlugin
 
-[{$pagename}] is a [Plugin] allows you to embed images in pages with flexible layout and display options. It provides JSPWiki-compatible syntax with enhanced features for modern web layouts.
+The **ImagePlugin** embeds images in pages with flexible layout and display options. See [Plugins] for a complete list of available plugins.
 
 ## Basic Syntax
 
-```wiki
+```
 [{Image src='path/to/image.jpg' caption='My Image'}]
-```wiki
+```
 
 ## Parameters
 
@@ -51,11 +51,13 @@ The `display` parameter controls how the image interacts with surrounding text:
 Allows text to wrap around the image. Best used with `align='left'` or `align='right'`.
 
 **Example:**
-```wiki
+
+```
 [{Image src='/attachments/photo.jpg' align='left' display='float' caption='Text wraps around this image'}]
-```wiki
+```
 
 **Behavior:**
+
 - Image floats to the specified side
 - Text flows around the image
 - Good for inline illustrations in articles
@@ -65,11 +67,13 @@ Allows text to wrap around the image. Best used with `align='left'` or `align='r
 Image in its own block, no text wrapping. Text stays above and below the image.
 
 **Example:**
-```wiki
+
+```
 [{Image src='/attachments/photo.jpg' align='left' display='block' caption='Image on left, but no text wrapping'}]
-```wiki
+```
 
 **Behavior:**
+
 - Image positioned according to `align` parameter
 - No text wrapping - text appears above and below
 - Good for when you want clear separation
@@ -79,11 +83,13 @@ Image in its own block, no text wrapping. Text stays above and below the image.
 Image flows inline with text like a word in a sentence.
 
 **Example:**
-```wiki
+
+```
 Click the [{Image src='/icon.png' display='inline'}] icon to continue.
-```wiki
+```
 
 **Behavior:**
+
 - Image sits on the text baseline
 - Flows with text naturally
 - Good for icons and small inline images
@@ -93,11 +99,13 @@ Click the [{Image src='/icon.png' display='inline'}] icon to continue.
 Full-width image that spans the entire container width.
 
 **Example:**
-```wiki
+
+```
 [{Image src='/attachments/banner.jpg' display='full' caption='Full-width hero image'}]
-```wiki
+```
 
 **Behavior:**
+
 - Takes up 100% of container width
 - Height scales proportionally
 - `align` parameter is ignored
@@ -117,44 +125,44 @@ The `align` parameter works with all display modes:
 
 ### Article Image with Text Wrapping
 
-```wiki
+```
 [{Image src='/attachments/article-photo.jpg' align='left' caption='Figure 1: Research results' width='300'}]
 
 Lorem ipsum dolor sit amet, consectetur adipiscing elit. The image floats to the left
 and text wraps around it naturally...
-```wiki
+```
 
 ### Standalone Image (No Text Wrap)
 
-```wiki
+```
 [{Image src='/attachments/diagram.jpg' align='center' display='block' caption='System Architecture Diagram'}]
 
 The diagram above shows...
-```wiki
+```
 
 ### Full-Width Banner
 
-```wiki
-[{Image src='/attachments/hero-banner.jpg' display='full' caption='Welcome to Our Wiki'}]
-```wiki
+```
+[{Image src='/attachments/hero-banner.jpg' display='full' caption='Welcome Banner'}]
+```
 
 ### Inline Icon
 
-```wiki
+```
 Click the [{Image src='/icons/edit.png' display='inline' alt='edit icon'}] button to edit this page.
-```wiki
+```
 
 ### Linked Image
 
-```wiki
+```
 [{Image src='/attachments/thumbnail.jpg' link='https://example.com' caption='Click to visit website'}]
-```wiki
+```
 
 ### Image with Border and Styling
 
-```wiki
+```
 [{Image src='/attachments/photo.jpg' border='2' style='border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);' caption='Styled image'}]
-```wiki
+```
 
 ## Source Types
 
@@ -168,9 +176,9 @@ Click the [{Image src='/icons/edit.png' display='inline' alt='edit icon'}] butto
 
 ### Embedding a Media Library Photo
 
-If your wiki has the [Media] feature enabled, you can reference photos from the library without uploading them:
+If the [Media] feature is enabled, you can reference photos from the library without uploading them:
 
-```wiki
+```
 [{Image src='media://IMG_1234.jpg' caption='Family Trip 2024' align='center'}]
 [{Image src='media://DSC_0042.jpg' align='left' display='float' caption='Sunset'}]
 ```
@@ -179,7 +187,7 @@ If your wiki has the [Media] feature enabled, you can reference photos from the 
 
 When you upload an image through the [Attachments] system, simply use its filename — the system resolves it automatically:
 
-```wiki
+```
 [{Image src='photo.jpg' caption='Uploaded image'}]
 ```
 
@@ -194,9 +202,11 @@ The attachment system handles hash-based storage, deduplication, and page mentio
 3. For decorative images, use `alt=''` (empty string)
 
 **Example:**
-```wiki
+
+```
 [{Image src='/photo.jpg' caption='Team photo at conference'}]
-```wiki
+```
+
 This automatically uses "Team photo at conference" as the alt text.
 
 ### Caption Best Practices
@@ -209,15 +219,15 @@ This automatically uses "Team photo at conference" as the alt text.
 
 Use percentage-based widths for responsive images:
 
-```wiki
+```
 [{Image src='/photo.jpg' width='100%' caption='Responsive image'}]
-```wiki
+```
 
 Or use the `display='full'` mode for full-width responsive images:
 
-```wiki
+```
 [{Image src='/photo.jpg' display='full' caption='Full-width responsive'}]
-```wiki
+```
 
 ## Performance Tips
 
@@ -229,38 +239,42 @@ Or use the `display='full'` mode for full-width responsive images:
 ## Examples Gallery
 
 ### Scientific Diagram
-```wiki
+
+```
 [{Image src='/attachments/nerve-action-potential.jpg'
   align='left'
   display='block'
   caption='Nerve Action Potentials'
   width='400'
   border='1'}]
-```wiki
+```
 
 ### Hero Banner
-```wiki
+
+```
 [{Image src='/attachments/banner.jpg'
   display='full'
   caption='Welcome to ngdpbase'}]
-```wiki
+```
 
 ### Thumbnail Grid (Manual)
-```wiki
+
+```
 [{Image src='/thumb1.jpg' width='200' style='display: inline-block; margin: 10px;'}]
 [{Image src='/thumb2.jpg' width='200' style='display: inline-block; margin: 10px;'}]
 [{Image src='/thumb3.jpg' width='200' style='display: inline-block; margin: 10px;'}]
-```wiki
+```
 
 ### Article Illustration
-```wiki
+
+```
 [{Image src='/illustration.jpg'
   align='right'
   display='float'
   width='300'
   caption='Figure 2: Process flow'
   style='margin-left: 20px; border-radius: 8px;'}]
-```wiki
+```
 
 ## Troubleshooting
 
@@ -274,6 +288,7 @@ Or use the `display='full'` mode for full-width responsive images:
 ### Text Not Wrapping
 
 If text isn't wrapping around your image:
+
 1. Use `display='float'` explicitly
 2. Ensure `align='left'` or `align='right'` is set
 3. Check that there's enough text content to wrap
@@ -290,33 +305,9 @@ If text isn't wrapping around your image:
 2. **Verify plugin execution** - check browser console for errors
 3. **Test simple case** - try `caption='test'` to isolate issue
 
-## Related Pages
-
-- [Attachments] — uploading files and choosing between Image / ATTACH plugins
-- [AttachPlugin] — the `[{ATTACH}]` plugin for files and images
-- [Media] — browsing and embedding media library photos
-
-## Technical Details
-
-**Plugin Name:** `Image`
-**Plugin File:** `/plugins/ImagePlugin.js`
-**Version:** 1.0.0
-**Last Updated:** October 2025
-
-**Supported Features:**
-- JSPWiki-compatible syntax
-- Multiple display modes (float, block, inline, full)
-- Flexible alignment options
-- Caption and alt text support
-- Custom styling and borders
-- Link wrapping
-- Responsive sizing
-
----
-
-*For developer documentation on extending or modifying the ImagePlugin, are located on [GitHub Developer Documentation|https://github.com/jwilleke/ngdpbase/blob/master/docs/Developer-Documentation.md|target='_blank']
-
+For uploading files, see [Attachments]. To embed files (PDFs, documents, and images), see [AttachPlugin]. To browse and embed photos from the media library, see [Media].
 
 ## More Information
+
 There might be more information for this subject on one of the following:
 [{ReferringPagesPlugin before='*' after='\n' }]

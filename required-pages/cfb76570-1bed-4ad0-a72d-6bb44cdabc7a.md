@@ -13,13 +13,13 @@ author: system
 ---
 # CalendarPlugin
 
-The **CalendarPlugin** embeds an interactive event calendar into any wiki page.
+The **CalendarPlugin** embeds an interactive event calendar into any page.
 
 ## Description
 
 Use this plugin to display a calendar of events on a page.  Visitors can switch
 between month, week, day, and agenda views using the toolbar.  Events can link
-directly to wiki pages for full details.
+to pages for full details. See [Plugins] for a complete list of available plugins.
 
 > **Note:** This plugin requires the `calendar` add-on to be enabled by your
 > administrator before it will work.
@@ -87,17 +87,10 @@ renders two independent calendars, each showing a different set of events.
   sets the view shown on first load.
 - Setting `editable='false'` prevents drag-and-drop but does not restrict who
   can create or delete events via the API.
-- If an event has a `url` field set to a wiki page path, clicking the event
-  navigates to that page.
+- If an event has a `url` field set to a page path, clicking the event navigates to that page.
 - Multiple `[{Calendar}]` directives on the same page each render independently.
 - The calendar loads [FullCalendar](https://fullcalendar.io/) from a CDN — an
   internet connection is required unless your instance mirrors the assets locally.
-
-## See Also
-
-- [Plugins] — All available plugins
-- [MarqueePlugin] — Scrolling text banner
-- [CurrentTimePlugin] — Display the current date and time
 
 ## More Information
 

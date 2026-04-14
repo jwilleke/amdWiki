@@ -7,20 +7,16 @@ user-keywords:
   - Uptime
   - Server
 slug: uptimeplugin
-lastModified: '2025-12-18T12:00:00.000Z'
+lastModified: '2026-04-14T00:00:00.000Z'
 author: system
 ---
 # UptimePlugin
 
-The **UptimePlugin** displays server uptime in a human-readable format.
-
-## Description
-
-This plugin shows how long the wiki server has been running since its last restart. The time is formatted as days, hours, and minutes.
+The **UptimePlugin** displays how long the server has been running since its last restart, formatted as days, hours, and minutes. See [Plugins] for a complete list of available plugins.
 
 ## Syntax
 
-```wiki
+```
 [{UptimePlugin}]
 ```
 
@@ -32,26 +28,19 @@ This plugin has no parameters.
 
 ### Basic Display
 
-```wiki
+```
 Server uptime: [{UptimePlugin}]
 ```
 
 **Output Examples:**
 
-- `Server uptime: 3d 12h 45m` (running for 3 days)
-- `Server uptime: 5h 30m` (less than a day)
-- `Server uptime: 15m` (just started)
-
-### Footer Information
-
-```wiki
-----
-Wiki powered by ngdpbase | Uptime: [{UptimePlugin}]
-```
+- `Server uptime: 3d 12h 45m`
+- `Server uptime: 5h 30m`
+- `Server uptime: 15m`
 
 ### Status Dashboard
 
-```wiki
+```
 | Metric | Value |
 | -------- | ------- |
 | Server Uptime | [{UptimePlugin}] |
@@ -61,19 +50,11 @@ Wiki powered by ngdpbase | Uptime: [{UptimePlugin}]
 
 ## Output Format
 
-The uptime adapts to show relevant units:
-
 | Duration | Format |
 | ---------- | -------- |
 | Days or more | `3d 12h 45m` |
 | Hours only | `5h 30m` |
 | Minutes only | `15m` |
-
-## See Also
-
-- [Plugins] - All available plugins
-- [SessionsPlugin] - Active sessions
-- [TotalPagesPlugin] - Page count
 
 ## More Information
 
