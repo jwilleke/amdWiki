@@ -19,6 +19,7 @@ import logger from '../utils/logger';
 import * as showdown from 'showdown';
 // Footnotes are now handled in the WikiDocument DOM pipeline (MarkupParser Steps 3.5/3.6/4)
 import showdownSubSuperscript from '../extensions/showdown-sub-superscript';
+import showdownHeadingIds from '../extensions/showdown-heading-ids';
 import { LinkParser } from '../parsers/LinkParser';
 import PageNameMatcher from '../utils/PageNameMatcher';
 import { WikiEngine } from '../types/WikiEngine';
@@ -168,7 +169,7 @@ class RenderingManager extends BaseManager {
       literalMidWordUnderscores: true, // Better underscore handling
       ghCodeBlocks: true, // GitHub-style code blocks
       ghHeaderIds: true, // Generate id attributes on headings for section linking (#500)
-      extensions: [showdownSubSuperscript] // footnotes handled by MarkupParser DOM pipeline
+      extensions: [showdownSubSuperscript, showdownHeadingIds] // footnotes handled by MarkupParser DOM pipeline
     });
 
     // Build initial link graph
