@@ -22,6 +22,25 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - [file2.md]
 ```
 
+## 2026-04-14-17
+
+- Agent: Claude Code (Sonnet 4.6)
+- Subject: Extend Required Pages Sync to include enabled addon pages (#513)
+- Key Decision: Reuse existing required-pages sync infrastructure — same comparison logic, `syncFile()` helper, and `doSync()` JS — rather than building a separate mechanism. Added `getEnabledAddonPagesDirectories()` to AddonsManager; built unified `sourceFileMap` in POST handler (required-pages wins UUID collision); added Addon Pages card section to admin UI with per-addon status badges, sync/diff/view actions, and `syncAddonOutdated()` convenience button. `getSelectedUuids()` updated to cover both `.page-checkbox` and `.addon-checkbox` so "Sync Selected" works across both tables.
+- Current Issue: #513 (closed)
+- Testing:
+  - npm run build: clean compile
+- Work Done:
+  - AddonsManager: added `getEnabledAddonPagesDirectories()`
+  - WikiRoutes GET: build `addonComparison`/`addonCounts` and pass to template
+  - WikiRoutes POST: build `sourceFileMap` covering addon dirs + required-pages
+  - admin-required-pages.ejs: Addon Pages card, `selectAllAddon()`, `syncAddonOutdated()`, updated `getSelectedUuids()`
+- Commits: ea3744d3
+- Files Modified:
+  - src/managers/AddonsManager.ts
+  - src/routes/WikiRoutes.ts
+  - views/admin-required-pages.ejs
+
 ## 2026-04-14-16
 
 - Agent: Claude Code (Sonnet 4.6)
