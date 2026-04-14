@@ -9836,7 +9836,7 @@ ${description}
       if (!buffer) {
         return res.status(404).send('Thumbnail not available');
       }
-      res.set('Content-Type', 'image/jpeg');
+      res.set('Content-Type', 'image/webp');
       res.set('Cache-Control', 'public, max-age=86400');
       return res.send(buffer);
     } catch (err: unknown) {

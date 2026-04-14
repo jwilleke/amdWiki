@@ -406,10 +406,11 @@ class FileSystemMediaProvider extends BaseMediaProvider {
     // Video thumbnails not supported yet
     if (!item.mimeType.startsWith('image/')) return null;
 
-    // Include orientation and fit mode in cache key so that changes to either
-    // automatically bypass stale cached thumbnails.
+    // Include orientation, fit mode, and format in cache key so that changes
+    // to any of these automatically bypass stale cached thumbnails.
     const orientation = typeof item.metadata?.orientation === 'number' ? item.metadata.orientation : 1;
-    const thumbPath = path.join(this.config.thumbnailDir, `${id}-${size}-inside-o${orientation}.jpg`);
+    const thumbFormat = 'webp';
+    const thumbPath = path.join(this.config.thumbnailDir, `${id}-${size}-inside-o${orientation}-${thumbFormat}.webp`);
 
     // Return cached thumbnail if it exists
     if (await fs.pathExists(thumbPath)) {
@@ -424,7 +425,7 @@ class FileSystemMediaProvider extends BaseMediaProvider {
         width: dims.width,
         height: dims.height,
         fit: 'inside',
-        format: 'jpeg',
+        format: thumbFormat,
         quality: 85
       });
       await fs.ensureDir(this.config.thumbnailDir);
