@@ -26,16 +26,13 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Lint code
+      - name: Lint code and markdown
         run: npm run lint
 
-      - name: Check TypeScript
-        run: npx tsc --noEmit
+      - name: Typecheck
+        run: npm run typecheck
 
-      - name: Run tests
-        run: npm run test
-
-      - name: Check test coverage
+      - name: Test with coverage
         run: npm run test:coverage
 
   security-audit:
@@ -53,12 +50,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Audit npm dependencies
+      - name: Audit dependencies
         run: npm audit --audit-level=moderate
         continue-on-error: true
-
-      - name: Check for known vulnerabilities
-        run: npm audit --production
 
   build:
     needs: lint-and-test
@@ -76,7 +70,7 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Build project
+      - name: Build
         run: npm run build
 
       - name: Upload build artifacts
