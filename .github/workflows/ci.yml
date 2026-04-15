@@ -61,6 +61,7 @@ jobs:
         run: npm audit --production
 
   build:
+    needs: lint-and-test
     runs-on: ubuntu-latest
 
     steps:

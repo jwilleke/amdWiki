@@ -1,6 +1,6 @@
 # Security Guidelines
 
-This document outlines security best practices and policies for this project. All contributors must follow these guidelines. **Security practices are governed by [GLOBAL-CODE-PREFERENCES.md](GLOBAL-CODE-PREFERENCES.md) which emphasizes: "NEVER put unencrypted 'Secrets' in Git"**
+This document outlines security best practices and policies for this project. All contributors must follow these guidelines. **Core rule: NEVER put unencrypted secrets in Git** (see [CODE_STANDARDS.md](./CODE_STANDARDS.md#guiding-principles)).
 
 ## Table of Contents
 

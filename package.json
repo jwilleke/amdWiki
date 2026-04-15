@@ -2,27 +2,37 @@
   "name": "project-template",
   "version": "1.0.0",
   "description": "A comprehensive Node.js/TypeScript project template with production-ready tooling",
+  "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "dev": "ts-node src/index.ts",
-    "build": "tsc",
+    "dev": "tsx src/index.ts",
+    "build": "tsc -p tsconfig.build.json",
     "start": "node dist/index.js",
     "lint": "npm run lint:code && npm run lint:md",
-    "lint:code": "eslint src/**/*.ts",
-    "lint:md": "npx markdownlint \"**/*.md\" --ignore node_modules",
-    "lint:md:fix": "npx markdownlint \"**/*.md\" --ignore node_modules --fix",
+    "lint:code": "eslint src/",
+    "lint:md": "markdownlint \"**/*.md\" --ignore node_modules",
+    "lint:md:fix": "markdownlint \"**/*.md\" --ignore node_modules --fix",
     "lint:fix": "npm run lint:code:fix && npm run lint:md:fix",
-    "lint:code:fix": "eslint src/**/*.ts --fix",
+    "lint:code:fix": "eslint src/ --fix",
     "format": "prettier --write \"src/**/*.ts\"",
     "format:check": "prettier --check \"src/**/*.ts\"",
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "test:watch": "echo \"Error: no test specified\" && exit 1",
-    "test:coverage": "echo \"Error: no test specified\" && exit 1",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
     "clean": "rm -rf dist",
     "prebuild": "npm run clean",
     "typecheck": "tsc --noEmit",
-    "prepare": "husky install"
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "*.ts": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.md": [
+      "markdownlint --fix"
+    ]
   },
   "keywords": [
     "typescript",
@@ -32,15 +42,19 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@eslint/js": "^9.39.4",
     "@types/node": "^20.0.0",
-    "@typescript-eslint/eslint-plugin": "^6.0.0",
-    "@typescript-eslint/parser": "^6.0.0",
-    "eslint": "^8.0.0",
-    "husky": "^8.0.0",
+    "@typescript-eslint/eslint-plugin": "^8.58.2",
+    "@typescript-eslint/parser": "^8.58.2",
+    "eslint": "^9.39.4",
+    "husky": "^9.1.7",
+    "lint-staged": "^15.5.2",
     "markdownlint-cli": "^0.47.0",
     "prettier": "^3.0.0",
-    "ts-node": "^10.0.0",
-    "typescript": "^5.0.0"
+    "tsx": "^4.21.0",
+    "typescript": "^5.0.0",
+    "typescript-eslint": "^8.58.2",
+    "vitest": "^4.1.4"
   },
   "engines": {
     "node": ">=18.0.0",

@@ -1,187 +1,144 @@
 # Project Template
 
-A comprehensive Node.js/TypeScript project template with production-ready tooling, code standards, and documentation.
-
-**IMPORTANT: Read [GLOBAL-CODE-PREFERENCES.md](GLOBAL-CODE-PREFERENCES.md) first** - Contains overarching principles for all code, documentation, and interactions.
+A Node.js/TypeScript project template with production-ready tooling, code standards, and multi-agent collaboration framework.
 
 ## Quick Start
 
+### Prerequisites
+
+- **Node.js** v18+ (`node --version`) — [download](https://nodejs.org/)
+- **npm** v9+ (`npm --version`)
+- **Git** (`git --version`)
+
+### Setup
+
 ```bash
-# Clone and setup
 git clone <repository-url>
 cd <project-name>
+nvm use                  # Uses .nvmrc (Node 20)
 npm install
-
-# Verify setup
-npm run lint
-npm run test
-
-# Start development
-npm run dev
+cp .env.example .env     # Edit with your values
 ```
 
-See [SETUP.md](SETUP.md) for detailed setup instructions.
+### Verify
+
+```bash
+npm run lint             # Lint code + markdown
+npm run typecheck        # TypeScript type checking
+npm run test             # Run tests
+npm run build            # Build project
+```
+
+## Development Scripts
+
+```bash
+npm run dev              # Start development server (tsx)
+npm run build            # Build project (TypeScript -> dist/)
+npm start                # Run built project
+npm run lint             # Lint code AND markdown
+npm run lint:fix         # Auto-fix lint issues
+npm run format           # Format with Prettier
+npm run test             # Run tests (Vitest)
+npm run test:watch       # Watch mode
+npm run test:coverage    # Coverage report
+npm run lint:code        # ESLint only
+npm run lint:md          # Markdown only
+npm run typecheck        # TypeScript type checking without emit
+```
 
 ## Documentation
 
-New to the project? Start with [AGENTS.md](AGENTS.md) for project context, then check [SETUP.md](SETUP.md).
-
-Need to find something specific? See [DOCUMENTATION.md](DOCUMENTATION.md) for a navigation guide.
-
-### All Documentation
-
-- **[SETUP.md](SETUP.md)** - Environment setup and installation
-- **[AGENTS.md](AGENTS.md)** - Project context, goals, and status (for AI agents and team collaboration)
-- **[CODE_STANDARDS.md](CODE_STANDARDS.md)** - Code quality and style guidelines
+- **[AGENTS.md](AGENTS.md)** - Project context, status, and AI agent collaboration
+- **[CODE_STANDARDS.md](CODE_STANDARDS.md)** - Code quality, style, and guiding principles
 - **[ARCHITECTURE.md](ARCHITECTURE.md)** - Project structure and patterns
-- **[CONTRIBUTING.md](CONTRIBUTING.md)** - How to contribute and development workflow
+- **[CONTRIBUTING.md](CONTRIBUTING.md)** - Development workflow and PRs
 - **[SECURITY.md](SECURITY.md)** - Security guidelines and best practices
-- **[.github/workflows/README.md](.github/workflows/README.md)** - CI/CD pipeline setup and configuration
-- **[DOCUMENTATION.md](DOCUMENTATION.md)** - Guide to navigating all documentation
+- **[.github/workflows/README.md](.github/workflows/README.md)** - CI/CD pipelines
 
 ## What's Included
-
-### Project Structure
-
-See [ARCHITECTURE.md](ARCHITECTURE.md#project-structure) for the complete project structure and directory conventions.
 
 ### Code Quality Tools
 
 - **TypeScript** - Strict type checking
-- **ESLint** - Code quality with TypeScript support
+- **ESLint 9** - Code quality with flat config (`eslint.config.mjs`)
+- **Vitest** - Fast test runner
 - **Prettier** - Automatic code formatting
 - **Markdownlint** - Documentation consistency
 - **EditorConfig** - Cross-editor consistency
-- **Husky** - Git pre-commit hooks
-
-### Development Scripts
-
-```bash
-npm run dev              # Start development server
-npm run build            # Build project
-npm run lint             # Check code quality (code + markdown)
-npm run lint:fix         # Auto-fix issues (code + markdown)
-npm run lint:md          # Check markdown files only
-npm run format           # Format code with Prettier
-npm run test             # Run tests
-npm run test:watch       # Watch mode
-npm run test:coverage    # Coverage report
-```
+- **Husky + lint-staged** - Pre-commit hooks on changed files only
 
 ### Configuration Files
 
-- `.eslintrc.json` - ESLint rules
+- `eslint.config.mjs` - ESLint rules (flat config)
+- `vitest.config.ts` - Test runner configuration
 - `.prettierrc.json` - Prettier formatting
 - `.markdownlint.json` - Markdown linting rules
-- `tsconfig.json` - TypeScript settings
+- `tsconfig.json` - TypeScript settings (ESM)
+- `tsconfig.build.json` - Build-only config
 - `.editorconfig` - Editor settings
 - `.env.example` - Environment template
-- `.gitignore` - Git ignore rules
+- `.nvmrc` - Node version for nvm
 - `.husky/` - Git hooks
+
+### GitHub Integration
+
+- **CI workflow** - Lint, typecheck, test, build, security audit
+- **Deploy workflow** - Production deployment template
+- **PR template** - Standardized pull request format
+- **Issue templates** - Bug reports and feature requests
 
 ## Using This Template
 
 ### For New Projects
 
-1. **Clone this template**
-2. **Run SETUP.md** to install dependencies
-3. **Update AGENTS.md** with your project context
-4. **Update README.md** with your project details
-5. **Start developing** following CODE_STANDARDS.md
+- **Clone** this template
+- **Run** `npm install`
+- **Update** AGENTS.md with your project context
+- **Update** README.md with your project details
+- **Start developing** following CODE_STANDARDS.md
 
 ### For Existing Projects
 
-**Use the smart merge utility** to intelligently combine template improvements with your existing content:
-
-```bash
-# Clone template
-git clone https://github.com/jwilleke/mjs-project-template /tmp/template
-
-# Install merge tools
-cd /tmp/template/tools && npm install
-
-# Run smart merge (preview first)
-npx ts-node merge-template.ts \
-  --template-dir /tmp/template \
-  --project-dir /path/to/your/project \
-  --dry-run
-
-# Apply merge
-npx ts-node merge-template.ts \
-  --template-dir /tmp/template \
-  --project-dir /path/to/your/project
-```
-
-See [TEMPLATE_INTEGRATION.md](TEMPLATE_INTEGRATION.md) for complete integration guide.
+See [TEMPLATE_INTEGRATION.md](TEMPLATE_INTEGRATION.md) for the smart merge utility.
 
 ## For Teams
 
-This template is designed for teams and AI agents to collaborate efficiently:
+This template supports teams and AI agents collaborating:
 
-- **AGENTS.md** tracks project status, goals, and priorities
-- **CODE_STANDARDS.md** ensures code quality and consistency
-- **CONTRIBUTING.md** defines the workflow
-- **Slash commands in `.claude/`** provide quick access to context
+- **AGENTS.md** - Single source of truth for project state (works with any AI agent)
+- **CLAUDE.md** - Thin pointer to AGENTS.md (auto-loaded by Claude Code)
+- **CODE_STANDARDS.md** - Coding rules and guiding principles
+- **CONTRIBUTING.md** - Development workflow
 
-### Claude MCP Commands
+## Troubleshooting
 
-When working with Claude, use these slash commands to stay synchronized:
+### npm install fails
 
-- `/context` - Read AGENTS.md to understand project state
-- `/check-todos` - View prioritized tasks and blockers
-- `/update-agents` - Document your session's progress
+```bash
+npm cache clean --force
+rm -rf node_modules package-lock.json
+npm install
+```
 
-See [.claude/README.md](.claude/README.md) for details on using these commands.
+### Node version issues
 
-## Git Configuration
+```bash
+nvm install 20
+nvm use 20
+```
 
-The repository is initialized with:
+### Port already in use
 
-- Initial commit with all template files
-- `.git/` for version control
-- Ready to push to GitHub
+```bash
+PORT=3001 npm run dev
+```
 
 ## Customization
 
-Review and customize:
-
-1. **README.md** - Add project-specific information
-2. **CODE_STANDARDS.md** - Adjust rules for your team
-3. **package.json** - Update project name and dependencies
-4. **.env.example** - Add your required environment variables
-5. **ARCHITECTURE.md** - Document your specific architecture
-6. **SECURITY.md** - Review and customize security policies
-7. **.github/workflows/** - Configure CI/CD for your deployment target
-
-## Next Steps
-
-See [docs/project_log.md](docs/project_log.md) for current next steps and project status.
-
-**First-time setup:**
-
-1. **Read [SETUP.md](SETUP.md)** for environment setup
-2. **Read [AGENTS.md](AGENTS.md)** to understand project context
-3. **Read [CODE_STANDARDS.md](CODE_STANDARDS.md)** for coding guidelines
-
-## Features
-
-- Pre-configured TypeScript with strict mode
-- ESLint + Prettier for code quality and formatting
-- Git hooks for automated quality checks
-- EditorConfig for cross-editor consistency
-- Markdown linting rules
-- VS Code settings and recommendations
-- Environment variable templating
-- Comprehensive documentation
-- GitHub Actions CI/CD workflows (lint, test, build, audit)
-- Security guidelines and best practices
-- Multi-agent collaboration framework
-
-## Support
-
-- Check the documentation files for answers
-- Review [CODE_STANDARDS.md](CODE_STANDARDS.md) for coding guidelines
-- See [CONTRIBUTING.md](CONTRIBUTING.md) for development workflow
-- Check [AGENTS.md](AGENTS.md) for project status and priorities
-- Review [SECURITY.md](SECURITY.md) for security questions
-- Check [.github/workflows/README.md](.github/workflows/README.md) for CI/CD help
+- **README.md** - Add project-specific information
+- **CODE_STANDARDS.md** - Adjust rules for your team
+- **package.json** - Update project name and dependencies
+- **.env.example** - Add your required environment variables
+- **ARCHITECTURE.md** - Document your specific architecture
+- **SECURITY.md** - Review and customize security policies
+- **.github/workflows/** - Configure CI/CD for your deployment target

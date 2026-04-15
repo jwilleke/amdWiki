@@ -1,6 +1,6 @@
 # Code Standards
 
-This document outlines the coding standards and best practices for this project. All standards here follow the principles in [GLOBAL-CODE-PREFERENCES.md](GLOBAL-CODE-PREFERENCES.md)
+This document outlines the coding standards and best practices for this project.
 
 Related documents:
 
@@ -8,15 +8,20 @@ Related documents:
 - [SECURITY.md](./SECURITY.md) - Security guidelines and dependency management
 - [CONTRIBUTING.md](./CONTRIBUTING.md) - Development workflow and contribution process
 
-## Overview
+## Guiding Principles
 
-We follow the DRY (Don't Repeat Yourself) principle - every piece of knowledge should have a single, unambiguous, authoritative representation. If you see repeated logic more than twice, refactor it into reusable components.
+- **DRY** (Don't Repeat Yourself) - Every piece of knowledge should have a single, unambiguous, authoritative representation. Refactor repeated logic into reusable components.
+- **Iterate progressively** - Start with core features only. Gather feedback.
+- **No secrets in Git** - NEVER put unencrypted secrets in Git or other CMS systems.
+- **GitHub CLI** - Primary method for interacting with GitHub.
+- **Think first** - Present options before implementing. On larger objectives, present a phased plan.
+- **Markdown style** - Use **bold** at start of list items. Use bullet points, not numbered lists (section headers like `## Step 1` are fine).
 
 ## Language & Environment
 
-- Language: English (US) for all code and documentation
-- Runtime: Node.js with TypeScript
-- Target: ES2020
+- **Language:** English (US) for all code and documentation
+- **Runtime:** Node.js with TypeScript
+- **Target:** ES2020
 
 ## TypeScript Configuration
 
@@ -58,7 +63,9 @@ EditorConfig settings (`.editorconfig`) ensure consistent editor behavior across
 
 ### ESLint
 
-We use ESLint with TypeScript support to catch code quality issues.
+We use ESLint 9 (flat config) with TypeScript support to catch code quality issues.
+
+Configuration: `eslint.config.mjs`
 
 Key rules:
 
@@ -110,12 +117,12 @@ npm run lint:md:fix   # Auto-fix markdown issues (note: MD036 requires manual fi
 **Heading vs Bold Text:**
 
 ```markdown
-<!-- ❌ Bad - bold text used as heading -->
+<!-- Bad - bold text used as heading -->
 **Update Requirements:**
 - Item 1
 - Item 2
 
-<!-- ✅ Good - proper heading -->
+<!-- Good - proper heading -->
 ### Update Requirements
 
 - Item 1
@@ -124,15 +131,13 @@ npm run lint:md:fix   # Auto-fix markdown issues (note: MD036 requires manual fi
 
 ## Naming Conventions
 
-- Files: Use kebab-case for file names (e.g., `user-service.ts`, `auth-controller.ts`)
-- Classes: Use PascalCase (e.g., `UserService`, `AuthController`)
-- Functions/Variables: Use camelCase (e.g., `getUserById`, `isActive`)
-- Constants: Use UPPER_SNAKE_CASE (e.g., `MAX_RETRIES`, `DEFAULT_TIMEOUT`)
-- Private members: Prefix with underscore (e.g., `_internalState`, `_validateInput()`)
+- **Files:** Use kebab-case for file names (e.g., `user-service.ts`, `auth-controller.ts`)
+- **Classes:** Use PascalCase (e.g., `UserService`, `AuthController`)
+- **Functions/Variables:** Use camelCase (e.g., `getUserById`, `isActive`)
+- **Constants:** Use UPPER_SNAKE_CASE (e.g., `MAX_RETRIES`, `DEFAULT_TIMEOUT`)
+- **Private members:** Prefix with underscore (e.g., `_internalState`, `_validateInput()`)
 
 ## Code Organization
-
-### File Structure
 
 ### Function Length
 
@@ -168,16 +173,25 @@ function validateEmail(email: string): boolean {
 
 ## Testing
 
+We use [Vitest](https://vitest.dev/) as the test runner. Configuration: `vitest.config.ts`
+
 - Write tests for all public functions
+- Place test files alongside source: `foo.ts` -> `foo.test.ts`
 - Use test naming convention: `describe()` for groups, `it()` for specs
 - Aim for >80% code coverage
 - Test behavior, not implementation details
+
+```bash
+npm run test             # Run tests once
+npm run test:watch       # Watch mode
+npm run test:coverage    # Coverage report
+```
 
 ## Git Commit Messages
 
 Follow conventional commits format:
 
-```
+```text
 type(scope): description
 
 [optional body]
@@ -189,7 +203,7 @@ Types: `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `chore`
 
 Example:
 
-```
+```text
 feat(auth): add JWT token refresh mechanism
 
 Adds automatic token refresh when access token expires.
@@ -200,14 +214,14 @@ Closes #123
 
 ## Pre-commit Hooks
 
-Husky is configured to run both code and markdown linting before commits. Commits with linting errors will be rejected.
+Husky + lint-staged runs linting on **changed files only** before each commit. Commits with linting errors will be rejected.
 
-The pre-commit hook runs:
+The pre-commit hook runs via lint-staged:
 
-- ESLint on TypeScript files
-- Markdownlint on all markdown files
+- ESLint + Prettier on staged `.ts` files
+- Markdownlint on staged `.md` files
 
-Run the pre-commit check manually:
+Run the full lint manually:
 
 ```bash
 npm run lint          # Runs both code and markdown linting

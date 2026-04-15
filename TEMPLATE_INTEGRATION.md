@@ -10,7 +10,7 @@ The integration script applies all improvements from this template:
 - **Agent Context Protocol** (YAML frontmatter, priority matrix)
 - **Markdownlint enforcement** (MD036 rule, consistent formatting)
 - **Complete package.json** with all quality tooling
-- **Config files** (.eslintrc.json, .prettierrc.json, .markdownlint.json, tsconfig.json)
+- **Config files** (eslint.config.mjs, .prettierrc.json, .markdownlint.json, tsconfig.json)
 - **Pre-commit hooks** (Husky with code + markdown linting)
 - **Documentation templates** (AGENTS.md, CODE_STANDARDS.md, etc.)
 
@@ -45,7 +45,7 @@ Automatically clone and integrate:
 cd /path/to/your/project
 
 # Run with GitHub URL (script will clone automatically)
-bash <(curl -s https://raw.githubusercontent.com/jwilleke/mjs-project-template/main/integrate_template.sh) \
+bash <(curl -s https://raw.githubusercontent.com/jwilleke/mjs-project-template/master/integrate_template.sh) \
   https://github.com/jwilleke/mjs-project-template
 ```
 
@@ -286,7 +286,7 @@ Install Node.js v18+ from <https://nodejs.org/>
 
 ```bash
 # Reinstall git hooks
-npx husky install
+npx husky
 ```
 
 ### "Markdownlint errors"
@@ -358,7 +358,7 @@ Issues with integration?
 1. Check this guide first
 2. Review [AGENTS.md](./AGENTS.md) for template structure
 3. See [CODE_STANDARDS.md](./CODE_STANDARDS.md) for linting rules
-4. Check [SETUP.md](./SETUP.md) for environment setup
+4. Check [README.md](./README.md#quick-start) for setup
 
 ## Example Integration
 
@@ -372,7 +372,7 @@ cd ~/projects/my-app
 cp AGENTS.md AGENTS.md.backup 2>/dev/null || true
 
 # Step 3: Run integration
-bash <(curl -s https://raw.githubusercontent.com/jwilleke/mjs-project-template/main/integrate_template.sh) \
+bash <(curl -s https://raw.githubusercontent.com/jwilleke/mjs-project-template/master/integrate_template.sh) \
   https://github.com/jwilleke/mjs-project-template
 
 # Step 4: Choose option

@@ -1,12 +1,11 @@
 # Contributing
 
-Thank you for your interest in contributing to this project! This document provides guidelines for developers and AI agents working on this codebase. All contributions must follow [GLOBAL-CODE-PREFERENCES.md](GLOBAL-CODE-PREFERENCES.md).
+Thank you for your interest in contributing to this project! This document provides guidelines for developers and AI agents working on this codebase.
 
 ## Before You Start
 
-- Read [GLOBAL-CODE-PREFERENCES.md](GLOBAL-CODE-PREFERENCES.md) for overarching project principles
 - Read [AGENTS.md](./AGENTS.md) for project context and status
-- Review [CODE_STANDARDS.md](./CODE_STANDARDS.md) for coding guidelines
+- Review [CODE_STANDARDS.md](./CODE_STANDARDS.md) for coding guidelines and guiding principles
 - Check [SECURITY.md](./SECURITY.md) for security practices
 - See [ARCHITECTURE.md](./ARCHITECTURE.md) for project structure
 
@@ -21,7 +20,7 @@ Thank you for your interest in contributing to this project! This document provi
 
 ## Getting Started
 
-See [SETUP.md](./SETUP.md) for complete installation and setup instructions including prerequisites, cloning, dependency installation, environment configuration, and verification steps.
+See [README.md](./README.md#quick-start) for setup instructions including prerequisites, cloning, and dependency installation.
 
 ## Development Workflow
 

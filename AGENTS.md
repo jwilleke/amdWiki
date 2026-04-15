@@ -26,26 +26,17 @@ See YAML frontmatter above for current project state.
 
 ## CRITICAL
 
-- Read [GLOBAL-CODE-PREFERENCES.md](./GLOBAL-CODE-PREFERENCES.md) first - This contains overarching principles that govern all work on this project
-
-## Quick Navigation - Single Source of Truth
-
-Each document is the authoritative source for its topic. Other docs reference these sources, never duplicate content.
-
 ### Core Documentation (Single Source of Truth)
 
-- [GLOBAL-CODE-PREFERENCES.md](./GLOBAL-CODE-PREFERENCES.md) - **SSoT:** Overarching principles (DRY, secrets management, progressive iteration, project logging)
-- [SETUP.md](./SETUP.md) - **SSoT:** Installation, prerequisites, environment setup, verification steps
-- [CODE_STANDARDS.md](./CODE_STANDARDS.md) - **SSoT:** Naming conventions, code formatting, linting, testing, commit message format, performance guidelines
-- [ARCHITECTURE.md](./ARCHITECTURE.md) - **SSoT:** Project structure, directory conventions, file organization, technology stack
-- [SECURITY.md](./SECURITY.md) - **SSoT:** Secret management, dependency security, authentication, encryption, deployment security
-- [CONTRIBUTING.md](./CONTRIBUTING.md) - **SSoT:** Development workflow, branching strategy, pull request process, code review
-- [DOCUMENTATION.md](./DOCUMENTATION.md) - **SSoT:** Documentation navigation, DRY principles applied to docs, finding the right doc
-- [project_log.md](docs/project_log.md) - **SSoT:** Historical record of work done, next steps, session tracking
+- [README.md](./README.md) - **Single Source of Truth:** Project overview, setup, and quick start
+- [CODE_STANDARDS.md](./CODE_STANDARDS.md) - **Single Source of Truth:** Guiding principles, naming, formatting, linting, testing, commits
+- [ARCHITECTURE.md](./ARCHITECTURE.md) - **Single Source of Truth:** Project structure, directory conventions, technology stack
+- [SECURITY.md](./SECURITY.md) - **Single Source of Truth:** Secret management, dependency security, authentication, encryption
+- [CONTRIBUTING.md](./CONTRIBUTING.md) - **Single Source of Truth:** Development workflow, branching strategy, pull request process
+- [project_log.md](docs/project_log.md) - **Single Source of Truth:** Historical record of work done, next steps, session tracking
 
 ### Auxiliary Documentation
 
-- [README.md](./README.md) - Project overview and quick start (references above docs)
 - [.github/workflows/README.md](.github/workflows/README.md) - CI/CD pipelines and automation
 
 ## Context Overview
@@ -108,12 +99,12 @@ See [project_log.md](docs/project_log.md) for the required format, historical wo
 - Node.js v18+ required
 - TypeScript strict mode must remain enabled
 - All code must pass linting and tests before commit
-- No unencrypted secrets in Git (per GLOBAL-CODE-PREFERENCES.md)
+- No unencrypted secrets in Git (per CODE_STANDARDS.md)
 
 ### Process Constraints
 
 - All work must be done in feature branches
-- Pull requests required for main branch
+- Pull requests required for master branch
 - Update project_log.md after each session
 - Update this file's `last_updated` timestamp when making changes
 
@@ -124,6 +115,52 @@ See [project_log.md](docs/project_log.md) for the required format, historical wo
 - Respect the priority matrix above
 - When uncertain, ask for human guidance
 - Document all assumptions and decisions
+
+### Agent Behavior Rules
+
+- **Eagerness** - Do not jump into implementation or change files unless clearly instructed. When intent is ambiguous, default to research and recommendations rather than action. Only proceed with edits when the user explicitly requests them.
+- **No speculation** - Never speculate about code you have not opened. Read relevant files BEFORE answering questions. Never make claims about code before investigating.
+- **Parallel tool calls** - If calling multiple tools with no dependencies between them, make all independent calls in parallel. Never use placeholders or guess missing parameters.
+
+## Commands
+
+```bash
+# Development
+npm run dev              # Start development server (tsx)
+npm run build            # Build project (TypeScript -> dist/)
+npm start                # Run built project
+
+# Code Quality
+npm run lint             # Lint code AND markdown
+npm run lint:fix         # Auto-fix lint issues
+npm run format           # Format with Prettier
+
+# Testing
+npm run test             # Run tests (Vitest)
+npm run test:watch       # Watch mode
+npm run test:coverage    # Coverage report
+
+# Individual linting
+npm run lint:code        # ESLint only
+npm run lint:md          # Markdown only
+npm run typecheck        # TypeScript type checking without emit
+```
+
+## Key Standards (Quick Reference)
+
+- **TypeScript strict mode** - No implicit any, strict null checks
+- **Prettier** - Single quotes, 2-space indent, 100-char width, no trailing commas
+- **ESLint** - Prefer const, unused vars prefixed with `_`, no floating promises
+- **Commits** - Conventional format: `type(scope): description`
+- **Branches** - Format: `type/description` (e.g., `feature/user-auth`, `fix/login-bug`)
+
+## Session Workflow
+
+- Read this file (AGENTS.md)
+- Check `docs/project_log.md` for recent work
+- Work on tasks following CODE_STANDARDS.md
+- Update `docs/project_log.md` with session log entry
+- Update this file's `last_updated` field if making significant changes
 
 ## Notes & Context
 
