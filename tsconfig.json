@@ -1,62 +1,29 @@
 {
   "compilerOptions": {
-    /* Language and Environment */
     "target": "ES2022",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
     "lib": ["ES2022"],
-    "module": "commonjs",
-    "moduleResolution": "node",
-
-    /* JavaScript Support - Allow JS files during migration */
-    "allowJs": true,
-    "checkJs": false,
-
-    /* Emit - Compile src/ to dist/ with proper structure */
     "outDir": "./dist",
-    "rootDir": ".",
-    "sourceMap": true,
+    "rootDir": "./src",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
     "declaration": true,
     "declarationMap": true,
-    "removeComments": false,
-    "importHelpers": true,
-    "downlevelIteration": true,
-
-    /* Interop Constraints */
-    "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
-    "forceConsistentCasingInFileNames": true,
-
-    /* Type Checking - STRICT MODE ENABLED */
-    "strict": true,
-    "noImplicitReturns": true,
-    "noFallthroughCasesInSwitch": true,
+    "sourceMap": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "strictFunctionTypes": true,
+    "noImplicitThis": true,
+    "alwaysStrict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-
-    /* Completeness */
-    "skipLibCheck": true,
-    "skipDefaultLibCheck": true,
-
-    /* Advanced */
-    "resolveJsonModule": true,
-    "incremental": true,
-    "tsBuildInfoFile": "./.tsbuildinfo"
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true
   },
-  "include": [
-    "src/**/*.ts",
-    "src/**/*.js",
-    "plugins/**/*.ts",
-    "mcp-server.ts"
-  ],
-  "exclude": [
-    "node_modules",
-    "dist",
-    "**/*.test.js",
-    "**/*.test.ts",
-    "**/__tests__/**"
-  ],
-  "ts-node": {
-    "compilerOptions": {
-      "module": "commonjs"
-    }
-  }
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist"]
 }

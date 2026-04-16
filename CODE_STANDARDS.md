@@ -1,40 +1,27 @@
 # Code Standards
 
-This document outlines the coding standards and best practices for the ngdpbase project.
+This document outlines the coding standards and best practices for this project.
 
-## GLOBAL CODE PREFERENCES
+Related documents:
 
-In all interactions and commit messages
+- [ARCHITECTURE.md](./ARCHITECTURE.md) - Project structure and architectural patterns
+- [SECURITY.md](./SECURITY.md) - Security guidelines and dependency management
+- [CONTRIBUTING.md](./CONTRIBUTING.md) - Development workflow and contribution process
 
-- READ AGENTS.MD file and update as required.
-- "One File Done Right" make all appropriate chages to each file.
-- Be concise and sacrifice grammar for consistion
-- DRY (Don't Repeat Yourself) principle in Code and Documentation
-  - in Documentation Refer and link to other Documents.
-- We ONLY do Test-Driven Development (TDD)
-- Iterate Progressively. Start with Core features only: Gather feedback.
-- Please think first and provide options - Presenting a list of unresolved questions to answer, if any. Questions, Comments and Suggestions are always encouraged!
-- Your primary method for interacting with GitHub should be the CLI.
-- On larger objectives present phased implementation plan
-- NEVER put unencrypted "Secrets" in in Git or other CMS systems.
-- Always create docs/project_log.md file as a log of work done on the project in format specified in document within "## Format"
-- In Markdown documents:
-  - **bold** in list beginings.
-  - do not use "1. Headings" ok to use "## Step 1 ..."
-  - **NO Bolding in List Headings:** e.g., `- **Project Overview:**` is invalid. Use `- Project Overview:` instead.
-  - **NO Bolding entire lines:** e.g., `**Process:**` is invalid. Use proper headings (e.g., `### Process`) instead.
+## Guiding Principles
+
+- **DRY** (Don't Repeat Yourself) - Every piece of knowledge should have a single, unambiguous, authoritative representation. Refactor repeated logic into reusable components.
+- **Iterate progressively** - Start with core features only. Gather feedback.
+- **No secrets in Git** - NEVER put unencrypted secrets in Git or other CMS systems.
+- **GitHub CLI** - Primary method for interacting with GitHub.
+- **Think first** - Present options before implementing. On larger objectives, present a phased plan.
+- **Markdown style** - Use **bold** at start of list items. Use bullet points, not numbered lists (section headers like `## Step 1` are fine).
 
 ## Language & Environment
 
-- Language: English (US) for all code and documentation
-- Runtime: Node.js 18+ with TypeScript
-- Target: ES2022
-- Rationale: Node 18+ fully supports ES2022 features
-- No eslint-disable
-- Always Fix ESLint Errors
-- Enable strict mode
-- Fix ALL errors in each file before moving on
-- Proper types, not `any`
+- **Language:** English (US) for all code and documentation
+- **Runtime:** Node.js with TypeScript
+- **Target:** ES2020
 
 ## TypeScript Configuration
 
@@ -45,18 +32,8 @@ We use strict TypeScript settings (`strict: true`) to catch potential bugs at co
 - No unused variables or parameters
 - All functions must have explicit return types (unless inferable)
 - No implicit returns
-- Underscore variable policy:
-  - If a variable is truly unused, **DELETE IT** (don't just prefix with `_`)
-  - For required-but-unused callback/interface params, underscore prefix is acceptable (TypeScript `noUnusedParameters` requirement)
-  - Use skip pattern `[, value]` instead of `[_key, value]` in destructuring
-  - Use `.values()` instead of `.entries()` when only values are needed
-- For tests specifically: (docs/testing/Complete-Testing-Guide.md)
-  - New tests - write in TypeScript
-  - Any changes are substantial (like a rewrite), convert to TypeScript
 
 See `tsconfig.json` for full configuration.
-
-For detailed TypeScript patterns, type definitions, and TSDoc conventions, see **[TypeScript Style Guide](./docs/TypeScript-Style-Guide.md)**.
 
 ## Code Formatting
 
@@ -86,12 +63,14 @@ EditorConfig settings (`.editorconfig`) ensure consistent editor behavior across
 
 ### ESLint
 
-We use ESLint with TypeScript support to catch code quality issues.
+We use ESLint 9 (flat config) with TypeScript support to catch code quality issues.
+
+Configuration: `eslint.config.mjs`
 
 Key rules:
 
 - Prefer `const` over `let` and `var`
-- Delete unused variables; prefix with `_` only if required by function signature
+- Unused variables must be prefixed with `_`
 - `console` calls trigger warnings (use proper logging instead)
 - Single quotes required (unless string contains quotes)
 - Semicolons required
@@ -119,8 +98,6 @@ We use Markdownlint to ensure consistent and well-formatted documentation.
 
 Configuration: `.markdownlint.json`
 
-For resference see [Mardownlint Guid](https://github.com/DavidAnson/markdownlint/blob/main/README.md)
-
 Key rules:
 
 - Consistent heading style
@@ -133,20 +110,19 @@ Key rules:
 Run markdown linting:
 
 ```bash
-
-# Check all markdown files
+npm run lint:md       # Check all markdown files
 npm run lint:md:fix   # Auto-fix markdown issues (note: MD036 requires manual fix)
 ```
 
 **Heading vs Bold Text:**
 
 ```markdown
-<!-- ❌ Bad - bold text used as heading -->
+<!-- Bad - bold text used as heading -->
 **Update Requirements:**
 - Item 1
 - Item 2
 
-<!-- ✅ Good - proper heading -->
+<!-- Good - proper heading -->
 ### Update Requirements
 
 - Item 1
@@ -155,15 +131,13 @@ npm run lint:md:fix   # Auto-fix markdown issues (note: MD036 requires manual fi
 
 ## Naming Conventions
 
-- Files: Use kebab-case for file names (e.g., `user-service.ts`, `auth-controller.ts`)
-- Classes: Use PascalCase (e.g., `UserService`, `AuthController`)
-- Functions/Variables: Use camelCase (e.g., `getUserById`, `isActive`)
-- Constants: Use UPPER_SNAKE_CASE (e.g., `MAX_RETRIES`, `DEFAULT_TIMEOUT`)
-- Private members: Prefix with underscore (e.g., `_internalState`, `_validateInput()`)
+- **Files:** Use kebab-case for file names (e.g., `user-service.ts`, `auth-controller.ts`)
+- **Classes:** Use PascalCase (e.g., `UserService`, `AuthController`)
+- **Functions/Variables:** Use camelCase (e.g., `getUserById`, `isActive`)
+- **Constants:** Use UPPER_SNAKE_CASE (e.g., `MAX_RETRIES`, `DEFAULT_TIMEOUT`)
+- **Private members:** Prefix with underscore (e.g., `_internalState`, `_validateInput()`)
 
 ## Code Organization
-
-### File Structure
 
 ### Function Length
 
@@ -175,7 +149,7 @@ npm run lint:md:fix   # Auto-fix markdown issues (note: MD036 requires manual fi
 
 - Avoid obvious comments
 - Explain *why*, not *what* - the code shows what it does
-- Use TSDoc for public APIs and complex functions (see [TypeScript Style Guide](./docs/TypeScript-Style-Guide.md#tsdoc-comments))
+- Use JSDoc for public APIs and complex functions
 
 Example:
 
@@ -199,16 +173,25 @@ function validateEmail(email: string): boolean {
 
 ## Testing
 
+We use [Vitest](https://vitest.dev/) as the test runner. Configuration: `vitest.config.ts`
+
 - Write tests for all public functions
+- Place test files alongside source: `foo.ts` -> `foo.test.ts`
 - Use test naming convention: `describe()` for groups, `it()` for specs
 - Aim for >80% code coverage
 - Test behavior, not implementation details
+
+```bash
+npm run test             # Run tests once
+npm run test:watch       # Watch mode
+npm run test:coverage    # Coverage report
+```
 
 ## Git Commit Messages
 
 Follow conventional commits format:
 
-```
+```text
 type(scope): description
 
 [optional body]
@@ -220,7 +203,7 @@ Types: `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `chore`
 
 Example:
 
-```
+```text
 feat(auth): add JWT token refresh mechanism
 
 Adds automatic token refresh when access token expires.
@@ -231,14 +214,14 @@ Closes #123
 
 ## Pre-commit Hooks
 
-Husky is configured to run both code and markdown linting before commits. Commits with linting errors will be rejected.
+Husky + lint-staged runs linting on **changed files only** before each commit. Commits with linting errors will be rejected.
 
-The pre-commit hook runs:
+The pre-commit hook runs via lint-staged:
 
-- ESLint on TypeScript files
-- Markdownlint on all markdown files
+- ESLint + Prettier on staged `.ts` files
+- Markdownlint on staged `.md` files
 
-Run the pre-commit check manually:
+Run the full lint manually:
 
 ```bash
 npm run lint          # Runs both code and markdown linting
@@ -277,7 +260,6 @@ Quick checklist:
 - Add examples for public APIs
 - Update [AGENTS.md](./AGENTS.md) when making significant changes
 - See [ARCHITECTURE.md](./ARCHITECTURE.md) for architectural documentation standards
-- See [TypeScript Style Guide](./docs/TypeScript-Style-Guide.md) for TypeScript patterns and TSDoc
 - All markdown files must pass markdownlint (`npm run lint:md`)
 
 ## Review Checklist

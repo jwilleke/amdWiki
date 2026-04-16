@@ -1,80 +1,440 @@
-# Security Policy
+# Security Guidelines
 
-## Supported Versions
+This document outlines security best practices and policies for this project. All contributors must follow these guidelines. **Core rule: NEVER put unencrypted secrets in Git** (see [CODE_STANDARDS.md](./CODE_STANDARDS.md#guiding-principles)).
 
-We release patches for security vulnerabilities. Which versions are eligible for receiving such patches depends on the CVSS v3.0 Rating:
+## Table of Contents
 
-| Version | Supported          |
-| ------- | ------------------ |
-| 1.3.x   | :white_check_mark: |
-| < 1.3   | :x:                |
+- [Secret Management](#secret-management)
+- [Dependency Management](#dependency-management)
+- [Code Security](#code-security)
+- [Input Validation](#input-validation)
+- [Authentication & Authorization](#authentication--authorization)
+- [Data Protection](#data-protection)
+- [Deployment Security](#deployment-security)
+- [Security Incident Response](#security-incident-response)
 
-## Reporting a Vulnerability
+## Secret Management
 
-**Please do not report security vulnerabilities through public GitHub issues.**
+### Never Commit Secrets
 
-If you discover a security vulnerability in ngdpbase, please report it to us privately. This allows us to assess and fix the issue before it becomes public knowledge.
+**Critical Rule:** Never commit passwords, API keys, tokens, or other secrets to version control.
 
-### How to Report
+### What Counts as a Secret
 
-1. **Email**: Send details to the repository maintainer via GitHub
-2. **Include**:
-   - Type of vulnerability
-   - Full paths of source file(s) related to the vulnerability
-   - Location of the affected source code (tag/branch/commit or direct URL)
-   - Step-by-step instructions to reproduce the issue
-   - Proof-of-concept or exploit code (if possible)
-   - Impact of the issue, including how an attacker might exploit it
+- Database credentials
+- API keys and tokens
+- JWT secrets
+- OAuth secrets
+- Private encryption keys
+- AWS access keys
+- Payment processor keys
+- Any sensitive configuration
 
-### What to Expect
+### How to Handle Secrets
 
-- **Acknowledgment**: Within 48 hours of your report
-- **Initial Assessment**: Within 5 business days
-- **Regular Updates**: At least every 7 days until resolution
-- **Disclosure**: We will work with you to coordinate disclosure timing
+#### Local Development
 
-## Security Update Policy
+1. Copy `.env.example` to `.env`:
 
-- Security patches will be released as soon as possible after verification
-- Critical vulnerabilities will be addressed with emergency releases
-- Updates will be documented in [CHANGELOG.md](CHANGELOG.md)
-- GitHub Security Advisories will be published for all security releases
+   ```bash
+   cp .env.example .env
+   ```
 
-## Vulnerability Disclosure Policy
+2. Fill in your local values in `.env`
 
-- We follow responsible disclosure practices
-- Security issues will be disclosed publicly after a fix is available
-- Credit will be given to researchers who report vulnerabilities (if desired)
+3. Never commit `.env` (it's in `.gitignore`)
 
-## Security Best Practices for Users
+4. Each developer has their own `.env` with different values
 
-When running ngdpbase:
+#### Production Deployment
 
-1. **Keep Updated**: Always run the latest stable version
-2. **Dependencies**: Regularly update npm dependencies (`npm audit`)
-3. **Authentication**: Use strong passwords and enable session security
-4. **HTTPS**: Run behind a reverse proxy with TLS/SSL in production
-5. **File Permissions**: Restrict write access to `pages/` and `logs/` directories
-6. **Backups**: Maintain regular backups of wiki content
-7. **Environment Variables**: Never commit secrets to version control
-8. **PM2 Logs**: Regularly rotate and secure log files
+1. Use GitHub repository secrets:
+   - Go to **Settings → Secrets and variables → Actions**
+   - Add secrets needed for deployment
 
-## Known Security Considerations
+2. Use environment-specific secrets:
+   - Staging secrets separate from production
+   - Production secrets with restricted access
 
-- This application stores user sessions and passwords
-- File uploads (if enabled) should be carefully validated
-- Cross-Site Request Forgery (CSRF) protection is enabled
-- Input sanitization is applied to prevent XSS attacks
-- Always run behind a reverse proxy (nginx, Apache) in production
+3. Reference in workflows:
 
-## Dependencies
+   ```yaml
+   - name: Deploy
+     env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      API_KEY: ${{ secrets.API_KEY }}
+     run: npm run deploy
+   ```
 
-We use automated tools to monitor dependencies:
+### Secret Rotation
 
-- Dependabot alerts for known vulnerabilities
-- `npm audit` for security scanning
-- Regular dependency updates following semantic versioning
+- Rotate secrets regularly (at least quarterly)
+- Immediately rotate compromised secrets
+- Document secret rotation dates in team records
+- Use secret management tools (AWS Secrets Manager, HashiCorp Vault, etc.)
+
+### Checking for Accidental Commits
+
+If you accidentally commit a secret:
+
+1. **Immediately rotate the secret** (change the password/key)
+2. Remove from git history:
+
+   ```bash
+   git filter-branch --tree-filter 'rm -f .env' HEAD
+   # Or use git-filter-repo for better results
+   ```
+
+3. Force push only if you're the only one with local copies
+4. Notify team and rotate all related credentials
+
+## Dependency Management
+
+### Regular Audits
+
+Run dependency audits regularly:
+
+```bash
+# Check for vulnerabilities
+npm audit
+
+# Check only production dependencies
+npm audit --production
+
+# Get detailed report
+npm audit --json
+```
+
+### Automated Security Checks
+
+This project includes GitHub Actions workflows that automatically audit dependencies:
+
+- CI workflow runs `npm audit` on every pull request
+- Security audit job checks for known vulnerabilities
+- Moderate severity issues prevent merge
+
+### Updating Dependencies
+
+1. **Regular updates:**
+
+   ```bash
+   npm update
+   npm outdated  # See what can be updated
+   ```
+
+2. **Patch security issues immediately:**
+
+   ```bash
+   npm audit fix
+   ```
+
+3. **Major version updates:**
+   - Test thoroughly before merging
+   - Check changelog for breaking changes
+   - Update code if necessary
+
+4. **Audit before commit:**
+
+   ```bash
+   npm audit
+   npm run lint
+   npm run test
+   ```
+
+### Vulnerable Dependencies
+
+If a critical vulnerability is found:
+
+1. Check if there's a patch available
+2. If no patch: remove package and find alternative
+3. If unfixable: use `npm audit ignore` only temporarily
+4. Always document why and for how long
+
+## Code Security
+
+### TypeScript Strict Mode
+
+All code uses `strict: true` in `tsconfig.json`:
+
+- Catches null/undefined errors at compile time
+- Requires explicit types
+- Prevents implicit `any`
+- Catches accidental type coercion
+
+### No Console Logs in Production
+
+ESLint prevents `console.log` in production code:
+
+```typescript
+// ❌ Bad - will fail linting
+console.log('User password:', password);
+
+// ✅ Good - use proper logging
+logger.info('User authentication attempt', { userId });
+```
+
+#### If You Need Logging
+
+- Use structured logging library (Winston, Pino, Bunyan)
+- Never log sensitive data (passwords, tokens, API keys)
+- Use appropriate log levels (info, warn, error)
+
+### Secure Defaults
+
+- Default to deny (require explicit allow)
+- Assume untrusted input by default
+- Use parameterized queries for database
+- Validate on both client and server
+- Use HTTPS everywhere in production
+
+## Input Validation
+
+### Always Validate Input
+
+#### Server-Side Validation (Required)
+
+```typescript
+// ✅ Good - validate all user input
+function createUser(email: string, password: string): User {
+  if (!email || !email.includes('@')) {
+    throw new Error('Invalid email format');
+  }
+  
+  if (!password || password.length < 8) {
+    throw new Error('Password must be at least 8 characters');
+  }
+  
+  return saveUser({ email, password: hashPassword(password) });
+}
+```
+
+#### Client-Side Validation (Convenience Only)
+
+- Use for better UX
+- Never rely on it for security
+- Always validate on server
+
+### SQL Injection Prevention
+
+Always use parameterized queries:
+
+```typescript
+// ❌ Bad - vulnerable to SQL injection
+const user = await db.query(`SELECT * FROM users WHERE id = ${userId}`);
+
+// ✅ Good - parameterized query
+const user = await db.query('SELECT * FROM users WHERE id = ?', [userId]);
+
+// ✅ Good - with ORM like Prisma
+const user = await prisma.user.findUnique({ where: { id: userId } });
+```
+
+### XSS Prevention (Cross-Site Scripting)
+
+- Never insert user input directly into HTML
+- Use templating engines that escape by default
+- Sanitize HTML if you must allow it
+- Use Content Security Policy (CSP) headers
+
+## Authentication & Authorization
+
+### Password Requirements
+
+Enforce strong passwords:
+
+```typescript
+const PASSWORD_REQUIREMENTS = {
+  minLength: 12,
+  requireUppercase: true,
+  requireNumbers: true,
+  requireSpecialChars: true
+};
+```
+
+### Password Hashing
+
+#### Never Store Plain Text Passwords
+
+```typescript
+import bcrypt from 'bcrypt';
+
+// When creating user
+const hashedPassword = await bcrypt.hash(password, 10);
+await saveUser({ email, password: hashedPassword });
+
+// When verifying
+const isValid = await bcrypt.compare(inputPassword, storedHash);
+```
+
+### JWT/Token Management
+
+- Set short expiration times (15-30 minutes)
+- Use refresh tokens for longer sessions
+- Store tokens securely (HttpOnly cookies, not localStorage)
+- Include token revocation mechanism
+- Never include sensitive data in JWT payload
+
+### Session Security
+
+- Use secure session cookies (HttpOnly, Secure, SameSite flags)
+- Implement session timeout
+- Invalidate sessions on logout
+- Store session data server-side, not in JWT
+
+## Data Protection
+
+### HTTPS Only
+
+- All traffic must use HTTPS in production
+- Redirect HTTP to HTTPS
+- Use HSTS headers to enforce HTTPS
+- Use TLS 1.2 or higher
+
+### Data Minimization
+
+- Collect only necessary data
+- Delete data when no longer needed
+- Implement data retention policies
+- Allow users to request data deletion (GDPR compliance)
+
+### Database Security
+
+- Use encrypted connections to database
+- Never hardcode credentials
+- Restrict database user permissions (principle of least privilege)
+- Enable database audit logging
+- Regular backups with encryption
+- Test disaster recovery procedures
+
+### Encryption
+
+- Encrypt sensitive data at rest
+- Encrypt data in transit (HTTPS/TLS)
+- Use strong encryption algorithms (AES-256, RSA-2048+)
+- Secure key management (don't hardcode keys)
+- Rotate encryption keys periodically
+
+## Deployment Security
+
+### Environment Separation
+
+Maintain separate environments:
+
+- **Development**: Local, lenient security
+- **Staging**: Production-like, test environment
+- **Production**: Maximum security, restricted access
+
+### Secure Deployment
+
+1. **Code review required** before production deployment
+2. **Automated tests must pass** (CI/CD pipeline)
+3. **Security scans must pass** (no high/critical vulnerabilities)
+4. **Secrets injected at runtime** (never in code)
+5. **Immutable deployments** (rollback capability)
+6. **Monitoring and alerting enabled**
+
+### Access Control
+
+- Limit production access to authorized personnel
+- Use role-based access control (RBAC)
+- Implement multi-factor authentication (MFA)
+- Use temporary credentials, not long-lived keys
+- Log all access to production systems
+- Use GitHub branch protection rules
+
+### Container Security (if using Docker)
+
+- Use minimal base images (alpine)
+- Run as non-root user
+- Scan images for vulnerabilities
+- Keep base images updated
+- Don't commit secrets in Dockerfile
+
+## Security Incident Response
+
+### Vulnerability Discovery
+
+If you discover a vulnerability:
+
+1. **Do not** create a public GitHub issue
+2. **Do not** commit details in code comments
+3. **Do** email security contact privately
+4. **Do** provide:
+   - Detailed description
+   - Steps to reproduce
+   - Severity assessment
+   - Your recommendation
+
+### Vulnerability Response Timeline
+
+- **Critical (CVSS 9.0-10)**: Fix within 24 hours
+- **High (CVSS 7.0-8.9)**: Fix within 1 week
+- **Medium (CVSS 4.0-6.9)**: Fix within 2 weeks
+- **Low (CVSS 0.1-3.9)**: Fix within 30 days
+
+### Public Disclosure
+
+After fix is deployed:
+
+1. Update CHANGELOG with fix
+2. Create security advisory (if critical)
+3. Notify users if credentials exposed
+4. Follow responsible disclosure practices
+
+## Security Checklist
+
+Before deploying to production:
+
+- [ ] All dependencies audited and current
+- [ ] No hardcoded secrets in code
+- [ ] Environment variables configured via `.env` or secrets
+- [ ] HTTPS enabled and enforced
+- [ ] Authentication/authorization working correctly
+- [ ] Input validation on all endpoints
+- [ ] SQL injection prevention in place (parameterized queries)
+- [ ] XSS protection enabled (CSP headers, sanitization)
+- [ ] CSRF protection if applicable
+- [ ] Rate limiting on authentication endpoints
+- [ ] Logging doesn't include sensitive data
+- [ ] Error messages don't leak sensitive information
+- [ ] Database credentials use least privilege access
+- [ ] Backup and disaster recovery tested
+- [ ] Security headers configured (CSP, X-Frame-Options, etc.)
+- [ ] 3rd party services have security review
+- [ ] Team members trained on security practices
+
+## Tools & Resources
+
+### Security Tools
+
+- **npm audit** - Check for known vulnerabilities
+- **OWASP ZAP** - Automated security scanning
+- **Snyk** - Continuous vulnerability scanning
+- **GitHub Advanced Security** - Code scanning and secret scanning
+- **Dependabot** - Automated dependency updates
+
+### Learning Resources
+
+- [OWASP Top 10](https://owasp.org/www-project-top-ten/)
+- [OWASP Top 10 for API](https://owasp.org/www-project-api-security/)
+- [Node.js Security Best Practices](https://nodejs.org/en/docs/guides/nodejs-security/)
+- [npm Security Documentation](https://docs.npmjs.com/cli/v8/commands/npm-audit)
+- [CWE/SANS Top 25](https://cwe.mitre.org/top25/)
+
+## Related Documents
+
+- [CODE_STANDARDS.md](./CODE_STANDARDS.md) - Code quality standards
+- [CONTRIBUTING.md](./CONTRIBUTING.md) - Contribution guidelines
+- [.github/workflows/README.md](.github/workflows/README.md) - CI/CD pipeline documentation
+- [.env.example](.env.example) - Environment variable template
 
 ## Questions?
 
-For general security questions or concerns, please open a discussion on GitHub or contact the maintainers directly.
+If you have security questions or concerns:
+
+1. Check this document first
+2. Review OWASP resources
+3. Consult with team security lead
+4. For critical issues: use private disclosure channel
+
+Remember: **Security is everyone's responsibility.**

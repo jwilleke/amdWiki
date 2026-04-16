@@ -1,50 +1,27 @@
 ---
 name: Bug Report
-about: Create a report to help us improve
-title: "[BUG] "
+about: Report a bug or unexpected behavior
 labels: bug
-assignees: jwilleke
-
 ---
 
-## 🐛 Bug Description
+## Description
 
-A clear and concise description of what the bug is.
+<!-- What happened? -->
 
-## 🔄 Steps to Reproduce
+## Steps to Reproduce
 
-1. Go to '...'
-2. Click on '...'
-3. Enter '...'
-4. See error
+- <!-- Step 1 -->
+- <!-- Step 2 -->
 
-## ✅ Expected Behavior
+## Expected Behavior
 
-A clear description of what you expected to happen.
+<!-- What should have happened? -->
 
-## ❌ Actual Behavior
+## Actual Behavior
 
-A clear description of what actually happened.
+<!-- What happened instead? -->
 
-## 📷 Screenshots
+## Environment
 
-If applicable, add screenshots to help explain your problem.
-
-## 🖥️ Environment
-
-- **OS**:
-- **Node.js Version** (if applicable):
-- **Browser** (if UI issue):
-- **Other**:
-
-## 📝 Additional Context
-
-- Error messages from console/logs
-- Any relevant configuration
-- Other context about the problem
-
-## 🔍 Error Details
-
-```
-Paste any error messages or stack traces here
-```
+- **Node version**: <!-- e.g. 20.x -->
+- **OS**: <!-- e.g. macOS 15, Ubuntu 24.04 -->
