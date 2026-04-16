@@ -22,6 +22,21 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - [file2.md]
 ```
 
+## 2026-04-16-02
+
+- Agent: Claude Code (Sonnet 4.6)
+- Subject: Resolve Dependabot alert #89 — bump hono to 4.12.14
+- Current Issue: none
+- Testing:
+  - npm audit: 1 low severity (pm2 ReDoS, no fix available)
+- Work Done:
+  - Bumped hono from 4.12.0 to 4.12.14 via `npm update hono`
+  - Resolved Dependabot alert #89 (HTML injection via JSX attribute names in hono/jsx SSR, medium severity)
+  - Noted pm2 low-severity ReDoS remains open — no upstream fix available
+- Commits: c9256bb9
+- Files Modified:
+  - package-lock.json
+
 ## 2026-04-16-01
 
 - Agent: Claude Code (Sonnet 4.6)
