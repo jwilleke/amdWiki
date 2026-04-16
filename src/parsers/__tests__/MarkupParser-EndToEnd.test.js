@@ -873,4 +873,60 @@ Links: [Wikipedia:Section${i}] and [JSPWiki:Test${i}].
       await devParser.shutdown();
     });
   });
+
+  describe('Code block rendering (issue #503)', () => {
+    test('fenced code block renders as <pre><code> with no placeholder spans', async () => {
+      const content = '```javascript\nconst x = 1;\n```';
+      const result = await markupParser.parse(content, {});
+      expect(result).toContain('<pre');
+      expect(result).toContain('<code');
+      expect(result).toContain('const x = 1;');
+      expect(result).not.toContain('data-jspwiki-placeholder');
+      expect(result).not.toContain('```');
+    });
+
+    test('fenced code block with CRLF line endings renders correctly (view-path bug #503)', async () => {
+      // Pages on disk may have \r\n; the old regex path failed on CRLF
+      const content = '```\r\nFilesystem \u2192 Crawler/Extractor (JS) \u2192 Elasticsearch\r\n```';
+      const result = await markupParser.parse(content, {});
+      expect(result).toContain('<pre');
+      expect(result).toContain('Filesystem');
+      expect(result).not.toContain('data-jspwiki-placeholder');
+      expect(result).not.toContain('```');
+    });
+
+    test('fenced code block with nested context (view path) renders correctly', async () => {
+      const content = '```\nFilesystem \u2192 Elasticsearch\n```';
+      const context = {
+        pageContext: {
+          pageName: 'ElasticsearchCrawlers',
+          userContext: { username: 'jim', isAuthenticated: true, roles: [] },
+          requestInfo: null
+        },
+        engine: markupParser.engine
+      };
+      const result = await markupParser.parse(content, context);
+      expect(result).toContain('<pre');
+      expect(result).toContain('Filesystem');
+      expect(result).not.toContain('data-jspwiki-placeholder');
+    });
+
+    test('inline code span renders as <code> with no placeholder spans or internal attributes', async () => {
+      const content = 'Use `const` for constants';
+      const result = await markupParser.parse(content, {});
+      expect(result).toContain('<code>const</code>');
+      expect(result).not.toContain('data-jspwiki-placeholder');
+      expect(result).not.toContain('data-jspwiki-id');
+      expect(result).not.toContain('`const`');
+    });
+
+    test('plugin syntax inside fenced code block is not executed', async () => {
+      const content = '```wiki\n[{Search query=\'keyword\'}]\n```';
+      const result = await markupParser.parse(content, {});
+      // The plugin literal should appear as text, not as executed output
+      expect(result).toContain('[{Search');
+      expect(result).not.toContain('data-jspwiki-placeholder');
+      expect(result).toContain('<pre');
+    });
+  });
 });

@@ -511,10 +511,10 @@ Time: [{CurrentTimePlugin}]
         const result = parser.mergeDOMNodes(html, nodes, 'abc');
 
         // Should replace plugin first (id=1), then variable (id=0)
+        // data-jspwiki-id is stripped from final output (internal routing attribute)
         expect(result).toContain('Plugin:');
         expect(result).toContain('Variable');
-        expect(result).toContain('data-jspwiki-id="1"');
-        expect(result).toContain('data-jspwiki-id="0"');
+        expect(result).not.toContain('data-jspwiki-id=');
         expect(result).not.toContain('data-jspwiki-placeholder="abc-');
       });
 

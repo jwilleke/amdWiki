@@ -2040,6 +2040,9 @@ class MarkupParser extends BaseManager {
         rendered = '';
       }
 
+      // Strip internal routing attribute — never expose it in final HTML
+      rendered = rendered.replace(/ data-jspwiki-id="[^"]*"/g, '');
+
       // Replace placeholder with rendered HTML
       // Use regex with 'g' flag to replace all occurrences
       const placeholderRegex = new RegExp(placeholder.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g');
