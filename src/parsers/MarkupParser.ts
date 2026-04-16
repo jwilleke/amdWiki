@@ -20,6 +20,7 @@ import AttachmentHandler from './handlers/AttachmentHandler';
 import LinkParserHandler from './handlers/LinkParserHandler';
 import ParseContext from './context/ParseContext';
 import WikiDocument from './dom/WikiDocument';
+import { convertEmojiShortcodes } from './data/emoji-map';
 import type RegionCache from '../cache/RegionCache';
 import type { WikiEngine } from '../types/WikiEngine';
 
@@ -45,6 +46,8 @@ export interface MarkupParserConfig extends Record<string, unknown> {
   cache: CacheConfig;
   /** Performance configuration */
   performance: PerformanceConfig;
+  /** Emoji shortcode conversion */
+  emoji?: { enabled: boolean };
 }
 
 /** Handler registry configuration */
@@ -709,7 +712,8 @@ class MarkupParser extends BaseManager {
           errorRate: 0.05, // 5%
           minCacheSamples: 50 // Minimum cache operations before alerting
         }
-      }
+      },
+      emoji: { enabled: true }
     };
 
     // Load from configuration manager if available
@@ -772,7 +776,10 @@ class MarkupParser extends BaseManager {
         this.config.performance.alertThresholds.cacheHitRatio = configManager.getProperty('ngdpbase.markup.performance.alert-thresholds.cache-hit-ratio', this.config.performance.alertThresholds.cacheHitRatio);
         this.config.performance.alertThresholds.errorRate = configManager.getProperty('ngdpbase.markup.performance.alert-thresholds.error-rate', this.config.performance.alertThresholds.errorRate);
         this.config.performance.alertThresholds.minCacheSamples = configManager.getProperty('ngdpbase.markup.performance.alert-thresholds.min-cache-samples', this.config.performance.alertThresholds.minCacheSamples);
-        
+
+        // Emoji shortcode conversion
+        this.config.emoji = { enabled: configManager.getProperty('ngdpbase.markup.emoji.enabled', true) };
+
       } catch (err) {
         logger.warn('⚠️  Failed to load MarkupParser config from ConfigurationManager, using defaults:', getErrorMessage(err));
       }
@@ -1408,6 +1415,13 @@ class MarkupParser extends BaseManager {
     sanitized = sanitized.replace(/\\\\\\/g, '<br class="wiki-clearfix">'); // \\\ = flush/clearfix
     sanitized = sanitized.replace(/\\\\/g, '<br>'); // \\ = line break
 
+    // Step 0.7: Convert emoji shortcodes (:name:) to Unicode characters.
+    // Runs after Step 0 code extraction so shortcodes inside backticks or
+    // fenced blocks are already protected as UUID placeholders and won't fire.
+    if (this.config?.emoji?.enabled !== false) {
+      sanitized = convertEmojiShortcodes(sanitized);
+    }
+
     // Step 1: Extract ESCAPED syntax FIRST (before anything else)
     // Matches: [[{$var}], [[{Plugin}]
     // Result: Literal [{$var}] or [{Plugin}] in output
@@ -1771,7 +1785,7 @@ class MarkupParser extends BaseManager {
     // Helper: populate a table cell, resolving all wiki syntax.
     // For cells with no wiki syntax and possible <br> content, uses a fast path.
     // Otherwise delegates to appendWikiNodes for the combined scanner.
-    const populateCell = async (el: ReturnType<typeof wikiDocument.createElement>, cell: string) => {
+    const populateCell = async (el: ReturnType<typeof wikiDocument.createElement>, cell: string): Promise<void> => {
       const hasWiki = /\[\[\{|\[\{\$|\[\{[A-Za-z]|\[/.test(cell);
       if (!hasWiki) {
         // No wiki syntax — fast path with <br> support

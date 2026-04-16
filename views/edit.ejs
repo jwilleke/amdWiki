@@ -135,7 +135,14 @@
                     <div class="row">
                         <div class="col-md-6">
                             <div class="card h-100">
-                                <div class="card-header">Edit Content</div>
+                                <div class="card-header d-flex align-items-center justify-content-between">
+                                    <span>Edit Content</span>
+                                    <button type="button" class="btn btn-outline-secondary btn-sm"
+                                            title="Insert emoji (:shortcode: or type : in editor)"
+                                            onclick="openEmojiPicker()">
+                                        <i class="fas fa-smile"></i>
+                                    </button>
+                                </div>
                                 <div class="card-body p-0 d-flex flex-column" style="min-height: 400px;">
                                     <textarea id="content" name="content" class="form-control border-0 rounded-0 flex-grow-1" style="resize: vertical; min-height: 100%;" required><%= content %></textarea>
                                 </div>
@@ -421,9 +428,9 @@
     });
 </script>
 
-<!-- Page Link Autocomplete - Issue #90 -->
+<!-- Page Link Autocomplete - Issue #90 / Emoji Autocomplete - Issue #512 -->
 <script>
-    // Wait for PageAutocomplete to load (it's in footer.ejs)
+    // Wait for PageAutocomplete and EmojiAutocomplete to load (both in footer.ejs)
     function initEditPageAutocomplete() {
         const contentTextarea = document.getElementById('content');
         if (!contentTextarea) {
@@ -431,8 +438,8 @@
             return;
         }
 
-        // Check if PageAutocomplete is loaded
-        if (typeof PageAutocomplete === 'undefined') {
+        // Check if autocomplete classes are loaded
+        if (typeof PageAutocomplete === 'undefined' || typeof EmojiAutocomplete === 'undefined') {
             setTimeout(initEditPageAutocomplete, 100);
             return;
         }
@@ -440,7 +447,7 @@
         // Track the bracket position for proper insertion
         let currentBracketPos = -1;
 
-        // Initialize page autocomplete
+        // ── Page link autocomplete (triggers on '[') ────────────────────────────
         const autocomplete = new PageAutocomplete({
             minChars: 2,
             maxSuggestions: 10,
@@ -473,6 +480,28 @@
             }
         });
 
+        // ── Emoji autocomplete (triggers on ':' + 2+ chars) ────────────────────
+        const emojiAutocomplete = new EmojiAutocomplete({
+            minChars: 2,
+            maxSuggestions: 12,
+            onSelect: function(suggestion) {
+                const cursorPos = contentTextarea.selectionStart;
+                const text = contentTextarea.value;
+                // Find the colon that opened this search
+                const lastColon = text.lastIndexOf(':', cursorPos - 1);
+                if (lastColon >= 0) {
+                    const before = text.substring(0, lastColon);
+                    const after = text.substring(cursorPos);
+                    const shortcode = ':' + suggestion.name + ':';
+                    contentTextarea.value = before + shortcode + after;
+                    const newPos = before.length + shortcode.length;
+                    contentTextarea.setSelectionRange(newPos, newPos);
+                    contentTextarea.focus();
+                    updatePreview();
+                }
+            }
+        });
+
         // Helper function to insert text at cursor
         function insertTextAtCursor(textarea, text) {
             const start = textarea.selectionStart;
@@ -484,61 +513,69 @@
             textarea.setSelectionRange(start + text.length, start + text.length);
         }
 
-        // Detect bracket typing and show autocomplete
+        // Detect typing and show appropriate autocomplete
         contentTextarea.addEventListener('input', function(e) {
             const cursorPos = contentTextarea.selectionStart;
             const text = contentTextarea.value;
 
-            // Find last '[' before cursor
+            // ── Page link: trigger on '[' ─────────────────────────────────────
             const lastBracket = text.lastIndexOf('[', cursorPos - 1);
 
             if (lastBracket >= 0) {
-                // Store bracket position for later use in onSelect
                 currentBracketPos = lastBracket;
-
-                // Extract text between '[' and cursor
                 const query = text.substring(lastBracket + 1, cursorPos);
-
-                // Check if we're inside a link (no closing ']' yet)
                 const textAfterBracket = text.substring(lastBracket);
                 const closingBracket = textAfterBracket.indexOf(']');
 
-                // Allow autocomplete if:
-                // 1. No closing bracket exists, OR
-                // 2. Closing bracket is after cursor (we're inside the link), OR
-                // 3. Closing bracket is exactly at cursor (auto-paired bracket)
                 if (closingBracket === -1 || closingBracket >= (cursorPos - lastBracket)) {
-                    // Don't show for plugin syntax [{...}] or variable syntax [{$...}]
                     if (!query.startsWith('{')) {
                         if (query.length >= 2) {
                             autocomplete.search(query, contentTextarea, cursorPos);
-                        } else if (query.length < 2) {
+                        } else {
                             autocomplete.hideDropdown();
                         }
                     } else {
                         autocomplete.hideDropdown();
                     }
                 } else {
+                    currentBracketPos = -1;
                     autocomplete.hideDropdown();
                 }
             } else {
                 currentBracketPos = -1;
                 autocomplete.hideDropdown();
             }
+
+            // ── Emoji: trigger on ':' + 2+ non-space chars ───────────────────
+            const lastColon = text.lastIndexOf(':', cursorPos - 1);
+            if (lastColon >= 0) {
+                const emojiQuery = text.substring(lastColon + 1, cursorPos);
+                if (emojiQuery.length >= 2 && !/\s/.test(emojiQuery)) {
+                    emojiAutocomplete.search(emojiQuery, contentTextarea, cursorPos);
+                } else {
+                    emojiAutocomplete.hideDropdown();
+                }
+            } else {
+                emojiAutocomplete.hideDropdown();
+            }
         });
 
-        // Handle keyboard navigation in autocomplete
+        // Handle keyboard navigation — page autocomplete takes priority
         contentTextarea.addEventListener('keydown', function(e) {
             if (autocomplete.handleKeydown(e)) {
-                // Autocomplete handled the key, prevent default
+                e.preventDefault();
+                return;
+            }
+            if (emojiAutocomplete.handleKeydown(e)) {
                 e.preventDefault();
             }
         });
 
-        // Hide autocomplete when clicking outside
+        // Hide both dropdowns when clicking outside
         document.addEventListener('click', function(e) {
             if (e.target !== contentTextarea) {
                 autocomplete.hideDropdown();
+                emojiAutocomplete.hideDropdown();
             }
         });
     }
@@ -549,6 +586,92 @@
     } else {
         initEditPageAutocomplete();
     }
+</script>
+
+<!-- Emoji Picker Modal (Issue #512) -->
+<div class="modal fade" id="emojiPickerModal" tabindex="-1"
+     aria-labelledby="emojiPickerModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="emojiPickerModalLabel">
+                    <i class="fas fa-smile"></i> Insert Emoji
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <%- include('_emoji-picker') %>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Emoji picker modal — lazy grid rendering (Issue #512)
+function initEmojiPicker() {
+    const modal = document.getElementById('emojiPickerModal');
+    if (!modal) return;
+
+    // Populate grid on first open
+    modal.addEventListener('shown.bs.modal', function() {
+        const grid = document.getElementById('emojiGrid');
+        if (!grid || grid.dataset.populated) return;
+
+        function renderCategory(category) {
+            grid.innerHTML = '';
+            const data = (category === 'all')
+                ? EMOJI_CLIENT_DATA
+                : EMOJI_CLIENT_DATA.filter(([, , cat]) => cat === category);
+            data.forEach(([name, char]) => {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'btn btn-outline-secondary btn-sm p-1';
+                btn.title = ':' + name + ':';
+                btn.style.cssText = 'font-size:1.4rem;line-height:1;min-width:2.4rem;';
+                btn.textContent = char;
+                btn.addEventListener('click', function() { insertEmoji(name); });
+                grid.appendChild(btn);
+            });
+        }
+
+        // Wire category tabs
+        document.querySelectorAll('[data-emoji-category]').forEach(function(tab) {
+            tab.addEventListener('click', function() {
+                document.querySelectorAll('[data-emoji-category]').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                renderCategory(tab.dataset.emojiCategory);
+            });
+        });
+
+        renderCategory('smileys');
+        grid.dataset.populated = '1';
+    });
+}
+
+window.openEmojiPicker = function() {
+    new bootstrap.Modal(document.getElementById('emojiPickerModal')).show();
+};
+
+window.insertEmoji = function(shortcode) {
+    const textarea = document.getElementById('content');
+    if (!textarea) return;
+    const markup = ':' + shortcode + ':';
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    textarea.value = textarea.value.substring(0, start) + markup + textarea.value.substring(end);
+    textarea.focus();
+    textarea.setSelectionRange(start + markup.length, start + markup.length);
+    if (typeof updatePreview === 'function') updatePreview();
+    const modalEl = document.getElementById('emojiPickerModal');
+    const modalInstance = bootstrap.Modal.getInstance(modalEl);
+    if (modalInstance) modalInstance.hide();
+};
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initEmojiPicker);
+} else {
+    initEmojiPicker();
+}
 </script>
 
 <!-- Asset Picker Modal -->
