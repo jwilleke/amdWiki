@@ -2,6 +2,7 @@
 data/
 private/
 xxxxxx/
+required-pages/versions/
 
 # Dependencies
 node_modules/
