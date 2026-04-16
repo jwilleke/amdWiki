@@ -22,6 +22,33 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - [file2.md]
 ```
 
+## 2026-04-16-04
+
+- Agent: Claude Code (Sonnet 4.6)
+- Subject: Implement emoji shortcode support (#512) — server-side rendering, inline autocomplete, modal picker
+- Current Issue: #512
+- Testing:
+  - npm test: 111 suites passed, 2899 tests passed
+- Work Done:
+  - Created `src/parsers/data/emoji-map.ts` with ~120 emoji entries, `EMOJI_SHORTCODE_REGEX`, and `convertEmojiShortcodes()` pure function
+  - Added Step 0.7 to `MarkupParser.extractJSPWikiSyntax()` — converts `:shortcode:` to Unicode after code-block extraction (so backtick/fenced content is protected); guarded by `ngdpbase.markup.emoji.enabled` config flag
+  - Fixed `this.config?.emoji` null guard for parsers initialized without full `loadConfiguration()` (impacted MergePipeline tests)
+  - Created `public/js/emoji-autocomplete.js` with `EMOJI_CLIENT_DATA` array and `EmojiAutocomplete` class (mirrors `PageAutocomplete` UX — local filter, caret-positioned dropdown, keyboard nav)
+  - Created `views/_emoji-picker.ejs` — Bootstrap nav-tabs (Smileys/Gestures/Objects/Nature/All) + lazy emoji grid populated on modal open
+  - Modified `views/edit.ejs`: emoji button in card header, extended `input` listener to handle `:` trigger alongside `[` trigger, extended `keydown` listener for both autocompletes, added `#emojiPickerModal` and `openEmojiPicker`/`insertEmoji`/`initEmojiPicker` scripts
+  - Modified `views/footer.ejs`: added `emoji-autocomplete.js` script tag alongside `page-autocomplete.js`
+  - Added `src/parsers/__tests__/MarkupParser-Emoji.test.js` (unit + e2e tests) and `src/parsers/__tests__/emoji-map.test.js` (pure function tests); moved test from `data/` to `__tests__/` to survive build clean
+- Commits: 50768cf8
+- Files Modified:
+  - src/parsers/data/emoji-map.ts
+  - src/parsers/MarkupParser.ts
+  - src/parsers/__tests__/MarkupParser-Emoji.test.js
+  - src/parsers/__tests__/emoji-map.test.js
+  - public/js/emoji-autocomplete.js
+  - views/_emoji-picker.ejs
+  - views/edit.ejs
+  - views/footer.ejs
+
 ## 2026-04-16-03
 
 - Agent: Claude Code (Sonnet 4.6)
