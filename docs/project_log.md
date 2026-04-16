@@ -22,6 +22,24 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - [file2.md]
 ```
 
+## 2026-04-16-03
+
+- Agent: Claude Code (Sonnet 4.6)
+- Subject: Unify preview/view rendering paths (#510); fix data-jspwiki-id leaking into output HTML and add e2e code block tests (#503)
+- Current Issue: #510, #503
+- Work Done:
+  - Rewrote `previewPage()` to create a `WikiContext` (PREVIEW context) and call `renderingManager.textToHTML()` — same path as `viewPage()`. Both paths now reach `markupParser.parse()` with an identical nested `ParseOptions` shape, eliminating the flat vs. nested context divergence
+  - Removed stale debug logging (`!!! PREVIEW PAGE METHOD CALLED !!!`) and now-unnecessary `getCommonTemplateData`/`getRequestInfo` calls from `previewPage`
+  - Fixed `mergeDOMNodes()` to strip `data-jspwiki-id` internal routing attributes from rendered HTML before substitution (was leaking into final output as `<code data-jspwiki-id="0">`)
+  - Added 5 end-to-end tests in `MarkupParser-EndToEnd.test.js`: fenced code → `<pre><code>`, CRLF fenced block (view-path #503 regression), fenced block with nested WikiContext shape, inline code → clean `<code>`, plugin-in-fenced-block not executed
+  - Updated `MarkupParser-MergePipeline.test.js` assertion that incorrectly expected `data-jspwiki-id` to remain in output
+- Commits: fae454da, d43b1e96
+- Files Modified:
+  - src/routes/WikiRoutes.ts
+  - src/parsers/MarkupParser.ts
+  - src/parsers/__tests__/MarkupParser-EndToEnd.test.js
+  - src/parsers/__tests__/MarkupParser-MergePipeline.test.js
+
 ## 2026-04-16-02
 
 - Agent: Claude Code (Sonnet 4.6)
