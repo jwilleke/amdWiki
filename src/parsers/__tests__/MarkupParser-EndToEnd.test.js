@@ -772,6 +772,47 @@ Links: [Wikipedia:Section${i}] and [JSPWiki:Test${i}].
     });
   });
 
+  describe('Context shape normalization (view vs preview path)', () => {
+    test('expands ${pagename} and ${username} with flat context (preview path)', async () => {
+      const content = 'Page: ${pagename}, User: ${username}';
+      const context = { pageName: 'FlatPage', userName: 'Alice' };
+      const result = await markupParser.parse(content, context);
+      expect(result).toContain('FlatPage');
+      expect(result).toContain('Alice');
+    });
+
+    test('expands ${pagename} and ${username} with nested context (view path)', async () => {
+      const content = 'Page: ${pagename}, User: ${username}';
+      const context = {
+        pageContext: {
+          pageName: 'NestedPage',
+          userContext: { username: 'Bob', isAuthenticated: true, roles: [] },
+          requestInfo: null
+        },
+        engine: markupParser.engine
+      };
+      const result = await markupParser.parse(content, context);
+      expect(result).toContain('NestedPage');
+      expect(result).toContain('Bob');
+    });
+
+    test('nested and flat contexts produce identical output for same page/user', async () => {
+      const content = 'Viewing ${pagename} as ${username}';
+      const flatCtx = { pageName: 'SamePage', userName: 'Carol' };
+      const nestedCtx = {
+        pageContext: {
+          pageName: 'SamePage',
+          userContext: { username: 'Carol', isAuthenticated: true, roles: [] },
+          requestInfo: null
+        },
+        engine: markupParser.engine
+      };
+      const flatResult = await markupParser.parse(content, flatCtx);
+      const nestedResult = await markupParser.parse(content, nestedCtx);
+      expect(flatResult).toBe(nestedResult);
+    });
+  });
+
   describe('Deployment Scenario Validation', () => {
     test('should support high-security deployment configuration', async () => {
       // Simulate high-security environment settings

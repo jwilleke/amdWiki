@@ -984,14 +984,18 @@ class MarkupParser extends BaseManager {
       // These are template-style variables (not JSPWiki [{$var}] syntax) that are
       // replaced with values from the parse context. Code blocks are protected by
       // the extraction pipeline; variables in code blocks will not be expanded.
-      const contextData = context as { pageName?: string; userName?: string };
-      if (contextData.pageName !== undefined || contextData.userName !== undefined) {
-        if (contextData.pageName !== undefined) {
-          content = content.replace(/\$\{pagename\}/gi, String(contextData.pageName));
-        }
-        if (contextData.userName !== undefined) {
-          content = content.replace(/\$\{username\}/gi, String(contextData.userName));
-        }
+      //
+      // Context may arrive nested (view path: { pageContext: { pageName, ... }, engine })
+      // or flat (preview path: { pageName, userName, ... }). Normalize before reading.
+      const pageCtxData = ((context.pageContext ?? context) as Record<string, unknown>);
+      const resolvedPageName = (pageCtxData.pageName ?? context.pageName) as string | undefined;
+      const resolvedUserCtx = (pageCtxData.userContext ?? context.userContext) as Record<string, unknown> | undefined;
+      const resolvedUserName = (resolvedUserCtx?.username ?? resolvedUserCtx?.userName ?? pageCtxData.userName ?? context.userName) as string | undefined;
+      if (resolvedPageName !== undefined) {
+        content = content.replace(/\$\{pagename\}/gi, String(resolvedPageName));
+      }
+      if (resolvedUserName !== undefined) {
+        content = content.replace(/\$\{username\}/gi, String(resolvedUserName));
       }
 
       // Parse using extraction pipeline
@@ -1009,8 +1013,10 @@ class MarkupParser extends BaseManager {
 
       // Warn if parse time is slow
       if (processingTime > 100) {
-        const contextData = context as ParseContextData;
-        logger.warn(`⚠️  Slow parse: ${processingTime}ms for page ${contextData.pageName || 'unknown'}`);
+        const slowPageCtx = ((context.pageContext ?? context) as Record<string, unknown>);
+        const rawPageName = slowPageCtx.pageName ?? context.pageName;
+        const slowPageName = typeof rawPageName === 'string' ? rawPageName : 'unknown';
+        logger.warn(`⚠️  Slow parse: ${processingTime}ms for page ${slowPageName}`);
       }
 
       return result;
