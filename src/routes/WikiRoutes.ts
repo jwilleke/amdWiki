@@ -2829,34 +2829,17 @@ class WikiRoutes {
    * API endpoint to get page preview
    */
   async previewPage(req: Request, res: Response) {
-    logger.debug('!!! PREVIEW PAGE METHOD CALLED !!!');
     try {
       const { content, pageName } = req.body;
       const renderingManager = this.engine.getManager('RenderingManager');
 
-      // Get common template data with user (same as viewPage for consistency)
-      const commonData = await this.getCommonTemplateData(req);
+      // Use WikiContext so preview goes through the same rendering path as viewPage
+      const wikiContext = this.createWikiContext(req, {
+        context: WikiContext.CONTEXT.PREVIEW,
+        pageName: pageName
+      });
 
-      // Get request info for consistency with actual page rendering
-      const requestInfo = this.getRequestInfo(req);
-
-      logger.debug(
-        'DEBUG: previewPage calling renderMarkdown with content:',
-        content,
-        'pageName:',
-        pageName
-      );
-      logger.debug('DEBUG: previewPage using user context:', commonData.user);
-      const renderedContent = await renderingManager.renderMarkdown(
-        content,
-        pageName,
-        commonData.user,
-        requestInfo
-      );
-      logger.debug(
-        'DEBUG: previewPage received renderedContent:',
-        renderedContent
-      );
+      const renderedContent = await renderingManager.textToHTML(wikiContext, content);
 
       res.json({
         html: renderedContent,
