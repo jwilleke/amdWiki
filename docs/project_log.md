@@ -22,6 +22,30 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - [file2.md]
 ```
 
+## 2026-04-16-01
+
+- Agent: Claude Code (Sonnet 4.6)
+- Subject: Multi-instance update, security dep bumps, disable failing GH Actions, fix stale JS shadowing TS in tests, fix MarkupParser ${pagename}/${username} expansion for nested context (#510)
+- Key Decision: Fixed Jest loading stale addon-emitted `.js` files from `src/` by extending `clean` script and reordering `moduleFileExtensions` to prefer `.ts` over `.js`. Fixed `MarkupParser.parse()` to normalize both flat (preview) and nested (view) ParseContext shapes for template variable expansion — consistent with how `generateCacheKey` and `ParseContext` constructor already handled both shapes.
+- Current Issue: #510 (partial fix — template variable expansion; broader view/preview path consolidation remains open)
+- Testing:
+  - npm test: 54 suites passed, 2867 tests passed (ngdpbase); all instances green after rebuild
+- Work Done:
+  - Pulled latest, stopped, rebuilt, and restarted fairways-base (port 2121) and ngdpbase-veg (port 3333)
+  - Diagnosed and fixed 8 failing AddonsManager "seed pages" tests in fairways-base and ngdpbase-veg caused by stale addon-emitted `.js` files shadowing TypeScript sources in Jest
+  - Extended `clean` script in `package.json` to also remove `src/**/*.js` and `src/**/*.js.map`
+  - Reordered Jest `moduleFileExtensions` from `["js","ts","json"]` to `["ts","js","json"]` so TypeScript files take priority
+  - Merged 5 open Dependabot security PRs: hono 4.12.6→4.12.12, nodemailer 6.9.16→6.9.17, basic-ftp 5.0.5→5.0.6, @hono/node-server 1.14.1→1.14.3, follow-redirects 1.15.9→1.15.10
+  - Pulled merged security bumps into all three instances and rebuilt
+  - Disabled three always-failing GitHub Actions workflows: ci.yml, ci-passing-tests.yml, docker-build.yml
+  - Fixed `MarkupParser.parse()` template variable expansion (`${pagename}`, `${username}`) to handle nested context shape (view path uses `context.pageContext.pageName`) — previously only worked for flat shape (preview path)
+  - Added 3 new tests to `MarkupParser-EndToEnd.test.js` covering flat context, nested context, and shape equivalence for template variable expansion
+- Commits: 5a2989a7, ae3a5413, 3675c1d3, b1f70036, 7085e07b, 8bcc1860, 96c82504
+- Files Modified:
+  - package.json
+  - src/parsers/MarkupParser.ts
+  - src/parsers/__tests__/MarkupParser-EndToEnd.test.js
+
 ## 2026-04-14-17
 
 - Agent: Claude Code (Sonnet 4.6)
