@@ -22,6 +22,48 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - [file2.md]
 ```
 
+## 2026-04-16-03
+
+- Agent: Claude Code (Sonnet 4.6)
+- Subject: Sync with mjs-project-template and update .gitignore
+- Current Issue: none
+- Work Done:
+  - Merged mjs-project-template into new branch `chore/template-sync` via `--allow-unrelated-histories`
+  - Resolved 22 merge conflicts — kept repo versions for AGENTS.md, README.md, ARCHITECTURE.md, package.json; used template versions for config/tooling files
+  - Fixed ESLint hook failure by adding vitest.config.ts and test files to eslint ignores (vitest not yet in package.json)
+  - Added `data/`, `private/`, and `xxxxxx/` to .gitignore
+- Commits: 904a66ed, 28b9da22, f4f31609
+- Files Modified:
+  - .claude/README.md
+  - .claude/commands/check-todos.md
+  - .editorconfig
+  - .github/ISSUE_TEMPLATE/bug_report.md
+  - .github/ISSUE_TEMPLATE/feature_request.md
+  - .github/PULL_REQUEST_TEMPLATE.md
+  - .github/workflows/README.md
+  - .github/workflows/ci.yml
+  - .github/workflows/deploy.yml
+  - .gitignore
+  - .husky/pre-commit
+  - .markdownlint.json
+  - .nvmrc
+  - .prettierrc.json
+  - .vscode/settings.json
+  - CLAUDE.md
+  - CODE_STANDARDS.md
+  - CONTRIBUTING.md
+  - SECURITY.md
+  - TEMPLATE_INTEGRATION.md
+  - eslint.config.mjs
+  - integrate_template.sh
+  - src/index.test.ts
+  - src/index.ts
+  - tools/merge-template.ts
+  - tools/package.json
+  - tsconfig.build.json
+  - tsconfig.json
+  - vitest.config.ts
+
 ## 2026-04-16-02
 
 - Agent: Claude Code (Sonnet 4.6)
@@ -527,7 +569,7 @@ Supports both kebab-case (`application-name`) and camelCase (`applicationName`) 
 __Result__ — all three instances now start with correct, unique PM2 names:
 
 | Instance | Port | PM2 name |
-|----------|------|----------|
+| -------- | ---- | -------- |
 | ngdpbase | 3000 | `jimstest` |
 | fairways-base | 2121 | `The Fairways` |
 | ngdpbase-veg | 3333 | `ve-geology` |
@@ -535,7 +577,7 @@ __Result__ — all three instances now start with correct, unique PM2 names:
 ### All instances updated
 
 | Instance | Build | Unit tests | E2E tests | Status |
-|----------|-------|------------|-----------|--------|
+| -------- | ----- | ---------- | --------- | ------ |
 | ngdpbase (jimstest) | ✅ | 2703/2703 | 72/72 | running |
 | fairways-base (The Fairways) | ✅ | 2699/2699 | 72/72 | running |
 | ngdpbase-veg (ve-geology) | ✅ | 2699/2699 | 72/72 | running |
@@ -609,7 +651,7 @@ Files changed: `src/WikiEngine.ts`, `src/app.ts`, `src/types/WikiEngine.ts`, `ad
 ### Verification checklist — #464 complete
 
 | Check | Result |
-|-------|--------|
+| ----- | ------ |
 | Server starts, addon loads | ✅ |
 | `POST /api/calendar/reservations` → 401 unauth / 201 auth | ✅ |
 | `GET /api/calendar/events` anon → no `_private` | ✅ |
