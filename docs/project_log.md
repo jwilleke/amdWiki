@@ -22,6 +22,30 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - [file2.md]
 ```
 
+## 2026-04-17-08
+
+- Agent: Claude
+- Subject: Journal addon Phase 3 — JournalTemplateManager, template picker, voice-to-text, mood picker UX
+- Current Issue: #528
+- Work Done:
+  - Added JournalTemplateManager with 4 built-in templates (free-write, morning-reflection, evening-review, weekly-review) and custom template loading from data/journal/templates/*.md
+  - Added GET /api/journal/templates endpoint in api.ts
+  - Updated editor.ts: jtm() accessor, enableVoiceToText() config helper, pass templates/enableVoiceToText to render
+  - Rewrote journal-editor.ejs with Bootstrap collapse template picker, voice button, external JS reference
+  - Added journal-editor.js: template picker (URL-decoded data-body attrs, collapses after selection), mood picker (hidden input sync), voice-to-text (Web Speech API, continuous + interim results)
+  - Added CSS: .journal-template-grid/card grid, .journal-voice-btn pulse animation
+  - Fixed .gitignore to allow addons/*/public/**/*.js (hand-written source, not TS output)
+- Commits: 62580787
+- Files Modified:
+  - addons/journal/managers/JournalTemplateManager.ts
+  - addons/journal/public/js/journal-editor.js
+  - addons/journal/public/css/journal.css
+  - addons/journal/routes/api.ts
+  - addons/journal/routes/editor.ts
+  - addons/journal/views/journal-editor.ejs
+  - addons/journal/index.ts
+  - .gitignore
+
 ## 2026-04-17-07
 
 - Agent: Claude Code (Sonnet 4.6)
