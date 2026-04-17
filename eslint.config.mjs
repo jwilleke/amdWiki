@@ -23,7 +23,8 @@ export default tseslint.config(
         project: [
           "./tsconfig.json",
           "./addons/calendar/tsconfig.json",
-          "./addons/elasticsearch/tsconfig.json"
+          "./addons/elasticsearch/tsconfig.json",
+          "./addons/journal/tsconfig.json"
         ],
         tsconfigRootDir: import.meta.dirname,
       },

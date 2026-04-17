@@ -1,0 +1,159 @@
+<%- include('header', { pageName: 'Journal Admin' }) %>
+
+<div class="container mt-4">
+
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1><i class="fas fa-book"></i> Journal Admin</h1>
+    <a href="/admin" class="btn btn-sm btn-secondary">
+      <i class="fas fa-arrow-left"></i> Admin
+    </a>
+  </div>
+
+  <% if (successMessage) { %>
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+      <i class="fas fa-check-circle"></i> <%= successMessage %>
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+  <% } %>
+  <% if (errorMessage) { %>
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+      <i class="fas fa-exclamation-triangle"></i> <%= errorMessage %>
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+  <% } %>
+
+  <div class="card mb-4">
+    <div class="card-header">
+      <h5 class="mb-0"><i class="fas fa-cog"></i> Journal Settings</h5>
+    </div>
+    <div class="card-body">
+      <p class="text-muted small mb-3">
+        These settings are read from <code>app-custom-config.json</code> under
+        <code>ngdpbase.addons.journal</code>. Edit that file and restart the server to change them.
+      </p>
+
+      <form method="POST" action="/admin/journal/settings">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+        <div class="row">
+          <div class="col-md-6">
+            <div class="mb-3">
+              <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" id="defaultPrivate"
+                       name="defaultPrivate" <%= config.defaultPrivate ? 'checked' : '' %> disabled>
+                <label class="form-check-label" for="defaultPrivate">
+                  New entries private by default
+                </label>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" id="defaultAuthorLock"
+                       name="defaultAuthorLock" <%= config.defaultAuthorLock ? 'checked' : '' %> disabled>
+                <label class="form-check-label" for="defaultAuthorLock">
+                  Author-lock new entries (only author/admin can edit)
+                </label>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" id="streakEnabled"
+                       name="streakEnabled" <%= config.streakEnabled ? 'checked' : '' %> disabled>
+                <label class="form-check-label" for="streakEnabled">
+                  Enable streak tracking
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <div class="mb-3">
+              <label class="form-label">Default Mood Options</label>
+              <div class="d-flex flex-wrap gap-1">
+                <% config.defaultMoodOptions.forEach(function(mood) { %>
+                  <span class="badge bg-secondary"><%= mood %></span>
+                <% }); %>
+              </div>
+              <small class="text-muted">Edit <code>defaultMoodOptions</code> in config to change.</small>
+            </div>
+          </div>
+        </div>
+
+        <hr>
+
+        <h6><i class="fas fa-bell"></i> Daily Reminder</h6>
+
+        <div class="row">
+          <div class="col-md-6">
+            <div class="mb-3">
+              <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" id="dailyReminderEnabled"
+                       name="dailyReminderEnabled" <%= config.dailyReminderEnabled ? 'checked' : '' %> disabled>
+                <label class="form-check-label" for="dailyReminderEnabled">
+                  Enable daily reminder
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-3">
+            <div class="mb-3">
+              <label class="form-label">Reminder Time</label>
+              <input type="text" class="form-control form-control-sm"
+                     value="<%= config.dailyReminderTime %>" disabled>
+              <small class="text-muted">HH:MM server local time</small>
+            </div>
+          </div>
+        </div>
+
+        <% if (config.dailyReminderUsers.length > 0) { %>
+          <div class="mb-3">
+            <label class="form-label">Reminder Recipients</label>
+            <div class="d-flex flex-wrap gap-1">
+              <% config.dailyReminderUsers.forEach(function(u) { %>
+                <span class="badge bg-info text-dark"><i class="fas fa-user"></i> <%= u %></span>
+              <% }); %>
+            </div>
+          </div>
+        <% } %>
+
+        <div class="alert alert-info small mt-3 mb-0">
+          <i class="fas fa-info-circle"></i>
+          Settings shown above are read-only here. To change them, edit
+          <code>data/config/app-custom-config.json</code> and restart the server.
+          The Save button below is a placeholder for a future config-write API.
+        </div>
+
+        <div class="mt-3">
+          <button type="submit" class="btn btn-primary btn-sm" disabled>
+            <i class="fas fa-save"></i> Save (restart required)
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <h5 class="mb-0"><i class="fas fa-info-circle"></i> About the Journal Addon</h5>
+    </div>
+    <div class="card-body">
+      <p>Journal entries are standard pages with <code>system-category: journal</code> frontmatter.
+         They are stored through the normal PageManager and appear in search results only for
+         their author (or admins).</p>
+      <p class="mb-0">
+        <a href="/view/journalhelp" class="btn btn-sm btn-outline-secondary">
+          <i class="fas fa-book-open"></i> Journal Help Page
+        </a>
+        <a href="/view/myjournal" class="btn btn-sm btn-outline-primary ms-2">
+          <i class="fas fa-book"></i> My Journal
+        </a>
+      </p>
+    </div>
+  </div>
+
+</div>
+
+<%- include('footer') %>
