@@ -18,6 +18,7 @@ import { ApiContext, ApiError } from '../../../dist/src/context/ApiContext';
 import WikiContext from '../../../dist/src/context/WikiContext';
 import type { WikiEngine } from '../../../dist/src/types/WikiEngine';
 import type PageManager from '../../../dist/src/managers/PageManager';
+import type UserManager from '../../../dist/src/managers/UserManager';
 import type JournalDataManager from '../managers/JournalDataManager';
 import type { JournalIndexEntry } from '../managers/JournalDataManager';
 import type JournalTemplateManager from '../managers/JournalTemplateManager';
@@ -43,6 +44,12 @@ export default function editorRoutes(engine: WikiEngine, config: Record<string, 
 
   function sp(v: string | string[] | undefined): string {
     return Array.isArray(v) ? (v[0] ?? '') : (v ?? '');
+  }
+
+  async function resolveUserContext(req: Request): Promise<import('../../../dist/src/context/WikiContext').UserContext> {
+    const um = engine.getManager<UserManager>('UserManager');
+    const uc = req.userContext || (um ? await um.getCurrentUser(req) : null);
+    return uc as import('../../../dist/src/context/WikiContext').UserContext;
   }
 
   function handleError(err: unknown, res: Response): void {
@@ -149,7 +156,7 @@ export default function editorRoutes(engine: WikiEngine, config: Record<string, 
           context:     WikiContext.CONTEXT.EDIT,
           pageName:    slug,
           content,
-          userContext: req.userContext ?? { username }
+          userContext: await resolveUserContext(req)
         });
 
         // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-argument
@@ -254,7 +261,7 @@ export default function editorRoutes(engine: WikiEngine, config: Record<string, 
           context:     WikiContext.CONTEXT.EDIT,
           pageName:    slug,
           content,
-          userContext: req.userContext ?? { username: entry.author }
+          userContext: await resolveUserContext(req)
         });
 
         // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-argument
@@ -299,7 +306,7 @@ export default function editorRoutes(engine: WikiEngine, config: Record<string, 
           context:     WikiContext.CONTEXT.EDIT,
           pageName:    slug,
           content:     '',
-          userContext: req.userContext ?? { username: entry.author }
+          userContext: await resolveUserContext(req)
         });
 
         // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-argument
