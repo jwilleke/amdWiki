@@ -116,7 +116,7 @@ export default function editorRoutes(engine: WikiEngine, config: Record<string, 
         const title   = typeof body['title'] === 'string' && body['title'].trim()
           ? body['title'].trim()
           : `Journal — ${date}`;
-        const content = typeof body['content'] === 'string' ? body['content'] : '';
+        const content = (typeof body['content'] === 'string' ? body['content'] : '') || ' ';
         const mood    = typeof body['mood'] === 'string' && body['mood'].trim()
           ? body['mood'].trim()
           : undefined;
@@ -236,7 +236,7 @@ export default function editorRoutes(engine: WikiEngine, config: Record<string, 
         const title   = typeof body['title'] === 'string' && body['title'].trim()
           ? body['title'].trim()
           : entry.title;
-        const content = typeof body['content'] === 'string' ? body['content'] : '';
+        const content = (typeof body['content'] === 'string' ? body['content'] : '') || ' ';
         const mood    = typeof body['mood'] === 'string' && body['mood'].trim()
           ? body['mood'].trim()
           : undefined;
@@ -305,7 +305,7 @@ export default function editorRoutes(engine: WikiEngine, config: Record<string, 
         const wikiCtx = new WikiContext(engine, {
           context:     WikiContext.CONTEXT.EDIT,
           pageName:    slug,
-          content:     '',
+          content:     ' ',
           userContext: await resolveUserContext(req)
         });
 

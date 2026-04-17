@@ -116,7 +116,7 @@ export default function apiRoutes(engine: WikiEngine, config: Record<string, unk
         const wikiContext = new WikiContext(engine, {
           context:     WikiContext.CONTEXT.EDIT,
           pageName:    slug,
-          content:     '',
+          content:     ' ',
           userContext: await resolveUserContext(req)
         });
 
