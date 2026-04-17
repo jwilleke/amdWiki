@@ -22,6 +22,28 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - [file2.md]
 ```
 
+## 2026-04-17-02
+
+- Agent: Claude Code (Sonnet 4.6)
+- Subject: Required pages documentation overhaul — remove wiki branding (#511)
+- Current Issue: #511
+- Work Done:
+  - Removed generic "wiki" branding from 9 required-pages files; replaced with platform-neutral language (example URLs, paths, search queries, page name examples, headings)
+  - Preserved all proper nouns: JSPWiki, WikiStyle, WikiVariables, WikiEngine, WikiTag, wikitag config key, inter-wiki feature, .wiki-image/.wiki-content CSS classes, wikipedia.org URLs
+  - Updated /wiki/ URL example paths to canonical /view/ route
+  - Confirmed all 5 files missing ReferringPagesPlugin footer are in the exempt list (Footer, LeftMenu, Welcome, Customizing the Footer, Customizing the Left Menu)
+- Commits: 95538496
+- Files Modified:
+  - required-pages/4c0c0fa8-66dc-4cb3-9726-b007f874700c.md
+  - required-pages/585688f9-96cf-45d3-84e3-7a29893474d6.md
+  - required-pages/5df07a53-8a08-420f-a7a3-2318631bf320.md
+  - required-pages/89d076df-7d15-4348-94f4-f2a4899a5926.md
+  - required-pages/928a1050-3542-4140-9cd4-515bac154c84.md
+  - required-pages/9b55b835-29dc-4944-8739-788330b7f33c.md
+  - required-pages/a2c48b2d-8c91-43f5-9657-bc1d11315b66.md
+  - required-pages/a40812e4-3a9d-42b5-b5a8-e89b41a46096.md
+  - required-pages/fe7a378d-dfa5-4e37-9891-637568ebe0b4.md
+
 ## 2026-04-17-01
 
 - Agent: Claude Code (Sonnet 4.6)
