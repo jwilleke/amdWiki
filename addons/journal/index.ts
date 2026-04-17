@@ -45,6 +45,7 @@ import type { AddonStatusDetails } from '../../dist/src/managers/AddonsManager';
 import type PluginManager from '../../dist/src/managers/PluginManager';
 import type AddonsManager from '../../dist/src/managers/AddonsManager';
 import JournalDataManager from './managers/JournalDataManager';
+import JournalTemplateManager from './managers/JournalTemplateManager';
 import JournalPlugin from './plugins/JournalPlugin';
 import apiRoutes from './routes/api';
 import publicRoutes from './routes/public';
@@ -52,6 +53,7 @@ import editorRoutes from './routes/editor';
 import adminRoutes from './routes/admin';
 
 let dataManager: JournalDataManager | null = null;
+let templateManager: JournalTemplateManager | null = null;
 
 const journalAddon = {
   name: 'journal',
@@ -69,6 +71,11 @@ const journalAddon = {
     dataManager = new JournalDataManager(engine, dataPath);
     await dataManager.load();
     engine.registerManager('JournalDataManager', dataManager);
+
+    // ── 1b. JournalTemplateManager ───────────────────────────────────────────
+    templateManager = new JournalTemplateManager(engine, dataPath);
+    await templateManager.initialize();
+    engine.registerManager('JournalTemplateManager', templateManager);
 
     // ── 2. Register markup plugin ────────────────────────────────────────────
     const pluginManager = engine.getManager<PluginManager>('PluginManager');
@@ -115,6 +122,7 @@ const journalAddon = {
   // eslint-disable-next-line @typescript-eslint/require-await
   async shutdown(): Promise<void> {
     dataManager = null;
+    templateManager = null;
   }
 };
 

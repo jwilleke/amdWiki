@@ -20,12 +20,21 @@ import type { WikiEngine } from '../../../dist/src/types/WikiEngine';
 import type PageManager from '../../../dist/src/managers/PageManager';
 import type JournalDataManager from '../managers/JournalDataManager';
 import type { JournalIndexEntry } from '../managers/JournalDataManager';
+import type JournalTemplateManager from '../managers/JournalTemplateManager';
 
 export default function editorRoutes(engine: WikiEngine, config: Record<string, unknown>): Router {
   const router = Router();
 
   function jdm(): JournalDataManager | undefined {
     return engine.getManager<JournalDataManager>('JournalDataManager');
+  }
+
+  function jtm(): JournalTemplateManager | undefined {
+    return engine.getManager<JournalTemplateManager>('JournalTemplateManager');
+  }
+
+  function enableVoiceToText(): boolean {
+    return config['enableVoiceToText'] !== false;
   }
 
   function pm(): PageManager | undefined {
@@ -71,12 +80,14 @@ export default function editorRoutes(engine: WikiEngine, config: Record<string, 
         : new Date().toISOString().slice(0, 10);
 
       res.render('journal-editor', {
-        currentUser: req.userContext,
-        entry: null,
-        defaultDate: date,
-        moodOptions: moodOptions(),
-        csrfToken:   req.session?.csrfToken,
-        errorMessage: null
+        currentUser:      req.userContext,
+        entry:            null,
+        defaultDate:      date,
+        moodOptions:      moodOptions(),
+        templates:        jtm()?.listTemplates() ?? [],
+        enableVoiceToText: enableVoiceToText(),
+        csrfToken:        req.session?.csrfToken,
+        errorMessage:     null
       });
     } catch (err) {
       handleError(err, res);
@@ -184,12 +195,14 @@ export default function editorRoutes(engine: WikiEngine, config: Record<string, 
         if (!page) { res.status(404).send('Journal entry page not found.'); return; }
 
         res.render('journal-editor', {
-          currentUser:  req.userContext,
-          entry: { ...entry, content: page.content ?? '' },
-          defaultDate:  entry.journalDate,
-          moodOptions:  moodOptions(),
-          csrfToken:    req.session?.csrfToken,
-          errorMessage: null
+          currentUser:      req.userContext,
+          entry:            { ...entry, content: page.content ?? '' },
+          defaultDate:      entry.journalDate,
+          moodOptions:      moodOptions(),
+          templates:        [],
+          enableVoiceToText: enableVoiceToText(),
+          csrfToken:        req.session?.csrfToken,
+          errorMessage:     null
         });
       } catch (err) {
         handleError(err, res);
