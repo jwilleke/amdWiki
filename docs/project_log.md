@@ -22,6 +22,19 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - [file2.md]
 ```
 
+## 2026-04-17-05
+
+- Agent: Claude Code (Sonnet 4.6)
+- Subject: Journal phase issues + addon architecture docs
+- Current Issue: #402
+- Work Done:
+  - Created GitHub issues for Journal Phases 2–4: #527 (JournalDataManager sidecar index, public/editor routes), #528 (template picker, mood picker, voice-to-text), #529 (daily reminders, export)
+  - Linked phase issues back to parent #402 via comment
+  - Created docs/platform/addon-architecture.md — internal reference covering load sequence, AddonModule contract, config resolution, WikiEngine API, plugin registration, stylesheet injection, page seeding, auth patterns, BaseManager contract, TypeScript/ESLint/build setup, and existing addon comparison table
+- Commits: 6a5aaaa5
+- Files Modified:
+  - docs/platform/addon-architecture.md
+
 ## 2026-04-17-04
 
 - Agent: Claude Code (Sonnet 4.6)
