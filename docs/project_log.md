@@ -22,6 +22,37 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - [file2.md]
 ```
 
+## 2026-04-17-04
+
+- Agent: Claude Code (Sonnet 4.6)
+- Subject: Journal addon Phase 1 — [{Journal}] plugin, API routes, admin panel, seeded pages (#402)
+- Current Issue: #402
+- Work Done:
+  - Created full addon scaffold: package.json, tsconfig.json, index.ts
+  - JournalPlugin.ts — [{Journal}] wiki plugin with timeline/streak/on-this-day rendering; fetches entries via SearchManager.searchByCategory('journal'), filters by author, sorts newest-first
+  - routes/api.ts — GET /api/journal/new (bootstrap entry + redirect to editor), /entries (paginated JSON), /on-this-day, /streak; auth via ApiContext
+  - routes/admin.ts — GET /admin/journal config panel, POST /admin/journal/settings placeholder
+  - views/admin-journal.ejs — admin panel showing read-only config values
+  - public/css/journal.css — timeline cards, streak widget, on-this-day, mood/tag badges
+  - Seeded pages: journalhelp (user guide) and myjournal (embeds [{Journal}])
+  - Added journal to build:addons script in package.json
+  - Added addons/journal/tsconfig.json to eslint.config.mjs parserOptions.project
+  - Fixed ESLint type-safety errors: import type, no-base-to-string casts, no-unsafe-argument suppress for cross-module WikiContext structural identity issue
+- Commits: b8d0e038
+- Files Modified:
+  - addons/journal/index.ts
+  - addons/journal/package.json
+  - addons/journal/tsconfig.json
+  - addons/journal/plugins/JournalPlugin.ts
+  - addons/journal/routes/api.ts
+  - addons/journal/routes/admin.ts
+  - addons/journal/public/css/journal.css
+  - addons/journal/pages/c2789e26-0617-4f5f-b3ce-e51ed336fafb.md
+  - addons/journal/pages/389fa032-ef85-4d98-8764-5a1941d800fa.md
+  - views/admin-journal.ejs
+  - package.json
+  - eslint.config.mjs
+
 ## 2026-04-17-03
 
 - Agent: Claude Code (Sonnet 4.6)
