@@ -22,6 +22,35 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - [file2.md]
 ```
 
+## 2026-04-17-01
+
+- Agent: Claude Code (Sonnet 4.6)
+- Subject: Media transcoding, dedup, date/path/facet filtering (#514, #515, #518, #519, #520)
+- Current Issue: #514, #515, #518, #519, #520
+- Testing:
+  - npm test: 111 suites passed, 2899 tests passed
+- Work Done:
+  - #514 — `mediaFile()` route checks Accept header; HEIC/RAW files transcoded via Sharp to WebP or JPEG for browsers that can't decode them; output cached in thumbnailDir; `getTranscodedBuffer()` added to MediaManager; imageTransform `width`/`height` made optional for convert-only use
+  - #515 — FileSystemMediaProvider groups files by dir+stem after Phase 1 collection and keeps only the highest-priority format (JPEG > HEIC > RAW); alternate paths stored in `MediaIndexEntry.alternates`; `MediaItem` gains `alternates?` field
+  - #518 — `AssetQuery` gains `dateFrom`, `dateTo`, `dateField`; `Sist2AssetProvider` builds an ES range query on `mtime` or `exif_datetime`; `year` shorthand preserved for backward compat
+  - #519 — `AssetQuery` gains `pathPrefix` and `includeHidden`; `Sist2AssetProvider` applies `pathPrefix` as filter and `hiddenPaths` as `must_not` (skipped when `includeHidden=true`); `hidden-paths` config key added to elasticsearch addon
+  - #520 — `AssetFacet`/`AssetAggregations` types added to `Asset.ts`; `AssetPage` gains `aggregations?`; `Sist2AssetProvider` appends `by_mime`/`by_year`/`by_folder`/`by_extension` aggs to every ES query; `AssetManager` merges aggregations across providers; asset picker gains date-range inputs, path-prefix input, include-archived toggle, and facet sidebar
+- Commits: 8cd6853b
+- Files Modified:
+  - `src/types/Asset.ts`
+  - `src/providers/BaseMediaProvider.ts`
+  - `src/providers/FileSystemMediaProvider.ts`
+  - `src/utils/imageTransform.ts`
+  - `src/managers/MediaManager.ts`
+  - `src/managers/AssetManager.ts`
+  - `src/managers/AssetService.ts`
+  - `src/routes/WikiRoutes.ts`
+  - `addons/elasticsearch/src/Sist2AssetProvider.ts`
+  - `addons/elasticsearch/index.ts`
+  - `views/_asset-picker.ejs`
+
+---
+
 ## 2026-04-16-04
 
 - Agent: Claude Code (Sonnet 4.6)
