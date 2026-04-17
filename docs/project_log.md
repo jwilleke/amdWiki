@@ -22,6 +22,24 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - [file2.md]
 ```
 
+## 2026-04-17-09
+
+- Agent: Claude
+- Subject: Journal addon Phase 4 — export routes, daily reminder scheduler, admin user stats
+- Current Issue: #529
+- Work Done:
+  - Added GET /api/journal/export/json — authenticated JSON download of all own entries (slug, title, date, mood, tags, content); respects exportEnabled config
+  - Added GET /api/journal/export/markdown — authenticated Markdown archive download; one H2 per entry with meta and content; respects exportEnabled config
+  - Added daily reminder scheduler in index.ts: setTimeout fires at dailyReminderTime (HH:MM), checks each dailyReminderUsers user for today's entry, creates NotificationManager notification if missing; chains 24hr setTimeout; cleared on shutdown
+  - Updated admin.ts to compute per-author counts and optional streak leaderboard (showStreakLeaderboard config flag); passes userStats, totalEntries, exportEnabled to view
+  - Updated admin-journal.ejs: user stats table with optional streak column, export download buttons
+- Commits: 192b10bb
+- Files Modified:
+  - addons/journal/index.ts
+  - addons/journal/routes/api.ts
+  - addons/journal/routes/admin.ts
+  - views/admin-journal.ejs
+
 ## 2026-04-17-08
 
 - Agent: Claude
