@@ -47,6 +47,7 @@ import type { AddonStatusDetails } from '../../dist/src/managers/AddonsManager';
 import type PluginManager from '../../dist/src/managers/PluginManager';
 import type AddonsManager from '../../dist/src/managers/AddonsManager';
 import type NotificationManager from '../../dist/src/managers/NotificationManager';
+import type ConfigurationManager from '../../dist/src/managers/ConfigurationManager';
 import JournalDataManager from './managers/JournalDataManager';
 import JournalTemplateManager from './managers/JournalTemplateManager';
 import JournalPlugin from './plugins/JournalPlugin';
@@ -67,9 +68,10 @@ const journalAddon = {
   dependencies: [] as string[],
 
   async register(engine: WikiEngine, config: Record<string, unknown>): Promise<void> {
+    const cm = engine.getManager<ConfigurationManager>('ConfigurationManager');
     const dataPath = typeof config['dataPath'] === 'string'
       ? config['dataPath']
-      : './data/journal';
+      : (cm?.resolveDataPath('journal') ?? './data/journal');
 
     // ── 1. JournalDataManager ────────────────────────────────────────────────
     dataManager = new JournalDataManager(engine, dataPath);
