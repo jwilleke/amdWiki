@@ -17,7 +17,7 @@ var _apInitSource = typeof assetPickerInitSource  !== 'undefined' ? assetPickerI
 %>
 
 <!-- Controls bar -->
-<div class="row g-2 mb-3">
+<div class="row g-2 mb-2">
     <div class="col">
         <input type="text" id="ap-query" class="form-control"
                placeholder="Search by filename, description, year&hellip;"
@@ -57,11 +57,47 @@ var _apInitSource = typeof assetPickerInitSource  !== 'undefined' ? assetPickerI
     </div>
 </div>
 
-<!-- Results grid -->
-<div id="ap-results" class="row g-2<% if (_apMode === 'modal') { %> ap-modal-scroll<% } %>">
-    <div class="col-12 text-center text-muted py-5" id="ap-placeholder">
-        <i class="fas fa-search fa-2x mb-2 d-block"></i>
-        Enter a search term or leave blank to browse all assets.
+<!-- Advanced filters row (date range, path prefix, hidden toggle) -->
+<div class="row g-2 mb-3" id="ap-advanced-row">
+    <div class="col-auto" id="ap-date-col">
+        <div class="input-group input-group-sm">
+            <span class="input-group-text"><i class="fas fa-calendar-alt"></i></span>
+            <input type="date" id="ap-date-from" class="form-control form-control-sm" title="From date" style="max-width:140px;">
+            <span class="input-group-text">&ndash;</span>
+            <input type="date" id="ap-date-to" class="form-control form-control-sm" title="To date" style="max-width:140px;">
+            <select id="ap-date-field" class="form-select form-select-sm" title="Date field" style="max-width:120px;">
+                <option value="mtime">File date</option>
+                <option value="exif_datetime">EXIF date</option>
+            </select>
+        </div>
+    </div>
+    <div class="col-auto" id="ap-path-col">
+        <div class="input-group input-group-sm">
+            <span class="input-group-text"><i class="fas fa-folder"></i></span>
+            <input type="text" id="ap-path-prefix" class="form-control form-control-sm" placeholder="Path prefix&hellip;" style="max-width:160px;" autocomplete="off">
+        </div>
+    </div>
+    <div class="col-auto d-flex align-items-center" id="ap-hidden-col">
+        <div class="form-check mb-0">
+            <input class="form-check-input" type="checkbox" id="ap-include-hidden">
+            <label class="form-check-label small" for="ap-include-hidden">Include archived</label>
+        </div>
+    </div>
+</div>
+
+<!-- Layout: facet sidebar + results -->
+<div class="d-flex gap-3">
+    <!-- Facet sidebar -->
+    <div id="ap-facets" class="flex-shrink-0" style="width:160px;display:none;"></div>
+
+    <!-- Results grid -->
+    <div class="flex-grow-1">
+        <div id="ap-results" class="row g-2<% if (_apMode === 'modal') { %> ap-modal-scroll<% } %>">
+            <div class="col-12 text-center text-muted py-5" id="ap-placeholder">
+                <i class="fas fa-search fa-2x mb-2 d-block"></i>
+                Enter a search term or leave blank to browse all assets.
+            </div>
+        </div>
     </div>
 </div>
 
@@ -90,13 +126,19 @@ var _apInitSource = typeof assetPickerInitSource  !== 'undefined' ? assetPickerI
     var _apPage_  = <%- JSON.stringify(_apPageName) %>;  // wiki page name for upload
 
     // DOM refs
-    var qEl     = document.getElementById('ap-query');
-    var srcEl   = document.getElementById('ap-source');
-    var mimeEl  = document.getElementById('ap-mime');
-    var sortEl  = document.getElementById('ap-sort');
-    var resEl   = document.getElementById('ap-results');
-    var cntEl   = document.getElementById('ap-count');
-    var pagEl   = document.getElementById('ap-pagination');
+    var qEl          = document.getElementById('ap-query');
+    var srcEl        = document.getElementById('ap-source');
+    var mimeEl       = document.getElementById('ap-mime');
+    var sortEl       = document.getElementById('ap-sort');
+    var dateFromEl   = document.getElementById('ap-date-from');
+    var dateToEl     = document.getElementById('ap-date-to');
+    var dateFieldEl  = document.getElementById('ap-date-field');
+    var pathPrefixEl = document.getElementById('ap-path-prefix');
+    var inclHiddenEl = document.getElementById('ap-include-hidden');
+    var facetsEl     = document.getElementById('ap-facets');
+    var resEl        = document.getElementById('ap-results');
+    var cntEl        = document.getElementById('ap-count');
+    var pagEl        = document.getElementById('ap-pagination');
 
     // Wire controls
     qEl.addEventListener('input', function () {
@@ -106,9 +148,17 @@ var _apInitSource = typeof assetPickerInitSource  !== 'undefined' ? assetPickerI
     qEl.addEventListener('keydown', function (e) {
         if (e.key === 'Enter') { clearTimeout(_apTimer); _apSearch(0); }
     });
-    srcEl.addEventListener('change',  function () { _apUpdateControls(); _apSearch(0); });
-    mimeEl.addEventListener('change', function () { _apSearch(0); });
-    sortEl.addEventListener('change', function () { _apSearch(0); });
+    srcEl.addEventListener('change',       function () { _apUpdateControls(); _apSearch(0); });
+    mimeEl.addEventListener('change',      function () { _apSearch(0); });
+    sortEl.addEventListener('change',      function () { _apSearch(0); });
+    dateFromEl.addEventListener('change',  function () { _apSearch(0); });
+    dateToEl.addEventListener('change',    function () { _apSearch(0); });
+    dateFieldEl.addEventListener('change', function () { _apSearch(0); });
+    pathPrefixEl.addEventListener('input', function () {
+        clearTimeout(_apTimer);
+        _apTimer = setTimeout(function () { _apSearch(0); }, 400);
+    });
+    inclHiddenEl.addEventListener('change', function () { _apSearch(0); });
     document.getElementById('ap-search-btn').addEventListener('click', function () { _apSearch(0); });
     document.getElementById('ap-upload-btn').addEventListener('click', function () {
         if (typeof window.showUploadAttachment === 'function') {
@@ -117,14 +167,16 @@ var _apInitSource = typeof assetPickerInitSource  !== 'undefined' ? assetPickerI
     });
 
     // Show/hide controls depending on source type
-    var mimeColEl   = document.getElementById('ap-mime-col');
-    var sortColEl   = document.getElementById('ap-sort-col');
-    var uploadBtnEl = document.getElementById('ap-upload-btn');
+    var mimeColEl    = document.getElementById('ap-mime-col');
+    var sortColEl    = document.getElementById('ap-sort-col');
+    var uploadBtnEl  = document.getElementById('ap-upload-btn');
+    var advancedRow  = document.getElementById('ap-advanced-row');
     function _apUpdateControls() {
         var isPage = srcEl.value === 'page';
         if (mimeColEl)   mimeColEl.style.display   = isPage ? 'none' : '';
         if (sortColEl)   sortColEl.style.display    = isPage ? 'none' : '';
         if (uploadBtnEl) uploadBtnEl.style.display  = isPage ? 'none' : '';
+        if (advancedRow) advancedRow.style.display  = isPage ? 'none' : '';
     }
     _apUpdateControls();
 
@@ -157,10 +209,21 @@ var _apInitSource = typeof assetPickerInitSource  !== 'undefined' ? assetPickerI
             if (q)    params.set('q',            q);
             if (src)  params.set('types',         src);
             if (mime) params.set('mimeCategory',  mime);
+            var dateFrom = dateFromEl ? dateFromEl.value : '';
+            var dateTo   = dateToEl   ? dateToEl.value   : '';
+            var dateField = dateFieldEl ? dateFieldEl.value : '';
+            if (dateFrom) params.set('dateFrom', dateFrom);
+            if (dateTo)   params.set('dateTo',   dateTo);
+            if (dateField && dateField !== 'mtime') params.set('dateField', dateField);
+            var pathPfx = pathPrefixEl ? pathPrefixEl.value.trim() : '';
+            if (pathPfx) params.set('pathPrefix', pathPfx);
+            if (inclHiddenEl && inclHiddenEl.checked) params.set('includeHidden', 'true');
 
             var resp = await fetch('/api/assets/search?' + params.toString());
             if (!resp.ok) throw new Error('Search failed (' + resp.status + ')');
             var data = await resp.json();
+
+            _apRenderFacets(data.aggregations);
 
             if (!data.success || !data.results || !data.results.length) {
                 _apItems = [];
@@ -194,6 +257,68 @@ var _apInitSource = typeof assetPickerInitSource  !== 'undefined' ? assetPickerI
             _apItems = [];
             resEl.innerHTML = '<div class="col-12 text-center text-danger py-4"><i class="fas fa-exclamation-triangle"></i> ' + _esc(err.message) + '</div>';
         }
+    }
+
+    // ------------------------------------------------------------------ facets
+
+    function _apRenderFacets(aggs) {
+        if (!facetsEl) return;
+        if (!aggs || (!aggs.byMime && !aggs.byYear && !aggs.byFolder && !aggs.byExtension)) {
+            facetsEl.style.display = 'none';
+            facetsEl.innerHTML = '';
+            return;
+        }
+        facetsEl.style.display = '';
+        var html = '';
+        if (aggs.byMime && aggs.byMime.length) {
+            html += _apFacetGroup('Type', aggs.byMime.slice(0, 8), function (f) {
+                mimeEl.value = '';
+                if (mimeEl) mimeEl.value = '';
+                if (mime) params && params.set ? '' : null;
+                params = null; // reset — will be rebuilt on next search
+                if (mimeEl) mimeEl.dispatchEvent(new Event('change'));
+                if (mimeEl) mimeEl.value = '';
+                return 'mime=' + encodeURIComponent(f.key);
+            });
+        }
+        if (aggs.byYear && aggs.byYear.length) {
+            html += _apFacetGroup('Year', aggs.byYear.slice(0, 10), null);
+        }
+        if (aggs.byExtension && aggs.byExtension.length) {
+            html += _apFacetGroup('Extension', aggs.byExtension.slice(0, 8), null);
+        }
+        facetsEl.innerHTML = html;
+        // Wire facet clicks
+        facetsEl.querySelectorAll('[data-ap-facet-mime]').forEach(function (el) {
+            el.addEventListener('click', function () {
+                var v = el.getAttribute('data-ap-facet-mime');
+                // Set hidden params for next search by appending to URL directly
+                params = null;
+                _apActiveFacet = { mime: v };
+                _apSearch(0);
+            });
+        });
+        facetsEl.querySelectorAll('[data-ap-facet-ext]').forEach(function (el) {
+            el.addEventListener('click', function () {
+                _apActiveFacet = { extension: el.getAttribute('data-ap-facet-ext') };
+                _apSearch(0);
+            });
+        });
+    }
+
+    var _apActiveFacet = {};
+
+    function _apFacetGroup(label, facets, _unused) {
+        var rows = facets.map(function (f) {
+            var attr = label === 'Type' ? 'data-ap-facet-mime="' + _esc(f.key) + '"'
+                     : label === 'Extension' ? 'data-ap-facet-ext="' + _esc(f.key) + '"'
+                     : '';
+            return '<div class="d-flex justify-content-between small py-1 border-bottom" ' + attr +
+                   (attr ? ' style="cursor:pointer;" class="ap-facet-row"' : '') + '>' +
+                   '<span class="text-truncate me-1" style="max-width:110px;" title="' + _esc(f.key) + '">' + _esc(f.key) + '</span>' +
+                   '<span class="badge bg-secondary">' + f.count.toLocaleString() + '</span></div>';
+        }).join('');
+        return '<div class="mb-3"><div class="small fw-bold text-muted mb-1 text-uppercase" style="font-size:.7rem;">' + _esc(label) + '</div>' + rows + '</div>';
     }
 
     // ------------------------------------------------------------------ card helpers

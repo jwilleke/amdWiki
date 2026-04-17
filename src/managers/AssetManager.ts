@@ -17,7 +17,7 @@ import fs from 'fs-extra';
 import path from 'path';
 import BaseManager from './BaseManager';
 import type { WikiEngine } from '../types/WikiEngine';
-import type { AssetProvider, AssetRecord, AssetPage, AssetQuery, ProviderHealthStatus, ProviderHealthReport } from '../types/Asset';
+import type { AssetProvider, AssetRecord, AssetPage, AssetQuery, AssetAggregations, AssetFacet, ProviderHealthStatus, ProviderHealthReport } from '../types/Asset';
 import type ConfigurationManager from './ConfigurationManager';
 import logger from '../utils/logger';
 
@@ -325,6 +325,7 @@ class AssetManager extends BaseManager {
       : [...this.registry.values()];
 
     const all: AssetRecord[] = [];
+    const allAggs: AssetAggregations[] = [];
 
     for (const provider of providers) {
       if (!this.isHealthy(provider)) {
@@ -334,6 +335,7 @@ class AssetManager extends BaseManager {
       try {
         const page = await provider.search({ ...providerQuery, pageSize: 9999, offset: 0 });
         all.push(...page.results);
+        if (page.aggregations) allAggs.push(page.aggregations);
       } catch (err) {
         logger.warn(`[AssetManager] Provider "${provider.id}" search failed:`, err);
       }
@@ -343,7 +345,8 @@ class AssetManager extends BaseManager {
 
     const total = all.length;
     const results = all.slice(offset, offset + pageSize);
-    return { results, total, hasMore: offset + results.length < total };
+    const aggregations = this._mergeAggregations(allAggs);
+    return { results, total, hasMore: offset + results.length < total, ...(aggregations ? { aggregations } : {}) };
   }
 
   /**
@@ -394,6 +397,25 @@ class AssetManager extends BaseManager {
   // ---------------------------------------------------------------------------
   // Internal helpers
   // ---------------------------------------------------------------------------
+
+  private _mergeAggregations(aggs: AssetAggregations[]): AssetAggregations | undefined {
+    if (!aggs.length) return undefined;
+    const merge = (key: keyof AssetAggregations): AssetFacet[] | undefined => {
+      const map = new Map<string, number>();
+      for (const agg of aggs) {
+        for (const facet of agg[key] ?? []) {
+          map.set(facet.key, (map.get(facet.key) ?? 0) + facet.count);
+        }
+      }
+      return map.size ? [...map.entries()].map(([k, c]) => ({ key: k, count: c })).sort((a, b) => b.count - a.count) : undefined;
+    };
+    const result: AssetAggregations = {};
+    const byMime = merge('byMime'); if (byMime) result.byMime = byMime;
+    const byYear = merge('byYear'); if (byYear) result.byYear = byYear;
+    const byFolder = merge('byFolder'); if (byFolder) result.byFolder = byFolder;
+    const byExtension = merge('byExtension'); if (byExtension) result.byExtension = byExtension;
+    return Object.keys(result).length ? result : undefined;
+  }
 
   private _sort(items: AssetRecord[], sort: 'date' | 'caption', order: 'asc' | 'desc'): void {
     const asc = order === 'asc';

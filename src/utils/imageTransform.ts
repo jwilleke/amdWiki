@@ -14,10 +14,10 @@ import sharp from 'sharp';
  * Options for a single image transform operation.
  */
 export interface ImageTransformOptions {
-  /** Target width in pixels */
-  width: number;
-  /** Target height in pixels */
-  height: number;
+  /** Target width in pixels (omit to skip resizing) */
+  width?: number;
+  /** Target height in pixels (omit to skip resizing) */
+  height?: number;
   /**
    * Resize fit mode (default: 'inside').
    *   inside   — preserve full image, letterbox to fit bounds
@@ -52,7 +52,9 @@ export async function transformImage(
 
   let pipeline = sharp(input).rotate(); // auto-rotate from EXIF Orientation
 
-  pipeline = pipeline.resize(width, height, { fit });
+  if (width && height) {
+    pipeline = pipeline.resize(width, height, { fit });
+  }
 
   if (format === 'jpeg') {
     pipeline = pipeline.jpeg({ quality });

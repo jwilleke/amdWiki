@@ -37,6 +37,8 @@ export interface MediaItem {
   creator?: string;
   /** Structured metadata bag — EXIF, IPTC, XMP and custom fields */
   metadata?: AssetMetadata;
+  /** Alternate-format paths for the same photo (e.g. the HEIC original when JPEG is primary) */
+  alternates?: string[];
 }
 
 /**

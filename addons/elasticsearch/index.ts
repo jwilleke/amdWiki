@@ -19,6 +19,11 @@
  *   ngdpbase.addons.elasticsearch.index-ids  — Array of sist2 scan index IDs to
  *                                              filter on. Empty array = all indices.
  *                                              (default: [])
+ *   ngdpbase.addons.elasticsearch.hidden-paths — Array of path prefix patterns to
+ *                                              exclude from results by default (backup dirs,
+ *                                              snapshots, etc.). Users can opt-in via
+ *                                              includeHidden query param.
+ *                                              (default: [])
  *
  * Provider capabilities: search, thumbnail (proxied through ngdpbase).
  * Tags: sist2 `tag` field maps to AssetRecord.keywords (read-only).
@@ -66,8 +71,13 @@ const elasticsearchAddon = {
       pathAccess = validated;
     }
 
+    const rawHiddenPaths = config['hidden-paths'];
+    const hiddenPaths: string[] | null = Array.isArray(rawHiddenPaths) && rawHiddenPaths.every((p) => typeof p === 'string')
+      ? rawHiddenPaths
+      : null;
+
     const client = new Client({ node: esUrl });
-    provider = new Sist2AssetProvider(client, esIndex, sist2Url, indexIds, pathAccess);
+    provider = new Sist2AssetProvider(client, esIndex, sist2Url, indexIds, pathAccess, hiddenPaths);
 
     const assetManager = engine.getManager<AssetManager>('AssetManager');
     if (assetManager) {

@@ -91,6 +91,12 @@ interface MediaIndexEntry extends MediaItem {
   mtime: number;
 }
 
+/**
+ * Format priority for deduplication: lower index wins.
+ * When JPEG and HEIC share the same stem, JPEG is kept as primary.
+ */
+const FORMAT_DEDUP_PRIORITY = ['jpg', 'jpeg', 'png', 'webp', 'tiff', 'tif', 'bmp', 'heic', 'heif', 'arw', 'cr2', 'nef', 'orf', 'dng', 'raw'];
+
 /** Shape of the persisted media-index.json file */
 interface MediaIndexFile {
   version: number;
@@ -245,24 +251,39 @@ class FileSystemMediaProvider extends BaseMediaProvider {
       counters.errors += collected.dirErrors;
     }
 
-    counters.scanned = allFiles.length;
-    logger.info(`[FileSystemMediaProvider] Collected ${allFiles.length} files — beginning metadata extraction`);
+    // Dedup: keep only the highest-priority format per directory+stem (#515)
+    const { primaryFiles, alternatesMap } = this.deduplicateFormats(allFiles);
+    const skipped = allFiles.length - primaryFiles.length;
+    if (skipped > 0) {
+      logger.info(`[FileSystemMediaProvider] Deduplication: suppressed ${skipped} duplicate-format file(s)`);
+    }
+
+    counters.scanned = primaryFiles.length;
+    logger.info(`[FileSystemMediaProvider] Collected ${primaryFiles.length} files — beginning metadata extraction`);
 
     // Phase 2: process files concurrently in batches
     const BATCH_SIZE = 8;
     const LOG_INTERVAL = 500;
     let processed = 0;
-    for (let i = 0; i < allFiles.length; i += BATCH_SIZE) {
-      const batch = allFiles.slice(i, i + BATCH_SIZE);
+    for (let i = 0; i < primaryFiles.length; i += BATCH_SIZE) {
+      const batch = primaryFiles.slice(i, i + BATCH_SIZE);
       await Promise.all(batch.map(fp => this.processFile(fp, counters, force)));
       processed += batch.length;
-      if (onProgress) onProgress(processed, allFiles.length);
-      if (processed % LOG_INTERVAL < BATCH_SIZE || processed >= allFiles.length) {
+      if (onProgress) onProgress(processed, primaryFiles.length);
+      if (processed % LOG_INTERVAL < BATCH_SIZE || processed >= primaryFiles.length) {
         const elapsedSec = ((Date.now() - startMs) / 1000).toFixed(1);
         logger.info(
-          `[FileSystemMediaProvider] Progress: ${processed}/${allFiles.length} files in ${elapsedSec}s ` +
+          `[FileSystemMediaProvider] Progress: ${processed}/${primaryFiles.length} files in ${elapsedSec}s ` +
             `(added=${counters.added} updated=${counters.updated} errors=${counters.errors})`
         );
+      }
+    }
+
+    // Attach alternate-format paths to their primary index entries
+    for (const [primaryPath, altPaths] of alternatesMap) {
+      const id = this.generateId(primaryPath);
+      if (this.index[id]) {
+        this.index[id].alternates = altPaths;
       }
     }
 
@@ -442,6 +463,39 @@ class FileSystemMediaProvider extends BaseMediaProvider {
   // ---------------------------------------------------------------------------
   // Private helpers — directory walk (collection phase only, no ExifTool)
   // ---------------------------------------------------------------------------
+
+  /**
+   * Group files by directory+stem and keep only the highest-priority format per group.
+   * Alternate paths are returned separately so they can be stored on the primary entry.
+   */
+  private deduplicateFormats(files: string[]): { primaryFiles: string[]; alternatesMap: Map<string, string[]> } {
+    const groups = new Map<string, string[]>();
+    for (const fp of files) {
+      const key = path.dirname(fp) + '|' + path.basename(fp, path.extname(fp)).toLowerCase();
+      let group = groups.get(key);
+      if (!group) { group = []; groups.set(key, group); }
+      group.push(fp);
+    }
+
+    const primaryFiles: string[] = [];
+    const alternatesMap = new Map<string, string[]>();
+
+    for (const [, group] of groups) {
+      if (group.length === 1) {
+        primaryFiles.push(group[0]);
+        continue;
+      }
+      group.sort((a, b) => {
+        const ai = FORMAT_DEDUP_PRIORITY.indexOf(path.extname(a).slice(1).toLowerCase());
+        const bi = FORMAT_DEDUP_PRIORITY.indexOf(path.extname(b).slice(1).toLowerCase());
+        return (ai === -1 ? 999 : ai) - (bi === -1 ? 999 : bi);
+      });
+      primaryFiles.push(group[0]);
+      alternatesMap.set(group[0], group.slice(1));
+    }
+
+    return { primaryFiles, alternatesMap };
+  }
 
   /**
    * Recursively collect all matching media file paths under dirPath.

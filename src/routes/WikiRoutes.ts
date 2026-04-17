@@ -6447,7 +6447,19 @@ class WikiRoutes {
       const userRoles = currentUser.roles ?? [];
       const username = currentUser.username ?? '';
 
-      const page = await assetService.search({ query, types, year, pageSize, offset, sort, order, mimeCategory, wikiContext, userRoles, username });
+      const dateFrom = typeof req.query.dateFrom === 'string' && req.query.dateFrom ? req.query.dateFrom : undefined;
+      const dateTo = typeof req.query.dateTo === 'string' && req.query.dateTo ? req.query.dateTo : undefined;
+      const dateFieldRaw = req.query.dateField as string;
+      const dateField = dateFieldRaw === 'exif_datetime' ? 'exif_datetime' as const : dateFieldRaw === 'mtime' ? 'mtime' as const : undefined;
+      const includeHidden = req.query.includeHidden === 'true';
+      const pathPrefix = typeof req.query.pathPrefix === 'string' && req.query.pathPrefix ? req.query.pathPrefix : undefined;
+      const mime = typeof req.query.mime === 'string' && req.query.mime ? req.query.mime : undefined;
+      const extension = typeof req.query.extension === 'string' && req.query.extension ? req.query.extension : undefined;
+
+      const page = await assetService.search({
+        query, types, year, pageSize, offset, sort, order, mimeCategory, wikiContext, userRoles, username,
+        dateFrom, dateTo, dateField, includeHidden, pathPrefix, mime, extension
+      });
 
       return res.json({ success: true, ...page });
     } catch (err: unknown) {
@@ -9747,9 +9759,10 @@ ${description}
    * GET /media/file/:id
    * Stream the raw media file (video, image, etc.) with HTTP Range support.
    * Range requests are required for browser <video> seeking.
+   * HEIC/RAW files are transcoded on-the-fly for browsers that can't decode them (#514).
    */
   async mediaFile(req: Request, res: Response) {
-    const mediaManager = this.engine.getManager('MediaManager');
+    const mediaManager = this.engine.getManager('MediaManager') as import('../managers/MediaManager').default | undefined;
     if (!mediaManager) {
       return res.status(503).send('Media manager not enabled');
     }
@@ -9760,7 +9773,32 @@ ${description}
         return res.status(404).send('Media item not found');
       }
 
-      const filePath: string = item.filePath as string;
+      const filePath: string = item.filePath;
+      const mimeType: string = (item.mimeType) || 'application/octet-stream';
+
+      // On-the-fly transcode for HEIC/RAW formats that browsers can't decode natively
+      const TRANSCODE_MIMES = new Set([
+        'image/heic', 'image/heif', 'image/x-raw', 'image/x-olympus-orf',
+        'image/x-canon-cr2', 'image/x-nikon-nef', 'image/x-sony-arw', 'image/dng'
+      ]);
+      if (TRANSCODE_MIMES.has(mimeType)) {
+        const accept = req.headers.accept ?? '';
+        if (!accept.includes('image/heic') && !accept.includes('image/heif')) {
+          const format: 'webp' | 'jpeg' = accept.includes('image/webp') ? 'webp' : 'jpeg';
+          const outMime = format === 'webp' ? 'image/webp' : 'image/jpeg';
+          const buffer = await mediaManager.getTranscodedBuffer(req.params.id, format);
+          if (buffer) {
+            res.writeHead(200, {
+              'Content-Type': outMime,
+              'Content-Length': buffer.length,
+              'Cache-Control': 'public, max-age=3600'
+            });
+            return res.end(buffer);
+          }
+          // Transcode failed — fall through to serve raw file
+        }
+      }
+
       let stat: { size: number };
       try {
         stat = fs.statSync(filePath);
@@ -9768,7 +9806,6 @@ ${description}
         return res.status(404).send('Media file not found on disk');
       }
 
-      const mimeType: string = (item.mimeType as string) || 'application/octet-stream';
       const fileSize = stat.size;
       const rangeHeader = req.headers.range;
 

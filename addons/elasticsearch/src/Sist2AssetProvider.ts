@@ -12,12 +12,13 @@
  */
 
 import type { Client } from '@elastic/elasticsearch';
-import type { QueryDslQueryContainer, QueryDslTextQueryType, SortCombinations } from '@elastic/elasticsearch/lib/api/types';
+import type { QueryDslQueryContainer, QueryDslTextQueryType, SortCombinations, AggregationsCalendarInterval } from '@elastic/elasticsearch/lib/api/types';
 import type {
   AssetProvider,
   AssetRecord,
   AssetPage,
   AssetQuery,
+  AssetAggregations,
   ProviderCapability
 } from '../../../dist/src/types/Asset';
 import type { Sist2Document } from './types';
@@ -59,7 +60,13 @@ export class Sist2AssetProvider implements AssetProvider {
      * Example:
      *   { "admin": [], "editor": ["family/"], "jim": ["jims/", "family/"] }
      */
-    private readonly pathAccess: Record<string, string[]> | null = null
+    private readonly pathAccess: Record<string, string[]> | null = null,
+    /**
+     * Path prefixes hidden from search results by default (#519).
+     * Results under these paths are excluded unless query.includeHidden is true.
+     * Supports simple prefix patterns (e.g. "Backup/", ".snapshot/", "@eaDir/").
+     */
+    private readonly hiddenPaths: string[] | null = null
   ) {}
 
   // ---------------------------------------------------------------------------
@@ -89,10 +96,27 @@ export class Sist2AssetProvider implements AssetProvider {
       filter.push({ terms: { index: this.indexIds } });
     }
 
+    // year filter (backward-compat shorthand for mtime range)
     if (query.year) {
       const start = new Date(query.year, 0, 1).getTime() / 1000;
       const end = new Date(query.year + 1, 0, 1).getTime() / 1000;
       filter.push({ range: { mtime: { gte: start, lt: end } } });
+    }
+
+    // date range filter (#518)
+    if (query.dateFrom || query.dateTo) {
+      const field = query.dateField === 'exif_datetime' ? 'exif_datetime' : 'mtime';
+      if (field === 'mtime') {
+        const rangeClause: { gte?: number; lte?: number } = {};
+        if (query.dateFrom) rangeClause.gte = new Date(query.dateFrom).getTime() / 1000;
+        if (query.dateTo) rangeClause.lte = new Date(query.dateTo).getTime() / 1000;
+        filter.push({ range: { mtime: rangeClause } });
+      } else {
+        const rangeClause: { gte?: string; lte?: string } = {};
+        if (query.dateFrom) rangeClause.gte = query.dateFrom.replace('T', ' ').replace(/Z$|([+-]\d{2}:\d{2})$/, '');
+        if (query.dateTo) rangeClause.lte = query.dateTo.replace('T', ' ').replace(/Z$|([+-]\d{2}:\d{2})$/, '');
+        filter.push({ range: { exif_datetime: rangeClause } });
+      }
     }
 
     if (query.mimeCategory === 'image') {
@@ -101,6 +125,21 @@ export class Sist2AssetProvider implements AssetProvider {
       filter.push({ terms: { mime: DOCUMENT_MIMES } });
     }
     // 'other' handled via must_not below
+
+    // exact mime filter (#520)
+    if (query.mime) {
+      filter.push({ term: { mime: query.mime } });
+    }
+
+    // extension filter (#520)
+    if (query.extension) {
+      filter.push({ term: { extension: query.extension } });
+    }
+
+    // path prefix filter (#519)
+    if (query.pathPrefix) {
+      filter.push({ prefix: { path: query.pathPrefix } });
+    }
 
     // --- path access control (principal-based: roles + username) ---
     if (this.pathAccess) {
@@ -120,13 +159,22 @@ export class Sist2AssetProvider implements AssetProvider {
       }
     }
 
-    // --- must_not for 'other' ---
+    // --- must_not ---
     const mustNot: QueryDslQueryContainer[] = [];
     if (query.mimeCategory === 'other') {
       mustNot.push({ prefix: { mime: 'image/' } });
       mustNot.push({ prefix: { mime: 'video/' } });
       mustNot.push({ prefix: { mime: 'audio/' } });
       mustNot.push({ terms: { mime: DOCUMENT_MIMES } });
+    }
+
+    // hidden paths excluded by default unless includeHidden is set (#519)
+    if (this.hiddenPaths && this.hiddenPaths.length > 0 && !query.includeHidden) {
+      for (const pattern of this.hiddenPaths) {
+        // Support simple prefix patterns: strip leading **/ for prefix queries
+        const prefix = pattern.replace(/^\*\*\//, '').replace(/\/\*\*$/, '/');
+        if (prefix) mustNot.push({ prefix: { path: prefix } });
+      }
     }
 
     // --- sort ---
@@ -143,6 +191,21 @@ export class Sist2AssetProvider implements AssetProvider {
       }
     };
 
+    // --- aggregations (#520) ---
+    const aggs = {
+      by_mime: { terms: { field: 'mime', size: 20 } },
+      by_year: {
+        date_histogram: {
+          field: 'mtime',
+          calendar_interval: 'year' as AggregationsCalendarInterval,
+          format: 'yyyy',
+          order: { _key: 'desc' as 'asc' | 'desc' }
+        }
+      },
+      by_folder: { terms: { field: 'path', size: 20 } },
+      by_extension: { terms: { field: 'extension', size: 20 } }
+    };
+
     const response = await this.esClient.search<Sist2Document>({
       index: this.esIndex,
       body: {
@@ -150,7 +213,8 @@ export class Sist2AssetProvider implements AssetProvider {
         sort,
         size,
         from,
-        _source: true
+        _source: true,
+        aggs
       }
     });
 
@@ -164,10 +228,13 @@ export class Sist2AssetProvider implements AssetProvider {
       .filter((h) => h._source !== undefined)
       .map((h) => this._hitToRecord(h._id ?? '', h._source as Sist2Document));
 
+    const aggregations = this._mapAggregations(response.aggregations);
+
     return {
       results,
       total,
-      hasMore: from + results.length < total
+      hasMore: from + results.length < total,
+      ...(aggregations ? { aggregations } : {})
     };
   }
 
@@ -259,6 +326,33 @@ export class Sist2AssetProvider implements AssetProvider {
     }
 
     return [...paths];
+  }
+
+  // ---------------------------------------------------------------------------
+  // _mapAggregations
+  // ---------------------------------------------------------------------------
+
+  private _mapAggregations(raw: unknown): AssetAggregations | undefined {
+    if (!raw || typeof raw !== 'object') return undefined;
+    const r = raw as Record<string, { buckets?: Array<{ key: string | number; doc_count: number; key_as_string?: string }> }>;
+
+    const toBuckets = (name: string) =>
+      (r[name]?.buckets ?? []).map((b) => ({
+        key: String(b.key_as_string ?? b.key),
+        count: b.doc_count
+      }));
+
+    const byMime = toBuckets('by_mime');
+    const byYear = toBuckets('by_year');
+    const byFolder = toBuckets('by_folder');
+    const byExtension = toBuckets('by_extension');
+
+    const result: AssetAggregations = {};
+    if (byMime.length) result.byMime = byMime;
+    if (byYear.length) result.byYear = byYear;
+    if (byFolder.length) result.byFolder = byFolder;
+    if (byExtension.length) result.byExtension = byExtension;
+    return Object.keys(result).length ? result : undefined;
   }
 
   // ---------------------------------------------------------------------------

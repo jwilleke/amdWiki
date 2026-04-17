@@ -24,6 +24,7 @@ import type { WikiEngine } from '../types/WikiEngine';
 import WikiContext from '../context/WikiContext';
 import BaseMediaProvider, { MediaItem, ScanResult } from '../providers/BaseMediaProvider';
 import FileSystemMediaProvider, { DEFAULT_MEDIA_EXTENSIONS } from '../providers/FileSystemMediaProvider';
+import { transformImage } from '../utils/imageTransform';
 import type ConfigurationManager from './ConfigurationManager';
 
 class MediaManager extends BaseManager {
@@ -34,6 +35,9 @@ class MediaManager extends BaseManager {
   get provider(): BaseMediaProvider | null {
     return this._provider;
   }
+
+  /** Thumbnail (and transcode) cache directory */
+  private _thumbnailDir = '';
 
   /** Handle for the periodic rescan interval timer */
   private scanTimer: ReturnType<typeof setInterval> | null = null;
@@ -69,6 +73,8 @@ class MediaManager extends BaseManager {
     const indexFile =
       configManager.getResolvedDataPath('ngdpbase.media.index.file', defaultIndexFile) ||
       defaultIndexFile;
+
+    this._thumbnailDir = thumbnailDir;
 
     // Ensure thumbnail directory exists
     try {
@@ -296,6 +302,35 @@ class MediaManager extends BaseManager {
   async getThumbnailBuffer(id: string, size: string): Promise<Buffer | null> {
     if (!this.provider) return null;
     return this.provider.getThumbnailBuffer(id, size);
+  }
+
+  /**
+   * Return a transcoded full-resolution buffer for a HEIC/RAW item (#514).
+   * Transcoded result is cached to the thumbnail directory.
+   *
+   * @param id     - Item identifier.
+   * @param format - Target format: 'jpeg' or 'webp'.
+   * @returns Transcoded buffer, or null if unavailable.
+   */
+  async getTranscodedBuffer(id: string, format: 'jpeg' | 'webp'): Promise<Buffer | null> {
+    if (!this.provider || !this._thumbnailDir) return null;
+    const item = await this.provider.getItem(id);
+    if (!item?.filePath) return null;
+
+    const ext = format === 'webp' ? 'webp' : 'jpg';
+    const cachePath = path.join(this._thumbnailDir, `${id}-fullres-${format}.${ext}`);
+    if (await fs.pathExists(cachePath)) {
+      return fs.readFile(cachePath);
+    }
+
+    try {
+      const buffer = await transformImage(item.filePath, { format, quality: 95 });
+      await fs.writeFile(cachePath, buffer);
+      return buffer;
+    } catch (err) {
+      logger.warn(`[MediaManager] Transcode failed for ${id}: ${String(err)}`);
+      return null;
+    }
   }
 
   /**

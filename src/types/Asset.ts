@@ -222,6 +222,45 @@ export interface AssetQuery {
    * per-user path access rules (consistent with the audience/access principal model).
    */
   username?: string;
+  /** ISO 8601 start date for date range filtering (#518) */
+  dateFrom?: string;
+  /** ISO 8601 end date for date range filtering (#518) */
+  dateTo?: string;
+  /** Date field to filter on: 'mtime' (file-modified, default) or 'exif_datetime' (EXIF capture date) (#518) */
+  dateField?: 'mtime' | 'exif_datetime';
+  /** When true, include results from hidden/backup paths (default: false) (#519) */
+  includeHidden?: boolean;
+  /** Restrict results to a specific path prefix, e.g. "jims/photos" (#519) */
+  pathPrefix?: string;
+  /** Filter by exact MIME type, e.g. from a facet click (#520) */
+  mime?: string;
+  /** Filter by file extension, e.g. from a facet click (#520) */
+  extension?: string;
+}
+
+/**
+ * A single aggregation bucket returned alongside search results.
+ */
+export interface AssetFacet {
+  /** Bucket key (e.g. "image/jpeg", "2024", "jims/photos") */
+  key: string;
+  /** Number of matching items in this bucket */
+  count: number;
+}
+
+/**
+ * Faceted aggregation data returned alongside AssetPage results.
+ * Only populated by providers that support server-side aggregations (e.g. Sist2AssetProvider).
+ */
+export interface AssetAggregations {
+  /** Distribution by MIME type */
+  byMime?: AssetFacet[];
+  /** Distribution by year (from mtime) */
+  byYear?: AssetFacet[];
+  /** Distribution by top-level folder */
+  byFolder?: AssetFacet[];
+  /** Distribution by file extension */
+  byExtension?: AssetFacet[];
 }
 
 /**
@@ -234,6 +273,8 @@ export interface AssetPage {
   total: number;
   /** True when there are more results beyond this page */
   hasMore: boolean;
+  /** Faceted aggregation data (populated by providers that support it) */
+  aggregations?: AssetAggregations;
 }
 
 /**

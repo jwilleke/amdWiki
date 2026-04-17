@@ -45,6 +45,20 @@ export interface AssetSearchOptions {
   userRoles?: string[];
   /** Authenticated username — forwarded alongside roles for per-user path access rules */
   username?: string;
+  /** ISO 8601 start date for date range filtering */
+  dateFrom?: string;
+  /** ISO 8601 end date for date range filtering */
+  dateTo?: string;
+  /** Date field to filter on */
+  dateField?: 'mtime' | 'exif_datetime';
+  /** When true, include results from hidden/backup paths */
+  includeHidden?: boolean;
+  /** Restrict results to a specific path prefix */
+  pathPrefix?: string;
+  /** Filter by exact MIME type */
+  mime?: string;
+  /** Filter by file extension */
+  extension?: string;
 }
 
 // ---------------------------------------------------------------------------
@@ -79,7 +93,8 @@ class AssetService extends BaseManager {
    * AssetManager.  AssetService is a pure translation layer.
    */
   async search(options: AssetSearchOptions = {}): Promise<AssetPage> {
-    const { query = '', types, year, pageSize = 48, offset = 0, sort = 'date', order = 'asc', mimeCategory, wikiContext, userRoles, username } = options;
+    const { query = '', types, year, pageSize = 48, offset = 0, sort = 'date', order = 'asc', mimeCategory, wikiContext, userRoles, username,
+      dateFrom, dateTo, dateField, includeHidden, pathPrefix, mime, extension } = options;
 
     const assetManager = this.engine.getManager<AssetManagerLike>('AssetManager');
     if (!assetManager) {
@@ -94,6 +109,7 @@ class AssetService extends BaseManager {
 
     return assetManager.search({
       query, year, mimeCategory, pageSize, offset, sort, order, userRoles, username,
+      dateFrom, dateTo, dateField, includeHidden, pathPrefix, mime, extension,
       ...(providerId ? { providerId } : {}),
       wikiContext
     });
