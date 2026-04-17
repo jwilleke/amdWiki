@@ -22,6 +22,35 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - [file2.md]
 ```
 
+## 2026-04-17-06
+
+- Agent: Claude Code (Sonnet 4.6)
+- Subject: Journal Phase 2 — JournalDataManager sidecar index, public/editor routes, views (#527)
+- Current Issue: #527
+- Work Done:
+  - JournalDataManager (extends BaseManager): load/save sidecar JSON index, indexEntry, removeEntry, listByAuthor (with tag/mood filter + pagination), listAll, countByAuthor, getOnThisDay, computeStreak, getMoodFacets, getTagFacets, toMarqueeText
+  - routes/public.ts: GET /journal (paginated timeline), /journal/tag/:tag, /journal/mood/:mood, /journal/:slug (view with rendered markdown + attachments); ownership check on entry view
+  - routes/editor.ts: GET+POST /journal/new, GET+POST /journal/:slug/edit, POST /journal/:slug/delete; all writes update sidecar index
+  - 7 addon-local EJS views: journal-home, journal-entry, journal-editor, journal-by-tag, journal-by-mood, _journal-sidebar (streak + mood/tag facets),_journal-entry-card
+  - Updated routes/api.ts: /new bootstraps entry + indexes it; /entries, /on-this-day, /streak now read from JournalDataManager (no SearchManager page scans)
+  - Updated index.ts: registers JournalDataManager, mounts /journal routes, registers addon-local views dir
+  - Added sidebar, mood picker, and entry body CSS to journal.css
+- Commits: f062037d
+- Files Modified:
+  - addons/journal/index.ts
+  - addons/journal/managers/JournalDataManager.ts
+  - addons/journal/routes/api.ts
+  - addons/journal/routes/public.ts
+  - addons/journal/routes/editor.ts
+  - addons/journal/views/journal-home.ejs
+  - addons/journal/views/journal-entry.ejs
+  - addons/journal/views/journal-editor.ejs
+  - addons/journal/views/journal-by-tag.ejs
+  - addons/journal/views/journal-by-mood.ejs
+  - addons/journal/views/_journal-sidebar.ejs
+  - addons/journal/views/_journal-entry-card.ejs
+  - addons/journal/public/css/journal.css
+
 ## 2026-04-17-05
 
 - Agent: Claude Code (Sonnet 4.6)
