@@ -135,6 +135,49 @@
     </div>
   </div>
 
+  <%# ── User stats / leaderboard ──────────────────────────────────────────── %>
+  <% if (userStats && userStats.length > 0) { %>
+  <div class="card mb-4">
+    <div class="card-header d-flex justify-content-between align-items-center">
+      <h5 class="mb-0">
+        <i class="fas fa-users"></i>
+        User Stats
+        <span class="badge bg-secondary ms-2"><%= totalEntries %> total</span>
+      </h5>
+    </div>
+    <div class="card-body p-0">
+      <table class="table table-sm table-hover mb-0">
+        <thead class="table-light">
+          <tr>
+            <th>Author</th>
+            <th class="text-end">Entries</th>
+            <% if (config.showStreakLeaderboard) { %>
+              <th class="text-end">Streak</th>
+            <% } %>
+          </tr>
+        </thead>
+        <tbody>
+          <% userStats.forEach(function(u) { %>
+          <tr>
+            <td><i class="fas fa-user text-muted me-1"></i> <%= u.author %></td>
+            <td class="text-end"><%= u.count %></td>
+            <% if (config.showStreakLeaderboard) { %>
+              <td class="text-end">
+                <% if (u.streak > 0) { %>
+                  <span class="text-warning"><i class="fas fa-fire"></i> <%= u.streak %></span>
+                <% } else { %>
+                  <span class="text-muted">—</span>
+                <% } %>
+              </td>
+            <% } %>
+          </tr>
+          <% }); %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <% } %>
+
   <div class="card">
     <div class="card-header">
       <h5 class="mb-0"><i class="fas fa-info-circle"></i> About the Journal Addon</h5>
@@ -150,6 +193,14 @@
         <a href="/view/myjournal" class="btn btn-sm btn-outline-primary ms-2">
           <i class="fas fa-book"></i> My Journal
         </a>
+        <% if (config.exportEnabled) { %>
+          <a href="/api/journal/export/json" class="btn btn-sm btn-outline-secondary ms-2">
+            <i class="fas fa-download"></i> Export JSON (own)
+          </a>
+          <a href="/api/journal/export/markdown" class="btn btn-sm btn-outline-secondary ms-2">
+            <i class="fas fa-file-alt"></i> Export Markdown (own)
+          </a>
+        <% } %>
       </p>
     </div>
   </div>

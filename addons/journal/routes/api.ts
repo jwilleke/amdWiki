@@ -5,10 +5,13 @@
  * Mounted at /api/journal in register().
  *
  * Endpoints:
- *   GET  /api/journal/new          — bootstrap a new entry page + redirect to /journal/:slug/edit
- *   GET  /api/journal/entries      — JSON list of own entries (paginated)
- *   GET  /api/journal/on-this-day  — JSON: same MM-DD entries from prior years
- *   GET  /api/journal/streak       — JSON: { streak: N, total: N }
+ *   GET  /api/journal/templates         — JSON list of available templates
+ *   GET  /api/journal/new               — bootstrap a new entry page + redirect to /journal/:slug/edit
+ *   GET  /api/journal/entries           — JSON list of own entries (paginated)
+ *   GET  /api/journal/on-this-day       — JSON: same MM-DD entries from prior years
+ *   GET  /api/journal/streak            — JSON: { streak: N, total: N }
+ *   GET  /api/journal/export/json       — download all own entries as JSON
+ *   GET  /api/journal/export/markdown   — download all own entries as Markdown archive
  */
 
 import { Router, type Request, type Response } from 'express';
@@ -185,6 +188,88 @@ export default function apiRoutes(engine: WikiEngine, config: Record<string, unk
     } catch (err) {
       handleError(err, res);
     }
+  });
+
+  // ── GET /api/journal/export/json ──────────────────────────────────────────
+  router.get('/export/json', (req: Request, res: Response) => {
+    void (async () => {
+      try {
+        const ctx = ApiContext.from(req, engine);
+        ctx.requireAuthenticated();
+
+        if (config['exportEnabled'] === false) {
+          res.status(403).json({ error: 'Export is disabled.' });
+          return;
+        }
+
+        const m = jdm();
+        const entries = m ? m.listByAuthor(ctx.username!) : [];
+        const p = pm();
+
+        const exportData = await Promise.all(entries.map(async (e) => {
+          const page = p ? await p.getPage(e.slug) : null;
+          return {
+            slug:         e.slug,
+            title:        e.title,
+            journalDate:  e.journalDate,
+            mood:         e.mood ?? null,
+            tags:         e.tags,
+            isPrivate:    e.isPrivate,
+            lastModified: e.lastModified,
+            content:      page?.content ?? ''
+          };
+        }));
+
+        const filename = `journal-${ctx.username!}-${new Date().toISOString().slice(0, 10)}.json`;
+        res.setHeader('Content-Type', 'application/json');
+        res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+        res.send(JSON.stringify(exportData, null, 2));
+      } catch (err) {
+        handleError(err, res);
+      }
+    })();
+  });
+
+  // ── GET /api/journal/export/markdown ──────────────────────────────────────
+  router.get('/export/markdown', (req: Request, res: Response) => {
+    void (async () => {
+      try {
+        const ctx = ApiContext.from(req, engine);
+        ctx.requireAuthenticated();
+
+        if (config['exportEnabled'] === false) {
+          res.status(403).send('Export is disabled.');
+          return;
+        }
+
+        const m = jdm();
+        const entries = m ? m.listByAuthor(ctx.username!) : [];
+        const p = pm();
+
+        const sections: string[] = [`# Journal — ${ctx.username!}\n`];
+
+        for (const e of entries) {
+          const page = p ? await p.getPage(e.slug) : null;
+          const meta: string[] = [`Date: ${e.journalDate}`];
+          if (e.mood)        meta.push(`Mood: ${e.mood}`);
+          if (e.tags.length) meta.push(`Tags: ${e.tags.join(', ')}`);
+          sections.push(
+            `## ${e.title}\n\n` +
+            meta.map(l => `_${l}_`).join('  \n') +
+            '\n\n' +
+            (page?.content ?? '') +
+            '\n\n---\n'
+          );
+        }
+
+        const filename = `journal-${ctx.username!}-${new Date().toISOString().slice(0, 10)}.md`;
+        res.setHeader('Content-Type', 'text/markdown; charset=utf-8');
+        res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+        res.send(sections.join('\n'));
+      } catch (err) {
+        handleError(err, res);
+      }
+    })();
   });
 
   return router;

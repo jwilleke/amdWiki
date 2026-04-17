@@ -15,6 +15,8 @@
  *   ngdpbase.addons.journal.dailyReminderEnabled   — false
  *   ngdpbase.addons.journal.dailyReminderTime      — "20:00"
  *   ngdpbase.addons.journal.dailyReminderUsers     — []
+ *   ngdpbase.addons.journal.exportEnabled          — true
+ *   ngdpbase.addons.journal.showStreakLeaderboard  — false
  *
  * API routes:
  *   GET  /api/journal/new          — create blank entry, redirect to /journal/:slug/edit
@@ -44,6 +46,7 @@ import type { WikiEngine } from '../../dist/src/types/WikiEngine';
 import type { AddonStatusDetails } from '../../dist/src/managers/AddonsManager';
 import type PluginManager from '../../dist/src/managers/PluginManager';
 import type AddonsManager from '../../dist/src/managers/AddonsManager';
+import type NotificationManager from '../../dist/src/managers/NotificationManager';
 import JournalDataManager from './managers/JournalDataManager';
 import JournalTemplateManager from './managers/JournalTemplateManager';
 import JournalPlugin from './plugins/JournalPlugin';
@@ -54,6 +57,7 @@ import adminRoutes from './routes/admin';
 
 let dataManager: JournalDataManager | null = null;
 let templateManager: JournalTemplateManager | null = null;
+let reminderTimer: ReturnType<typeof setTimeout> | null = null;
 
 const journalAddon = {
   name: 'journal',
@@ -105,7 +109,52 @@ const journalAddon = {
     engine.app?.use('/journal',       editorRoutes(engine, config));
     engine.app?.use('/admin/journal', adminRoutes(engine, config));
 
-    // ── 7. Announce capability ───────────────────────────────────────────────
+    // ── 7. Daily reminder ────────────────────────────────────────────────────
+    if (config['dailyReminderEnabled'] === true) {
+      const reminderTime = typeof config['dailyReminderTime'] === 'string'
+        ? config['dailyReminderTime']
+        : '20:00';
+      const reminderUsers = Array.isArray(config['dailyReminderUsers'])
+        ? (config['dailyReminderUsers'] as unknown[]).map(String)
+        : [];
+
+      const [hh, mm] = reminderTime.split(':').map(Number);
+      const msInDay = 24 * 60 * 60 * 1000;
+
+      function msUntilNext(): number {
+        const now = new Date();
+        const next = new Date(now);
+        next.setHours(hh ?? 20, mm ?? 0, 0, 0);
+        if (next <= now) next.setTime(next.getTime() + msInDay);
+        return next.getTime() - now.getTime();
+      }
+
+      async function fireReminders(): Promise<void> {
+        const nm = engine.getManager<NotificationManager>('NotificationManager');
+        const jd = dataManager;
+        if (!nm || !jd) return;
+        const today = new Date().toISOString().slice(0, 10);
+        for (const user of reminderUsers) {
+          const hasEntry = jd.listByAuthor(user).some(e => e.journalDate === today);
+          if (!hasEntry) {
+            await nm.createNotification({
+              type:        'user',
+              title:       'Journal Reminder',
+              message:     "Don't forget to write today's journal entry.",
+              level:       'info',
+              targetUsers: [user],
+              expiresAt:   new Date(Date.now() + msInDay)
+            });
+          }
+        }
+        // Schedule next day
+        reminderTimer = setTimeout(() => { void fireReminders(); }, msInDay);
+      }
+
+      reminderTimer = setTimeout(() => { void fireReminders(); }, msUntilNext());
+    }
+
+    // ── 8. Announce capability ───────────────────────────────────────────────
     engine.setCapability('journal', true);
   },
 
@@ -121,6 +170,7 @@ const journalAddon = {
 
   // eslint-disable-next-line @typescript-eslint/require-await
   async shutdown(): Promise<void> {
+    if (reminderTimer) { clearTimeout(reminderTimer); reminderTimer = null; }
     dataManager = null;
     templateManager = null;
   }

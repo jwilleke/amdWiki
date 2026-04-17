@@ -12,9 +12,14 @@
 import { Router, type Request, type Response } from 'express';
 import { ApiContext, ApiError } from '../../../dist/src/context/ApiContext';
 import type { WikiEngine } from '../../../dist/src/types/WikiEngine';
+import type JournalDataManager from '../managers/JournalDataManager';
 
 export default function adminRoutes(engine: WikiEngine, config: Record<string, unknown>): Router {
   const router = Router();
+
+  function jdm(): JournalDataManager | undefined {
+    return engine.getManager<JournalDataManager>('JournalDataManager');
+  }
 
   // ── GET /admin/journal ────────────────────────────────────────────────────
   router.get('/', (req: Request, res: Response) => {
@@ -22,6 +27,21 @@ export default function adminRoutes(engine: WikiEngine, config: Record<string, u
       const ctx = ApiContext.from(req, engine);
       ctx.requireAuthenticated();
       ctx.requireRole('admin');
+
+      const showStreakLeaderboard = config['showStreakLeaderboard'] === true;
+      const m = jdm();
+
+      // Build per-author stats for the leaderboard / counts table
+      let userStats: Array<{ author: string; count: number; streak: number }> = [];
+      if (m) {
+        const allEntries = m.listAll();
+        const authorSet = [...new Set(allEntries.map(e => e.author))];
+        userStats = authorSet.map(author => ({
+          author,
+          count:  m.countByAuthor(author),
+          streak: showStreakLeaderboard ? m.computeStreak(author) : 0
+        })).sort((a, b) => b.count - a.count);
+      }
 
       res.render('admin-journal', {
         currentUser:      req.userContext,
@@ -36,8 +56,12 @@ export default function adminRoutes(engine: WikiEngine, config: Record<string, u
           dailyReminderTime:  (config['dailyReminderTime'] as string | undefined) ?? '20:00',
           dailyReminderUsers: Array.isArray(config['dailyReminderUsers'])
             ? config['dailyReminderUsers']
-            : []
+            : [],
+          exportEnabled:     config['exportEnabled'] !== false,
+          showStreakLeaderboard
         },
+        userStats,
+        totalEntries:     m?.count() ?? 0,
         csrfToken:        req.session?.csrfToken,
         successMessage:   req.query['success'] ?? null,
         errorMessage:     req.query['error']   ?? null
