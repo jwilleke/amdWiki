@@ -1,0 +1,121 @@
+<%- include('header', { pageName: entry ? 'Edit Entry' : 'New Journal Entry' }) %>
+
+<div class="container mt-4" style="max-width: 780px;">
+
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="mb-0">
+      <i class="fas fa-<%= entry ? 'pencil-alt' : 'pen' %>"></i>
+      <%= entry ? 'Edit Entry' : 'New Journal Entry' %>
+    </h2>
+    <a href="/journal" class="btn btn-sm btn-outline-secondary">
+      <i class="fas fa-times"></i> Cancel
+    </a>
+  </div>
+
+  <% if (errorMessage) { %>
+    <div class="alert alert-danger"><i class="fas fa-exclamation-triangle"></i> <%= errorMessage %></div>
+  <% } %>
+
+  <form method="POST" action="/journal/<%= entry ? encodeURIComponent(entry.slug) + '/edit' : 'new' %>">
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+    <div class="mb-3">
+      <label class="form-label fw-semibold">Title</label>
+      <input type="text" name="title" class="form-control"
+             value="<%= entry ? entry.title : ('Journal — ' + defaultDate) %>"
+             placeholder="Entry title" required>
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label fw-semibold">Date</label>
+      <input type="date" name="journal-date" class="form-control"
+             value="<%= defaultDate %>"
+             <%= entry ? '' : '' %>>
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label fw-semibold">Mood <span class="text-muted fw-normal">(optional)</span></label>
+      <div class="journal-mood-picker">
+        <% moodOptions.forEach(function(m) { %>
+          <button type="button"
+                  class="journal-mood-btn <%= (entry && entry.mood === m) ? 'selected' : '' %>"
+                  data-mood="<%= m %>">
+            <%= m %>
+          </button>
+        <% }); %>
+        <button type="button" class="journal-mood-btn journal-mood-clear text-muted" data-mood="">
+          <i class="fas fa-times"></i> clear
+        </button>
+      </div>
+      <input type="hidden" name="mood" id="moodInput" value="<%= (entry && entry.mood) ? entry.mood : '' %>">
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label fw-semibold">Tags <span class="text-muted fw-normal">(comma-separated)</span></label>
+      <input type="text" name="journal-tags" class="form-control"
+             value="<%= (entry && entry.tags && entry.tags.length) ? entry.tags.join(', ') : '' %>"
+             placeholder="family, gratitude, work">
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label fw-semibold">Content</label>
+      <textarea name="content" id="journalContent" class="form-control font-monospace"
+                rows="20" placeholder="Write your entry here…"><%= (entry && entry.content) ? entry.content : '' %></textarea>
+      <small class="text-muted">Markdown supported.</small>
+    </div>
+
+    <div class="d-flex gap-2">
+      <button type="submit" class="btn btn-primary">
+        <i class="fas fa-save"></i> Save
+      </button>
+      <a href="/journal" class="btn btn-outline-secondary">Cancel</a>
+      <% if (entry) { %>
+        <button type="button" class="btn btn-outline-danger ms-auto"
+                data-bs-toggle="modal" data-bs-target="#deleteModal">
+          <i class="fas fa-trash"></i> Delete
+        </button>
+      <% } %>
+    </div>
+  </form>
+
+</div>
+
+<% if (entry) { %>
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Delete Entry?</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <p class="small">This will permanently delete this journal entry.</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+        <form method="POST" action="/journal/<%= encodeURIComponent(entry.slug) %>/delete" class="d-inline">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+          <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+<% } %>
+
+<script>
+(function () {
+  const moodInput = document.getElementById('moodInput');
+  document.querySelectorAll('.journal-mood-btn').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      const mood = btn.dataset.mood || '';
+      moodInput.value = mood;
+      document.querySelectorAll('.journal-mood-btn').forEach(function (b) {
+        b.classList.toggle('selected', b.dataset.mood === mood && mood !== '');
+      });
+    });
+  });
+}());
+</script>
+
+<%- include('footer') %>

@@ -1,0 +1,73 @@
+<%- include('header', { pageName: 'My Journal' }) %>
+
+<div class="container-fluid mt-4">
+  <div class="row">
+
+    <%# ── Sidebar ──────────────────────────────────────────────────────────── %>
+    <div class="col-md-3 col-lg-2 d-none d-md-block">
+      <%- include('_journal-sidebar', { sidebar, activeFilter: activeFilter || null, activeValue: activeValue || null }) %>
+    </div>
+
+    <%# ── Main content ────────────────────────────────────────────────────── %>
+    <div class="col-md-9 col-lg-10">
+
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="mb-0"><i class="fas fa-book"></i> My Journal</h2>
+        <a href="/api/journal/new" class="btn btn-primary btn-sm">
+          <i class="fas fa-pen"></i> New Entry
+        </a>
+      </div>
+
+      <%# ── On This Day ──────────────────────────────────────────────────── %>
+      <% if (onThisDay && onThisDay.length > 0) { %>
+      <div class="journal-on-this-day mb-4">
+        <h4 class="journal-otd-heading"><i class="fas fa-history"></i> On This Day</h4>
+        <% onThisDay.forEach(function(e) { %>
+          <div class="journal-otd-item">
+            <span class="journal-otd-year"><%= e.journalDate.slice(0, 4) %></span>
+            <a href="/journal/<%= encodeURIComponent(e.slug) %>"><%= e.title %></a>
+          </div>
+        <% }); %>
+      </div>
+      <% } %>
+
+      <%# ── Timeline ────────────────────────────────────────────────────── %>
+      <% if (entries.length === 0) { %>
+        <div class="journal-empty">
+          <p>No journal entries yet.</p>
+          <a href="/api/journal/new" class="btn btn-primary btn-sm">Write your first entry</a>
+        </div>
+      <% } else { %>
+        <% entries.forEach(function(entry) { %>
+          <%- include('_journal-entry-card', { entry, canEdit: true }) %>
+        <% }); %>
+
+        <%# ── Pagination ────────────────────────────────────────────────── %>
+        <% if (prevOffset > 0 || nextOffset !== null) { %>
+        <nav class="d-flex justify-content-between mt-3">
+          <% if (offset > 0) { %>
+            <a href="/journal?offset=<%= prevOffset %>&limit=<%= limit %>" class="btn btn-outline-secondary btn-sm">
+              <i class="fas fa-chevron-left"></i> Newer
+            </a>
+          <% } else { %>
+            <span></span>
+          <% } %>
+          <small class="text-muted align-self-center">
+            <%= offset + 1 %>–<%= Math.min(offset + entries.length, total) %> of <%= total %>
+          </small>
+          <% if (nextOffset !== null) { %>
+            <a href="/journal?offset=<%= nextOffset %>&limit=<%= limit %>" class="btn btn-outline-secondary btn-sm">
+              Older <i class="fas fa-chevron-right"></i>
+            </a>
+          <% } else { %>
+            <span></span>
+          <% } %>
+        </nav>
+        <% } %>
+      <% } %>
+
+    </div>
+  </div>
+</div>
+
+<%- include('footer') %>

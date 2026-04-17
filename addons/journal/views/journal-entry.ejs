@@ -1,0 +1,101 @@
+<%
+  function fmtDate(iso) {
+    try {
+      return new Date(iso + 'T12:00:00').toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+    } catch(e) { return iso; }
+  }
+%>
+<%- include('header', { pageName: entry.title }) %>
+
+<div class="container-fluid mt-4">
+  <div class="row">
+
+    <%# ── Sidebar ─────────────────────────────────────────────────────────── %>
+    <div class="col-md-3 col-lg-2 d-none d-md-block">
+      <%- include('_journal-sidebar', { sidebar, activeFilter: null, activeValue: null }) %>
+    </div>
+
+    <%# ── Entry content ──────────────────────────────────────────────────── %>
+    <div class="col-md-9 col-lg-10">
+
+      <div class="d-flex justify-content-between align-items-start mb-3">
+        <div>
+          <a href="/journal" class="text-muted small"><i class="fas fa-arrow-left"></i> Journal</a>
+          <h2 class="mb-1 mt-1"><%= entry.title %></h2>
+          <div class="text-muted small"><%= fmtDate(entry.journalDate) %></div>
+        </div>
+        <% if (canEdit) { %>
+        <div class="d-flex gap-2">
+          <a href="/journal/<%= encodeURIComponent(entry.slug) %>/edit"
+             class="btn btn-outline-secondary btn-sm">
+            <i class="fas fa-pencil-alt"></i> Edit
+          </a>
+          <button type="button" class="btn btn-outline-danger btn-sm"
+                  data-bs-toggle="modal" data-bs-target="#deleteModal">
+            <i class="fas fa-trash"></i>
+          </button>
+        </div>
+        <% } %>
+      </div>
+
+      <% if (entry.mood) { %>
+        <span class="journal-mood mb-2 d-inline-block"><%= entry.mood %></span>
+      <% } %>
+      <% if (entry.tags && entry.tags.length > 0) { %>
+        <div class="journal-tags mb-3">
+          <% entry.tags.forEach(function(t) { %>
+            <a href="/journal/tag/<%= encodeURIComponent(t) %>" class="journal-tag">#<%= t %></a>
+          <% }); %>
+        </div>
+      <% } %>
+
+      <div class="journal-entry-body wiki-content">
+        <%- renderedContent %>
+      </div>
+
+      <%# ── Attachments ──────────────────────────────────────────────────── %>
+      <% if (attachments && attachments.length > 0) { %>
+      <div class="journal-attachments mt-4">
+        <h6 class="text-muted text-uppercase small fw-bold mb-2">Attachments</h6>
+        <div class="row g-2">
+          <% attachments.forEach(function(att) { %>
+            <div class="col-auto">
+              <a href="/attachments/<%= encodeURIComponent(entry.slug) %>/<%= encodeURIComponent(att.filename) %>"
+                 class="btn btn-sm btn-outline-secondary" target="_blank">
+                <i class="fas fa-paperclip"></i> <%= att.filename %>
+              </a>
+            </div>
+          <% }); %>
+        </div>
+      </div>
+      <% } %>
+
+    </div>
+  </div>
+</div>
+
+<% if (canEdit) { %>
+<!-- Delete confirmation modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Delete Entry?</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <p class="small">This will permanently delete this journal entry and cannot be undone.</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+        <form method="POST" action="/journal/<%= encodeURIComponent(entry.slug) %>/delete" class="d-inline">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+          <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+<% } %>
+
+<%- include('footer') %>

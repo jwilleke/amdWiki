@@ -1,0 +1,40 @@
+<%- include('header', { pageName: 'Journal — ' + mood }) %>
+
+<div class="container-fluid mt-4">
+  <div class="row">
+
+    <div class="col-md-3 col-lg-2 d-none d-md-block">
+      <%- include('_journal-sidebar', { sidebar, activeFilter: 'mood', activeValue: mood }) %>
+    </div>
+
+    <div class="col-md-9 col-lg-10">
+
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="mb-0">
+          <a href="/journal" class="text-muted me-2" style="font-size:0.75em;">
+            <i class="fas fa-arrow-left"></i> Journal
+          </a>
+          Mood: <span class="journal-mood"><%= mood %></span>
+        </h2>
+        <a href="/api/journal/new" class="btn btn-primary btn-sm">
+          <i class="fas fa-pen"></i> New Entry
+        </a>
+      </div>
+
+      <% if (entries.length === 0) { %>
+        <div class="journal-empty">
+          <p>No entries with mood <strong><%= mood %></strong>.</p>
+          <a href="/journal" class="btn btn-sm btn-outline-secondary">Back to Journal</a>
+        </div>
+      <% } else { %>
+        <p class="text-muted small mb-3"><%= total %> entr<%= total === 1 ? 'y' : 'ies' %></p>
+        <% entries.forEach(function(entry) { %>
+          <%- include('_journal-entry-card', { entry, canEdit: true }) %>
+        <% }); %>
+      <% } %>
+
+    </div>
+  </div>
+</div>
+
+<%- include('footer') %>

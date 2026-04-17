@@ -4,16 +4,12 @@
  * Journal Add-on for ngdpbase
  *
  * Journal entries are standard wiki pages with system-category: journal.
- * The add-on contributes only what the core wiki cannot:
- *   - [{Journal}] plugin (timeline, streak, on-this-day rendering)
- *   - /api/journal/new — bootstrap a new entry and redirect to /edit/:slug
- *   - /api/journal/entries, /on-this-day, /streak — JSON query endpoints
- *   - /admin/journal — addon configuration panel
  *
  * Configuration keys (in app-custom-config.json):
  *   ngdpbase.addons.journal.enabled               — true/false
- *   ngdpbase.addons.journal.defaultPrivate         — true  (entries private by default)
- *   ngdpbase.addons.journal.defaultAuthorLock      — true  (only author/admin may edit)
+ *   ngdpbase.addons.journal.dataPath              — './data/journal'
+ *   ngdpbase.addons.journal.defaultPrivate         — true
+ *   ngdpbase.addons.journal.defaultAuthorLock      — true
  *   ngdpbase.addons.journal.defaultMoodOptions     — ["happy","content",...]
  *   ngdpbase.addons.journal.streakEnabled          — true
  *   ngdpbase.addons.journal.dailyReminderEnabled   — false
@@ -21,20 +17,25 @@
  *   ngdpbase.addons.journal.dailyReminderUsers     — []
  *
  * API routes:
- *   GET  /api/journal/new          — create blank entry, redirect to /edit/:slug
+ *   GET  /api/journal/new          — create blank entry, redirect to /journal/:slug/edit
  *   GET  /api/journal/entries      — JSON list of own entries
  *   GET  /api/journal/on-this-day  — JSON: same MM-DD in prior years
  *   GET  /api/journal/streak       — JSON: { streak, total }
  *
+ * Journal routes:
+ *   GET  /journal                  — timeline
+ *   GET  /journal/new              — new entry form
+ *   POST /journal/new              — save new entry
+ *   GET  /journal/:slug            — view entry
+ *   GET  /journal/:slug/edit       — edit form
+ *   POST /journal/:slug/edit       — save updated entry
+ *   POST /journal/:slug/delete     — delete entry
+ *   GET  /journal/tag/:tag         — filter by tag
+ *   GET  /journal/mood/:mood       — filter by mood
+ *
  * Admin:
  *   GET  /admin/journal            — config panel (admin only)
  *   POST /admin/journal/settings   — placeholder save
- *
- * Markup:
- *   [{Journal}]
- *   [{Journal view='timeline' limit='10'}]
- *   [{Journal view='streak'}]
- *   [{Journal view='on-this-day'}]
  */
 
 import * as path from 'path';
@@ -43,9 +44,14 @@ import type { WikiEngine } from '../../dist/src/types/WikiEngine';
 import type { AddonStatusDetails } from '../../dist/src/managers/AddonsManager';
 import type PluginManager from '../../dist/src/managers/PluginManager';
 import type AddonsManager from '../../dist/src/managers/AddonsManager';
+import JournalDataManager from './managers/JournalDataManager';
 import JournalPlugin from './plugins/JournalPlugin';
 import apiRoutes from './routes/api';
+import publicRoutes from './routes/public';
+import editorRoutes from './routes/editor';
 import adminRoutes from './routes/admin';
+
+let dataManager: JournalDataManager | null = null;
 
 const journalAddon = {
   name: 'journal',
@@ -55,41 +61,61 @@ const journalAddon = {
   dependencies: [] as string[],
 
   async register(engine: WikiEngine, config: Record<string, unknown>): Promise<void> {
-    // ── 1. Register markup plugin ─────────────────────────────────────────
+    const dataPath = typeof config['dataPath'] === 'string'
+      ? config['dataPath']
+      : './data/journal';
+
+    // ── 1. JournalDataManager ────────────────────────────────────────────────
+    dataManager = new JournalDataManager(engine, dataPath);
+    await dataManager.load();
+    engine.registerManager('JournalDataManager', dataManager);
+
+    // ── 2. Register markup plugin ────────────────────────────────────────────
     const pluginManager = engine.getManager<PluginManager>('PluginManager');
     if (pluginManager) {
       await pluginManager.registerPlugin('Journal', JournalPlugin);
     }
 
-    // ── 2. Serve static assets ─────────────────────────────────────────────
+    // ── 3. Serve static assets ───────────────────────────────────────────────
     engine.app?.use(
       '/addons/journal',
       express.static(path.join(__dirname, 'public'))
     );
 
-    // ── 3. Register stylesheet ─────────────────────────────────────────────
+    // ── 4. Register stylesheet ───────────────────────────────────────────────
     const addonsManager = engine.getManager<AddonsManager>('AddonsManager');
     if (addonsManager) {
       addonsManager.registerStylesheet('/addons/journal/css/journal.css', 'journal');
     }
 
-    // ── 4. Mount routes ────────────────────────────────────────────────────
+    // ── 5. Register addon-local views directory ──────────────────────────────
+    const existing = (engine.app?.get('views') as string | string[]) ?? [];
+    engine.app?.set('views', [...[existing].flat(), path.join(__dirname, 'views')]);
+
+    // ── 6. Mount routes (/api before /journal to avoid slug wildcard conflict) ─
     engine.app?.use('/api/journal',   apiRoutes(engine, config));
+    engine.app?.use('/journal',       publicRoutes(engine, config));
+    engine.app?.use('/journal',       editorRoutes(engine, config));
     engine.app?.use('/admin/journal', adminRoutes(engine, config));
 
-    // ── 5. Announce capability ─────────────────────────────────────────────
+    // ── 7. Announce capability ───────────────────────────────────────────────
     engine.setCapability('journal', true);
   },
 
   // eslint-disable-next-line @typescript-eslint/require-await
   async status(): Promise<AddonStatusDetails> {
+    const total = dataManager?.count() ?? 0;
     return {
       healthy: true,
-      message: 'Journal addon active'
+      records: total,
+      message: `Journal addon active — ${total} entr${total === 1 ? 'y' : 'ies'} indexed`
     };
   },
 
-  async shutdown(): Promise<void> {}
+  // eslint-disable-next-line @typescript-eslint/require-await
+  async shutdown(): Promise<void> {
+    dataManager = null;
+  }
 };
 
 export default journalAddon;

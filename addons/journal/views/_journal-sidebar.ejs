@@ -1,0 +1,50 @@
+<div class="journal-sidebar">
+  <div class="journal-sidebar-section">
+    <a href="/api/journal/new" class="btn btn-primary btn-sm w-100 mb-3">
+      <i class="fas fa-pen"></i> New Entry
+    </a>
+    <a href="/journal" class="btn btn-outline-secondary btn-sm w-100 mb-2">
+      <i class="fas fa-list"></i> All Entries
+    </a>
+  </div>
+
+  <% if (sidebar && sidebar.streak > 0) { %>
+  <div class="journal-sidebar-section">
+    <div class="journal-streak-widget">
+      <span class="journal-streak-count"><%= sidebar.streak %></span>
+      <span class="journal-streak-label">day streak</span>
+      <span class="journal-streak-total"><%= sidebar.total %> total</span>
+    </div>
+  </div>
+  <% } %>
+
+  <% if (sidebar && sidebar.moodFacets && sidebar.moodFacets.length > 0) { %>
+  <div class="journal-sidebar-section">
+    <h6 class="journal-sidebar-heading">By Mood</h6>
+    <div class="journal-facet-list">
+      <% sidebar.moodFacets.forEach(function(f) { %>
+        <a href="/journal/mood/<%= encodeURIComponent(f.mood) %>"
+           class="journal-facet-item <%= (activeFilter === 'mood' && activeValue === f.mood) ? 'active' : '' %>">
+          <span class="journal-facet-label"><%= f.mood %></span>
+          <span class="journal-facet-count badge bg-secondary"><%= f.count %></span>
+        </a>
+      <% }); %>
+    </div>
+  </div>
+  <% } %>
+
+  <% if (sidebar && sidebar.tagFacets && sidebar.tagFacets.length > 0) { %>
+  <div class="journal-sidebar-section">
+    <h6 class="journal-sidebar-heading">By Tag</h6>
+    <div class="journal-facet-list">
+      <% sidebar.tagFacets.forEach(function(f) { %>
+        <a href="/journal/tag/<%= encodeURIComponent(f.tag) %>"
+           class="journal-facet-item <%= (activeFilter === 'tag' && activeValue === f.tag) ? 'active' : '' %>">
+          <span class="journal-facet-label">#<%= f.tag %></span>
+          <span class="journal-facet-count badge bg-secondary"><%= f.count %></span>
+        </a>
+      <% }); %>
+    </div>
+  </div>
+  <% } %>
+</div>
