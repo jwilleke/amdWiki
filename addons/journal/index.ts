@@ -111,6 +111,10 @@ const journalAddon = {
     engine.app?.use('/journal',       editorRoutes(engine, config));
     engine.app?.use('/admin/journal', adminRoutes(engine, config));
 
+    // ── 6b. Wiki-link alias: [journal] → /journal ────────────────────────────
+    // Addons load before WikiRoutes, so this fires before the /view/:pageName catch-all.
+    engine.app?.get('/view/journal', (_req, res) => res.redirect('/journal'));
+
     // ── 7. Daily reminder ────────────────────────────────────────────────────
     if (config['dailyReminderEnabled'] === true) {
       const reminderTime = typeof config['dailyReminderTime'] === 'string'
