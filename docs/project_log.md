@@ -2,6 +2,26 @@
 
 AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version history.
 
+## 2026-04-18-20
+
+- Agent: Claude
+- Subject: Implement #466 — user search API with permission-based PII gating via WikiContext/ApiContext
+- Current Issue: #466
+- Work Done:
+  - Added `ApiContext.hasPermission(permission)` — derives permissions from already-resolved `req.userContext.roles` + `ngdpbase.roles.definitions` in ConfigurationManager; no async DB call
+  - Added `ApiContext.requirePermission(permission)` — throws ApiError(403) if permission not granted
+  - Added `UserManager.searchUsers(query, options)` — filters all users by username/displayName/email substring, optional role filter, limit, and activeOnly flag; never returns password field
+  - Added `GET /api/users/search?q=&role=&limit=&activeOnly=` to WikiRoutes — requires `search-user` permission; returns full profile if caller has `user-read`, otherwise strips to `{username, displayName}` only
+  - Added 9 tests to `ApiContext.test.ts` for `hasPermission()` and `requirePermission()`
+  - Added 11 tests to `UserManager.searchUsers.test.ts`; 113 suites / 2952 tests total, all passing
+- Commits: 00ca3fc3
+- Files Modified:
+  - src/context/ApiContext.ts
+  - src/context/__tests__/ApiContext.test.ts
+  - src/managers/UserManager.ts
+  - src/managers/__tests__/UserManager.searchUsers.test.ts
+  - src/routes/WikiRoutes.ts
+
 ## 2026-04-18-19
 
 - Agent: Claude
