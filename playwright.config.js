@@ -61,7 +61,7 @@ module.exports = defineConfig({
   // Configure the web server to start before running tests
   // Only starts a new server in CI - locally, use existing server on PORT
   webServer: process.env.CI ? {
-    command: 'PORT=3099 NODE_ENV=test node app.js',
+    command: 'PORT=3099 NODE_ENV=test node dist/src/app.js',
     url: 'http://localhost:3099',
     reuseExistingServer: false,
     timeout: 60000,

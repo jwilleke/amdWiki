@@ -7,15 +7,22 @@ set -e
 echo "🚬 Running smoke tests..."
 echo ""
 
-# 1. Check critical files exist
-echo "✓ Checking critical files..."
+# 1. Check critical source files exist
+echo "✓ Checking critical source files..."
+test -f "src/app.ts"                  || (echo "❌ Missing src/app.ts" && exit 1)
+test -f "src/WikiEngine.ts"           || (echo "❌ Missing src/WikiEngine.ts" && exit 1)
 test -f "config/app-default-config.json" || (echo "❌ Missing config/app-default-config.json" && exit 1)
-test -f "src/WikiEngine.js" || (echo "❌ Missing src/WikiEngine.js" && exit 1)
-test -f "app.js" || (echo "❌ Missing app.js" && exit 1)
-echo "  ✅ Critical files present"
+echo "  ✅ Critical source files present"
 echo ""
 
-# 2. Verify critical configuration properties
+# 2. Check compiled output exists
+echo "✓ Checking compiled output..."
+test -f "dist/src/app.js"            || (echo "❌ Missing dist/src/app.js — run npm run build" && exit 1)
+test -f "dist/src/WikiEngine.js"     || (echo "❌ Missing dist/src/WikiEngine.js — run npm run build" && exit 1)
+echo "  ✅ Compiled output present"
+echo ""
+
+# 3. Verify critical configuration properties
 echo "✓ Verifying configuration..."
 node -e "
   const config = require('./config/app-default-config.json');
@@ -31,11 +38,11 @@ node -e "
 echo "  ✅ Configuration validated"
 echo ""
 
-# 3. Test WikiEngine initialization (quick check)
+# 4. Test WikiEngine initialization (quick check)
 echo "✓ Testing WikiEngine initialization..."
 timeout 30 node -e "
-  const WikiEngine = require('./src/WikiEngine');
-  const engine = new WikiEngine();
+  const WikiEngine = require('./dist/src/WikiEngine');
+  const engine = new WikiEngine.default();
   engine.initialize().then(() => {
     const required = ['PageManager', 'RenderingManager', 'UserManager'];
     required.forEach(name => {
@@ -47,27 +54,6 @@ timeout 30 node -e "
     console.error('❌ WikiEngine initialization failed:', err.message);
     process.exit(1);
   });
-" || exit 1
-echo ""
-
-# 4. Check for syntax errors in key files
-echo "✓ Checking for syntax errors..."
-node -e "
-  const fs = require('fs');
-  const files = [
-    'src/WikiEngine.js',
-    'src/managers/PageManager.js',
-    'src/managers/RenderingManager.js'
-  ];
-  files.forEach(file => {
-    try {
-      require('./' + file);
-    } catch(err) {
-      console.error('Syntax error in', file, ':', err.message);
-      process.exit(1);
-    }
-  });
-  console.log('  ✅ No syntax errors found');
 " || exit 1
 echo ""
 

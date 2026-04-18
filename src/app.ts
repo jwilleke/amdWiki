@@ -2,7 +2,7 @@
  * @file src/app.ts
  * @description Main application entry point for the ngdpbase Engine.
  *
- * Compiled to dist/src/app.js — launched via ecosystem.config.js (PM2).
+ * Compiled to dist/src/app.js — launched via `node dist/src/app.js` or ecosystem.config.js.
  * All project-root paths use process.cwd() rather than __dirname because
  * __dirname resolves to dist/src/ after compilation.
  */
