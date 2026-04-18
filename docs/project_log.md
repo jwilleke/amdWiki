@@ -88,6 +88,18 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - src/providers/BaseMediaProvider.ts
   - src/providers/BasicAttachmentProvider.ts
 
+## 2026-04-18-13
+
+- Agent: Claude
+- Subject: TypeScript migration (#186) — analysis of remaining eslint-disable work
+- Current Issue: #186
+- Work Done:
+  - Audited remaining eslint-disable directives after session -12: 6 file-level + 4 inline in WikiRoutes.ts, 3 inline in WikiEngine.ts, 2 inline in ElasticsearchSearchProvider.ts, 28 inline no-require-imports in test files
+  - Identified next steps in priority order: (1) test file no-require-imports → await import() conversion, (2) WikiEngine.ts any generics → unknown/void, (3) WikiRoutes.ts explicit-function-return-type (~148 methods)
+  - WikiRoutes.ts 5 no-unsafe-* file-level disables remain legitimate — cover Express req.body/req.query any access (~323 call sites)
+- Commits: none
+- Files Modified: none
+
 ## 2026-04-18-12
 
 - Agent: Claude
