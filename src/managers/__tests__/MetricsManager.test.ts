@@ -222,9 +222,7 @@ describe('MetricsManager', () => {
     });
 
     test('should set service.name resource from telemetry.serviceName config', async () => {
-      // eslint-disable-next-line @typescript-eslint/no-require-imports
       const { MeterProvider } = require('@opentelemetry/sdk-metrics');
-      // eslint-disable-next-line @typescript-eslint/no-require-imports
       const { resourceFromAttributes } = require('@opentelemetry/resources');
 
       mockConfigManager.getProperty = jest.fn((key, defaultValue) => {
@@ -251,7 +249,6 @@ describe('MetricsManager', () => {
     });
 
     test('should fall back to prefix for service.name when serviceName not configured', async () => {
-      // eslint-disable-next-line @typescript-eslint/no-require-imports
       const { resourceFromAttributes } = require('@opentelemetry/resources');
 
       // Default config has no serviceName — falls back to prefix
@@ -296,9 +293,7 @@ describe('MetricsManager', () => {
   });
 
   describe('OTLP export', () => {
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
     const { PeriodicExportingMetricReader } = require('@opentelemetry/sdk-metrics');
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
     const { OTLPMetricExporter } = require('@opentelemetry/exporter-metrics-otlp-http');
 
     beforeEach(() => {

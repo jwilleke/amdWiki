@@ -79,8 +79,7 @@ export interface WikiEngine {
    * @param config - Wiki configuration
    * @returns The initialized engine or void
    */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Returns WikiEngine or void
-  initialize(config?: WikiConfig): Promise<any>;
+  initialize(config?: WikiConfig): Promise<void>;
 
   /**
    * Initialize AddonsManager — call from app.ts after session/userContext middleware.
@@ -96,8 +95,7 @@ export interface WikiEngine {
    * // Type-safe usage with explicit type parameter:
    * const pageManager = engine.getManager<PageManager>('PageManager');
    */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Dynamic type
-  getManager<T = any>(managerName: string): T | undefined;
+  getManager<T = unknown>(managerName: string): T | undefined;
 
   /**
    * Register a manager

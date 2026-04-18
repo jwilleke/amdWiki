@@ -19,7 +19,6 @@
  *   - removePageAssets(): removes page entry from index
  */
 
-// eslint-disable-next-line @typescript-eslint/no-require-imports
 const AssetManager = (() => { const mod = require('../AssetManager'); return mod.default ?? mod; })();
 
 // ---------------------------------------------------------------------------

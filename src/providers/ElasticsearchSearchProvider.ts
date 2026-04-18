@@ -197,8 +197,7 @@ class ElasticsearchSearchProvider extends BaseSearchProvider {
 
       if (ops.length === 0) continue;
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { errors } = await this.client.bulk({ body: ops as any[] });
+      const { errors } = await this.client.bulk({ body: ops as object[] });
       if (errors) {
         logger.warn(`[ElasticsearchSearchProvider] Bulk index batch ${i}–${i + BATCH} had errors`);
       }
@@ -581,8 +580,7 @@ class ElasticsearchSearchProvider extends BaseSearchProvider {
       ops.push(doc);
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    await this.client.bulk({ body: ops as any[] });
+    await this.client.bulk({ body: ops as object[] });
     logger.info(`[ElasticsearchSearchProvider] Restored ${docs.length} documents from backup`);
   }
 

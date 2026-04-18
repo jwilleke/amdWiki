@@ -263,7 +263,6 @@ describe('MarkupParser', () => {
 
   describe('Handler Registration', () => {
     test('should register syntax handlers', async () => {
-      // eslint-disable-next-line @typescript-eslint/no-require-imports
       const { BaseSyntaxHandler } = require('../handlers/BaseSyntaxHandler');
       
       class MockHandler extends BaseSyntaxHandler {
@@ -288,7 +287,6 @@ describe('MarkupParser', () => {
     });
 
     test('should unregister syntax handlers', async () => {
-      // eslint-disable-next-line @typescript-eslint/no-require-imports
       const { BaseSyntaxHandler } = require('../handlers/BaseSyntaxHandler');
       
       class MockHandler extends BaseSyntaxHandler {
@@ -315,7 +313,6 @@ describe('MarkupParser', () => {
     });
 
     test('should execute registered handlers during content transformation', async () => {
-      // eslint-disable-next-line @typescript-eslint/no-require-imports
       const { BaseSyntaxHandler } = require('../handlers/BaseSyntaxHandler');
 
       class MockHandler extends BaseSyntaxHandler {

@@ -554,7 +554,6 @@ describe('WikiTagHandler', () => {
 
   describe('Integration', () => {
     test('should integrate with MarkupParser', async () => {
-      // eslint-disable-next-line @typescript-eslint/no-require-imports
       const MarkupParser = require('../../MarkupParser');
       const mockEngine = createMockEngine();
       const parser = new MarkupParser(mockEngine);

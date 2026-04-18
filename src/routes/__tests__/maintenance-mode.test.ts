@@ -208,7 +208,6 @@ describe('Maintenance Mode', () => {
 
   beforeEach(() => {
     // Reset maintenance mode state
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
     const WikiEngine = require('../../WikiEngine');
     mockEngine = new WikiEngine();
     mockEngine._resetMaintenanceMode();

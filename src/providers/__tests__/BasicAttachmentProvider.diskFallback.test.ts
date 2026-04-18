@@ -114,7 +114,6 @@ describe('BasicAttachmentProvider — getAttachment() disk-scan fallback', () =>
     await fs.writeFile(path.join(storageDir, `${attachmentId}.webp`), Buffer.from('data'));
 
     // logger is globally mocked in jest.setup.js
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
     const logger = require('../../utils/logger');
     logger.warn.mockClear();
 

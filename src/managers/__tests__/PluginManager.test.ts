@@ -74,7 +74,6 @@ describe('PluginManager.registerPlugins', () => {
     };
 
     // Load PluginManager fresh
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
     const PluginManager = require('../PluginManager');
 
     // Create instance and intercept loadPlugin to observe what it would load
@@ -112,7 +111,6 @@ describe('PluginManager.registerPlugins', () => {
       logger
     };
 
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
     const PluginManager = require('../PluginManager');
     const pm = typeof PluginManager === 'function' ? new PluginManager(engine) : new PluginManager();
     if (!pm.engine) pm.engine = engine;
@@ -138,7 +136,6 @@ describe('PluginManager.registerPlugins', () => {
       logger
     };
 
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
     const PluginManager = require('../PluginManager');
     const pm = typeof PluginManager === 'function' ? new PluginManager(engine) : new PluginManager();
     if (!pm.engine) pm.engine = engine;
@@ -177,7 +174,6 @@ describe('PluginManager.registerPlugins', () => {
       'utf8'
     );
 
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
     const PluginManager = require('../PluginManager');
     const pm = typeof PluginManager === 'function' ? new PluginManager(engine) : new PluginManager();
     if (!pm.engine) pm.engine = engine;
@@ -202,9 +198,7 @@ describe('PluginManager.registerPlugins', () => {
    * Tests that the plugin manager prints the names of loaded plugins.
    */
   test('prints project plugin names from ./plugins', async () => {
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
     const path = require('path');
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
     const fs = require('fs-extra');
 
     const logger = { info: jest.fn(), warn: jest.fn(), debug: jest.fn(), error: jest.fn() };
@@ -218,7 +212,6 @@ describe('PluginManager.registerPlugins', () => {
       logger
     };
 
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
     const PluginManager = require('../PluginManager');
     const pm = new PluginManager(engine);
     await pm.registerPlugins();

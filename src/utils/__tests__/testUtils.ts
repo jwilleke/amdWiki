@@ -218,7 +218,6 @@ describe('Test Utilities', () => {
 
   it('should export utility functions', () => {
     // Test that the module structure is correct
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
     const moduleExports = require('../../../src/utils/__tests__/testUtils');
     expect(typeof moduleExports).toBe('object');
   });
