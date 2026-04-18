@@ -2,6 +2,25 @@
 
 AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version history.
 
+## 2026-04-18-16
+
+- Agent: Claude
+- Subject: Close completed journal issues; unify fairways-base/ngdpbase-veg to shared origin
+- Current Issue: #402, #538, #539
+- Work Done:
+  - Verified /admin/journal renders correctly (browser test confirmed)
+  - Removed duplicate addons/journal/views/admin-journal.ejs (shadowed by views/admin-journal.ejs from Phase 4)
+  - Closed #402 (Journal feature) and child issues #527, #528, #529, #533 — all phases implemented
+  - Identified fairways-base/ngdpbase-veg architecture: all three instances share jwilleke/ngdpbase as origin; only ../data differs
+  - fairways-base: deleted chore/template-sync branch (20 divergent commits), reset master to origin/master (85402b63)
+  - ngdpbase-veg: reset master to origin/master (85402b63)
+  - fairways-base: npm run build + ./server.sh restart — up on port 2121
+  - Closed #538 (plugins→src/plugins) — already done on ngdpbase, now propagated via reset
+  - Closed #539 (LocationPlugin E2E) — location-plugin.spec.ts 11/11 passed on fairways-base
+- Commits: none (no new code — admin-journal.ejs duplicate was untracked; other changes were git resets)
+- Files Modified:
+  - none on ngdpbase
+
 ## Format for this file
 
 ```
