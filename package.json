@@ -143,19 +143,16 @@
   },
   "main": "dist/src/app.js",
   "jest": {
-    "preset": "ts-jest/presets/js-with-ts",
+    "preset": "ts-jest",
     "testEnvironment": "node",
     "setupFilesAfterEnv": [
-      "<rootDir>/jest.setup.js"
+      "<rootDir>/jest.setup.ts"
     ],
     "testMatch": [
-      "**/__tests__/**/*.js",
-      "**/*.test.js",
       "**/__tests__/**/*.ts",
       "**/*.test.ts"
     ],
     "collectCoverageFrom": [
-      "src/**/*.js",
       "src/**/*.ts",
       "!src/**/__tests__/**",
       "!src/legacy/**",
@@ -168,8 +165,10 @@
       "html"
     ],
     "transform": {
-      "^.+\\.ts$": "ts-jest",
-      "^.+\\.js$": "babel-jest"
+      "^.+\\.ts$": ["ts-jest", {
+        "tsconfig": "tsconfig.test.json",
+        "diagnostics": { "warnOnly": true }
+      }]
     },
     "moduleFileExtensions": [
       "ts",

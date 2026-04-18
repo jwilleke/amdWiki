@@ -22,6 +22,7 @@ export default tseslint.config(
       parserOptions: {
         project: [
           "./tsconfig.json",
+          "./tsconfig.test.json",
           "./addons/calendar/tsconfig.json",
           "./addons/elasticsearch/tsconfig.json",
           "./addons/journal/tsconfig.json",
@@ -68,6 +69,31 @@ export default tseslint.config(
       ]
     }
   },
+
+  // ────────────────────────────────────────────────────────────────
+  // Test file overrides — relax type-safety rules that fire on mock objects
+  {
+    files: ["**/__tests__/**/*.ts", "**/*.test.ts", "jest.setup.ts"],
+    rules: {
+      "@typescript-eslint/no-unsafe-assignment": "off",
+      "@typescript-eslint/no-unsafe-member-access": "off",
+      "@typescript-eslint/no-unsafe-call": "off",
+      "@typescript-eslint/no-unsafe-argument": "off",
+      "@typescript-eslint/no-unsafe-return": "off",
+      "@typescript-eslint/no-explicit-any": "off",
+      "@typescript-eslint/no-require-imports": "warn",
+      "@typescript-eslint/require-await": "off",
+      "@typescript-eslint/explicit-function-return-type": "off",
+      "@typescript-eslint/unbound-method": "off",
+      "@typescript-eslint/no-base-to-string": "off",
+      "@typescript-eslint/restrict-template-expressions": "off",
+      "@typescript-eslint/no-floating-promises": "off",
+      "@typescript-eslint/no-misused-promises": "off",
+      "@typescript-eslint/no-unused-vars": ["warn", { "argsIgnorePattern": "^_", "varsIgnorePattern": "^_" }],
+      "no-console": "off",
+      "@typescript-eslint/no-unsafe-enum-comparison": "off"
+    }
+  }
 
   // ────────────────────────────────────────────────────────────────
   // Add this as the **very last** item
