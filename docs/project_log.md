@@ -22,6 +22,31 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - [file2.md]
 ```
 
+## 2026-04-18-06
+
+- Agent: Claude
+- Subject: TypeScript migration (#186, #538) — playwright.config.ts; plugins/ moved into src/plugins/
+- Current Issue: #186, #538
+- Work Done:
+  - Confirmed PM2 does not support TypeScript ecosystem config natively — ecosystem.config.js stays as-is
+  - Converted playwright.config.js → playwright.config.ts (Playwright supports TS config natively); updated testMatch/testIgnore patterns to match .js and .ts e2e specs; added playwright.config.ts to tsconfig.test.json include
+  - Created GitHub issue #538 to track plugins/ → src/plugins/ move
+  - Moved all 22 plugin source files from plugins/ → src/plugins/ and 12 test files from plugins/__tests__/*.js → src/plugins/__tests__/*.ts (converted to TypeScript in the same step)
+  - Updated tsconfig.json: replaced plugins/__/*.ts include with src/plugins/__/*.ts
+  - Updated config/app-default-config.json: plugin search path ./dist/plugins → ./dist/src/plugins
+  - Fixed import paths in moved files: ../src/ → ../ and ../../src/ → ../../ throughout
+  - Fixed PluginManager.test.ts: hardcoded plugins/ path updated to dist/src/plugins
+  - All 111 test suites passing (2875 tests)
+- Commits: a3add5ab, 7bd33309
+- Files Modified:
+  - playwright.config.ts (renamed from playwright.config.js)
+  - tsconfig.test.json
+  - tsconfig.json
+  - config/app-default-config.json
+  - src/plugins/*.ts (22 files moved from plugins/)
+  - src/plugins/__tests__/*.ts (12 files moved+converted from plugins/__tests__/)
+  - src/managers/__tests__/PluginManager.test.ts
+
 ## 2026-04-18-05
 
 - Agent: Claude
