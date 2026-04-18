@@ -57,12 +57,13 @@ author: admin
 
 ## Parameters
 
-| Parameter | Type | Default | Description |
-| ----------- | ------ | --------- | ------------- |
+%%table-striped
+|| Parameter || Type || Default || Description ||
 | `name` | string | `counter` | Distinguishes multiple counters on one page |
 | `increment` | number | `1` | Amount to add to counter (can be negative) |
 | `start` | number | (none) | Resets counter to specified value |
 | `showResult` | boolean | `true` | Controls whether counter value is displayed |
+/%
 
 ## Use Cases
 

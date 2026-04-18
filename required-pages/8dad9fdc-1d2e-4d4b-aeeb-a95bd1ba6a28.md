@@ -54,13 +54,14 @@ author: system
 
 ngdpbase uses different configuration files based on the `NODE_ENV` environment variable:
 
-| Environment | Config File | Use Case |
-| ---- | ---- | ---- |
+%%table-striped
+|| Environment || Config File || Use Case ||
 | **production** | `config/app-production-config.json` | Production deployment (default) |
 | **development** | `config/app-development-config.json` | Local development |
 | **test** | `config/app-test-config.json` | Running tests |
 | **staging** | `config/app-staging-config.json` | Staging server (if exists) |
 | **custom** | `config/app-custom-config.json` | Local overrides (not tracked in git) |
+/%
 
 ### How Configuration Loading Works
 
@@ -137,13 +138,14 @@ The server uses a PID lock file (`.ngdpbase.pid`) to prevent multiple instances 
 
 All logs are written to the `./data/logs/` directory:
 
-| Type | Location | Purpose |
-| ---- | ---- | ---- |
+%%table-striped
+|| Type || Location || Purpose ||
 | PM2 Output | `./data/logs/pm2-out.log` | stdout, startup messages |
 | PM2 Errors | `./data/logs/pm2-error.log` | stderr, runtime errors |
 | PM2 Combined | `./data/logs/pm2-combined.log` | Combined PM2 logs |
 | Application | `./data/logs/app.log` | Winston logger, detailed operations |
 | Audit | `./data/logs/audit.log` | Security/audit events |
+/%
 
 ## Manual Management
 

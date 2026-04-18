@@ -22,14 +22,15 @@ The **ImagePlugin** embeds images in pages with flexible layout and display opti
 
 ### Required Parameters
 
-| Parameter | Description | Example |
-| ----------- | ------------- | --------- |
+%%table-striped
+|| Parameter || Description || Example ||
 | `src` | Image source: path, URL, or `media://filename` for media library items | `src='photo.jpg'` |
+/%
 
 ### Optional Parameters
 
-| Parameter | Description | Example | Default |
-| ----------- | ------------- | --------- | --------- |
+%%table-striped
+|| Parameter || Description || Example || Default ||
 | `caption` | Image caption (also used as alt if alt not provided) | `caption='Sunset over the ocean'` | None |
 | `alt` | Alt text for accessibility | `alt='Beautiful sunset'` | Uses caption, or "Uploaded image" |
 | `width` | Image width | `width='300'` or `width='50%'` | Original size |
@@ -41,6 +42,7 @@ The **ImagePlugin** embeds images in pages with flexible layout and display opti
 | `class` | Custom CSS class | `class='thumbnail'` | `wiki-image` |
 | `title` | Tooltip text | `title='Click to enlarge'` | None |
 | `link` | URL to link the image to | `link='https://example.com'` | None |
+/%
 
 ## Display Modes
 
@@ -115,11 +117,12 @@ Full-width image that spans the entire container width.
 
 The `align` parameter works with all display modes:
 
-| Align | Description | Best Used With |
-| ------- | ------------- | ---------------- |
+%%table-striped
+|| Align || Description || Best Used With ||
 | `left` | Aligns image to the left | `display='float'` or `display='block'` |
 | `right` | Aligns image to the right | `display='float'` or `display='block'` |
 | `center` | Centers the image | `display='block'` |
+/%
 
 ## Common Use Cases
 
@@ -168,11 +171,12 @@ Click the [{Image src='/icons/edit.png' display='inline' alt='edit icon'}] butto
 
 `src` accepts three forms:
 
-| Form | Example | Behaviour |
-| ---- | ------- | --------- |
+%%table-striped
+|| Form || Example || Behaviour ||
 | Filename | `src='photo.jpg'` | Resolved via [Attachments] — page-local first, then global |
 | `media://` URI | `src='media://IMG_1234.jpg'` | Resolved via the [Media] library by filename — no upload needed |
 | Absolute path / URL | `src='/public/img/logo.png'` or `src='https://…'` | Used as-is |
+/%
 
 ### Embedding a Media Library Photo
 

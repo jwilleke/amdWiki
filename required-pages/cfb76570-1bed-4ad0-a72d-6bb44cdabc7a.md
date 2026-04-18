@@ -32,14 +32,15 @@ to pages for full details. See [Plugins] for a complete list of available plugin
 
 ## Parameters
 
-| Parameter | Default | Description |
-| --- | --- | --- |
+%%table-striped
+|| Parameter || Default || Description ||
 | `view` | `dayGridMonth` | Initial view: `dayGridMonth`, `timeGridWeek`, `timeGridDay`, or `listWeek`. |
 | `calendarId` | *(all)* | Show only events belonging to this named calendar. Omit to show everything. |
 | `height` | `650` | Height of the calendar in pixels. |
 | `editable` | `true` | Allow drag-and-drop rescheduling. Use `'false'` for a read-only display. |
 | `weekNumbers` | `false` | Show ISO week numbers in the left gutter. |
 | `firstDay` | `0` | First day of the week: `0` = Sunday, `1` = Monday. |
+/%
 
 ## Examples
 

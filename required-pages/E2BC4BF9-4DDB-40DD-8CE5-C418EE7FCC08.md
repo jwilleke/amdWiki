@@ -50,11 +50,12 @@ Server uptime: [{UptimePlugin}]
 
 ## Output Format
 
-| Duration | Format |
-| ---------- | -------- |
+%%table-striped
+|| Duration || Format ||
 | Days or more | `3d 12h 45m` |
 | Hours only | `5h 30m` |
 | Minutes only | `15m` |
+/%
 
 ## More Information
 
