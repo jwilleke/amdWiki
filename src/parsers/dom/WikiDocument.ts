@@ -18,67 +18,25 @@
  * Related: GitHub Issue #93 - Migrate to WikiDocument DOM-Based Parsing
  */
 
-// linkedom has no @types package, so we use require and define minimal types
-// eslint-disable-next-line @typescript-eslint/no-require-imports, @typescript-eslint/no-unsafe-assignment -- No types for linkedom
-const { parseHTML } = require('linkedom');
+import { parseHTML } from 'linkedom';
+import type {
+  LinkedomDocument,
+  LinkedomElement,
+  LinkedomText,
+  LinkedomComment,
+  LinkedomNode,
+  LinkedomNodeList,
+  LinkedomHTMLCollection
+} from 'linkedom';
 
-/**
- * Minimal linkedom types (no @types available)
- */
-interface LinkedomDocument {
-  body: LinkedomElement;
-  createElement(tag: string): LinkedomElement;
-  createTextNode(text: string): LinkedomText;
-  createComment(text: string): LinkedomComment;
-  getElementById(id: string): LinkedomElement | null;
-}
-
-export interface LinkedomElement {
-  innerHTML: string;
-  textContent: string;
-  className: string;
-  nodeType: number;
-  tagName: string;
-  childNodes: LinkedomNodeList;
-  firstChild: LinkedomNode | null;
-  lastChild: LinkedomNode | null;
-  setAttribute(name: string, value: string): void;
-  getAttribute(name: string): string | null;
-  appendChild(node: LinkedomNode): LinkedomNode;
-  insertBefore(newNode: LinkedomNode, referenceNode: LinkedomNode | null): LinkedomNode;
-  removeChild(node: LinkedomNode): LinkedomNode;
-  replaceChild(newNode: LinkedomNode, oldNode: LinkedomNode): LinkedomNode;
-  replaceWith(node: LinkedomNode): void;
-  remove(): void;
-  querySelector(selector: string): LinkedomElement | null;
-  querySelectorAll(selector: string): LinkedomNodeList;
-  getElementsByClassName(className: string): LinkedomHTMLCollection;
-  getElementsByTagName(tagName: string): LinkedomHTMLCollection;
-}
-
-export interface LinkedomText {
-  textContent: string;
-  nodeType: number;
-}
-
-export interface LinkedomComment {
-  textContent: string;
-  nodeType: number;
-}
-
-export type LinkedomNode = LinkedomElement | LinkedomText | LinkedomComment;
-
-export interface LinkedomNodeList extends ArrayLike<LinkedomNode> {
-  length: number;
-}
-
-export interface LinkedomHTMLCollection extends ArrayLike<LinkedomElement> {
-  length: number;
-}
-
-interface ParseHTMLResult {
-  document: LinkedomDocument;
-}
+export type {
+  LinkedomElement,
+  LinkedomText,
+  LinkedomComment,
+  LinkedomNode,
+  LinkedomNodeList,
+  LinkedomHTMLCollection
+};
 
 /**
  * WikiDocument metadata
@@ -138,8 +96,7 @@ class WikiDocument {
    * @param context - Rendering context (stored as WeakRef)
    */
   constructor(pageData: string, context?: WikiContext) {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call -- no types for linkedom
-    const { document } = parseHTML('<!DOCTYPE html><html><body></body></html>') as ParseHTMLResult;
+    const { document } = parseHTML('<!DOCTYPE html><html><body></body></html>');
 
     this.document = document;
     this.root = document.body;

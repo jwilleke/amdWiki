@@ -13,8 +13,6 @@
  *   node version.js set <version>      - Set specific version
  */
 
-/* eslint-disable no-console -- CLI script requires console output for user interaction */
-
 import fs from 'fs';
 import path from 'path';
 import { execSync } from 'child_process';

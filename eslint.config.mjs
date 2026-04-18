@@ -99,6 +99,11 @@ export default tseslint.config(
   // ────────────────────────────────────────────────────────────────
   // Scripts and e2e tests — utility code, relax type-safety and style rules
   {
+    files: ["src/utils/standardize-categories.ts", "src/utils/version.ts"],
+    rules: { "no-console": "off" }
+  },
+
+  {
     files: ["scripts/**/*.ts", "tests/e2e/**/*.ts", "playwright.config.ts"],
     rules: {
       "@typescript-eslint/no-unsafe-assignment": "off",

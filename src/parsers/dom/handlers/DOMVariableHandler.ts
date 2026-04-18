@@ -341,7 +341,7 @@ class DOMVariableHandler {
       const varName = varElement.getAttribute('data-variable');
       if (varName) {
         uniqueVariablesSet.add(varName);
-        const textContent = varElement.textContent;
+        const textContent = varElement.textContent ?? '';
         variables.push({
           name: varName,
           resolved: !textContent.startsWith('{$')

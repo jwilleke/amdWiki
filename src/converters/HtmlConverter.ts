@@ -11,23 +11,8 @@
 import { IContentConverter, ConversionResult } from './IContentConverter';
 import TurndownService from 'turndown';
 
-// eslint-disable-next-line @typescript-eslint/no-require-imports, @typescript-eslint/no-unsafe-assignment -- No types for linkedom
-const { parseHTML } = require('linkedom');
-
-/** Minimal DOM-like interface covering the linkedom APIs used in this file */
-interface LinkedomElement {
-  textContent?: string | null;
-  innerHTML?: string;
-  getAttribute(name: string): string | null;
-  querySelectorAll(selector: string): LinkedomElement[];
-  remove(): void;
-}
-interface LinkedomDocument {
-  querySelector(selector: string): LinkedomElement | null;
-  querySelectorAll(selector: string): LinkedomElement[];
-  body?: LinkedomElement;
-  documentElement?: LinkedomElement;
-}
+import { parseHTML } from 'linkedom';
+import type { LinkedomDocument, LinkedomElement } from 'linkedom';
 
 /** Elements to remove before content extraction */
 const REMOVE_ELEMENTS = [
@@ -112,8 +97,7 @@ class HtmlConverter implements IContentConverter {
     const warnings: string[] = [];
     const metadata: Record<string, unknown> = {};
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call -- no types for linkedom
-    const { document } = parseHTML(content) as { document: LinkedomDocument };
+    const { document } = parseHTML(content);
 
     // Extract metadata from <head>
     const schema = this.extractMetadata(document, metadata);
@@ -356,7 +340,7 @@ class HtmlConverter implements IContentConverter {
       const el = document.querySelector(selector);
       if (el) {
          
-        const html = el.innerHTML as string;
+        const html = el.innerHTML;
         if (html && html.trim().length > 100) {
           return html;
         }
@@ -369,7 +353,7 @@ class HtmlConverter implements IContentConverter {
     if (body) {
       warnings.push('No article/main element found — used full body content');
        
-      return body.innerHTML as string;
+      return body.innerHTML;
     }
 
     // Last resort: entire document
