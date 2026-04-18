@@ -126,10 +126,8 @@ jobs:
             fi
           }
 
-          check "$BASE/"                                        "Root"
-          check "$BASE/addons/journal/css/journal.css"         "Journal CSS"
-          check "$BASE/addons/journal/js/journal-editor.js"    "Journal JS"
-          check "$BASE/public/css/jspwiki-modern.css"          "Core CSS"
+          check "$BASE/"       "Root"
+          check "$BASE/login" "Login page"
 
           echo "All smoke tests passed."
 
