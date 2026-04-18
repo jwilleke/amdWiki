@@ -223,8 +223,7 @@ class FileAuditProvider extends BaseAuditProvider {
    * @param {Record<string, unknown>} options - Search options
    * @returns {Promise<AuditSearchResults>} Search results
    */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Dynamic type
-  searchAuditLogs(filters: AuditFilters = {}, options: Record<string, any> = {}): Promise<AuditSearchResults> {
+  searchAuditLogs(filters: AuditFilters = {}, options: Record<string, unknown> = {}): Promise<AuditSearchResults> {
     const {
       user,
       eventType,
@@ -292,8 +291,7 @@ class FileAuditProvider extends BaseAuditProvider {
     const paginatedResults = filteredLogs.slice(offset, offset + limit);
 
     return Promise.resolve({
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-explicit-any -- Cast for interface compliance
-      results: paginatedResults as any,
+      results: paginatedResults as unknown as AuditEvent[],
       total,
       limit,
       offset,

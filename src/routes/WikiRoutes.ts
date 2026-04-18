@@ -33,9 +33,9 @@ function getErrorMessage(error: unknown): string {
 // would require importing and maintaining types for each. This is a known
 // trade-off documented in the eslint-disable comments above.
 interface WikiEngine {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- see note above
-  getManager(name: string): any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- config is dynamic
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- getManager uses any for backwards compat with 23+ managers
+  getManager<T = any>(name: string): T | undefined;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- config has dynamic nested structure
   config?: any;
   getCapabilities?(): Record<string, boolean>;
 }
@@ -50,7 +50,7 @@ interface UserContext {
 }
 
 interface WikiContextOptions {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- WikiContext.CONTEXT values
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- WikiContext.CONTEXT enum values are dynamic
   context?: any;
   pageName?: string | null;
   content?: string | null;
@@ -64,8 +64,7 @@ interface TemplateData {
   userContext?: UserContext | null;
   user?: UserContext | null;
   pageName?: string | null;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- WikiContext instance
-  wikiContext?: any;
+  wikiContext?: unknown;
   engine?: WikiEngine;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any -- extensible template data
   [key: string]: any;
@@ -1316,7 +1315,7 @@ class WikiRoutes {
       // Phase 3 (#424): pre-resolve keyword URIs for microdata itemid attributes.
       // CatalogManager.resolveUri() returns null until a provider populates URIs.
       const keywordUris: Record<string, string> = {};
-      const catalogManager = this.engine.getManager('CatalogManager') as { resolveUri(term: string): Promise<string | null> } | undefined;
+      const catalogManager = this.engine.getManager('CatalogManager');
       if (catalogManager && typeof catalogManager.resolveUri === 'function' && metadata) {
         const allKws = [
           ...((metadata['user-keywords'] as string[] | undefined) ?? []),
@@ -1332,7 +1331,7 @@ class WikiRoutes {
       // #507: fetch auto-tagged systemKeywords from ES index (may include terms
       // not in page frontmatter — auto-tagged at index time by TaggingService).
       let autoTaggedKeywords: string[] = [];
-      const searchManager = this.engine.getManager('SearchManager') as { getPageSystemKeywords?(n: string): Promise<string[]> } | undefined;
+      const searchManager = this.engine.getManager('SearchManager');
       if (searchManager && typeof searchManager.getPageSystemKeywords === 'function') {
         autoTaggedKeywords = await searchManager.getPageSystemKeywords(pageName);
       }
@@ -2714,9 +2713,7 @@ class WikiRoutes {
       const mediaPageParam = Math.max(1, parseInt(req.query.mediaPage as string) || 1);
       const mediaOffset = (mediaPageParam - 1) * mediaPageSize;
 
-      const assetService = this.engine.getManager('AssetService') as
-        | { search(opts: object): Promise<{ results: Array<{ id: string; filename: string; encodingFormat: string; url: string; thumbnailUrl?: string; dateCreated?: string; mentions?: string[]; isPrivate?: boolean; providerId: string }>; total: number; hasMore: boolean }> }
-        | undefined;
+      const assetService = this.engine.getManager('AssetService');
 
       let attachmentResults: Array<{ id: string; filename: string; encodingFormat: string; url: string; mentions?: string[] }> = [];
       let mediaPage: { results: Array<{ id: string; filename: string; encodingFormat: string; url: string; thumbnailUrl?: string; dateCreated?: string; mentions?: string[]; isPrivate?: boolean }>; total: number; hasMore: boolean } = { results: [], total: 0, hasMore: false };
@@ -6388,9 +6385,7 @@ class WikiRoutes {
         return res.status(403).json({ success: false, error: 'Access denied' });
       }
 
-      const assetService = this.engine.getManager('AssetService') as
-        | import('../managers/AssetService').default
-        | undefined;
+      const assetService = this.engine.getManager('AssetService');
 
       if (!assetService) {
         return res.status(503).json({ success: false, error: 'AssetService unavailable' });
@@ -6403,7 +6398,7 @@ class WikiRoutes {
 
       // Pages are a separate data source — handled directly via PageManager
       if (typesParam === 'page') {
-        const pageManager = this.engine.getManager('PageManager') as { getAllPages(): Promise<string[]> } | undefined;
+        const pageManager = this.engine.getManager('PageManager');
         if (!pageManager) {
           return res.status(503).json({ success: false, error: 'PageManager unavailable' });
         }
@@ -9678,9 +9673,7 @@ ${description}
    * Stub: returns empty results.
    */
   async mediaSearch(req: Request, res: Response) {
-    const assetService = this.engine.getManager('AssetService') as
-      | import('../managers/AssetService').default
-      | undefined;
+    const assetService = this.engine.getManager('AssetService');
     if (!assetService) {
       return res.status(503).send('Asset service not enabled');
     }
@@ -9758,7 +9751,7 @@ ${description}
    * HEIC/RAW files are transcoded on-the-fly for browsers that can't decode them (#514).
    */
   async mediaFile(req: Request, res: Response) {
-    const mediaManager = this.engine.getManager('MediaManager') as import('../managers/MediaManager').default | undefined;
+    const mediaManager = this.engine.getManager('MediaManager');
     if (!mediaManager) {
       return res.status(503).send('Media manager not enabled');
     }

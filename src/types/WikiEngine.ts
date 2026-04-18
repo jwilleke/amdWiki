@@ -42,8 +42,7 @@ export type ManagerName =
  * Note: Uses 'any' for backwards compatibility with existing code
  */
 export interface ManagerRegistry {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Dynamic manager types
-  [managerName: string]: any;
+  [managerName: string]: unknown;
 }
 
 /**
@@ -66,8 +65,7 @@ export interface WikiEngine {
   startTime?: number;
 
   /** Current context (request-scoped) */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- WikiContext type varies by request
-  context?: any;
+  context?: unknown;
 
   /**
    * Express application instance — available for add-ons to mount routes and
@@ -106,8 +104,7 @@ export interface WikiEngine {
    * @param managerName - Name of the manager
    * @param manager - Manager instance
    */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Dynamic type
-  registerManager(managerName: string, manager: any): void;
+  registerManager(managerName: string, manager: unknown): void;
 
   /**
    * Get wiki configuration
@@ -141,6 +138,6 @@ export interface WikiEngine {
   setCapability(id: string, enabled: boolean): void;
 
   /** Allow additional properties for extensibility */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Dynamic type
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- index signature needed for class compatibility
   [key: string]: any;
 }
