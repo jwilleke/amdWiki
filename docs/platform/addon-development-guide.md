@@ -309,6 +309,56 @@ Guard admin panel EJS sections:
 
 ---
 
+## 4b. Populating `leftMenu` in Add-on Route Views
+
+Add-on route handlers that call `res.render()` must pass `leftMenu` explicitly — the core `getCommonTemplateData()` method is only available inside `WikiRoutes` and is not accessible to addon routes.
+
+Use the shared helper in `addons/journal/routes/helpers.ts` as a reference, or copy the pattern into your own addon:
+
+```typescript
+// addons/my-addon/routes/helpers.ts
+import type { WikiEngine } from '../../../dist/src/types/WikiEngine';
+import type PageManager from '../../../dist/src/managers/PageManager';
+import type RenderingManager from '../../../dist/src/managers/RenderingManager';
+
+function formatLeftMenuContent(content: string): string {
+  content = content.replace(/<ul>/g, '<ul class="nav flex-column">');
+  content = content.replace(/<li>/g, '<li class="nav-item">');
+  content = content.replace(/<a href="([^"]*)">/g, '<a class="nav-link" href="$1">');
+  return content;
+}
+
+export async function getLeftMenu(engine: WikiEngine, userContext: unknown): Promise<string | null> {
+  const pm = engine.getManager<PageManager>('PageManager');
+  const rm = engine.getManager<RenderingManager>('RenderingManager');
+  if (!pm || !rm) return null;
+  const page = await pm.getPage('LeftMenu');
+  if (!page) {
+    engine.logger?.warn('[LeftMenu] LeftMenu page not found — sidebar will be empty.');
+    return null;
+  }
+  const rendered = await rm.renderMarkdown(page.content ?? '', 'LeftMenu', userContext, null);
+  return formatLeftMenuContent(rendered);
+}
+```
+
+Then pass it to every `res.render()` call in that router:
+
+```typescript
+import { getLeftMenu } from './helpers';
+
+router.get('/', (req, res) => {
+  void (async () => {
+    const leftMenu = await getLeftMenu(engine, req.userContext ?? null);
+    res.render('my-view', { currentUser: req.userContext, leftMenu, /* ... */ });
+  })();
+});
+```
+
+If `leftMenu` is `null` or `undefined`, `header.ejs` renders the sidebar empty. There is no hardcoded fallback.
+
+---
+
 ## 5. Writing a Plugin
 
 Plugins execute server-side during page render and return an HTML string.

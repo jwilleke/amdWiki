@@ -18,7 +18,7 @@ pageManager.getPageContent('left-menu-content') ?? pageManager.getPageContent('L
 pageManager.getPageContent('footer-content')    ?? pageManager.getPageContent('Footer')
 ```
 
-If the override page exists it is used; otherwise the built-in fallback is rendered. No configuration is required — the lookup is always active.
+If the override page exists it is used; otherwise the core `LeftMenu` / `Footer` page is used. If neither exists the sidebar renders empty and a `logger.warn` is emitted so operators know the page is missing. No configuration is required — the lookup is always active.
 
 ---
 

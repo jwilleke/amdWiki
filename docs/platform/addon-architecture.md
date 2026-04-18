@@ -370,7 +370,7 @@ interface AddonManifest {
 |-------|------|-------------|--------|--------|-------|
 | `calendar` | additive | `CalendarDataManager` (extends BaseManager, owns JSON event store) | `CalendarPlugin` (FullCalendar embed) | `/api/calendar`, `/admin/calendar` | UpcomingEvents, My Calendar, Calendar Help |
 | `elasticsearch` | additive | none | none | none | none |
-| `journal` | additive | none (Phase 1); `JournalDataManager` planned (#527) | `JournalPlugin` (timeline/streak/on-this-day) | `/api/journal`, `/admin/journal` | journalhelp, myjournal |
+| `journal` | additive | `JournalDataManager` (sidecar index, streak, facets); `JournalTemplateManager` (built-in + custom writing templates) | `JournalPlugin` (timeline/streak/on-this-day) | `/journal`, `/api/journal`, `/admin/journal` | journalhelp, myjournal |
 
 ---
 
