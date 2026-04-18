@@ -2,6 +2,22 @@
 
 AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version history.
 
+## 2026-04-18-22
+
+- Agent: Claude
+- Subject: Documentation pages — UserLookupPlugin docs and authoring standards guide
+- Current Issue: #466, #511
+- Work Done:
+  - Created `docs/plugins/UserLookupPlugin.md` — developer reference covering parameters, permission gating, field rendering, output format, and test coverage
+  - Created `required-pages/d1ee72a5-84fd-4b97-bb77-56ec7751f9d7.md` (slug: userlookupplugin) — end-user page with ngdpbase table syntax, live examples including $currentUser and activeOnly
+  - Created `docs/proper-documentation-pages.md` — authoring standards guide (system-category: developer): structure, style, branding, table format distinction (ngdpbase for required-pages, markdown for docs/), built-in syntax, example format, frontmatter requirements
+  - Clarified that docs/ files use markdown tables; required-pages use ngdpbase %%table-striped / [{Table}] syntax
+- Commits: ecf277ff
+- Files Modified:
+  - docs/plugins/UserLookupPlugin.md (new)
+  - docs/proper-documentation-pages.md (new)
+  - required-pages/d1ee72a5-84fd-4b97-bb77-56ec7751f9d7.md (new)
+
 ## 2026-04-18-21
 
 - Agent: Claude
