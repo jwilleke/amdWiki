@@ -22,6 +22,32 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - [file2.md]
 ```
 
+## 2026-04-18-05
+
+- Agent: Claude
+- Subject: TypeScript migration (#186) — all 97 test files converted from .js to .ts; stale app.js references fixed
+- Current Issue: #186
+- Work Done:
+  - Fixed stale app.js references: playwright.config.js now launches `node dist/src/app.js`, scripts/smoke-test.sh checks src/*.ts source and dist/src/*.js compiled output, src/app.ts comment updated to not imply PM2-only launch
+  - Rewrote scripts/smoke-test.sh from scratch — old version checked for src/WikiEngine.js and app.js that no longer exist after TypeScript migration
+  - Converted all 97 src/**/__tests__/*.js test files to TypeScript: require() → import at file scope; inline require() inside test bodies kept as require() (CJS dynamic pattern); template-literal require() inside writeFile strings preserved
+  - Converted jest.setup.js → jest.setup.ts with typed mock provider factory and typed MockPageNameMatcher class
+  - Created tsconfig.test.json at root with strict: false for test-file flexibility (matches pattern already used for journal addon tests)
+  - Updated Jest config in package.json: preset ts-jest (not js-with-ts), inline transform config pointing to tsconfig.test.json, diagnostics.warnOnly: true for incremental type tightening, testMatch and collectCoverageFrom cleaned to .ts only
+  - Added tsconfig.test.json to eslint.config.mjs parserOptions.project so ESLint can lint newly converted test files
+  - Added ESLint override block for test files disabling type-safety rules inappropriate for mock-heavy test code (no-unsafe-*, unbound-method, require-await, no-floating-promises, no-unsafe-enum-comparison, etc.)
+  - Commented on #186 with full status and list of remaining work
+- Commits: dc38629c, f59509a8
+- Files Modified:
+  - playwright.config.js
+  - scripts/smoke-test.sh
+  - src/app.ts
+  - jest.setup.ts (renamed from jest.setup.js)
+  - tsconfig.test.json (new)
+  - eslint.config.mjs
+  - package.json
+  - src/**/__tests__/*.ts (97 files renamed from .js)
+
 ## 2026-04-18-04
 
 - Agent: Claude
