@@ -16,10 +16,11 @@
     "src/**/*.js",
     "src/**/__tests__/**/*.ts",
     "src/**/__tests__/**/*.js",
-    "plugins/**/*.ts",
     "addons/**/__tests__/**/*.ts",
     "jest.setup.ts",
-    "playwright.config.ts"
+    "playwright.config.ts",
+    "scripts/**/*.ts",
+    "tests/e2e/**/*.ts"
   ],
   "exclude": [
     "node_modules",
