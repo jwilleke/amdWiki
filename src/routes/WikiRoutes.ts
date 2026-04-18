@@ -14,9 +14,14 @@
 import path from 'path';
 import multer, { StorageEngine, Multer } from 'multer';
 import fs from 'fs';
+import fse from 'fs-extra';
+import matter from 'gray-matter';
+import { createPatch } from 'diff';
+import { exec } from 'child_process';
 import { Request, Response, Application } from 'express';
 import SchemaGenerator from '../utils/SchemaGenerator';
 import logger from '../utils/logger';
+import LocaleUtils from '../utils/LocaleUtils';
 import { extractSection, spliceSection } from '../utils/SectionUtils';
 import WikiContext from '../context/WikiContext';
 import { ThemeManager } from '../managers/ThemeManager';
@@ -3098,8 +3103,6 @@ class WikiRoutes {
       const html = await exportManager.exportPageToHtml(pageName);
       const filePath = await exportManager.saveExport(html, pageName, 'html');
 
-      // eslint-disable-next-line @typescript-eslint/no-require-imports -- Lazy load path module
-      const path = require('path');
       const filename = path.basename(filePath);
 
       // Send file as download
@@ -3126,8 +3129,6 @@ class WikiRoutes {
       const markdown = await exportManager.exportToMarkdown(pageName);
       const filePath = await exportManager.saveExport(markdown, pageName, 'md');
 
-      // eslint-disable-next-line @typescript-eslint/no-require-imports -- Lazy load path module
-      const path = require('path');
       const filename = path.basename(filePath);
 
       // Send file as download
@@ -3618,8 +3619,7 @@ class WikiRoutes {
         ? configManager.getProperty('ngdpbase.timezones', [])
         : [];
 
-      // eslint-disable-next-line @typescript-eslint/no-require-imports -- dynamic import for profile page only
-      const LocaleUtils = require('../utils/LocaleUtils');
+
       const availableDateFormats = LocaleUtils.getDateFormatOptions();
 
       res.render('profile', {
@@ -3818,8 +3818,7 @@ class WikiRoutes {
       if (dateFormatValue) {
         if (dateFormatValue === 'auto') {
           // Use locale-based format
-          // eslint-disable-next-line @typescript-eslint/no-require-imports -- dynamic import
-          const LocaleUtils = require('../utils/LocaleUtils');
+    
           preferences['dateFormat'] = LocaleUtils.getDateFormatFromLocale(
             getBodyValue('preferences.locale') || 'en-US'
           );
@@ -3829,10 +3828,9 @@ class WikiRoutes {
         }
       } else if (getBodyValue('preferences.locale')) {
         // Fallback: Update dateFormat based on locale if locale is provided but no explicit dateFormat
-        // eslint-disable-next-line @typescript-eslint/no-require-imports -- dynamic import
-        const LocaleUtils = require('../utils/LocaleUtils');
+  
         preferences['dateFormat'] = LocaleUtils.getDateFormatFromLocale(
-          getBodyValue('preferences.locale')
+          getBodyValue('preferences.locale') ?? ''
         );
       }
 
@@ -3963,8 +3961,7 @@ class WikiRoutes {
       // Count required-pages that need syncing (new or modified vs data/pages/)
       let requiredPagesSyncNeeded = 0;
       try {
-        // eslint-disable-next-line @typescript-eslint/no-require-imports -- lazy load for rarely-used dashboard count
-        const fse = require('fs-extra');
+
         const configManager = this.engine.getManager('ConfigurationManager');
         const requiredDirRaw: string = configManager.getProperty(
           'ngdpbase.page.provider.filesystem.requiredpagesdir',
@@ -3978,14 +3975,13 @@ class WikiRoutes {
           './data/pages'
         );
 
-        // eslint-disable-next-line @typescript-eslint/no-require-imports -- lazy load
-        const matter = require('gray-matter');
+
         const volatileFields = ['lastModified', 'user-modified', 'editor'];
         const normalize = (raw: string): string => {
           const parsed = matter(raw) as { data: Record<string, unknown>; content: string };
           const stable = { ...parsed.data };
           for (const f of volatileFields) delete stable[f];
-          return matter.stringify(parsed.content, stable) as string;
+          return matter.stringify(parsed.content, stable);
         };
         const allFiles: string[] = await fse.readdir(requiredDirResolved);
         for (const file of allFiles.filter((f: string) => f.endsWith('.md'))) {
@@ -4867,7 +4863,7 @@ class WikiRoutes {
       logger.debug(`✅ Backup created: ${backupPath}`);
 
       // Get backup filename
-      const filename = require('path').basename(backupPath); // eslint-disable-line @typescript-eslint/no-require-imports -- Lazy load in rarely-used route
+      const filename = path.basename(backupPath);
 
       // Send backup file as download
       res.download(backupPath, filename, (err) => {
@@ -5434,10 +5430,7 @@ class WikiRoutes {
         });
       }
 
-      // eslint-disable-next-line @typescript-eslint/no-require-imports -- dynamic import for restart
-      const { exec } = require('child_process');
-      // eslint-disable-next-line @typescript-eslint/no-require-imports -- dynamic import for path
-      const path = require('path');
+
 
       // Detect PM2 app name dynamically (matches server.sh convention: ngdpbase-$DIR_NAME)
       const dirName = path.basename(process.cwd());
@@ -5580,10 +5573,8 @@ class WikiRoutes {
       }
 
       const configManager = this.engine.getManager('ConfigurationManager');
-      // eslint-disable-next-line @typescript-eslint/no-require-imports -- dynamic load
-      const fse = require('fs-extra');
-      // eslint-disable-next-line @typescript-eslint/no-require-imports -- dynamic load
-      const matter = require('gray-matter');
+
+
 
       const requiredDirRaw: string = configManager.getProperty(
         'ngdpbase.page.provider.filesystem.requiredpagesdir',
@@ -5609,7 +5600,7 @@ class WikiRoutes {
         const parsed = matter(raw) as { data: Record<string, unknown>; content: string };
         const stable = { ...parsed.data };
         for (const f of VOLATILE_FRONTMATTER) delete stable[f];
-        return matter.stringify(parsed.content, stable) as string;
+        return matter.stringify(parsed.content, stable);
       };
 
       const comparison: Array<{
@@ -5734,7 +5725,7 @@ class WikiRoutes {
         const addonDirs = addonsManager.getEnabledAddonPagesDirectories();
         for (const { name: addonName, pagesDir } of addonDirs) {
           if (!(await fse.pathExists(pagesDir))) continue;
-          const addonFiles: string[] = (await fse.readdir(pagesDir) as string[]).filter((f: string) => f.endsWith('.md'));
+          const addonFiles: string[] = (await fse.readdir(pagesDir)).filter((f: string) => f.endsWith('.md'));
 
           for (const file of addonFiles) {
             const uuid = path.basename(file, '.md');
@@ -5818,8 +5809,7 @@ class WikiRoutes {
       }
 
       const configManager = this.engine.getManager('ConfigurationManager');
-      // eslint-disable-next-line @typescript-eslint/no-require-imports -- dynamic load
-      const fse = require('fs-extra');
+
 
       const requiredDirRaw: string = configManager.getProperty(
         'ngdpbase.page.provider.filesystem.requiredpagesdir',
@@ -5833,8 +5823,7 @@ class WikiRoutes {
         './data/pages'
       );
 
-      // eslint-disable-next-line @typescript-eslint/no-require-imports -- dynamic load
-      const matter = require('gray-matter');
+
 
       const body = req.body as {
         uuids?: string[];
@@ -5862,14 +5851,14 @@ class WikiRoutes {
       if (addonsManagerPost) {
         for (const { pagesDir } of addonsManagerPost.getEnabledAddonPagesDirectories()) {
           if (await fse.pathExists(pagesDir)) {
-            for (const f of (await fse.readdir(pagesDir) as string[])) {
+            for (const f of (await fse.readdir(pagesDir))) {
               if (f.endsWith('.md')) sourceFileMap.set(path.basename(f, '.md'), path.join(pagesDir, f));
             }
           }
         }
       }
       // Required-pages overrides addon pages on UUID collision
-      for (const f of (await fse.readdir(requiredDirResolved) as string[])) {
+      for (const f of (await fse.readdir(requiredDirResolved))) {
         if (f.endsWith('.md')) sourceFileMap.set(path.basename(f, '.md'), path.join(requiredDirResolved, f));
       }
 
@@ -5884,7 +5873,7 @@ class WikiRoutes {
         const raw: string = await fse.readFile(srcPath, 'utf8');
         const parsed = matter(raw) as { data: Record<string, unknown>; content: string };
         delete parsed.data['user-modified'];
-        const cleaned: string = matter.stringify(parsed.content, parsed.data) as string;
+        const cleaned: string = matter.stringify(parsed.content, parsed.data);
         await fse.writeFile(dstPath, cleaned, 'utf8');
       };
 
@@ -5951,7 +5940,7 @@ class WikiRoutes {
           const parsed = matter(liveContent) as { data: Record<string, unknown>; content: string };
           // Update the UUID in frontmatter to the canonical source UUID
           parsed.data.uuid = sourceUuid;
-          const updatedContent: string = matter.stringify(parsed.content, parsed.data) as string;
+          const updatedContent: string = matter.stringify(parsed.content, parsed.data);
           await fse.ensureDir(pagesDirResolved);
           await fse.writeFile(canonicalPath, updatedContent, 'utf8');
           if (liveUuid !== sourceUuid) {
@@ -5982,7 +5971,7 @@ class WikiRoutes {
           const raw: string = await fse.readFile(livePath, 'utf8');
           const parsed = matter(raw) as { data: Record<string, unknown>; content: string };
           delete parsed.data['user-modified'];
-          const cleaned: string = matter.stringify(parsed.content, parsed.data) as string;
+          const cleaned: string = matter.stringify(parsed.content, parsed.data);
           await fse.writeFile(sourcePath, cleaned, 'utf8');
           synced.push(uuid);
           logger.info(`Required pages push-to-source: ${uuid} by ${currentUser.username}`);
@@ -6051,8 +6040,6 @@ class WikiRoutes {
     uuidA: string;
     uuidB: string;
   } | null> {
-    const fse = require('fs-extra'); // eslint-disable-line @typescript-eslint/no-require-imports -- dynamic load
-    const matter = require('gray-matter'); // eslint-disable-line @typescript-eslint/no-require-imports -- dynamic load
     const configManager = this.engine.getManager('ConfigurationManager');
     const pageManager = this.engine.getManager('PageManager');
 
@@ -6147,8 +6134,7 @@ class WikiRoutes {
         return res.status(400).send('Could not resolve pages for comparison');
       }
 
-      // eslint-disable-next-line @typescript-eslint/no-require-imports -- dynamic load
-      const { createPatch } = require('diff');
+
       const diffString: string = createPatch(
         resolved.titleA,
         resolved.contentA,
@@ -6196,8 +6182,7 @@ class WikiRoutes {
         return res.status(400).json({ error: 'Could not resolve pages for comparison' });
       }
 
-      // eslint-disable-next-line @typescript-eslint/no-require-imports -- dynamic load
-      const { createPatch } = require('diff');
+
       const diffString: string = createPatch(
         resolved.titleA,
         resolved.contentA,
@@ -6820,10 +6805,7 @@ class WikiRoutes {
       }
 
       const commonData = await this.getCommonTemplateData(req);
-      // eslint-disable-next-line @typescript-eslint/no-require-imports -- dynamic import for logs
-      const fs = require('fs-extra');
-      // eslint-disable-next-line @typescript-eslint/no-require-imports -- dynamic import
-      const path = require('path');
+
 
       // Read recent logs from configured directory
       const configManager = this.engine.getManager('ConfigurationManager');
@@ -6833,18 +6815,18 @@ class WikiRoutes {
       let selectedFile = '';
 
       try {
-        if (await fs.pathExists(logDir)) {
-          const files = await fs.readdir(logDir);
+        if (await fse.pathExists(logDir)) {
+          const files = await fse.readdir(logDir);
           const logFileNames = files.filter((f: string) => f.endsWith('.log'));
 
           // Get file stats and sort by modification time (newest first)
           const fileStats = await Promise.all(
             logFileNames.map(async (name: string) => {
-              const stats = await fs.stat(path.join(logDir, name));
+              const stats = await fse.stat(path.join(logDir, name));
               return { name, mtime: stats.mtime, size: stats.size };
             })
           );
-          logFiles = fileStats.sort((a, b) => b.mtime.getTime() - a.mtime.getTime());
+          logFiles = fileStats.sort((a: { mtime: Date }, b: { mtime: Date }) => b.mtime.getTime() - a.mtime.getTime());
 
           // Get selected file from query param, or use most recent
           const requestedFile = req.query.file as string | undefined;
@@ -6856,7 +6838,7 @@ class WikiRoutes {
 
           if (selectedFile) {
             const logPath = path.join(logDir, selectedFile);
-            const content = await fs.readFile(logPath, 'utf8');
+            const content = await fse.readFile(logPath, 'utf8');
             // Get last 100 lines
             const lines = content.split('\n');
             logContent = lines.slice(-100).join('\n');
@@ -8103,15 +8085,12 @@ class WikiRoutes {
       const lineCount = content.split('\n').length;
 
       // Get file stats if available
-      // eslint-disable-next-line @typescript-eslint/no-require-imports -- dynamic import for stats
-      const fs = require('fs-extra');
-      // eslint-disable-next-line @typescript-eslint/no-require-imports -- dynamic import
-      const path = require('path');
+
       let fileStats = null;
 
       try {
         const filePath = page.filePath;
-        const stats = await fs.stat(filePath);
+        const stats = await fse.stat(filePath);
         fileStats = {
           size: stats.size,
           created: stats.birthtime,
