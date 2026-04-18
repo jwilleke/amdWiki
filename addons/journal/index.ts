@@ -107,8 +107,8 @@ const journalAddon = {
 
     // ── 6. Mount routes (/api before /journal to avoid slug wildcard conflict) ─
     engine.app?.use('/api/journal',   apiRoutes(engine, config));
-    engine.app?.use('/journal',       publicRoutes(engine, config));
     engine.app?.use('/journal',       editorRoutes(engine, config));
+    engine.app?.use('/journal',       publicRoutes(engine, config));
     engine.app?.use('/admin/journal', adminRoutes(engine, config));
 
     // ── 6b. Wiki-link alias: [journal] → /journal ────────────────────────────
