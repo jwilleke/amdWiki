@@ -88,6 +88,38 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - src/providers/BaseMediaProvider.ts
   - src/providers/BasicAttachmentProvider.ts
 
+## 2026-04-18-09
+
+- Agent: Claude
+- Subject: TypeScript migration (#186) — dynamic require() → await import(); remove 40+ eslint-disable comments
+- Current Issue: #186
+- Work Done:
+  - Converted dynamic require() to await import() in 7 manager files: AuditManager, SearchManager, PageManager, UserManager, AttachmentManager, CacheManager, PluginManager
+  - Used as unknown as { default: T } double-cast for literal-path imports where TypeScript resolves the actual module type
+  - Set no-require-imports rule to "off" for test/script/e2e override blocks; removed 28 inline disables from test files
+  - Added typed getManager<PageManager>() and getManager<AttachmentManager>() calls in ImportManager; removed 11 unsafe-* inline disables
+  - Added import type PageManager and import type AttachmentManager to ImportManager; used optional chaining for undefined safety
+  - Converted showdown-footnotes-fixed.ts from require('showdown') to static import (types available via @types/showdown)
+  - Fixed useless-escape in JSPWikiConverter (two regex patterns: \} → } inside character classes)
+  - Fixed useless-escape in LinkParser (\| → | inside character class)
+  - Fixed useless-escape in version.ts regex template literal (\s → \\s, \S → \\S)
+  - Source file eslint-disable count: 68 → 43 (down 25); total including tests: 71
+- Commits: 8460f5bf
+- Files Modified:
+  - eslint.config.mjs
+  - src/converters/JSPWikiConverter.ts
+  - src/extensions/showdown-footnotes-fixed.ts
+  - src/managers/AttachmentManager.ts
+  - src/managers/AuditManager.ts
+  - src/managers/CacheManager.ts
+  - src/managers/ImportManager.ts
+  - src/managers/PageManager.ts
+  - src/managers/PluginManager.ts
+  - src/managers/SearchManager.ts
+  - src/managers/UserManager.ts
+  - src/parsers/LinkParser.ts
+  - src/utils/version.ts
+
 ## 2026-04-18-07
 
 - Agent: Claude
