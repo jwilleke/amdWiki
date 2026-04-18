@@ -2,6 +2,23 @@
 
 AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version history.
 
+## 2026-04-18-21
+
+- Agent: Claude
+- Subject: Implement [{UserLookup}] plugin for #466 with fields='all' and $currentUser support
+- Current Issue: #466
+- Work Done:
+  - Created `src/plugins/UserLookupPlugin.ts` — renders sortable table from UserManager.searchUsers(); supports q, role, max, fields, activeOnly params
+  - fields='all' renders every field returned by API for caller's permission level; comma-list selects specific columns; default is username+displayName
+  - q='$currentUser' resolves to logged-in username via resolveUserParam() from pluginFormatters.ts
+  - Uses escapeHtml, formatAsTable, parseMaxParam from pluginFormatters.ts
+  - Fixed camelCase field matching in parseFields (isActive, lastLogin, displayName)
+  - 13 new tests in UserLookupPlugin.test.ts; 114 suites / 2965 tests total, all passing
+- Commits: 7e75c7b5
+- Files Modified:
+  - src/plugins/UserLookupPlugin.ts
+  - src/plugins/__tests__/UserLookupPlugin.test.ts
+
 ## 2026-04-18-20
 
 - Agent: Claude
