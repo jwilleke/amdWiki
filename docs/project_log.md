@@ -2,6 +2,24 @@
 
 AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version history.
 
+## 2026-04-18-17
+
+- Agent: Claude
+- Subject: Fix #540 journal editor redirect; fix #531 InterWikiLinks required page; unify all instances to shared origin
+- Current Issue: #540, #531, #538, #539
+- Work Done:
+  - #540: Redirected GET /journal/:slug/edit to /edit/:slug (standard page editor) — gets preview and user preferences; auth/ownership check retained; noted sidecar index trade-off in issue comment; labeled in-review
+  - #531: Created required-pages/51d6f3a1-ca69-4284-972a-8dd2b2fd0bb2.md — InterWikiLinks documentation page with system-category: documentation, syntax reference, configured sites table, custom site instructions
+  - Identified all three instances (ngdpbase port 3000, fairways-base port 2121, ngdpbase-veg port 3333) share jwilleke/ngdpbase as origin; only data/ differs
+  - fairways-base: deleted chore/template-sync branch (local + remote), reset master to origin/master
+  - ngdpbase-veg: reset master to origin/master
+  - fairways-base: rebuilt, restarted — location-plugin E2E 11/11 passed; closed #538 and #539
+  - Closed #402, #527, #528, #529, #533 (journal addon all phases complete)
+- Commits: 2069577a, 2e0a5aec
+- Files Modified:
+  - addons/journal/routes/editor.ts
+  - required-pages/51d6f3a1-ca69-4284-972a-8dd2b2fd0bb2.md (new)
+
 ## 2026-04-18-16
 
 - Agent: Claude
