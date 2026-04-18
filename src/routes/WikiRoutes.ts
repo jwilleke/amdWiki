@@ -1,9 +1,9 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment -- getManager returns any */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access -- getManager returns any */
-/* eslint-disable @typescript-eslint/no-unsafe-call -- getManager returns any */
-/* eslint-disable @typescript-eslint/no-unsafe-argument -- getManager returns any */
-/* eslint-disable @typescript-eslint/no-unsafe-return -- getManager returns any */
-/* eslint-disable @typescript-eslint/explicit-function-return-type -- TODO: add return types */
+/* eslint-disable @typescript-eslint/explicit-function-return-type -- ~148 methods need return types; deferred */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment -- req.body/req.query/dynamic Express values; getManager calls are now typed via overloads */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access -- req.body/req.query/dynamic Express values; getManager calls are now typed via overloads */
+/* eslint-disable @typescript-eslint/no-unsafe-call -- req.body/req.query/dynamic Express values; getManager calls are now typed via overloads */
+/* eslint-disable @typescript-eslint/no-unsafe-argument -- req.body/req.query/dynamic Express values; getManager calls are now typed via overloads */
+/* eslint-disable @typescript-eslint/no-unsafe-return -- req.body/req.query/dynamic Express values; getManager calls are now typed via overloads */
 
 /**
  * Modern route handlers using manager-based architecture
@@ -26,6 +26,26 @@ import { extractSection, spliceSection } from '../utils/SectionUtils';
 import WikiContext from '../context/WikiContext';
 import { ThemeManager } from '../managers/ThemeManager';
 import type { ReportProgress } from '../managers/BackgroundJobManager';
+import type { WikiPage, PageFrontmatter } from '../types/Page';
+import type AddonsManager from '../managers/AddonsManager';
+import type AssetManager from '../managers/AssetManager';
+import type AssetService from '../managers/AssetService';
+import type AttachmentManager from '../managers/AttachmentManager';
+import type AuthManager from '../managers/AuthManager';
+import type BackgroundJobManager from '../managers/BackgroundJobManager';
+import type BackupManager from '../managers/BackupManager';
+import type CacheManager from '../managers/CacheManager';
+import type CatalogManager from '../managers/CatalogManager';
+import type ExportManager from '../managers/ExportManager';
+import type ImportManager from '../managers/ImportManager';
+import type MediaManager from '../managers/MediaManager';
+import type MetricsManager from '../managers/MetricsManager';
+import type NotificationManager from '../managers/NotificationManager';
+import type PolicyValidator from '../managers/PolicyValidator';
+import type RenderingManager from '../managers/RenderingManager';
+import type TemplateManager from '../managers/TemplateManager';
+import type ValidationManager from '../managers/ValidationManager';
+import type VariableManager from '../managers/VariableManager';
 
 /** Helper to extract error message from unknown error */
 function getErrorMessage(error: unknown): string {
@@ -33,15 +53,180 @@ function getErrorMessage(error: unknown): string {
   return String(error);
 }
 
-// TypeScript interfaces for WikiRoutes
-// Note: getManager returns 'any' because properly typing all 23+ managers
-// would require importing and maintaining types for each. This is a known
-// trade-off documented in the eslint-disable comments above.
+interface WikiConfig {
+  features?: { maintenance?: { enabled?: boolean; allowAdmins?: boolean }; [key: string]: unknown };
+  [key: string]: unknown;
+}
+
+// ── Local manager interfaces ──────────────────────────────────────────────────
+// Minimal structural types derived from how each manager is used in this file.
+// Using the full imported class types would surface 200+ pre-existing type
+// mismatches (private property access, method renames, widened signatures).
+// These interfaces precisely describe the contract expected by the call sites.
+
+interface IVersionEntry {
+  version: number;
+  timestamp: string;
+  author?: string;
+  changeType?: string;
+  comment?: string;
+  [key: string]: unknown;
+}
+
+interface IComparisonResult {
+  version1?: unknown;
+  version2?: unknown;
+  diff?: unknown;
+  stats?: unknown;
+  [key: string]: unknown;
+}
+
+interface IValidationReport {
+  fixedFiles: number;
+  invalidFiles: number;
+  [key: string]: unknown;
+}
+
+interface IUserManager {
+  getCurrentUser(req: Request): Promise<UserContext>;
+  getUser(username: string): Promise<UserContext | null>;
+  getUsers(): Promise<UserContext[]>;
+  createUser(data: unknown): Promise<unknown>;
+  updateUser(username: string, data: unknown): Promise<unknown>;
+  deleteUser(username: string): Promise<unknown>;
+  hasPermission(username: string | undefined, permission: string): Promise<boolean>;
+  getUserPermissions(username: string): Promise<string[]>;
+  getPermissions(): Map<string, string>;
+  getRoles(): unknown[];
+  createRole(data: unknown): Promise<unknown>;
+  deleteRole(name: string): Promise<unknown>;
+  updateRolePermissions(role: string, permissions: unknown): Promise<unknown>;
+  authenticateUser(username: string, password: string): Promise<unknown>;
+  getSession(req: Request): Promise<unknown>;
+}
+
+interface IConfigManager {
+  getProperty(key: string, defaultValue: string): string;
+  getProperty(key: string, defaultValue?: unknown): unknown;
+  setProperty(key: string, value: unknown): Promise<void> | void;
+  getCustomProperty(key: string): unknown;
+  getCustomProperties(): unknown;
+  getDefaultProperties(): unknown;
+  getAllProperties(): unknown;
+  getResolvedDataPath(key: string, defaultValue?: string): string;
+  resetToDefaults(): Promise<void> | void;
+  getFencedCodeTags?(): Set<string>;
+}
+
+interface IVersioningProvider {
+  getVersionHistory?(name: string, limit?: number): Promise<IVersionEntry[]>;
+  compareVersions?(name: string, v1: number, v2: number): Promise<IComparisonResult | null>;
+  restoreVersion?(name: string, version: number, options?: { author?: string; comment?: string }): Promise<number>;
+  getPageVersion?(name: string, version: number): Promise<{ content: string; metadata: unknown }>;
+  pageIndex?: { pages: Record<string, { location?: string; creator?: string }> } | null;
+}
+
+interface IPageManager {
+  getPage(name: string): Promise<WikiPage | null>;
+  getPageContent(name: string): Promise<string>;
+  getAllPages(): Promise<string[]>;
+  getAllPageNames(): Promise<string[]>;
+  getPageNames?(): Promise<string[]>;
+  getPageMetadata(name: string): Promise<PageFrontmatter | null>;
+  pageExists(name: string): boolean;
+  savePage(name: string, content: string, metadata?: Partial<PageFrontmatter>, options?: unknown): Promise<void>;
+  savePageWithContext(wikiContext: unknown, metadata?: Partial<PageFrontmatter>): Promise<void>;
+  deletePage(name: string, options?: unknown): Promise<boolean>;
+  deletePageWithContext(wikiContext: unknown): Promise<boolean>;
+  getCurrentPageProvider(): IVersioningProvider | null;
+  /** Direct provider reference — prefer getCurrentPageProvider() for new code */
+  provider?: IVersioningProvider | null;
+  refreshPageList(): Promise<void>;
+  validateAndFixAllFiles(options?: unknown): Promise<IValidationReport>;
+}
+
+interface IACLManager {
+  checkPagePermissionWithContext(wikiContext: WikiContext, action: string): Promise<boolean>;
+  checkPagePermission(pageName: string, action: string, userContext: UserContext | null, content: string): Promise<boolean>;
+  getAccessLog(limit?: number, filters?: unknown): unknown[];
+  removeACLMarkup(content: string): string;
+  getAccessControlStats(): unknown;
+}
+
+interface ISchemaManager {
+  getSchema(name: string): unknown;
+  getAllSchemaNames(): string[];
+  getComprehensiveSiteData(options?: unknown): Promise<unknown>;
+  getOrganizations(): Promise<unknown[]>;
+  getOrganization(id: string): Promise<unknown>;
+  createOrganization(data: unknown): Promise<unknown>;
+  updateOrganization(id: string, data: unknown): Promise<unknown>;
+  deleteOrganization(id: string): Promise<void>;
+  getPerson(id: string): Promise<unknown>;
+}
+
+interface ISearchManager {
+  search(query: string, options?: unknown): Promise<unknown[]>;
+  advancedSearch(options: unknown): Promise<unknown[]>;
+  advancedSearchWithContext(context: unknown, options?: unknown): Promise<unknown[]>;
+  updatePageInIndex(pageName: string, pageData: unknown): Promise<void>;
+  removePageFromIndex(pageName: string): Promise<void>;
+  rebuildIndex(): Promise<void>;
+  getSuggestions(partial: string): Promise<string[]>;
+  getStatistics(): Promise<{ totalDocuments?: number; [key: string]: unknown }>;
+  getStats(): unknown;
+  getAllDocuments(): Promise<unknown[]>;
+  getAllCategories(): Promise<string[]>;
+  getAllUserKeywords(): Promise<string[]>;
+  getAllSystemKeywords(): Promise<string[]>;
+  getPageSystemKeywords(pageName: string): Promise<string[]>;
+  searchByCategory(category: string): Promise<unknown[]>;
+  searchByCategories(categories: string[]): Promise<unknown[]>;
+  searchByUserKeywords(keyword: string): Promise<unknown[]>;
+  searchByUserKeywordsList(keywords: string[]): Promise<unknown[]>;
+  searchBySystemKeywordsList(keywords: string[]): Promise<unknown[]>;
+}
+
+interface IPolicyManager {
+  getPolicy(id: string): unknown;
+  getAllPolicies(): unknown[];
+  getPolicies(): unknown[];
+  deletePolicy(id: string): Promise<unknown>;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+
 interface WikiEngine {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- getManager uses any for backwards compat with 23+ managers
-  getManager<T = any>(name: string): T | undefined;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- config has dynamic nested structure
-  config?: any;
+  // Managers with local minimal interfaces (call-site-derived types)
+  getManager(name: 'UserManager'): IUserManager;
+  getManager(name: 'ConfigurationManager'): IConfigManager;
+  getManager(name: 'PageManager'): IPageManager;
+  getManager(name: 'ACLManager'): IACLManager;
+  getManager(name: 'SchemaManager'): ISchemaManager;
+  getManager(name: 'SearchManager'): ISearchManager;
+  getManager(name: 'PolicyManager'): IPolicyManager;
+  // Managers using full typed imports
+  getManager(name: 'AddonsManager'): AddonsManager;
+  getManager(name: 'AssetManager'): AssetManager;
+  getManager(name: 'AssetService'): AssetService;
+  getManager(name: 'AttachmentManager'): AttachmentManager;
+  getManager(name: 'AuthManager'): AuthManager;
+  getManager(name: 'BackgroundJobManager'): BackgroundJobManager;
+  getManager(name: 'BackupManager'): BackupManager;
+  getManager(name: 'CacheManager'): CacheManager;
+  getManager(name: 'CatalogManager'): CatalogManager;
+  getManager(name: 'ExportManager'): ExportManager;
+  getManager(name: 'ImportManager'): ImportManager;
+  getManager(name: 'MediaManager'): MediaManager;
+  getManager(name: 'MetricsManager'): MetricsManager;
+  getManager(name: 'NotificationManager'): NotificationManager;
+  getManager(name: 'PolicyValidator'): PolicyValidator;
+  getManager(name: 'RenderingManager'): RenderingManager;
+  getManager(name: 'TemplateManager'): TemplateManager;
+  getManager(name: 'ValidationManager'): ValidationManager;
+  getManager(name: 'VariableManager'): VariableManager;
+  getManager<T = unknown>(name: string): T | undefined;
+  config?: WikiConfig;
   getCapabilities?(): Record<string, boolean>;
 }
 
@@ -50,7 +235,7 @@ interface UserContext {
   email?: string;
   roles?: string[];
   isSystem?: boolean;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- extensible interface
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- extensible interface; compatible with UserManager.UserContext and req.userContext
   [key: string]: any;
 }
 
@@ -70,7 +255,7 @@ interface TemplateData {
   pageName?: string | null;
   wikiContext?: unknown;
   engine?: WikiEngine;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- extensible template data
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- extensible template data; templates access arbitrary properties
   [key: string]: any;
 }
 
@@ -200,7 +385,7 @@ class WikiRoutes {
   createWikiContext(req: Request, options: WikiContextOptions = {}): WikiContext {
     // Resolve active theme for this request
     const configManager = this.engine.getManager('ConfigurationManager');
-    const activeTheme = (configManager?.getProperty('ngdpbase.theme.active', 'default') as string) || 'default';
+    const activeTheme = (configManager?.getProperty('ngdpbase.theme.active', 'default')) || 'default';
     const themesDir = path.join(__dirname, '../../../themes');
     const themeManager = new ThemeManager(activeTheme, themesDir);
 
@@ -288,8 +473,7 @@ class WikiRoutes {
    * This is now the single source of truth for common data.
    * @param {object} req - Express request object.
    */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- template data is dynamic
-  async getCommonTemplateData(req: Request): Promise<any> {
+  async getCommonTemplateData(req: Request): Promise<TemplateData> {
     const userManager = this.engine.getManager('UserManager');
     const aclManager = this.engine.getManager('ACLManager');
     const renderingManager = this.engine.getManager('RenderingManager');
@@ -301,7 +485,7 @@ class WikiRoutes {
       req.userContext || (await userManager.getCurrentUser(req));
 
     // Resolve active theme paths
-    const activeTheme = (configManager?.getProperty('ngdpbase.theme.active', 'default') as string) || 'default';
+    const activeTheme = (configManager?.getProperty('ngdpbase.theme.active', 'default')) || 'default';
     const themesDir = path.join(__dirname, '../../../themes');
     const themeManager = new ThemeManager(activeTheme, themesDir);
     const themePaths = themeManager.paths;
@@ -594,8 +778,8 @@ class WikiRoutes {
   async checkForUpdates(_req: Request, res: Response): Promise<void> {
     try {
       const configManager = this.engine.getManager('ConfigurationManager');
-      const currentVersion = configManager.getProperty('ngdpbase.version', '0.0.0') as string;
-      const githubRepo = configManager.getProperty('ngdpbase.github.repo', 'jwilleke/ngdpbase') as string;
+      const currentVersion = configManager.getProperty('ngdpbase.version', '0.0.0');
+      const githubRepo = configManager.getProperty('ngdpbase.github.repo', 'jwilleke/ngdpbase');
 
       const apiUrl = `https://api.github.com/repos/${githubRepo}/releases/latest`;
       let latestVersion: string | null = null;
@@ -795,12 +979,13 @@ class WikiRoutes {
       }
 
       // Load system categories from configuration
-      const systemCategories = configManager.getProperty('ngdpbase.system-category', {});
+      const systemCategories = configManager.getProperty('ngdpbase.system-category', {}) as
+        Record<string, { enabled?: boolean; label?: string }>;
 
       // Filter enabled categories and extract labels (case-insensitive)
       const categories: string[] = [];
       for (const [key, config] of Object.entries(systemCategories)) {
-        const cfg = config as { enabled?: boolean; label?: string };
+        const cfg = config;
         if (cfg.enabled !== false) { // Include if not explicitly disabled
           // Use label if available, otherwise use key (both lowercase)
           const label = (cfg.label || key).toLowerCase();
@@ -982,10 +1167,10 @@ class WikiRoutes {
       const configManager = this.engine.getManager('ConfigurationManager');
 
       // Check if SchemaManager is available, fallback to legacy method
-      let siteData;
+      let siteData: { organizations?: Array<{ name?: string }>; [key: string]: unknown };
       try {
         const schemaManager = this.engine.getManager('SchemaManager');
-        siteData = await schemaManager.getComprehensiveSiteData();
+        siteData = await schemaManager.getComprehensiveSiteData() as typeof siteData;
       } catch (err: unknown) {
         logger.warn(
           'SchemaManager not available, using legacy data sources:',
@@ -1277,7 +1462,7 @@ class WikiRoutes {
       // Get version information if versioning is enabled
       let versionInfo = null;
       const provider = pageManager.provider;
-      if (typeof provider.getVersionHistory === 'function') {
+      if (provider && typeof provider.getVersionHistory === 'function') {
         try {
           const versions = await provider.getVersionHistory(pageName);
           if (versions && versions.length > 0) {
@@ -1322,9 +1507,9 @@ class WikiRoutes {
       const catalogManager = this.engine.getManager('CatalogManager');
       if (catalogManager && typeof catalogManager.resolveUri === 'function' && metadata) {
         const allKws = [
-          ...((metadata['user-keywords'] as string[] | undefined) ?? []),
+          ...((metadata['user-keywords']) ?? []),
           ...((metadata['system-keywords'] as string[] | undefined) ?? []),
-          ...(metadata['system-category'] ? [metadata['system-category'] as string] : [])
+          ...(metadata['system-category'] ? [metadata['system-category']] : [])
         ];
         for (const kw of allKws) {
           const uri = await catalogManager.resolveUri(kw);
@@ -1825,10 +2010,13 @@ class WikiRoutes {
       // If page doesn't exist, create empty page data for new page
       if (!pageData) {
         pageData = {
+          title: pageName,
+          uuid: '',
+          filePath: '',
           content: '',
           metadata: this.buildNewPageMetadata(pageName, {
             author: currentUser.username || 'Anonymous'
-          })
+          }) as PageFrontmatter
         };
       }
 
@@ -2193,10 +2381,10 @@ class WikiRoutes {
         // Admin submitted the form — honour the checkbox (present = true, absent = false)
         authorLock = req.body['author-lock-present'] === '1'
           ? req.body['author-lock'] === 'true'
-          : (existingPage?.metadata?.['author-lock'] ?? false);
+          : Boolean(existingPage?.metadata?.['author-lock'] ?? false);
       } else {
         // Non-admin: preserve whatever was already stored, ignore submitted value
-        authorLock = existingPage?.metadata?.['author-lock'] ?? false;
+        authorLock = Boolean(existingPage?.metadata?.['author-lock'] ?? false);
       }
 
       // Preserve existing author on edits — never overwrite with the editor's username
@@ -2639,7 +2827,7 @@ class WikiRoutes {
       // Get common template data (includes theme paths, user, pages, etc.)
       const commonData = await this.getCommonTemplateData(req);
 
-      let results = [];
+      let results: unknown[] = [];
       let searchType = 'text';
 
       // Determine whether the search form was submitted (q present, or filters selected)
@@ -2703,7 +2891,7 @@ class WikiRoutes {
         : [];
 
       // Get stats for search results (optional, fallback to empty if not available)
-      let stats = {};
+      let stats: unknown = {};
       if (searchManager.getStats) {
         stats = searchManager.getStats();
       }
@@ -2786,7 +2974,8 @@ class WikiRoutes {
    */
   searchSuggestions(req: Request, res: Response) {
     try {
-      const partial = req.query.q || '';
+      const partialRaw = req.query.q;
+      const partial = typeof partialRaw === 'string' ? partialRaw : '';
       const searchManager = this.engine.getManager('SearchManager');
 
       const suggestions = searchManager.getSuggestions(partial);
@@ -2804,7 +2993,7 @@ class WikiRoutes {
   async getPageNames(_req: Request, res: Response) {
     try {
       const pageManager = this.engine.getManager('PageManager');
-      const pageNames = await pageManager.getPageNames();
+      const pageNames = await pageManager.getAllPageNames();
 
       res.json(pageNames);
     } catch (err: unknown) {
@@ -2818,7 +3007,7 @@ class WikiRoutes {
    */
   homePage(_req: Request, res: Response) {
     const configManager = this.engine.getManager('ConfigurationManager');
-    const frontPage = configManager.getProperty('ngdpbase.front-page', 'Welcome') as string;
+    const frontPage = configManager.getProperty('ngdpbase.front-page', 'Welcome');
     res.redirect(`/view/${frontPage}`);
   }
 
@@ -2986,12 +3175,12 @@ class WikiRoutes {
       const { buffer, metadata } = result;
 
       // Set headers
-      res.setHeader('Content-Type', metadata.encodingFormat);
+      res.setHeader('Content-Type', String(metadata.encodingFormat ?? 'application/octet-stream'));
       res.setHeader(
         'Content-Disposition',
-        `inline; filename="${metadata.name}"`
+        `inline; filename="${String(metadata.name ?? 'attachment')}"`
       );
-      res.setHeader('Content-Length', metadata.contentSize);
+      res.setHeader('Content-Length', typeof metadata.contentSize === 'number' ? String(metadata.contentSize) : '');
 
       // Send buffer
       return res.send(buffer);
@@ -3337,7 +3526,7 @@ class WikiRoutes {
 
       if (authManager?.isEnabled('magic-link')) {
         const port = configManager?.getProperty('ngdpbase.server.port', 3000) as number;
-        const configuredBase = configManager?.getProperty('ngdpbase.auth.magic-link.base-url', '') as string;
+        const configuredBase = configManager?.getProperty('ngdpbase.auth.magic-link.base-url', '');
         const baseUrl = configuredBase?.trim() || `http://localhost:${port}`;
         await authManager.initiate('magic-link', { email, redirect, baseUrl });
       }
@@ -3436,7 +3625,7 @@ class WikiRoutes {
       if (!result.success) {
         const configManager = this.engine.getManager('ConfigurationManager');
         const denyRedirect = configManager
-          ? (configManager.getProperty('ngdpbase.auth.google-oidc.deny-redirect', '/login?error=Access+denied') as string)
+          ? (configManager.getProperty('ngdpbase.auth.google-oidc.deny-redirect', '/login?error=Access+denied'))
           : '/login?error=Access+denied';
         return res.redirect(denyRedirect);
       }
@@ -3506,8 +3695,8 @@ class WikiRoutes {
                 : 'Unknown',
         hasSessionCookie: !!sessionId,
         permissions: currentUser
-          ? userManager.getUserPermissions(currentUser.username)
-          : (await userManager.hasPermission(null, 'page-read'))
+          ? userManager.getUserPermissions(currentUser.username ?? '')
+          : (await userManager.hasPermission(undefined, 'page-read'))
             ? ['anonymous permissions']
             : []
       };
@@ -3601,7 +3790,7 @@ class WikiRoutes {
       }
 
       // Get fresh user data from database to ensure we have latest preferences
-      const freshUser = await userManager.getUser(currentUser.username);
+      const freshUser = await userManager.getUser(currentUser.username ?? '');
       logger.debug(
         'DEBUG: profilePage - fresh user preferences:',
         freshUser ? freshUser.preferences : 'no fresh user'
@@ -3609,7 +3798,7 @@ class WikiRoutes {
 
       const commonData = await this.getCommonTemplateData(req);
       const userPermissions = await userManager.getUserPermissions(
-        currentUser.username
+        currentUser.username ?? ''
       );
 
       // Get timezone and date format configuration
@@ -3686,7 +3875,7 @@ class WikiRoutes {
 
         // Verify current password
         const isValidPassword = await userManager.authenticateUser(
-          currentUser.username,
+          currentUser.username ?? '',
           currentPassword
         );
         if (!isValidPassword) {
@@ -3700,7 +3889,7 @@ class WikiRoutes {
         );
       }
 
-      await userManager.updateUser(currentUser.username, updates);
+      await userManager.updateUser(currentUser.username ?? '', updates);
 
       // Rename profile page if requested
       const oldPageName = (originalProfilePage as string || '').trim();
@@ -3839,7 +4028,7 @@ class WikiRoutes {
       );
 
       // Update user with new preferences
-      await userManager.updateUser(currentUser.username, { preferences });
+      await userManager.updateUser(currentUser.username ?? '', { preferences });
 
       logger.debug('DEBUG: updatePreferences - preferences saved successfully');
       res.redirect('/profile?success=Preferences saved successfully');
@@ -3866,7 +4055,7 @@ class WikiRoutes {
       }
       const userManager = this.engine.getManager('UserManager');
       const prefs = { ...(currentUser.preferences || {}), 'display.theme': theme };
-      await userManager.updateUser(currentUser.username, { preferences: prefs });
+      await userManager.updateUser(currentUser.username ?? '', { preferences: prefs });
       return res.json({ ok: true });
     } catch (err: unknown) {
       logger.error('Error updating display theme:', err);
@@ -3886,7 +4075,8 @@ class WikiRoutes {
       const hasAccess = await aclManager.checkPagePermission(
         'AdminDashboard',
         'view',
-        currentUser
+        currentUser ?? null,
+        ''
       );
 
       if (!currentUser || !currentUser.isAuthenticated || !hasAccess) {
@@ -3925,7 +4115,7 @@ class WikiRoutes {
       const stats = {
         totalUsers: users.length,
         uptime: Math.floor(process.uptime()) + ' seconds',
-        version: configManager.getProperty('ngdpbase.version', '1.0.0') as string
+        version: configManager.getProperty('ngdpbase.version', '1.0.0')
       };
 
       // Mock recent activity (in a real implementation, this would come from logs)
@@ -3941,7 +4131,7 @@ class WikiRoutes {
       ];
 
       // Get system notifications
-      let notifications = [];
+      let notifications: unknown[] = [];
       let totalNotificationCount = 0;
       try {
         const notificationManager = this.engine.getManager(
@@ -4061,7 +4251,7 @@ class WikiRoutes {
       }
 
       // Toggle maintenance mode in config
-      const config = this.engine.config;
+      const config = this.engine.config ?? {};
       const currentMode = config.features?.maintenance?.enabled || false;
 
       // Ensure nested config structure exists before writing
@@ -4095,7 +4285,7 @@ class WikiRoutes {
         );
         await notificationManager.createMaintenanceNotification(
           config.features.maintenance.enabled,
-          currentUser.username,
+          currentUser.username ?? '',
           config.features.maintenance
         );
 
@@ -5314,7 +5504,7 @@ class WikiRoutes {
       const commonData = await this.getCommonTemplateData(req);
       const configManager = this.engine.getManager('ConfigurationManager');
 
-      const activeTheme = configManager?.getProperty('ngdpbase.theme.active', 'default') as string;
+      const activeTheme = configManager?.getProperty('ngdpbase.theme.active', 'default');
       const themesDir = path.join(__dirname, '../../../themes');
       const availableThemes = ThemeManager.listAvailable(themesDir);
       const themeManager = new ThemeManager(activeTheme, themesDir);
@@ -6101,8 +6291,8 @@ class WikiRoutes {
       return {
         contentA: pageA.content || '',
         contentB: pageB.content || '',
-        titleA: pageA.metadata?.title || pageA.name || a,
-        titleB: pageB.metadata?.title || pageB.name || b,
+        titleA: pageA.metadata?.title || pageA.title || a,
+        titleB: pageB.metadata?.title || pageB.title || b,
         uuidA: a,
         uuidB: b
       };
@@ -6393,7 +6583,7 @@ class WikiRoutes {
           : allPages;
         const total = filtered.length;
         const slice = filtered.slice(offset, offset + pageSize);
-        const results = (slice as string[]).map((pageName: string) => ({
+        const results = (slice).map((pageName: string) => ({
           id: pageName,
           providerId: 'page',
           filename: pageName,
@@ -6641,7 +6831,7 @@ class WikiRoutes {
 
       // Define progress callback
       const onProgress = (event: {
-        type: 'start' | 'progress' | 'complete';
+        type: 'start' | 'progress' | 'complete' | 'error';
         file?: string;
         index?: number;
         total?: number;
@@ -6967,10 +7157,10 @@ class WikiRoutes {
       const templateData = await this.getCommonTemplateData(req);
 
       // Try to get SchemaManager, fallback gracefully
-      let organizations = [];
+      let organizations: unknown[] = [];
       try {
         const schemaManager = this.engine.getManager('SchemaManager');
-        organizations = schemaManager.getOrganizations();
+        organizations = await schemaManager.getOrganizations();
       } catch (err: unknown) {
         logger.warn('SchemaManager not available:', getErrorMessage(err));
         // Create default organization from ConfigurationManager
@@ -7166,7 +7356,7 @@ class WikiRoutes {
       const report = await pageManager.validateAndFixAllFiles({ dryRun });
 
       // Render validation report
-      const templateData = await this.getCommonTemplateData(userContext);
+      const templateData = await this.getCommonTemplateData(req);
       templateData.title = 'File Validation Report';
       templateData.report = report;
       templateData.dryRun = dryRun;
@@ -7234,7 +7424,8 @@ class WikiRoutes {
       }
 
       // Generate Schema.org JSON-LD using SchemaGenerator
-      const schema = SchemaGenerator.generateOrganizationSchema(organization, {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- SchemaManager returns unknown; SchemaGenerator accepts any
+      const schema = SchemaGenerator.generateOrganizationSchema(organization as any, {
         baseUrl: `${req.protocol}://${req.get('host')}`
       });
 
@@ -7268,7 +7459,8 @@ class WikiRoutes {
       }
 
       // Generate Schema.org JSON-LD using SchemaGenerator
-      const schema = SchemaGenerator.generatePersonSchema(person, {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- SchemaManager returns unknown; SchemaGenerator accepts any
+      const schema = SchemaGenerator.generatePersonSchema(person as any, {
         baseUrl: `${req.protocol}://${req.get('host')}`
       });
 
@@ -7646,7 +7838,7 @@ class WikiRoutes {
 
       const success = await notificationManager.dismissNotification(
         notificationId,
-        currentUser.username
+        currentUser.username ?? ''
       );
 
       if (success) {
@@ -7720,7 +7912,7 @@ class WikiRoutes {
       const activeNotifications =
         notificationManager.getAllNotifications(false);
       const expiredNotifications = allNotifications.filter(
-        (n: { expiresAt?: Date }) => n.expiresAt && n.expiresAt < new Date()
+        (n) => (n as { expiresAt?: Date }).expiresAt && (n as { expiresAt?: Date }).expiresAt! < new Date()
       );
 
       // Get notification statistics
@@ -7881,7 +8073,7 @@ class WikiRoutes {
       const aclManager = this.engine.getManager('ACLManager');
       const auditStats = aclManager.getAccessControlStats();
 
-      const templateData = await this.getCommonTemplateData(currentUser);
+      const templateData = await this.getCommonTemplateData(req);
       return res.render('admin-audit', {
         ...templateData,
         auditStats,
@@ -7962,7 +8154,7 @@ class WikiRoutes {
 
       // Get all audit logs and find the specific one
       const allLogs = aclManager.getAccessLog(10000); // Get a large number to find the specific log
-      const logDetails = allLogs.find((log: { timestamp?: string }) => log.timestamp === logId);
+      const logDetails = allLogs.find((log) => (log as { timestamp?: string }).timestamp === logId);
 
       if (!logDetails) {
         return res.status(404).json({ error: 'Audit log not found' });
@@ -8027,16 +8219,19 @@ class WikiRoutes {
           'ip',
           'userAgent'
         ];
-        const csvRows = exportData.map((log: { timestamp?: string; user?: string; pageName?: string; action?: string; decision?: string; reason?: string; context?: { ip?: string; userAgent?: string } }) => [
-          log.timestamp,
-          log.user,
-          log.pageName,
-          log.action,
-          log.decision,
-          log.reason,
-          log.context?.ip || '',
-          log.context?.userAgent || ''
-        ]);
+        const csvRows = exportData.map((logEntry) => {
+          const log = logEntry as { timestamp?: string; user?: string; pageName?: string; action?: string; decision?: string; reason?: string; context?: { ip?: string; userAgent?: string } };
+          return [
+            log.timestamp,
+            log.user,
+            log.pageName,
+            log.action,
+            log.decision,
+            log.reason,
+            log.context?.ip || '',
+            log.context?.userAgent || ''
+          ];
+        });
 
         const csvContent = [csvHeaders, ...csvRows]
           .map((row: (string | undefined)[]) => row.map((field: string | undefined) => `"${field}"`).join(','))
@@ -8114,7 +8309,7 @@ class WikiRoutes {
       let avgDaysBetweenEdits: number | null = null;
       try {
         const provider = pageManager.provider;
-        if (typeof provider.getVersionHistory === 'function') {
+        if (provider && typeof provider.getVersionHistory === 'function') {
           const versions = await provider.getVersionHistory(pageName);
           if (versions && versions.length > 0) {
             const currentVersion = versions[0]; // Most recent version is first
@@ -8164,8 +8359,8 @@ class WikiRoutes {
         category: metadata['system-category'] || metadata.category || 'general',
         keywords: Array.isArray(metadata['user-keywords'])
           ? metadata['user-keywords']
-          : metadata.keywords
-            ? metadata.keywords.split(',').map((k: string) => k.trim())
+          : typeof metadata.keywords === 'string' && metadata.keywords
+            ? (metadata.keywords).split(',').map((k: string) => k.trim())
             : [],
         tags: metadata.tags || [],
 
@@ -8350,7 +8545,7 @@ class WikiRoutes {
       const provider = pageManager.provider;
 
       // Check if provider supports versioning
-      if (typeof provider.getVersionHistory !== 'function') {
+      if (!provider || typeof provider.getVersionHistory !== 'function') {
         return res.status(501).json({
           error: 'Versioning not supported',
           message: 'Current page provider does not support version history'
@@ -8409,7 +8604,7 @@ class WikiRoutes {
       const provider = pageManager.provider;
 
       // Check if provider supports versioning
-      if (typeof provider.getPageVersion !== 'function') {
+      if (!provider || typeof provider.getPageVersion !== 'function') {
         return res.status(501).json({
           error: 'Versioning not supported',
           message: 'Current page provider does not support version history'
@@ -8477,7 +8672,7 @@ class WikiRoutes {
       const provider = pageManager.provider;
 
       // Check if provider supports versioning
-      if (typeof provider.compareVersions !== 'function') {
+      if (!provider || typeof provider.compareVersions !== 'function') {
         return res.status(501).json({
           error: 'Versioning not supported',
           message: 'Current page provider does not support version comparison'
@@ -8543,7 +8738,7 @@ class WikiRoutes {
       const provider = pageManager.provider;
 
       // Check if provider supports versioning
-      if (typeof provider.restoreVersion !== 'function') {
+      if (!provider || typeof provider.restoreVersion !== 'function') {
         return res.status(501).json({
           error: 'Versioning not supported',
           message: 'Current page provider does not support version restoration'
@@ -8611,7 +8806,7 @@ class WikiRoutes {
       const provider = pageManager.provider;
 
       // Check if provider supports versioning
-      if (typeof provider.getVersionHistory !== 'function') {
+      if (!provider || typeof provider.getVersionHistory !== 'function') {
         return this.renderError(req, res, 501, 'Not Implemented', 'Page versioning is not enabled. Please configure VersioningFileProvider.');
       }
 
@@ -8632,7 +8827,7 @@ class WikiRoutes {
 
       // Get version history (BasePageProvider stubs throw; catch and render 501)
       logger.info(`[pageHistory] Fetching version history for: "${pageName}"`);
-      let versions: Awaited<ReturnType<typeof provider.getVersionHistory>>;
+      let versions: IVersionEntry[];
       try {
         versions = await provider.getVersionHistory(pageName);
       } catch {
@@ -8701,7 +8896,7 @@ class WikiRoutes {
       const provider = pageManager.provider;
 
       // Check if provider supports versioning
-      if (typeof provider.compareVersions !== 'function') {
+      if (!provider || typeof provider.compareVersions !== 'function') {
         const templateData = this.getTemplateDataFromContext(wikiContext);
         return res.status(501).render('error', {
           ...templateData,
@@ -8722,7 +8917,7 @@ class WikiRoutes {
       const pageMetadata = await pageManager.getPageMetadata(pageName);
 
       // Compare versions
-      const comparison = await provider.compareVersions(pageName, v1, v2);
+      const comparison = (await provider.compareVersions(pageName, v1, v2)) ?? {};
 
       // Get common template data (includes theme paths, user, pages, etc.)
       const templateData = await this.getCommonTemplateData(req);
@@ -9327,10 +9522,12 @@ ${description}
             newKeywords = pageKeywords.filter(k => k !== keywordId);
           }
 
-          await pageManager.savePage(pageName, page.content, {
-            ...page.metadata,
-            'user-keywords': newKeywords
-          });
+          if (page) {
+            await pageManager.savePage(pageName, page.content, {
+              ...page.metadata,
+              'user-keywords': newKeywords
+            });
+          }
           pagesUpdated++;
         }
       }
@@ -9409,10 +9606,12 @@ ${description}
             .map(k => (k === sourceId ? targetId : k))
             .filter((k, i, arr) => arr.indexOf(k) === i);
 
-          await pageManager.savePage(pageName, page.content, {
-            ...page.metadata,
-            'user-keywords': newKeywords
-          });
+          if (page) {
+            await pageManager.savePage(pageName, page.content, {
+              ...page.metadata,
+              'user-keywords': newKeywords
+            });
+          }
           pagesUpdated++;
         }
       }
@@ -9495,7 +9694,7 @@ ${description}
     }
     try {
       const wikiContext = this.createWikiContext(req, { context: WikiContext.CONTEXT.VIEW });
-      const years = (await mediaManager.getYears(wikiContext)) as number[];
+      const years = (await mediaManager.getYears(wikiContext));
       const commonData = await this.getCommonTemplateData(req);
       return res.render('media-home', {
         ...commonData,
@@ -9526,7 +9725,7 @@ ${description}
       }
       const wikiContext = this.createWikiContext(req, { context: WikiContext.CONTEXT.VIEW });
       const raw = await mediaManager.listByYear(year, wikiContext);
-      const { sort, order, items } = this.applyMediaSort(req, raw as Record<string, unknown>[]);
+      const { sort, order, items } = this.applyMediaSort(req, raw as unknown as Record<string, unknown>[]);
       const commonData = await this.getCommonTemplateData(req);
       return res.render('media-year', {
         ...commonData,
@@ -9556,7 +9755,7 @@ ${description}
       const keyword = decodeURIComponent(req.params.keyword);
       const wikiContext = this.createWikiContext(req, { context: WikiContext.CONTEXT.VIEW });
       const raw = await mediaManager.listByKeyword(keyword, wikiContext);
-      const { sort, order, items } = this.applyMediaSort(req, raw as Record<string, unknown>[]);
+      const { sort, order, items } = this.applyMediaSort(req, raw as unknown as Record<string, unknown>[]);
       const commonData = await this.getCommonTemplateData(req);
       return res.render('media-keyword', {
         ...commonData,
@@ -9600,13 +9799,13 @@ ${description}
       let nextItem: { id: string; filename: string } | null = null;
       if (albumKeyword) {
         const raw = await mediaManager.listByKeyword(albumKeyword, wikiContext);
-        const { items: siblings } = this.applyMediaSort(req, raw as Record<string, unknown>[]);
+        const { items: siblings } = this.applyMediaSort(req, raw as unknown as Record<string, unknown>[]);
         const idx = siblings.findIndex((s: Record<string, unknown>) => s['id'] === item.id);
         if (idx > 0) prevItem = siblings[idx - 1] as { id: string; filename: string };
         if (idx >= 0 && idx < siblings.length - 1) nextItem = siblings[idx + 1] as { id: string; filename: string };
       } else if (item.year) {
         const raw = await mediaManager.listByYear(item.year, wikiContext);
-        const { items: siblings } = this.applyMediaSort(req, raw as Record<string, unknown>[]);
+        const { items: siblings } = this.applyMediaSort(req, raw as unknown as Record<string, unknown>[]);
         const idx = siblings.findIndex((s: Record<string, unknown>) => s['id'] === item.id);
         if (idx > 0) prevItem = siblings[idx - 1] as { id: string; filename: string };
         if (idx >= 0 && idx < siblings.length - 1) nextItem = siblings[idx + 1] as { id: string; filename: string };
@@ -9844,7 +10043,7 @@ ${description}
         return res.status(403).send('Access denied');
       }
       const mediaManager = this.engine.getManager('MediaManager');
-      const years = mediaManager ? ((await mediaManager.getYears()) as number[]) : [];
+      const years = mediaManager ? ((await mediaManager.getYears())) : [];
       const commonData = await this.getCommonTemplateData(req);
       return res.render('admin-media', {
         ...commonData,
