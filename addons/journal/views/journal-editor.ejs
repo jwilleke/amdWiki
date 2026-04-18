@@ -31,7 +31,7 @@
     <div id="templatePickerCollapse" class="collapse show">
       <div id="journalTemplatePicker" class="journal-template-grid">
         <% templates.forEach(function(tmpl) { %>
-          <div class="journal-template-card <%= tmpl.id === 'free-write' ? 'selected' : '' %>"
+          <div class="journal-template-card <%= tmpl.id === (defaultTemplate || 'free-write') ? 'selected' : '' %>"
                data-body="<%= encodeURIComponent(tmpl.body) %>"
                data-name="<%= tmpl.name %>"
                tabindex="0"

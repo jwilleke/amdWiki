@@ -5,11 +5,13 @@
  * Mounted at /journal in register() (after public routes).
  *
  * Endpoints:
- *   GET  /journal/new          — new entry form
- *   POST /journal/new          — save new entry
- *   GET  /journal/:slug/edit   — edit form
- *   POST /journal/:slug/edit   — save updated entry
- *   POST /journal/:slug/delete — delete entry
+ *   GET  /journal/settings      — user preferences form
+ *   POST /journal/settings      — save user preferences
+ *   GET  /journal/new           — new entry form
+ *   POST /journal/new           — save new entry
+ *   GET  /journal/:slug/edit    — edit form
+ *   POST /journal/:slug/edit    — save updated entry
+ *   POST /journal/:slug/delete  — delete entry
  */
 
 import { Router, type Request, type Response } from 'express';
@@ -40,6 +42,10 @@ export default function editorRoutes(engine: WikiEngine, config: Record<string, 
 
   function pm(): PageManager | undefined {
     return engine.getManager<PageManager>('PageManager');
+  }
+
+  function um(): UserManager | undefined {
+    return engine.getManager<UserManager>('UserManager');
   }
 
   function sp(v: string | string[] | undefined): string {
@@ -76,29 +82,105 @@ export default function editorRoutes(engine: WikiEngine, config: Record<string, 
     return ['happy', 'content', 'neutral', 'anxious', 'sad', 'grateful', 'energized', 'tired'];
   }
 
+  // ── GET /journal/settings ────────────────────────────────────────────────────
+  router.get('/settings', (req: Request, res: Response) => {
+    void (async () => {
+      try {
+        const ctx = ApiContext.from(req, engine);
+        ctx.requireAuthenticated();
+
+        const userManager = um();
+        const freshUser = userManager ? await userManager.getUser(ctx.username!) : null;
+        const prefs = (freshUser?.preferences ?? {}) as Record<string, unknown>;
+
+        res.render('journal-settings', {
+          currentUser:      req.userContext,
+          templates:        jtm()?.listTemplates() ?? [],
+          prefs: {
+            defaultTemplate:  (prefs['journal.defaultTemplate'] as string | undefined)  ?? 'free-write',
+            voiceToText:      prefs['journal.voiceToText']      !== false,
+            reminderEnabled:  Boolean(prefs['journal.reminderEnabled']),
+            reminderTime:     (prefs['journal.reminderTime'] as string | undefined)     ?? '20:00',
+            streakVisible:    prefs['journal.streakVisible']    !== false
+          },
+          adminVoiceEnabled: enableVoiceToText(),
+          csrfToken:         req.session?.csrfToken,
+          successMessage:    req.query['success'] ?? null,
+          errorMessage:      req.query['error']   ?? null
+        });
+      } catch (err) {
+        handleError(err, res);
+      }
+    })();
+  });
+
+  // ── POST /journal/settings ───────────────────────────────────────────────────
+  router.post('/settings', (req: Request, res: Response) => {
+    void (async () => {
+      try {
+        const ctx = ApiContext.from(req, engine);
+        ctx.requireAuthenticated();
+
+        const userManager = um();
+        if (!userManager) { res.status(503).send('UserManager not available'); return; }
+
+        const freshUser = await userManager.getUser(ctx.username!);
+        const existing = (freshUser?.preferences ?? {}) as Record<string, unknown>;
+
+        const body = req.body as Record<string, unknown>;
+        const updated: Record<string, unknown> = {
+          ...existing,
+          'journal.defaultTemplate': typeof body['defaultTemplate'] === 'string'
+            ? body['defaultTemplate']
+            : 'free-write',
+          'journal.voiceToText':    body['voiceToText']    === 'on',
+          'journal.reminderEnabled': body['reminderEnabled'] === 'on',
+          'journal.reminderTime':   typeof body['reminderTime'] === 'string' && body['reminderTime'].trim()
+            ? body['reminderTime'].trim()
+            : '20:00',
+          'journal.streakVisible':  body['streakVisible']  === 'on'
+        };
+
+        await userManager.updateUser(ctx.username!, { preferences: updated });
+        res.redirect('/journal/settings?success=Settings+saved');
+      } catch (err) {
+        handleError(err, res);
+      }
+    })();
+  });
+
   // ── GET /journal/new ─────────────────────────────────────────────────────────
   router.get('/new', (req: Request, res: Response) => {
-    try {
-      const ctx = ApiContext.from(req, engine);
-      ctx.requireAuthenticated();
+    void (async () => {
+      try {
+        const ctx = ApiContext.from(req, engine);
+        ctx.requireAuthenticated();
 
-      const date = typeof req.query['date'] === 'string'
-        ? req.query['date']
-        : new Date().toISOString().slice(0, 10);
+        const date = typeof req.query['date'] === 'string'
+          ? req.query['date']
+          : new Date().toISOString().slice(0, 10);
 
-      res.render('journal-editor', {
-        currentUser:      req.userContext,
-        entry:            null,
-        defaultDate:      date,
-        moodOptions:      moodOptions(),
-        templates:        jtm()?.listTemplates() ?? [],
-        enableVoiceToText: enableVoiceToText(),
-        csrfToken:        req.session?.csrfToken,
-        errorMessage:     null
-      });
-    } catch (err) {
-      handleError(err, res);
-    }
+        const userManager = um();
+        const freshUser = userManager ? await userManager.getUser(ctx.username!) : null;
+        const prefs = (freshUser?.preferences ?? {}) as Record<string, unknown>;
+        const defaultTemplate = (prefs['journal.defaultTemplate'] as string | undefined) ?? 'free-write';
+        const userVoice = prefs['journal.voiceToText'] !== false;
+
+        res.render('journal-editor', {
+          currentUser:       req.userContext,
+          entry:             null,
+          defaultDate:       date,
+          moodOptions:       moodOptions(),
+          templates:         jtm()?.listTemplates() ?? [],
+          defaultTemplate,
+          enableVoiceToText: enableVoiceToText() && userVoice,
+          csrfToken:         req.session?.csrfToken,
+          errorMessage:      null
+        });
+      } catch (err) {
+        handleError(err, res);
+      }
+    })();
   });
 
   // ── POST /journal/new ────────────────────────────────────────────────────────

@@ -1,0 +1,120 @@
+<%- include('header', { pageName: 'Journal Settings' }) %>
+
+<div class="container mt-4" style="max-width: 680px;">
+
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="mb-0"><i class="fas fa-cog"></i> Journal Settings</h2>
+    <a href="/journal" class="btn btn-sm btn-outline-secondary">
+      <i class="fas fa-times"></i> Cancel
+    </a>
+  </div>
+
+  <% if (successMessage) { %>
+    <div class="alert alert-success"><i class="fas fa-check-circle"></i> <%= successMessage %></div>
+  <% } %>
+  <% if (errorMessage) { %>
+    <div class="alert alert-danger"><i class="fas fa-exclamation-triangle"></i> <%= errorMessage %></div>
+  <% } %>
+
+  <form method="POST" action="/journal/settings">
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+    <%# ── Default Template ─────────────────────────────────────────────── %>
+    <% if (templates && templates.length > 0) { %>
+    <div class="mb-4">
+      <label class="form-label fw-semibold">Default Template</label>
+      <p class="text-muted small mb-2">Pre-selected when you open the new entry editor.</p>
+      <div class="journal-template-grid">
+        <% templates.forEach(function(tmpl) { %>
+          <label class="journal-template-card <%= tmpl.id === prefs.defaultTemplate ? 'selected' : '' %>"
+                 style="cursor:pointer;">
+            <input type="radio" name="defaultTemplate" value="<%= tmpl.id %>"
+                   class="visually-hidden"
+                   <%= tmpl.id === prefs.defaultTemplate ? 'checked' : '' %>>
+            <div class="journal-template-name"><%= tmpl.name %></div>
+            <div class="journal-template-desc"><%= tmpl.description %></div>
+          </label>
+        <% }); %>
+      </div>
+    </div>
+    <% } %>
+
+    <%# ── Writing Tools ─────────────────────────────────────────────────── %>
+    <div class="mb-4">
+      <label class="form-label fw-semibold">Writing Tools</label>
+
+      <% if (adminVoiceEnabled) { %>
+      <div class="form-check mb-2">
+        <input class="form-check-input" type="checkbox" name="voiceToText" id="voiceToText"
+               <%= prefs.voiceToText ? 'checked' : '' %>>
+        <label class="form-check-label" for="voiceToText">
+          <i class="fas fa-microphone text-muted"></i> Enable voice-to-text in editor
+        </label>
+        <div class="form-text">Uses your browser's Web Speech API — no audio is sent to the server.</div>
+      </div>
+      <% } %>
+    </div>
+
+    <%# ── Streak Widget ─────────────────────────────────────────────────── %>
+    <div class="mb-4">
+      <label class="form-label fw-semibold">Sidebar</label>
+      <div class="form-check mb-2">
+        <input class="form-check-input" type="checkbox" name="streakVisible" id="streakVisible"
+               <%= prefs.streakVisible ? 'checked' : '' %>>
+        <label class="form-check-label" for="streakVisible">
+          Show writing streak widget
+        </label>
+        <div class="form-text">Displays your consecutive-day writing streak in the journal sidebar.</div>
+      </div>
+    </div>
+
+    <%# ── Daily Reminder ────────────────────────────────────────────────── %>
+    <div class="mb-4">
+      <label class="form-label fw-semibold">Daily Reminder</label>
+      <div class="form-check mb-2">
+        <input class="form-check-input" type="checkbox" name="reminderEnabled" id="reminderEnabled"
+               <%= prefs.reminderEnabled ? 'checked' : '' %>
+               onchange="document.getElementById('reminderTimeRow').style.display = this.checked ? '' : 'none'">
+        <label class="form-check-label" for="reminderEnabled">
+          Send me a daily in-app reminder to journal
+        </label>
+      </div>
+      <div id="reminderTimeRow" style="display:<%= prefs.reminderEnabled ? '' : 'none' %>;">
+        <label class="form-label small text-muted" for="reminderTime">Reminder time</label>
+        <input type="time" name="reminderTime" id="reminderTime"
+               class="form-control" style="max-width:160px;"
+               value="<%= prefs.reminderTime %>">
+      </div>
+    </div>
+
+    <div class="d-flex gap-2">
+      <button type="submit" class="btn btn-primary">
+        <i class="fas fa-save"></i> Save Settings
+      </button>
+      <a href="/journal" class="btn btn-outline-secondary">Cancel</a>
+    </div>
+  </form>
+
+</div>
+
+<script>
+(function () {
+  // Keep template cards in sync with radio inputs
+  document.querySelectorAll('.journal-template-card input[type="radio"]').forEach(function (radio) {
+    radio.addEventListener('change', function () {
+      document.querySelectorAll('.journal-template-card').forEach(function (c) {
+        c.classList.remove('selected');
+      });
+      if (this.checked) this.closest('.journal-template-card').classList.add('selected');
+    });
+  });
+  document.querySelectorAll('.journal-template-card').forEach(function (card) {
+    card.addEventListener('click', function () {
+      var radio = this.querySelector('input[type="radio"]');
+      if (radio) { radio.checked = true; radio.dispatchEvent(new Event('change')); }
+    });
+  });
+}());
+</script>
+
+<%- include('footer') %>

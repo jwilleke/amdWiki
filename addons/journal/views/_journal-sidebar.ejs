@@ -1,14 +1,17 @@
 <div class="journal-sidebar">
   <div class="journal-sidebar-section">
-    <a href="/api/journal/new" class="btn btn-primary btn-sm w-100 mb-3">
+    <a href="/journal/new" class="btn btn-primary btn-sm w-100 mb-3">
       <i class="fas fa-pen"></i> New Entry
     </a>
     <a href="/journal" class="btn btn-outline-secondary btn-sm w-100 mb-2">
       <i class="fas fa-list"></i> All Entries
     </a>
+    <a href="/journal/settings" class="btn btn-outline-secondary btn-sm w-100 mb-2">
+      <i class="fas fa-cog"></i> Journal Settings
+    </a>
   </div>
 
-  <% if (sidebar && sidebar.streak > 0) { %>
+  <% if (sidebar && sidebar.streak > 0 && sidebar.streakVisible !== false) { %>
   <div class="journal-sidebar-section">
     <div class="journal-streak-widget">
       <span class="journal-streak-count"><%= sidebar.streak %></span>
