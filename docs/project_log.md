@@ -22,6 +22,29 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - [file2.md]
 ```
 
+## 2026-04-18-04
+
+- Agent: Claude
+- Subject: v3.1.0 release; Dockerfile fixes; Docker CI smoke test added and iteratively fixed
+- Current Issue: #535
+- Work Done:
+  - Deleted 7 old amdWiki pre-release tags and GitHub releases (v0.5.1, v0.5.2, v0.5.3, v0.5.4, v0.5.5, v0.5.6, v0.6.0) via gh release delete
+  - Created v3.1.0 release with CHANGELOG highlights; pushed tag to trigger docker-build workflow
+  - Fixed Dockerfile: removed stale `COPY app.js` (file removed in #483); added `COPY --from=builder /app/addons ./addons`; corrected CMD to `node dist/src/app.js`
+  - Added minimatch to package.json dependencies — was a transitive dev dep used by FileSystemMediaProvider at runtime, pruned by npm prune --omit=dev in Docker build
+  - Re-enabled docker-build.yml workflow (was disabled), added `load: true` to build step so locally-built image is available for smoke test
+  - Added Docker smoke test steps: start container with HEADLESS_INSTALL=true, poll Docker healthcheck (18 × 5s), HTTP checks on / and /login, dump logs on failure, stop container
+  - Simplified smoke test URLs to only / and /login — addon-specific paths unavailable without config, causing 404 failures
+  - Fixed CHANGELOG MD024 lint error (duplicate ### Added headings) by renaming to "Added in 3.1.0" / "Fixed in 3.1.0"
+  - Docker CI run completed successfully with all smoke test steps passing
+- Commits: 88892ced, 93dd3d9e, c66b6d5d, 0f04468e, 259dc77b
+- Files Modified:
+  - docker/Dockerfile
+  - package.json
+  - package-lock.json
+  - .github/workflows/docker-build.yml
+  - docs/CHANGELOG.md
+
 ## 2026-04-18-03
 
 - Agent: Claude
