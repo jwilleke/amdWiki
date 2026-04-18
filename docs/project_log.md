@@ -88,6 +88,32 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - src/providers/BaseMediaProvider.ts
   - src/providers/BasicAttachmentProvider.ts
 
+## 2026-04-18-10
+
+- Agent: Claude
+- Subject: TypeScript migration (#186) — type improvements, eslint-disable reduction 43→23
+- Current Issue: #186
+- Work Done:
+  - ValidationManager: used String() coercion in template literals to fix restrict-template-expressions; removed 2 disables
+  - FileAuditProvider: changed context/metadata interface fields from Record<string,any> to Record<string,unknown>; removed 4 disables
+  - BasicAttachmentProvider: added explicit cast JSON.parse(data) as MetadataFile; removed no-unsafe-assignment disable
+  - RedisCacheProvider/NodeCacheProvider: changed get/set generic default from T=any to T=unknown, matching BaseCacheProvider abstract definition; removed 4 disables
+  - MediaManager: imported type PageManager; used getManager<PageManager>(); typed provider internal state via local ProviderWithIndex interface; removed all 3 unsafe-* disables
+  - WikiRoutes: changed WikiContextOptions.context from any to string (matches actual WikiContextOptions.context?: string in WikiContext.ts); removed 1 no-explicit-any disable
+  - WikiRoutes: replaced String(sectionParam) fallback with empty string to avoid no-base-to-string; removed 1 inline disable
+  - UserManager: fixed real bug hidden by no-misused-promises disable — requirePermissions() was calling async hasPermission() inside sync Array.some(), causing permissions to always pass (Promise is truthy); replaced with Promise.all().then() so results are properly awaited
+  - Source file eslint-disable count: 43 → 23
+- Commits: 1b246415
+- Files Modified:
+  - src/managers/MediaManager.ts
+  - src/managers/UserManager.ts
+  - src/managers/ValidationManager.ts
+  - src/providers/BasicAttachmentProvider.ts
+  - src/providers/FileAuditProvider.ts
+  - src/providers/NodeCacheProvider.ts
+  - src/providers/RedisCacheProvider.ts
+  - src/routes/WikiRoutes.ts
+
 ## 2026-04-18-09
 
 - Agent: Claude
