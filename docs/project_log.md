@@ -88,6 +88,28 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - src/providers/BaseMediaProvider.ts
   - src/providers/BasicAttachmentProvider.ts
 
+## 2026-04-18-15
+
+- Agent: Claude
+- Subject: Update all three sites — git pull, rebuild, restart, test, E2E
+- Current Issue: none
+- Work Done:
+  - git pull all three sites: ngdpbase (already current), fairways-base (chore/template-sync, pulled remote tags), ngdpbase-veg (pulled journal addon, docker workflow, many new files)
+  - Stopped, rebuilt (npm run build), and restarted all three servers successfully
+  - ngdpbase-veg unit tests: 112 suites, 2928 tests — all passed
+  - fairways-base unit tests: 109 suites, 2815 tests — all passed (after fix below)
+  - ngdpbase unit tests: 112 suites, 2928 tests — all passed
+  - Fixed fairways-base src/index.test.ts: removed vitest import (project uses Jest; these globals are provided automatically)
+  - Fixed E2E helpers.ts in ngdpbase and ngdpbase-veg: changed export default {} to named exports so named imports in auth.setup.ts, pages.spec.ts, location-plugin.spec.ts resolve correctly
+  - ngdpbase E2E: 72/72 passed
+  - ngdpbase-veg E2E: 72/72 passed
+  - fairways-base E2E: 56/72 passed — 1 failure (location-plugin name-parameter test), 15 skipped; filed GH bug #539
+  - fairways-base note: on chore/template-sync branch; LocationPlugin implementation absent on that branch but E2E test exists — pre-existing issue
+- Commits: 6787c51d (ngdpbase), a315c785 (fairways-base)
+- Files Modified:
+  - tests/e2e/fixtures/helpers.ts (ngdpbase + ngdpbase-veg)
+  - src/index.test.ts (fairways-base)
+
 ## 2026-04-18-14
 
 - Agent: Claude
