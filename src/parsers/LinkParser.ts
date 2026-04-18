@@ -257,8 +257,7 @@ export class LinkParser {
     this.interWikiSites = new Map<string, InterWikiSiteConfig>();
 
     // Link pattern: [text] or [text|target] or [text|target|attributes]
-    // eslint-disable-next-line no-useless-escape -- Regex requires this escape
-    this.linkPattern = /\[([^\|\]]+)(?:\|([^\|\]]+))?(?:\|([^\]]+))?\](?!\()/g;
+    this.linkPattern = /\[([^|\]]+)(?:\|([^|\]]+))?(?:\|([^\]]+))?\](?!\()/g;
   }
 
   /**

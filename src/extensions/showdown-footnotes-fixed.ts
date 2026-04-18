@@ -11,19 +11,7 @@
  * 2. Changed [\d\w]+ to [\d\w-]+ to support hyphens in identifiers
  */
 
-/**
- * Showdown converter interface
- */
-interface ShowdownConverter {
-  makeHtml(text: string): string;
-}
-
-/**
- * Showdown module interface
- */
-interface ShowdownModule {
-  Converter: new () => ShowdownConverter;
-}
+import showdown from 'showdown';
 
 /**
  * Showdown extension filter object
@@ -33,9 +21,7 @@ interface ShowdownFilter {
   filter: (text: string) => string;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-require-imports -- Dynamic import
-const showdown = require('showdown') as ShowdownModule;
-const converter: ShowdownConverter = new showdown.Converter();
+const converter = new showdown.Converter();
 
 /**
  * Showdown footnotes extension factory

@@ -97,8 +97,7 @@ class JSPWikiConverter implements IContentConverter {
     warnings: string[]
   ): string {
     // Pattern: [{SET name='value'}] or [{SET name=value}]
-    // eslint-disable-next-line no-useless-escape
-    const setPattern = /\[\{SET\s+([a-zA-Z0-9_-]+)\s*=\s*(?:'([^']*)'|"([^"]*)"|([^\s\}]+))\s*\}\]/gi;
+    const setPattern = /\[\{SET\s+([a-zA-Z0-9_-]+)\s*=\s*(?:'([^']*)'|"([^"]*)"|([^\s}]+))\s*}]/gi;
 
     const result = content.replace(setPattern, (_match: string, name: string, singleQuoted: string | undefined, doubleQuoted: string | undefined, unquoted: string | undefined) => {
       const value: string = singleQuoted ?? doubleQuoted ?? unquoted ?? '';
@@ -128,8 +127,7 @@ class JSPWikiConverter implements IContentConverter {
 
     // Detect unhandled plugin directives, excluding known-safe ones
     // Known safe: Image, ATTACH, SET (already extracted), $ (variables), TableOfContents
-    // eslint-disable-next-line no-useless-escape
-    const pluginPattern = /\[\{(?!Image\s|ATTACH\s|SET\s|\$|TableOfContents[\s\}])([A-Za-z]\w*)\s[^\}]*\}\]/gi;
+    const pluginPattern = /\[\{(?!Image\s|ATTACH\s|SET\s|\$|TableOfContents[\s}])([A-Za-z]\w*)\s[^}]*}]/gi;
     const plugins = content.match(pluginPattern);
     if (plugins && plugins.length > 0) {
       const pluginNames = [...new Set(

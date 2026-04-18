@@ -166,10 +166,9 @@ class CacheManager extends BaseManager {
   private async loadProvider(): Promise<void> {
     try {
       // Try to load provider class
-      // eslint-disable-next-line @typescript-eslint/no-require-imports, @typescript-eslint/no-unsafe-assignment -- Dynamic provider loading
-      const ProviderClass = require(`../providers/${this.providerClass}`);
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call -- Dynamic provider instantiation
-      this.provider = new ProviderClass(this.engine) as BaseCacheProvider;
+      type CacheProviderConstructor = new (engine: WikiEngine) => BaseCacheProvider;
+      const mod = await import(`../providers/${this.providerClass}`) as { default: CacheProviderConstructor };
+      this.provider = new mod.default(this.engine);
       await this.provider.initialize();
 
       // Test provider health

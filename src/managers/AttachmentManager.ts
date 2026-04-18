@@ -206,10 +206,9 @@ class AttachmentManager extends BaseManager {
 
     // Load and initialize provider
     try {
-      // eslint-disable-next-line @typescript-eslint/no-require-imports, @typescript-eslint/no-unsafe-assignment -- Dynamic provider loading
-      const ProviderClass = require(`../providers/${this.providerClass}`);
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call -- Dynamic provider instantiation
-      this.attachmentProvider = new ProviderClass(this.engine) as BaseAttachmentProvider;
+      type AttachmentProviderConstructor = new (engine: WikiEngine) => BaseAttachmentProvider;
+      const mod = await import(`../providers/${this.providerClass}`) as { default: AttachmentProviderConstructor };
+      this.attachmentProvider = new mod.default(this.engine);
       await this.attachmentProvider.initialize();
 
       logger.info(`📎 AttachmentManager initialized with ${this.providerClass}`);

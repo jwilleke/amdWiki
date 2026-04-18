@@ -38,6 +38,8 @@ import HtmlConverter from '../converters/HtmlConverter';
 import MarkdownConverter from '../converters/MarkdownConverter';
 import type ConfigurationManager from './ConfigurationManager';
 import type ValidationManager from './ValidationManager';
+import type PageManager from './PageManager';
+import type AttachmentManager from './AttachmentManager';
 import logger from '../utils/logger';
 
 /**
@@ -434,9 +436,8 @@ class ImportManager extends BaseManager {
     // Refresh page index so imported pages are immediately visible
     if (!options.dryRun && result.converted > 0) {
       try {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- getManager returns any
-        const pageManager = this.engine.getManager('PageManager');
-        await pageManager.refreshPageList(); // eslint-disable-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call -- getManager returns any
+        const pageManager = this.engine.getManager<PageManager>('PageManager');
+        await pageManager?.refreshPageList();
         logger.info(`[ImportManager] Page index refreshed after importing ${result.converted} pages`);
       } catch (refreshErr) {
         logger.warn('[ImportManager] Failed to refresh page index after import:', refreshErr);
@@ -518,13 +519,10 @@ class ImportManager extends BaseManager {
     // Check for duplicate page by title (metadata only - no content needed)
     const pageTitle = conversionResult.metadata['title'] as string;
     try {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- getManager returns any
-      const pageManager = this.engine.getManager('PageManager');
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call -- getManager returns any
-      const existingMetadata = await pageManager.getPageMetadata(pageTitle);
+      const pageManager = this.engine.getManager<PageManager>('PageManager');
+      const existingMetadata = await pageManager?.getPageMetadata(pageTitle);
       if (existingMetadata) {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access -- metadata object
-        const existingUuid = (existingMetadata.uuid || '') as string;
+        const existingUuid = existingMetadata.uuid || '';
         logger.info(`[ImportManager] Duplicate detected: "${pageTitle}" already exists as ${existingUuid}`);
         return {
           sourcePath: filePath,
@@ -673,13 +671,10 @@ class ImportManager extends BaseManager {
     // Check for duplicate page by title (metadata only - no content needed)
     const pageTitle = conversionResult.metadata['title'] as string;
     try {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- getManager returns any
-      const pageManager = this.engine.getManager('PageManager');
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call -- getManager returns any
-      const existingMetadata = await pageManager.getPageMetadata(pageTitle);
+      const pageManager = this.engine.getManager<PageManager>('PageManager');
+      const existingMetadata = await pageManager?.getPageMetadata(pageTitle);
       if (existingMetadata) {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access -- metadata object
-        const existingUuid = (existingMetadata.uuid || '') as string;
+        const existingUuid = existingMetadata.uuid || '';
         return {
           sourcePath: url,
           targetPath: '',
@@ -715,9 +710,8 @@ class ImportManager extends BaseManager {
 
       // Refresh page index
       try {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- getManager returns any
-        const pageManager = this.engine.getManager('PageManager');
-        await pageManager.refreshPageList(); // eslint-disable-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call -- getManager returns any
+        const pageManager = this.engine.getManager<PageManager>('PageManager');
+        await pageManager?.refreshPageList();
         logger.info('[ImportManager] Page index refreshed after URL import');
       } catch (refreshErr) {
         logger.warn('[ImportManager] Failed to refresh page index after URL import:', refreshErr);
@@ -842,8 +836,7 @@ class ImportManager extends BaseManager {
     const entries = await fs.readdir(attDir, { withFileTypes: true });
     const subdirs = entries.filter(e => e.isDirectory() && e.name.endsWith('-dir'));
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- getManager returns any
-    const attachmentManager = this.engine.getManager('AttachmentManager');
+    const attachmentManager = this.engine.getManager<AttachmentManager>('AttachmentManager');
 
     for (const subdir of subdirs) {
       const originalFilename = subdir.name.replace(/-dir$/, '');
@@ -911,7 +904,7 @@ class ImportManager extends BaseManager {
           }
         };
 
-        await attachmentManager.uploadAttachment(fileBuffer, fileInfo, uploadOptions); // eslint-disable-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call -- getManager returns any
+        await attachmentManager?.uploadAttachment(fileBuffer, fileInfo, uploadOptions);
         stats.imported++;
         logger.info(`[ImportManager] Imported attachment: ${originalFilename} for page "${pageName}"`);
       } catch (err) {

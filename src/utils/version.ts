@@ -210,7 +210,7 @@ function extractChangelogNotes(version: string): string {
   try {
     const changelog = fs.readFileSync(CHANGELOG_PATH, 'utf8');
     const escaped = version.replace(/\./g, '\\.');
-    const pattern = new RegExp(`## \\[${escaped}\\][^\n]*\n([\s\S]*?)(?=\n## \\[|$)`);
+    const pattern = new RegExp(`## \\[${escaped}\\][^\\n]*\\n([\\s\\S]*?)(?=\\n## \\[|$)`);
     const match = changelog.match(pattern);
     if (match?.[1]) return match[1].trim();
   } catch {

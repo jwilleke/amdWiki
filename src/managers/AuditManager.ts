@@ -257,9 +257,8 @@ class AuditManager extends BaseManager {
   private async loadProvider(): Promise<void> {
     try {
       // Try to load provider class
-      // eslint-disable-next-line @typescript-eslint/no-require-imports -- Dynamic import
-      const ProviderModule = require(`../providers/${this.providerClass}`) as { default?: AuditProviderConstructor } | AuditProviderConstructor;
-      const ProviderClass = ('default' in ProviderModule ? ProviderModule.default : ProviderModule) as AuditProviderConstructor;
+      const ProviderModule = await import(`../providers/${this.providerClass}`) as { default: AuditProviderConstructor };
+      const ProviderClass = ProviderModule.default;
 
       this.provider = new ProviderClass(this.engine);
       if (!this.provider) {
@@ -271,9 +270,8 @@ class AuditManager extends BaseManager {
       const isHealthy = await this.provider.isHealthy();
       if (!isHealthy) {
         logger.warn(`Audit provider ${this.providerClass} health check failed, switching to NullAuditProvider`);
-        // eslint-disable-next-line @typescript-eslint/no-require-imports -- Dynamic import
-        const NullModule = require('../providers/NullAuditProvider') as { default?: AuditProviderConstructor } | AuditProviderConstructor;
-        const NullAuditProvider = ('default' in NullModule ? NullModule.default : NullModule) as AuditProviderConstructor;
+        const NullModule = await import('../providers/NullAuditProvider') as unknown as { default: AuditProviderConstructor };
+        const NullAuditProvider = NullModule.default;
 
         this.provider = new NullAuditProvider(this.engine);
         if (!this.provider) {
@@ -285,9 +283,8 @@ class AuditManager extends BaseManager {
       logger.error(`Failed to load audit provider: ${this.providerClass}`, error);
       // Fall back to NullAuditProvider on any error
       logger.warn('Falling back to NullAuditProvider due to provider load error');
-      // eslint-disable-next-line @typescript-eslint/no-require-imports -- Dynamic import
-      const NullModule = require('../providers/NullAuditProvider') as { default?: AuditProviderConstructor } | AuditProviderConstructor;
-      const NullAuditProvider = ('default' in NullModule ? NullModule.default : NullModule) as AuditProviderConstructor;
+      const NullModule = await import('../providers/NullAuditProvider') as unknown as { default: AuditProviderConstructor };
+      const NullAuditProvider = NullModule.default;
 
       this.provider = new NullAuditProvider(this.engine);
       if (!this.provider) {

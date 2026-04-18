@@ -279,16 +279,8 @@ class SearchManager extends BaseManager {
 
     try {
       // Try to load provider class
-      // eslint-disable-next-line @typescript-eslint/no-require-imports -- Dynamic provider loading requires require()
-      const providerModule = require(`../providers/${this.providerClass}`) as
-        | SearchProviderConstructor
-        | { default: SearchProviderConstructor };
-
-      // Handle both default export and direct export
-      const ProviderClass: SearchProviderConstructor =
-        typeof providerModule === 'function'
-          ? providerModule
-          : (providerModule as { default: SearchProviderConstructor }).default;
+      const providerModule = await import(`../providers/${this.providerClass}`) as { default: SearchProviderConstructor };
+      const ProviderClass: SearchProviderConstructor = providerModule.default;
 
       this.provider = new ProviderClass(this.engine);
       if (!this.provider) {
@@ -309,15 +301,8 @@ class SearchManager extends BaseManager {
       // Try fallback to LunrSearchProvider
       if (this.providerClass !== 'LunrSearchProvider') {
         logger.info('Falling back to LunrSearchProvider');
-        // eslint-disable-next-line @typescript-eslint/no-require-imports -- Dynamic provider loading requires require()
-        const providerModule = require('../providers/LunrSearchProvider') as
-          | SearchProviderConstructor
-          | { default: SearchProviderConstructor };
-
-        const ProviderClass: SearchProviderConstructor =
-          typeof providerModule === 'function'
-            ? providerModule
-            : (providerModule as { default: SearchProviderConstructor }).default;
+        const providerModule = await import('../providers/LunrSearchProvider') as unknown as { default: SearchProviderConstructor };
+        const ProviderClass: SearchProviderConstructor = providerModule.default;
 
         this.provider = new ProviderClass(this.engine);
         if (!this.provider) {
