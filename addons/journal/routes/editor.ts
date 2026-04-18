@@ -271,40 +271,25 @@ export default function editorRoutes(engine: WikiEngine, config: Record<string, 
   });
 
   // ── GET /journal/:slug/edit ──────────────────────────────────────────────────
+  // Redirect to the standard page editor so preview, user preferences, and all
+  // /edit features are available. (#540)
   router.get('/:slug/edit', (req: Request, res: Response) => {
-    void (async () => {
-      try {
-        const ctx  = ApiContext.from(req, engine);
-        ctx.requireAuthenticated();
+    try {
+      const ctx = ApiContext.from(req, engine);
+      ctx.requireAuthenticated();
 
-        const slug  = sp(req.params['slug']);
-        const entry = jdm()?.getBySlug(slug);
-        if (!entry) { res.status(404).send('Journal entry not found.'); return; }
+      const slug  = sp(req.params['slug']);
+      const entry = jdm()?.getBySlug(slug);
+      if (!entry) { res.status(404).send('Journal entry not found.'); return; }
 
-        const isOwner = entry.author === ctx.username;
-        const isAdmin = (ctx.roles ?? []).includes('admin');
-        if (!isOwner && !isAdmin) { res.status(403).send('Access denied.'); return; }
+      const isOwner = entry.author === ctx.username;
+      const isAdmin = (ctx.roles ?? []).includes('admin');
+      if (!isOwner && !isAdmin) { res.status(403).send('Access denied.'); return; }
 
-        const page = await pm()?.getPage(slug);
-        if (!page) { res.status(404).send('Journal entry page not found.'); return; }
-
-        const leftMenu = await getLeftMenu(engine, req.userContext ?? null);
-
-        res.render('journal-editor', {
-          currentUser:      req.userContext,
-          entry:            { ...entry, content: page.content ?? '' },
-          defaultDate:      entry.journalDate,
-          moodOptions:      moodOptions(),
-          templates:        [],
-          enableVoiceToText: enableVoiceToText(),
-          csrfToken:        req.session?.csrfToken,
-          errorMessage:     null,
-          leftMenu
-        });
-      } catch (err) {
-        handleError(err, res);
-      }
-    })();
+      res.redirect(`/edit/${encodeURIComponent(slug)}`);
+    } catch (err) {
+      handleError(err, res);
+    }
   });
 
   // ── POST /journal/:slug/edit ─────────────────────────────────────────────────
