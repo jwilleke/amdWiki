@@ -1,0 +1,5 @@
+{
+  "_comment": "Default configuration for the calendar addon. Override any key in app-custom-config.json.",
+  "ngdpbase.addons.calendar.dataPath": "",
+  "ngdpbase.addons.calendar.clubhouse-manager-email": ""
+}

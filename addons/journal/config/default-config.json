@@ -1,0 +1,16 @@
+{
+  "_comment": "Default configuration for the journal addon. Override any key in app-custom-config.json.",
+  "ngdpbase.addons.journal.dataPath": "",
+  "ngdpbase.addons.journal.defaultPrivate": true,
+  "ngdpbase.addons.journal.defaultAuthorLock": true,
+  "ngdpbase.addons.journal.defaultMoodOptions": [
+    "happy", "content", "neutral", "anxious", "sad", "grateful", "energized", "tired"
+  ],
+  "ngdpbase.addons.journal.streakEnabled": true,
+  "ngdpbase.addons.journal.enableVoiceToText": true,
+  "ngdpbase.addons.journal.dailyReminderEnabled": false,
+  "ngdpbase.addons.journal.dailyReminderTime": "20:00",
+  "ngdpbase.addons.journal.dailyReminderUsers": [],
+  "ngdpbase.addons.journal.exportEnabled": true,
+  "ngdpbase.addons.journal.showStreakLeaderboard": false
+}

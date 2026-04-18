@@ -60,9 +60,10 @@ const calendarAddon = {
    */
   async register(engine: WikiEngine, config: Record<string, unknown>): Promise<void> {
     // ── 1. Initialize data manager ───────────────────────────────────────────
-    const dataPath = typeof config['dataPath'] === 'string'
+    const cm = engine.getManager<{ resolveDataPath(name: string): string }>('ConfigurationManager');
+    const dataPath = typeof config['dataPath'] === 'string' && config['dataPath'] !== ''
       ? config['dataPath']
-      : './data/calendar';
+      : (cm?.resolveDataPath('calendar') ?? './data/calendar');
     dataManager = new CalendarDataManager(engine, dataPath);
     await dataManager.load();
     engine.registerManager('CalendarDataManager', dataManager);
@@ -95,7 +96,7 @@ const calendarAddon = {
   },
 
   /** Health check — shown in /admin add-ons panel. */
-  // eslint-disable-next-line @typescript-eslint/require-await
+   
   async status(): Promise<AddonStatusDetails> {
     const count = dataManager ? dataManager.count() : 0;
     return {
@@ -106,7 +107,7 @@ const calendarAddon = {
   },
 
   /** Cleanup on graceful shutdown. */
-  // eslint-disable-next-line @typescript-eslint/require-await
+   
   async shutdown(): Promise<void> {
     dataManager = null;
   }

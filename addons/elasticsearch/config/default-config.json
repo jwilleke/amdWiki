@@ -1,0 +1,8 @@
+{
+  "_comment": "Default configuration for the elasticsearch addon. Override any key in app-custom-config.json.",
+  "ngdpbase.addons.elasticsearch.es-url": "http://localhost:9200",
+  "ngdpbase.addons.elasticsearch.es-index": "sist2",
+  "ngdpbase.addons.elasticsearch.sist2-url": "http://localhost:4090",
+  "ngdpbase.addons.elasticsearch.index-ids": [],
+  "ngdpbase.addons.elasticsearch.hidden-paths": []
+}

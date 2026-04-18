@@ -69,7 +69,7 @@ const journalAddon = {
 
   async register(engine: WikiEngine, config: Record<string, unknown>): Promise<void> {
     const cm = engine.getManager<ConfigurationManager>('ConfigurationManager');
-    const dataPath = typeof config['dataPath'] === 'string'
+    const dataPath = typeof config['dataPath'] === 'string' && config['dataPath'] !== ''
       ? config['dataPath']
       : (cm?.resolveDataPath('journal') ?? './data/journal');
 
@@ -164,7 +164,7 @@ const journalAddon = {
     engine.setCapability('journal', true);
   },
 
-  // eslint-disable-next-line @typescript-eslint/require-await
+   
   async status(): Promise<AddonStatusDetails> {
     const total = dataManager?.count() ?? 0;
     return {
@@ -174,7 +174,7 @@ const journalAddon = {
     };
   },
 
-  // eslint-disable-next-line @typescript-eslint/require-await
+   
   async shutdown(): Promise<void> {
     if (reminderTimer) { clearTimeout(reminderTimer); reminderTimer = null; }
     dataManager = null;

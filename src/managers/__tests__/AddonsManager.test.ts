@@ -724,6 +724,113 @@ describe('AddonsManager', () => {
     });
   });
 
+  describe('addonDefaults (config/default-config.json)', () => {
+    const makeAddonWithDefaultConfig = async (addonName, defaults) => {
+      const addonDir = path.join(tmpDir, addonName);
+      const configDir = path.join(addonDir, 'config');
+      await fs.mkdir(configDir, { recursive: true });
+      await fs.writeFile(
+        path.join(addonDir, 'index.js'),
+        `module.exports = { name: '${addonName}', version: '1.0.0', register: () => {} };`,
+        'utf8'
+      );
+      await fs.writeJson(path.join(configDir, 'default-config.json'), defaults);
+    };
+
+    test('injects key when absent from mergedConfig', async () => {
+      await makeAddonWithDefaultConfig('cfg-addon-1', {
+        'ngdpbase.addons.cfg-addon-1.dataPath': './data/cfg1'
+      });
+
+      const configManager = makeConfigManager({
+        enabledAddons: ['cfg-addon-1'],
+        allProperties: {} // key not present
+      });
+      const engine = makeEngine(configManager);
+      const manager = new AddonsManager(engine);
+      await manager.initialize();
+
+      expect(configManager.setRuntimeProperty).toHaveBeenCalledWith(
+        'ngdpbase.addons.cfg-addon-1.dataPath',
+        './data/cfg1'
+      );
+    });
+
+    test('does not inject key already present in mergedConfig', async () => {
+      await makeAddonWithDefaultConfig('cfg-addon-2', {
+        'ngdpbase.addons.cfg-addon-2.dataPath': './data/default'
+      });
+
+      const configManager = makeConfigManager({
+        enabledAddons: ['cfg-addon-2'],
+        allProperties: { 'ngdpbase.addons.cfg-addon-2.dataPath': './data/custom' }
+      });
+      const engine = makeEngine(configManager);
+      const manager = new AddonsManager(engine);
+      await manager.initialize();
+
+      expect(configManager.setRuntimeProperty).not.toHaveBeenCalledWith(
+        'ngdpbase.addons.cfg-addon-2.dataPath',
+        expect.anything()
+      );
+    });
+
+    test('skips _comment keys', async () => {
+      await makeAddonWithDefaultConfig('cfg-addon-3', {
+        '_comment': 'Documentation string',
+        'ngdpbase.addons.cfg-addon-3.enabled': false
+      });
+
+      const configManager = makeConfigManager({
+        enabledAddons: ['cfg-addon-3'],
+        allProperties: {}
+      });
+      const engine = makeEngine(configManager);
+      const manager = new AddonsManager(engine);
+      await manager.initialize();
+
+      expect(configManager.setRuntimeProperty).not.toHaveBeenCalledWith('_comment', expect.anything());
+    });
+
+    test('missing default-config.json is a no-op — no error thrown', async () => {
+      const addonDir = path.join(tmpDir, 'cfg-addon-4');
+      await fs.mkdir(addonDir);
+      await fs.writeFile(
+        path.join(addonDir, 'index.js'),
+        'module.exports = { name: \'cfg-addon-4\', version: \'1.0.0\', register: () => {} };',
+        'utf8'
+      );
+      // No config/ directory
+
+      const configManager = makeConfigManager({ enabledAddons: ['cfg-addon-4'] });
+      const engine = makeEngine(configManager);
+      const manager = new AddonsManager(engine);
+
+      await expect(manager.initialize()).resolves.not.toThrow();
+      expect(configManager.setRuntimeProperty).not.toHaveBeenCalled();
+    });
+
+    test('malformed JSON in default-config.json warns and addon still loads', async () => {
+      const addonDir = path.join(tmpDir, 'cfg-addon-5');
+      const configDir = path.join(addonDir, 'config');
+      await fs.mkdir(configDir, { recursive: true });
+      await fs.writeFile(
+        path.join(addonDir, 'index.js'),
+        'module.exports = { name: \'cfg-addon-5\', version: \'1.0.0\', register: () => {} };',
+        'utf8'
+      );
+      await fs.writeFile(path.join(configDir, 'default-config.json'), '{ invalid json }', 'utf8');
+
+      const configManager = makeConfigManager({ enabledAddons: ['cfg-addon-5'] });
+      const engine = makeEngine(configManager);
+      const manager = new AddonsManager(engine);
+
+      await expect(manager.initialize()).resolves.not.toThrow();
+      expect(manager.isLoaded('cfg-addon-5')).toBe(true);
+      expect(configManager.setRuntimeProperty).not.toHaveBeenCalled();
+    });
+  });
+
   describe('backup and restore', () => {
     test('backup returns addon state', async () => {
       const addonDir = path.join(tmpDir, 'backup-addon');
