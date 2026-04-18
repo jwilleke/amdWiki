@@ -1,7 +1,6 @@
-// @ts-check
-const { defineConfig, devices } = require('@playwright/test');
-const fs = require('fs');
-const path = require('path');
+import { defineConfig, devices } from '@playwright/test';
+import fs from 'fs';
+import path from 'path';
 
 // Load PORT from .env if not already set in the environment.
 // Mirrors what server.sh does: source .env, then let shell exports override.
@@ -15,13 +14,13 @@ if (!process.env.PORT) {
   }
 }
 
-const PORT = process.env.PORT || '3000';
+const PORT = process.env.PORT ?? '3000';
 
 /**
  * Playwright E2E Test Configuration for ngdpbase
  * @see https://playwright.dev/docs/test-configuration
  */
-module.exports = defineConfig({
+export default defineConfig({
   // All E2E files consolidated under tests/e2e/
   testDir: './tests/e2e',
 
@@ -46,7 +45,7 @@ module.exports = defineConfig({
   // Shared settings for all projects
   use: {
     // Base URL for the application — reads PORT from .env, falls back to 3000
-    baseURL: process.env.E2E_BASE_URL || `http://localhost:${PORT}`,
+    baseURL: process.env.E2E_BASE_URL ?? `http://localhost:${PORT}`,
 
     // Collect trace when retrying the failed test
     trace: 'on-first-retry',
@@ -55,7 +54,7 @@ module.exports = defineConfig({
     screenshot: 'only-on-failure',
 
     // Video on failure
-    video: 'retain-on-failure',
+    video: 'retain-on-failure'
   },
 
   // Configure the web server to start before running tests
@@ -66,7 +65,7 @@ module.exports = defineConfig({
     reuseExistingServer: false,
     timeout: 60000,
     stdout: 'pipe',
-    stderr: 'pipe',
+    stderr: 'pipe'
   } : undefined,
 
   // Test projects for different browsers
@@ -74,44 +73,44 @@ module.exports = defineConfig({
     // Setup project for authentication (longer timeout to allow for engine initialization)
     {
       name: 'setup',
-      testMatch: /.*\.setup\.js/,
-      timeout: 150000,
+      testMatch: /.*\.setup\.(js|ts)/,
+      timeout: 150000
     },
 
     // Chromium tests (main browser) - excludes files owned by dedicated viewport projects
     {
       name: 'chromium',
-      testIgnore: /admin-maintenance\.spec\.js|mobile-navigation\.spec\.js/,
+      testIgnore: /admin-maintenance\.spec\.(js|ts)|mobile-navigation\.spec\.(js|ts)/,
       use: {
         browserName: 'chromium',
         // Use setup project for authenticated tests
-        storageState: './tests/e2e/.auth/user.json',
+        storageState: './tests/e2e/.auth/user.json'
       },
-      dependencies: ['setup'],
+      dependencies: ['setup']
     },
 
     // Mobile navigation tests — Pixel 5 viewport, no auth needed for layout checks
     {
       name: 'mobile-chrome',
-      testMatch: /mobile-navigation\.spec\.js/,
+      testMatch: /mobile-navigation\.spec\.(js|ts)/,
       use: {
         ...devices['Pixel 5'],
-        storageState: './tests/e2e/.auth/user.json',
+        storageState: './tests/e2e/.auth/user.json'
       },
-      dependencies: ['setup'],
+      dependencies: ['setup']
     },
 
     // Admin maintenance tests run LAST since they toggle server-wide maintenance mode
     // which would cause other parallel tests to get 503 responses
     {
       name: 'chromium-maintenance',
-      testMatch: /admin-maintenance\.spec\.js/,
+      testMatch: /admin-maintenance\.spec\.(js|ts)/,
       use: {
         browserName: 'chromium',
-        storageState: './tests/e2e/.auth/user.json',
+        storageState: './tests/e2e/.auth/user.json'
       },
-      dependencies: ['chromium'],
-    },
+      dependencies: ['chromium']
+    }
   ],
 
   // Output folder for test artifacts - consolidated under tests/e2e/.output/
@@ -122,6 +121,6 @@ module.exports = defineConfig({
 
   // Expect timeout
   expect: {
-    timeout: 5000,
-  },
+    timeout: 5000
+  }
 });
