@@ -358,6 +358,9 @@ class WikiRoutes {
     try {
       const leftMenuPage = await pageManager.getPage('left-menu-content')
         ?? await pageManager.getPage('LeftMenu');
+      if (!leftMenuPage) {
+        logger.warn('[LeftMenu] LeftMenu page not found — sidebar will be empty. Create a "LeftMenu" page to populate navigation.');
+      }
       const leftMenuContent = leftMenuPage?.content ?? null;
       logger.info(
         `[TEMPLATE] Loading LeftMenu for user=${

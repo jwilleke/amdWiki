@@ -24,6 +24,7 @@ import type UserManager from '../../../dist/src/managers/UserManager';
 import type JournalDataManager from '../managers/JournalDataManager';
 import type { JournalIndexEntry } from '../managers/JournalDataManager';
 import type JournalTemplateManager from '../managers/JournalTemplateManager';
+import { getLeftMenu } from './helpers';
 
 export default function editorRoutes(engine: WikiEngine, config: Record<string, unknown>): Router {
   const router = Router();
@@ -92,6 +93,7 @@ export default function editorRoutes(engine: WikiEngine, config: Record<string, 
         const userManager = um();
         const freshUser = userManager ? await userManager.getUser(ctx.username!) : null;
         const prefs = (freshUser?.preferences ?? {}) as Record<string, unknown>;
+        const leftMenu = await getLeftMenu(engine, req.userContext ?? null);
 
         res.render('journal-settings', {
           currentUser:      req.userContext,
@@ -106,7 +108,8 @@ export default function editorRoutes(engine: WikiEngine, config: Record<string, 
           adminVoiceEnabled: enableVoiceToText(),
           csrfToken:         req.session?.csrfToken,
           successMessage:    req.query['success'] ?? null,
-          errorMessage:      req.query['error']   ?? null
+          errorMessage:      req.query['error']   ?? null,
+          leftMenu
         });
       } catch (err) {
         handleError(err, res);
@@ -165,6 +168,7 @@ export default function editorRoutes(engine: WikiEngine, config: Record<string, 
         const prefs = (freshUser?.preferences ?? {}) as Record<string, unknown>;
         const defaultTemplate = (prefs['journal.defaultTemplate'] as string | undefined) ?? 'free-write';
         const userVoice = prefs['journal.voiceToText'] !== false;
+        const leftMenu = await getLeftMenu(engine, req.userContext ?? null);
 
         res.render('journal-editor', {
           currentUser:       req.userContext,
@@ -175,7 +179,8 @@ export default function editorRoutes(engine: WikiEngine, config: Record<string, 
           defaultTemplate,
           enableVoiceToText: enableVoiceToText() && userVoice,
           csrfToken:         req.session?.csrfToken,
-          errorMessage:      null
+          errorMessage:      null,
+          leftMenu
         });
       } catch (err) {
         handleError(err, res);
@@ -283,6 +288,8 @@ export default function editorRoutes(engine: WikiEngine, config: Record<string, 
         const page = await pm()?.getPage(slug);
         if (!page) { res.status(404).send('Journal entry page not found.'); return; }
 
+        const leftMenu = await getLeftMenu(engine, req.userContext ?? null);
+
         res.render('journal-editor', {
           currentUser:      req.userContext,
           entry:            { ...entry, content: page.content ?? '' },
@@ -291,7 +298,8 @@ export default function editorRoutes(engine: WikiEngine, config: Record<string, 
           templates:        [],
           enableVoiceToText: enableVoiceToText(),
           csrfToken:        req.session?.csrfToken,
-          errorMessage:     null
+          errorMessage:     null,
+          leftMenu
         });
       } catch (err) {
         handleError(err, res);
