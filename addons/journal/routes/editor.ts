@@ -77,12 +77,6 @@ export default function editorRoutes(engine: WikiEngine, config: Record<string, 
     return [];
   }
 
-  function moodOptions(): string[] {
-    const raw = config['defaultMoodOptions'];
-    if (Array.isArray(raw)) return raw.map(String);
-    return ['happy', 'content', 'neutral', 'anxious', 'sad', 'grateful', 'energized', 'tired'];
-  }
-
   // ── GET /journal/settings ────────────────────────────────────────────────────
   router.get('/settings', (req: Request, res: Response) => {
     void (async () => {
@@ -153,35 +147,74 @@ export default function editorRoutes(engine: WikiEngine, config: Record<string, 
   });
 
   // ── GET /journal/new ─────────────────────────────────────────────────────────
+  // Auto-creates a stub journal entry for today (if one doesn't exist) then
+  // redirects to the standard /edit/:slug page editor. (#540)
   router.get('/new', (req: Request, res: Response) => {
     void (async () => {
       try {
         const ctx = ApiContext.from(req, engine);
         ctx.requireAuthenticated();
 
+        const username = ctx.username!;
         const date = typeof req.query['date'] === 'string'
           ? req.query['date']
           : new Date().toISOString().slice(0, 10);
 
-        const userManager = um();
-        const freshUser = userManager ? await userManager.getUser(ctx.username!) : null;
-        const prefs = (freshUser?.preferences ?? {}) as Record<string, unknown>;
-        const defaultTemplate = (prefs['journal.defaultTemplate'] as string | undefined) ?? 'free-write';
-        const userVoice = prefs['journal.voiceToText'] !== false;
-        const leftMenu = await getLeftMenu(engine, req.userContext ?? null);
+        const slug = `journal-${username}-${date}`;
 
-        res.render('journal-editor', {
-          currentUser:       req.userContext,
-          entry:             null,
-          defaultDate:       date,
-          moodOptions:       moodOptions(),
-          templates:         jtm()?.listTemplates() ?? [],
-          defaultTemplate,
-          enableVoiceToText: enableVoiceToText() && userVoice,
-          csrfToken:         req.session?.csrfToken,
-          errorMessage:      null,
-          leftMenu
+        const p = pm();
+        if (!p) { res.status(503).send('PageManager not available'); return; }
+
+        // If entry already exists for today, go straight to the standard editor
+        const existing = await p.getPageBySlug(slug);
+        if (existing) {
+          res.redirect(`/edit/${encodeURIComponent(slug)}`);
+          return;
+        }
+
+        // Create stub entry with journal frontmatter
+        const uuid = uuidv4();
+        const title = `Journal — ${date}`;
+        const defaultPrivate    = config['defaultPrivate']    !== false;
+        const defaultAuthorLock = config['defaultAuthorLock'] !== false;
+
+        const metadata: Record<string, unknown> = {
+          title,
+          uuid,
+          slug,
+          'system-category': 'journal',
+          'journal-date':    date,
+          author:            username,
+          lastModified:      new Date().toISOString(),
+          ...(defaultAuthorLock ? { 'author-lock': true }                                   : {}),
+          ...(defaultPrivate    ? { 'system-location': 'private', 'page-creator': username } : {})
+        };
+
+        const wikiCtx = new WikiContext(engine, {
+          context:     WikiContext.CONTEXT.EDIT,
+          pageName:    slug,
+          content:     ' ',
+          userContext: await resolveUserContext(req)
         });
+
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-argument
+        await p.savePageWithContext(wikiCtx as any, metadata);
+
+        // Index in sidecar
+        const indexEntry: JournalIndexEntry = {
+          uuid,
+          slug,
+          title,
+          author: username,
+          journalDate: date,
+          mood: undefined,
+          tags: [],
+          isPrivate: defaultPrivate,
+          lastModified: new Date().toISOString()
+        };
+        await jdm()?.indexEntry(indexEntry);
+
+        res.redirect(`/edit/${encodeURIComponent(slug)}`);
       } catch (err) {
         handleError(err, res);
       }
@@ -215,10 +248,10 @@ export default function editorRoutes(engine: WikiEngine, config: Record<string, 
         const p = pm();
         if (!p) { res.status(503).send('PageManager not available'); return; }
 
-        // If entry already exists for this date, redirect to edit it
+        // If entry already exists for this date, redirect to standard editor
         const existing = await p.getPageBySlug(slug);
         if (existing) {
-          res.redirect(`/journal/${encodeURIComponent(slug)}/edit`);
+          res.redirect(`/edit/${encodeURIComponent(slug)}`);
           return;
         }
 
@@ -263,7 +296,7 @@ export default function editorRoutes(engine: WikiEngine, config: Record<string, 
         };
         await jdm()?.indexEntry(indexEntry);
 
-        res.redirect(`/journal/${encodeURIComponent(slug)}`);
+        res.redirect(`/edit/${encodeURIComponent(slug)}`);
       } catch (err) {
         handleError(err, res);
       }
