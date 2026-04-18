@@ -22,6 +22,72 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - [file2.md]
 ```
 
+## 2026-04-18-08
+
+- Agent: Claude
+- Subject: TypeScript migration (#186) — any type reduction, eslint-disable cleanup (207→68)
+- Current Issue: #186
+- Work Done:
+  - Reduced any types in source from 28 → 7 (all remaining are legitimately required)
+  - BaseAuditProvider: recentActivity typed as AuditEvent[] instead of any[]
+  - LunrSearchProvider: replaced custom any interface with lunr.Index.Result type alias
+  - RedisCacheProvider, DatabaseAuditProvider, CloudAuditProvider: _client typed as unknown
+  - FileAuditProvider: removed unnecessary as-any cast; fixed options param to Record<string,unknown>
+  - HtmlConverter: added LinkedomDocument/LinkedomElement interfaces; removed 20+ eslint-disable comments; replaced document:any parameters throughout
+  - WikiRoutes: req.connection → req.socket (Express 5); typed req.sessionStore/sessionID/session without as-any; fixed session store callbacks
+  - WikiEngine.ts: ManagerRegistry/context/registerManager typed with unknown where possible; kept [key:string]:any index for class compatibility
+  - Disabled require-await rule globally (eliminated 51 inline eslint-disable comments — all were interface implementation pattern)
+  - WikiRoutes: moved fse, matter, createPatch, exec, LocaleUtils to top-level imports; added file-level no-require-imports disable (replaced 22 inline comments)
+  - WikiDocument.ts, FilterChain.ts, BaseFilter.ts, ParseContext.ts: fixed module.exports.default pattern to use typed cast
+  - Reduced eslint-disable count in source files: 207 → 68
+  - All 112 test suites (2928 tests) passing throughout
+- Commits: 4e48cbea, 1b29c95e, fa168f4f, 9bc5e1ac, 08242e97
+- Files Modified:
+  - eslint.config.mjs
+  - src/types/WikiEngine.ts
+  - src/providers/BaseAuditProvider.ts
+  - src/providers/LunrSearchProvider.ts
+  - src/providers/RedisCacheProvider.ts
+  - src/providers/DatabaseAuditProvider.ts
+  - src/providers/CloudAuditProvider.ts
+  - src/providers/FileAuditProvider.ts
+  - src/converters/HtmlConverter.ts
+  - src/routes/WikiRoutes.ts
+  - src/parsers/dom/WikiDocument.ts
+  - src/parsers/filters/FilterChain.ts
+  - src/parsers/filters/BaseFilter.ts
+  - src/parsers/context/ParseContext.ts
+  - src/managers/ACLManager.ts
+  - src/managers/AttachmentManager.ts
+  - src/managers/BackgroundJobManager.ts
+  - src/managers/BackupManager.ts
+  - src/managers/BaseManager.ts
+  - src/managers/ConfigurationManager.ts
+  - src/managers/ImportManager.ts
+  - src/managers/PolicyEvaluator.ts
+  - src/managers/PolicyManager.ts
+  - src/managers/VariableManager.ts
+  - src/parsers/dom/handlers/DOMLinkHandler.ts
+  - src/parsers/dom/handlers/DOMVariableHandler.ts
+  - src/parsers/filters/SecurityFilter.ts
+  - src/parsers/filters/SpamFilter.ts
+  - src/parsers/filters/ValidationFilter.ts
+  - src/parsers/handlers/AttachmentHandler.ts
+  - src/parsers/handlers/EscapedSyntaxHandler.ts
+  - src/parsers/handlers/InterWikiLinkHandler.ts
+  - src/parsers/handlers/JSPWikiPreprocessor.ts
+  - src/parsers/handlers/LinkParserHandler.ts
+  - src/parsers/handlers/PluginSyntaxHandler.ts
+  - src/parsers/handlers/VariableSyntaxHandler.ts
+  - src/parsers/handlers/WikiFormHandler.ts
+  - src/parsers/handlers/WikiLinkHandler.ts
+  - src/parsers/handlers/WikiStyleHandler.ts
+  - src/parsers/handlers/WikiTableHandler.ts
+  - src/parsers/handlers/WikiTagHandler.ts
+  - src/providers/BaseAttachmentProvider.ts
+  - src/providers/BaseMediaProvider.ts
+  - src/providers/BasicAttachmentProvider.ts
+
 ## 2026-04-18-07
 
 - Agent: Claude
