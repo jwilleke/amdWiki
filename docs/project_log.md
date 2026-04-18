@@ -88,6 +88,29 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - src/providers/BaseMediaProvider.ts
   - src/providers/BasicAttachmentProvider.ts
 
+## 2026-04-18-11
+
+- Agent: Claude
+- Subject: TypeScript migration (#186) — linkedom.d.ts module declaration; eslint-disable reduction 23→17
+- Current Issue: #186
+- Work Done:
+  - Created src/types/linkedom.d.ts — full module declaration for linkedom (parseHTML, LinkedomDocument, LinkedomElement, LinkedomText, LinkedomComment, LinkedomNode, LinkedomNodeList, LinkedomHTMLCollection)
+  - WikiDocument.ts: replaced require('linkedom') with static import; removed all local interface definitions; re-exported linkedom types for DOMBuilder, DOMPluginHandler, DOMLinkHandler consumers
+  - HtmlConverter.ts: replaced require('linkedom') with static import; removed duplicate local interface definitions; removed two now-redundant 'as string' casts on innerHTML
+  - DOMVariableHandler.ts: added null coalesce on textContent (now properly typed as string | null per DOM spec)
+  - eslint.config.mjs: added targeted file-level no-console override for src/utils/standardize-categories.ts and src/utils/version.ts instead of per-file eslint-disable comments
+  - Removed no-console file-level disable comments from standardize-categories.ts and version.ts
+  - Source file eslint-disable count: 23 → 17
+- Commits: 88d4f41b
+- Files Modified:
+  - src/types/linkedom.d.ts (new)
+  - src/converters/HtmlConverter.ts
+  - src/parsers/dom/WikiDocument.ts
+  - src/parsers/dom/handlers/DOMVariableHandler.ts
+  - src/utils/standardize-categories.ts
+  - src/utils/version.ts
+  - eslint.config.mjs
+
 ## 2026-04-18-10
 
 - Agent: Claude
