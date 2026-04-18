@@ -22,6 +22,27 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - [file2.md]
 ```
 
+## 2026-04-17-10
+
+- Agent: Claude
+- Subject: Journal user settings page (#533) — /journal/settings with per-user preferences
+- Current Issue: #533
+- Work Done:
+  - Added GET /journal/settings route reading journal.* prefs from UserManager and rendering journal-settings.ejs
+  - Added POST /journal/settings route merging updated journal.* prefs into existing user preferences via UserManager.updateUser()
+  - Updated GET /journal/new to read journal.defaultTemplate and journal.voiceToText prefs so editor pre-selects the right template
+  - Updated public.ts routes (timeline, tag, mood, entry view) to read journal.streakVisible pref and pass it into buildSidebarData(); all three sync routes converted to async void IIFE pattern
+  - Added Journal Settings link to _journal-sidebar.ejs; changed New Entry link from /api/journal/new to /journal/new; streak widget now respects streakVisible pref
+  - Created journal-settings.ejs with: default template radio-card picker, voice-to-text toggle (conditional on adminVoiceEnabled), streak widget toggle, daily reminder time input (hidden unless enabled), success/error alerts
+  - npm test: 111 suites, 2899 tests passed
+- Commits: 409a0b63
+- Files Modified:
+  - addons/journal/routes/editor.ts
+  - addons/journal/routes/public.ts
+  - addons/journal/views/_journal-sidebar.ejs
+  - addons/journal/views/journal-editor.ejs
+  - addons/journal/views/journal-settings.ejs (new)
+
 ## 2026-04-17-09
 
 - Agent: Claude
