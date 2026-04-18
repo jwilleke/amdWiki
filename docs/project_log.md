@@ -22,6 +22,28 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - [file2.md]
 ```
 
+## 2026-04-18-02
+
+- Agent: Claude
+- Subject: Fix journal routing conflict for /settings; wire LeftMenu into journal views; remove hardcoded nav fallback
+- Current Issue: #533, #511
+- Work Done:
+  - Fixed /journal/settings returning "Journal entry not found" — editorRoutes was mounted after publicRoutes so /:slug caught /settings first; swapped mount order in index.ts
+  - Created addons/journal/routes/helpers.ts with getLeftMenu(engine, userContext) helper — fetches and renders LeftMenu page using PageManager + RenderingManager + same formatLeftMenuContent logic as WikiRoutes
+  - Wired leftMenu into all journal route render calls (public.ts: timeline, tag, mood, entry; editor.ts: settings, new, edit) so journal pages share the site's navigation
+  - Removed hardcoded Home/Search/Create fallback from views/header.ejs — sidebar now renders empty when leftMenu is absent
+  - Added logger.warn in WikiRoutes.getCommonTemplateData when LeftMenu page is not found
+  - Added engine.logger?.warn in journal helpers.ts when LeftMenu page is not found
+  - Commented on #511 with context for required-pages health check follow-up
+- Commits: 8500c2a9, fe5b638a
+- Files Modified:
+  - addons/journal/index.ts
+  - addons/journal/routes/helpers.ts (new)
+  - addons/journal/routes/public.ts
+  - addons/journal/routes/editor.ts
+  - views/header.ejs
+  - src/routes/WikiRoutes.ts
+
 ## 2026-04-18-01
 
 - Agent: Claude
