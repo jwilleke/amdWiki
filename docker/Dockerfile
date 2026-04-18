@@ -57,8 +57,7 @@ COPY --from=builder /app/node_modules ./node_modules
 # Copy compiled JavaScript
 COPY --from=builder /app/dist ./dist
 
-# Copy application entry point and essential files
-COPY --from=builder /app/app.js ./
+# Copy package.json (needed for module resolution metadata)
 COPY --from=builder /app/package.json ./
 
 # Copy views (EJS templates)
@@ -126,7 +125,7 @@ VOLUME ["/app/data"]
 
 # Start command - direct node execution (no PM2)
 # PM2 is removed for K8s compatibility - K8s handles process management
-CMD ["node", "app.js"]
+CMD ["node", "dist/src/app.js"]
 
 # =============================================================================
 # Configuration and Installation
