@@ -22,7 +22,7 @@
  */
 
 import type { SimplePlugin, PluginContext, PluginParams } from './types';
-import { escapeHtml, parseMaxParam, applyMax } from '../src/utils/pluginFormatters';
+import { escapeHtml, parseMaxParam, applyMax } from '../utils/pluginFormatters';
 
 let _idCounter = 0;
 

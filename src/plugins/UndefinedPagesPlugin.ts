@@ -39,7 +39,7 @@ import {
   formatPaginationLinks,
   type PageLink,
   type TableOptions
-} from '../src/utils/pluginFormatters';
+} from '../utils/pluginFormatters';
 
 interface UndefinedPagesParams extends PluginParams {
   max?:           string | number;

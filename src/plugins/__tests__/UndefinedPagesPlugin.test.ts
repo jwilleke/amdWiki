@@ -5,19 +5,10 @@
  * the parseSortParam / applyPagination helpers in pluginFormatters.ts.
  */
 
-const path = require('path');
-
+import path from 'path';
 // Load formatters and plugin via ts-jest transform (TypeScript source)
-const {
-  parseSortParam,
-  applyPagination,
-  parsePageParam,
-  parsePageSizeParam,
-  formatPaginationLinks
-} = require('../../src/utils/pluginFormatters');
-
-const UndefinedPagesPlugin = require('../../plugins/UndefinedPagesPlugin');
-
+import { parseSortParam, applyPagination, parsePageParam, parsePageSizeParam, formatPaginationLinks } from '../../utils/pluginFormatters';
+import UndefinedPagesPlugin from '../../plugins/UndefinedPagesPlugin';
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------

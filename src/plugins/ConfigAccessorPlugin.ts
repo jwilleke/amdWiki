@@ -30,7 +30,7 @@
  */
 
 import type { PluginContext, PluginParams, SimplePlugin } from './types';
-import { escapeHtml } from '../src/utils/pluginFormatters';
+import { escapeHtml } from '../utils/pluginFormatters';
 
 // ============================================================================
 // Type Definitions

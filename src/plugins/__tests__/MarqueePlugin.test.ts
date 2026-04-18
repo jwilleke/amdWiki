@@ -4,8 +4,7 @@
  * @jest-environment node
  */
 
-const MarqueePlugin = require('../MarqueePlugin');
-
+import MarqueePlugin from '../MarqueePlugin';
 const ctx = { pageName: 'TestPage', linkGraph: {} };
 
 describe('MarqueePlugin — metadata', () => {

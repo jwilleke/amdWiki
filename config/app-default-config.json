@@ -186,7 +186,7 @@
   "ngdpbase.managers.page-manager.enabled": true,
   "ngdpbase.managers.plugin-manager.enabled": true,
   "ngdpbase.managers.plugin-manager.search-paths": [
-    "./dist/plugins"
+    "./dist/src/plugins"
   ],
   "ngdpbase.managers.rendering-manager.enabled": true,
   "ngdpbase.managers.search-manager.enabled": true,

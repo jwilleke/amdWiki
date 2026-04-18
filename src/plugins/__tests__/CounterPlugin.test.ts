@@ -2,8 +2,7 @@
  * Tests for CounterPlugin
  */
 
-const CounterPlugin = require('../CounterPlugin');
-
+import CounterPlugin from '../CounterPlugin';
 describe('CounterPlugin', () => {
   let mockContext;
 
@@ -221,21 +220,21 @@ describe('CounterPlugin', () => {
 
     test('should handle various boolean string representations', () => {
       // Test 'yes' and 'no'
-      let ctx1 = {};
-      let result1 = CounterPlugin.execute(ctx1, { showResult: 'yes' });
+      const ctx1 = {};
+      const result1 = CounterPlugin.execute(ctx1, { showResult: 'yes' });
       expect(result1).toBe('1');
 
-      let ctx2 = {};
-      let result2 = CounterPlugin.execute(ctx2, { showResult: 'no' });
+      const ctx2 = {};
+      const result2 = CounterPlugin.execute(ctx2, { showResult: 'no' });
       expect(result2).toBe('');
 
       // Test '1' and '0'
-      let ctx3 = {};
-      let result3 = CounterPlugin.execute(ctx3, { showResult: '1' });
+      const ctx3 = {};
+      const result3 = CounterPlugin.execute(ctx3, { showResult: '1' });
       expect(result3).toBe('1');
 
-      let ctx4 = {};
-      let result4 = CounterPlugin.execute(ctx4, { showResult: '0' });
+      const ctx4 = {};
+      const result4 = CounterPlugin.execute(ctx4, { showResult: '0' });
       expect(result4).toBe('');
     });
   });

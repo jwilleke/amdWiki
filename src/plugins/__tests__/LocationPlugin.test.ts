@@ -14,11 +14,9 @@
  * - HTML escaping for security
  */
 
-const path = require('path');
-const fs = require('fs-extra');
-
-const PluginManager = require('../../src/managers/PluginManager');
-
+import path from 'path';
+import fs from 'fs-extra';
+import PluginManager from '../../managers/PluginManager';
 describe('Location (via PluginManager)', () => {
   let LocationPlugin;
   let mockContext;
@@ -36,12 +34,12 @@ describe('Location (via PluginManager)', () => {
       info: jest.fn(),
       warn: jest.fn(),
       debug: jest.fn(),
-      error: jest.fn(),
+      error: jest.fn()
     };
     const cfgMgr = { getProperty: jest.fn().mockReturnValue([pluginsDir]) };
     const engine = {
       getManager: (name) => (name === 'ConfigurationManager' ? cfgMgr : null),
-      logger,
+      logger
     };
 
     pm = new PluginManager(engine);
@@ -61,10 +59,10 @@ describe('Location (via PluginManager)', () => {
     const mockConfigManager = {
       getProperty: jest.fn().mockImplementation((key, def) => {
         const configMap = {
-          'ngdpbase.location.default-provider': 'osm',
+          'ngdpbase.location.default-provider': 'osm'
         };
         return key in configMap ? configMap[key] : def;
-      }),
+      })
     };
 
     mockContext = {
@@ -74,9 +72,9 @@ describe('Location (via PluginManager)', () => {
             return mockConfigManager;
           }
           return null;
-        }),
+        })
       },
-      pageName: 'TestPage',
+      pageName: 'TestPage'
     };
   });
 
@@ -312,7 +310,7 @@ describe('Location (via PluginManager)', () => {
       const params = {
         coords: '48.8566,2.3522',
         name: 'Eiffel Tower',
-        label: 'Custom Label',
+        label: 'Custom Label'
       };
       const result = LocationPlugin.execute(mockContext, params);
 
@@ -428,8 +426,8 @@ describe('Location (via PluginManager)', () => {
         engine: {
           getManager: jest.fn(() => {
             throw new Error('Manager error');
-          }),
-        },
+          })
+        }
       };
 
       const params = { name: 'Paris' };
@@ -470,13 +468,13 @@ describe('Location (via PluginManager)', () => {
         getProperty: jest.fn().mockImplementation((key, def) => {
           if (key === 'ngdpbase.location.default-provider') return 'google';
           return def;
-        }),
+        })
       };
 
       const contextWithCustomConfig = {
         engine: {
-          getManager: jest.fn().mockReturnValue(customConfigManager),
-        },
+          getManager: jest.fn().mockReturnValue(customConfigManager)
+        }
       };
 
       const params = { coords: '48.8566,2.3522' };
@@ -488,8 +486,8 @@ describe('Location (via PluginManager)', () => {
     it('falls back to osm when ConfigurationManager unavailable', () => {
       const contextWithoutConfig = {
         engine: {
-          getManager: jest.fn().mockReturnValue(null),
-        },
+          getManager: jest.fn().mockReturnValue(null)
+        }
       };
 
       const params = { coords: '48.8566,2.3522' };
@@ -503,13 +501,13 @@ describe('Location (via PluginManager)', () => {
         getProperty: jest.fn().mockImplementation((key, def) => {
           if (key === 'ngdpbase.location.default-provider') return 'google';
           return def;
-        }),
+        })
       };
 
       const contextWithCustomConfig = {
         engine: {
-          getManager: jest.fn().mockReturnValue(customConfigManager),
-        },
+          getManager: jest.fn().mockReturnValue(customConfigManager)
+        }
       };
 
       const params = { coords: '48.8566,2.3522', provider: 'osm' };
@@ -525,7 +523,7 @@ describe('Location (via PluginManager)', () => {
         name: 'Paris, France',
         coords: '48.8566,2.3522',
         embed: true,
-        zoom: 12,
+        zoom: 12
       };
       const result = LocationPlugin.execute(mockContext, params);
 
@@ -538,7 +536,7 @@ describe('Location (via PluginManager)', () => {
       const params = {
         coords: '40.7128,-74.0060',
         label: 'New York City',
-        provider: 'google',
+        provider: 'google'
       };
       const result = LocationPlugin.execute(mockContext, params);
 
@@ -551,7 +549,7 @@ describe('Location (via PluginManager)', () => {
       const params = {
         coords: '51.5074,-0.1278',
         label: 'London',
-        provider: 'geo',
+        provider: 'geo'
       };
       const result = LocationPlugin.execute(mockContext, params);
 
@@ -561,7 +559,7 @@ describe('Location (via PluginManager)', () => {
 
     it('renders search link for location name without coords', () => {
       const params = {
-        name: 'Statue of Liberty',
+        name: 'Statue of Liberty'
       };
       const result = LocationPlugin.execute(mockContext, params);
 

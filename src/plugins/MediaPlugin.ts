@@ -17,8 +17,8 @@
  */
 
 import type { SimplePlugin, PluginContext, PluginParams } from './types';
-import { formatAsCount, formatAsList, parseMaxParam, applyMax, escapeHtml } from '../src/utils/pluginFormatters';
-import type { PageLink } from '../src/utils/pluginFormatters';
+import { formatAsCount, formatAsList, parseMaxParam, applyMax, escapeHtml } from '../utils/pluginFormatters';
+import type { PageLink } from '../utils/pluginFormatters';
 
 interface MediaItem {
   id: string;

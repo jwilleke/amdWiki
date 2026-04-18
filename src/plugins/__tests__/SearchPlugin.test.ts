@@ -13,8 +13,7 @@
  * - Pagination and max parameters continue to work
  */
 
-const SearchPlugin = require('../SearchPlugin');
-
+import SearchPlugin from '../SearchPlugin';
 // ---------------------------------------------------------------------------
 // Mock helpers
 // ---------------------------------------------------------------------------

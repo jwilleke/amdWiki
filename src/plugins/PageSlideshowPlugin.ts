@@ -25,7 +25,7 @@
  */
 
 import type { SimplePlugin, PluginContext, PluginParams } from './types';
-import { escapeHtml } from '../src/utils/pluginFormatters';
+import { escapeHtml } from '../utils/pluginFormatters';
 
 let _idCounter = 0;
 

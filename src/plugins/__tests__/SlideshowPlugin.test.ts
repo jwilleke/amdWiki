@@ -4,8 +4,7 @@
  * @jest-environment node
  */
 
-const SlideshowPlugin = require('../SlideshowPlugin');
-
+import SlideshowPlugin from '../SlideshowPlugin';
 const ctx = { pageName: 'TestPage', linkGraph: {} };
 
 describe('SlideshowPlugin — metadata', () => {

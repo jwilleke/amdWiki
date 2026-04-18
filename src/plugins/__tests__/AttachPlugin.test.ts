@@ -9,11 +9,10 @@
  * These tests mock resolveAttachmentSrc directly.
  */
 
-const AttachPlugin = require('../AttachPlugin');
-
+import AttachPlugin from '../AttachPlugin';
 function makeContext(resolvedValue) {
   const mockAttachmentManager = {
-    resolveAttachmentSrc: jest.fn().mockResolvedValue(resolvedValue),
+    resolveAttachmentSrc: jest.fn().mockResolvedValue(resolvedValue)
   };
   return {
     pageName: 'TestPage',
@@ -22,9 +21,9 @@ function makeContext(resolvedValue) {
       getManager: jest.fn().mockImplementation((name) => {
         if (name === 'AttachmentManager') return mockAttachmentManager;
         return null;
-      }),
+      })
     },
-    _attachmentManager: mockAttachmentManager,
+    _attachmentManager: mockAttachmentManager
   };
 }
 
@@ -111,8 +110,8 @@ describe('AttachPlugin', () => {
         pageName: 'TestPage',
         linkGraph: {},
         engine: {
-          getManager: jest.fn().mockReturnValue(null),
-        },
+          getManager: jest.fn().mockReturnValue(null)
+        }
       };
       const result = await AttachPlugin.execute(context, { src: 'photo.jpg' });
 
@@ -167,7 +166,7 @@ describe('AttachPlugin', () => {
       const context = makeContext({ url: '/attachments/abc123', mimeType: 'image/jpeg' });
       const result = await AttachPlugin.execute(context, {
         src: 'photo.jpg',
-        caption: 'My Caption',
+        caption: 'My Caption'
       });
 
       expect(result).toContain('class="image-plugin-container');
@@ -179,7 +178,7 @@ describe('AttachPlugin', () => {
       const result = await AttachPlugin.execute(context, {
         src: 'photo.jpg',
         align: 'left',
-        display: 'float',
+        display: 'float'
       });
 
       expect(result).toContain('float: left;');
@@ -190,7 +189,7 @@ describe('AttachPlugin', () => {
       const result = await AttachPlugin.execute(context, {
         src: 'photo.jpg',
         width: '300',
-        height: '200',
+        height: '200'
       });
 
       expect(result).toContain('width="300"');
@@ -201,7 +200,7 @@ describe('AttachPlugin', () => {
       const context = makeContext({ url: '/attachments/abc123', mimeType: 'image/jpeg' });
       const result = await AttachPlugin.execute(context, {
         src: 'photo.jpg',
-        class: 'my-image-class',
+        class: 'my-image-class'
       });
 
       expect(result).toContain('class="my-image-class"');
@@ -211,7 +210,7 @@ describe('AttachPlugin', () => {
       const context = makeContext({ url: '/attachments/abc123', mimeType: 'image/jpeg' });
       const result = await AttachPlugin.execute(context, {
         src: 'photo.jpg',
-        target: '_self',
+        target: '_self'
       });
 
       expect(result).toContain('target="_self"');
@@ -223,7 +222,7 @@ describe('AttachPlugin', () => {
       const context = makeContext({ url: '/attachments/doc123', mimeType: 'application/pdf' });
       const result = await AttachPlugin.execute(context, {
         src: 'doc.pdf',
-        class: 'my-link-class',
+        class: 'my-link-class'
       });
 
       expect(result).toContain('my-link-class');
@@ -233,7 +232,7 @@ describe('AttachPlugin', () => {
       const context = makeContext({ url: '/attachments/doc123', mimeType: 'application/pdf' });
       const result = await AttachPlugin.execute(context, {
         src: 'doc.pdf',
-        target: '_self',
+        target: '_self'
       });
 
       expect(result).toContain('target="_self"');
@@ -243,7 +242,7 @@ describe('AttachPlugin', () => {
       const context = makeContext({ url: '/attachments/doc123', mimeType: 'application/pdf' });
       const result = await AttachPlugin.execute(context, {
         src: 'doc.pdf',
-        caption: 'Download Report',
+        caption: 'Download Report'
       });
 
       expect(result).toContain('Download Report');
@@ -279,7 +278,7 @@ describe('AttachPlugin', () => {
   describe('error handling', () => {
     it('resolveAttachmentSrc throwing → error span', async () => {
       const mockAttachmentManager = {
-        resolveAttachmentSrc: jest.fn().mockRejectedValue(new Error('Provider error')),
+        resolveAttachmentSrc: jest.fn().mockRejectedValue(new Error('Provider error'))
       };
       const context = {
         pageName: 'TestPage',
@@ -288,8 +287,8 @@ describe('AttachPlugin', () => {
           getManager: jest.fn().mockImplementation((name) => {
             if (name === 'AttachmentManager') return mockAttachmentManager;
             return null;
-          }),
-        },
+          })
+        }
       };
       const result = await AttachPlugin.execute(context, { src: 'photo.jpg' });
 

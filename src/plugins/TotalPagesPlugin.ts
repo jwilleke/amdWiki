@@ -4,7 +4,7 @@
  */
 
 import type { SimplePlugin, PluginContext, PluginParams } from './types';
-import { formatAsCount } from '../src/utils/pluginFormatters';
+import { formatAsCount } from '../utils/pluginFormatters';
 
 interface PageManager {
   getAllPages(): Promise<unknown[]>;

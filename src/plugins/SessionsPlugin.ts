@@ -11,7 +11,7 @@
  */
 
 import type { SimplePlugin, PluginContext, PluginParams } from './types';
-import { escapeHtml, formatAsList, formatAsCount } from '../src/utils/pluginFormatters';
+import { escapeHtml, formatAsList, formatAsCount } from '../utils/pluginFormatters';
 
 interface ConfigManager {
   getProperty(key: string, defaultValue: string | number): string | number;
@@ -96,7 +96,7 @@ const SessionsPlugin: SimplePlugin = {
 
         if (anonymous > 0) {
           html += `<ul><li class="text-muted">${escapeHtml(`Anonymous (${formatAsCount(anonymous)})`)}` +
-                  `</li></ul>\n`;
+                  '</li></ul>\n';
         }
 
         html += '</div>';

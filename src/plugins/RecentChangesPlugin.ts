@@ -16,7 +16,7 @@
 import fs from 'fs-extra';
 import path from 'path';
 import type { SimplePlugin, PluginContext, PluginParams } from './types';
-import { escapeHtml } from '../src/utils/pluginFormatters';
+import { escapeHtml } from '../utils/pluginFormatters';
 
 interface RecentChangesParams extends PluginParams {
   since?: string | number;

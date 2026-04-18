@@ -208,7 +208,7 @@ describe('PluginManager.registerPlugins', () => {
     const fs = require('fs-extra');
 
     const logger = { info: jest.fn(), warn: jest.fn(), debug: jest.fn(), error: jest.fn() };
-    const pluginsDir = path.resolve(process.cwd(), 'plugins');
+    const pluginsDir = path.resolve(process.cwd(), 'dist/src/plugins');
     const exists = await fs.pathExists(pluginsDir);
     expect(exists).toBe(true);
 
@@ -224,7 +224,7 @@ describe('PluginManager.registerPlugins', () => {
     await pm.registerPlugins();
 
     const names = Array.from(pm.plugins?.keys?.() || []);
-    process.stdout.write(`Plugins found in ./plugins: ${names.join(', ')}\n`);
+    process.stdout.write(`Plugins found in dist/src/plugins: ${names.join(', ')}\n`);
     expect(names.length).toBeGreaterThan(0);
   });
 

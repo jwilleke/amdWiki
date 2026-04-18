@@ -23,7 +23,7 @@
  */
 
 import type { SimplePlugin, PluginContext, PluginParams } from './types';
-import { escapeHtml } from '../src/utils/pluginFormatters';
+import { escapeHtml } from '../utils/pluginFormatters';
 
 // ─── unique ID counter so multiple banners on one page don't share keyframes ──
 let _idCounter = 0;

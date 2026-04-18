@@ -43,7 +43,7 @@
 
 import type { SimplePlugin, PluginContext, PluginParams } from './types';
 import { renderImageHtml } from './renderImage';
-import { escapeHtml } from '../src/utils/pluginFormatters';
+import { escapeHtml } from '../utils/pluginFormatters';
 
 interface AttachmentManager {
   resolveAttachmentSrc(src: string, pageName: string): Promise<{ url: string; mimeType: string } | null>;

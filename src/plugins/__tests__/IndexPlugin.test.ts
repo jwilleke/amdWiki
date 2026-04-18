@@ -4,8 +4,7 @@
  * @jest-environment node
  */
 
-const IndexPlugin = require('../IndexPlugin');
-
+import IndexPlugin from '../IndexPlugin';
 function makeContext(pages) {
   return {
     engine: {

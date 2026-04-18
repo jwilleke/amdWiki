@@ -50,7 +50,7 @@ import {
   formatAsCount,
   resolveUserParam,
   type PageLink
-} from '../src/utils/pluginFormatters';
+} from '../utils/pluginFormatters';
 
 interface SearchParams extends PluginParams {
   query?: string;

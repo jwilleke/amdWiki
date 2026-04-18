@@ -25,7 +25,7 @@ import {
   formatAsList,
   formatAsCount,
   type PageLink
-} from '../src/utils/pluginFormatters';
+} from '../utils/pluginFormatters';
 
 interface ReferringParams extends PluginParams {
   page?:   string;

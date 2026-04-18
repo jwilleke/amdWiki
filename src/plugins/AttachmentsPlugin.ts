@@ -8,8 +8,8 @@
  */
 
 import type { SimplePlugin, PluginContext, PluginParams } from './types';
-import { formatAsCount, formatAsList, parseMaxParam, applyMax } from '../src/utils/pluginFormatters';
-import type { PageLink } from '../src/utils/pluginFormatters';
+import { formatAsCount, formatAsList, parseMaxParam, applyMax } from '../utils/pluginFormatters';
+import type { PageLink } from '../utils/pluginFormatters';
 
 interface AttachmentMetadata {
   identifier: string;

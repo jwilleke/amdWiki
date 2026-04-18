@@ -21,10 +21,9 @@
   - Ensuring proper context handling and fallback behavior
  */
 
-const path = require('path');
-const fs = require('fs-extra');
-const PluginManager = require('../../src/managers/PluginManager');
-
+import path from 'path';
+import fs from 'fs-extra';
+import PluginManager from '../../managers/PluginManager';
 describe('All Plugins (via PluginManager)', () => {
   let pluginManager;
   let mockEngine;
@@ -72,15 +71,15 @@ describe('All Plugins (via PluginManager)', () => {
       startTime: Date.now() - 60000, // 1 minute ago for uptime tests
       getManager: jest.fn().mockImplementation((name) => {
         switch (name) {
-          case 'ConfigurationManager':
-          case 'ConfigManager':
-            return mockConfigManager;
-          case 'PageManager':
-            return {
-              getAllPages: jest.fn().mockReturnValue(['TestPage1', 'TestPage2', 'TestPage3'])
-            };
-          default:
-            return null;
+        case 'ConfigurationManager':
+        case 'ConfigManager':
+          return mockConfigManager;
+        case 'PageManager':
+          return {
+            getAllPages: jest.fn().mockReturnValue(['TestPage1', 'TestPage2', 'TestPage3'])
+          };
+        default:
+          return null;
         }
       }),
       getConfig: jest.fn().mockReturnValue(mockConfigManager)
