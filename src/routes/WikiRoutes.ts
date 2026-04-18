@@ -55,8 +55,7 @@ interface UserContext {
 }
 
 interface WikiContextOptions {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- WikiContext.CONTEXT enum values are dynamic
-  context?: any;
+  context?: string;
   pageName?: string | null;
   content?: string | null;
   userContext?: UserContext | null;
@@ -1846,7 +1845,7 @@ class WikiRoutes {
       const sectionParam = req.query.section;
       let sectionIndex: number | null = null;
       if (sectionParam !== undefined && sectionParam !== '') {
-        const idx = parseInt(typeof sectionParam === 'string' ? sectionParam : String(sectionParam), 10); // eslint-disable-line @typescript-eslint/no-base-to-string
+        const idx = parseInt(typeof sectionParam === 'string' ? sectionParam : '', 10);
         if (!isNaN(idx) && idx >= 0) {
           const sectionContent = extractSection(pageData.content, idx);
           if (sectionContent !== null) {

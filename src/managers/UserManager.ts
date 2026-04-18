@@ -1090,13 +1090,15 @@ class UserManager extends BaseManager {
         res.status(401).json({ error: 'Unauthorized' });
         return;
       }
-      // eslint-disable-next-line @typescript-eslint/no-misused-promises -- Async callback pattern
-      const hasPermission = requiredPermissions.some((permission) => this.hasPermission(user.username, permission));
-      if (!hasPermission) {
-        res.status(403).json({ error: 'Forbidden' });
-        return;
-      }
-      next();
+      Promise.all(requiredPermissions.map((p) => this.hasPermission(user.username, p)))
+        .then((results) => {
+          if (!results.every(Boolean)) {
+            res.status(403).json({ error: 'Forbidden' });
+          } else {
+            next();
+          }
+        })
+        .catch(next);
     };
   }
 

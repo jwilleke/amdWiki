@@ -27,10 +27,8 @@ interface ExtendedAuditEvent {
   reason?: string;
   policyId?: string;
   policyName?: string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Dynamic type
-  context?: Record<string, any>;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Dynamic type
-  metadata?: Record<string, any>;
+  context?: Record<string, unknown>;
+  metadata?: Record<string, unknown>;
   duration?: number;
   severity?: string;
 }
@@ -189,10 +187,8 @@ class FileAuditProvider extends BaseAuditProvider {
       reason: (evt.reason as string) || auditEvent.error,
       policyId: evt.policyId as string | undefined,
       policyName: evt.policyName as string | undefined,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Dynamic type
-      context: (evt.context as Record<string, any>) || {},
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Dynamic type
-      metadata: (evt.metadata as Record<string, any>) || auditEvent.data || {},
+      context: (evt.context as Record<string, unknown>) || {},
+      metadata: (evt.metadata as Record<string, unknown>) || auditEvent.data || {},
       duration: evt.duration as number | undefined,
       severity: (evt.severity as string) || 'low'
     };

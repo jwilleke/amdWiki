@@ -102,8 +102,7 @@ class RedisCacheProvider extends BaseCacheProvider {
    * @param {string} _key - The cache key
    * @returns {Promise<T | undefined>} The cached value or undefined if not found
    */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Dynamic type
-  get<T = any>(_key: string): Promise<T | undefined> {
+  get<T = unknown>(_key: string): Promise<T | undefined> {
     // TODO: Implement
     // const result = await this._client.get(this._config!.keyPrefix + key);
     // if (result) {
@@ -121,8 +120,7 @@ class RedisCacheProvider extends BaseCacheProvider {
    * @param {number} [_ttlSec] - Time to live in seconds
    * @returns {Promise<void>}
    */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Dynamic type
-  set<T = any>(_key: string, _value: T, _ttlSec?: number): Promise<void> {
+  set<T = unknown>(_key: string, _value: T, _ttlSec?: number): Promise<void> {
     // TODO: Implement
     // const fullKey = this._config!.keyPrefix + key;
     // const serialized = JSON.stringify(value);

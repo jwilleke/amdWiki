@@ -26,6 +26,7 @@ import BaseMediaProvider, { MediaItem, ScanResult } from '../providers/BaseMedia
 import FileSystemMediaProvider, { DEFAULT_MEDIA_EXTENSIONS } from '../providers/FileSystemMediaProvider';
 import { transformImage } from '../utils/imageTransform';
 import type ConfigurationManager from './ConfigurationManager';
+import type PageManager from './PageManager';
 
 class MediaManager extends BaseManager {
   /** Active media provider (null when not yet initialized) */
@@ -401,16 +402,14 @@ class MediaManager extends BaseManager {
    */
   private async checkPrivatePageAccess(wikiContext: WikiContext, pageName: string): Promise<boolean> {
     try {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- dynamic manager access mirrors WikiRoutes pattern
-      const pageManager = this.engine.getManager('PageManager');
+      const pageManager = this.engine.getManager<PageManager>('PageManager');
       if (!pageManager) return true;
 
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
-      const pageMetadata = await pageManager.getPageMetadata(pageName) as { uuid?: string } | null;
+      const pageMetadata = await pageManager.getPageMetadata(pageName);
       if (!pageMetadata?.uuid) return true;
 
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
-      const provider = (pageManager.getCurrentPageProvider?.() ?? pageManager.provider) as { pageIndex?: { pages: Record<string, { location?: string; creator?: string }> } | null } | undefined;
+      type ProviderWithIndex = { pageIndex?: { pages: Record<string, { location?: string; creator?: string }> } | null };
+      const provider = (pageManager.getCurrentPageProvider() ?? null) as unknown as ProviderWithIndex | null;
       if (!provider) return true;
 
       const pageIndex = provider.pageIndex;

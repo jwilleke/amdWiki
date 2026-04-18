@@ -280,8 +280,7 @@ class BasicAttachmentProvider extends BaseAttachmentProvider implements AssetPro
       }
 
       const data = await fs.readFile(this.metadataFile, 'utf8' as BufferEncoding);
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- JSON.parse returns any
-      const json: MetadataFile = JSON.parse(data);
+      const json: MetadataFile = JSON.parse(data) as MetadataFile;
 
       // Validate Schema.org format
       if (!json['@context'] || json['@context'] !== 'https://schema.org') {
