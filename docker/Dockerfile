@@ -70,6 +70,9 @@ COPY --from=builder /app/public ./public
 # Copy required-pages (system templates)
 COPY --from=builder /app/required-pages ./required-pages
 
+# Copy addons (compiled JS, views, public assets, seed pages, node_modules)
+COPY --from=builder /app/addons ./addons
+
 # Copy resources (if exists)
 COPY --from=builder /app/resources ./resources
 

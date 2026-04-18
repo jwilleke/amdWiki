@@ -7,6 +7,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.1.0] - 2026-04-18
+
+### Added in 3.1.0
+
+- **Journal Addon** — full personal journal/diary feature (#402)
+  - Private, dated entries stored as wiki pages with `system-category: journal`
+  - `JournalDataManager` — sidecar JSON index for fast timeline, streak, facet, and On This Day queries
+  - `JournalTemplateManager` — 4 built-in writing templates (Free Write, Morning Reflection, Evening Review, Weekly Review) + custom templates from `data/journal/templates/`
+  - `[{Journal}]` wiki plugin — embed timeline, streak, or On This Day widget on any page
+  - Timeline, tag filter, and mood filter views (`/journal`, `/journal/tag/:tag`, `/journal/mood/:mood`)
+  - New entry editor with template picker, mood picker, and voice-to-text (Web Speech API)
+  - Per-user settings page (`/journal/settings`) — default template, voice toggle, streak visibility, daily reminder time
+  - JSON and Markdown export (`/api/journal/export/json`, `/api/journal/export/markdown`)
+  - Daily in-app reminder scheduler via `NotificationManager`
+  - Admin stats panel at `/admin/journal`
+  - `[journal]` wiki link alias redirects to `/journal`
+  - 29 unit tests for `JournalDataManager`
+
+### Fixed in 3.1.0
+
+- Removed hardcoded Home/Search/Create fallback from `header.ejs` — sidebar now renders empty when `LeftMenu` page is missing, with a `logger.warn` emitted
+- Docker image now correctly copies `addons/` directory (views, public assets, seed pages, compiled JS) into the runtime stage
+- Emoji shortcode inline autocomplete and picker modal (#512)
+- Strip `data-jspwiki-id` from final HTML output (#503)
+- Unified preview and view rendering paths via WikiContext (#510)
+
 ### Added
 
 - **WikiDocument DOM Parsing Architecture**: Production deployment of JSPWiki-inspired DOM-based parser (Epic #114)
