@@ -812,5 +812,4 @@ export default FilterChain;
 
 // Export for CommonJS (Jest compatibility)
 module.exports = FilterChain;
-// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access -- Untyped library
-module.exports.default = FilterChain;
+(module.exports as Record<string, unknown>).default = FilterChain;

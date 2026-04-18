@@ -138,9 +138,8 @@ class WikiDocument {
    * @param context - Rendering context (stored as WeakRef)
    */
   constructor(pageData: string, context?: WikiContext) {
-    // Create a minimal HTML document using linkedom
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call -- Untyped linkedom
-    const { document }: ParseHTMLResult = parseHTML('<!DOCTYPE html><html><body></body></html>');
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call -- no types for linkedom
+    const { document } = parseHTML('<!DOCTYPE html><html><body></body></html>') as ParseHTMLResult;
 
     this.document = document;
     this.root = document.body;
@@ -489,5 +488,4 @@ export default WikiDocument;
 
 // Export for CommonJS (Jest compatibility)
 module.exports = WikiDocument;
-// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access -- Untyped library
-module.exports.default = WikiDocument;
+(module.exports as Record<string, unknown>).default = WikiDocument;
