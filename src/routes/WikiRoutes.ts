@@ -7424,8 +7424,7 @@ class WikiRoutes {
       }
 
       // Generate Schema.org JSON-LD using SchemaGenerator
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- SchemaManager returns unknown; SchemaGenerator accepts any
-      const schema = SchemaGenerator.generateOrganizationSchema(organization as any, {
+      const schema = SchemaGenerator.generateOrganizationSchema(organization as Record<string, unknown>, {
         baseUrl: `${req.protocol}://${req.get('host')}`
       });
 
@@ -7459,8 +7458,7 @@ class WikiRoutes {
       }
 
       // Generate Schema.org JSON-LD using SchemaGenerator
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- SchemaManager returns unknown; SchemaGenerator accepts any
-      const schema = SchemaGenerator.generatePersonSchema(person as any, {
+      const schema = SchemaGenerator.generatePersonSchema(person as Record<string, unknown>, {
         baseUrl: `${req.protocol}://${req.get('host')}`
       });
 
