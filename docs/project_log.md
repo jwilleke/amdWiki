@@ -22,6 +22,60 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - [file2.md]
 ```
 
+## 2026-04-18-07
+
+- Agent: Claude
+- Subject: TypeScript migration (#186) — scripts/, tests/e2e/, elasticsearch test converted; old .js files removed
+- Current Issue: #186
+- Work Done:
+  - Converted 18 scripts/*.js → scripts/*.ts with proper ESM top-level imports
+  - Updated package.json npm scripts: node scripts/*.js → tsx scripts/*.ts
+  - Converted 10 tests/e2e/*.spec.js → *.spec.ts and tests/e2e/fixtures/*.js →*.ts
+  - Converted addons/elasticsearch/__tests__/Sist2AssetProvider.test.js → .ts
+  - Added scripts/__/*.ts and tests/e2e/__/*.ts to tsconfig.test.json include
+  - Removed stale plugins/**/*.ts from tsconfig.test.json (moved to src/plugins/ in #538)
+  - Added ESLint override block for scripts/ and tests/e2e/ relaxing type-safety rules (same pattern as test file overrides)
+  - Fixed comma syntax error introduced in eslint.config.mjs when adding override block
+  - Fixed @ts-ignore → @ts-expect-error in mobile-navigation.spec.ts
+  - Staged and committed deletion of all 29 old .js source files
+  - All 112 test suites (2928 tests) passing; build clean
+  - Commented on #186 with progress update
+- Commits: 6dd7f944, e0d88933
+- Files Modified:
+  - scripts/analyze-test-pages.ts (renamed from .js)
+  - scripts/check-duplicate-pages.ts (renamed from .js)
+  - scripts/check-metadata-compliance.ts (renamed from .js)
+  - scripts/configurationmanage-get-config.ts (renamed from .js)
+  - scripts/dom-performance.ts (renamed from .js)
+  - scripts/fix-page-index-editor.ts (renamed from .js)
+  - scripts/fix-required-pages-editor.ts (renamed from .js)
+  - scripts/maintain-versions.ts (renamed from .js)
+  - scripts/migrate-br-to-backslash.ts (renamed from .js)
+  - scripts/migrate-config-keys.ts (renamed from .js)
+  - scripts/migrate-developer-pages.ts (renamed from .js)
+  - scripts/migrate-to-versioning.ts (renamed from .js)
+  - scripts/performance-test.ts (renamed from .js)
+  - scripts/seed-e2e-test-data.ts (renamed from .js)
+  - scripts/test-bulk-import.ts (renamed from .js)
+  - scripts/test-mcp-bulk-upload.ts (renamed from .js)
+  - scripts/validate-pages.ts (renamed from .js)
+  - scripts/version.ts (renamed from .js)
+  - tests/e2e/admin-maintenance.spec.ts (renamed from .js)
+  - tests/e2e/admin.spec.ts (renamed from .js)
+  - tests/e2e/auth.setup.ts (renamed from .js)
+  - tests/e2e/auth.spec.ts (renamed from .js)
+  - tests/e2e/fixtures/auth.ts (renamed from .js)
+  - tests/e2e/fixtures/helpers.ts (renamed from .js)
+  - tests/e2e/location-plugin.spec.ts (renamed from .js)
+  - tests/e2e/mobile-navigation.spec.ts (renamed from .js)
+  - tests/e2e/pages.spec.ts (renamed from .js)
+  - tests/e2e/search.spec.ts (renamed from .js)
+  - tests/e2e/startup-maintenance.spec.ts (renamed from .js)
+  - addons/elasticsearch/__tests__/Sist2AssetProvider.test.ts (renamed from .js)
+  - package.json
+  - tsconfig.test.json
+  - eslint.config.mjs
+
 ## 2026-04-18-06
 
 - Agent: Claude
