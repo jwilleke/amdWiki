@@ -271,14 +271,12 @@ class WikiRoutes {
       userAgent: req.headers['user-agent'] || 'Unknown',
       clientIp:
         req.ip ||
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Express socket access
-        (req as any).connection?.remoteAddress ||
+        req.socket?.remoteAddress ||
         (req.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim() ||
         'Unknown',
       referer: (req.headers.referer || req.headers.referrer || 'Direct') as string,
       acceptLanguage: req.headers['accept-language'] || 'Unknown',
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Express session access
-      sessionId: (req as any).session?.id || (req as any).sessionID || 'None'
+      sessionId: req.session?.id || req.sessionID || 'None'
     };
   }
 
@@ -448,8 +446,7 @@ class WikiRoutes {
    */
   getRequestContext(req: Request): { ip: string; userAgent: string | undefined; referer: string | undefined; timestamp: string } {
     return {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Express socket access
-      ip: req.ip || (req as any).connection?.remoteAddress || 'unknown',
+      ip: req.ip || req.socket?.remoteAddress || 'unknown',
       userAgent: req.get('User-Agent'),
       referer: req.get('Referer'),
       timestamp: new Date().toISOString()
@@ -461,32 +458,28 @@ class WikiRoutes {
    */
   getActiveSesssionCount(req: Request, res: Response): void {
     try {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Express session store access
-      const store = (req as any).sessionStore;
+      const store = req.sessionStore;
       if (!store) {
         res.status(503).json({ error: 'Session store not available' });
         return;
       }
 
       if (typeof store.length === 'function') {
-        store.length((err: Error | null, count: number) => {
+        store.length((err: unknown, count?: number) => {
           if (err) {
             res.status(500).json({ error: 'Failed to obtain session count' });
             return;
           }
-          // Return both sessionCount and distinctUsers
-          // For now, distinctUsers = sessionCount (until we implement user tracking)
           res.json({
             sessionCount: count || 0,
-            distinctUsers: count || 0  // TODO: Implement actual distinct user tracking
+            distinctUsers: count || 0
           });
         });
         return;
       }
 
       if (typeof store.all === 'function') {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any -- session data is dynamic
-        store.all((err: Error | null, sessions: Record<string, any>) => {
+        store.all((err: unknown, sessions) => {
           if (err)
             return res
               .status(500)
@@ -536,29 +529,29 @@ class WikiRoutes {
    */
   getActiveSessionUsers(req: Request, res: Response): void {
     try {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Express session store access
-      const store = (req as any).sessionStore;
+      const store = req.sessionStore;
       if (!store) {
         res.status(503).json({ error: 'Session store not available' });
         return;
       }
 
       if (typeof store.all === 'function') {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any -- session data is dynamic
-        store.all((err: Error | null, sessions: Record<string, any>) => {
+        store.all((err: unknown, sessions) => {
           if (err) {
             res.status(500).json({ error: 'Failed to obtain session users' });
             return;
           }
-          const sessionArray = Array.isArray(sessions)
-            ? sessions
-            : sessions ? Object.values(sessions) : [];
+          const sessionsObj = sessions as Record<string, unknown> | unknown[] | null;
+          const sessionArray = Array.isArray(sessionsObj)
+            ? sessionsObj
+            : sessionsObj ? Object.values(sessionsObj) : [];
 
           const userSet = new Set<string>();
           let anonymous = 0;
-          for (const session of sessionArray) {
-            if (session?.username) {
-              userSet.add(String(session.username));
+          for (const rawSession of sessionArray) {
+            const session = rawSession as Record<string, unknown>;
+            if (typeof session?.username === 'string' && session.username) {
+              userSet.add(session.username);
             } else {
               anonymous++;
             }
@@ -574,7 +567,7 @@ class WikiRoutes {
 
       // Fallback: store.length only — return counts without user list
       if (typeof store.length === 'function') {
-        store.length((err: Error | null, count: number) => {
+        store.length((err: unknown, count?: number) => {
           if (err) {
             res.status(500).json({ error: 'Failed to obtain session users' });
             return;

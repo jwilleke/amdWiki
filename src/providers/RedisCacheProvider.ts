@@ -31,8 +31,7 @@ interface RedisConfig {
  * TODO: Add pub/sub for cache invalidation across instances
  */
 class RedisCacheProvider extends BaseCacheProvider {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Dynamic type
-  private _client: any;
+  private _client: unknown;
   private _config: RedisConfig | null;
 
   constructor(engine: WikiEngine) {

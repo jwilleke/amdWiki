@@ -35,12 +35,7 @@ type LunrIndex = ReturnType<typeof lunr>;
 /**
  * Lunr search result
  */
-interface LunrSearchResult {
-  ref: string;
-  score: number;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Dynamic type
-  matchData?: any;
-}
+type LunrSearchResult = lunr.Index.Result;
 
 /**
  * Document structure for indexing

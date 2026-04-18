@@ -14,6 +14,21 @@ import TurndownService from 'turndown';
 // eslint-disable-next-line @typescript-eslint/no-require-imports, @typescript-eslint/no-unsafe-assignment -- No types for linkedom
 const { parseHTML } = require('linkedom');
 
+/** Minimal DOM-like interface covering the linkedom APIs used in this file */
+interface LinkedomElement {
+  textContent?: string | null;
+  innerHTML?: string;
+  getAttribute(name: string): string | null;
+  querySelectorAll(selector: string): LinkedomElement[];
+  remove(): void;
+}
+interface LinkedomDocument {
+  querySelector(selector: string): LinkedomElement | null;
+  querySelectorAll(selector: string): LinkedomElement[];
+  body?: LinkedomElement;
+  documentElement?: LinkedomElement;
+}
+
 /** Elements to remove before content extraction */
 const REMOVE_ELEMENTS = [
   'script',
@@ -97,9 +112,8 @@ class HtmlConverter implements IContentConverter {
     const warnings: string[] = [];
     const metadata: Record<string, unknown> = {};
 
-    // Parse HTML with linkedom
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call -- linkedom untyped
-    const { document } = parseHTML(content);
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call -- no types for linkedom
+    const { document } = parseHTML(content) as { document: LinkedomDocument };
 
     // Extract metadata from <head>
     const schema = this.extractMetadata(document, metadata);
@@ -158,15 +172,13 @@ class HtmlConverter implements IContentConverter {
   /**
    * Extract metadata from HTML head and Schema.org markup
    */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- linkedom document untyped
-  private extractMetadata(document: any, metadata: Record<string, unknown>): SchemaMetadata {
+   
+  private extractMetadata(document: LinkedomDocument, metadata: Record<string, unknown>): SchemaMetadata {
     const schema: SchemaMetadata = {};
 
     // Title: <title> or og:title
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access -- linkedom
     const titleEl = document.querySelector('title');
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call -- linkedom
-    const titleText = titleEl?.textContent?.trim() as string | undefined;
+    const titleText = titleEl?.textContent?.trim();
     const ogTitle = this.getMetaContent(document, 'og:title');
     metadata['title'] = ogTitle || titleText || '';
     if (metadata['title']) {
@@ -174,9 +186,9 @@ class HtmlConverter implements IContentConverter {
     }
 
     // Canonical URL
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access -- linkedom
+     
     const canonical = document.querySelector('link[rel="canonical"]');
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call -- linkedom
+     
     const canonicalUrl = canonical?.getAttribute('href') as string | undefined;
     const ogUrl = this.getMetaContent(document, 'og:url');
     if (canonicalUrl || ogUrl) {
@@ -231,9 +243,9 @@ class HtmlConverter implements IContentConverter {
     }
 
     // Language
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access -- linkedom
+     
     const htmlEl = document.querySelector('html');
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call -- linkedom
+     
     const lang = htmlEl?.getAttribute('lang') as string | undefined;
     if (lang) {
       schema.inLanguage = lang;
@@ -248,12 +260,12 @@ class HtmlConverter implements IContentConverter {
   /**
    * Get content of a meta tag by name or property
    */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- linkedom document untyped
-  private getMetaContent(document: any, nameOrProperty: string): string | undefined {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call -- linkedom
+   
+  private getMetaContent(document: LinkedomDocument, nameOrProperty: string): string | undefined {
+     
     const el = document.querySelector(`meta[name="${nameOrProperty}"]`) ||
-      document.querySelector(`meta[property="${nameOrProperty}"]`); // eslint-disable-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call -- linkedom
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call -- linkedom
+      document.querySelector(`meta[property="${nameOrProperty}"]`);  
+     
     const val = el?.getAttribute('content') as string | undefined;
     return val?.trim() || undefined;
   }
@@ -261,17 +273,17 @@ class HtmlConverter implements IContentConverter {
   /**
    * Extract Schema.org JSON-LD data if present
    */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- linkedom document untyped
-  private extractJsonLd(document: any, schema: SchemaMetadata): void {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access -- linkedom
+   
+  private extractJsonLd(document: LinkedomDocument, schema: SchemaMetadata): void {
+     
     const scripts = document.querySelectorAll('script[type="application/ld+json"]');
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access -- linkedom
+     
     if (!scripts || scripts.length === 0) return;
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call -- linkedom
-    scripts.forEach((script: { textContent: string }) => {
+     
+    scripts.forEach((script: LinkedomElement) => {
       try {
-        const data = JSON.parse(script.textContent) as Record<string, unknown>;
+        const data = JSON.parse(script.textContent ?? '') as Record<string, unknown>;
         const type = (data['@type'] as string) || '';
 
         // Only process Article/WebPage types
@@ -314,13 +326,13 @@ class HtmlConverter implements IContentConverter {
   /**
    * Remove unwanted elements from the document
    */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- linkedom document untyped
-  private removeElements(document: any, warnings: string[]): void {
+   
+  private removeElements(document: LinkedomDocument, warnings: string[]): void {
     let removedCount = 0;
     for (const selector of REMOVE_ELEMENTS) {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access -- linkedom
+       
       const elements = document.querySelectorAll(selector);
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call -- linkedom
+       
       elements.forEach((el: { remove: () => void }) => {
         el.remove();
         removedCount++;
@@ -336,14 +348,14 @@ class HtmlConverter implements IContentConverter {
    * Extract the primary content from the document
    * Tries article, main, [role=main], .content, then falls back to body
    */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- linkedom document untyped
-  private extractContent(document: any, warnings: string[]): string {
+   
+  private extractContent(document: LinkedomDocument, warnings: string[]): string {
     // Try each content selector in priority order
     for (const selector of CONTENT_SELECTORS) {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access -- linkedom
+       
       const el = document.querySelector(selector);
       if (el) {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access -- linkedom
+         
         const html = el.innerHTML as string;
         if (html && html.trim().length > 100) {
           return html;
@@ -352,17 +364,17 @@ class HtmlConverter implements IContentConverter {
     }
 
     // Fall back to body
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access -- linkedom
+     
     const body = document.querySelector('body');
     if (body) {
       warnings.push('No article/main element found — used full body content');
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access -- linkedom
+       
       return body.innerHTML as string;
     }
 
     // Last resort: entire document
     warnings.push('No body element found — used entire document');
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access -- linkedom
+     
     return document.documentElement?.innerHTML as string || '';
   }
 
