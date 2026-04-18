@@ -27,6 +27,7 @@
 
 import type { Request } from 'express';
 import type { WikiEngine } from '../types/WikiEngine';
+import type ConfigurationManager from '../managers/ConfigurationManager';
 
 // ── ApiError ────────────────────────────────────────────────────────────────
 
@@ -140,6 +141,37 @@ export class ApiContext {
    */
   requireRole(...roles: string[]): void {
     if (!this.hasRole(...roles)) {
+      throw new ApiError(403, 'Forbidden');
+    }
+  }
+
+  /**
+   * Returns true if the caller's already-resolved roles grant the given permission.
+   *
+   * Reads `ngdpbase.roles.definitions` from ConfigurationManager (in-memory) —
+   * no async DB call needed since roles are resolved at session time.
+   *
+   * @example
+   * if (ctx.hasPermission('user-read')) { // include PII fields }
+   */
+  hasPermission(permission: string): boolean {
+    const cm = this.engine.getManager<ConfigurationManager>('ConfigurationManager');
+    if (!cm) return false;
+    const defs = cm.getProperty('ngdpbase.roles.definitions', {}) as Record<string, { permissions?: string[] }>;
+    return this.roles.some(role => {
+      const roleDef = defs[role];
+      return Array.isArray(roleDef?.permissions) && roleDef.permissions.includes(permission);
+    });
+  }
+
+  /**
+   * Throws `ApiError(403)` if the caller's roles do not grant the given permission.
+   *
+   * @example
+   * ctx.requirePermission('search-user'); // → 403 if no role grants it
+   */
+  requirePermission(permission: string): void {
+    if (!this.hasPermission(permission)) {
       throw new ApiError(403, 'Forbidden');
     }
   }

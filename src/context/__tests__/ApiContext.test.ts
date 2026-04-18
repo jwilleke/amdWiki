@@ -162,6 +162,110 @@ describe('ApiContext#requireAuthenticated()', () => {
   });
 });
 
+// ── hasPermission() ───────────────────────────────────────────────────────────
+
+describe('ApiContext#hasPermission()', () => {
+  const roleDefs = {
+    admin:      { permissions: ['search-user', 'user-read', 'admin-system'] },
+    'user-admin': { permissions: ['search-user', 'user-read'] },
+    editor:     { permissions: ['page-edit', 'search-page'] },
+    reader:     { permissions: ['page-read'] }
+  };
+
+  function makeEngineWithDefs() {
+    return {
+      getManager: jest.fn().mockReturnValue({
+        getProperty: jest.fn((key, def) =>
+          key === 'ngdpbase.roles.definitions' ? roleDefs : def
+        )
+      })
+    };
+  }
+
+  function ctxWithRoles(engine, ...roles) {
+    return ApiContext.from(
+      makeReq({ userContext: { roles, isAuthenticated: true } }),
+      engine
+    );
+  }
+
+  test('returns true when a role grants the permission', () => {
+    const engine = makeEngineWithDefs();
+    const ctx = ctxWithRoles(engine, 'editor');
+    expect(ctx.hasPermission('page-edit')).toBe(true);
+  });
+
+  test('returns true when any of caller\'s roles grants the permission', () => {
+    const engine = makeEngineWithDefs();
+    const ctx = ctxWithRoles(engine, 'reader', 'user-admin');
+    expect(ctx.hasPermission('search-user')).toBe(true);
+  });
+
+  test('returns false when no role grants the permission', () => {
+    const engine = makeEngineWithDefs();
+    const ctx = ctxWithRoles(engine, 'reader');
+    expect(ctx.hasPermission('search-user')).toBe(false);
+  });
+
+  test('returns false when caller has no roles', () => {
+    const engine = makeEngineWithDefs();
+    const ctx = ctxWithRoles(engine);
+    expect(ctx.hasPermission('page-read')).toBe(false);
+  });
+
+  test('returns false when ConfigurationManager is unavailable', () => {
+    const engine = { getManager: jest.fn().mockReturnValue(null) };
+    const ctx = ctxWithRoles(engine, 'admin');
+    expect(ctx.hasPermission('admin-system')).toBe(false);
+  });
+
+  test('returns false when role not found in definitions', () => {
+    const engine = makeEngineWithDefs();
+    const ctx = ctxWithRoles(engine, 'unknown-role');
+    expect(ctx.hasPermission('page-read')).toBe(false);
+  });
+});
+
+// ── requirePermission() ───────────────────────────────────────────────────────
+
+describe('ApiContext#requirePermission()', () => {
+  const roleDefs = {
+    admin: { permissions: ['search-user', 'user-read'] },
+    reader: { permissions: ['page-read'] }
+  };
+
+  function makeEngineWithDefs() {
+    return {
+      getManager: jest.fn().mockReturnValue({
+        getProperty: jest.fn((key, def) =>
+          key === 'ngdpbase.roles.definitions' ? roleDefs : def
+        )
+      })
+    };
+  }
+
+  test('does not throw when caller has the permission', () => {
+    const engine = makeEngineWithDefs();
+    const ctx = ApiContext.from(
+      makeReq({ userContext: { roles: ['admin'], isAuthenticated: true } }),
+      engine
+    );
+    expect(() => ctx.requirePermission('search-user')).not.toThrow();
+  });
+
+  test('throws ApiError(403) when caller lacks the permission', () => {
+    const engine = makeEngineWithDefs();
+    const ctx = ApiContext.from(
+      makeReq({ userContext: { roles: ['reader'], isAuthenticated: true } }),
+      engine
+    );
+    expect(() => ctx.requirePermission('search-user')).toThrow(ApiError);
+    try { ctx.requirePermission('search-user'); } catch (err) {
+      expect(err.status).toBe(403);
+    }
+  });
+});
+
 // ── requireRole() ─────────────────────────────────────────────────────────────
 
 describe('ApiContext#requireRole()', () => {

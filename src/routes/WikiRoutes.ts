@@ -46,6 +46,7 @@ import type RenderingManager from '../managers/RenderingManager';
 import type TemplateManager from '../managers/TemplateManager';
 import type ValidationManager from '../managers/ValidationManager';
 import type VariableManager from '../managers/VariableManager';
+import { ApiContext, ApiError } from '../context/ApiContext';
 
 /** Helper to extract error message from unknown error */
 function getErrorMessage(error: unknown): string {
@@ -103,6 +104,7 @@ interface IUserManager {
   updateRolePermissions(role: string, permissions: unknown): Promise<unknown>;
   authenticateUser(username: string, password: string): Promise<unknown>;
   getSession(req: Request): Promise<unknown>;
+  searchUsers(query: string, options?: { role?: string; limit?: number; activeOnly?: boolean }): Promise<{ username: string; displayName?: string; email?: string; roles?: string[]; [key: string]: unknown }[]>;
 }
 
 interface IConfigManager {
@@ -3704,6 +3706,42 @@ class WikiRoutes {
       res.json(info);
     } catch (err: unknown) {
       logger.error('Error getting user info:', err);
+      res.status(500).json({ error: getErrorMessage(err) });
+    }
+  }
+
+  /**
+   * GET /api/users/search?q=&role=&limit=&activeOnly=
+   *
+   * Requires search-user permission (derived from caller's roles via WikiContext).
+   * Returns full profile when caller also has user-read; otherwise strips to
+   * { username, displayName } only to protect PII.
+   */
+  async apiUsersSearch(req: Request, res: Response): Promise<void> {
+    try {
+      const ctx = ApiContext.from(req, this.engine as unknown as import('../types/WikiEngine').WikiEngine);
+      ctx.requireAuthenticated();
+      ctx.requirePermission('search-user');
+
+      const userManager = this.engine.getManager('UserManager') as IUserManager | null;
+      if (!userManager) { res.status(503).json({ error: 'UserManager not available' }); return; }
+
+      const q          = typeof req.query['q']          === 'string' ? req.query['q']    : '';
+      const role       = typeof req.query['role']       === 'string' ? req.query['role'] : undefined;
+      const limitRaw   = parseInt(typeof req.query['limit'] === 'string' ? req.query['limit'] : '50', 10);
+      const limit      = isNaN(limitRaw) ? 50 : limitRaw;
+      const activeOnly = req.query['activeOnly'] !== 'false';
+
+      const results = await userManager.searchUsers(q, { role, limit, activeOnly });
+
+      const canReadFull = ctx.hasPermission('user-read');
+      const payload = canReadFull
+        ? results
+        : results.map((u: { username: string; displayName?: string }) => ({ username: u.username, displayName: u.displayName }));
+
+      res.json({ results: payload, total: payload.length });
+    } catch (err: unknown) {
+      if (err instanceof ApiError) { res.status(err.status).json({ error: err.message }); return; }
       res.status(500).json({ error: getErrorMessage(err) });
     }
   }
@@ -7541,6 +7579,7 @@ class WikiRoutes {
     app.post('/profile', (req: Request, res: Response) => this.updateProfile(req, res));
     app.post('/preferences', (req: Request, res: Response) => this.updatePreferences(req, res));
     app.post('/api/user/display-theme', (req: Request, res: Response) => this.updateDisplayTheme(req, res));
+    app.get('/api/users/search', (req: Request, res: Response) => void this.apiUsersSearch(req, res));
     app.get('/user-info', (req: Request, res: Response) => this.userInfo(req, res));
     app.get('/export', (req: Request, res: Response) => this.exportPage(req, res));
     app.post('/export/html/:page', (req: Request, res: Response) => this.exportPageHtml(req, res));

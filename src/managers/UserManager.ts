@@ -1014,6 +1014,33 @@ class UserManager extends BaseManager {
     return userWithoutPassword;
   }
 
+  /**
+   * Search users by username, displayName, or email (case-insensitive substring).
+   * Optionally filter by role and active status.
+   */
+  async searchUsers(
+    query: string,
+    options: { role?: string; limit?: number; activeOnly?: boolean } = {}
+  ): Promise<Omit<User, 'password'>[]> {
+    const all = await this.getUsers();
+    const q = query.trim().toLowerCase();
+    const { role, limit = 50, activeOnly = true } = options;
+
+    let results = all.filter(u => {
+      if (activeOnly && u.isActive === false) return false;
+      if (role && !u.roles.includes(role)) return false;
+      if (!q) return true;
+      return (
+        u.username.toLowerCase().includes(q) ||
+        (u.displayName ?? '').toLowerCase().includes(q) ||
+        (u.email ?? '').toLowerCase().includes(q)
+      );
+    });
+
+    if (limit > 0) results = results.slice(0, limit);
+    return results;
+  }
+
   getRoles(): Role[] {
     return Array.from(this.roles.values());
   }
