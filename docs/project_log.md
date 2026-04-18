@@ -88,6 +88,24 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - src/providers/BaseMediaProvider.ts
   - src/providers/BasicAttachmentProvider.ts
 
+## 2026-04-18-12
+
+- Agent: Claude
+- Subject: TypeScript migration (#186) — type WikiRoutes.ts getManager calls; remove no-unsafe disables on typed paths
+- Current Issue: #186
+- Work Done:
+  - Added typed overloads on local WikiEngine interface for all 26 managers in WikiRoutes.ts
+  - Added local minimal interfaces: IVersionEntry, IComparisonResult, IValidationReport, IUserManager, IConfigManager, IVersioningProvider, IPageManager, IACLManager, ISchemaManager, IPolicyManager, ISearchManager
+  - Added 20 named type imports for manager classes
+  - Fixed 138 TypeScript compile errors: provider null guards, IVersionEntry typed arrays, pageExists synchronous-only, username undefined coalescing, deletePageWithContext boolean return, OrganizationSchema any cast, MediaItem array casts, etc.
+  - 5 file-level no-unsafe disables now correctly scoped to Express req.body/req.query any-typed access (not getManager calls)
+  - Fixed no-base-to-string at line 3183: typeof guard before String(contentSize)
+  - Fixed no-explicit-any at line 7916: replaced (n: any) with (n as {expiresAt?: Date}) cast pattern
+  - Fixed no-misused-promises: pageExists typed as boolean (synchronous) only
+- Commits: c848b792
+- Files Modified:
+  - src/routes/WikiRoutes.ts
+
 ## 2026-04-18-11
 
 - Agent: Claude
