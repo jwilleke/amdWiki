@@ -125,7 +125,7 @@ async function hasText(page, text) {
   return (await element.count()) > 0;
 }
 
-export default {
+export {
   TEST_PAGE_PREFIX,
   waitForServerReady,
   waitForPageReady,
