@@ -1151,7 +1151,6 @@ class ImportManager extends BaseManager {
   /**
    * Backup manager data (no persistent data to backup)
    */
-  // eslint-disable-next-line @typescript-eslint/require-await -- Implements BaseManager async interface
   async backup(): Promise<BackupData> {
     return {
       managerName: 'ImportManager',

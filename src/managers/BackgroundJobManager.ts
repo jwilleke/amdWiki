@@ -94,7 +94,6 @@ class BackgroundJobManager extends BaseManager {
    *
    * @throws Error if jobId is not registered
    */
-  // eslint-disable-next-line @typescript-eslint/require-await
   async enqueue(jobId: string): Promise<string> {
     const existingRunId = this.activeByJobId.get(jobId);
     if (existingRunId) {

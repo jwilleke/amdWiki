@@ -866,7 +866,6 @@ class BasicAttachmentProvider extends BaseAttachmentProvider implements AssetPro
    * @param filename - Original filename to search for
    * @returns Matching attachment metadata or null
    */
-  // eslint-disable-next-line @typescript-eslint/require-await -- Synchronous map scan wrapped in async interface
   async getAttachmentByFilename(filename: string): Promise<AttachmentMetadata | null> {
     for (const schema of this.attachmentMetadata.values()) {
       if (schema.name === filename) {

@@ -240,7 +240,6 @@ class AttachmentManager extends BaseManager {
    * @returns {Promise<boolean>} True if allowed
    * @private
    */
-  // eslint-disable-next-line @typescript-eslint/require-await -- Implements BaseManager async interface
   private async checkPermission(action: string, userContext?: UserContext): Promise<boolean> {
     // Check if user is authenticated
     if (!userContext || !userContext.isAuthenticated) {

@@ -101,7 +101,6 @@ abstract class BaseManager {
    * }
    */
 
-  // eslint-disable-next-line @typescript-eslint/require-await -- Base class defines async interface for subclasses
   async initialize(config: Record<string, unknown> = {}): Promise<void> {
     this.config = config;
     this.initialized = true;
@@ -146,7 +145,6 @@ abstract class BaseManager {
    *   await super.shutdown();
    * }
    */
-  // eslint-disable-next-line @typescript-eslint/require-await -- Base class defines async interface for subclasses
   async shutdown(): Promise<void> {
     this.initialized = false;
   }
@@ -172,7 +170,6 @@ abstract class BaseManager {
    *   };
    * }
    */
-  // eslint-disable-next-line @typescript-eslint/require-await -- Base class defines async interface for subclasses
   async backup(): Promise<BackupData> {
     // Default implementation returns empty object
     // Managers with data MUST override this method
@@ -201,7 +198,6 @@ abstract class BaseManager {
    *   this.settings = backupData.data.settings;
    * }
    */
-  // eslint-disable-next-line @typescript-eslint/require-await -- Base class defines async interface for subclasses
   async restore(backupData: BackupData): Promise<void> {
     // Default implementation does nothing
     // Managers with data MUST override this method
@@ -232,7 +228,6 @@ abstract class BaseManager {
    *   return 'Recent: ' + pages.map(p => p.name).join('  •  ');
    * }
    */
-  // eslint-disable-next-line @typescript-eslint/require-await -- Base class defines async interface for subclasses
   async toMarqueeText(_options: ManagerFetchOptions = {}): Promise<string> {
     return '';
   }

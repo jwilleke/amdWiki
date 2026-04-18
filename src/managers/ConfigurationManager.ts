@@ -886,7 +886,6 @@ class ConfigurationManager extends BaseManager {
    *
    * @returns {Promise<BackupData>} Backup data containing custom configuration
    */
-  // eslint-disable-next-line @typescript-eslint/require-await -- Implements async interface from BaseManager
   async backup(): Promise<BackupData> {
     logger.info('[ConfigurationManager] Starting backup...');
 

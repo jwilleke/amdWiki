@@ -170,7 +170,6 @@ class BackupManager extends BaseManager {
    *
    * @returns {Promise<BaseBackupData>} Backup data for this manager
    */
-  // eslint-disable-next-line @typescript-eslint/require-await -- Implements async interface from BaseManager
   async backup(): Promise<BaseBackupData> {
     return {
       managerName: 'BackupManager',
@@ -188,7 +187,6 @@ class BackupManager extends BaseManager {
    * @param {BaseBackupData} backupData - Backup data from backup()
    * @returns {Promise<void>}
    */
-  // eslint-disable-next-line @typescript-eslint/require-await -- Config-driven, nothing to restore
   async restoreState(backupData: BaseBackupData): Promise<void> {
     if (backupData?.data) {
       // BackupManager state is read from config, so nothing to restore

@@ -105,7 +105,6 @@ class WikiStyleHandler extends BaseSyntaxHandler {
    * Initialize handler with modular configuration system
    * @param context - Initialization context
    */
-  // eslint-disable-next-line @typescript-eslint/require-await -- Implements BaseSyntaxHandler async interface
   protected async onInitialize(context: InitializationContext): Promise<void> {
     this.engine = context.engine as WikiEngine | undefined ?? null;
 

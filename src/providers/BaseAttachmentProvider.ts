@@ -194,7 +194,6 @@ abstract class BaseAttachmentProvider implements AttachmentProvider {
    * @param {string} filename - Original filename to search for
    * @returns {Promise<AttachmentMetadata|null>} Matching attachment metadata or null
    */
-  // eslint-disable-next-line @typescript-eslint/require-await -- Base class defines async interface for subclasses
   async getAttachmentByFilename(_filename: string): Promise<AttachmentMetadata | null> {
     return null;
   }
@@ -237,7 +236,6 @@ abstract class BaseAttachmentProvider implements AttachmentProvider {
    * Shutdown the provider (cleanup resources)
    * @returns {Promise<void>}
    */
-  // eslint-disable-next-line @typescript-eslint/require-await -- Base class defines async interface for subclasses
   async shutdown(): Promise<void> {
     this.initialized = false;
     logger.info(`${this.getProviderInfo().name} shut down`);

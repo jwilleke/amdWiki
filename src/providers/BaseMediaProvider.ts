@@ -330,7 +330,6 @@ abstract class BaseMediaProvider implements AssetProvider {
   /**
    * AssetProvider.delete() — media providers are read-only; always returns false.
    */
-  // eslint-disable-next-line @typescript-eslint/require-await
   async delete(_id: string): Promise<boolean> {
     return false;
   }

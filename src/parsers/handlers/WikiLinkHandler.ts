@@ -153,7 +153,6 @@ class WikiLinkHandler extends BaseSyntaxHandler {
    * @param _context - Parse context
    * @returns HTML link
    */
-  // eslint-disable-next-line @typescript-eslint/require-await -- Implements BaseSyntaxHandler async interface
   private async handleMatch(matchInfo: WikiLinkMatch, _context: ParseContext): Promise<string> {
     const { displayText, target, parameters } = matchInfo;
 

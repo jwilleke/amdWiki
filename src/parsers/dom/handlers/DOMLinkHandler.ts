@@ -388,7 +388,6 @@ class DOMLinkHandler {
    * @param linkType - Link type
    * @param context - Rendering context
    */
-  // eslint-disable-next-line @typescript-eslint/require-await -- Implements DOM handler async interface
   async processLinkByType(linkElement: LinkedomElement, linkInfo: LinkInfo, linkType: LinkType, context: RenderContext): Promise<void> {
     switch (linkType) {
     case 'internal':
@@ -604,7 +603,6 @@ class DOMLinkHandler {
    * const node = await handler.createNodeFromExtract(element, context, wikiDoc);
    * // Returns: <a class="wiki-link wikipage" href="/view/PageName" data-jspwiki-id="1">Click Here</a>
    */
-  // eslint-disable-next-line @typescript-eslint/require-await -- Implements DOM handler async interface
   async createNodeFromExtract(element: ExtractedLinkElement, _context: RenderContext, wikiDocument: WikiDocument): Promise<LinkedomElement> {
     // Get LinkParser dynamically
     if (!this.linkParser) {

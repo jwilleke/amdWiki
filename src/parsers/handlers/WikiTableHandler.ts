@@ -45,12 +45,10 @@ class WikiTableHandler extends BaseSyntaxHandler {
     this.handlerId = 'WikiTableHandler';
   }
 
-  // eslint-disable-next-line @typescript-eslint/require-await -- Implements BaseSyntaxHandler async interface
   protected async onInitialize(_context: InitializationContext): Promise<void> {
     logger.debug('WikiTableHandler initialized');
   }
 
-  // eslint-disable-next-line @typescript-eslint/require-await -- Implements BaseSyntaxHandler async interface
   async process(content: string, _context: ParseContext): Promise<string> {
     if (!content || typeof content !== 'string') {
       return content;

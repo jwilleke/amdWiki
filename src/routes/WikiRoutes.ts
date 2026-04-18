@@ -2722,7 +2722,7 @@ class WikiRoutes {
         try {
           const page = await assetService.search({ query: attachmentQuery, types: ['attachment'], pageSize: 500, wikiContext });
           attachmentResults = mimeType
-            ? page.results.filter(r => r.encodingFormat.toLowerCase().startsWith(mimeType.toLowerCase()))
+            ? page.results.filter((r: { encodingFormat: string }) => r.encodingFormat.toLowerCase().startsWith(mimeType.toLowerCase()))
             : page.results;
         } catch (attachErr) {
           logger.warn('Error searching attachments via AssetService:', attachErr);
@@ -6405,11 +6405,11 @@ class WikiRoutes {
         const allPages = await pageManager.getAllPages();
         const qLower = query.toLowerCase();
         const filtered = qLower
-          ? allPages.filter(p => p.toLowerCase().includes(qLower))
+          ? allPages.filter((p: string) => p.toLowerCase().includes(qLower))
           : allPages;
         const total = filtered.length;
         const slice = filtered.slice(offset, offset + pageSize);
-        const results = slice.map(pageName => ({
+        const results = (slice as string[]).map((pageName: string) => ({
           id: pageName,
           providerId: 'page',
           filename: pageName,

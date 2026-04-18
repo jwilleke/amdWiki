@@ -171,7 +171,6 @@ class ACLManager extends BaseManager {
    * await aclManager.initialize();
    * console.log('ACL system ready');
    */
-  // eslint-disable-next-line @typescript-eslint/require-await -- Synchronous initialization from config
   async initialize(): Promise<void> {
     const configManager = this.engine.getManager<ConfigurationManager>('ConfigurationManager');
     if (!configManager) {
@@ -214,7 +213,6 @@ class ACLManager extends BaseManager {
   /**
    * Load access policies from ConfigurationManager.
    */
-  // eslint-disable-next-line @typescript-eslint/require-await -- Synchronous load from config
   async loadAccessPolicies(): Promise<void> {
     const configManager = this.engine.getManager<ConfigurationManager>('ConfigurationManager');
     if (!configManager) {
@@ -847,7 +845,6 @@ class ACLManager extends BaseManager {
    * Check custom schedule
    * @private
    */
-  // eslint-disable-next-line @typescript-eslint/require-await -- Placeholder for future async implementation
   private async checkCustomSchedule(_user: UserContext, _context: Record<string, unknown>, _currentDate: string, _currentTime: string, _schedules: SchedulesConfig): Promise<Partial<PermissionResult>> {
     // Placeholder for custom schedule logic
     return {};
