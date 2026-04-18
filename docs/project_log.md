@@ -2,6 +2,21 @@
 
 AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version history.
 
+## 2026-04-18-18
+
+- Agent: Claude
+- Subject: Fix #540 — /journal/new auto-creates stub and redirects to standard editor
+- Current Issue: #540
+- Work Done:
+  - Rewrote GET /journal/new: auto-creates stub journal entry (correct frontmatter: system-category journal, journal-date, system-location private, author-lock) then redirects to /edit/:slug (standard editor)
+  - If entry for today already exists, redirects directly to /edit/:slug without re-creating
+  - Updated POST /journal/new: on duplicate-date check and on success, redirects to /edit/:slug instead of old journal routes
+  - Removed now-unused moodOptions() helper function from editor.ts
+  - Commented on #540 with updated fix details
+- Commits: 3f880d89
+- Files Modified:
+  - addons/journal/routes/editor.ts
+
 ## 2026-04-18-17
 
 - Agent: Claude
