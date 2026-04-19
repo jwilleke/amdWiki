@@ -223,6 +223,11 @@ class BasicAttachmentProvider extends BaseAttachmentProvider implements AssetPro
     // Load metadata
     await this.loadMetadata();
 
+    // Auto-correct stale storageLocation paths after a data migration.
+    // If any entry's directory no longer matches the configured storageDirectory,
+    // rewrite it in place and persist — prevents 404s without any manual intervention.
+    await this.migrateStaleStoragePaths();
+
     this.initialized = true;
     logger.info(`[BasicAttachmentProvider] Initialized with ${this.attachmentMetadata.size} attachments.`);
   }
@@ -261,6 +266,37 @@ class BasicAttachmentProvider extends BaseAttachmentProvider implements AssetPro
     if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(2)} KB`;
     if (bytes < 1024 * 1024 * 1024) return `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
     return `${(bytes / (1024 * 1024 * 1024)).toFixed(2)} GB`;
+  }
+
+  /**
+   * Rewrite stale storageLocation paths after a data migration.
+   *
+   * Compares each entry's directory against the current storageDirectory.
+   * If they differ, the absolute path is replaced with the correct one
+   * (preserving the basename/hash filename) and metadata is saved once.
+   * Private attachments are corrected to their per-creator subdirectory.
+   */
+  private async migrateStaleStoragePaths(): Promise<void> {
+    if (!this.storageDirectory) return;
+
+    let migrated = 0;
+    for (const [, entry] of this.attachmentMetadata) {
+      const basename = path.basename(entry.storageLocation);
+      const expectedDir = (entry.isPrivate && entry.creator && this.privateStorageDir)
+        ? path.join(this.privateStorageDir, entry.creator)
+        : this.storageDirectory;
+      const expectedPath = path.join(expectedDir, basename);
+
+      if (entry.storageLocation !== expectedPath) {
+        entry.storageLocation = expectedPath;
+        migrated++;
+      }
+    }
+
+    if (migrated > 0) {
+      logger.warn(`[BasicAttachmentProvider] Migrated ${migrated} stale attachment path(s) to ${this.storageDirectory}`);
+      await this.saveMetadata();
+    }
   }
 
   /**

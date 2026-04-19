@@ -13,6 +13,37 @@
         </a>
       </div>
 
+      <!-- User Search/Filter -->
+      <div class="row mb-3 g-2 align-items-end">
+        <div class="col-md-5">
+          <div class="input-group">
+            <span class="input-group-text"><i class="fas fa-search"></i></span>
+            <input type="text" id="userSearchInput" class="form-control" placeholder="Search by username, name, or email…" oninput="filterUsers()">
+          </div>
+        </div>
+        <div class="col-md-3">
+          <select id="userRoleFilter" class="form-select" onchange="filterUsers()">
+            <option value="">All roles</option>
+            <% const allRoles = [...new Set(users.flatMap(u => u.roles))].sort(); %>
+            <% allRoles.forEach(role => { %>
+              <option value="<%= role %>"><%= role %></option>
+            <% }); %>
+          </select>
+        </div>
+        <div class="col-md-2">
+          <select id="userStatusFilter" class="form-select" onchange="filterUsers()">
+            <option value="">All statuses</option>
+            <option value="active">Active</option>
+            <option value="inactive">Inactive</option>
+          </select>
+        </div>
+        <div class="col-md-2">
+          <button class="btn btn-outline-secondary w-100" onclick="clearUserFilters()">
+            <i class="fas fa-times"></i> Clear
+          </button>
+        </div>
+      </div>
+
       <!-- Success/Error Messages -->
       <% if (successMessage) { %>
         <div class="alert alert-success alert-dismissible fade show" role="alert">
@@ -28,10 +59,10 @@
         </div>
       <% } %>
 
-      <!-- User Statistics -->
+      <!-- User Statistics — clickable cards act as quick filters -->
       <div class="row mb-4">
         <div class="col-md-3">
-          <div class="card bg-primary text-white" >
+          <div class="card bg-primary text-white" style="cursor:pointer;" onclick="setQuickFilter('total')" id="statCard-total" title="Show all users">
             <div class="card-body">
               <h5 class="card-title">Total Users</h5>
               <h3><%= users.length %></h3>
@@ -39,7 +70,7 @@
           </div>
         </div>
         <div class="col-md-3">
-          <div class="card bg-success text-white" >
+          <div class="card bg-success text-white" style="cursor:pointer;" onclick="setQuickFilter('active')" id="statCard-active" title="Filter: Active users">
             <div class="card-body">
               <h5 class="card-title">Active Users</h5>
               <h3><%= users.filter(u => u.isActive).length %></h3>
@@ -47,7 +78,7 @@
           </div>
         </div>
         <div class="col-md-3">
-          <div class="card bg-info text-dark" >
+          <div class="card bg-info text-dark" style="cursor:pointer;" onclick="setQuickFilter('admin')" id="statCard-admin" title="Filter: Admin users">
             <div class="card-body">
               <h5 class="card-title">Admin Users</h5>
               <h3><%= users.filter(u => u.roles.includes('admin')).length %></h3>
@@ -55,7 +86,7 @@
           </div>
         </div>
         <div class="col-md-3">
-          <div class="card bg-warning text-dark" >
+          <div class="card bg-warning text-dark" style="cursor:pointer;" onclick="setQuickFilter('system')" id="statCard-system" title="Filter: System users">
             <div class="card-body">
               <h5 class="card-title">System Users</h5>
               <h3><%= users.filter(u => u.isSystem).length %></h3>
@@ -86,7 +117,12 @@
               </thead>
               <tbody>
                 <% users.forEach(user => { %>
-                <tr>
+                <tr data-username="<%= user.username.toLowerCase() %>"
+                    data-displayname="<%= (user.displayName || '').toLowerCase() %>"
+                    data-email="<%= (user.email || '').toLowerCase() %>"
+                    data-roles="<%= user.roles.join(' ').toLowerCase() %>"
+                    data-status="<%= user.isActive ? 'active' : 'inactive' %>"
+                    data-system="<%= user.isSystem ? 'true' : 'false' %>">
                   <td>
                     <strong><%= user.username %></strong>
                     <% if (user.isSystem) { %>
@@ -133,6 +169,9 @@
                   </td>
                 </tr>
                 <% }); %>
+                <tr id="noUsersFound" style="display:none;">
+                  <td colspan="8" class="text-center text-muted py-3">No users match the current filters.</td>
+                </tr>
               </tbody>
             </table>
           </div>
@@ -232,6 +271,58 @@
 </div>
 
 <script>
+let activeQuickFilter = null;
+
+function setQuickFilter(type) {
+  // Toggle off if already active
+  if (activeQuickFilter === type) {
+    activeQuickFilter = null;
+  } else {
+    activeQuickFilter = type;
+  }
+  updateStatCardHighlight();
+  filterUsers();
+}
+
+function updateStatCardHighlight() {
+  ['total','active','admin','system'].forEach(id => {
+    const card = document.getElementById('statCard-' + id);
+    if (!card) return;
+    card.style.opacity = (!activeQuickFilter || activeQuickFilter === id) ? '1' : '0.5';
+    card.style.outline = activeQuickFilter === id ? '3px solid white' : '';
+  });
+}
+
+function filterUsers() {
+  const q = document.getElementById('userSearchInput').value.toLowerCase();
+  const role = document.getElementById('userRoleFilter').value.toLowerCase();
+  const status = document.getElementById('userStatusFilter').value.toLowerCase();
+  const rows = document.querySelectorAll('tbody tr[data-username]');
+  let visible = 0;
+  rows.forEach(row => {
+    const matchQ = !q || row.dataset.username.includes(q) || row.dataset.displayname.includes(q) || row.dataset.email.includes(q);
+    const matchRole = !role || row.dataset.roles.split(' ').includes(role);
+    const matchStatus = !status || row.dataset.status === status;
+    const matchQuick = !activeQuickFilter || activeQuickFilter === 'total'
+      || (activeQuickFilter === 'active' && row.dataset.status === 'active')
+      || (activeQuickFilter === 'admin' && row.dataset.roles.split(' ').includes('admin'))
+      || (activeQuickFilter === 'system' && row.dataset.system === 'true');
+    const show = matchQ && matchRole && matchStatus && matchQuick;
+    row.style.display = show ? '' : 'none';
+    if (show) visible++;
+  });
+  document.getElementById('noUsersFound').style.display = visible === 0 ? '' : 'none';
+}
+
+function clearUserFilters() {
+  document.getElementById('userSearchInput').value = '';
+  document.getElementById('userRoleFilter').value = '';
+  document.getElementById('userStatusFilter').value = '';
+  activeQuickFilter = null;
+  updateStatCardHighlight();
+  filterUsers();
+}
+
 document.addEventListener('DOMContentLoaded', function() {
   const form = document.querySelector('#createUserModal form');
   const password = document.getElementById('password');
