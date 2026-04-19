@@ -351,6 +351,24 @@
                             <%- leftMenu %>
                         </div>
                     <% } %>
+                    <% if (typeof currentUser !== 'undefined' && currentUser && currentUser.isAuthenticated) {
+                       const _tmplPinned = (currentUser.preferences && Array.isArray(currentUser.preferences['nav.pinnedPages']))
+                         ? currentUser.preferences['nav.pinnedPages'] : [];
+                       if (_tmplPinned.length > 0) { %>
+                    <div class="my-links-sidebar mt-2">
+                      <h6 class="sidebar-heading text-muted fw-semibold mb-1">My Links</h6>
+                      <div style="max-height:200px;overflow-y:auto;">
+                        <ul class="list-unstyled mb-0">
+                          <% _tmplPinned.forEach(function(p) { %>
+                          <li class="d-flex align-items-center gap-1 py-0">
+                            <a href="/wiki/<%= encodeURIComponent(p.pageName) %>" class="flex-grow-1 text-truncate small"><i class="fas fa-bookmark me-1"></i><%= p.title || p.pageName %></a>
+                            <button type="button" class="btn btn-link btn-sm p-0 text-muted" title="Remove" onclick="removePinnedPage('<%= p.pageName.replace(/'/g, "\\'") %>')">&times;</button>
+                          </li>
+                          <% }); %>
+                        </ul>
+                      </div>
+                    </div>
+                    <% } } %>
 
                 </div>
             </nav>
