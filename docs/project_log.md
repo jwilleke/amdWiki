@@ -2,6 +2,23 @@
 
 AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version history.
 
+## 2026-04-19-06
+
+- Agent: Claude
+- Subject: Improve /metrics routing; add Metrics admin dashboard card and Using Metrics documentation
+- Current Issue: #542
+- Work Done:
+  - Refined /metrics route to serve raw Prometheus data to admins, localhost, and non-HTML Accept requests (scrapers); non-admin browsers redirect to wiki Metrics page or get 403
+  - Added `setCapability('metrics', metricsManager.isEnabled())` in WikiEngine so capability derives from `ngdpbase.telemetry.enabled` config
+  - Added Metrics card to admin dashboard, gated on `capabilities.metrics`, linking to /view/Using Metrics
+  - Created required-page `Using Metrics` (c92e1ff2) — end-user docs covering enable, endpoints, config reference, metrics reference, Prometheus/OTLP setup, example PromQL queries
+- Commits: a4167c8f
+- Files Modified:
+  - src/app.ts
+  - src/WikiEngine.ts
+  - views/admin-dashboard.ejs
+  - required-pages/c92e1ff2-e038-4a49-8fd9-5ced0c318201.md
+
 ## 2026-04-19-05
 
 - Agent: Claude
