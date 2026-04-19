@@ -4114,6 +4114,74 @@ class WikiRoutes {
     }
   }
 
+  // ─── My Links (pinned pages) ───────────────────────────────────────────────
+
+  /** POST /api/user/pinned-pages — add current page to My Links */
+  async addPinnedPage(req: Request, res: Response) {
+    try {
+      const currentUser = req.userContext;
+      if (!currentUser?.isAuthenticated) return res.status(401).json({ error: 'Not authenticated' });
+      const pageName = typeof req.body?.pageName === 'string' ? req.body.pageName.trim() : '';
+      const title = typeof req.body?.title === 'string' ? req.body.title.trim() : pageName;
+      if (!pageName) return res.status(400).json({ error: 'pageName required' });
+      const userManager = this.engine.getManager('UserManager');
+      const prefs: Record<string, unknown> = { ...(currentUser.preferences as Record<string, unknown> ?? {}) };
+      const pinned: Array<{ pageName: string; title: string }> =
+        Array.isArray(prefs['nav.pinnedPages']) ? [...(prefs['nav.pinnedPages'] as Array<{ pageName: string; title: string }>)] : [];
+      if (pinned.length >= 20) return res.status(400).json({ error: 'Maximum 20 pinned pages reached' });
+      if (!pinned.find(p => p.pageName === pageName)) {
+        pinned.push({ pageName, title: title || pageName });
+      }
+      prefs['nav.pinnedPages'] = pinned;
+      await userManager.updateUser(currentUser.username ?? '', { preferences: prefs });
+      return res.json({ ok: true, pinnedPages: pinned });
+    } catch (err) {
+      logger.error('Error adding pinned page:', err);
+      return res.status(500).json({ error: 'Failed to add pinned page' });
+    }
+  }
+
+  /** DELETE /api/user/pinned-pages/:pageName — remove a page from My Links */
+  async removePinnedPage(req: Request, res: Response) {
+    try {
+      const currentUser = req.userContext;
+      if (!currentUser?.isAuthenticated) return res.status(401).json({ error: 'Not authenticated' });
+      const pageName = decodeURIComponent(req.params.pageName ?? '');
+      const userManager = this.engine.getManager('UserManager');
+      const prefs: Record<string, unknown> = { ...(currentUser.preferences as Record<string, unknown> ?? {}) };
+      const pinned: Array<{ pageName: string; title: string }> =
+        Array.isArray(prefs['nav.pinnedPages']) ? (prefs['nav.pinnedPages'] as Array<{ pageName: string; title: string }>).filter(p => p.pageName !== pageName) : [];
+      prefs['nav.pinnedPages'] = pinned;
+      await userManager.updateUser(currentUser.username ?? '', { preferences: prefs });
+      return res.json({ ok: true, pinnedPages: pinned });
+    } catch (err) {
+      logger.error('Error removing pinned page:', err);
+      return res.status(500).json({ error: 'Failed to remove pinned page' });
+    }
+  }
+
+  /** PUT /api/user/pinned-pages/order — reorder My Links */
+  async reorderPinnedPages(req: Request, res: Response) {
+    try {
+      const currentUser = req.userContext;
+      if (!currentUser?.isAuthenticated) return res.status(401).json({ error: 'Not authenticated' });
+      const order: string[] = Array.isArray(req.body?.order) ? req.body.order : [];
+      const userManager = this.engine.getManager('UserManager');
+      const prefs: Record<string, unknown> = { ...(currentUser.preferences as Record<string, unknown> ?? {}) };
+      const pinned: Array<{ pageName: string; title: string }> =
+        Array.isArray(prefs['nav.pinnedPages']) ? (prefs['nav.pinnedPages'] as Array<{ pageName: string; title: string }>) : [];
+      const reordered = order
+        .map(name => pinned.find(p => p.pageName === name))
+        .filter((p): p is { pageName: string; title: string } => p !== undefined);
+      prefs['nav.pinnedPages'] = reordered;
+      await userManager.updateUser(currentUser.username ?? '', { preferences: prefs });
+      return res.json({ ok: true });
+    } catch (err) {
+      logger.error('Error reordering pinned pages:', err);
+      return res.status(500).json({ error: 'Failed to reorder pinned pages' });
+    }
+  }
+
   /**
    * Admin dashboard
    */
@@ -7592,6 +7660,9 @@ class WikiRoutes {
     app.post('/profile', (req: Request, res: Response) => this.updateProfile(req, res));
     app.post('/preferences', (req: Request, res: Response) => this.updatePreferences(req, res));
     app.post('/api/user/display-theme', (req: Request, res: Response) => this.updateDisplayTheme(req, res));
+    app.post('/api/user/pinned-pages', (req: Request, res: Response) => void this.addPinnedPage(req, res));
+    app.delete('/api/user/pinned-pages/:pageName', (req: Request, res: Response) => void this.removePinnedPage(req, res));
+    app.put('/api/user/pinned-pages/order', (req: Request, res: Response) => void this.reorderPinnedPages(req, res));
     app.get('/api/users/search', (req: Request, res: Response) => void this.apiUsersSearch(req, res));
     app.get('/user-info', (req: Request, res: Response) => this.userInfo(req, res));
     app.get('/export', (req: Request, res: Response) => this.exportPage(req, res));

@@ -6,6 +6,14 @@
  */
 
 /**
+ * A page pinned to the user's My Links sidebar section.
+ */
+export interface PinnedPage {
+  pageName: string;
+  title: string;
+}
+
+/**
  * User preferences
  *
  * User-specific settings and preferences.
@@ -40,6 +48,9 @@ export interface UserPreferences {
 
   /** Language/locale */
   locale?: string;
+
+  /** Pages pinned to the My Links sidebar section */
+  'nav.pinnedPages'?: PinnedPage[];
 
   /** Additional custom preferences */
   [key: string]: unknown;

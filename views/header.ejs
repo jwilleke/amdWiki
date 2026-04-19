@@ -263,6 +263,21 @@
                                         <i class="fas fa-book-reader"></i> Show Reader View
                                     </a></li>
                                 <% } %>
+                                <% if (typeof currentUser !== 'undefined' && currentUser && currentUser.isAuthenticated && typeof pageName !== 'undefined' && pageName) {
+                                    const _myLinksPinned = (currentUser.preferences && Array.isArray(currentUser.preferences['nav.pinnedPages'])) ? currentUser.preferences['nav.pinnedPages'] : [];
+                                    const _isMyLinksPinned = _myLinksPinned.some(function(p) { return p.pageName === pageName; });
+                                %>
+                                <li><hr class="dropdown-divider"></li>
+                                <% if (_isMyLinksPinned) { %>
+                                <li><a class="dropdown-item" href="#" onclick="removePinnedPage('<%= pageName.replace(/'/g, "\\'") %>'); return false;">
+                                    <i class="fas fa-bookmark me-2 text-primary"></i> Remove from My Links
+                                </a></li>
+                                <% } else { %>
+                                <li><a class="dropdown-item" href="#" onclick="addPinnedPage('<%= pageName.replace(/'/g, "\\'") %>', '<%= (typeof title !== 'undefined' && title ? title : pageName).replace(/'/g, "\\'") %>'); return false;">
+                                    <i class="fas fa-bookmark me-2"></i> Add to My Links
+                                </a></li>
+                                <% } %>
+                                <% } %>
                                 <li><hr class="dropdown-divider"></li>
                                 <li><a class="dropdown-item" href="/export">
                                     <i class="fas fa-download"></i> Export
