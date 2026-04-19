@@ -147,7 +147,7 @@ void (async (): Promise<void> => {
     }
 
     res.status(503).render('maintenance', {
-      message: 'The wiki engine is starting up. This may take a moment while pages are indexed.',
+      message: 'The system is starting up. This may take a moment while pages are indexed.',
       estimatedDuration: null,
       notifications: [],
       allowAdmins: false,
