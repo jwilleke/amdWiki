@@ -4,6 +4,9 @@
  *
  * Usage:
  *   [{ConfigAccessor key='ngdpbase.server.port'}]                                - Display single config value (formatted)
+ *   [{ConfigAccessor key='ngdpbase.server.port' caption='Port the server binds to'}] - Add a caption below the value
+ *   [{ConfigAccessor key='ngdpbase.server.port' table='true'}]                   - Force single key into table format
+ *   [{ConfigAccessor key='ngdpbase.server.*' noheader='true'}]                   - Suppress the card header on wildcard results
  *   [{ConfigAccessor key='ngdpbase.server.*'}]                                   - Display matching config values with wildcard (formatted)
  *   [{ConfigAccessor key='ngdpbase.server.port' valueonly='true'}]               - Return only the value (inline, no trailing content by default)
  *   [{ConfigAccessor key='ngdpbase.server.port' valueonly='true' after='\n'}]    - Return value with trailing newline
@@ -125,6 +128,9 @@ interface ConfigAccessorParams extends PluginParams {
   restrictEditing?: string | boolean;
   default?: string | boolean;
   storageLocation?: string;
+  caption?: string;
+  table?: string | boolean;
+  noheader?: string | boolean;
 }
 
 interface ExtendedPluginContext extends PluginContext {
@@ -1298,7 +1304,10 @@ function displayConfigValue(
   key: string,
   valueonly = false,
   before = '',
-  after: string | undefined = undefined
+  after: string | undefined = undefined,
+  caption = '',
+  forceTable = false,
+  noheader = false
 ): string {
   if (!key) {
     return '<p class="error">Missing required parameter: key</p><p class="text-muted">Usage: [{ConfigAccessor key=\'ngdpbase.some.key\'}]</p>';
@@ -1342,13 +1351,16 @@ function displayConfigValue(
     // Otherwise, return formatted HTML table
     let html = '<div class="config-accessor-plugin">\n';
     html += '  <div class="card">\n';
-    html += '    <div class="card-header">\n';
-    html += `      <h6><i class="fas fa-cog"></i> Configuration Values (${matchingKeys.length} matches)</h6>\n`;
-    html += `      <small class="text-muted">Pattern: <code>${escapeHtml(key)}</code></small>\n`;
-    html += '    </div>\n';
-    html += '    <div class="card-body">\n';
+
+    if (!noheader) {
+      html += '    <div class="card-header py-1">\n';
+      html += `      <small><i class="fas fa-cog"></i> <strong>Configuration Values</strong> (${matchingKeys.length} matches) — <code>${escapeHtml(key)}</code></small>\n`;
+      html += '    </div>\n';
+    }
+
+    html += '    <div class="card-body p-0">\n';
     html += '      <div class="table-responsive">\n';
-    html += '        <table class="table table-sm">\n';
+    html += '        <table class="table table-sm mb-0">\n';
     html += '          <thead>\n';
     html += '            <tr>\n';
     html += '              <th style="width: 40%;">Key</th>\n';
@@ -1403,21 +1415,58 @@ function displayConfigValue(
     return `<span class="config-value">${processedBefore}${escapeHtml(valStr)}${processedAfter}</span>`;
   }
 
-  // Otherwise, return formatted HTML
+  const valStr = typeof value === 'object'
+    ? JSON.stringify(value, null, 2)
+    : String(value as string | number | boolean);
+
+  // table='true': render single key as a one-row table (matches wildcard table format)
+  if (forceTable) {
+    let html = '<div class="config-accessor-plugin">\n';
+    html += '  <div class="card">\n';
+    html += '    <div class="card-body p-0">\n';
+    html += '      <div class="table-responsive">\n';
+    html += '        <table class="table table-sm mb-0">\n';
+    html += '          <thead><tr><th>Key</th><th>Value</th></tr></thead>\n';
+    html += '          <tbody>\n';
+    html += '            <tr>\n';
+    html += `              <td><code>${escapeHtml(key)}</code></td>\n`;
+    if (typeof value === 'object') {
+      html += `              <td><pre class="mb-0"><code>${escapeHtml(valStr)}</code></pre></td>\n`;
+    } else {
+      html += `              <td><code>${escapeHtml(valStr)}</code></td>\n`;
+    }
+    html += '            </tr>\n';
+    html += '          </tbody>\n';
+    html += '        </table>\n';
+    html += '      </div>\n';
+    html += '    </div>\n';
+    if (caption) {
+      html += `    <div class="card-footer py-1"><small class="text-muted">${escapeHtml(caption)}</small></div>\n`;
+    }
+    html += '  </div>\n';
+    html += '</div>\n';
+    return html;
+  }
+
+  // Default single-value card
   let html = '<div class="config-accessor-plugin">\n';
   html += '  <div class="card">\n';
-  html += '    <div class="card-header">\n';
-  html += '      <h6><i class="fas fa-cog"></i> Configuration Value</h6>\n';
+  html += '    <div class="card-header py-1">\n';
+  html += '      <small><i class="fas fa-cog"></i> <strong>Current Configuration Value</strong></small>\n';
   html += '    </div>\n';
-  html += '    <div class="card-body">\n';
-  html += `      <p><strong>Key:</strong> <code>${escapeHtml(key)}</code></p>\n`;
+  html += '    <div class="card-body py-2">\n';
+  html += `      <p class="mb-1"><strong>Key:</strong> <code>${escapeHtml(key)}</code></p>\n`;
 
   // Format value based on type
   if (typeof value === 'object') {
-    html += '      <p><strong>Value:</strong></p>\n';
-    html += `      <pre><code>${escapeHtml(JSON.stringify(value, null, 2))}</code></pre>\n`;
+    html += '      <p class="mb-1"><strong>Value:</strong></p>\n';
+    html += `      <pre class="mb-0"><code>${escapeHtml(valStr)}</code></pre>\n`;
   } else {
-    html += `      <p><strong>Value:</strong> <code>${escapeHtml(String(value as string | number | boolean))}</code></p>\n`;
+    html += `      <p class="mb-0"><strong>Value:</strong> <code>${escapeHtml(valStr)}</code></p>\n`;
+  }
+
+  if (caption) {
+    html += `      <p class="text-muted mt-2 mb-0"><small>${escapeHtml(caption)}</small></p>\n`;
   }
 
   html += '    </div>\n';
@@ -1564,7 +1613,7 @@ const ConfigAccessorPlugin: SimplePlugin = {
   name: 'ConfigAccessorPlugin',
   description: 'Access configuration values including roles, features, and system settings',
   author: 'ngdpbase',
-  version: '2.8.0',
+  version: '2.9.0',
 
   /**
    * Execute the plugin
@@ -1577,6 +1626,9 @@ const ConfigAccessorPlugin: SimplePlugin = {
     const before = typeof opts.before === 'string' ? opts.before : '';
     // Note: after default is determined in displayConfigValue based on single vs multiple values
     const after = typeof opts.after === 'string' ? opts.after : undefined;
+    const caption = typeof opts.caption === 'string' ? opts.caption : '';
+    const forceTable = opts.table === 'true' || opts.table === true;
+    const noheader = opts.noheader === 'true' || opts.noheader === true;
 
     try {
       // Get managers from engine
@@ -1594,7 +1646,7 @@ const ConfigAccessorPlugin: SimplePlugin = {
 
       // If key is provided, handle config value(s)
       if (key) {
-        return displayConfigValue(configManager, key, valueonly, before, after);
+        return displayConfigValue(configManager, key, valueonly, before, after, caption, forceTable, noheader);
       }
 
       // Otherwise handle type-based display (type is guaranteed non-null here due to check above)
