@@ -2,120 +2,117 @@
 title: CounterPlugin
 system-category: documentation
 user-keywords:
-  - default
+  - Counter
+  - Plugins
+  - Numbering
+  - Sequential
 uuid: ff2c3a6d-fdfc-479f-90e3-585dc2b3abd0
 slug: counterplugin
-lastModified: '2026-01-13T10:41:14.442Z'
-author: admin
+lastModified: '2026-04-19T00:00:00.000Z'
+author: system
 ---
 # CounterPlugin
 
-[{$pagename}] is a [Plugin] that maintains page-specific counters that increment each time they render.
+The **CounterPlugin** maintains page-level counters that increment each time they render — useful for numbering figures, sections, or any sequential items on a page.
 
-[{$pagename}] is useful for numbering items, tracking plugin invocations, or implementing sequential numbering within a page.
+## Description
 
-## Important: Counter Behavior
+Counters reset on every page load. Each page view starts fresh, and different users see independent counters. This makes CounterPlugin suitable for numbering items within a page, not for tracking visits across sessions. See [Plugins] for a complete list of available plugins.
 
-**Counters reset on every page render/reload.** This is the correct JSPWiki-compatible behavior:
+## Syntax
 
-- ✅ Counters are per-render, not persistent across page reloads
-- ✅ Each page view starts fresh from 0
-- ✅ Different users see independent counters
-- ✅ Refreshing the page resets all counters to 0
+[[{Counter}] renders as:
 
-**Intended Use:** Counters are for numbering items within a single page view (like figures, sections, or list items), NOT for tracking page views across multiple visits.
-
-## Quick Examples
-
-### Basic Counter
-
-```
 [{Counter}]
-[{Counter}]
-[{Counter}]
-```
-
-**Output:** 1, 2, 3
-
-### Named Counter
-
-```
-[{Counter name='chapter'}]
-[{Counter name='chapter'}]
-```
-
-**Output:** 1, 2 (separate from default counter)
-
-### Custom Increment
-
-```
-[{Counter increment='5'}]
-[{Counter increment='5'}]
-```
-
-**Output:** 5, 10
 
 ## Parameters
 
 %%table-striped
 || Parameter || Type || Default || Description ||
-| `name` | string | `counter` | Distinguishes multiple counters on one page |
-| `increment` | number | `1` | Amount to add to counter (can be negative) |
-| `start` | number | (none) | Resets counter to specified value |
-| `showResult` | boolean | `true` | Controls whether counter value is displayed |
+| `name` | string | `counter` | Identifies the counter — counters with different names are independent |
+| `increment` | number | `1` | Amount added each time the plugin renders. Use a negative number to count down. |
+| `start` | number | *(none)* | Resets the counter to this value before incrementing |
+| `showResult` | boolean | `true` | Set to `false` to increment silently without displaying the value |
 /%
 
-## Use Cases
+## Examples
 
-### Numbered Lists with Custom Formatting
+### Basic Counter
 
-```
-[{Counter start='1'}]. Introduction
-[{Counter}]. Background
-[{Counter}]. Methodology
-[{Counter}]. Results
-```
+Three calls to the default counter:
 
-### Multiple Counter Hierarchies
+[[{Counter name='ex1' start='1'}]
+[[{Counter name='ex1'}]
+[[{Counter name='ex1'}] renders as:
 
-```
-# Section [{Counter name='section'}]
-## Subsection [{Counter name='subsection'}].1
-## Subsection [{Counter name='subsection'}].2
+[{Counter name='ex1' start='1'}]
+[{Counter name='ex1'}]
+[{Counter name='ex1'}]
 
-# Section [{Counter name='section'}]
-[{Counter name='subsection' start='1'}]
-## Subsection [{Counter name='subsection'}].1
-```
+### Named Counter
 
-### Countdown with Negative Increment
+Named counters are independent of each other and of the default counter:
 
-```
-[{Counter name='countdown' start='10'}]
-[{Counter name='countdown' increment='-1'}]
-[{Counter name='countdown' increment='-1'}]
-```
+[[{Counter name='chapter' start='1'}]
+[[{Counter name='chapter'}]
+[[{Counter name='chapter'}] renders as:
 
-**Output:** 10, 9, 8
+[{Counter name='chapter' start='1'}]
+[{Counter name='chapter'}]
+[{Counter name='chapter'}]
+
+### Custom Increment
+
+[[{Counter name='byten' start='10'}]
+[[{Counter name='byten' increment='10'}]
+[[{Counter name='byten' increment='10'}] renders as:
+
+[{Counter name='byten' start='10'}]
+[{Counter name='byten' increment='10'}]
+[{Counter name='byten' increment='10'}]
+
+### Countdown
+
+[[{Counter name='cd' start='5'}]
+[[{Counter name='cd' increment='-1'}]
+[[{Counter name='cd' increment='-1'}]
+[[{Counter name='cd' increment='-1'}] renders as:
+
+[{Counter name='cd' start='5'}]
+[{Counter name='cd' increment='-1'}]
+[{Counter name='cd' increment='-1'}]
+[{Counter name='cd' increment='-1'}]
 
 ## Accessing Counter Values as Variables
 
-Counter values can be accessed without incrementing them:
+Counter values are available as page variables after the plugin renders. Use `[{$counter}]` for the default counter, or `[{$counter-name}]` for a named counter:
+
+[[{Counter name='fig' start='1'}] — Figure [{$counter-fig}] renders as:
+
+[{Counter name='fig' start='1'}] — Figure [{$counter-fig}]
+
+## Use Cases
+
+### Numbered sections with a reset
 
 ```
-[{Counter}]
-[{Counter}]
-Current counter value: [{$counter}]
+# Section [{Counter name='section' start='1'}]
+## Subsection [{Counter name='sub' start='1'}]
+## Subsection [{Counter name='sub'}]
+
+# Section [{Counter name='section'}]
+## Subsection [{Counter name='sub' start='1'}]
+## Subsection [{Counter name='sub'}]
 ```
 
-For named counters, use `[{$counter-name}]`:
+### Silent tracking
 
 ```
-[{Counter name='chapter'}]
-Chapter: [{$counter-chapter}]
+[{Counter name='views' showResult='false'}]
+Views this render: [{$counter-views}]
 ```
 
 ## More Information
 
 There might be more information for this subject on one of the following:
-[{ReferringPagesPlugin before='* ' after='\n'}]
+[{ReferringPagesPlugin before='*' after='\n' }]
