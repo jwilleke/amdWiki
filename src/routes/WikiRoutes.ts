@@ -2736,20 +2736,18 @@ class WikiRoutes {
    * Search pages with advanced options
    */
   /**
-   * GET /slideshow — kiosk-style page slideshow.
+   * GET /kiosk — kiosk-style page slideshow.
    *
-   * Picks random accessible pages, extracts a plain-text excerpt from each,
-   * and renders them as full-screen kiosk cards.  Clicking a card opens the
-   * full page in a new tab.  No iframe used.
+   * Picks random accessible pages (or a curated list) and renders them as
+   * full-screen kiosk cards.  Clicking a card opens the full page in a new tab.
    *
    * Query params:
-   *   count    — number of random pages (default 10, max 50)
+   *   pages    — comma-separated page names to show (overrides count/random)
+   *   count    — number of random pages (default 10, max 50; ignored when pages= set)
    *   interval — seconds per slide (default 8)
-   *   excerpt  — max excerpt characters (default 400)
    */
-  async slideshow(req: Request, res: Response) {
+  async kiosk(req: Request, res: Response) {
     try {
-      const count    = Math.min(50, Math.max(1, parseInt(req.query.count as string, 10) || 10));
       const interval = Math.max(1, parseInt(req.query.interval as string, 10) || 8);
 
       const pageManager      = this.engine.getManager('PageManager') as {
@@ -2760,15 +2758,23 @@ class WikiRoutes {
         textToHTML(ctx: unknown, markdown: string): Promise<string>;
       };
 
-      const all = await pageManager.getAllPages();
+      let names: string[];
+      const pagesParam = (req.query.pages as string || '').trim();
 
-      // Fisher-Yates shuffle then slice
-      const pool = [...all];
-      for (let i = pool.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [pool[i], pool[j]] = [pool[j], pool[i]];
+      if (pagesParam) {
+        // Curated list — preserve order, strip blanks
+        names = pagesParam.split(',').map(s => s.trim()).filter(Boolean);
+      } else {
+        const count = Math.min(50, Math.max(1, parseInt(req.query.count as string, 10) || 10));
+        const all   = await pageManager.getAllPages();
+        // Fisher-Yates shuffle then slice
+        const pool = [...all];
+        for (let i = pool.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [pool[i], pool[j]] = [pool[j], pool[i]];
+        }
+        names = pool.slice(0, count);
       }
-      const names = pool.slice(0, count);
 
       // Render each page through the wiki engine (reader mode — full HTML)
       const slides: { name: string; title: string; html: string; url: string }[] = [];
@@ -2787,16 +2793,17 @@ class WikiRoutes {
       }
 
       const commonData = await this.getCommonTemplateData(req);
-      return res.render('slideshow', {
+      return res.render('kiosk', {
         ...commonData,
-        title: 'Slideshow',
+        title: 'Kiosk',
         slides,
         interval,
-        count
+        pages: pagesParam,
+        count: names.length
       });
     } catch (err: unknown) {
-      logger.error('[slideshow] Error:', err);
-      return this.renderError(req, res, 500, 'Slideshow Error', 'Could not load slideshow.');
+      logger.error('[kiosk] Error:', err);
+      return this.renderError(req, res, 500, 'Kiosk Error', 'Could not load kiosk.');
     }
   }
 
@@ -7644,7 +7651,7 @@ class WikiRoutes {
     app.post('/create', (req: Request, res: Response) => this.createPageFromTemplate(req, res));
     app.post('/delete/:page', (req: Request, res: Response) => this.deletePage(req, res));
     app.get('/search', (req: Request, res: Response) => this.searchPages(req, res));
-    app.get('/slideshow', (req: Request, res: Response) => this.slideshow(req, res));
+    app.get('/kiosk', (req: Request, res: Response) => this.kiosk(req, res));
     app.get('/login', (req: Request, res: Response) => this.loginPage(req, res));
     app.get('/admin/login', (req: Request, res: Response) => this.adminLoginPage(req, res));
     app.post('/login', (req: Request, res: Response) => this.processLogin(req, res));

@@ -18,6 +18,16 @@ curl -s http://localhost:3333/api/health | jq .status
 
 Sign in to each instance as an admin user. Have a second browser tab open to the source repo.
 
+### Kiosk demo URL
+
+Use this URL to run the kiosk through the curated demo page sequence:
+
+```
+/kiosk?pages=Why+Use+This+Platform,Platform+Variables,Syntax+Highlighting,Using+Emoji,ConfigAccessorPlugin,My+Links,Kiosk+Mode,Search+Documentation,Markdown+Cheat+Sheet,Plugin,User+Roles+and+Permissions&interval=12
+```
+
+Open it in a separate browser window at the start of the session and leave it running as ambient background during breaks.
+
 ---
 
 ## Act 1 — Architecture Overview (5 min)

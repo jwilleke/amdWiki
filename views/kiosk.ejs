@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Slideshow</title>
+    <title>Kiosk</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -380,7 +380,10 @@
     document.getElementById('cfg-apply').addEventListener('click', function () {
         var c = Math.min(50, Math.max(1, parseInt(document.getElementById('cfg-count').value, 10) || 10));
         var s = Math.max(1, parseInt(document.getElementById('cfg-interval').value, 10) || 8);
-        window.location.href = '/slideshow?count=' + c + '&interval=' + s;
+        var pages = '<%= pages ? encodeURIComponent(pages) : "" %>';
+        var url = '/kiosk?interval=' + s;
+        if (pages) { url += '&pages=' + pages; } else { url += '&count=' + c; }
+        window.location.href = url;
     });
 
     // ── keyboard ──────────────────────────────────────────
