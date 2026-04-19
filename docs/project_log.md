@@ -2,6 +2,23 @@
 
 AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version history.
 
+## 2026-04-19-18
+
+- Agent: Claude
+- Subject: Fix My Links not rendering on domain addon instances; add MyLinks documentation
+- Current Issue: #537
+- Work Done:
+  - Moved My Links rendering from [{MyLinks}] plugin invocation into header.ejs template injection so it works on all instances regardless of which LeftMenu page variant is active
+  - Removed [{MyLinks}] from LeftMenu required-page (no longer needed)
+  - Created docs/plugins/MyLinksPlugin.md (developer documentation)
+  - Created required-pages/36c9c6ed-986d-4ada-930b-67d7ee55b4c7.md (end-user My Links page)
+- Commits: a1acfb75
+- Files Modified:
+  - views/header.ejs
+  - required-pages/f6d47002-1631-4ef6-802b-fc3f7d04d50a.md
+  - docs/plugins/MyLinksPlugin.md
+  - required-pages/36c9c6ed-986d-4ada-930b-67d7ee55b4c7.md
+
 ## 2026-04-19-17
 
 - Agent: Claude
