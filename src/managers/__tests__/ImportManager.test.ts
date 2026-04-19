@@ -515,4 +515,97 @@ See [OtherPage] for more.`;
       await mgr.shutdown();
     });
   });
+
+  describe('keyword normalization (#545)', () => {
+    const mockKwEngine = {
+      getManager: jest.fn((name) => {
+        if (name === 'AttachmentManager') return { uploadAttachment: jest.fn().mockResolvedValue({ identifier: 'abc' }) };
+        return { getProperty: jest.fn().mockReturnValue('./data/pages'), setProperty: jest.fn().mockResolvedValue(undefined) };
+      })
+    };
+
+    // Helper: register a one-shot converter that returns the given metadata
+    function makeKwConverter(metadata: Record<string, unknown>) {
+      return {
+        formatId: 'kw-test',
+        formatName: 'KW Test',
+        fileExtensions: ['.kwtest'],
+        canHandle: () => true,
+        convert: () => ({ content: 'Body', metadata: { title: 'KW Page', ...metadata }, warnings: [] })
+      };
+    }
+
+    it('should normalize space-separated scalar user-keywords to YAML list', async () => {
+      const mgr = new ImportManager(mockKwEngine);
+      await mgr.initialize();
+      mgr.registerConverter(makeKwConverter({ 'user-keywords': 'metrics monitoring observability' }));
+
+      const sourceFile = path.join(testDir, 'kw1.kwtest');
+      await fs.writeFile(sourceFile, 'content');
+      const targetDir = path.join(testDir, 'out-kw1');
+      await fs.ensureDir(targetDir);
+
+      const result = await mgr.importSinglePage(sourceFile, { sourceDir: testDir, targetDir, format: 'kw-test', dryRun: false });
+      expect(result.written).toBe(true);
+      const written = await fs.readFile(result.targetPath, 'utf-8');
+      expect(written).toMatch(/user-keywords:\s*\n\s+-\s+metrics/);
+      expect(written).not.toMatch(/user-keywords: metrics monitoring/);
+      await mgr.shutdown();
+    });
+
+    it('should normalize comma-separated scalar user-keywords to YAML list', async () => {
+      const mgr = new ImportManager(mockKwEngine);
+      await mgr.initialize();
+      mgr.registerConverter(makeKwConverter({ 'user-keywords': 'foo,bar,baz' }));
+
+      const sourceFile = path.join(testDir, 'kw2.kwtest');
+      await fs.writeFile(sourceFile, 'content');
+      const targetDir = path.join(testDir, 'out-kw2');
+      await fs.ensureDir(targetDir);
+
+      const result = await mgr.importSinglePage(sourceFile, { sourceDir: testDir, targetDir, format: 'kw-test', dryRun: false });
+      expect(result.written).toBe(true);
+      const written = await fs.readFile(result.targetPath, 'utf-8');
+      expect(written).toMatch(/user-keywords:\s*\n\s+-\s+foo/);
+      expect(written).toMatch(/- bar/);
+      expect(written).toMatch(/- baz/);
+      await mgr.shutdown();
+    });
+
+    it('should preserve user-keywords already provided as an array', async () => {
+      const mgr = new ImportManager(mockKwEngine);
+      await mgr.initialize();
+      mgr.registerConverter(makeKwConverter({ 'user-keywords': ['alpha', 'beta'] }));
+
+      const sourceFile = path.join(testDir, 'kw3.kwtest');
+      await fs.writeFile(sourceFile, 'content');
+      const targetDir = path.join(testDir, 'out-kw3');
+      await fs.ensureDir(targetDir);
+
+      const result = await mgr.importSinglePage(sourceFile, { sourceDir: testDir, targetDir, format: 'kw-test', dryRun: false });
+      expect(result.written).toBe(true);
+      const written = await fs.readFile(result.targetPath, 'utf-8');
+      expect(written).toMatch(/- alpha/);
+      expect(written).toMatch(/- beta/);
+      await mgr.shutdown();
+    });
+
+    it('should normalize scalar system-keywords to YAML list', async () => {
+      const mgr = new ImportManager(mockKwEngine);
+      await mgr.initialize();
+      mgr.registerConverter(makeKwConverter({ 'system-keywords': 'internal system' }));
+
+      const sourceFile = path.join(testDir, 'kw4.kwtest');
+      await fs.writeFile(sourceFile, 'content');
+      const targetDir = path.join(testDir, 'out-kw4');
+      await fs.ensureDir(targetDir);
+
+      const result = await mgr.importSinglePage(sourceFile, { sourceDir: testDir, targetDir, format: 'kw-test', dryRun: false });
+      expect(result.written).toBe(true);
+      const written = await fs.readFile(result.targetPath, 'utf-8');
+      expect(written).not.toMatch(/system-keywords: internal system/);
+      expect(written).toMatch(/- internal/);
+      await mgr.shutdown();
+    });
+  });
 });

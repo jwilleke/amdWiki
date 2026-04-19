@@ -1014,6 +1014,19 @@ class ImportManager extends BaseManager {
     pageUuid?: string
   ): string {
     const frontmatter: Record<string, unknown> = {};
+
+    // Normalize keyword fields to arrays before any processing.
+    // JSPWiki pages (and some URL imports) store these as space-separated scalar
+    // strings (e.g. `user-keywords: foo bar baz`). Normalizing here ensures
+    // the written frontmatter is always a proper YAML list.
+    const toKeywordArray = (val: unknown): string[] => {
+      if (Array.isArray(val)) return (val as unknown[]).map(String).filter(Boolean);
+      if (typeof val === 'string' && val.trim()) return val.trim().split(/[\s,]+/).filter(Boolean);
+      return [];
+    };
+    result.metadata['user-keywords'] = toKeywordArray(result.metadata['user-keywords']);
+    result.metadata['system-keywords'] = toKeywordArray(result.metadata['system-keywords']);
+
     const title = ((result.metadata['title'] as string) || 'Untitled').trim();
     const uuid = pageUuid || (result.metadata['uuid'] as string) || '';
 
@@ -1046,8 +1059,14 @@ class ImportManager extends BaseManager {
       frontmatter['lastModified'] = new Date().toISOString();
     }
 
+    // Emit system-keywords as a proper array (already normalized above)
+    const systemKeywords = result.metadata['system-keywords'] as string[];
+    if (systemKeywords.length > 0) {
+      frontmatter['system-keywords'] = systemKeywords;
+    }
+
     // Add other metadata from conversion (aliases, etc.) excluding already-handled keys
-    const handledKeys = new Set(['title', 'uuid', 'slug', 'system-category', 'user-keywords', 'lastModified', 'jspwiki']);
+    const handledKeys = new Set(['title', 'uuid', 'slug', 'system-category', 'user-keywords', 'system-keywords', 'lastModified', 'jspwiki']);
     for (const [key, value] of Object.entries(result.metadata)) {
       if (!handledKeys.has(key)) {
         frontmatter[key] = value;
