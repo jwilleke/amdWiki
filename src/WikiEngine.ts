@@ -179,6 +179,7 @@ class WikiEngine extends Engine {
     const metricsManager = new MetricsManager(this);
     this.registerManager('MetricsManager', metricsManager);
     await metricsManager.initialize();
+    this.setCapability('metrics', metricsManager.isEnabled());
 
     // 3. Initialize UserManager early as it's critical for security and context
     const userManager = new UserManager(this);

@@ -392,9 +392,36 @@ void (async (): Promise<void> => {
   app.use('/install', installRoutes.getRouter());
 
   // 7b. /metrics — must be registered BEFORE wiki routes so it is not shadowed.
-  // If a wiki page with slug 'metrics' exists, redirect there so users get a
-  // human-readable view. Otherwise serve raw Prometheus data (admin only).
+  //
+  // Three cases:
+  //   1. Admin or localhost → raw Prometheus text (also what Prometheus scrapers need)
+  //   2. Browser non-admin → redirect to the wiki "Metrics" page if one exists, else 403
+  //   3. Non-HTML Accept (e.g. Prometheus from a remote host) → raw data or 503
+  //
+  // Distinction: `/metrics` is always the Prometheus endpoint.
+  //              The wiki Metrics page lives at `/view/Metrics` — a completely separate URL.
   app.get('/metrics', async (req: Request, res: Response): Promise<void> => {
+    const isAdmin = req.userContext?.roles?.includes('admin');
+    const ip = req.ip ?? '';
+    const isLocalhost = ip === '127.0.0.1' || ip === '::1' || ip === '::ffff:127.0.0.1';
+    // Prometheus sends Accept headers that don't include text/html
+    const wantsBrowserPage = !!req.accepts('html');
+
+    const serveRaw = isAdmin || isLocalhost || !wantsBrowserPage;
+
+    if (serveRaw) {
+      if (!metricsManager?.isEnabled()) {
+        res.status(503).send('Metrics not enabled'); return;
+      }
+      const metricsHandler = metricsManager.getMetricsHandler();
+      if (!metricsHandler) {
+        res.status(503).send('Metrics handler unavailable'); return;
+      }
+      metricsHandler(req, res);
+      return;
+    }
+
+    // Browser request from non-admin: redirect to wiki Metrics page if one exists
     try {
       const pageManager = engine.getManager<PageManager>('PageManager');
       if (pageManager) {
@@ -404,19 +431,8 @@ void (async (): Promise<void> => {
           return;
         }
       }
-    } catch { /* fall through to Prometheus handler */ }
-
-    if (!metricsManager?.isEnabled()) {
-      res.status(503).send('Metrics not enabled'); return;
-    }
-    const metricsHandler = metricsManager.getMetricsHandler();
-    if (!metricsHandler) {
-      res.status(503).send('Metrics handler unavailable'); return;
-    }
-    if (!req.userContext?.roles?.includes('admin')) {
-      res.status(403).send('Admin access required'); return;
-    }
-    metricsHandler(req, res);
+    } catch { /* fall through to 403 */ }
+    res.status(403).send('Admin access required');
   });
 
   const wikiRoutes = new WikiRoutes(engine);

@@ -340,6 +340,28 @@
         </div>
         <% } %>
 
+        <!-- Metrics — only shown when MetricsManager is enabled -->
+        <% if (capabilities && capabilities.metrics) { %>
+        <div class="col-lg-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-chart-line"></i> Metrics
+                        <a href="/view/Using Metrics" class="ms-1 text-muted" title="Documentation" target="_blank"><i class="fas fa-question-circle fa-sm"></i></a>
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted small mb-2">Prometheus telemetry is active. Raw metrics are available at <a href="/metrics" target="_blank"><code>/metrics</code></a>. See <a href="/view/Using Metrics" target="_blank">Using Metrics</a> for configuration and query reference.</p>
+                    <div class="d-flex flex-wrap gap-2">
+                        <a href="/metrics" target="_blank" class="btn btn-outline-secondary btn-sm">
+                            <i class="fas fa-terminal"></i> Raw Prometheus Data
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <% } %>
+
     </div>
 
     <!-- Row 4: Recent Activity -->
