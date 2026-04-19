@@ -2,6 +2,20 @@
 
 AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version history.
 
+## 2026-04-19-11
+
+- Agent: Claude
+- Subject: Fix scalar user-keywords/system-keywords normalization at import time (#545)
+- Current Issue: #545
+- Work Done:
+  - Added keyword normalization to `buildFrontmatter()` — splits space/comma-separated scalar strings to arrays before writing YAML
+  - Added `system-keywords` to `handledKeys` and emits as proper YAML list
+  - 4 new tests: space-separated scalar, comma-separated scalar, array passthrough, system-keywords
+- Commits: 124c34ff
+- Files Modified:
+  - src/managers/ImportManager.ts
+  - src/managers/__tests__/ImportManager.test.ts
+
 ## 2026-04-19-10
 
 - Agent: Claude
