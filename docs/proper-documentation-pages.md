@@ -109,8 +109,11 @@ Always use built-in plugins instead of manually listing data that the system alr
 | Manually listing roles | `[{ConfigAccessor type='roles'}]` |
 | Manually listing plugins | `[{PluginList}]` |
 | Hard-coding the site name | `[{ConfigAccessor type='siteName'}]` |
+| Static config property table for a feature | `[{ConfigAccessor key='ngdpbase.feature.*'}]` |
 
 This keeps pages accurate as configuration changes — no manual updates needed.
+
+Use `[{ConfigAccessor key='prefix.*'}]` with a wildcard whenever a page documents a group of related configuration properties (e.g. all telemetry settings, all search settings). The plugin renders a live table from the actual running config, so the reference never goes stale as new properties are added.
 
 ## Showing Examples
 
