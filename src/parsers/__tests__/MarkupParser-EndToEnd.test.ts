@@ -928,5 +928,28 @@ Links: [Wikipedia:Section${i}] and [JSPWiki:Test${i}].
       expect(result).not.toContain('data-jspwiki-placeholder');
       expect(result).toContain('<pre');
     });
+
+    test('backtick inline code inside table cell renders as <code>, no placeholder spans (#541)', async () => {
+      const content = '%%table-striped\n|| `Parameter` || Type || Default ||\n| `name` | string | `counter` |\n/%';
+      const result = await markupParser.parse(content, {});
+      expect(result).toContain('<th><code>Parameter</code></th>');
+      expect(result).toContain('<td><code>name</code></td>');
+      expect(result).toContain('<td><code>counter</code></td>');
+      expect(result).not.toContain('data-jspwiki-placeholder');
+    });
+
+    test('backtick inline code outside tables still renders as <code> (#541)', async () => {
+      const content = 'Use `name` and `increment` parameters.';
+      const result = await markupParser.parse(content, {});
+      expect(result).toContain('<code>name</code>');
+      expect(result).toContain('<code>increment</code>');
+      expect(result).not.toContain('data-jspwiki-placeholder');
+    });
+
+    test('no data-jspwiki-placeholder spans survive in rendered output (#541)', async () => {
+      const content = '%%table-striped\n|| `Col A` || Col B ||\n| `val` | plain |\n/%\n\nInline `code` here.';
+      const result = await markupParser.parse(content, {});
+      expect(result).not.toContain('data-jspwiki-placeholder');
+    });
   });
 });

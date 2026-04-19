@@ -1366,7 +1366,18 @@ class MarkupParser extends BaseManager {
       sanitized = outputLines.join('\n');
     }
 
-    // Inline code spans (`...`) — single backtick, not fenced
+    // Step 0.5: Extract JSPWiki style blocks %%class-name ... /%
+    // MUST run before inline backtick extraction so that table cell content retains
+    // raw backtick pairs — appendWikiNodes resolves them directly to <code> nodes.
+    // (If backticks ran first, style block content would contain placeholder spans
+    // that populateCell cannot resolve, causing them to render as literal text.)
+    const styleResult = this.extractStyleBlocksWithStack(sanitized, jspwikiElements, uuid, id);
+    sanitized = styleResult.content;
+    id = styleResult.nextId;
+
+    // Inline code spans (`...`) — single backtick, not fenced.
+    // Runs after style block extraction so backticks inside table cells are handled
+    // directly by appendWikiNodes rather than pre-converted to placeholder spans.
     sanitized = sanitized.replace(/`([^`]+)`/g, (match: string, inner: string, offset: number) => {
       jspwikiElements.push({
         type: 'code',
@@ -1377,14 +1388,6 @@ class MarkupParser extends BaseManager {
       });
       return `<span data-jspwiki-placeholder="${uuid}-${id - 1}"></span>`;
     });
-
-    // Step 0.5: Extract JSPWiki style blocks %%class-name ... /%
-    // This MUST happen before other extractions because style blocks may contain
-    // JSPWiki syntax (tables, links, etc.) that needs special processing
-    // Uses state-stack parsing for proper nested block support
-    const styleResult = this.extractStyleBlocksWithStack(sanitized, jspwikiElements, uuid, id);
-    sanitized = styleResult.content;
-    id = styleResult.nextId;
 
     // Step 0.55: Convert inline JSPWiki styles (%%sup, %%sub, %%strike)
     // These are inline patterns not handled by block-level extractStyleBlocksWithStack
@@ -1664,12 +1667,13 @@ class MarkupParser extends BaseManager {
     wikiDocument: WikiDocument,
     idStart: number
   ): Promise<void> {
-    // Combined pattern — mirrors Steps 1–4 of extractJSPWikiSyntax:
-    //   Group 1: [[{inner}]        escaped plugin literal → text [{inner}]
-    //   Group 2: [{$varname}]      variable (varname without $)
-    //   Group 3: [{PluginName...}] plugin
-    //   Group 4: [inner]           bracket (link, escaped [[, blank pass-through)
-    const wikiPattern = /\[\[\{([^}]*)\}\]|\[\{\$(\w+)\}\]|\[\{([A-Za-z]\w*[^}]*)\}\]|\[([^\]]*)\](?!\()/g;
+    // Combined pattern — mirrors Steps 0–4 of extractJSPWikiSyntax:
+    //   Group 1: `code`            inline code span → <code>
+    //   Group 2: [[{inner}]        escaped plugin literal → text [{inner}]
+    //   Group 3: [{$varname}]      variable (varname without $)
+    //   Group 4: [{PluginName...}] plugin
+    //   Group 5: [inner]           bracket (link, escaped [[, blank pass-through)
+    const wikiPattern = /`([^`\n]+)`|\[\[\{([^}]*)\}\]|\[\{\$(\w+)\}\]|\[\{([A-Za-z]\w*[^}]*)\}\]|\[([^\]]*)\](?!\()/g;
 
     if (!wikiPattern.test(content)) {
       node.textContent = content;
@@ -1690,12 +1694,18 @@ class MarkupParser extends BaseManager {
       const elemId = idCounter++;
 
       if (match[1] !== undefined) {
-        // Escaped plugin literal: [[{inner}] → literal [{inner}]
-        node.appendChild(wikiDocument.createTextNode(`[{${match[1]}}]`));
+        // Inline code: `content` → <code>content</code>
+        const code = wikiDocument.createElement('code', {});
+        code.textContent = match[1];
+        node.appendChild(code);
 
       } else if (match[2] !== undefined) {
+        // Escaped plugin literal: [[{inner}] → literal [{inner}]
+        node.appendChild(wikiDocument.createTextNode(`[{${match[2]}}]`));
+
+      } else if (match[3] !== undefined) {
         // Variable: [{$varname}]
-        const varElement = { type: 'variable' as const, syntax: match[0], varName: `$${match[2]}`, id: elemId, position: match.index };
+        const varElement = { type: 'variable' as const, syntax: match[0], varName: `$${match[3]}`, id: elemId, position: match.index };
         try {
           node.appendChild(await this.domVariableHandler.createNodeFromExtract(
             varElement as Parameters<typeof this.domVariableHandler.createNodeFromExtract>[0],
@@ -1704,9 +1714,9 @@ class MarkupParser extends BaseManager {
           ));
         } catch { node.appendChild(wikiDocument.createTextNode(match[0])); }
 
-      } else if (match[3] !== undefined) {
+      } else if (match[4] !== undefined) {
         // Plugin: [{PluginName...}]
-        const pluginElement = { type: 'plugin' as const, syntax: match[0], inner: match[3].trim(), id: elemId, position: match.index };
+        const pluginElement = { type: 'plugin' as const, syntax: match[0], inner: match[4].trim(), id: elemId, position: match.index };
         try {
           node.appendChild(await this.domPluginHandler.createNodeFromExtract(
             pluginElement as Parameters<typeof this.domPluginHandler.createNodeFromExtract>[0],
@@ -1715,9 +1725,9 @@ class MarkupParser extends BaseManager {
           ));
         } catch { node.appendChild(wikiDocument.createTextNode(match[0])); }
 
-      } else if (match[4] !== undefined) {
+      } else if (match[5] !== undefined) {
         // Bracket: [inner] — classify same as Step 4
-        const inner = match[4];
+        const inner = match[5];
         if (inner.trim() === '' || inner.startsWith('{')) {
           node.appendChild(wikiDocument.createTextNode(match[0]));
         } else if (inner.startsWith('[')) {
@@ -1786,7 +1796,7 @@ class MarkupParser extends BaseManager {
     // For cells with no wiki syntax and possible <br> content, uses a fast path.
     // Otherwise delegates to appendWikiNodes for the combined scanner.
     const populateCell = async (el: ReturnType<typeof wikiDocument.createElement>, cell: string): Promise<void> => {
-      const hasWiki = /\[\[\{|\[\{\$|\[\{[A-Za-z]|\[/.test(cell);
+      const hasWiki = /`[^`\n]+`|\[\[\{|\[\{\$|\[\{[A-Za-z]|\[/.test(cell);
       if (!hasWiki) {
         // No wiki syntax — fast path with <br> support
         if (/<br\s*\/?>/.test(cell)) {
