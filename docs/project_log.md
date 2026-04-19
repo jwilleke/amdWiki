@@ -2,6 +2,24 @@
 
 AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version history.
 
+## 2026-04-19-15
+
+- Agent: Claude
+- Subject: ConfigAccessorPlugin improvements — caption, table, noheader, compact header (#544)
+- Current Issue: #544
+- Work Done:
+  - Added `caption` param — descriptive text below single key value card
+  - Added `table='true'` param — forces single key into table format
+  - Added `noheader='true'` param — suppresses card header on wildcard results
+  - Renamed card header to "Current Configuration Value"; compacted to `py-1`
+  - Wildcard card header and body compacted for tighter table layout
+  - Bumped plugin version to 2.9.0
+  - Updated ConfigAccessorPlugin doc page with 4-column parameter table and live examples
+- Commits: 9d5ecb2b
+- Files Modified:
+  - src/plugins/ConfigAccessorPlugin.ts
+  - required-pages/b7980f86-b9a0-42ba-b810-9f414fb6d399.md
+
 ## 2026-04-19-14
 
 - Agent: Claude
