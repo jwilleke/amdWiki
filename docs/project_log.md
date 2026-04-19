@@ -2,6 +2,25 @@
 
 AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version history.
 
+## 2026-04-19-05
+
+- Agent: Claude
+- Subject: Authoring standards refinement; Page Audience consolidation; fix #542 user-keywords crash and /metrics routing
+- Current Issue: #511, #541, #542
+- Work Done:
+  - Updated docs/proper-documentation-pages.md: softened live-example rule to "whenever possible", documented when code blocks are appropriate, added stock image table, standardised parameter tables to 4 columns
+  - Consolidated private keyword docs into Page Audience (removed separate Using Private Keyword page); updated User Keywords comparison table
+  - Posted comprehensive closing comment on #511 referencing docs/proper-documentation-pages.md; posted fix summary on #541 and #542
+  - Fixed #542: normalized user-keywords and system-keywords to arrays in viewPage after loading metadata — handles JSPWiki imports where keywords are stored as space-separated scalar strings rather than YAML arrays
+  - Fixed /metrics route registration order in app.ts (moved before wiki routes); route now checks for a wiki page with slug 'metrics' first, redirects to /view/{title} if found, otherwise serves Prometheus data or 503
+- Commits: 4f71e1c6, 61c0c24e, d81637d8, e6cb67b9
+- Files Modified:
+  - docs/proper-documentation-pages.md
+  - required-pages/b03c0bad-0b72-49c7-8810-cd6e14149938.md (Page Audience — expanded private keyword section)
+  - required-pages/e3bc8a66-9a68-47bb-af14-d6f8b611a3b2.md (User Keywords — storage exception note)
+  - src/routes/WikiRoutes.ts (user-keywords/system-keywords normalization in viewPage)
+  - src/app.ts (/metrics route registration order and wiki-page-aware routing)
+
 ## 2026-04-19-04
 
 - Agent: Claude
