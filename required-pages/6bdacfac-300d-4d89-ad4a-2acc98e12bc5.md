@@ -5,14 +5,14 @@ user-keywords:
   - default
 uuid: 6bdacfac-300d-4d89-ad4a-2acc98e12bc5
 slug: imageplugin
-lastModified: '2026-03-25T00:00:00.000Z'
+lastModified: '2026-04-18T00:00:00.000Z'
 author: admin
 ---
 # ImagePlugin
 
 The **ImagePlugin** embeds images in pages with flexible layout and display options. See [Plugins] for a complete list of available plugins.
 
-## Basic Syntax
+## Syntax
 
 ```
 [{Image src='path/to/image.jpg' caption='My Image'}]

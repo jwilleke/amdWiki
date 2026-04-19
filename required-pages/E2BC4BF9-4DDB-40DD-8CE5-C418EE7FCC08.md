@@ -7,7 +7,7 @@ user-keywords:
   - Uptime
   - Server
 slug: uptimeplugin
-lastModified: '2026-04-14T00:00:00.000Z'
+lastModified: '2026-04-18T00:00:00.000Z'
 author: system
 ---
 # UptimePlugin
@@ -16,9 +16,9 @@ The **UptimePlugin** displays how long the server has been running since its las
 
 ## Syntax
 
-```
+[[{UptimePlugin}] renders as:
+
 [{UptimePlugin}]
-```
 
 ## Parameters
 
@@ -26,27 +26,11 @@ This plugin has no parameters.
 
 ## Examples
 
-### Basic Display
+### Inline in a sentence
 
-```
+[[Server uptime: [{UptimePlugin}]] renders as:
+
 Server uptime: [{UptimePlugin}]
-```
-
-**Output Examples:**
-
-- `Server uptime: 3d 12h 45m`
-- `Server uptime: 5h 30m`
-- `Server uptime: 15m`
-
-### Status Dashboard
-
-```
-| Metric | Value |
-| -------- | ------- |
-| Server Uptime | [{UptimePlugin}] |
-| Total Pages | [{TotalPagesPlugin}] |
-| Active Sessions | [{SessionsPlugin}] |
-```
 
 ## Output Format
 
