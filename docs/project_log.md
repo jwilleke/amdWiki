@@ -2,6 +2,22 @@
 
 AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version history.
 
+## 2026-04-19-03
+
+- Agent: Claude
+- Subject: UndefinedPagesPlugin live examples; global CLAUDE.md; GH issue #543
+- Current Issue: #511, #543
+- Work Done:
+  - Rewrote UndefinedPagesPlugin required-page: replaced all code-block-only syntax/example sections with live [[{...}] renders as: [{...}] pattern; removed static mock tables
+  - Created GH issue #543 for syntax highlighting in fenced code blocks (language specifier not emitted as class on code element)
+  - Created global ~/.claude/CLAUDE.md with cross-project rules: GH issue templates, comment on issues when decisions made, test teardown must not delete live data
+  - Moved GH issue template and issue-decisions feedback from project memory to global CLAUDE.md
+- Commits: 221d66b8
+- Files Modified:
+  - required-pages/a433c5a4-905a-448a-a0d3-dc063163d6f6.md (UndefinedPagesPlugin)
+  - ~/.claude/CLAUDE.md (new — global rules)
+  - ~/.claude/projects/.../memory/MEMORY.md (removed migrated entries)
+
 ## 2026-04-19-02
 
 - Agent: Claude
