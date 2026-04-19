@@ -146,7 +146,7 @@ Use ` ``` ` code blocks for content that is not ngdpbase markup:
 - Configuration snippets showing how to set up a feature
 - Plugin invocations that require a user-supplied file (e.g. `[{Image src='photo.jpg'}]` where `photo.jpg` is not a committed asset)
 
-**Note:** Language specifiers in fenced code blocks (e.g. ` ```yaml `) are not yet rendered with syntax highlighting. Use plain ` ``` ` fences.
+**Note:** Language specifiers in fenced code blocks (e.g. ` ```yaml `) are rendered with syntax highlighting via highlight.js. Use them where the language is known — plain ` ``` ` fences remain valid for content with no specific language.
 
 If an example requires an image file, use one of the committed stock images rather than a placeholder path:
 
