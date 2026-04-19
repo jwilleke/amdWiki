@@ -2,6 +2,20 @@
 
 AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version history.
 
+## 2026-04-19-10
+
+- Agent: Claude
+- Subject: Auto-migrate stale attachment paths (#259); user search/filter on /admin/users (#466)
+- Current Issue: #259, #466
+- Work Done:
+  - Added `migrateStaleStoragePaths()` to `BasicAttachmentProvider` — auto-corrects stale `storageLocation` entries at startup after data migration
+  - Added live search/filter bar to `/admin/users`: text search, role dropdown, status dropdown, Clear button
+  - Stat cards (Active Users, Admin Users, System Users) act as clickable toggle filters with visual highlight
+- Commits: 9a8a0918
+- Files Modified:
+  - src/providers/BasicAttachmentProvider.ts
+  - views/admin-users.ejs
+
 ## 2026-04-19-09
 
 - Agent: Claude
