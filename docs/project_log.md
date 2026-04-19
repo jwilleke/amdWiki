@@ -2,6 +2,19 @@
 
 AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version history.
 
+## 2026-04-19-16
+
+- Agent: Claude
+- Subject: Fix noheader to apply to single key lookups as well as wildcard (#544)
+- Current Issue: #544
+- Work Done:
+  - Extended `noheader` to suppress card header on single key results (was wildcard-only)
+  - Added single-key noheader live example to ConfigAccessorPlugin doc page
+- Commits: 8b58c8b3
+- Files Modified:
+  - src/plugins/ConfigAccessorPlugin.ts
+  - required-pages/b7980f86-b9a0-42ba-b810-9f414fb6d399.md
+
 ## 2026-04-19-15
 
 - Agent: Claude
