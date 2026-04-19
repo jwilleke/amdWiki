@@ -114,7 +114,7 @@ This keeps pages accurate as configuration changes — no manual updates needed.
 
 ## Showing Examples
 
-For any plugin or markup feature, show a live example using this pattern:
+For any plugin or markup feature, use the live example pattern in **both** the `## Syntax` section and the `## Examples` section:
 
 ```
 [[{PluginName param='value'}] renders as:
@@ -130,18 +130,41 @@ Example — the Location plugin:
 
 [{Location name='Paris, France'}]
 
+**Never** use a static code block with invented output (e.g. `Output: 5 active sessions.`) — the live render is always more accurate and never goes stale.
+
+### When code blocks are appropriate
+
+Code blocks remain correct for content that cannot be rendered live:
+
+- Shell commands and terminal output
+- YAML / JSON / `.env` file content
+- Plugin invocations that require a user-supplied file (e.g. `[{Image src='photo.jpg'}]` where `photo.jpg` is not a committed asset)
+- Configuration snippets showing how to set up a feature
+
+If an example requires an image file, use one of the committed stock images rather than a placeholder path:
+
+| File | Path |
+| --- | --- |
+| Mountains | `/images/sample-mountains.jpg` |
+| Forest | `/images/sample-forest.jpg` |
+| Sunset | `/images/sample-sunset.jpg` |
+| Ocean | `/images/sample-ocean.jpg` |
+
+These images are committed to the repository and always available on any deployment.
+
 ## Parameter Tables
 
-Plugin parameter tables use this column order and format:
+Plugin parameter tables use four columns in this order:
 
-| Parameter | Default | Description |
-| --- | --- | --- |
-| `param` | `default` or *(required)* or *(none)* | What it does |
+| Parameter | Type | Default | Description |
+| --- | --- | --- | --- |
+| `param` | string | `default` or *(required)* or *(none)* | What it does |
 
-- Wrap parameter names and values in backticks.
+- Wrap parameter names and default values in backticks.
 - Use *(required)* when the parameter has no default and must be supplied.
 - Use *(none)* when the parameter is optional and does nothing if omitted.
 - List required parameters first, then optional ones alphabetically.
+- In `required-pages/`, render the table using ngdpbase table syntax (see [Table Format](#table-format) above).
 
 ## Frontmatter Requirements
 
