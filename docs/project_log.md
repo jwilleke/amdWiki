@@ -2,6 +2,19 @@
 
 AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version history.
 
+## 2026-04-19-08
+
+- Agent: Claude
+- Subject: Refine Using Metrics page; add ConfigAccessor wildcard pattern to authoring standards
+- Current Issue: none
+- Work Done:
+  - Updated Using Metrics required-page to use `[{ConfigAccessor key='ngdpbase.telemetry.*'}]` for config table, `[{$pagename}]` as heading, external links with `target='_blank'`
+  - Added ConfigAccessor wildcard pattern (`key='prefix.*'`) to authoring standards with explanatory note on when to use it
+- Commits: a38e9e00
+- Files Modified:
+  - required-pages/c92e1ff2-e038-4a49-8fd9-5ced0c318201.md
+  - docs/proper-documentation-pages.md
+
 ## 2026-04-19-07
 
 - Agent: Claude
