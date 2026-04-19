@@ -2,6 +2,25 @@
 
 AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version history.
 
+## 2026-04-19-19
+
+- Agent: Claude
+- Subject: Rename /slideshow to /kiosk; add pages= curated list param; technical demo guide
+- Current Issue: none
+- Work Done:
+  - Renamed GET /slideshow → GET /kiosk and views/slideshow.ejs → views/kiosk.ejs
+  - Added pages= query param for curated page list (overrides count=/random)
+  - Settings panel Apply button preserves pages= on reload
+  - Updated Kiosk Mode required-page docs with pages= parameter
+  - Created docs/demo/technical.md — 6-act technical demo script with Q&A talking points
+  - Added curated kiosk demo URL to docs/demo/technical.md
+- Commits: ef6a197d, 09de7241
+- Files Modified:
+  - src/routes/WikiRoutes.ts
+  - views/kiosk.ejs (renamed from slideshow.ejs)
+  - required-pages/7e3a1b2c-4f5d-4e8a-9c6b-0d1e2f3a4b5c.md
+  - docs/demo/technical.md
+
 ## 2026-04-19-18
 
 - Agent: Claude
