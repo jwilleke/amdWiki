@@ -2,6 +2,33 @@
 
 AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version history.
 
+## 2026-04-19-04
+
+- Agent: Claude
+- Subject: #511 plugin page live example rewrites; sample image adoption; Using Private Keyword page
+- Current Issue: #511
+- Work Done:
+  - Rewrote 10 plugin required-pages replacing static code blocks / fake "Output:" claims with live [[{...}] renders as: [{...}] examples: TotalPagesPlugin, SessionsPlugin, UptimePlugin, IndexPlugin, ReferringPagesPlugin, RecentChangesPlugin, VariablesPlugin, MediaPlugin, ImagePlugin, AttachPlugin
+  - Updated ImagePlugin and AttachPlugin to use committed /images/sample-*.jpg stock images instead of placeholder /attachments/photo.jpg paths; converted all display mode sections to live examples
+  - Created required-pages/c3f7a1b2 "Using Private Keyword" — explains private keyword storage behaviour, Audience bypass, admin+creator access restriction, comparison table vs Audience field
+  - Updated Page Audience to link to Using Private Keyword
+  - Updated User Keywords comparison table to note private keyword storage exception
+- Commits: 68260d8a, 69320ffe
+- Files Modified:
+  - required-pages/06F04848-8226-403B-9EC6-5420E4E0C0FE.md (TotalPagesPlugin)
+  - required-pages/208fecc6-fde1-4463-a865-3a2b62e1cea7.md (IndexPlugin)
+  - required-pages/3C6B55E5-5262-4686-A436-7BFD5479BCC1.md (SessionsPlugin)
+  - required-pages/6bdacfac-300d-4d89-ad4a-2acc98e12bc5.md (ImagePlugin)
+  - required-pages/70416655-ace4-4440-8ae6-8fed7587a94f.md (MediaPlugin)
+  - required-pages/7b487295-af7e-4b4a-a2cb-6e3b6877a413.md (AttachPlugin)
+  - required-pages/84FC114E-8E05-40E9-AD5F-5222236B5F63.md (ReferringPagesPlugin)
+  - required-pages/8d2c3b4a-9e1f-4c5d-a6b7-7e8f9a0b1c2d.md (VariablesPlugin)
+  - required-pages/9f3a4b2c-5d1e-4a8f-b2c9-8e7f6d5c4a3b.md (RecentChangesPlugin)
+  - required-pages/E2BC4BF9-4DDB-40DD-8CE5-C418EE7FCC08.md (UptimePlugin)
+  - required-pages/b03c0bad-0b72-49c7-8810-cd6e14149938.md (Page Audience — added link)
+  - required-pages/c3f7a1b2-8d4e-4f9a-b0c5-2e3f4a5b6c7d.md (Using Private Keyword — new)
+  - required-pages/e3bc8a66-9a68-47bb-af14-d6f8b611a3b2.md (User Keywords — storage exception note)
+
 ## 2026-04-19-03
 
 - Agent: Claude
