@@ -114,7 +114,7 @@ This keeps pages accurate as configuration changes — no manual updates needed.
 
 ## Showing Examples
 
-For any plugin or markup feature, use the live example pattern in **both** the `## Syntax` section and the `## Examples` section:
+For any ngdpbase plugin or markup invocation (`[{...}]`), use the live example pattern whenever possible — in `## Syntax`, `## Examples`, and anywhere else an invocation appears:
 
 ```
 [[{PluginName param='value'}] renders as:
@@ -130,16 +130,20 @@ Example — the Location plugin:
 
 [{Location name='Paris, France'}]
 
-**Never** use a static code block with invented output (e.g. `Output: 5 active sessions.`) — the live render is always more accurate and never goes stale.
+Never use a static code block with invented output (e.g. `Output: 5 active sessions.`) — the live render is always more accurate and never goes stale.
+
+A live example may not be appropriate when the output is context-dependent (e.g. the result depends on which page it appears on and would be misleading here), or when the plugin requires a resource (file, attachment) that is not a committed asset.
 
 ### When code blocks are appropriate
 
-Code blocks remain correct for content that cannot be rendered live:
+Use ` ``` ` code blocks for content that is not ngdpbase markup:
 
 - Shell commands and terminal output
 - YAML / JSON / `.env` file content
-- Plugin invocations that require a user-supplied file (e.g. `[{Image src='photo.jpg'}]` where `photo.jpg` is not a committed asset)
 - Configuration snippets showing how to set up a feature
+- Plugin invocations that require a user-supplied file (e.g. `[{Image src='photo.jpg'}]` where `photo.jpg` is not a committed asset)
+
+**Note:** Language specifiers in fenced code blocks (e.g. ` ```yaml `) are not yet rendered with syntax highlighting. Use plain ` ``` ` fences.
 
 If an example requires an image file, use one of the committed stock images rather than a placeholder path:
 
