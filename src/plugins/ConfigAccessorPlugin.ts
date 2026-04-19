@@ -1451,10 +1451,12 @@ function displayConfigValue(
   // Default single-value card
   let html = '<div class="config-accessor-plugin">\n';
   html += '  <div class="card">\n';
-  html += '    <div class="card-header py-1">\n';
-  html += '      <small><i class="fas fa-cog"></i> <strong>Current Configuration Value</strong></small>\n';
-  html += '    </div>\n';
-  html += '    <div class="card-body py-2">\n';
+  if (!noheader) {
+    html += '    <div class="card-header py-1">\n';
+    html += '      <small><i class="fas fa-cog"></i> <strong>Current Configuration Value</strong></small>\n';
+    html += '    </div>\n';
+  }
+  html += `    <div class="card-body${noheader ? ' pt-2' : ' py-2'}">\n`;
   html += `      <p class="mb-1"><strong>Key:</strong> <code>${escapeHtml(key)}</code></p>\n`;
 
   // Format value based on type
