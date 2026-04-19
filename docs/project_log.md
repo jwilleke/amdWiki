@@ -2,6 +2,30 @@
 
 AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version history.
 
+## 2026-04-19-17
+
+- Agent: Claude
+- Subject: My Links pinned pages sidebar feature (#537)
+- Current Issue: #537
+- Work Done:
+  - Added PinnedPage interface and nav.pinnedPages field to UserPreferences (User.ts)
+  - Created MyLinksPlugin — scrollable pinned-pages sidebar section, invisible when empty
+  - Inserted [{MyLinks}] into LeftMenu page between Navigation and System Info
+  - Added POST/DELETE/PUT /api/user/pinned-pages API endpoints in WikiRoutes.ts
+  - Added "Add to My Links" / "Remove from My Links" toggle to More dropdown in header.ejs
+  - Created public/js/my-links.js with addPinnedPage / removePinnedPage fetch functions
+  - Fixed MarkupParser cache key to include nav.pinnedPages so sidebar reflects changes immediately
+- Commits: 6d55dcc9
+- Files Modified:
+  - src/types/User.ts
+  - src/plugins/MyLinksPlugin.ts
+  - src/routes/WikiRoutes.ts
+  - src/parsers/MarkupParser.ts
+  - views/header.ejs
+  - views/footer.ejs
+  - public/js/my-links.js
+  - required-pages/f6d47002-1631-4ef6-802b-fc3f7d04d50a.md
+
 ## 2026-04-19-16
 
 - Agent: Claude
