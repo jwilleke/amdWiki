@@ -2,6 +2,18 @@
 
 AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version history.
 
+## 2026-04-19-09
+
+- Agent: Claude
+- Subject: Close #542; open #545 for scalar user-keywords normalization at import
+- Current Issue: #542, #545
+- Work Done:
+  - Opened #545 [BUG] JSPWiki-imported pages store user-keywords as scalar string — normalize at import time
+  - Closed #542 with reference to #545
+  - Pushed all session commits to remote
+- Commits: (none — admin only)
+- Files Modified: (none)
+
 ## 2026-04-19-08
 
 - Agent: Claude
