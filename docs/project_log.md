@@ -2,6 +2,21 @@
 
 AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version history.
 
+## 2026-04-19-13
+
+- Agent: Claude
+- Subject: Enable syntax highlighting in fenced code blocks via highlight.js (#543)
+- Current Issue: #543
+- Work Done:
+  - Added highlight.js 11.9.0 (GitHub theme) CSS to `header.ejs`
+  - Added highlight.js JS + `hljs.highlightAll()` call to `footer.ejs`
+  - Updated authoring standards to remove "not yet supported" caveat for language specifiers
+- Commits: 20a5565e
+- Files Modified:
+  - views/header.ejs
+  - views/footer.ejs
+  - docs/proper-documentation-pages.md
+
 ## 2026-04-19-12
 
 - Agent: Claude
