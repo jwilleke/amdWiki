@@ -2,6 +2,24 @@
 
 AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version history.
 
+## 2026-04-19-02
+
+- Agent: Claude
+- Subject: Fix backtick inline code rendering in table cells; rewrite CounterPlugin examples
+- Current Issue: #541, #511
+- Work Done:
+  - Created GH issue #541 for backtick-in-table-cell rendering bug
+  - Fixed root cause: swapped extraction order in extractJSPWikiSyntax so style blocks are extracted before inline backticks — cell content retains raw backtick pairs
+  - Extended appendWikiNodes wikiPattern with backtick Group 1 → creates <code> DOM nodes directly in cells
+  - Updated populateCell hasWiki check to detect backtick patterns and route through appendWikiNodes
+  - Added 3 unit tests to MarkupParser-EndToEnd.test.ts (backtick in th, backtick in td, no placeholder survivors)
+  - Rewrote CounterPlugin required-page: replaced code-block-only examples (with static "Output:" claims) with live [[{...}] renders as: [{...}] pattern; used name+start params to isolate example groups
+- Commits: a82f6494, 3b124759
+- Files Modified:
+  - src/parsers/MarkupParser.ts
+  - src/parsers/__tests__/MarkupParser-EndToEnd.test.ts
+  - required-pages/ff2c3a6d-fdfc-479f-90e3-585dc2b3abd0.md (CounterPlugin)
+
 ## 2026-04-19-01
 
 - Agent: Claude
