@@ -2,6 +2,26 @@
 
 AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version history.
 
+## 2026-04-19-01
+
+- Agent: Claude
+- Subject: Required Pages Documentation Overhaul — table format conversion and authoring standards (#511)
+- Current Issue: #511, #466
+- Work Done:
+  - Created `docs/proper-documentation-pages.md` (system-category: developer) — authoring standards covering branding, page structure, writing style, inline links, ngdpbase vs markdown table format, built-in syntax, example format, frontmatter requirements
+  - Created `docs/plugins/UserLookupPlugin.md` — developer reference for [{UserLookup}] plugin
+  - Created `required-pages/d1ee72a5-84fd-4b97-bb77-56ec7751f9d7.md` (userlookupplugin) — end-user page with ngdpbase table syntax and live examples
+  - Converted 49 required-pages files from markdown table syntax to ngdpbase %%table-striped format (tables in code blocks preserved)
+  - Fixed InterWikiLinks: replaced ## Related section with inline links, added ## More Information footer
+  - Result: 0 remaining markdown tables, 0 missing footers (excluding excluded pages), 0 ## Related Pages sections
+- Commits: ecf277ff, 422aff6c
+- Files Modified:
+  - docs/proper-documentation-pages.md (new)
+  - docs/plugins/UserLookupPlugin.md (new)
+  - required-pages/d1ee72a5-84fd-4b97-bb77-56ec7751f9d7.md (new)
+  - required-pages/51d6f3a1-ca69-4284-972a-8dd2b2fd0bb2.md (InterWikiLinks footer fix)
+  - required-pages/*.md (49 files — markdown table conversion)
+
 ## 2026-04-18-22
 
 - Agent: Claude
