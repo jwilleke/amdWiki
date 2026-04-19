@@ -1434,6 +1434,19 @@ class WikiRoutes {
 
       // Load page metadata before ACL checks so Tier 0 / Tier 1.5 have full context
       const metadata = await pageManager.getPageMetadata(pageName);
+      // Coerce keyword fields to arrays — JSPWiki imports may store them as
+      // space-separated scalars (e.g. `user-keywords: foo bar baz`).
+      if (metadata) {
+        if (!Array.isArray(metadata['user-keywords'])) {
+          metadata['user-keywords'] = metadata['user-keywords']
+            ? String(metadata['user-keywords']).split(/[\s,]+/).filter(Boolean)
+            : [];
+        }
+        if (!Array.isArray(metadata['system-keywords'])) {
+          const sk = metadata['system-keywords'];
+          metadata['system-keywords'] = (typeof sk === 'string' && sk) ? [sk] : [];
+        }
+      }
       (wikiContext as { pageMetadata: unknown }).pageMetadata = metadata ?? null;
 
       // Check private page access before rendering

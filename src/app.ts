@@ -21,6 +21,7 @@ import WikiRoutes from './routes/WikiRoutes';
 import InstallRoutes from './routes/InstallRoutes';
 import InstallService from './services/InstallService';
 import { ThemeManager } from './managers/ThemeManager';
+import type PageManager from './managers/PageManager';
 
 // Project root — reliable because PM2/server.sh always run from the project directory.
 // __dirname would resolve to dist/src/ after compilation, so it cannot be used for
@@ -390,21 +391,36 @@ void (async (): Promise<void> => {
   const installRoutes = new InstallRoutes(engine);
   app.use('/install', installRoutes.getRouter());
 
+  // 7b. /metrics — must be registered BEFORE wiki routes so it is not shadowed.
+  // If a wiki page with slug 'metrics' exists, redirect there so users get a
+  // human-readable view. Otherwise serve raw Prometheus data (admin only).
+  app.get('/metrics', async (req: Request, res: Response): Promise<void> => {
+    try {
+      const pageManager = engine.getManager<PageManager>('PageManager');
+      if (pageManager) {
+        const metricsPage = await pageManager.getPageBySlug('metrics');
+        if (metricsPage?.title) {
+          res.redirect(`/view/${encodeURIComponent(metricsPage.title)}`);
+          return;
+        }
+      }
+    } catch { /* fall through to Prometheus handler */ }
+
+    if (!metricsManager?.isEnabled()) {
+      res.status(503).send('Metrics not enabled'); return;
+    }
+    const metricsHandler = metricsManager.getMetricsHandler();
+    if (!metricsHandler) {
+      res.status(503).send('Metrics handler unavailable'); return;
+    }
+    if (!req.userContext?.roles?.includes('admin')) {
+      res.status(403).send('Admin access required'); return;
+    }
+    metricsHandler(req, res);
+  });
+
   const wikiRoutes = new WikiRoutes(engine);
   wikiRoutes.registerRoutes(app);
-
-  // 7b. Admin-protected /metrics endpoint
-  if (metricsManager?.isEnabled()) {
-    const metricsHandler = metricsManager.getMetricsHandler();
-    if (metricsHandler) {
-      app.get('/metrics', (req: Request, res: Response): void => {
-        if (!req.userContext?.roles?.includes('admin')) {
-          res.status(403).send('Admin access required'); return;
-        }
-        metricsHandler(req, res);
-      });
-    }
-  }
 
   // 8. Mark engine as ready
   engineReady = true;
