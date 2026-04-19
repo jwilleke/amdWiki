@@ -2,6 +2,19 @@
 
 AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version history.
 
+## 2026-04-19-07
+
+- Agent: Claude
+- Subject: Update maintenance dialog copy — remove wiki references
+- Current Issue: none
+- Work Done:
+  - Changed heading from "We're currently performing maintenance" to "We are currently performing maintenance"
+  - Changed startup message from "The wiki engine is starting up" to "The system is starting up"
+- Commits: c2e32ef3
+- Files Modified:
+  - src/app.ts
+  - views/maintenance.ejs
+
 ## 2026-04-19-06
 
 - Agent: Claude
