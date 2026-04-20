@@ -2,6 +2,40 @@
 
 AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version history.
 
+## 2026-04-20-04
+
+- Agent: Claude
+- Subject: #395 page comments for authenticated users; issue housekeeping
+- Current Issue: #395
+- Work Done:
+  - Closed #546–549 (already resolved in prior session commit 009abbf4)
+  - Closed #59 (WikiTag Handler) and #60 (WikiForm Handler) as won't fix — JSPWiki-compat markup approach not adopted; #463 (Forms addon) is the canonical path
+  - Added design notes comment to #463 documenting supersession of #59/#60
+  - Implemented #395: page comments for authenticated users
+    - `src/types/Comment.ts` — PageComment interface
+    - `src/managers/CommentManager.ts` — file-based CRUD at `data/comments/<pageUuid>/`
+    - `src/plugins/CommentsPlugin.ts` — renders comment list + form; reads userContext and pageMetadata from plugin context
+    - Auto-injects `[{CommentsPlugin}]` at render time (after `----` separator) for user pages; required-pages excluded
+    - `POST /api/comments/:pageUuid` — authenticated users only, comments appear immediately
+    - `DELETE /api/comments/:pageUuid/:commentId` — author or admin only; soft-delete
+    - Comments immutable after submit
+    - Config: `ngdpbase.comments.allow: true` (default on), `ngdpbase.comments.storagedir`
+    - Threaded `pageMetadata` through `WikiContext.toParseOptions()` → `ParseContext` → `PluginSyntaxHandler` so all plugins can access page UUID without a separate PageManager lookup
+  - Updated `WikiContext.test.ts` to cover new `pageMetadata` and `query` fields in `toParseOptions()`
+  - All 2972 tests pass
+- Commits: ca0d6b79
+- Files Modified:
+  - config/app-default-config.json
+  - src/WikiEngine.ts
+  - src/context/WikiContext.ts
+  - src/context/__tests__/WikiContext.test.ts
+  - src/managers/CommentManager.ts (new)
+  - src/parsers/context/ParseContext.ts
+  - src/parsers/handlers/PluginSyntaxHandler.ts
+  - src/plugins/CommentsPlugin.ts (new)
+  - src/routes/WikiRoutes.ts
+  - src/types/Comment.ts (new)
+
 ## 2026-04-20-03
 
 - Agent: Claude
