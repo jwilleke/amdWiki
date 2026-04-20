@@ -2,6 +2,27 @@
 
 AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version history.
 
+## 2026-04-20-02
+
+- Agent: Claude
+- Subject: #511 plugin doc audit complete; frontmatter fixes; pluginFormatters consolidation issues filed
+- Current Issue: #511
+- Work Done:
+  - Audited all 10 plugin doc pages in #511 plan — stat and list/index plugins already correct
+  - Fixed MediaPlugin frontmatter: user-keywords (was 'default') and author (was 'admin')
+  - Fixed ImagePlugin frontmatter: user-keywords (was 'default') and author (was 'admin')
+  - Fixed VariablesPlugin: merged redundant ## Description section into opening paragraph
+  - Filed #546: migrate formatDuration() from UptimePlugin + fix module.exports
+  - Filed #547: migrate formatDateTime() / formatRelativeTime() from RecentChangesPlugin
+  - Filed #548: deduplicate splitParam() / parseBoolParam() across SlideshowPlugin + PageSlideshowPlugin (includes latent bug fix)
+  - Filed #549: migrate extractExcerpt(), shuffleArray(); deduplicate escapeHtml in JSPWikiPreprocessor
+  - Posted completion comment on #511
+- Commits: a055765d
+- Files Modified:
+  - required-pages/70416655-ace4-4440-8ae6-8fed7587a94f.md
+  - required-pages/6bdacfac-300d-4d89-ad4a-2acc98e12bc5.md
+  - required-pages/8d2c3b4a-9e1f-4c5d-a6b7-7e8f9a0b1c2d.md
+
 ## 2026-04-20-01
 
 - Agent: Claude
