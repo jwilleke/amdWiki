@@ -1833,11 +1833,14 @@ class MarkupParser extends BaseManager {
     // Create tbody if there are body rows
     if (bodyRows.length > 0) {
       const tbody = wikiDocument.createElement('tbody', {});
+      let autoRowNum = 0;
       for (const row of bodyRows) {
         const tr = wikiDocument.createElement('tr', {});
+        const hasAutoNum = row.cells.some(c => c === '#');
+        if (hasAutoNum) autoRowNum++;
         for (const cell of row.cells) {
           const td = wikiDocument.createElement('td', {});
-          await populateCell(td, cell);
+          await populateCell(td, cell === '#' ? String(autoRowNum) : cell);
           tr.appendChild(td);
         }
         tbody.appendChild(tr);

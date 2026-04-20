@@ -22,9 +22,8 @@ Sign in to each instance as an admin user. Have a second browser tab open to the
 
 Use this URL to run the kiosk through the curated demo page sequence:
 
-```
-/kiosk?pages=Why+Use+This+Platform,Platform+Variables,Syntax+Highlighting,Using+Emoji,ConfigAccessorPlugin,My+Links,Kiosk+Mode,Search+Documentation,Markdown+Cheat+Sheet,Plugin,User+Roles+and+Permissions&interval=12
-```
+[kiodk Mode](http://jminim4:3000/kiosk?pages=Why+Use+This+Platform,Platform+Variables,Syntax+Highlighting,Using+Emoji,ConfigAccessorPlugin,My+Links,Kiosk+Mode,Search+Documentation,Markdown+Cheat+Sheet,Plugin,User+Roles+and+Permissions&interval=12)
+`
 
 Open it in a separate browser window at the start of the session and leave it running as ambient background during breaks.
 

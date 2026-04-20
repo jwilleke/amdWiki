@@ -321,10 +321,14 @@ class JSPWikiPreprocessor extends BaseSyntaxHandler {
     // Add tbody if there are body rows
     if (bodyRows.length > 0) {
       html += '  <tbody>\n';
+      let autoRowNum = 0;
       bodyRows.forEach(row => {
+        const hasAutoNum = row.cells.some(c => c === '#');
+        if (hasAutoNum) autoRowNum++;
         html += '    <tr>\n';
         row.cells.forEach(cell => {
-          html += `      <td>${this.escapeHtml(cell)}</td>\n`;
+          const value = cell === '#' ? String(autoRowNum) : cell;
+          html += `      <td>${this.escapeHtml(value)}</td>\n`;
         });
         html += '    </tr>\n';
       });
