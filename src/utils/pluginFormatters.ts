@@ -243,6 +243,118 @@ export function formatAsTable(headers: string[], rows: string[][], options?: Tab
 }
 
 // ---------------------------------------------------------------------------
+// Duration and date formatting
+// ---------------------------------------------------------------------------
+
+/**
+ * Format a duration in seconds as a human-readable string.
+ * Examples: "3d 12h 45m", "5h 30m", "15m"
+ */
+export function formatDuration(seconds: number): string {
+  const days    = Math.floor(seconds / 86400);
+  const hours   = Math.floor((seconds % 86400) / 3600);
+  const minutes = Math.floor((seconds % 3600) / 60);
+  if (days > 0)  return `${days}d ${hours}h ${minutes}m`;
+  if (hours > 0) return `${hours}h ${minutes}m`;
+  return `${minutes}m`;
+}
+
+/**
+ * Format a Date as a locale-aware date/time string.
+ * Example: "Apr 19, 2026, 10:30 AM"
+ */
+export function formatDateTime(date: Date, locale = 'en-US'): string {
+  const options: Intl.DateTimeFormatOptions = {
+    year: 'numeric', month: 'short', day: 'numeric',
+    hour: 'numeric', minute: '2-digit', hour12: true
+  };
+  return date.toLocaleString(locale, options);
+}
+
+/**
+ * Format a Date as a relative time string.
+ * Examples: "just now", "2 hours ago", "3 days ago", "Apr 5, 2026"
+ */
+export function formatRelativeTime(date: Date, locale = 'en-US'): string {
+  const diffMs      = Date.now() - date.getTime();
+  const diffSeconds = Math.floor(diffMs / 1000);
+  const diffMinutes = Math.floor(diffSeconds / 60);
+  const diffHours   = Math.floor(diffMinutes / 60);
+  const diffDays    = Math.floor(diffHours / 24);
+
+  if (diffSeconds < 60)  return 'just now';
+  if (diffMinutes < 60)  return `${diffMinutes} minute${diffMinutes !== 1 ? 's' : ''} ago`;
+  if (diffHours < 24)    return `${diffHours} hour${diffHours !== 1 ? 's' : ''} ago`;
+  if (diffDays < 7)      return `${diffDays} day${diffDays !== 1 ? 's' : ''} ago`;
+  return date.toLocaleDateString(locale, { month: 'short', day: 'numeric', year: 'numeric' });
+}
+
+// ---------------------------------------------------------------------------
+// Plugin parameter helpers
+// ---------------------------------------------------------------------------
+
+/**
+ * Split a comma-separated plugin parameter into a trimmed, non-empty array.
+ * Example: splitParam('a, b, c') → ['a', 'b', 'c']
+ */
+export function splitParam(value: string | number | boolean | undefined): string[] {
+  if (!value) return [];
+  return String(value).split(',').map(s => s.trim()).filter(Boolean);
+}
+
+/**
+ * Parse a boolean plugin parameter.
+ * '0' and 'false' (case-insensitive) → false; '1' and 'true' → true; else → defaultVal.
+ */
+export function parseBoolParam(value: string | number | boolean | undefined, defaultVal: boolean): boolean {
+  if (value === undefined || value === null || value === '') return defaultVal;
+  const s = String(value).toLowerCase().trim();
+  if (s === 'false' || s === '0') return false;
+  if (s === 'true'  || s === '1') return true;
+  return defaultVal;
+}
+
+// ---------------------------------------------------------------------------
+// Text / content helpers
+// ---------------------------------------------------------------------------
+
+/**
+ * Strip frontmatter, plugin syntax, and markdown decoration from raw page
+ * content and return plain text suitable for a card excerpt, truncated at
+ * the last word boundary before maxLen characters.
+ */
+export function extractExcerpt(raw: string, maxLen: number): string {
+  const text = raw
+    .replace(/^---[\s\S]*?---\n?/, '')         // YAML frontmatter
+    .replace(/\[\{[^\]]*\}\]/g, '')             // [{Plugin}] syntax
+    .replace(/!\[.*?\]\(.*?\)/g, '')            // markdown images
+    .replace(/^#{1,6}\s+/gm, '')               // markdown headings
+    .replace(/\*{1,3}([^*]+)\*{1,3}/g, '$1')  // bold / italic
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')   // markdown links → label
+    .replace(/\[([^\]]+)\]/g, '$1')            // wiki links → label
+    .replace(/`{1,3}[^`]*`{1,3}/g, '')         // code spans / fences
+    .replace(/^\s*[-*+]\s+/gm, '')             // list bullets
+    .replace(/\n{2,}/g, ' ')                   // paragraph breaks → space
+    .replace(/\n/g, ' ')
+    .trim();
+
+  if (text.length <= maxLen) return text;
+  const cut = text.lastIndexOf(' ', maxLen);
+  return (cut > 0 ? text.slice(0, cut) : text.slice(0, maxLen)) + '…';
+}
+
+/**
+ * Fisher-Yates in-place shuffle. Returns the same array reference.
+ */
+export function shuffleArray<T>(arr: T[]): T[] {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+// ---------------------------------------------------------------------------
 // Pagination utilities
 // ---------------------------------------------------------------------------
 

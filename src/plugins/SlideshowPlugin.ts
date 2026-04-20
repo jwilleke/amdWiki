@@ -22,21 +22,9 @@
  */
 
 import type { SimplePlugin, PluginContext, PluginParams } from './types';
-import { escapeHtml, parseMaxParam, applyMax } from '../utils/pluginFormatters';
+import { escapeHtml, parseMaxParam, applyMax, splitParam, parseBoolParam } from '../utils/pluginFormatters';
 
 let _idCounter = 0;
-
-/** Split a comma-separated param value, trim whitespace, drop empties. */
-function splitParam(value: string | number | boolean | undefined): string[] {
-  if (!value) return [];
-  return String(value).split(',').map(s => s.trim()).filter(Boolean);
-}
-
-function parseBool(value: string | number | boolean | undefined, defaultVal: boolean): boolean {
-  if (value === undefined || value === null || value === '') return defaultVal;
-  const s = String(value).toLowerCase().trim();
-  return s === 'false' || s === '0' ? false : defaultVal || s === 'true';
-}
 
 const SlideshowPlugin: SimplePlugin = {
   name: 'SlideshowPlugin',
@@ -58,8 +46,8 @@ const SlideshowPlugin: SimplePlugin = {
       const v = parseInt(String(params.interval ?? '5000'), 10);
       return isNaN(v) || v < 0 ? 5000 : v;
     })();
-    const controls   = parseBool(params.controls,   true);
-    const indicators = parseBool(params.indicators, true);
+    const controls   = parseBoolParam(params.controls,   true);
+    const indicators = parseBoolParam(params.indicators, true);
     // Strip non-CSS-unit characters to prevent style injection via semicolons etc.
     const height     = String(params.height ?? '400px').replace(/[^a-zA-Z0-9.%-]/g, '') || '400px';
     const cssclass   = params.cssclass ? ' ' + escapeHtml(String(params.cssclass)) : '';
@@ -129,4 +117,4 @@ const SlideshowPlugin: SimplePlugin = {
   }
 };
 
-module.exports = SlideshowPlugin;
+export default SlideshowPlugin;

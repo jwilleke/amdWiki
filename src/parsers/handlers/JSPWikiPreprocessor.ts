@@ -407,7 +407,12 @@ class JSPWikiPreprocessor extends BaseSyntaxHandler {
 
   /**
    * Escape HTML special characters, preserving placeholder spans
-   * that were inserted by extractJSPWikiSyntax (Phase 1)
+   * that were inserted by extractJSPWikiSyntax (Phase 1).
+   *
+   * NOTE: intentionally NOT replaced with pluginFormatters.escapeHtml — the
+   * shared helper is a simple character mapper, but this method must first
+   * protect <span data-jspwiki-placeholder> tokens from being entity-encoded.
+   * The two implementations serve different contexts.
    */
   private escapeHtml(text: string): string {
     // Protect placeholder spans before escaping

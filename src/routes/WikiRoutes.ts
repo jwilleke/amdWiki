@@ -23,6 +23,7 @@ import SchemaGenerator from '../utils/SchemaGenerator';
 import logger from '../utils/logger';
 import LocaleUtils from '../utils/LocaleUtils';
 import { extractSection, spliceSection } from '../utils/SectionUtils';
+import { shuffleArray } from '../utils/pluginFormatters';
 import WikiContext from '../context/WikiContext';
 import { ThemeManager } from '../managers/ThemeManager';
 import type { ReportProgress } from '../managers/BackgroundJobManager';
@@ -2767,13 +2768,7 @@ class WikiRoutes {
       } else {
         const count = Math.min(50, Math.max(1, parseInt(req.query.count as string, 10) || 10));
         const all   = await pageManager.getAllPages();
-        // Fisher-Yates shuffle then slice
-        const pool = [...all];
-        for (let i = pool.length - 1; i > 0; i--) {
-          const j = Math.floor(Math.random() * (i + 1));
-          [pool[i], pool[j]] = [pool[j], pool[i]];
-        }
-        names = pool.slice(0, count);
+        names = shuffleArray([...all]).slice(0, count);
       }
 
       // Render each page through the wiki engine (reader mode — full HTML)

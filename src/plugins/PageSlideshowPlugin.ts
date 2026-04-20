@@ -25,7 +25,7 @@
  */
 
 import type { SimplePlugin, PluginContext, PluginParams } from './types';
-import { escapeHtml } from '../utils/pluginFormatters';
+import { escapeHtml, splitParam, parseBoolParam, extractExcerpt, shuffleArray } from '../utils/pluginFormatters';
 
 let _idCounter = 0;
 
@@ -41,50 +41,6 @@ interface PageManagerLike {
   getPage(name: string): Promise<PageRecord | null>;
 }
 
-/** Split a comma-separated param, trim and drop empties. */
-function splitParam(value: string | number | boolean | undefined): string[] {
-  if (!value) return [];
-  return String(value).split(',').map(s => s.trim()).filter(Boolean);
-}
-
-function parseBool(value: string | number | boolean | undefined, def: boolean): boolean {
-  if (value === undefined || value === null || value === '') return def;
-  const s = String(value).toLowerCase().trim();
-  return s === 'false' || s === '0' ? false : s === 'true' ? true : def;
-}
-
-/**
- * Strip frontmatter, wiki plugin syntax, markdown headers and images from raw
- * page content and return plain-ish text suitable for an excerpt.
- */
-function extractExcerpt(raw: string, maxLen: number): string {
-  const text = raw
-    .replace(/^---[\s\S]*?---\n?/, '')          // YAML frontmatter
-    .replace(/\[\{[^\]]*\}\]/g, '')              // [{Plugin ...}] syntax
-    .replace(/!\[.*?\]\(.*?\)/g, '')             // markdown images
-    .replace(/^#{1,6}\s+/gm, '')                 // markdown headings
-    .replace(/\*{1,3}([^*]+)\*{1,3}/g, '$1')    // bold / italic
-    .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')     // markdown links → label
-    .replace(/\[([^\]]+)\]/g, '$1')              // wiki links → label
-    .replace(/`{1,3}[^`]*`{1,3}/g, '')           // inline code / fenced blocks
-    .replace(/^\s*[-*+]\s+/gm, '')               // list bullets
-    .replace(/\n{2,}/g, ' ')                     // paragraph breaks → space
-    .replace(/\n/g, ' ')
-    .trim();
-
-  if (text.length <= maxLen) return text;
-  const cut = text.lastIndexOf(' ', maxLen);
-  return (cut > 0 ? text.slice(0, cut) : text.slice(0, maxLen)) + '…';
-}
-
-/** Fisher-Yates shuffle (in-place), returns the array. */
-function shuffle<T>(arr: T[]): T[] {
-  for (let i = arr.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [arr[i], arr[j]] = [arr[j], arr[i]];
-  }
-  return arr;
-}
 
 const PageSlideshowPlugin: SimplePlugin = {
   name: 'PageSlideshowPlugin',
@@ -107,7 +63,7 @@ const PageSlideshowPlugin: SimplePlugin = {
       pageNames = explicitPages;
     } else if (randomCount > 0) {
       const all = await pageManager.getAllPages();
-      pageNames = shuffle(all).slice(0, randomCount);
+      pageNames = shuffleArray(all).slice(0, randomCount);
     } else {
       return '<span class="text-muted"><em>[PageSlideshowPlugin: specify pages or random parameter]</em></span>';
     }
@@ -137,10 +93,10 @@ const PageSlideshowPlugin: SimplePlugin = {
       const v = parseInt(String(params.interval ?? '5000'), 10);
       return isNaN(v) || v < 0 ? 5000 : v;
     })();
-    const showTitle  = parseBool(params.showTitle,  true);
-    const showLink   = parseBool(params.showLink,   true);
-    const controls   = parseBool(params.controls,   true);
-    const indicators = parseBool(params.indicators, true);
+    const showTitle  = parseBoolParam(params.showTitle,  true);
+    const showLink   = parseBoolParam(params.showLink,   true);
+    const controls   = parseBoolParam(params.controls,   true);
+    const indicators = parseBoolParam(params.indicators, true);
     const height     = String(params.height ?? '300px').replace(/[^a-zA-Z0-9.%-]/g, '') || '300px';
     const cssclass   = params.cssclass ? ' ' + escapeHtml(String(params.cssclass)) : '';
 
@@ -213,4 +169,4 @@ const PageSlideshowPlugin: SimplePlugin = {
   }
 };
 
-module.exports = PageSlideshowPlugin;
+export default PageSlideshowPlugin;

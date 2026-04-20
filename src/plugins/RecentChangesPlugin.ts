@@ -16,7 +16,7 @@
 import fs from 'fs-extra';
 import path from 'path';
 import type { SimplePlugin, PluginContext, PluginParams } from './types';
-import { escapeHtml } from '../utils/pluginFormatters';
+import { escapeHtml, formatDateTime, formatRelativeTime } from '../utils/pluginFormatters';
 
 interface RecentChangesParams extends PluginParams {
   since?: string | number;
@@ -80,50 +80,6 @@ async function loadPageIndex(indexPath?: string): Promise<PageIndex | null> {
   return null;
 }
 
-/**
- * Format date for full format (e.g., "Jan 15, 2025 3:45 PM")
- * @param date - Date to format
- * @returns Formatted date string
- */
-function formatDate(date: Date): string {
-  const options: Intl.DateTimeFormatOptions = {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-    hour: 'numeric',
-    minute: '2-digit',
-    hour12: true
-  };
-  return date.toLocaleString('en-US', options);
-}
-
-/**
- * Format date for compact format (e.g., "2 hours ago", "3 days ago")
- * @param date - Date to format
- * @returns Formatted date string
- */
-function formatDateCompact(date: Date): string {
-  const now = new Date();
-  const diffMs = now.getTime() - date.getTime();
-  const diffSeconds = Math.floor(diffMs / 1000);
-  const diffMinutes = Math.floor(diffSeconds / 60);
-  const diffHours = Math.floor(diffMinutes / 60);
-  const diffDays = Math.floor(diffHours / 24);
-
-  if (diffSeconds < 60) {
-    return 'just now';
-  } else if (diffMinutes < 60) {
-    return `${diffMinutes} minute${diffMinutes !== 1 ? 's' : ''} ago`;
-  } else if (diffHours < 24) {
-    return `${diffHours} hour${diffHours !== 1 ? 's' : ''} ago`;
-  } else if (diffDays < 7) {
-    return `${diffDays} day${diffDays !== 1 ? 's' : ''} ago`;
-  } else {
-    // For older dates, show the actual date
-    const options: Intl.DateTimeFormatOptions = { month: 'short', day: 'numeric', year: 'numeric' };
-    return date.toLocaleDateString('en-US', options);
-  }
-}
 
 /**
  * Generate full format output
@@ -149,7 +105,7 @@ function generateFullFormat(pages: PageWithDate[], since: number): string {
   for (const page of pages) {
     const editor = page.editor || 'Unknown';
     const version = page.currentVersion || 1;
-    const formattedDateStr = formatDate(page.mtime);
+    const formattedDateStr = formatDateTime(page.mtime);
 
     html += '    <tr>\n';
     html += `      <td><a class="wikipage" href="/view/${encodeURIComponent(page.title)}">${escapeHtml(page.title)}</a></td>\n`;
@@ -180,7 +136,7 @@ function generateCompactFormat(pages: PageWithDate[], since: number): string {
   html += '<ul class="list-unstyled">\n';
 
   for (const page of pages) {
-    const formattedDateStr = formatDateCompact(page.mtime);
+    const formattedDateStr = formatRelativeTime(page.mtime);
 
     html += '  <li class="mb-1">\n';
     html += `    <a class="wikipage" href="/view/${encodeURIComponent(page.title)}">${escapeHtml(page.title)}</a> `;
@@ -317,4 +273,4 @@ const RecentChangesPlugin: SimplePlugin = {
   }
 };
 
-module.exports = RecentChangesPlugin;
+export default RecentChangesPlugin;
