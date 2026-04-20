@@ -41,6 +41,7 @@ import type ExportManager from '../managers/ExportManager';
 import type ImportManager from '../managers/ImportManager';
 import type MediaManager from '../managers/MediaManager';
 import type MetricsManager from '../managers/MetricsManager';
+import type CommentManager from '../managers/CommentManager';
 import type NotificationManager from '../managers/NotificationManager';
 import type PolicyValidator from '../managers/PolicyValidator';
 import type RenderingManager from '../managers/RenderingManager';
@@ -218,6 +219,7 @@ interface WikiEngine {
   getManager(name: 'BackupManager'): BackupManager;
   getManager(name: 'CacheManager'): CacheManager;
   getManager(name: 'CatalogManager'): CatalogManager;
+  getManager(name: 'CommentManager'): CommentManager;
   getManager(name: 'ExportManager'): ExportManager;
   getManager(name: 'ImportManager'): ImportManager;
   getManager(name: 'MediaManager'): MediaManager;
@@ -1478,7 +1480,7 @@ class WikiRoutes {
       const commentManager = this.engine.getManager('CommentManager');
       const isRequiredForComments = await this.isRequiredPage(pageName);
       let contentForRender = markdown;
-      if (typeof commentManager?.isEnabled === 'function' && commentManager.isEnabled() && !isRequiredForComments) {
+      if (commentManager?.isEnabled?.() && !isRequiredForComments) {
         contentForRender = markdown + '\n\n----\n\n[{CommentsPlugin}]';
       }
 
@@ -4210,7 +4212,7 @@ class WikiRoutes {
       }
 
       const commentManager = this.engine.getManager('CommentManager');
-      if (!commentManager || typeof commentManager.isEnabled !== 'function' || !commentManager.isEnabled()) {
+      if (!commentManager || !commentManager.isEnabled?.()) {
         return res.status(404).json({ success: false, error: 'Comments are not enabled' });
       }
 
@@ -4232,7 +4234,7 @@ class WikiRoutes {
 
       const { pageUuid, commentId } = req.params;
       const commentManager = this.engine.getManager('CommentManager');
-      if (!commentManager || typeof commentManager.isEnabled !== 'function' || !commentManager.isEnabled()) {
+      if (!commentManager || !commentManager.isEnabled?.()) {
         return res.status(404).json({ success: false, error: 'Comments are not enabled' });
       }
 
