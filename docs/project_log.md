@@ -2,6 +2,23 @@
 
 AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version history.
 
+## 2026-04-20-01
+
+- Agent: Claude
+- Subject: TablePlugin — [{Table}] support and # auto-numbering in table rows
+- Current Issue: none
+- Work Done:
+  - Created TablePlugin.ts to resolve [{Table}] without "plugin not found" error
+  - Added # auto-numbering in JSPWikiPreprocessor.parseTable() for plain tables
+  - Added # auto-numbering in MarkupParser.createTableNode() for %%style-block tables
+  - Counter resets per table; only rows with at least one # cell increment the counter
+- Commits: 185c3c39
+- Files Modified:
+  - src/plugins/TablePlugin.ts
+  - src/parsers/handlers/JSPWikiPreprocessor.ts
+  - src/parsers/MarkupParser.ts
+  - docs/demo/technical.md
+
 ## 2026-04-19-19
 
 - Agent: Claude
