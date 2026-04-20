@@ -2,11 +2,16 @@
 title: ImagePlugin
 system-category: documentation
 user-keywords:
-  - default
+  - Image
+  - Photo
+  - Embed
+  - Display
+  - Plugin
+  - Picture
 uuid: 6bdacfac-300d-4d89-ad4a-2acc98e12bc5
 slug: imageplugin
-lastModified: '2026-04-19T00:00:00.000Z'
-author: admin
+lastModified: '2026-04-20T00:00:00.000Z'
+author: system
 ---
 # ImagePlugin
 
