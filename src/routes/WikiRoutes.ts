@@ -1473,7 +1473,16 @@ class WikiRoutes {
 
       // Check if user can edit this page
       const canEdit = await aclManager.checkPagePermissionWithContext(wikiContext, 'edit');
-      const html = await renderingManager.textToHTML(wikiContext, markdown);
+
+      // Auto-inject [{CommentsPlugin}] for user pages when comments are enabled
+      const commentManager = this.engine.getManager('CommentManager');
+      const isRequiredForComments = await this.isRequiredPage(pageName);
+      let contentForRender = markdown;
+      if (typeof commentManager?.isEnabled === 'function' && commentManager.isEnabled() && !isRequiredForComments) {
+        contentForRender = markdown + '\n\n----\n\n[{CommentsPlugin}]';
+      }
+
+      const html = await renderingManager.textToHTML(wikiContext, contentForRender);
 
       // Get version information if versioning is enabled
       let versionInfo = null;
@@ -4181,6 +4190,67 @@ class WikiRoutes {
     } catch (err) {
       logger.error('Error reordering pinned pages:', err);
       return res.status(500).json({ error: 'Failed to reorder pinned pages' });
+    }
+  }
+
+  async addComment(req: Request, res: Response) {
+    try {
+      const currentUser = req.userContext;
+      if (!currentUser || !currentUser.isAuthenticated) {
+        return res.status(401).json({ success: false, error: 'Authentication required to post comments' });
+      }
+
+      const { pageUuid } = req.params;
+      const { content } = req.body as { content?: string };
+      if (!content || !content.trim()) {
+        return res.status(400).json({ success: false, error: 'Comment content is required' });
+      }
+      if (content.trim().length > 2000) {
+        return res.status(400).json({ success: false, error: 'Comment exceeds 2000 character limit' });
+      }
+
+      const commentManager = this.engine.getManager('CommentManager');
+      if (!commentManager || typeof commentManager.isEnabled !== 'function' || !commentManager.isEnabled()) {
+        return res.status(404).json({ success: false, error: 'Comments are not enabled' });
+      }
+
+      const displayName = (currentUser.displayName ?? currentUser.username) ?? 'Unknown';
+      const comment = await commentManager.addComment(pageUuid, currentUser.username ?? '', displayName, content.trim());
+      return res.json({ success: true, comment });
+    } catch (err: unknown) {
+      logger.error('Error adding comment:', err);
+      return res.status(500).json({ success: false, error: 'Failed to add comment' });
+    }
+  }
+
+  async deleteComment(req: Request, res: Response) {
+    try {
+      const currentUser = req.userContext;
+      if (!currentUser || !currentUser.isAuthenticated) {
+        return res.status(401).json({ success: false, error: 'Authentication required' });
+      }
+
+      const { pageUuid, commentId } = req.params;
+      const commentManager = this.engine.getManager('CommentManager');
+      if (!commentManager || typeof commentManager.isEnabled !== 'function' || !commentManager.isEnabled()) {
+        return res.status(404).json({ success: false, error: 'Comments are not enabled' });
+      }
+
+      const comment = await commentManager.getComment(pageUuid, commentId);
+      if (!comment) {
+        return res.status(404).json({ success: false, error: 'Comment not found' });
+      }
+
+      const isAdmin = (currentUser.roles ?? []).includes('admin');
+      if (!isAdmin && comment.author !== currentUser.username) {
+        return res.status(403).json({ success: false, error: 'Not authorised to delete this comment' });
+      }
+
+      await commentManager.deleteComment(pageUuid, commentId, currentUser.username ?? '');
+      return res.json({ success: true });
+    } catch (err: unknown) {
+      logger.error('Error deleting comment:', err);
+      return res.status(500).json({ success: false, error: 'Failed to delete comment' });
     }
   }
 
@@ -7661,6 +7731,8 @@ class WikiRoutes {
     app.get('/profile', (req: Request, res: Response) => this.profilePage(req, res));
     app.post('/profile', (req: Request, res: Response) => this.updateProfile(req, res));
     app.post('/preferences', (req: Request, res: Response) => this.updatePreferences(req, res));
+    app.post('/api/comments/:pageUuid', (req: Request, res: Response) => void this.addComment(req, res));
+    app.delete('/api/comments/:pageUuid/:commentId', (req: Request, res: Response) => void this.deleteComment(req, res));
     app.post('/api/user/display-theme', (req: Request, res: Response) => this.updateDisplayTheme(req, res));
     app.post('/api/user/pinned-pages', (req: Request, res: Response) => void this.addPinnedPage(req, res));
     app.delete('/api/user/pinned-pages/:pageName', (req: Request, res: Response) => void this.removePinnedPage(req, res));

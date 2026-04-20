@@ -34,6 +34,7 @@ import EmailManager from './managers/EmailManager';
 import MetricsManager from './managers/MetricsManager';
 import BackgroundJobManager from './managers/BackgroundJobManager';
 import CatalogManager from './managers/CatalogManager';
+import CommentManager from './managers/CommentManager';
 
 // Parsers
 import MarkupParser from './parsers/MarkupParser';
@@ -307,6 +308,11 @@ class WikiEngine extends Engine {
     const auditManager = new AuditManager(this);
     this.registerManager('AuditManager', auditManager);
     await auditManager.initialize();
+
+    // Add CommentManager for page comments
+    const commentManager = new CommentManager(this);
+    this.registerManager('CommentManager', commentManager);
+    await commentManager.initialize();
 
     // Add BackupManager to the initialization sequence (must be last)
     const backupManager = new BackupManager(this);

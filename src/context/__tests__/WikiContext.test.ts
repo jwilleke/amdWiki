@@ -144,13 +144,15 @@ describe('WikiContext', () => {
             userAgent: 'test-agent',
             clientIp: '127.0.0.1',
             referer: undefined,
-            sessionId: 'test-session-id'
+            sessionId: 'test-session-id',
+            query: undefined
           },
           themeContext: {
             activeTheme: 'default',
             themeInfo: null,
             displayTheme: 'system'
-          }
+          },
+          pageMetadata: null
         },
         engine: mockEngine
       });

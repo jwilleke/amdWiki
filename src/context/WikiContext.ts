@@ -98,6 +98,8 @@ export interface PageContext {
   requestInfo: RequestInfo;
   /** Theme context */
   themeContext?: ThemeContext;
+  /** Page front matter metadata */
+  pageMetadata?: PageFrontmatter | null;
 }
 
 /**
@@ -400,7 +402,8 @@ class WikiContext {
           sessionId: this.request?.sessionID,
           query: this.request?.query as Record<string, string> | undefined
         },
-        themeContext: this.themeContext
+        themeContext: this.themeContext,
+        pageMetadata: this.pageMetadata
       },
       engine: this.engine
     };

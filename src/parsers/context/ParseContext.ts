@@ -31,6 +31,15 @@ export interface RequestInfo {
 }
 
 /**
+ * Minimal page frontmatter for parse context (uuid is the key consumer)
+ */
+export interface PageFrontmatter {
+  uuid?: string;
+  title?: string;
+  [key: string]: unknown;
+}
+
+/**
  * Page context interface
  */
 export interface PageContext {
@@ -38,6 +47,7 @@ export interface PageContext {
   userName?: string;
   userContext?: UserContext | null;
   requestInfo?: RequestInfo | null;
+  pageMetadata?: PageFrontmatter | null;
   [key: string]: unknown;
 }
 
@@ -134,6 +144,7 @@ class ParseContext {
   readonly userName: string;
   readonly userContext: UserContext | null;
   readonly requestInfo: RequestInfo | null;
+  readonly pageMetadata: PageFrontmatter | null;
 
   // Mutable processing state
   protectedBlocks: unknown[];
@@ -162,6 +173,7 @@ class ParseContext {
       this.pageName = nestedContext.pageContext.pageName || 'unknown';
       this.userContext = nestedContext.pageContext.userContext || null;
       this.requestInfo = nestedContext.pageContext.requestInfo || null;
+      this.pageMetadata = nestedContext.pageContext.pageMetadata ?? null;
 
       // Extract userName from userContext if not directly provided
       this.userName = nestedContext.pageContext.userName ||
@@ -177,6 +189,7 @@ class ParseContext {
       this.pageName = directContext.pageName || 'unknown';
       this.userContext = directContext.userContext || null;
       this.requestInfo = directContext.requestInfo || null;
+      this.pageMetadata = directContext.pageMetadata ?? null;
 
       // Extract userName from userContext if not directly provided
       this.userName = directContext.userName ||

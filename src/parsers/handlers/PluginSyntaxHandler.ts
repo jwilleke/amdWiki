@@ -67,6 +67,7 @@ interface PluginParseContext extends ParseContext {
   getManager(name: string): unknown;
   userContext?: unknown;
   requestInfo?: unknown;
+  pageMetadata?: unknown;
   engine?: WikiEngine;
   isAuthenticated?(): boolean;
   getUserRoles?(): string[];
@@ -289,6 +290,7 @@ class PluginSyntaxHandler extends BaseSyntaxHandler {
       userName: context.userName,
       userContext: context.userContext,
       requestInfo: context.requestInfo,
+      pageMetadata: context.pageMetadata,
       query: (context.requestInfo as { query?: Record<string, string> })?.query ?? {},
       engine: context.engine,
 
