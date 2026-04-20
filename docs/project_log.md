@@ -2,6 +2,29 @@
 
 AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version history.
 
+## 2026-04-20-03
+
+- Agent: Claude
+- Subject: #546-549 pluginFormatters consolidation — migrate utilities from plugins to shared module
+- Current Issue: #546, #547, #548, #549
+- Work Done:
+  - Added formatDuration(), formatDateTime(), formatRelativeTime(), splitParam(), parseBoolParam(), extractExcerpt(), shuffleArray() to pluginFormatters.ts
+  - Migrated UptimePlugin: import formatDuration, remove local formatUptime, fix module.exports → export default
+  - Migrated RecentChangesPlugin: import formatDateTime/formatRelativeTime, remove local formatDate/formatDateCompact, fix module.exports → export default
+  - Migrated SlideshowPlugin: import splitParam/parseBoolParam, remove local splitParam/parseBool, fix parseBool bug, fix module.exports → export default
+  - Migrated PageSlideshowPlugin: import splitParam/parseBoolParam/extractExcerpt/shuffleArray, remove all 4 local utility functions, fix module.exports → export default
+  - Updated WikiRoutes.ts: import shuffleArray from pluginFormatters, replace inline Fisher-Yates shuffle
+  - Added comment on JSPWikiPreprocessor.escapeHtml explaining why it cannot be replaced with shared version
+- Commits: 009abbf4
+- Files Modified:
+  - src/utils/pluginFormatters.ts
+  - src/plugins/UptimePlugin.ts
+  - src/plugins/RecentChangesPlugin.ts
+  - src/plugins/SlideshowPlugin.ts
+  - src/plugins/PageSlideshowPlugin.ts
+  - src/routes/WikiRoutes.ts
+  - src/parsers/handlers/JSPWikiPreprocessor.ts
+
 ## 2026-04-20-02
 
 - Agent: Claude
