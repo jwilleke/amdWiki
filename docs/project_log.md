@@ -2,6 +2,20 @@
 
 AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version history.
 
+## 2026-04-21-09
+
+- Agent: Claude
+- Subject: CommentsPlugin noheader fix; multi-instance update; interwiki inline link fix
+- Current Issue: #553
+- Work Done:
+  - Fixed InterWikiLinkHandler to strip |target='_blank' when used as display text in inline refs
+  - Fixed CommentsPlugin.execute missing second params argument — noheader='true' was silently ignored because execute(context) never received the params arg; header always rendered
+  - Updated stale live-data Template:PageTabs (hd2A/jimstest-wiki) from old [{Tabs}] format to current [{Tab}] format with noheader params
+  - Pulled, rebuilt, and restarted all three instances (jimstest/fairways-base/ve-geology) after each fix
+- Commits: 6e28a4eb
+- Files Modified:
+  - src/plugins/CommentsPlugin.ts
+
 ## 2026-04-21-08
 
 - Agent: Claude
