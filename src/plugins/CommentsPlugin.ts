@@ -1,4 +1,4 @@
-import type { SimplePlugin, PluginContext } from './types';
+import type { SimplePlugin, PluginContext, PluginParams } from './types';
 import type CommentManager from '../managers/CommentManager';
 import type { PageComment } from '../types/Comment';
 import { parseBoolParam } from '../utils/pluginFormatters';
@@ -25,7 +25,7 @@ const CommentsPlugin: SimplePlugin = {
   author: 'ngdpbase',
   version: '1.0.0',
 
-  async execute(context: PluginContext): Promise<string> {
+  async execute(context: PluginContext, params: PluginParams): Promise<string> {
     const engine = context.engine;
     if (!engine) return '';
 
@@ -49,7 +49,6 @@ const CommentsPlugin: SimplePlugin = {
     const displayName = userContext?.displayName ?? userContext?.name ?? username;
     const isAdmin = (userContext?.roles ?? []).includes('admin');
 
-    const params = context.params as Record<string, string | boolean> | undefined;
     const noheader = parseBoolParam(params?.['noheader'], false);
 
     const comments: PageComment[] = await commentManager.getComments(pageUuid);
