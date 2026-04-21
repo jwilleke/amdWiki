@@ -50,15 +50,55 @@ const BULLET_RE = /^\* \[[\^#](\d+)\] - (.+)$/;
  *   [Display](https://url) note
  *   https://url note
  */
+// Interwiki URL templates (mirrors app-default-config.json ngdpbase.interwiki.sites)
+const INTERWIKI_SITES = {
+  Wikipedia: 'https://en.wikipedia.org/wiki/%s',
+  JSPWiki: 'https://jspwiki-wiki.apache.org/Wiki.jsp?page=%s',
+  MeatBall: 'http://www.usemod.com/cgi-bin/mb.pl?%s',
+  GVP: 'https://volcano.si.edu/volcano.cfm?vn=%s',
+  'GVP-COUNTRY': 'https://volcano.si.edu/volcanolist_countries.cfm?country=%s',
+  C2: 'http://wiki.c2.com/?%s',
+};
+
+/**
+ * Resolve an interwiki prefix (e.g. "Wikipedia:Pacific_Ocean") to a full URL.
+ * Returns the input unchanged if it is not a recognised interwiki ref.
+ */
+function resolveInterwiki(raw) {
+  const m = raw.match(/^([A-Za-z0-9-]+):(.+)$/);
+  if (!m) return raw;
+  const template = INTERWIKI_SITES[m[1]] ?? INTERWIKI_SITES[m[1].toLowerCase()];
+  if (!template) return raw; // Unknown prefix — leave as-is
+  return template.replace(/%s/g, encodeURIComponent(m[2]));
+}
+
+/**
+ * Strip JSPWiki link attribute suffix(es) from a url field and resolve
+ * any interwiki prefix.  Handles:
+ *   Wikipedia:Pacific_Ocean|target='_blank'     → https://en.wikipedia.org/wiki/Pacific_Ocean
+ *   https://example.com|Wikipedia:...|target=..  → https://example.com
+ */
+function cleanUrl(raw) {
+  // Take only the first |-delimited segment (strip |target=... and duplicates)
+  const first = raw.split('|')[0].trim();
+  // If it is already an absolute URL, return as-is
+  if (/^https?:\/\//.test(first)) return first;
+  // Otherwise try interwiki resolution
+  return resolveInterwiki(first);
+}
+
 function parseContent(content) {
   content = content.trim();
 
-  // [Display|url] optional note
+  // [Display|url] or [Display|url|target='_blank'] optional note
   const wikiLinkMatch = content.match(/^\[([^\]|]+)\|([^\]]+)\](.*)$/);
   if (wikiLinkMatch) {
+    // Strip trailing |target=... attribute (JSPWiki 3-part link syntax)
+    const rawUrl = wikiLinkMatch[2].trim();
+    const url = cleanUrl(rawUrl);
     return {
       display: wikiLinkMatch[1].trim(),
-      url: wikiLinkMatch[2].trim(),
+      url,
       note: wikiLinkMatch[3].trim()
     };
   }

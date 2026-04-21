@@ -330,8 +330,12 @@ class InterWikiLinkHandler extends BaseSyntaxHandler {
       throw new Error(`Unsafe InterWiki URL generated: ${externalUrl}`);
     }
 
+    // Strip legacy JSPWiki target= attribute syntax misused as display text.
+    // Interwiki links are always external; target="_blank" is applied automatically.
+    const effectiveDisplay = (displayText && /^target=/i.test(displayText.trim())) ? null : displayText;
+
     // Generate link HTML
-    const linkHtml = this.generateLinkHtml(externalUrl, displayText || `${wikiName}:${pageName}`, siteConfig, wikiName);
+    const linkHtml = this.generateLinkHtml(externalUrl, effectiveDisplay || `${wikiName}:${pageName}`, siteConfig, wikiName);
 
     // Cache the result if caching enabled
     if (this.options.enabled && linkHtml) {
