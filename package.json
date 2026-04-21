@@ -1,6 +1,6 @@
 {
   "name": "ngdpbase",
-  "version": "3.3.3",
+  "version": "3.3.4",
   "description": "JSPWiki-style wiki with advanced search capabilities",
   "author": "",
   "license": "ISC",
@@ -165,10 +165,15 @@
       "html"
     ],
     "transform": {
-      "^.+\\.ts$": ["ts-jest", {
-        "tsconfig": "tsconfig.test.json",
-        "diagnostics": { "warnOnly": true }
-      }]
+      "^.+\\.ts$": [
+        "ts-jest",
+        {
+          "tsconfig": "tsconfig.test.json",
+          "diagnostics": {
+            "warnOnly": true
+          }
+        }
+      ]
     },
     "moduleFileExtensions": [
       "ts",
