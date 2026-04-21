@@ -2,6 +2,43 @@
 
 AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version history.
 
+## 2026-04-21-07
+
+- Agent: Claude
+- Subject: Footnote sidecar storage + CRUD UI; template fix (#554); page-creator fix; system-keywords default seeding
+- Current Issue: #553, #554
+- Work Done:
+  - Fixed #554: all templates were missing closing --- delimiter; gray-matter parsed entire content as YAML, crashing on [{$pagename}]; added --- to all 5 templates
+  - Added frontmatter stripping in TemplateManager.applyTemplate() as defense-in-depth
+  - Excluded storageLocation=github system categories from create/edit dropdowns
+  - Fixed page-creator overwrite on edit: now preserved from existing page, only set on first creation
+  - Added explanatory comments in PageManager and ACLManager distinguishing author (attribution) vs page-creator (ACL ownership field); #557 tracks consolidation
+  - Added getDefaultSystemKeywords() to ValidationManager; generateValidMetadata() now seeds system-keywords with config default:true entries
+  - Implemented FootnoteManager (src/managers/FootnoteManager.ts): sidecar JSON at {SLOW_STORAGE}/footnotes/{uuid}.json, mirrors CommentManager pattern
+  - Registered FootnoteManager in WikiEngine
+  - Added footnote config entries to app-default-config.json
+  - Added 4 footnote API routes to WikiRoutes.ts (GET/POST/PUT/DELETE /api/footnotes/:pageUuid)
+  - Rewrote FootnotesPlugin v2.0.0: reads from FootnoteManager sidecar, falls back to body regex for legacy pages; editor CRUD UI with Add/Edit/Delete
+  - Added migrate-footnotes-to-sidecar.mjs: extracted 18,260 footnotes from 6,338 pages, stripped bullet lines from page bodies, wrote sidecars, updated page-index.json hasFootnotes
+- Commits: 9c122ec2
+- Files Modified:
+  - config/app-default-config.json
+  - docs/TODO.md
+  - scripts/migrate-footnotes-to-sidecar.mjs (new)
+  - src/WikiEngine.ts
+  - src/managers/ACLManager.ts
+  - src/managers/FootnoteManager.ts (new)
+  - src/managers/PageManager.ts
+  - src/managers/TemplateManager.ts
+  - src/managers/ValidationManager.ts
+  - src/plugins/FootnotesPlugin.ts
+  - src/routes/WikiRoutes.ts
+  - templates/category.md
+  - templates/default.md
+  - templates/documentation.md
+  - templates/meeting-notes.md
+  - templates/user-page.md
+
 ## 2026-04-21-06
 
 - Agent: Claude
