@@ -2,6 +2,29 @@
 
 AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version history.
 
+## 2026-04-21-10
+
+- Agent: Claude
+- Subject: Private page ACL fixes; provider interface improvements; page cache invalidation API; multi-instance deploy
+- Current Issue: #557
+- Work Done:
+  - Fixed Molly's Medical Summary inaccessible: manually corrected page-creator in file and page-index.json (FAST_STORAGE hd2 vs SLOW_STORAGE hd2A were different volumes)
+  - Added movePrivatePage(uuid, oldCreator, newCreator) to PageProvider interface, BasePageProvider (no-op), FileSystemProvider (file move), and VersioningFileProvider (delegates to super)
+  - PageManager.savePageWithContext() now calls movePrivatePage() when page-creator changes on a private page, preventing orphan copies in old creator's directory
+  - Added invalidatePageCache(identifier) to PageProvider interface, BasePageProvider (no-op), and FileSystemProvider (evicts from pageCache/contentCache by UUID, slug, or title)
+  - Added POST /api/admin/cache/clear/page/:identifier endpoint (admin-only) to evict single page from provider cache without full server restart
+  - Converted 20 markdown tables in Molly's Medical Summary to ngdpbase %%table-fit/%%border format
+  - Pulled, rebuilt, and restarted all three instances (jimstest/fairways-base/ve-geology)
+  - All 114 test suites, 2,972 tests passing
+- Commits: 740e895d, 0e79dbd9
+- Files Modified:
+  - src/providers/BasePageProvider.ts
+  - src/providers/FileSystemProvider.ts
+  - src/providers/VersioningFileProvider.ts
+  - src/managers/PageManager.ts
+  - src/types/Provider.ts
+  - src/routes/WikiRoutes.ts
+
 ## 2026-04-21-09
 
 - Agent: Claude
