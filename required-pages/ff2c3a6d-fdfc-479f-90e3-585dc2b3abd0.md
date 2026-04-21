@@ -111,8 +111,3 @@ Counter values are available as page variables after the plugin renders. Use `[{
 [{Counter name='views' showResult='false'}]
 Views this render: [{$counter-views}]
 ```
-
-## More Information
-
-There might be more information for this subject on one of the following:
-[{ReferringPagesPlugin before='*' after='\n' }]

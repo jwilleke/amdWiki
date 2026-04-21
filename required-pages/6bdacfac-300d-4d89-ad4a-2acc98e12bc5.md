@@ -164,8 +164,3 @@ If the [Media] feature is enabled, reference library photos without uploading th
 Use `width='300'` for a fixed pixel size, or `width='50%'` for relative sizing. Use `display='full'` for full container width.
 
 For uploading files, see [Attachments]. To embed files (PDFs, documents, and images), see [AttachPlugin]. To browse and embed photos from the media library, see [Media].
-
-## More Information
-
-There might be more information for this subject on one of the following:
-[{ReferringPagesPlugin before='*' after='\n' }]

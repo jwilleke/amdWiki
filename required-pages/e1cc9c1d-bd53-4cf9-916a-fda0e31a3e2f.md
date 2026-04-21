@@ -42,6 +42,3 @@ audience:
 ## More Information
 
 See also: [Editing a Page]
-
-There might be more information for this subject on one of the following:
-[{ReferringPagesPlugin before='*' after='\n' }]

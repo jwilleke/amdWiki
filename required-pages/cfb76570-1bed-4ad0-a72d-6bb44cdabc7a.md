@@ -92,8 +92,3 @@ renders two independent calendars, each showing a different set of events.
 - Multiple `[{Calendar}]` directives on the same page each render independently.
 - The calendar loads [FullCalendar](https://fullcalendar.io/) from a CDN — an
   internet connection is required unless your instance mirrors the assets locally.
-
-## More Information
-
-There might be more information for this subject on one of the following:
-[{ReferringPagesPlugin before='*' after='\n' }]

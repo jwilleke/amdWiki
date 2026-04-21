@@ -45,6 +45,3 @@ The edit form shows a **live preview** on the right side as you type. The previe
 ## More Information
 
 See also: [Markdown Cheat Sheet] | [Editing a Page]
-
-There might be more information for this subject on one of the following:
-[{ReferringPagesPlugin before='*' after='\n' }]

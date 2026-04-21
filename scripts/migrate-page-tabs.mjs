@@ -31,11 +31,19 @@ const SCAN_DIRS = [
 
 /**
  * Removes "More Information / There might be... / [{ReferringPagesPlugin...}]"
- * Handles: ## / ### / ###(no space) headings, 1 or 2 blank lines after heading.
+ * Handles:
+ *   - JSPWiki !! heading (may be inline at end of a content line)
+ *   - Markdown ## / ### headings
+ *   - Orphaned blocks where heading was already stripped (no heading prefix)
+ *   - Trailing spaces on heading and "following:" lines
+ *   - Typo variant "subjt" instead of "subject"
  */
 function removeMoreInformationBlock(content) {
-  const re = /\n?#{1,3} ?More Information\n{1,2}There might be more information for this subject on one of the following:\n\[\{ReferringPagesPlugin[^\}]*\}\]\n?/g;
-  return content.replace(re, '\n');
+  // With heading prefix (!! or ##)
+  const withHeading = /(?:!!|#{1,3}) ?More Information *\n{1,2}There might be more information for this subj(?:ect|t) on one of the following: *\n\[\{ReferringPagesPlugin[^\}]*\}\] *\n?/g;
+  // Orphaned block — heading already stripped, only the boilerplate lines remain
+  const orphaned = /\nThere might be more information for this subj(?:ect|t) on one of the following: *\n\[\{ReferringPagesPlugin[^\}]*\}\] *\n?/g;
+  return content.replace(withHeading, '\n').replace(orphaned, '\n');
 }
 
 /**

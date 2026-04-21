@@ -16,8 +16,3 @@ author: system
 ## Pages
 
 For [{$applicationname}] we are primarily concerned about "Pages".
-
-## More Information
-
-There might be more information for this subject on one of the following:
-[{ReferringPagesPlugin before='*' after='\n' }]
