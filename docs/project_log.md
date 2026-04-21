@@ -2,6 +2,26 @@
 
 AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version history.
 
+## 2026-04-21-08
+
+- Agent: Claude
+- Subject: Interwiki link fixes — repair stored footnote URLs, fix InterWikiLinkHandler display text, version bump
+- Current Issue: #553
+- Work Done:
+  - Fixed InterWikiLinkHandler to strip |target='_blank' when used as display text in inline interwiki refs like [wikipedia:Pacific_Ocean|target='_blank']
+  - Diagnosed migration bug: parseContent regex captured url|target='_blank' as full url field, and didn't resolve interwiki prefixes
+  - Fixed migrate-footnotes-to-sidecar.mjs parseContent to handle 3-part JSPWiki link syntax [display|url|attributes]; added cleanUrl() and resolveInterwiki() helpers
+  - Created repair-footnote-urls.mjs one-shot script; repaired 5,470 url/display fields across 4,651 sidecar files (Wikipedia:Article|target='_blank' resolved to full Wikipedia URLs)
+  - Bumped version 3.3.3 → 3.3.4 (patch)
+- Commits: 2be4406a, 6f47ee4d
+- Files Modified:
+  - scripts/repair-footnote-urls.mjs (new)
+  - scripts/migrate-footnotes-to-sidecar.mjs
+  - src/parsers/handlers/InterWikiLinkHandler.ts
+  - package.json
+  - config/app-default-config.json
+  - CHANGELOG.md
+
 ## 2026-04-21-07
 
 - Agent: Claude
