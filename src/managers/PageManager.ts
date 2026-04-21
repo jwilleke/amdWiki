@@ -405,8 +405,13 @@ class PageManager extends BaseManager {
       );
     }
 
-    // Preserve author from existing page — author is the original creator and must
-    // never change. Only set it when creating a new page (no existing author found).
+    // TWO CREATOR FIELDS — see #557 for planned consolidation:
+    //   author       — attribution field, set on ALL pages, never changes. Shown in Page Info.
+    //   page-creator — ACL field, only on PRIVATE pages (user-keyword: private). Read by
+    //                  ACLManager to decide if a non-admin can access their own private page.
+    //                  Redundant with author but kept separate so ACL logic does not depend
+    //                  on a display field. Both must be preserved on edit (never overwritten).
+    // Preserve author from existing page — must never change once set.
     const existingPage = pageName ? await this.provider.getPage(pageName) : null;
     const originalAuthor = existingPage?.metadata?.author;
 
@@ -439,11 +444,16 @@ class PageManager extends BaseManager {
       ? userKeywords.map(kw => userKeywordDefs[kw]?.storageLocation).find(loc => loc === 'private')
       : undefined;
 
+    // Preserve page-creator from the existing page — it is the original creator and
+    // must never change when an editor saves. Only set it when creating a new private page.
+    const existingPageCreator = (existingPage?.metadata as Record<string, unknown> | undefined)
+      ?.['page-creator'] as string | undefined;
+
     const metadataWithLocation: Partial<PageFrontmatter> & Record<string, unknown> = {
       ...rawMetadata,
       ...(privateStorageLocation ? {
         'system-location': privateStorageLocation,
-        'page-creator': wikiContext.userContext?.username || 'anonymous'
+        'page-creator': existingPageCreator || wikiContext.userContext?.username || 'anonymous'
       } : {})
     };
 

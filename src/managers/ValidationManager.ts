@@ -265,6 +265,19 @@ class ValidationManager extends BaseManager {
   }
 
   /**
+   * Get system keyword labels marked default:true in ngdpbase.system-keywords config.
+   * These are applied automatically to every new page in generateValidMetadata().
+   */
+  getDefaultSystemKeywords(): string[] {
+    const configManager = this.engine.getManager<ConfigurationManager>('ConfigurationManager');
+    if (!configManager) return [];
+    const raw = configManager.getProperty('ngdpbase.system-keywords', {}) as Record<string, { label?: string; default?: boolean; enabled?: boolean }>;
+    return Object.entries(raw)
+      .filter(([, cfg]) => cfg.default === true && cfg.enabled !== false)
+      .map(([key, cfg]) => cfg.label ?? key);
+  }
+
+  /**
    * Get system category configuration by label
    * @param {string} label - Category label (e.g., "General", "System")
    * @returns {CategoryConfig | null} Category configuration or null if not found
@@ -628,9 +641,13 @@ class ValidationManager extends BaseManager {
       }
     }
 
+    // Seed system-keywords with config defaults (e.g. "general") unless explicitly provided.
+    const defaultSystemKeywords = this.getDefaultSystemKeywords();
+
     return {
       title: title.trim(),
       'system-category': options['system-category'] || defaultSystemCategory,
+      'system-keywords': defaultSystemKeywords,
 
       'user-keywords': options.userKeywords || options['user-keywords'] || [],
 
@@ -638,7 +655,7 @@ class ValidationManager extends BaseManager {
       slug: slug,
       lastModified: new Date().toISOString(),
 
-      ...cleanOptions // Allow override of any fields (undefined values excluded)
+      ...cleanOptions // Caller-supplied values override defaults (including system-keywords)
     };
   }
 

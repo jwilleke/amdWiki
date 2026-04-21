@@ -311,6 +311,9 @@ class ACLManager extends BaseManager {
     // Tier 0: private user-keyword — hard constraint, not overridable by front matter
     const userKeywords: string[] = (wikiContext.pageMetadata?.['user-keywords']) ?? [];
     if (userKeywords.includes('private')) {
+      // page-creator is the ACL ownership field for private pages (set once on creation,
+      // never overwritten on edit). Distinct from author (display/attribution).
+      // #557 tracks consolidating these two fields into just author.
       const creator = (wikiContext.pageMetadata?.['page-creator'] as string | undefined) ?? '';
       const userRoles = userContext?.roles ?? [];
       const username  = userContext?.username ?? '';

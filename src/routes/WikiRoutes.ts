@@ -42,6 +42,7 @@ import type ImportManager from '../managers/ImportManager';
 import type MediaManager from '../managers/MediaManager';
 import type MetricsManager from '../managers/MetricsManager';
 import type CommentManager from '../managers/CommentManager';
+import type FootnoteManager from '../managers/FootnoteManager';
 import type NotificationManager from '../managers/NotificationManager';
 import type PolicyValidator from '../managers/PolicyValidator';
 import type RenderingManager from '../managers/RenderingManager';
@@ -220,6 +221,7 @@ interface WikiEngine {
   getManager(name: 'CacheManager'): CacheManager;
   getManager(name: 'CatalogManager'): CatalogManager;
   getManager(name: 'CommentManager'): CommentManager;
+  getManager(name: 'FootnoteManager'): FootnoteManager;
   getManager(name: 'ExportManager'): ExportManager;
   getManager(name: 'ImportManager'): ImportManager;
   getManager(name: 'MediaManager'): MediaManager;
@@ -985,13 +987,14 @@ class WikiRoutes {
 
       // Load system categories from configuration
       const systemCategories = configManager.getProperty('ngdpbase.system-category', {}) as
-        Record<string, { enabled?: boolean; label?: string }>;
+        Record<string, { enabled?: boolean; label?: string; storageLocation?: string }>;
 
-      // Filter enabled categories and extract labels (case-insensitive)
+      // Filter enabled categories — exclude 'github' storage locations since those
+      // pages live in the docs/ folder only and cannot be created via the wiki form.
       const categories: string[] = [];
       for (const [key, config] of Object.entries(systemCategories)) {
         const cfg = config;
-        if (cfg.enabled !== false) { // Include if not explicitly disabled
+        if (cfg.enabled !== false && cfg.storageLocation !== 'github') {
           // Use label if available, otherwise use key (both lowercase)
           const label = (cfg.label || key).toLowerCase();
           categories.push(label);
@@ -4343,6 +4346,118 @@ ${panes}
     } catch (err: unknown) {
       logger.error('Error deleting comment:', err);
       return res.status(500).json({ success: false, error: 'Failed to delete comment' });
+    }
+  }
+
+  async getFootnotes(req: Request, res: Response) {
+    try {
+      const { pageUuid } = req.params;
+      const footnoteManager = this.engine.getManager('FootnoteManager');
+      if (!footnoteManager || !footnoteManager.isEnabled?.()) {
+        return res.status(404).json({ success: false, error: 'Footnotes are not enabled' });
+      }
+      const footnotes = await footnoteManager.getFootnotes(pageUuid);
+      return res.json({ success: true, footnotes });
+    } catch (err: unknown) {
+      logger.error('Error fetching footnotes:', err);
+      return res.status(500).json({ success: false, error: 'Failed to fetch footnotes' });
+    }
+  }
+
+  async addFootnote(req: Request, res: Response) {
+    try {
+      const currentUser = req.userContext;
+      if (!currentUser || !currentUser.isAuthenticated) {
+        return res.status(401).json({ success: false, error: 'Authentication required' });
+      }
+      const userManager = this.engine.getManager('UserManager');
+      if (!(await userManager.hasPermission(currentUser.username, 'page-edit'))) {
+        return res.status(403).json({ success: false, error: 'Editor role required to add footnotes' });
+      }
+
+      const { pageUuid } = req.params;
+      const { display, url, note } = req.body as { display?: string; url?: string; note?: string };
+      if (!display?.trim() || !url?.trim()) {
+        return res.status(400).json({ success: false, error: 'display and url are required' });
+      }
+
+      const footnoteManager = this.engine.getManager('FootnoteManager');
+      if (!footnoteManager || !footnoteManager.isEnabled?.()) {
+        return res.status(404).json({ success: false, error: 'Footnotes are not enabled' });
+      }
+
+      const footnote = await footnoteManager.addFootnote(
+        pageUuid, { display: display.trim(), url: url.trim(), note: (note ?? '').trim() },
+        currentUser.username ?? 'anonymous'
+      );
+      return res.json({ success: true, footnote });
+    } catch (err: unknown) {
+      logger.error('Error adding footnote:', err);
+      return res.status(500).json({ success: false, error: 'Failed to add footnote' });
+    }
+  }
+
+  async updateFootnote(req: Request, res: Response) {
+    try {
+      const currentUser = req.userContext;
+      if (!currentUser || !currentUser.isAuthenticated) {
+        return res.status(401).json({ success: false, error: 'Authentication required' });
+      }
+      const userManager = this.engine.getManager('UserManager');
+      if (!(await userManager.hasPermission(currentUser.username, 'page-edit'))) {
+        return res.status(403).json({ success: false, error: 'Editor role required to edit footnotes' });
+      }
+
+      const { pageUuid, footnoteId } = req.params;
+      const { display, url, note } = req.body as { display?: string; url?: string; note?: string };
+      if (!display?.trim() || !url?.trim()) {
+        return res.status(400).json({ success: false, error: 'display and url are required' });
+      }
+
+      const footnoteManager = this.engine.getManager('FootnoteManager');
+      if (!footnoteManager || !footnoteManager.isEnabled?.()) {
+        return res.status(404).json({ success: false, error: 'Footnotes are not enabled' });
+      }
+
+      const footnote = await footnoteManager.updateFootnote(
+        pageUuid, footnoteId, { display: display.trim(), url: url.trim(), note: (note ?? '').trim() }
+      );
+      if (!footnote) return res.status(404).json({ success: false, error: 'Footnote not found' });
+      return res.json({ success: true, footnote });
+    } catch (err: unknown) {
+      logger.error('Error updating footnote:', err);
+      return res.status(500).json({ success: false, error: 'Failed to update footnote' });
+    }
+  }
+
+  async deleteFootnote(req: Request, res: Response) {
+    try {
+      const currentUser = req.userContext;
+      if (!currentUser || !currentUser.isAuthenticated) {
+        return res.status(401).json({ success: false, error: 'Authentication required' });
+      }
+
+      const { pageUuid, footnoteId } = req.params;
+      const footnoteManager = this.engine.getManager('FootnoteManager');
+      if (!footnoteManager || !footnoteManager.isEnabled?.()) {
+        return res.status(404).json({ success: false, error: 'Footnotes are not enabled' });
+      }
+
+      // Only admin or the footnote's creator may delete
+      const footnotes = await footnoteManager.getFootnotes(pageUuid);
+      const target = footnotes.find((f: { id: string }) => f.id === footnoteId);
+      if (!target) return res.status(404).json({ success: false, error: 'Footnote not found' });
+
+      const isAdmin = (currentUser.roles ?? []).includes('admin');
+      if (!isAdmin && target.createdBy !== currentUser.username) {
+        return res.status(403).json({ success: false, error: 'Not authorised to delete this footnote' });
+      }
+
+      await footnoteManager.deleteFootnote(pageUuid, footnoteId);
+      return res.json({ success: true });
+    } catch (err: unknown) {
+      logger.error('Error deleting footnote:', err);
+      return res.status(500).json({ success: false, error: 'Failed to delete footnote' });
     }
   }
 
@@ -7825,6 +7940,10 @@ ${panes}
     app.post('/preferences', (req: Request, res: Response) => this.updatePreferences(req, res));
     app.post('/api/comments/:pageUuid', (req: Request, res: Response) => void this.addComment(req, res));
     app.delete('/api/comments/:pageUuid/:commentId', (req: Request, res: Response) => void this.deleteComment(req, res));
+    app.get('/api/footnotes/:pageUuid', (req: Request, res: Response) => void this.getFootnotes(req, res));
+    app.post('/api/footnotes/:pageUuid', (req: Request, res: Response) => void this.addFootnote(req, res));
+    app.put('/api/footnotes/:pageUuid/:footnoteId', (req: Request, res: Response) => void this.updateFootnote(req, res));
+    app.delete('/api/footnotes/:pageUuid/:footnoteId', (req: Request, res: Response) => void this.deleteFootnote(req, res));
     app.post('/api/user/display-theme', (req: Request, res: Response) => this.updateDisplayTheme(req, res));
     app.post('/api/user/pinned-pages', (req: Request, res: Response) => void this.addPinnedPage(req, res));
     app.delete('/api/user/pinned-pages/:pageName', (req: Request, res: Response) => void this.removePinnedPage(req, res));

@@ -35,6 +35,7 @@ import MetricsManager from './managers/MetricsManager';
 import BackgroundJobManager from './managers/BackgroundJobManager';
 import CatalogManager from './managers/CatalogManager';
 import CommentManager from './managers/CommentManager';
+import FootnoteManager from './managers/FootnoteManager';
 
 // Parsers
 import MarkupParser from './parsers/MarkupParser';
@@ -313,6 +314,11 @@ class WikiEngine extends Engine {
     const commentManager = new CommentManager(this);
     this.registerManager('CommentManager', commentManager);
     await commentManager.initialize();
+
+    // Add FootnoteManager for page footnote sidecar storage
+    const footnoteManager = new FootnoteManager(this);
+    this.registerManager('FootnoteManager', footnoteManager);
+    await footnoteManager.initialize();
 
     // Add BackupManager to the initialization sequence (must be last)
     const backupManager = new BackupManager(this);

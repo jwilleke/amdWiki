@@ -404,7 +404,17 @@ class TemplateManager extends BaseManager {
       content = content.replace(regex, String(value));
     }
 
-    return content;
+    // Strip frontmatter block — page metadata is built separately via buildNewPageMetadata.
+    // Without stripping, matter.stringify in FileSystemProvider would try to parse the
+    // whole content as YAML and fail on wiki markup like [{$pagename}].
+    content = content.replace(/^---\r?\n[\s\S]*?\r?\n---\r?\n?/, '');
+    // Fallback: if the template had an opening --- but no closing --- (malformed),
+    // strip just the leading --- block up to the first blank line.
+    if (/^---\r?\n/.test(content)) {
+      content = content.replace(/^---\r?\n[\s\S]*?\n\n/, '\n');
+    }
+
+    return content.trimStart();
   }
 
   /**
