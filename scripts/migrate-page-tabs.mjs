@@ -45,7 +45,8 @@ function removeMoreInformationBlock(content) {
  *   * [#2] - another line
  */
 function removeJspwikiFootnoteBlock(content) {
-  const re = /\n-{3,4}\n(\* \[#\d+\] - .+\n)*/g;
+  // + (one-or-more) ensures bare --- separators (e.g. frontmatter closer) are NOT matched
+  const re = /\n-{3,4}\n(\* \[#\d+\] - .+\n)+/g;
   return content.replace(re, '\n');
 }
 
