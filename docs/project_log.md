@@ -2,6 +2,22 @@
 
 AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version history.
 
+## 2026-04-21-13
+
+- Agent: Claude
+- Subject: Complete #553 Pattern 2 — migrate inline footnote bullets to sidecars in live data
+- Current Issue: #553
+- Work Done:
+  - Diagnosed migrate-footnotes-to-sidecar.mjs finding 0 pages: 24 JSPWiki-imported pages had malformed frontmatter (missing closing ---), causing gray-matter to throw and skip them
+  - Repaired frontmatter in all 24 affected live pages (inserted missing --- closer)
+  - 5 of 24 needed a second repair pass (--- was inserted mid-body due to no blank line between last YAML key and body)
+  - Ran migration: 19+5=24 pages migrated, 93 footnotes extracted to sidecars, 0 remaining inline dash-format bullets
+  - Pattern 2 of #553 fully complete; both patterns now done
+- Commits: none (all changes to live data outside repo)
+- Files Modified:
+  - /Volumes/hd2A/jimstest-wiki/data/pages/ (24 page files — frontmatter repaired, footnote bullets stripped)
+  - /Volumes/hd2A/jimstest-wiki/data/footnotes/ (24 new sidecar files created)
+
 ## 2026-04-21-12
 
 - Agent: Claude
