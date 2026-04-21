@@ -1,6 +1,7 @@
 import type { SimplePlugin, PluginContext } from './types';
 import type CommentManager from '../managers/CommentManager';
 import type { PageComment } from '../types/Comment';
+import logger from '../utils/logger';
 
 function escapeHtml(text: string): string {
   return text
@@ -26,14 +27,17 @@ const CommentsPlugin: SimplePlugin = {
 
   async execute(context: PluginContext): Promise<string> {
     const engine = context.engine;
-    if (!engine) return '';
+    logger.info(`[CommentsPlugin] execute: engine=${!!engine} pageName=${context.pageName} pageMetadata=${JSON.stringify(context.pageMetadata)}`);
+    if (!engine) { logger.warn('[CommentsPlugin] no engine'); return ''; }
 
     const commentManager = engine.getManager('CommentManager') as CommentManager | undefined;
-    if (!commentManager || !commentManager.isEnabled()) return '';
+    logger.info(`[CommentsPlugin] commentManager=${!!commentManager} isEnabled=${commentManager?.isEnabled?.()}`);
+    if (!commentManager || !commentManager.isEnabled()) { logger.warn('[CommentsPlugin] commentManager unavailable or disabled'); return ''; }
 
     const pageMetadata = context.pageMetadata as { uuid?: string } | undefined;
     const pageUuid = pageMetadata?.uuid;
-    if (!pageUuid) return '';
+    logger.info(`[CommentsPlugin] pageUuid=${pageUuid}`);
+    if (!pageUuid) { logger.warn('[CommentsPlugin] no pageUuid'); return ''; }
 
     const userContext = context.userContext as {
       isAuthenticated?: boolean;

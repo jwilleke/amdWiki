@@ -40,6 +40,8 @@ export interface PluginContext {
     headers?: Record<string, string>;
     [key: string]: unknown;
   };
+  /** Page front matter metadata (uuid, title, etc.) */
+  pageMetadata?: unknown;
   /** WikiEngine reference */
   engine: unknown;
   /** WikiContext reference */
@@ -376,16 +378,21 @@ class DOMPluginHandler {
       const renderingManager = this.engine.getManager('RenderingManager') as RenderingManager | null;
       const linkGraph = renderingManager ? renderingManager.linkGraph : {};
 
-      // Build plugin context
+      // Build plugin context — handlerContext may be raw parseOptions (nested under pageContext)
+      // or a flat context; fall back to pageContext.* for each field.
+      const pc = context?.pageContext ?? {};
+      const resolvedUserContext = (context.userContext ?? pc.userContext) as PluginContext['userContext'];
+      const resolvedRequestInfo = (context.requestInfo ?? pc.requestInfo) as Record<string, unknown> | undefined;
+
       const pluginContext: PluginContext = {
         // Standard context
-        pageName: context.pageName || context?.pageContext?.pageName || 'unknown',
-        userName: context.userName || 'anonymous',
-        userContext: context.userContext,
-        requestInfo: context.requestInfo,
+        pageName: context.pageName || pc.pageName || 'unknown',
+        userName: context.userName || (resolvedUserContext as { username?: string })?.username || 'anonymous',
+        userContext: resolvedUserContext,
+        requestInfo: resolvedRequestInfo,
+        pageMetadata: context.pageMetadata ?? pc.pageMetadata ?? null,
         // Expose query params at top level so plugins can read context.query['page'] etc.
-        // This matches the legacy expandMacros path which sets query directly on the context.
-        query: (context.requestInfo as Record<string, unknown>)?.['query'] ?? {},
+        query: resolvedRequestInfo?.['query'] ?? {},
         engine: this.engine,
 
         // Enhanced context
