@@ -2,6 +2,21 @@
 
 AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version history.
 
+## 2026-04-21-12
+
+- Agent: Claude
+- Subject: Migrate inline ReferringPagesPlugin blocks out of required-pages and live data
+- Current Issue: #553
+- Work Done:
+  - Audited live pages: 255 top-level pages had inline More Information/ReferringPagesPlugin blocks (not 18K — earlier count included version history files)
+  - Updated migrate-page-tabs.mjs to handle JSPWiki !! heading syntax, orphaned boilerplate (heading already stripped), and "subjt" typo variant
+  - Ran migration against required-pages/, templates/, live pages, and private pages — 344 files cleaned, 0 errors
+  - 35 remaining files have legitimate intentional ReferringPagesPlugin uses (plugin docs, Tab templates, custom lists)
+- Commits: 928f784f
+- Files Modified:
+  - scripts/migrate-page-tabs.mjs
+  - required-pages/ (102 files — inline More Information blocks removed)
+
 ## 2026-04-21-11
 
 - Agent: Claude
