@@ -39,24 +39,27 @@ function removeMoreInformationBlock(content) {
 }
 
 /**
- * Removes JSPWiki-style footnote separator blocks:
- *   ---
- *   * [#1] - some text
- *   * [#2] - another line
+ * Removes the --- HR separator before JSPWiki-style footnote bullets,
+ * but KEEPS the bullet lines so FootnotesPlugin can read them from raw content.
+ *
+ *   ---            ← removed
+ *   * [#1] - text  ← kept
  */
-function removeJspwikiFootnoteBlock(content) {
-  // + (one-or-more) ensures bare --- separators (e.g. frontmatter closer) are NOT matched
-  const re = /\n-{3,4}\n(\* \[#\d+\] - .+\n)+/g;
+function removeJspwikiFootnoteSeparator(content) {
+  // + (one-or-more) ensures bare --- separators (frontmatter closer) are NOT matched
+  const re = /\n-{3,4}\n(?=(\* \[#\d+\] - ))/g;
   return content.replace(re, '\n');
 }
 
 /**
- * Removes standard markdown footnote-bullet blocks:
- *   ----
- *   * [^id] - text
+ * Removes the --- HR separator before markdown footnote-bullet blocks,
+ * but KEEPS the bullet lines.
+ *
+ *   ----           ← removed
+ *   * [^id] - text ← kept
  */
-function removeMarkdownFootnoteBulletBlock(content) {
-  const re = /\n-{3,4}\n(\* \[\^[\d\w-]+\] - .+\n)+/g;
+function removeMarkdownFootnoteSeparator(content) {
+  const re = /\n-{3,4}\n(?=(\* \[\^[\d\w-]+\] - ))/g;
   return content.replace(re, '\n');
 }
 
@@ -72,8 +75,8 @@ async function processFile(filePath) {
   let updated = original;
 
   updated = removeMoreInformationBlock(updated);
-  updated = removeJspwikiFootnoteBlock(updated);
-  updated = removeMarkdownFootnoteBulletBlock(updated);
+  updated = removeJspwikiFootnoteSeparator(updated);
+  updated = removeMarkdownFootnoteSeparator(updated);
   updated = normalizeTrailing(updated);
 
   // Count as changed if content differs OR if CRLF was normalised
