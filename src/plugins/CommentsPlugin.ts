@@ -1,6 +1,7 @@
 import type { SimplePlugin, PluginContext } from './types';
 import type CommentManager from '../managers/CommentManager';
 import type { PageComment } from '../types/Comment';
+import { parseBoolParam } from '../utils/pluginFormatters';
 
 function escapeHtml(text: string): string {
   return text
@@ -48,9 +49,13 @@ const CommentsPlugin: SimplePlugin = {
     const displayName = userContext?.displayName ?? userContext?.name ?? username;
     const isAdmin = (userContext?.roles ?? []).includes('admin');
 
+    const params = context.params as Record<string, string | boolean> | undefined;
+    const noheader = parseBoolParam(params?.['noheader'], false);
+
     const comments: PageComment[] = await commentManager.getComments(pageUuid);
 
     const parts: string[] = ['<section class="page-comments">'];
+    if (!noheader) parts.push('<h2>Comments</h2>');
 
     if (comments.length === 0) {
       parts.push('<p class="no-comments"><em>No comments yet.</em></p>');
