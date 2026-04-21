@@ -2,9 +2,13 @@
  * FootnotesPlugin — collects footnote definitions from the current page's
  * raw markdown and renders them as a reference list.
  *
- * Recognises two formats:
- *   Markdown:  [^id]: Some text or https://example.com
- *   JSPWiki:   * [#1] - [Link text|URL|target='_blank'] - context note
+ * Recognises three formats:
+ *   Markdown def:   [^id]: Some text or https://example.com
+ *   Bullet (new):   * [^1] - [Link text|Wikipedia:Page] - context note
+ *   Bullet (legacy): * [#1] - [Link text|Wikipedia:Page] - context note
+ *
+ * Wiki link syntax [Text|Wikipedia:Page] in bullet lines is resolved through
+ * the interwiki site configuration (ngdpbase.interwiki.sites).
  *
  * Syntax:
  *   [{FootnotesPlugin}]
@@ -21,10 +25,23 @@ interface PageManagerLike {
   getPage(name: string): Promise<{ content?: string; rawContent?: string } | null>;
 }
 
-/** [^id]: text — standard markdown footnote definition */
-const MD_FOOTNOTE_RE = /^\[\^([\d\w-]+)\]:\s*(.+)$/mg;
+interface InterWikiSiteConfig {
+  url: string;
+  enabled?: boolean;
+  openInNewWindow?: boolean;
+}
 
-/** * [#N] - content — JSPWiki-style footnote bullet */
+interface ConfigManagerLike {
+  getProperty<T>(key: string, defaultValue?: T): T;
+}
+
+/** [^id]: text — standard markdown footnote definition */
+const MD_FOOTNOTE_DEF_RE = /^\[\^([\d\w-]+)\]:\s*(.+)$/mg;
+
+/** * [^N] - content — preferred bullet format */
+const MD_FOOTNOTE_BULLET_RE = /^\* \[\^(\d+)\] - (.+)$/mg;
+
+/** * [#N] - content — legacy JSPWiki bullet format */
 const JSPWIKI_FOOTNOTE_RE = /^\* \[#(\d+)\] - (.+)$/mg;
 
 /** Auto-link bare https?:// URLs */
@@ -36,17 +53,31 @@ function autoLink(text: string): string {
 }
 
 /**
- * Convert JSPWiki link syntax [Display|URL|target='_blank'] to an HTML anchor.
- * Falls back to plain escaped text if the pattern doesn't match.
+ * Resolve [Display|Target|options] wiki link syntax to an HTML anchor.
+ * Handles interwiki prefixes (e.g. Wikipedia:Page_Name) using the provided
+ * site map. Falls back to using the target as a literal URL.
  */
-function renderJspwikiLink(raw: string): string {
-  // [Display Text|URL|target='_blank'] or [Display Text|URL]
+function renderWikiLink(
+  raw: string,
+  interWikiSites: Map<string, InterWikiSiteConfig>
+): string {
   const linkRe = /\[([^|]+)\|([^|\]]+)(?:\|[^\]]+)?\]/g;
-  return raw.replace(
-    linkRe,
-    (_m: string, display: string, url: string) =>
-      `<a href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(display)}</a>`
-  );
+  return raw.replace(linkRe, (_m: string, display: string, target: string) => {
+    // Check for interwiki prefix: "Wikipedia:Page_Name"
+    const colonIdx = target.indexOf(':');
+    if (colonIdx > 0) {
+      const prefix = target.slice(0, colonIdx);
+      const pagePart = target.slice(colonIdx + 1);
+      const site = interWikiSites.get(prefix) ?? interWikiSites.get(prefix.toLowerCase());
+      if (site?.enabled !== false && site?.url) {
+        const resolvedUrl = site.url.replace(/%s/g, encodeURIComponent(pagePart));
+        const newWindow = site.openInNewWindow !== false;
+        return `<a href="${escapeHtml(resolvedUrl)}"${newWindow ? ' target="_blank" rel="noopener noreferrer"' : ''}>${escapeHtml(display)}</a>`;
+      }
+    }
+    // Bare URL or unknown prefix — use target literally
+    return `<a href="${escapeHtml(target)}" target="_blank" rel="noopener noreferrer">${escapeHtml(display)}</a>`;
+  });
 }
 
 const FootnotesPlugin: SimplePlugin = {
@@ -65,25 +96,41 @@ const FootnotesPlugin: SimplePlugin = {
     const page = await pageManager.getPage(pageName);
     if (!page) return '';
 
+    // Load interwiki sites from config
+    const configManager = context.engine?.getManager('ConfigurationManager') as ConfigManagerLike | undefined;
+    const sitesConfig = configManager?.getProperty<Record<string, InterWikiSiteConfig>>(
+      'ngdpbase.interwiki.sites', {}
+    ) ?? {};
+    const interWikiSites = new Map(Object.entries(sitesConfig));
+
     // Normalise CRLF so regexes work uniformly
     const raw = String(page.rawContent ?? page.content ?? '').replace(/\r\n/g, '\n');
 
     const footnotes: Array<{ id: string; html: string }> = [];
 
-    // Markdown [^id]: text
-    MD_FOOTNOTE_RE.lastIndex = 0;
+    // [^id]: text — markdown definition format
+    MD_FOOTNOTE_DEF_RE.lastIndex = 0;
     let m: RegExpExecArray | null;
-    while ((m = MD_FOOTNOTE_RE.exec(raw)) !== null) {
+    while ((m = MD_FOOTNOTE_DEF_RE.exec(raw)) !== null) {
       footnotes.push({ id: m[1], html: autoLink(m[2].trim()) });
     }
 
-    // JSPWiki * [#N] - content
-    JSPWIKI_FOOTNOTE_RE.lastIndex = 0;
-    while ((m = JSPWIKI_FOOTNOTE_RE.exec(raw)) !== null) {
-      footnotes.push({ id: m[1], html: renderJspwikiLink(m[2].trim()) });
+    // * [^N] - text — preferred bullet format
+    MD_FOOTNOTE_BULLET_RE.lastIndex = 0;
+    while ((m = MD_FOOTNOTE_BULLET_RE.exec(raw)) !== null) {
+      footnotes.push({ id: m[1], html: renderWikiLink(m[2].trim(), interWikiSites) });
     }
 
-    // Sort by id so markdown and JSPWiki entries appear in order
+    // * [#N] - text — legacy JSPWiki bullet format (backward compatible)
+    JSPWIKI_FOOTNOTE_RE.lastIndex = 0;
+    while ((m = JSPWIKI_FOOTNOTE_RE.exec(raw)) !== null) {
+      // Only add if not already captured by [^N] format
+      if (!footnotes.find(f => f.id === m![1])) {
+        footnotes.push({ id: m[1], html: renderWikiLink(m[2].trim(), interWikiSites) });
+      }
+    }
+
+    // Sort numerically, then lexically for named ids
     footnotes.sort((a, b) => {
       const na = parseInt(a.id, 10), nb = parseInt(b.id, 10);
       if (!isNaN(na) && !isNaN(nb)) return na - nb;
