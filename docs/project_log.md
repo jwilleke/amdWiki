@@ -2,6 +2,29 @@
 
 AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version history.
 
+## 2026-04-21-05
+
+- Agent: Claude
+- Subject: Tab/footer chrome config; plugin docs; /docs skill; documentation standards update
+- Current Issue: #553
+- Work Done:
+  - Added ngdpbase.page.notabs and ngdpbase.page.nofooter config lists (default: LeftMenu, Footer, Template:PageTabs); removed ngdpbase.tab.pagetabs.exclude
+  - WikiRoutes tab injection checks ngdpbase.page.notabs; footer suppressed for pages in ngdpbase.page.nofooter
+  - Created FootnotesPlugin doc page (required-pages/d96b072e)
+  - Created CommentsPlugin doc page with noheader parameter (required-pages/a5e68176)
+  - Updated docs/proper-documentation-pages.md: removed ## More Information footer requirement; Referring Pages tab now handles cross-references
+  - Removed ## More Information footer from Editing a Page doc
+  - Added .claude/commands/docs.md skill for assessing and drafting end-user documentation
+- Commits: 6c362b39
+- Files Modified:
+  - config/app-default-config.json
+  - src/routes/WikiRoutes.ts
+  - docs/proper-documentation-pages.md
+  - required-pages/d96b072e-aebf-48e2-a5aa-2ffcc4daa821.md (new)
+  - required-pages/a5e68176-258a-40e8-8f6b-f86729b06cd5.md (new)
+  - required-pages/51666223-22ef-4143-a34c-5902a3cf1ce0.md
+  - .claude/commands/docs.md (new)
+
 ## 2026-04-21-04
 
 - Agent: Claude
