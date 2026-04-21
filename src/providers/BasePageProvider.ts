@@ -147,6 +147,16 @@ abstract class BasePageProvider {
   abstract deletePage(identifier: string): Promise<boolean>;
 
   /**
+   * Move a private page from one creator's directory to another's.
+   * Called by PageManager when page-creator changes on a private page.
+   * Providers that use creator-keyed directories must override this.
+   * Default: no-op (providers without creator directories do nothing).
+   */
+  async movePrivatePage(_uuid: string, _oldCreator: string, _newCreator: string): Promise<void> {
+    // no-op default — override in file-based providers
+  }
+
+  /**
    * Check if page exists
    * @param {string} identifier - Page UUID or title
    * @returns {boolean}

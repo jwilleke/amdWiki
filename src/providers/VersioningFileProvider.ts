@@ -1191,6 +1191,13 @@ class VersioningFileProvider extends FileSystemProvider {
    * Move a page file from one location to another.
    * Used when the page's privacy status changes (e.g. public → private or private → public).
    */
+  async movePrivatePage(uuid: string, oldCreator: string, newCreator: string): Promise<void> {
+    await super.movePrivatePage(uuid, oldCreator, newCreator); // moves the .md file
+    // Also move the version directory (private versions share a flat dir keyed by UUID,
+    // so no creator path to move — nothing extra needed here).
+    logger.info(`[VersioningFileProvider] movePrivatePage complete: ${uuid} ${oldCreator} → ${newCreator}`);
+  }
+
   private async movePageFile(
     uuid: string,
     fromLocation: 'pages' | 'required-pages' | 'private',

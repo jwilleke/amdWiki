@@ -486,6 +486,17 @@ class FileSystemProvider extends BasePageProvider {
     return path.join(this.pagesDirectory || '', `${uuid}.md`);
   }
 
+  async movePrivatePage(uuid: string, oldCreator: string, newCreator: string): Promise<void> {
+    if (!this.pagesDirectory || oldCreator === newCreator) return;
+    const fromPath = path.join(this.pagesDirectory, 'private', oldCreator, `${uuid}.md`);
+    const toPath   = path.join(this.pagesDirectory, 'private', newCreator, `${uuid}.md`);
+    if (await fs.pathExists(fromPath)) {
+      await fs.ensureDir(path.dirname(toPath));
+      await fs.move(fromPath, toPath, { overwrite: true });
+      logger.info(`[FileSystemProvider] Moved private page ${uuid}: ${oldCreator} → ${newCreator}`);
+    }
+  }
+
   /**
    * Saves content to a wiki page, creating it if it doesn't exist.
    * Determines storage location based on system-category metadata.

@@ -475,6 +475,17 @@ class PageManager extends BaseManager {
       }
     }
 
+    // If the page is private and the stored creator differs from the incoming creator,
+    // move the file before saving so we don't leave an orphan copy in the old directory.
+    // This is the canonical location for this logic — all providers expose movePrivatePage().
+    if (privateStorageLocation && existingPageCreator) {
+      const incomingCreator = (metadataWithLocation['page-creator'] as string | undefined) ?? '';
+      if (incomingCreator && incomingCreator !== existingPageCreator) {
+        const uuid = (enrichedMetadata as Record<string, unknown>).uuid as string | undefined ?? '';
+        if (uuid) await this.provider.movePrivatePage(uuid, existingPageCreator, incomingCreator);
+      }
+    }
+
     return this.provider.savePage(pageName, content, enrichedMetadata);
   }
 

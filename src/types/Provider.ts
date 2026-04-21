@@ -116,6 +116,13 @@ export interface PageProvider extends BaseProvider {
   deletePage(identifier: string): Promise<boolean>;
 
   /**
+   * Move a private page from one creator's directory to another's.
+   * Called by PageManager when page-creator changes on a private page.
+   * Providers without creator-keyed directories may implement as a no-op.
+   */
+  movePrivatePage(uuid: string, oldCreator: string, newCreator: string): Promise<void>;
+
+  /**
    * Check if page exists
    * @param identifier - Page UUID or title
    * @returns True if page exists
