@@ -2,6 +2,23 @@
 
 AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version history.
 
+## 2026-04-21-11
+
+- Agent: Claude
+- Subject: Author Lock — allow page authors to toggle; glossary and docs updates
+- Current Issue: #556
+- Work Done:
+  - Fixed author-lock save logic in WikiRoutes so page authors can toggle it on their own pages (previously admin-only)
+  - Added author, editor, and author-lock terms to docs/GLOSSARY.md
+  - Updated required-pages Clear Cache doc (single-page cache API, table format, removed legacy footer)
+  - Updated required-pages Author Lock doc to reflect author can now set/remove the flag
+- Commits: 5cc6fe32
+- Files Modified:
+  - src/routes/WikiRoutes.ts
+  - docs/GLOSSARY.md
+  - required-pages/4b351c31-9d55-47cf-9948-8b621cfe225d.md
+  - required-pages/c45b67f2-1b4b-4ee9-9672-d06738e490cf.md
+
 ## 2026-04-21-10
 
 - Agent: Claude
