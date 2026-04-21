@@ -67,7 +67,7 @@ function renderWikiLink(
     const colonIdx = target.indexOf(':');
     if (colonIdx > 0) {
       const prefix = target.slice(0, colonIdx);
-      const pagePart = target.slice(colonIdx + 1);
+      const pagePart = target.slice(colonIdx + 1).replace(/\/+$/, ''); // strip trailing slashes
       const site = interWikiSites.get(prefix) ?? interWikiSites.get(prefix.toLowerCase());
       if (site?.enabled !== false && site?.url) {
         const resolvedUrl = site.url.replace(/%s/g, encodeURIComponent(pagePart));
