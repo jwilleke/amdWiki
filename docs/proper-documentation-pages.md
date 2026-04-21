@@ -33,16 +33,8 @@ Every documentation page should follow this structure:
 | `## Parameters` | For plugins | Table of all parameters |
 | `## Examples` | Recommended | Live rendered examples (see below) |
 | `## Notes` | As needed | Edge cases, caveats, limitations |
-| `## More Information` | Yes | Always the last section |
 
-The `## More Information` section must always end the page with the referring-pages footer:
-
-```
-## More Information
-
-There might be more information for this subject on one of the following:
-[{ReferringPagesPlugin before='*' after='\n' }]
-```
+Do **not** add a `## More Information` / `[{ReferringPagesPlugin}]` footer. Referring pages are now surfaced automatically in the **Referring Pages** tab injected by [Template:PageTabs].
 
 ## Writing Style
 
@@ -197,11 +189,6 @@ author: system
 
 ## What Makes a Good Documentation Page
 
-A documentation page is good when a user can find it by searching a keyword, read the opening sentence and know immediately whether it answers their question, follow the examples to accomplish the task, and find related pages automatically via the `## More Information` footer.
+A documentation page is good when a user can find it by searching a keyword, read the opening sentence and know immediately whether it answers their question, and follow the examples to accomplish the task. Related pages are surfaced automatically in the Referring Pages tab.
 
-A documentation page is poor when it uses jargon without explanation, lists data that a plugin could render dynamically, uses "Wiki" instead of the site name, omits the `## More Information` footer, or buries the most useful information below long preamble.
-
-## More Information
-
-There might be more information for this subject on one of the following:
-[{ReferringPagesPlugin before='*' after='\n' }]
+A documentation page is poor when it uses jargon without explanation, lists data that a plugin could render dynamically, uses "Wiki" instead of the site name, or buries the most useful information below long preamble.

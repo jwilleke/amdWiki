@@ -1555,16 +1555,14 @@ ${panes}
       // Render page content
       const html = await renderingManager.textToHTML(wikiContext, markdown);
 
-      // Auto-inject Template:PageTabs tab section for user pages (#551)
+      // Auto-inject Template:PageTabs tab section for all pages (#551)
+      // Excluded pages are configured in ngdpbase.page.notabs.
       // Rendered separately from page content so each tab's plugins execute cleanly.
       let tabSectionHtml = '';
       const tabsEnabled = configManager?.getProperty('ngdpbase.tab.pagetabs', true) as boolean;
-      const isRequiredForTabs = await this.isRequiredPage(pageName);
-      if (tabsEnabled && !isRequiredForTabs) {
-        const noPageTabs = (metadata as Record<string, unknown> | null)?.['no-page-tabs'];
-        const excludeList = (configManager?.getProperty('ngdpbase.tab.pagetabs.exclude', []) as string[]);
-        const isExcluded = excludeList.includes(pageName);
-        if (!noPageTabs && !isExcluded) {
+      if (tabsEnabled) {
+        const noTabsList = (configManager?.getProperty('ngdpbase.page.notabs', []) as string[]);
+        if (!noTabsList.includes(pageName)) {
           const tabTemplateName = (configManager?.getProperty('ngdpbase.tab.pagetabs.template', 'Template:PageTabs'));
           const tabTemplateContent = await pageManager.getPageContent(tabTemplateName).catch(() => null);
           if (tabTemplateContent) {
@@ -1596,6 +1594,10 @@ ${panes}
 
       // Pass the request object to get all common data
       const templateData = await this.getCommonTemplateData(req);
+
+      // Suppress footer for pages in ngdpbase.page.nofooter list
+      const noFooterList = (configManager?.getProperty('ngdpbase.page.nofooter', []) as string[]);
+      if (noFooterList.includes(pageName)) templateData.footer = '';
 
       // Check if reader view is requested
       const viewMode = req.query.view;
