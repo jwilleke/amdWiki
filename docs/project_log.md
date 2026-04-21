@@ -2,6 +2,21 @@
 
 AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version history.
 
+## 2026-04-21-03
+
+- Agent: Claude
+- Subject: FootnotesPlugin + noheader param for CommentsPlugin
+- Current Issue: #551
+- Work Done:
+  - Added noheader param to CommentsPlugin (default: show heading for standalone use; Template:PageTabs passes noheader='true')
+  - Created FootnotesPlugin: reads raw page markdown via PageManager, extracts [^id]: text definitions, auto-links bare URLs, renders as numbered list; supports noheader param
+  - Added Footnotes tab to Template:PageTabs between Referring Pages and Comments
+- Commits: ff1fb14c, 3718e98f
+- Files Modified:
+  - src/plugins/CommentsPlugin.ts
+  - src/plugins/FootnotesPlugin.ts (new)
+  - required-pages/56e48394-b507-4f0e-98fb-02d9e7c2e165.md
+
 ## 2026-04-21-02
 
 - Agent: Claude
