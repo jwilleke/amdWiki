@@ -1,6 +1,10 @@
 /**
- * FootnotesPlugin — collects footnote definitions ([^id]: text) from the
- * current page's raw markdown and renders them as a reference list.
+ * FootnotesPlugin — collects footnote definitions from the current page's
+ * raw markdown and renders them as a reference list.
+ *
+ * Recognises two formats:
+ *   Markdown:  [^id]: Some text or https://example.com
+ *   JSPWiki:   * [#1] - [Link text|URL|target='_blank'] - context note
  *
  * Syntax:
  *   [{FootnotesPlugin}]
@@ -8,10 +12,6 @@
  *
  * Parameters:
  *   noheader — suppress the "Footnotes" heading (default: false)
- *
- * Footnote format recognised in raw markdown:
- *   [^1]: Some text or https://example.com
- *   [^my-note]: Multi-word identifier with optional URL
  */
 
 import type { SimplePlugin, PluginContext, PluginParams } from './types';
@@ -21,10 +21,13 @@ interface PageManagerLike {
   getPage(name: string): Promise<{ content?: string; rawContent?: string } | null>;
 }
 
-/** Regex matching single-line footnote definitions: [^id]: text */
-const FOOTNOTE_DEF_RE = /^\[\^([\d\w-]+)\]:\s*(.+)$/mg;
+/** [^id]: text — standard markdown footnote definition */
+const MD_FOOTNOTE_RE = /^\[\^([\d\w-]+)\]:\s*(.+)$/mg;
 
-/** Auto-link bare https?:// URLs — mirrors showdown-footnotes-fixed behaviour */
+/** * [#N] - content — JSPWiki-style footnote bullet */
+const JSPWIKI_FOOTNOTE_RE = /^\* \[#(\d+)\] - (.+)$/mg;
+
+/** Auto-link bare https?:// URLs */
 function autoLink(text: string): string {
   return escapeHtml(text).replace(
     /(https?:\/\/[^\s<&]+)/g,
@@ -32,9 +35,23 @@ function autoLink(text: string): string {
   );
 }
 
+/**
+ * Convert JSPWiki link syntax [Display|URL|target='_blank'] to an HTML anchor.
+ * Falls back to plain escaped text if the pattern doesn't match.
+ */
+function renderJspwikiLink(raw: string): string {
+  // [Display Text|URL|target='_blank'] or [Display Text|URL]
+  const linkRe = /\[([^|]+)\|([^|\]]+)(?:\|[^\]]+)?\]/g;
+  return raw.replace(
+    linkRe,
+    (_m: string, display: string, url: string) =>
+      `<a href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(display)}</a>`
+  );
+}
+
 const FootnotesPlugin: SimplePlugin = {
   name: 'FootnotesPlugin',
-  description: 'Lists footnote definitions ([^id]: text) from the current page as a reference list',
+  description: 'Lists footnote definitions from the current page as a reference list',
   author: 'ngdpbase',
   version: '1.0.0',
 
@@ -48,14 +65,30 @@ const FootnotesPlugin: SimplePlugin = {
     const page = await pageManager.getPage(pageName);
     if (!page) return '';
 
-    const raw = String(page.rawContent ?? page.content ?? '');
+    // Normalise CRLF so regexes work uniformly
+    const raw = String(page.rawContent ?? page.content ?? '').replace(/\r\n/g, '\n');
 
-    const footnotes: Array<{ id: string; text: string }> = [];
-    FOOTNOTE_DEF_RE.lastIndex = 0;
+    const footnotes: Array<{ id: string; html: string }> = [];
+
+    // Markdown [^id]: text
+    MD_FOOTNOTE_RE.lastIndex = 0;
     let m: RegExpExecArray | null;
-    while ((m = FOOTNOTE_DEF_RE.exec(raw)) !== null) {
-      footnotes.push({ id: m[1], text: m[2].trim() });
+    while ((m = MD_FOOTNOTE_RE.exec(raw)) !== null) {
+      footnotes.push({ id: m[1], html: autoLink(m[2].trim()) });
     }
+
+    // JSPWiki * [#N] - content
+    JSPWIKI_FOOTNOTE_RE.lastIndex = 0;
+    while ((m = JSPWIKI_FOOTNOTE_RE.exec(raw)) !== null) {
+      footnotes.push({ id: m[1], html: renderJspwikiLink(m[2].trim()) });
+    }
+
+    // Sort by id so markdown and JSPWiki entries appear in order
+    footnotes.sort((a, b) => {
+      const na = parseInt(a.id, 10), nb = parseInt(b.id, 10);
+      if (!isNaN(na) && !isNaN(nb)) return na - nb;
+      return a.id.localeCompare(b.id);
+    });
 
     const noheader = parseBoolParam(params?.['noheader'], false);
 
@@ -70,7 +103,7 @@ const FootnotesPlugin: SimplePlugin = {
         parts.push(
           `<li id="footnote-${escapeHtml(fn.id)}" class="footnote-item">` +
           `<sup><a href="#footnote-ref-${escapeHtml(fn.id)}">[${escapeHtml(fn.id)}]</a></sup> ` +
-          autoLink(fn.text) +
+          fn.html +
           '</li>'
         );
       }
