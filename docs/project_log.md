@@ -2,6 +2,20 @@
 
 AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version history.
 
+## 2026-04-21-02
+
+- Agent: Claude
+- Subject: Tab order and CommentsPlugin heading cleanup
+- Current Issue: #551
+- Work Done:
+  - Reordered Template:PageTabs — Referring Pages is now first and default-active tab
+  - Removed redundant `<h2>Comments</h2>` heading from CommentsPlugin output (tab label is sufficient)
+  - Removed temporary diagnostic logging from CommentsPlugin
+- Commits: 02d81bb2
+- Files Modified:
+  - required-pages/56e48394-b507-4f0e-98fb-02d9e7c2e165.md
+  - src/plugins/CommentsPlugin.ts
+
 ## 2026-04-21-01
 
 - Agent: Claude
