@@ -129,6 +129,7 @@ interface IVersioningProvider {
   restoreVersion?(name: string, version: number, options?: { author?: string; comment?: string }): Promise<number>;
   getPageVersion?(name: string, version: number): Promise<{ content: string; metadata: unknown }>;
   pageIndex?: { pages: Record<string, { location?: string; creator?: string }> } | null;
+  invalidatePageCache?(identifier: string): boolean;
 }
 
 interface IPageManager {
@@ -8161,6 +8162,8 @@ ${panes}
     app.post('/api/admin/cache/clear', (req: Request, res: Response) =>
       this.adminClearCache(req, res)
     );
+    app.post('/api/admin/cache/clear/page/:identifier', (req: Request, res: Response) =>
+      void this.adminClearPageCache(req, res));
     app.post('/api/admin/cache/clear/:region', (req: Request, res: Response) =>
       this.adminClearCacheRegion(req, res)
     );
@@ -8405,6 +8408,41 @@ ${panes}
     } catch (err: unknown) {
       logger.error('Error clearing cache:', err);
       return res.status(500).json({ error: 'Failed to clear cache' });
+    }
+  }
+
+  /**
+   * Admin clear single-page cache API endpoint
+   * POST /api/admin/cache/clear/page/:identifier
+   * Evicts one page (by UUID, slug, or title) from the provider content cache
+   * and the rendered-pages CacheManager region without a full restart.
+   */
+  async adminClearPageCache(req: Request, res: Response) {
+    try {
+      const userManager = this.engine.getManager('UserManager');
+      const currentUser = req.userContext;
+      if (!currentUser || !(await userManager.hasPermission(currentUser.username, 'admin-system'))) {
+        return res.status(403).json({ error: 'Access denied' });
+      }
+
+      const identifier = req.params.identifier;
+      if (!identifier) return res.status(400).json({ error: 'identifier parameter required' });
+
+      const pageManager = this.engine.getManager('PageManager');
+      const provider = pageManager?.getCurrentPageProvider?.();
+      const evicted = provider?.invalidatePageCache?.(identifier) ?? false;
+
+      // Also evict from the rendered-pages CacheManager region if available
+      const cacheManager = this.engine.getManager('CacheManager');
+      if (cacheManager?.isInitialized()) {
+        try { await cacheManager.del?.(`rendered-pages:${identifier}`); } catch { /* non-fatal */ }
+      }
+
+      logger.info(`[AdminAPI] Page cache evicted for '${identifier}' by ${currentUser.username}`);
+      return res.json({ success: true, evicted, identifier });
+    } catch (err) {
+      logger.error('Error clearing page cache:', err);
+      return res.status(500).json({ error: 'Failed to clear page cache' });
     }
   }
 

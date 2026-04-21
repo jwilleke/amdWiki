@@ -156,6 +156,10 @@ abstract class BasePageProvider {
     // no-op default — override in file-based providers
   }
 
+  invalidatePageCache(_identifier: string): boolean {
+    return false; // no-op default — override in providers with in-memory caches
+  }
+
   /**
    * Check if page exists
    * @param {string} identifier - Page UUID or title

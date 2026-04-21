@@ -486,6 +486,20 @@ class FileSystemProvider extends BasePageProvider {
     return path.join(this.pagesDirectory || '', `${uuid}.md`);
   }
 
+  invalidatePageCache(identifier: string): boolean {
+    // Resolve title from UUID, slug, or title lookup
+    const byUuid  = this.uuidIndex.get(identifier);
+    const bySlug  = this.slugIndex.get(identifier);
+    const title   = byUuid ?? bySlug ?? identifier;
+    const lowerTitle = title.toLowerCase();
+
+    const hadEntry = this.pageCache.has(lowerTitle) || this.contentCache.has(title);
+    this.pageCache.delete(lowerTitle);
+    this.contentCache.delete(title);
+    if (hadEntry) logger.info(`[FileSystemProvider] Evicted page cache: ${title}`);
+    return hadEntry;
+  }
+
   async movePrivatePage(uuid: string, oldCreator: string, newCreator: string): Promise<void> {
     if (!this.pagesDirectory || oldCreator === newCreator) return;
     const fromPath = path.join(this.pagesDirectory, 'private', oldCreator, `${uuid}.md`);

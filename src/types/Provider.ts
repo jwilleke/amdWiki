@@ -123,6 +123,13 @@ export interface PageProvider extends BaseProvider {
   movePrivatePage(uuid: string, oldCreator: string, newCreator: string): Promise<void>;
 
   /**
+   * Evict a single page from the provider's in-memory content/metadata cache.
+   * @param identifier - UUID, slug, or title
+   * @returns true if an entry was found and removed
+   */
+  invalidatePageCache(identifier: string): boolean;
+
+  /**
    * Check if page exists
    * @param identifier - Page UUID or title
    * @returns True if page exists
