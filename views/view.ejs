@@ -96,6 +96,11 @@ document.addEventListener('DOMContentLoaded', function () {
 </div>
 <% } %>
 
+<!-- Page tab section (Comments, Referring Pages, etc.) — Template:PageTabs (#551) -->
+<% if (typeof tabSection !== 'undefined' && tabSection) { %>
+<%- tabSection %>
+<% } %>
+
 <!-- More Information section (similar to JSPWiki) -->
 <% if (referringPages && referringPages.length > 0) { %>
 <div class="card mb-4">

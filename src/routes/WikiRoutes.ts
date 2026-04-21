@@ -1281,6 +1281,82 @@ class WikiRoutes {
     }
   }
 
+  /**
+   * Parses Template:PageTabs content and renders each tab section independently,
+   * returning Bootstrap nav-tabs HTML. Each tab's content is rendered via a
+   * separate textToHTML call so plugins execute with the correct page context.
+   *
+   * Template:PageTabs format:
+   *   [{Tab name='Label'}]
+   *   [{SomePlugin}]
+   *   [{/Tab}]
+   */
+  private async buildPageTabsHtml(
+    templateContent: string,
+    wikiContext: WikiContext,
+    renderingManager: ReturnType<typeof this.engine.getManager>,
+    configManager: ReturnType<typeof this.engine.getManager>
+  ): Promise<string> {
+    const TAB_SECTION_RE = /\[\{Tab\s+name='([^']+)'\s*\}\]([\s\S]*?)\[\{\/Tab\}\]/g;
+    const tabs: Array<{ name: string; content: string }> = [];
+    let m: RegExpExecArray | null;
+    while ((m = TAB_SECTION_RE.exec(templateContent)) !== null) {
+      tabs.push({ name: m[1].trim(), content: m[2].trim() });
+    }
+    if (tabs.length === 0) return '';
+
+    const style = (configManager as { getProperty?(k: string, d: unknown): unknown } | null)
+      ?.getProperty?.('ngdpbase.tab.style', 'tabs') as string ?? 'tabs';
+    const persist = (configManager as { getProperty?(k: string, d: unknown): unknown } | null)
+      ?.getProperty?.('ngdpbase.tab.persist', true) as boolean ?? true;
+
+    const uid = Math.random().toString(36).slice(2, 8);
+    const navClass = style === 'pills' ? 'nav-pills' : style === 'underline' ? 'nav-underline' : 'nav-tabs';
+
+    const renderedTabs = await Promise.all(tabs.map(async (tab, i) => ({
+      name: tab.name,
+      slug: tab.name.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+      html: await (renderingManager as { textToHTML(ctx: WikiContext, c: string): Promise<string> })
+        .textToHTML(wikiContext, tab.content),
+      active: i === 0
+    })));
+
+    const navItems = renderedTabs.map(t =>
+      '<li class="nav-item" role="presentation">' +
+      `<button class="nav-link${t.active ? ' active' : ''}" id="tab-${uid}-${t.slug}" ` +
+      `data-bs-toggle="tab" data-bs-target="#pane-${uid}-${t.slug}" ` +
+      `type="button" role="tab" aria-selected="${t.active}">${t.name}</button></li>`
+    ).join('\n');
+
+    const panes = renderedTabs.map(t =>
+      `<div class="tab-pane fade${t.active ? ' show active' : ''}" id="pane-${uid}-${t.slug}" ` +
+      `role="tabpanel" aria-labelledby="tab-${uid}-${t.slug}">\n${t.html}\n</div>`
+    ).join('\n');
+
+    const persistScript = persist ? `
+<script>
+(function(){
+  var key='ngdp-tab-${uid}';
+  var saved=localStorage.getItem(key);
+  if(saved){var el=document.getElementById('tab-${uid}-'+saved);if(el)el.click();}
+  document.querySelectorAll('#tabs-${uid} .nav-link').forEach(function(btn){
+    btn.addEventListener('shown.bs.tab',function(){
+      localStorage.setItem(key,btn.dataset.bsTarget.replace('#pane-${uid}-',''));
+    });
+  });
+})();
+</script>` : '';
+
+    return `<div class="ngdp-tabs" id="tabs-${uid}">
+<ul class="nav ${navClass} mb-3" role="tablist">
+${navItems}
+</ul>
+<div class="tab-content">
+${panes}
+</div>
+</div>${persistScript}`;
+  }
+
   async isRequiredPage(pageName: string): Promise<boolean> {
     // Check if page has a protected system-category
     try {
@@ -1476,15 +1552,26 @@ class WikiRoutes {
       // Check if user can edit this page
       const canEdit = await aclManager.checkPagePermissionWithContext(wikiContext, 'edit');
 
-      // Auto-inject [{CommentsPlugin}] for user pages when comments are enabled
-      const commentManager = this.engine.getManager('CommentManager');
-      const isRequiredForComments = await this.isRequiredPage(pageName);
-      let contentForRender = markdown;
-      if (commentManager?.isEnabled?.() && !isRequiredForComments) {
-        contentForRender = markdown + '\n\n----\n\n[{CommentsPlugin}]';
-      }
+      // Render page content
+      const html = await renderingManager.textToHTML(wikiContext, markdown);
 
-      const html = await renderingManager.textToHTML(wikiContext, contentForRender);
+      // Auto-inject Template:PageTabs tab section for user pages (#551)
+      // Rendered separately from page content so each tab's plugins execute cleanly.
+      let tabSectionHtml = '';
+      const tabsEnabled = configManager?.getProperty('ngdpbase.tab.pagetabs', true) as boolean;
+      const isRequiredForTabs = await this.isRequiredPage(pageName);
+      if (tabsEnabled && !isRequiredForTabs) {
+        const noPageTabs = (metadata as Record<string, unknown> | null)?.['no-page-tabs'];
+        const excludeList = (configManager?.getProperty('ngdpbase.tab.pagetabs.exclude', []) as string[]);
+        const isExcluded = excludeList.includes(pageName);
+        if (!noPageTabs && !isExcluded) {
+          const tabTemplateName = (configManager?.getProperty('ngdpbase.tab.pagetabs.template', 'Template:PageTabs'));
+          const tabTemplateContent = await pageManager.getPageContent(tabTemplateName).catch(() => null);
+          if (tabTemplateContent) {
+            tabSectionHtml = await this.buildPageTabsHtml(tabTemplateContent, wikiContext, renderingManager, configManager);
+          }
+        }
+      }
 
       // Get version information if versioning is enabled
       let versionInfo = null;
@@ -1557,6 +1644,7 @@ class WikiRoutes {
         pageName,
         title: pageName, // For reader view template
         content: html,
+        tabSection: tabSectionHtml,
         canEdit,
         sectionEditingEnabled,
         metadata,
