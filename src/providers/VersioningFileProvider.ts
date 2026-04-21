@@ -1143,16 +1143,6 @@ class VersioningFileProvider extends FileSystemProvider {
         logger.error(`[VersioningFileProvider] Failed to move page files for '${pageName}':`, errorMessage);
         // Continue to save current content even if move fails
       }
-    } else if (currentEntry && location === 'private' && currentEntry.creator && currentEntry.creator !== newCreator) {
-      // Creator changed within private — move file from old creator's dir to new creator's dir.
-      // Without this, the old copy would remain as an orphan alongside the newly-written copy.
-      try {
-        await this.movePageFile(uuid, 'private', currentEntry.creator, 'private', newCreator);
-        logger.info(`[VersioningFileProvider] Moved private page '${pageName}' (${uuid}) from creator '${currentEntry.creator}' to '${newCreator}'`);
-      } catch (moveError) {
-        const errorMessage = moveError instanceof Error ? moveError.message : String(moveError);
-        logger.error(`[VersioningFileProvider] Failed to move private page for creator change '${pageName}':`, errorMessage);
-      }
     }
 
     try {
