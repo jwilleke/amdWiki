@@ -2,6 +2,27 @@
 
 AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version history.
 
+## 2026-04-21-04
+
+- Agent: Claude
+- Subject: Page tab migration — live wiki pages, interwiki fixes, external link extraction
+- Current Issue: #553
+- Work Done:
+  - Extended migrate-page-tabs.mjs to accept extra directory paths; applied to 17,398 live wiki pages
+  - Fixed CRLF line endings, h1/h3 heading variants, JSPWiki footnote regex (* → + to protect frontmatter closer)
+  - Created repair-frontmatter.mjs; repaired 17,403 pages with missing frontmatter closer
+  - Fixed FootnotesPlugin to handle *[^N] bullet format and legacy* [#N] format; added interwiki link resolution
+  - Fixed trailing slash in interwiki page names (prevents %2F in URLs)
+  - Created recover-footnotes.mjs; reconstructed version history via DeltaStorage chain; recovered footnotes on 5,136 pages
+  - Created extract-external-links.mjs: converts [text](https://url) markdown links to text[^N] inline with * [^N] - [text|url] footnote bullets; applied to 1,881 live pages and 10 project pages
+- Commits: d996b1e0, f33b01a8, 317845e9, 7e2035d9, 11b312ab, 89fae8d2, 954c222e, 5acd9931, 25a37ec2
+- Files Modified:
+  - scripts/migrate-page-tabs.mjs
+  - scripts/repair-frontmatter.mjs (new)
+  - scripts/recover-footnotes.mjs (new)
+  - scripts/extract-external-links.mjs (new)
+  - src/plugins/FootnotesPlugin.ts
+
 ## 2026-04-21-03
 
 - Agent: Claude
