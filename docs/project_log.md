@@ -2,6 +2,34 @@
 
 AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version history.
 
+## 2026-04-21-01
+
+- Agent: Claude
+- Subject: Fix CommentsPlugin rendering (DOMPluginHandler context bug) + TabsPlugin + Template:PageTabs auto-injection
+- Current Issue: #395, #551
+- Work Done:
+  - Diagnosed CommentsPlugin rendering empty — DOMPluginHandler was not passing pageMetadata, userContext, or requestInfo to plugin context (all nested under pageContext in parseOptions)
+  - Fixed DOMPluginHandler to resolve all three fields from pageContext fallback (same pattern as existing pageName fallback); fixes latent bug affecting SearchPlugin, UndefinedPagesPlugin, and any plugin needing auth/request context
+  - Removed hardcoded [{CommentsPlugin}] injection from WikiRoutes
+  - Created TabsPlugin: general-purpose Bootstrap nav-tabs body plugin with style and localStorage persistence config
+  - Created TabPlugin: no-op marker plugin; TabsPlugin handles rendering
+  - Created Template:PageTabs required page (UUID 56e48394) with Comments + Referring Pages tabs
+  - Added buildPageTabsHtml() to WikiRoutes: parses [{Tab}] sections, renders each independently via separate textToHTML calls to avoid DOM pipeline plugin-nesting conflicts
+  - Added tabSection variable to view.ejs between article and More Information template section
+  - Added config entries: ngdpbase.tab.pagetabs, pagetabs.template, pagetabs.exclude, style, persist
+  - Frontmatter no-page-tabs: true skips injection per page; isRequiredPage() auto-excludes system pages
+  - Created GitHub issue #551 for tabbed page sections feature
+- Commits: b2ca0ae1, 5e3525ee
+- Files Modified:
+  - src/parsers/dom/handlers/DOMPluginHandler.ts
+  - src/plugins/CommentsPlugin.ts
+  - src/plugins/TabsPlugin.ts (new)
+  - src/plugins/TabPlugin.ts (new)
+  - src/routes/WikiRoutes.ts
+  - views/view.ejs
+  - config/app-default-config.json
+  - required-pages/56e48394-b507-4f0e-98fb-02d9e7c2e165.md (new)
+
 ## 2026-04-20-04
 
 - Agent: Claude
