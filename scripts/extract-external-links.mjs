@@ -45,8 +45,10 @@ const MD_LINK_RE = /(?<!!)\[([^\]]+)\]\((https?:\/\/[^)]+)\)/g;
 const EXISTING_FOOTNOTE_RE = /^\* \[\^(\d+)\]/mg;
 
 /**
- * Replace fenced code blocks and inline code spans with placeholders
- * so we don't transform links inside code.
+ * Replace fenced code blocks, inline code spans, and footnote bullet lines
+ * with placeholders so we don't transform links inside them.
+ * Footnote bullets (* [#N] - ... and * [^N] - ...) already contain ngdpbase
+ * wiki links and must not be processed as markdown links.
  */
 function maskCode(content) {
   const blocks = [];
@@ -58,6 +60,11 @@ function maskCode(content) {
     })
     // Inline code `...`
     .replace(/`[^`\n]+`/g, match => {
+      const idx = blocks.push(match) - 1;
+      return `\x00CODE${idx}\x00`;
+    })
+    // Footnote bullet lines * [#N] - ... and * [^N] - ...
+    .replace(/^\* \[[\^#]\d+\] - .+$/mg, match => {
       const idx = blocks.push(match) - 1;
       return `\x00CODE${idx}\x00`;
     });

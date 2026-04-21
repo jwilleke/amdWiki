@@ -53,16 +53,22 @@ function autoLink(text: string): string {
 }
 
 /**
- * Resolve [Display|Target|options] wiki link syntax to an HTML anchor.
- * Handles interwiki prefixes (e.g. Wikipedia:Page_Name) using the provided
- * site map. Falls back to using the target as a literal URL.
+ * Resolve [Display|Target|options] wiki link syntax and markdown [text](url)
+ * links to HTML anchors. Handles interwiki prefixes via the site map.
  */
 function renderWikiLink(
   raw: string,
   interWikiSites: Map<string, InterWikiSiteConfig>
 ): string {
+  // First convert markdown [text](url) links to HTML anchors
+  const mdLinkRe = /(?<!!)\[([^\]]+)\]\((https?:\/\/[^)]+)\)/g;
+  const result = raw.replace(mdLinkRe, (_m: string, display: string, url: string) =>
+    `<a href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(display)}</a>`
+  );
+
+  // Then resolve [Display|Target|options] ngdpbase wiki link syntax
   const linkRe = /\[([^|]+)\|([^|\]]+)(?:\|[^\]]+)?\]/g;
-  return raw.replace(linkRe, (_m: string, display: string, target: string) => {
+  return result.replace(linkRe, (_m: string, display: string, target: string) => {
     // Check for interwiki prefix: "Wikipedia:Page_Name"
     const colonIdx = target.indexOf(':');
     if (colonIdx > 0) {
