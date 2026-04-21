@@ -16,8 +16,3 @@ user-keywords: []
 ## Pages in this Category
 
 This section will automatically show pages that use this category.
-
-## More Information
-
-There might be more information for this subject on one of the following:
-[{ReferringPagesPlugin before='*' after='\n' }]

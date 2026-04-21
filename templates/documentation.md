@@ -27,8 +27,3 @@ Example code or content here
 
 - [Related Page]
 - [Another Related Page]
-
-## More Information
-
-There might be more information for this subject on one of the following:
-[{ReferringPagesPlugin before='*' after='\n' }]
