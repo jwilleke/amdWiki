@@ -2495,16 +2495,18 @@ ${panes}
           ? [String(submittedAudience)]
           : [];
 
-      // Resolve author-lock: only admins may set or clear it
+      // Resolve author-lock: admins and the page author may set or clear it
       const isAdmin = currentUser?.roles?.includes('admin');
+      const existingCreator = existingPage?.metadata?.['page-creator'] ?? existingPage?.metadata?.author;
+      const isPageAuthor = currentUser?.username === existingCreator;
       let authorLock: boolean;
-      if (isAdmin) {
-        // Admin submitted the form — honour the checkbox (present = true, absent = false)
+      if (isAdmin || isPageAuthor) {
+        // Privileged user — honour the checkbox (present = true, absent = false)
         authorLock = req.body['author-lock-present'] === '1'
           ? req.body['author-lock'] === 'true'
           : Boolean(existingPage?.metadata?.['author-lock'] ?? false);
       } else {
-        // Non-admin: preserve whatever was already stored, ignore submitted value
+        // Other editors: preserve whatever was already stored, ignore submitted value
         authorLock = Boolean(existingPage?.metadata?.['author-lock'] ?? false);
       }
 

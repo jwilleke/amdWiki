@@ -376,6 +376,7 @@ Applied at runtime by setting `data-bs-theme="light|dark"` on the `<html>` eleme
 `variables.css` respond to `[data-bs-theme="dark"]` to flip colors.
 
 Controlled per-user via:
+
 - The **⊕ icon** button in the top navigation bar (desktop and mobile)
 - The **Light / Dark Mode** field on the `/profile` page
 
@@ -417,6 +418,22 @@ to private pages are filtered by user identity.
 Private attachments are stored separately in
 `$SLOW_STORAGE/attachments/private/{creator}/` with `isPrivate: true` and
 `creator` set in metadata.
+
+---
+
+## Page Metadata
+
+### author
+
+The original creator of a page. Stored as `page-creator` in frontmatter and `creator` in the Page Index. Set once at creation; does not change when the page is later edited.
+
+### editor
+
+The user who last saved the page. Stored as `lastModifiedBy` in frontmatter. Updated on every save, unlike `author`.
+
+### author-lock
+
+A per-page frontmatter flag (`author-lock: true`) that restricts the edit form to the page's author and admin users. All other roles receive a 403 even if their ACL role normally permits editing.
 
 ---
 
