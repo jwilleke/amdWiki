@@ -2,7 +2,7 @@
 uuid: {{uuid}}
 category: default
 user-keywords: {{userKeywords}}
----
+
 # Overview
 
 [{$pagename}]
@@ -26,7 +26,5 @@ user-keywords: {{userKeywords}}
 ## Links and References
 
 *Add any relevant links, references, or resources here.*
-
----
 
 *This user page was automatically created when {{displayName}} registered on {{createdDate}}.*

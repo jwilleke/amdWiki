@@ -1,11 +1,12 @@
 /**
  * migrate-page-tabs.mjs
  *
- * Removes inline "## More Information" + ReferringPagesPlugin blocks from
+ * Removes inline "More Information" + ReferringPagesPlugin blocks and
+ * JSPWiki-style footnote separator blocks (--- / * [#N] - text) from
  * data/pages and templates now that Template:PageTabs handles them via the
- * Referring Pages tab (#553).
+ * Referring Pages and Footnotes tabs (#553).
  *
- * Also removes trailing `----` + footnote-bullet blocks where present.
+ * Also normalises CRLF → LF line endings.
  *
  * Usage:
  *   node scripts/migrate-page-tabs.mjs [--dry-run] [extra/dir ...]
@@ -29,32 +30,32 @@ const SCAN_DIRS = [
 ];
 
 /**
- * Removes the "## More Information / There might be... / [{ReferringPagesPlugin...}]"
- * block from page content.  The block may appear anywhere but is typically at the end.
- *
- * Matches:
- *   \n## More Information\n\nThere might be more information...\n[{ReferringPagesPlugin...}]\n?
- *
- * Stops at the next ## heading so we don't swallow subsequent content.
+ * Removes "More Information / There might be... / [{ReferringPagesPlugin...}]"
+ * Handles: ## / ### / ###(no space) headings, 1 or 2 blank lines after heading.
  */
 function removeMoreInformationBlock(content) {
-  // Match: optional leading blank lines, the heading, the boilerplate sentence,
-  // then one ReferringPagesPlugin call (any params), and any trailing blank lines.
-  // Use a non-greedy match that stops before the next ## heading.
-  const re = /\n?## More Information\n\nThere might be more information for this subject on one of the following:\n\[\{ReferringPagesPlugin[^\}]*\}\]\n?/g;
+  const re = /\n?#{1,3} ?More Information\n{1,2}There might be more information for this subject on one of the following:\n\[\{ReferringPagesPlugin[^\}]*\}\]\n?/g;
   return content.replace(re, '\n');
 }
 
 /**
- * Removes a trailing `----` + `* [^N] - text` footnote-bullet block.
- * These are manually written footnote separators that are superseded by
- * the Footnotes tab (FootnotesPlugin reads [^id]: definitions instead).
- *
- * Pattern:
- *   \n----\n(* [^N] - text\n)+
+ * Removes JSPWiki-style footnote separator blocks:
+ *   ---
+ *   * [#1] - some text
+ *   * [#2] - another line
  */
-function removeFootnoteBulletBlock(content) {
-  const re = /\n----\n(\* \[\^[\d\w-]+\] - .+\n)+/g;
+function removeJspwikiFootnoteBlock(content) {
+  const re = /\n-{3,4}\n(\* \[#\d+\] - .+\n)*/g;
+  return content.replace(re, '\n');
+}
+
+/**
+ * Removes standard markdown footnote-bullet blocks:
+ *   ----
+ *   * [^id] - text
+ */
+function removeMarkdownFootnoteBulletBlock(content) {
+  const re = /\n-{3,4}\n(\* \[\^[\d\w-]+\] - .+\n)+/g;
   return content.replace(re, '\n');
 }
 
@@ -64,19 +65,23 @@ function normalizeTrailing(content) {
 }
 
 async function processFile(filePath) {
-  const original = await readFile(filePath, 'utf8');
+  const raw = await readFile(filePath, 'utf8');
+  // Normalise CRLF → LF so all regexes work uniformly
+  const original = raw.replace(/\r\n/g, '\n');
   let updated = original;
 
   updated = removeMoreInformationBlock(updated);
-  updated = removeFootnoteBulletBlock(updated);
+  updated = removeJspwikiFootnoteBlock(updated);
+  updated = removeMarkdownFootnoteBulletBlock(updated);
   updated = normalizeTrailing(updated);
 
-  if (updated === original) return { filePath, changed: false };
+  // Count as changed if content differs OR if CRLF was normalised
+  if (updated === original && !raw.includes('\r\n')) return { filePath, changed: false };
 
   if (!DRY_RUN) {
     await writeFile(filePath, updated, 'utf8');
   }
-  return { filePath, changed: true, original, updated };
+  return { filePath, changed: true };
 }
 
 async function main() {
@@ -104,8 +109,6 @@ async function main() {
         const result = await processFile(filePath);
         if (result.changed) {
           changed++;
-          const rel = filePath.replace(ROOT + '/', '');
-          console.log(`  [CHANGED] ${rel}`);
         } else {
           unchanged++;
         }
@@ -114,6 +117,8 @@ async function main() {
         console.error(`  [ERROR] ${filePath}: ${err.message}`);
       }
     }
+
+    console.log(`  → ${dir}: done`);
   }
 
   console.log(`\nDone. Changed: ${changed}  Unchanged: ${unchanged}  Errors: ${errors}`);
