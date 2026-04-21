@@ -2,6 +2,30 @@
 
 AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version history.
 
+## 2026-04-21-06
+
+- Agent: Claude
+- Subject: Footnote link bug fixes, bare-URL migration, plugin and config docs
+- Current Issue: #553
+- Work Done:
+  - Fixed extract-external-links.mjs to mask footnote bullet lines before scanning
+  - Created repair-footnote-links.mjs; repaired 1,056 pages where script had corrupted * [#N] bullet lines
+  - Created migrate-bare-url-footnotes.mjs; converted 787 pages with bare-URL footnote format to proper * [^N] - [url|url]
+  - FootnotesPlugin: added markdown [text](url) link rendering in bullet footnote content
+  - Updated FootnotesPlugin doc: expanded link syntax section covering all four formats
+  - Created Page Chrome Configuration doc: ngdpbase.page.notabs and ngdpbase.page.nofooter
+  - Updated Editing a Page doc: link Page Content field to Plugins reference
+  - Filed known issue on #553: footnote definitions render in body AND in tab (deferred)
+- Commits: 429679b0
+- Files Modified:
+  - scripts/extract-external-links.mjs
+  - scripts/repair-footnote-links.mjs (new)
+  - scripts/migrate-bare-url-footnotes.mjs (new)
+  - src/plugins/FootnotesPlugin.ts
+  - required-pages/d96b072e-aebf-48e2-a5aa-2ffcc4daa821.md
+  - required-pages/3d7a2509-06b1-407a-a782-545b13118f0e.md (new)
+  - required-pages/51666223-22ef-4143-a34c-5902a3cf1ce0.md
+
 ## 2026-04-21-05
 
 - Agent: Claude
