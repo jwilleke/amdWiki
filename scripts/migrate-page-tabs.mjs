@@ -8,7 +8,9 @@
  * Also removes trailing `----` + footnote-bullet blocks where present.
  *
  * Usage:
- *   node scripts/migrate-page-tabs.mjs [--dry-run]
+ *   node scripts/migrate-page-tabs.mjs [--dry-run] [extra/dir ...]
+ *
+ * Extra directories are scanned in addition to the defaults.
  */
 
 import { readdir, readFile, writeFile } from 'fs/promises';
@@ -18,10 +20,12 @@ import { fileURLToPath } from 'url';
 const __dirname = fileURLToPath(new URL('.', import.meta.url));
 const ROOT = resolve(__dirname, '..');
 const DRY_RUN = process.argv.includes('--dry-run');
+const extraDirs = process.argv.slice(2).filter(a => !a.startsWith('--'));
 
 const SCAN_DIRS = [
   join(ROOT, 'data', 'pages'),
   join(ROOT, 'templates'),
+  ...extraDirs.map(d => resolve(d)),
 ];
 
 /**
