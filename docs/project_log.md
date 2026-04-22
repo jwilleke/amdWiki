@@ -2,6 +2,19 @@
 
 AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version history.
 
+## 2026-04-22-13
+
+- Agent: Claude
+- Subject: End-user documentation for Forms addon (#463)
+- Current Issue: #463
+- Work Done:
+  - New `required-pages/a4f9c2e1-7b3d-4a85-9e6f-1c2d3b4a5e6f.md` — FormPlugin doc: syntax, parameters table (ngdpbase striped), live example, notes covering proxy submission, time validation, conflict detection, multi-form pages
+  - Updated `addons/forms/pages/forms-help.md`: renamed to "Using Forms Addon", replaced markdown tables with ngdpbase striped syntax, removed "wiki page" language, added `lastModified`, expanded field definition reference with required/optional form fields and field properties
+- Commits: 94efc5e5
+- Files Modified:
+  - required-pages/a4f9c2e1-7b3d-4a85-9e6f-1c2d3b4a5e6f.md (new)
+  - addons/forms/pages/forms-help.md
+
 ## 2026-04-22-12
 
 - Agent: Claude
