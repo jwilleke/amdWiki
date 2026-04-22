@@ -2,6 +2,21 @@
 
 AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version history.
 
+## 2026-04-22-07
+
+- Agent: Claude
+- Subject: Fix #552 — allow apostrophes in page titles and page names
+- Current Issue: #552
+- Work Done:
+  - Removed `'` from the `invalidChars` regex in `WikiRoutes.ts` at both the `createPageFromTemplate` (pageName) and `savePage` (title) validation points
+  - Updated error messages to no longer list `'` as forbidden
+  - Updated `WikiRoutes.titleValidation.test.ts`: removed `"'"` from the rejected-chars test array, added passing test for "President's Surveillance Program"
+  - All 2972 unit tests pass; 72/72 E2E tests pass
+- Commits: 51a18f46
+- Files Modified:
+  - src/routes/WikiRoutes.ts
+  - src/routes/__tests__/WikiRoutes.titleValidation.test.ts
+
 ## 2026-04-22-06
 
 - Agent: Claude
