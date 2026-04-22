@@ -66,6 +66,7 @@ export default class CommentManager extends BaseManager {
     const dir = path.join(this.commentsDir, pageUuid);
     fs.mkdirSync(dir, { recursive: true });
     fs.writeFileSync(path.join(dir, `${id}.json`), JSON.stringify(comment, null, 2), 'utf-8');
+    this.invalidateHandlerCache(pageUuid);
     return comment;
   }
 
@@ -79,6 +80,7 @@ export default class CommentManager extends BaseManager {
     comment.deletedBy = deletedBy;
     comment.deletedAt = new Date().toISOString();
     fs.writeFileSync(filePath, JSON.stringify(comment, null, 2), 'utf-8');
+    this.invalidateHandlerCache(pageUuid);
     return true;
   }
 

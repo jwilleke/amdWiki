@@ -1351,6 +1351,13 @@ class RenderingManager extends BaseManager {
     logger.debug(`[RenderingManager] Removed page from link graph: ${pageName}`);
   }
 
+  invalidateHandlerCache(): void {
+    const markupParser = this.engine.getManager<MarkupParser>('MarkupParser');
+    if (markupParser) {
+      markupParser.invalidateHandlerCache().catch(() => { /* non-fatal */ });
+    }
+  }
+
   /**
    * Get pages that refer to a specific page
    * @param {string} pageName - Target page name

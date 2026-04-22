@@ -304,6 +304,14 @@ class PageManager extends BaseManager {
     return this.provider;
   }
 
+  invalidatePageCache(identifier: string): void {
+    this.provider?.invalidatePageCache?.(identifier);
+    const renderingManager = this.engine.getManager<{ invalidateHandlerCache(): void }>('RenderingManager');
+    if (renderingManager) {
+      renderingManager.invalidateHandlerCache();
+    }
+  }
+
   // ============================================================================
   // Proxy Methods - All page operations are delegated to the provider
   // ============================================================================

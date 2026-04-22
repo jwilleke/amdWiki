@@ -92,6 +92,7 @@ export default class FootnoteManager extends BaseManager {
 
     map[nextId] = footnote;
     this.writeMap(pageUuid, map);
+    this.invalidateHandlerCache(pageUuid);
     return footnote;
   }
 
@@ -110,6 +111,7 @@ export default class FootnoteManager extends BaseManager {
       note: data.note.trim()
     };
     this.writeMap(pageUuid, map);
+    this.invalidateHandlerCache(pageUuid);
     return map[id];
   }
 
@@ -126,6 +128,7 @@ export default class FootnoteManager extends BaseManager {
     } else {
       this.writeMap(pageUuid, map);
     }
+    this.invalidateHandlerCache(pageUuid);
     return true;
   }
 

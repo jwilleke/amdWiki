@@ -132,6 +132,13 @@ abstract class BaseManager {
     return this.engine;
   }
 
+  protected invalidateHandlerCache(pageUuid: string): void {
+    const pm = this.engine.getManager<{ invalidatePageCache(id: string): void }>('PageManager');
+    if (pm) {
+      pm.invalidatePageCache(pageUuid);
+    }
+  }
+
   /**
    * Shutdown the manager and cleanup resources
    *
