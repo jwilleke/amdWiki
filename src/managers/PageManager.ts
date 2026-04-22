@@ -413,19 +413,22 @@ class PageManager extends BaseManager {
       );
     }
 
-    // TWO CREATOR FIELDS — see #557 for planned consolidation:
-    //   author       — attribution field, set on ALL pages, never changes. Shown in Page Info.
-    //   page-creator — ACL field, only on PRIVATE pages (user-keyword: private). Read by
-    //                  ACLManager to decide if a non-admin can access their own private page.
-    //                  Redundant with author but kept separate so ACL logic does not depend
-    //                  on a display field. Both must be preserved on edit (never overwritten).
-    // Preserve author from existing page — must never change once set.
+    // author — immutable original creator, set on ALL pages, never changes.
+    // Used for both attribution display and private-page ACL ownership (see ACLManager).
+    // Preserve from the existing page — must never be overwritten on edit.
+    // For documentation/system category pages, default to 'system' if no user is present.
     const existingPage = pageName ? await this.provider.getPage(pageName) : null;
     const originalAuthor = existingPage?.metadata?.author;
 
+    const incomingCategory = ((metadata as Record<string, unknown>)['system-category'] as string | undefined)
+      || ((existingPage?.metadata as Record<string, unknown> | undefined)?.['system-category'] as string | undefined)
+      || '';
+    const isSystemCategory = ['documentation', 'system'].includes(incomingCategory.toLowerCase());
+    const defaultAuthor = isSystemCategory ? 'system' : 'anonymous';
+
     const rawMetadata: Partial<PageFrontmatter> = {
       ...metadata,
-      author: originalAuthor || wikiContext.userContext?.username || metadata.author || 'anonymous'
+      author: originalAuthor || wikiContext.userContext?.username || metadata.author || defaultAuthor
     };
 
     // Detect whether any applied user-keyword requests private storage.
@@ -452,17 +455,9 @@ class PageManager extends BaseManager {
       ? userKeywords.map(kw => userKeywordDefs[kw]?.storageLocation).find(loc => loc === 'private')
       : undefined;
 
-    // Preserve page-creator from the existing page — it is the original creator and
-    // must never change when an editor saves. Only set it when creating a new private page.
-    const existingPageCreator = (existingPage?.metadata as Record<string, unknown> | undefined)
-      ?.['page-creator'] as string | undefined;
-
     const metadataWithLocation: Partial<PageFrontmatter> & Record<string, unknown> = {
       ...rawMetadata,
-      ...(privateStorageLocation ? {
-        'system-location': privateStorageLocation,
-        'page-creator': existingPageCreator || wikiContext.userContext?.username || 'anonymous'
-      } : {})
+      ...(privateStorageLocation ? { 'system-location': privateStorageLocation } : {})
     };
 
     // Sanitize all string fields — trims Unicode whitespace and decodes percent-encoded
@@ -483,14 +478,12 @@ class PageManager extends BaseManager {
       }
     }
 
-    // If the page is private and the stored creator differs from the incoming creator,
-    // move the file before saving so we don't leave an orphan copy in the old directory.
-    // This is the canonical location for this logic — all providers expose movePrivatePage().
-    if (privateStorageLocation && existingPageCreator) {
-      const incomingCreator = (metadataWithLocation['page-creator'] as string | undefined) ?? '';
-      if (incomingCreator && incomingCreator !== existingPageCreator) {
+    // If the page is private and the author changed (shouldn't happen normally), move the file.
+    if (privateStorageLocation && originalAuthor) {
+      const incomingAuthor = (enrichedMetadata as Record<string, unknown>).author as string | undefined ?? '';
+      if (incomingAuthor && incomingAuthor !== originalAuthor) {
         const uuid = (enrichedMetadata as Record<string, unknown>).uuid as string | undefined ?? '';
-        if (uuid) await this.provider.movePrivatePage(uuid, existingPageCreator, incomingCreator);
+        if (uuid) await this.provider.movePrivatePage(uuid, originalAuthor, incomingAuthor);
       }
     }
 

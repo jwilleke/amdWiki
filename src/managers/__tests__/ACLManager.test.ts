@@ -301,7 +301,7 @@ describe('ACLManager', () => {
   describe('Tier 0 — private user-keyword', () => {
     test('private page + admin role → allow', async () => {
       const ctx = makeWikiContext({
-        pageMetadata: { title: 'Test', uuid: 'x', lastModified: '', 'user-keywords': ['private'], 'page-creator': 'alice' },
+        pageMetadata: { title: 'Test', uuid: 'x', lastModified: '', 'user-keywords': ['private'], author: 'alice' },
         userContext: { username: 'bob', roles: ['admin'], isAuthenticated: true }
       });
       expect(await aclManager.checkPagePermissionWithContext(ctx, 'view')).toBe(true);
@@ -309,7 +309,7 @@ describe('ACLManager', () => {
 
     test('private page + page-creator username → allow', async () => {
       const ctx = makeWikiContext({
-        pageMetadata: { title: 'Test', uuid: 'x', lastModified: '', 'user-keywords': ['private'], 'page-creator': 'alice' },
+        pageMetadata: { title: 'Test', uuid: 'x', lastModified: '', 'user-keywords': ['private'], author: 'alice' },
         userContext: { username: 'alice', roles: ['editor'], isAuthenticated: true }
       });
       expect(await aclManager.checkPagePermissionWithContext(ctx, 'view')).toBe(true);
@@ -317,7 +317,7 @@ describe('ACLManager', () => {
 
     test('private page + editor role (non-admin, non-creator) → deny', async () => {
       const ctx = makeWikiContext({
-        pageMetadata: { title: 'Test', uuid: 'x', lastModified: '', 'user-keywords': ['private'], 'page-creator': 'alice' },
+        pageMetadata: { title: 'Test', uuid: 'x', lastModified: '', 'user-keywords': ['private'], author: 'alice' },
         userContext: { username: 'bob', roles: ['editor'], isAuthenticated: true }
       });
       expect(await aclManager.checkPagePermissionWithContext(ctx, 'view')).toBe(false);
@@ -325,7 +325,7 @@ describe('ACLManager', () => {
 
     test('private page + audience: [editor] set → editor still denied (Tier 0 wins)', async () => {
       const ctx = makeWikiContext({
-        pageMetadata: { title: 'Test', uuid: 'x', lastModified: '', 'user-keywords': ['private'], 'page-creator': 'alice', audience: ['editor'] },
+        pageMetadata: { title: 'Test', uuid: 'x', lastModified: '', 'user-keywords': ['private'], author: 'alice', audience: ['editor'] },
         userContext: { username: 'bob', roles: ['editor'], isAuthenticated: true }
       });
       expect(await aclManager.checkPagePermissionWithContext(ctx, 'view')).toBe(false);

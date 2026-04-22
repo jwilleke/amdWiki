@@ -2498,7 +2498,7 @@ ${panes}
 
       // Resolve author-lock: admins and the page author may set or clear it
       const isAdmin = currentUser?.roles?.includes('admin');
-      const existingCreator = existingPage?.metadata?.['page-creator'] ?? existingPage?.metadata?.author;
+      const existingCreator = existingPage?.metadata?.author;
       const isPageAuthor = currentUser?.username === existingCreator;
       let authorLock: boolean;
       if (isAdmin || isPageAuthor) {
@@ -8856,12 +8856,14 @@ ${panes}
             'slug',
             'uuid',
             'system-category',
+            'system-location',
             'category',
             'user-keywords',
             'keywords',
             'tags',
             'lastModified',
             'author',
+            'page-creator',
             'description',
             'version',
             'status',

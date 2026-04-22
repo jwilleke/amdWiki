@@ -548,7 +548,7 @@ class FileSystemProvider extends BasePageProvider {
 
     // Resolve file path — private pages go to pagesDirectory/private/{creator}/{uuid}.md
     const systemLocation = (metadata as Record<string, unknown>)['system-location'] as string | undefined;
-    const pageCreator = (metadata as Record<string, unknown>)['page-creator'] as string | undefined;
+    const pageCreator = (metadata as Record<string, unknown>).author as string | undefined;
     const filePath = this.resolvePageFilePath(uuid, systemLocation || 'pages', pageCreator);
     await fs.ensureDir(path.dirname(filePath));
 

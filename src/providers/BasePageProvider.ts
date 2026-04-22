@@ -148,7 +148,7 @@ abstract class BasePageProvider {
 
   /**
    * Move a private page from one creator's directory to another's.
-   * Called by PageManager when page-creator changes on a private page.
+   * Called by PageManager when a private page's author changes.
    * Providers that use creator-keyed directories must override this.
    * Default: no-op (providers without creator directories do nothing).
    */

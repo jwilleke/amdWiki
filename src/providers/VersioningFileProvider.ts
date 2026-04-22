@@ -1109,7 +1109,7 @@ class VersioningFileProvider extends FileSystemProvider {
     // 2. Otherwise fall back to system-category → storageLocation mapping
     const metadataRecord = metadata as Record<string, unknown>;
     const systemLocation = metadataRecord['system-location'] as string | undefined;
-    const newCreator = (metadataRecord['page-creator'] as string | undefined) || metadata.author || 'anonymous';
+    const newCreator = metadata.author || 'anonymous';
 
     let location: 'pages' | 'required-pages' | 'private' = 'pages';
 

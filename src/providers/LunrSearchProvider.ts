@@ -259,7 +259,7 @@ class LunrSearchProvider extends BaseSearchProvider {
 
     const isPrivate = pageData.isPrivate === true || metadata['system-location'] === 'private';
     const creator = typeof pageData.creator === 'string' ? pageData.creator
-      : typeof metadata['page-creator'] === 'string' ? metadata['page-creator']
+      : typeof metadata.author === 'string' ? metadata.author
         : undefined;
 
     return {

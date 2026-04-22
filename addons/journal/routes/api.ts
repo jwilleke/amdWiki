@@ -107,10 +107,7 @@ export default function apiRoutes(engine: WikiEngine, config: Record<string, unk
           author:            username,
           lastModified:      now,
           ...(defaultAuthorLock ? { 'author-lock': true } : {}),
-          ...(defaultPrivate ? {
-            'system-location': 'private',
-            'page-creator':    username
-          } : {})
+          ...(defaultPrivate ? { 'system-location': 'private' } : {})
         };
 
         const wikiContext = new WikiContext(engine, {

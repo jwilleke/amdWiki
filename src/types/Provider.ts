@@ -117,7 +117,7 @@ export interface PageProvider extends BaseProvider {
 
   /**
    * Move a private page from one creator's directory to another's.
-   * Called by PageManager when page-creator changes on a private page.
+   * Called by PageManager when a private page's author changes.
    * Providers without creator-keyed directories may implement as a no-op.
    */
   movePrivatePage(uuid: string, oldCreator: string, newCreator: string): Promise<void>;

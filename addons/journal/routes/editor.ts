@@ -187,7 +187,7 @@ export default function editorRoutes(engine: WikiEngine, config: Record<string, 
           author:            username,
           lastModified:      new Date().toISOString(),
           ...(defaultAuthorLock ? { 'author-lock': true }                                   : {}),
-          ...(defaultPrivate    ? { 'system-location': 'private', 'page-creator': username } : {})
+          ...(defaultPrivate    ? { 'system-location': 'private' } : {})
         };
 
         const wikiCtx = new WikiContext(engine, {
@@ -269,7 +269,7 @@ export default function editorRoutes(engine: WikiEngine, config: Record<string, 
           ...(mood              ? { mood }                                     : {}),
           ...(tags.length       ? { 'journal-tags': tags }                    : {}),
           ...(defaultAuthorLock ? { 'author-lock': true }                     : {}),
-          ...(defaultPrivate    ? { 'system-location': 'private', 'page-creator': username } : {})
+          ...(defaultPrivate    ? { 'system-location': 'private' } : {})
         };
 
         const wikiCtx = new WikiContext(engine, {
