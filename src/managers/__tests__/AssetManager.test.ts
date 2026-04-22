@@ -25,7 +25,7 @@ const AssetManager = (() => { const mod = require('../AssetManager'); return mod
 // Fixture provider factory
 // ---------------------------------------------------------------------------
 
-function makeProvider(overrides = {}) {
+function makeProvider(overrides: Record<string, unknown> = {}) {
   return {
     id: 'test-fixture',
     displayName: 'Test Fixture Provider',
@@ -52,11 +52,16 @@ function makeAssetRecord(overrides = {}) {
 }
 
 function makeEngine({
-  attachmentProvider,
-  mediaProvider,
+  attachmentProvider = undefined,
+  mediaProvider = undefined,
   // pageAssets reverse index: filename-resolution mocks
-  getAttachmentByFilename,
-  findByFilename
+  getAttachmentByFilename = undefined,
+  findByFilename = undefined
+}: {
+  attachmentProvider?: ReturnType<typeof makeProvider>;
+  mediaProvider?: ReturnType<typeof makeProvider>;
+  getAttachmentByFilename?: jest.Mock;
+  findByFilename?: jest.Mock;
 } = {}) {
   return {
     getManager: jest.fn((name) => {

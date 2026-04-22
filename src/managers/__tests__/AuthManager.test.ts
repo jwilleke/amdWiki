@@ -5,7 +5,7 @@ describe('AuthManager', () => {
   let mockEngine;
   let mockConfigManager;
 
-  const makeConfigManager = (overrides = {}) => ({
+  const makeConfigManager = (overrides: Record<string, unknown> = {}) => ({
     getProperty: jest.fn((key, defaultValue) => {
       const values = {
         'ngdpbase.auth.magic-link.enabled': overrides.magicLinkEnabled ?? false,

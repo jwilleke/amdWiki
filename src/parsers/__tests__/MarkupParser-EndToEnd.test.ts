@@ -13,6 +13,7 @@ import MarkupParser from '../MarkupParser';
 
 // Comprehensive mock engine with all managers
 class ComprehensiveMockEngine {
+  managers: Map<string, unknown>;
   constructor() {
     this.managers = new Map([
       ['ConfigurationManager', this.createConfigurationManager()],

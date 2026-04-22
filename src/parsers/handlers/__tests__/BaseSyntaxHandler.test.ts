@@ -1,4 +1,6 @@
-import { BaseSyntaxHandler, HandlerExecutionError } from '../BaseSyntaxHandler';
+import BaseSyntaxHandlerModule = require('../BaseSyntaxHandler');
+const BaseSyntaxHandler = BaseSyntaxHandlerModule.BaseSyntaxHandler ?? BaseSyntaxHandlerModule;
+const HandlerExecutionError = BaseSyntaxHandlerModule.HandlerExecutionError;
 
 // Mock context for testing
 const createMockContext = (overrides = {}) => ({

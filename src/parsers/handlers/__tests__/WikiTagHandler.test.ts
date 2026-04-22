@@ -3,6 +3,7 @@ import ParseContext from '../../context/ParseContext';
 
 // Mock PageManager
 class MockPageManager {
+  pages: Map<string, { content: string }>;
   constructor() {
     this.pages = new Map([
       ['ExistingPage', { content: '# Existing Page\n\nThis page exists.' }],

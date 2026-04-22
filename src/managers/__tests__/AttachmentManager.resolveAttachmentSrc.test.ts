@@ -14,6 +14,7 @@
  */
 
 import AttachmentManager from '../AttachmentManager';
+import type { WikiEngine } from '../../types/WikiEngine';
 
 const mockMediaManager = {
   findByFilename: jest.fn()
@@ -27,7 +28,7 @@ const mockEngine = {
 };
 
 function makeManager(providerMethods = {}) {
-  const manager = new AttachmentManager(mockEngine);
+  const manager = new AttachmentManager(mockEngine as unknown as WikiEngine);
   // Bypass initialize() — inject a mock provider directly
   manager['attachmentProvider'] = {
     getAttachmentsForPage: jest.fn().mockResolvedValue([]),
@@ -198,7 +199,7 @@ describe('AttachmentManager.resolveAttachmentSrc', () => {
     });
 
     it('no attachment provider → null for filenames', async () => {
-      const manager = new AttachmentManager(mockEngine);
+      const manager = new AttachmentManager(mockEngine as unknown as WikiEngine);
       // Leave attachmentProvider as null (not initialized)
 
       const result = await manager.resolveAttachmentSrc('photo.jpg', 'MyPage');
@@ -209,7 +210,7 @@ describe('AttachmentManager.resolveAttachmentSrc', () => {
 
   describe('no attachment provider — URLs/paths still passthrough', () => {
     it('external URL with no provider → still returns { url, mimeType: "" }', async () => {
-      const manager = new AttachmentManager(mockEngine);
+      const manager = new AttachmentManager(mockEngine as unknown as WikiEngine);
 
       const result = await manager.resolveAttachmentSrc('https://example.com/img.jpg', 'MyPage');
 

@@ -9,6 +9,7 @@
 import fs from 'fs';
 import path from 'path';
 import WikiEngine from '../../WikiEngine';
+import type { WikiConfig } from '../../types/Config';
 
 describe('Policy System Integration', () => {
   let engine;
@@ -72,7 +73,7 @@ describe('Policy System Integration', () => {
           }
         }
       }
-    });
+    } as unknown as WikiConfig);
 
     // Manually add test policies to PolicyManager for testing
     // (since they're not loaded from config files in test environment)

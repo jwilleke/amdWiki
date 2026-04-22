@@ -192,7 +192,7 @@ describe('WikiDocument', () => {
       doc.appendChild(old);
       doc.replaceChild(newEl, old);
 
-      const child = doc.getRootElement().childNodes[0];
+      const child = doc.getRootElement().childNodes[0] as Element;
       expect(child.textContent).toBe('New');
       expect(child.tagName.toLowerCase()).toBe('div');
     });

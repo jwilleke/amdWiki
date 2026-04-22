@@ -2,6 +2,8 @@ import MarkupParser from '../MarkupParser';
 
 // Enhanced Mock CacheManager with multiple regions
 class MockAdvancedCacheManager {
+  regions: Map<string, { cache: Map<string, unknown>; get: jest.Mock; set: jest.Mock }>;
+  initialized: boolean;
   constructor() {
     this.regions = new Map();
     this.initialized = true;
@@ -31,7 +33,8 @@ class MockAdvancedCacheManager {
 
 // Mock ConfigurationManager with advanced cache config
 class MockAdvancedConfigurationManager {
-  constructor(config = {}) {
+  config: Record<string, unknown>;
+  constructor(config: Record<string, unknown> = {}) {
     this.config = {
       'ngdpbase.markup.enabled': true,
       'ngdpbase.markup.caching': true,
@@ -61,6 +64,7 @@ class MockAdvancedConfigurationManager {
 
 // Mock NotificationManager
 class MockNotificationManager {
+  notifications: unknown[];
   constructor() {
     this.notifications = [];
   }
@@ -88,7 +92,8 @@ class MockVariableManager {
 
 // Mock Engine
 class MockAdvancedWikiEngine {
-  constructor(managers = {}) {
+  managers: Map<string, unknown>;
+  constructor(managers: Record<string, unknown> = {}) {
     this.managers = new Map();
     
     // Add managers

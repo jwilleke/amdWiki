@@ -1,4 +1,5 @@
 import UserManager from '../managers/UserManager';
+import type { WikiEngine } from '../types/WikiEngine';
 
 // Mock fs module
 jest.mock('fs', () => ({
@@ -85,7 +86,7 @@ describe('UserManager', () => {
       })
     };
 
-    userManager = new UserManager(mockEngine);
+    userManager = new UserManager(mockEngine as unknown as WikiEngine);
   });
 
   describe('constructor', () => {
@@ -103,7 +104,7 @@ describe('UserManager', () => {
       const engineWithoutConfig = {
         getManager: jest.fn().mockReturnValue(null)
       };
-      const manager = new UserManager(engineWithoutConfig);
+      const manager = new UserManager(engineWithoutConfig as unknown as WikiEngine);
 
       await expect(manager.initialize()).rejects.toThrow('UserManager requires ConfigurationManager');
     });
@@ -363,7 +364,7 @@ describe('UserManager', () => {
         return defaultValue;
       });
 
-      const newManager = new UserManager(mockEngine);
+      const newManager = new UserManager(mockEngine as unknown as WikiEngine);
       await expect(newManager.initialize()).rejects.toThrow();
     });
   });

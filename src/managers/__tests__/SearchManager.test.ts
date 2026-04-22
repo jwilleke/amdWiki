@@ -11,6 +11,7 @@
  */
 
 import SearchManager from '../SearchManager';
+import type { WikiEngine } from '../../types/WikiEngine';
 
 // Mock ConfigurationManager
 const mockConfigurationManager = {
@@ -66,13 +67,13 @@ describe('SearchManager', () => {
     // Clear mocks
     jest.clearAllMocks();
 
-    searchManager = new SearchManager(mockEngine);
+    searchManager = new SearchManager(mockEngine as unknown as WikiEngine);
     await searchManager.initialize();
   });
 
   describe('Initialization', () => {
     test('should initialize without errors', async () => {
-      const newSearchManager = new SearchManager(mockEngine);
+      const newSearchManager = new SearchManager(mockEngine as unknown as WikiEngine);
       await expect(newSearchManager.initialize()).resolves.not.toThrow();
     });
 
@@ -91,7 +92,7 @@ describe('SearchManager', () => {
         getManager: jest.fn().mockReturnValue(null)
       };
 
-      const newSearchManager = new SearchManager(badEngine);
+      const newSearchManager = new SearchManager(badEngine as unknown as WikiEngine);
       await expect(newSearchManager.initialize()).rejects.toThrow('SearchManager requires ConfigurationManager');
     });
   });
@@ -269,7 +270,7 @@ describe('SearchManager', () => {
         })
       };
 
-      const disabledSearchManager = new SearchManager(disabledEngine);
+      const disabledSearchManager = new SearchManager(disabledEngine as unknown as WikiEngine);
       await disabledSearchManager.initialize();
 
       // When disabled, initialize() returns early without loading provider

@@ -39,7 +39,7 @@ jest.mock('../../context/WikiContext', () => {
     })
   }));
   // Add static CONTEXT enum used by WikiRoutes
-  MockWikiContext.CONTEXT = {
+  (MockWikiContext as jest.Mock & { CONTEXT: unknown }).CONTEXT = {
     VIEW: 'view',
     EDIT: 'edit',
     PREVIEW: 'preview',

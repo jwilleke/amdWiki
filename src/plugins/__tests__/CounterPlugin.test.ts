@@ -2,7 +2,9 @@
  * Tests for CounterPlugin
  */
 
-import CounterPlugin from '../CounterPlugin';
+import CounterPluginModule = require('../CounterPlugin');
+import type { SimplePlugin } from '../types';
+const CounterPlugin = CounterPluginModule as unknown as SimplePlugin;
 describe('CounterPlugin', () => {
   let mockContext;
 

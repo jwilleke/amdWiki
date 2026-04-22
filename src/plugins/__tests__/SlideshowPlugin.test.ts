@@ -204,8 +204,8 @@ describe('SlideshowPlugin — XSS safety', () => {
 
 describe('SlideshowPlugin — unique IDs', () => {
   test('each call produces a unique carousel ID', () => {
-    const out1 = SlideshowPlugin.execute(ctx, { images: 'a.jpg' });
-    const out2 = SlideshowPlugin.execute(ctx, { images: 'b.jpg' });
+    const out1 = SlideshowPlugin.execute(ctx, { images: 'a.jpg' }) as string;
+    const out2 = SlideshowPlugin.execute(ctx, { images: 'b.jpg' }) as string;
     const id1 = (out1.match(/id="(ngdp-ss-\d+)"/) || [])[1];
     const id2 = (out2.match(/id="(ngdp-ss-\d+)"/) || [])[1];
     expect(id1).toBeTruthy();
@@ -214,13 +214,13 @@ describe('SlideshowPlugin — unique IDs', () => {
   });
 
   test('indicator data-bs-target matches carousel id', () => {
-    const out = SlideshowPlugin.execute(ctx, { images: 'a.jpg,b.jpg' });
+    const out = SlideshowPlugin.execute(ctx, { images: 'a.jpg,b.jpg' }) as string;
     const id = (out.match(/id="(ngdp-ss-\d+)"/) || [])[1];
     expect(out).toContain(`data-bs-target="#${id}"`);
   });
 
   test('control buttons reference the carousel id', () => {
-    const out = SlideshowPlugin.execute(ctx, { images: 'a.jpg,b.jpg' });
+    const out = SlideshowPlugin.execute(ctx, { images: 'a.jpg,b.jpg' }) as string;
     const id = (out.match(/id="(ngdp-ss-\d+)"/) || [])[1];
     const controlCount = (out.match(new RegExp(`data-bs-target="#${id}"`, 'g')) || []).length;
     // indicators + 2 controls

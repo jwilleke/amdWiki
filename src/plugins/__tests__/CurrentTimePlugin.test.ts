@@ -2,7 +2,9 @@
  * Tests for CurrentTimePlugin
  */
 
-import CurrentTimePlugin from '../CurrentTimePlugin';
+import CurrentTimePluginModule = require('../CurrentTimePlugin');
+import type { SimplePlugin } from '../types';
+const CurrentTimePlugin = CurrentTimePluginModule as unknown as SimplePlugin;
 describe('CurrentTimePlugin', () => {
   let mockContext;
 

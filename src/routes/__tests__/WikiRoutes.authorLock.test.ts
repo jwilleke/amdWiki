@@ -75,7 +75,11 @@ function makeConfigManager() {
   };
 }
 
-function makeEngine({ pageManager, aclManager, configManager } = {}) {
+function makeEngine({ pageManager = undefined, aclManager = undefined, configManager = undefined }: {
+  pageManager?: ReturnType<typeof makePageManager>;
+  aclManager?: ReturnType<typeof makeACLManager>;
+  configManager?: ReturnType<typeof makeConfigManager>;
+} = {}) {
   const pm  = pageManager  ?? makePageManager(makePageData());
   const acl = aclManager   ?? makeACLManager(true);
   const cm  = configManager ?? makeConfigManager();

@@ -1,5 +1,6 @@
 import { HandlerRegistry, HandlerRegistrationError } from '../HandlerRegistry';
-import { BaseSyntaxHandler } from '../BaseSyntaxHandler';
+import BaseSyntaxHandlerModule = require('../BaseSyntaxHandler');
+const BaseSyntaxHandler = BaseSyntaxHandlerModule.BaseSyntaxHandler ?? BaseSyntaxHandlerModule;
 
 // Mock logger to capture error logs
 jest.mock('../../../utils/logger', () => ({

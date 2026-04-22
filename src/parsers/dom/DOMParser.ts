@@ -169,7 +169,7 @@ export interface RenderContext {
  */
 class DOMParser {
   /** Parser options */
-  private options: Required<DOMParserOptions>;
+  protected options: Required<DOMParserOptions>;
 
   /** Parse statistics */
   private parseStats: ParseStatistics;

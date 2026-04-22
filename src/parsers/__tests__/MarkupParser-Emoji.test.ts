@@ -9,6 +9,7 @@ import MarkupParser from '../MarkupParser';
 
 // Minimal mock engine sufficient for emoji tests (mirrors ComprehensiveMockEngine pattern)
 class MockEngine {
+  managers: Map<string, unknown>;
   constructor() {
     this.managers = new Map([
       ['ConfigurationManager', {

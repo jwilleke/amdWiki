@@ -12,9 +12,9 @@ jest.mock('google-auth-library', () => {
     generateAuthUrl: mockGenerateAuthUrl
   }));
 
-  MockOAuth2Client._mockGetToken = mockGetToken;
-  MockOAuth2Client._mockVerifyIdToken = mockVerifyIdToken;
-  MockOAuth2Client._mockGenerateAuthUrl = mockGenerateAuthUrl;
+  (MockOAuth2Client as jest.Mock & { _mockGetToken: jest.Mock; _mockVerifyIdToken: jest.Mock; _mockGenerateAuthUrl: jest.Mock })._mockGetToken = mockGetToken;
+  (MockOAuth2Client as jest.Mock & { _mockGetToken: jest.Mock; _mockVerifyIdToken: jest.Mock; _mockGenerateAuthUrl: jest.Mock })._mockVerifyIdToken = mockVerifyIdToken;
+  (MockOAuth2Client as jest.Mock & { _mockGetToken: jest.Mock; _mockVerifyIdToken: jest.Mock; _mockGenerateAuthUrl: jest.Mock })._mockGenerateAuthUrl = mockGenerateAuthUrl;
 
   return { OAuth2Client: MockOAuth2Client };
 });
@@ -22,9 +22,10 @@ jest.mock('google-auth-library', () => {
 import { OAuth2Client } from 'google-auth-library';
 import { GoogleOIDCProvider } from '../GoogleOIDCProvider';
 
-const mockGetToken      = OAuth2Client._mockGetToken;
-const mockVerifyIdToken = OAuth2Client._mockVerifyIdToken;
-const mockGenerateAuthUrl = OAuth2Client._mockGenerateAuthUrl;
+type MockedOAuth2Client = typeof OAuth2Client & { _mockGetToken: jest.Mock; _mockVerifyIdToken: jest.Mock; _mockGenerateAuthUrl: jest.Mock };
+const mockGetToken      = (OAuth2Client as unknown as MockedOAuth2Client)._mockGetToken;
+const mockVerifyIdToken = (OAuth2Client as unknown as MockedOAuth2Client)._mockVerifyIdToken;
+const mockGenerateAuthUrl = (OAuth2Client as unknown as MockedOAuth2Client)._mockGenerateAuthUrl;
 
 const makeUserManager = (overrides = {}) => ({
   getUserByEmail: jest.fn().mockResolvedValue(undefined),

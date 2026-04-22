@@ -47,7 +47,7 @@ function makeAssetPage(records = [makeAssetRecord()]) {
  * Build a mock engine.  assetManagerSearch is the jest.fn() used for
  * AssetManager.search() — callers can inspect its call args.
  */
-function makeEngine({ assetManagerSearch, noAssetManager = false } = {}) {
+function makeEngine({ assetManagerSearch = undefined, noAssetManager = false }: { assetManagerSearch?: jest.Mock; noAssetManager?: boolean } = {}) {
   const mockAssetManager = noAssetManager ? undefined : {
     search: assetManagerSearch ?? jest.fn().mockResolvedValue(makeAssetPage())
   };

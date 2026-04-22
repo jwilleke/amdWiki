@@ -32,6 +32,7 @@ jest.mock('@elastic/elasticsearch', () => ({
 }));
 
 import ElasticsearchSearchProvider from '../ElasticsearchSearchProvider';
+import type { WikiEngine } from '../../types/WikiEngine';
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -57,7 +58,7 @@ function makeEngine(configOverrides = {}, extraManagers = {}) {
       if (name === 'ConfigurationManager') return configManager;
       return extraManagers[name] ?? null;
     })
-  };
+  } as unknown as WikiEngine;
 }
 
 function makePageManager(pages = {}) {

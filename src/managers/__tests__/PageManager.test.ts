@@ -7,6 +7,7 @@
  */
 
 import PageManager from '../PageManager';
+import type { WikiEngine } from '../../types/WikiEngine';
 
 // Mock ConfigurationManager
 const mockConfigurationManager = {
@@ -49,7 +50,7 @@ describe('PageManager', () => {
       return config[key] !== undefined ? config[key] : defaultValue;
     });
 
-    pageManager = new PageManager(mockEngine);
+    pageManager = new PageManager(mockEngine as unknown as WikiEngine);
     await pageManager.initialize();
   });
 
@@ -83,7 +84,7 @@ describe('PageManager', () => {
         return defaultValue;
       });
 
-      const disabledManager = new PageManager(mockEngine);
+      const disabledManager = new PageManager(mockEngine as unknown as WikiEngine);
       await disabledManager.initialize();
 
       expect(disabledManager.provider).toBeNull();
@@ -315,7 +316,7 @@ describe('PageManager', () => {
         return defaultValue;
       });
 
-      const manager = new PageManager(mockEngine);
+      const manager = new PageManager(mockEngine as unknown as WikiEngine);
       await manager.initialize();
 
       expect(manager.providerClass).toBe('VersioningFileProvider');

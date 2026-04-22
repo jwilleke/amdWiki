@@ -49,7 +49,14 @@ function makeEngine(snippetLength = 200) {
 // Helper to build a minimal LunrDocument (all required fields)
 // ---------------------------------------------------------------------------
 
-function makeDoc(id, opts = {}) {
+function makeDoc(id, opts: {
+  title?: string;
+  content?: string;
+  systemCategory?: string;
+  userKeywords?: string;
+  author?: string;
+  editor?: string;
+} = {}) {
   return {
     id,
     title: opts.title ?? id,

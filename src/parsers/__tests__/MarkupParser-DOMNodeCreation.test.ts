@@ -76,7 +76,7 @@ describe('MarkupParser - DOM Node Creation (Phase 2)', () => {
     parser = new MarkupParser(mockEngine);
 
     // Create a WikiDocument for testing
-    wikiDocument = new WikiDocument();
+    wikiDocument = new WikiDocument('');
   });
 
   describe('createTextNodeForEscaped()', () => {

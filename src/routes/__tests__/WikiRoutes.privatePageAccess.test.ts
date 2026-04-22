@@ -16,6 +16,8 @@
  */
 
 import WikiRoutes from '../WikiRoutes';
+import type { Request } from 'express';
+import type { WikiEngine } from '../../types/WikiEngine';
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -73,7 +75,7 @@ function makeEngine(pageManager, attachmentManager) {
       if (name === 'AttachmentManager') return attachmentManager;
       return null;
     })
-  };
+  } as unknown as WikiEngine;
 }
 
 function createReq(userContext = null, params = {}) {
@@ -83,7 +85,7 @@ function createReq(userContext = null, params = {}) {
     path: '/test',
     userContext,
     headers: {}
-  };
+  } as unknown as Request;
 }
 
 function createRes() {

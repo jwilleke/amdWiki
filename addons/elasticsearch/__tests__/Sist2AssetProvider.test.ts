@@ -7,6 +7,7 @@
  */
 
 import { Sist2AssetProvider } from '../src/Sist2AssetProvider';
+import type { Client } from '@elastic/elasticsearch';
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -17,7 +18,7 @@ function makeClient(overrides = {}) {
     search: jest.fn(),
     get: jest.fn(),
     ...overrides
-  };
+  } as unknown as Client;
 }
 
 function makeSist2Doc(overrides = {}) {

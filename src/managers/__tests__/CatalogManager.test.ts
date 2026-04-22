@@ -9,6 +9,7 @@ jest.mock('../../utils/logger', () => ({
 }));
 
 import CatalogManager from '../CatalogManager';
+import type { WikiEngine } from '../../types/WikiEngine';
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -45,7 +46,7 @@ describe('CatalogManager', () => {
 
   beforeEach(async () => {
     engine = makeMockEngine(DEFAULT_KEYWORDS);
-    manager = new CatalogManager(engine);
+    manager = new CatalogManager(engine as unknown as WikiEngine);
     await manager.initialize();
   });
 
@@ -107,7 +108,7 @@ describe('CatalogManager — registerProvider', () => {
 
   beforeEach(async () => {
     const engine = makeMockEngine({ general: { label: 'general', enabled: true } });
-    manager = new CatalogManager(engine);
+    manager = new CatalogManager(engine as unknown as WikiEngine);
     await manager.initialize();
   });
 

@@ -8,7 +8,7 @@
 import path from 'path';
 // Load formatters and plugin via ts-jest transform (TypeScript source)
 import { parseSortParam, applyPagination, parsePageParam, parsePageSizeParam, formatPaginationLinks } from '../../utils/pluginFormatters';
-import UndefinedPagesPlugin from '../../plugins/UndefinedPagesPlugin';
+import UndefinedPagesPlugin = require('../../plugins/UndefinedPagesPlugin');
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------

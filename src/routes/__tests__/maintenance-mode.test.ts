@@ -181,7 +181,7 @@ describe('Maintenance Mode', () => {
       req.session = {
         csrfToken: 'test-csrf-token',
         user: userContext ? { username: userContext.username } : null
-      };
+      } as unknown as typeof req.session;
       req.userContext = userContext || {
         username: 'guest',
         isAuthenticated: false,

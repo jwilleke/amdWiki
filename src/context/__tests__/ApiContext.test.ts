@@ -1,13 +1,14 @@
 'use strict';
 
 import { ApiContext, ApiError } from '../ApiContext';
+import type { Request } from 'express';
 
 // ── helpers ──────────────────────────────────────────────────────────────────
 
 const mockEngine = { getManager: jest.fn() };
 
 function makeReq({ userContext = {}, session = {} } = {}) {
-  return { userContext, session };
+  return { userContext, session } as unknown as Request;
 }
 
 // ── ApiError ─────────────────────────────────────────────────────────────────

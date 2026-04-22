@@ -10,6 +10,7 @@
  */
 
 import ACLManager from '../ACLManager';
+import type { WikiEngine } from '../../types/WikiEngine';
 
 // Mock ConfigurationManager
 const mockConfigurationManager = {
@@ -51,7 +52,7 @@ describe('ACLManager', () => {
     // Clear mocks
     jest.clearAllMocks();
 
-    aclManager = new ACLManager(mockEngine);
+    aclManager = new ACLManager(mockEngine as unknown as WikiEngine);
     await aclManager.initialize();
   });
 
@@ -405,7 +406,7 @@ describe('ACLManager', () => {
 
   describe('Initialization', () => {
     test('should initialize without errors', async () => {
-      const newAclManager = new ACLManager(mockEngine);
+      const newAclManager = new ACLManager(mockEngine as unknown as WikiEngine);
 
       await expect(newAclManager.initialize()).resolves.not.toThrow();
     });
@@ -423,7 +424,7 @@ describe('ACLManager', () => {
         return defaultValue;
       });
 
-      const newAclManager = new ACLManager(mockEngine);
+      const newAclManager = new ACLManager(mockEngine as unknown as WikiEngine);
       await newAclManager.initialize();
 
       expect(newAclManager.accessPolicies.size).toBe(2);

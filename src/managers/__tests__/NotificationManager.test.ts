@@ -1,6 +1,7 @@
 import { promises as fs } from 'fs';
 import path from 'path';
 import NotificationManager from '../NotificationManager';
+import type { WikiEngine } from '../../types/WikiEngine';
 
 // Mock logger to avoid console output during tests
 jest.mock('../../utils/logger', () => ({
@@ -62,7 +63,7 @@ describe('NotificationManager', () => {
     mockEngine = createMockEngine(tempDir);
 
     // Initialize NotificationManager
-    notificationManager = new NotificationManager(mockEngine);
+    notificationManager = new NotificationManager(mockEngine as unknown as WikiEngine);
     await notificationManager.initialize({});
   });
 

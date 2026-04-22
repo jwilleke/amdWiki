@@ -47,7 +47,16 @@ function makeEngine() {
 // Helper to build a minimal LunrDocument
 // ---------------------------------------------------------------------------
 
-function makeDoc(id, opts = {}) {
+function makeDoc(id, opts: {
+  title?: string;
+  content?: string;
+  systemCategory?: string;
+  userKeywords?: string;
+  author?: string;
+  editor?: string;
+  isPrivate?: boolean;
+  creator?: string;
+} = {}) {
   return {
     id,
     title: opts.title ?? id,

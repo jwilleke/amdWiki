@@ -15,6 +15,7 @@ import fs from 'fs-extra';
 import os from 'os';
 
 import BasicAttachmentProvider from '../BasicAttachmentProvider';
+import type { WikiEngine } from '../../types/WikiEngine';
 
 function makeEngine(storageDir) {
   const configManager = {
@@ -45,7 +46,7 @@ describe('BasicAttachmentProvider — getAttachment() disk-scan fallback', () =>
 
   beforeEach(async () => {
     storageDir = await fs.mkdtemp(path.join(os.tmpdir(), 'attach-test-'));
-    provider = new BasicAttachmentProvider(makeEngine(storageDir));
+    provider = new BasicAttachmentProvider(makeEngine(storageDir) as unknown as WikiEngine);
     await provider.initialize();
   });
 
@@ -131,7 +132,7 @@ describe('BasicAttachmentProvider — getAttachment() stale storageLocation fall
 
   beforeEach(async () => {
     storageDir = await fs.mkdtemp(path.join(os.tmpdir(), 'attach-stale-test-'));
-    provider = new BasicAttachmentProvider(makeEngine(storageDir));
+    provider = new BasicAttachmentProvider(makeEngine(storageDir) as unknown as WikiEngine);
     await provider.initialize();
   });
 

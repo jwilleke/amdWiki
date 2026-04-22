@@ -1,4 +1,5 @@
 import WikiContext from '../WikiContext';
+import type { WikiEngine } from '../../types/WikiEngine';
 
 // Mock managers for testing
 const mockParser = {
@@ -36,7 +37,7 @@ describe('WikiContext', () => {
   beforeEach(() => {
     jest.clearAllMocks();
 
-    context = new WikiContext(mockEngine, {
+    context = new WikiContext(mockEngine as unknown as WikiEngine, {
       context: WikiContext.CONTEXT.VIEW,
       pageName: 'TestPage',
       content: 'Test content with [{$pagename}]',
@@ -68,7 +69,7 @@ describe('WikiContext', () => {
     });
 
     test('should use defaults for optional properties', () => {
-      const minimalContext = new WikiContext(mockEngine);
+      const minimalContext = new WikiContext(mockEngine as unknown as WikiEngine);
       expect(minimalContext.context).toBe(WikiContext.CONTEXT.NONE);
       expect(minimalContext.pageName).toBeNull();
       expect(minimalContext.content).toBeNull();
@@ -82,7 +83,7 @@ describe('WikiContext', () => {
     });
 
     test('should return NONE for default context', () => {
-      const defaultContext = new WikiContext(mockEngine);
+      const defaultContext = new WikiContext(mockEngine as unknown as WikiEngine);
       expect(defaultContext.getContext()).toBe(WikiContext.CONTEXT.NONE);
     });
   });
@@ -159,7 +160,7 @@ describe('WikiContext', () => {
     });
 
     test('should handle missing request object', () => {
-      const contextWithoutRequest = new WikiContext(mockEngine, {
+      const contextWithoutRequest = new WikiContext(mockEngine as unknown as WikiEngine, {
         pageName: 'Test'
       });
 

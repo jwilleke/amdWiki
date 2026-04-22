@@ -8,7 +8,7 @@
  * @jest-environment node
  */
 
-import { parseVersion, formatVersion, incrementVersion } from '../version';
+import { parseVersion, formatVersion, incrementVersion, type VersionIncrementType } from '../version';
 
 describe('parseVersion()', () => {
   test('parses valid semver string', () => {
@@ -47,6 +47,6 @@ describe('incrementVersion()', () => {
   });
 
   test('throws on unknown type', () => {
-    expect(() => incrementVersion('1.0.0', 'hotfix')).toThrow();
+    expect(() => incrementVersion('1.0.0', 'hotfix' as VersionIncrementType)).toThrow();
   });
 });

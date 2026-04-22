@@ -159,7 +159,7 @@ class DOMPluginHandler {
   private engine: WikiEngine;
 
   /** PluginManager instance (loaded dynamically) */
-  private pluginManager: PluginManager | null;
+  protected pluginManager: PluginManager | null;
 
   /**
    * Creates a new DOMPluginHandler

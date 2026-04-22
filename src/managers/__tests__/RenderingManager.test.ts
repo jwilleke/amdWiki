@@ -12,6 +12,7 @@
  */
 
 import RenderingManager from '../RenderingManager';
+import type { WikiEngine } from '../../types/WikiEngine';
 
 // Mock ConfigurationManager
 const mockConfigurationManager = {
@@ -72,14 +73,14 @@ describe('RenderingManager', () => {
   let renderingManager;
 
   beforeEach(async () => {
-    renderingManager = new RenderingManager(mockEngine);
+    renderingManager = new RenderingManager(mockEngine as unknown as WikiEngine);
     jest.clearAllMocks();
     await renderingManager.initialize();
   });
 
   describe('Initialization', () => {
     test('should initialize without errors', async () => {
-      const newRenderingManager = new RenderingManager(mockEngine);
+      const newRenderingManager = new RenderingManager(mockEngine as unknown as WikiEngine);
       await expect(newRenderingManager.initialize()).resolves.not.toThrow();
     });
 
@@ -150,7 +151,7 @@ describe('RenderingManager', () => {
       };
 
       // Re-initialize to pick up new mocks
-      const testManager = new RenderingManager(testEngine);
+      const testManager = new RenderingManager(testEngine as unknown as WikiEngine);
       await testManager.initialize();
 
       // The link graph should have "Plugin" (not "Plugins") as the key
@@ -195,7 +196,7 @@ describe('RenderingManager', () => {
         return null;
       });
 
-      const testManager = new RenderingManager(mockEngine);
+      const testManager = new RenderingManager(mockEngine as unknown as WikiEngine);
       await testManager.initialize();
 
       const linkGraph = testManager.getLinkGraph();
@@ -229,7 +230,7 @@ describe('RenderingManager', () => {
         },
         getConfig: jest.fn().mockReturnValue({ get: jest.fn().mockReturnValue({ wiki: { pagesDir: './pages' } }) })
       };
-      const testManager = new RenderingManager(testEngine);
+      const testManager = new RenderingManager(testEngine as unknown as WikiEngine);
       await testManager.initialize();
       const linkGraph = testManager.getLinkGraph();
 

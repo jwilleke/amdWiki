@@ -9,7 +9,9 @@
  * These tests mock resolveAttachmentSrc directly.
  */
 
-import AttachPlugin from '../AttachPlugin';
+import AttachPluginModule = require('../AttachPlugin');
+import type { SimplePlugin } from '../types';
+const AttachPlugin = AttachPluginModule as unknown as SimplePlugin;
 function makeContext(resolvedValue) {
   const mockAttachmentManager = {
     resolveAttachmentSrc: jest.fn().mockResolvedValue(resolvedValue)

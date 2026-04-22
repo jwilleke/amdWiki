@@ -1,4 +1,5 @@
 import SchemaManager from '../SchemaManager';
+import type { WikiEngine } from '../../types/WikiEngine';
 
 jest.mock('fs-extra', () => ({
   readdir: jest.fn(),
@@ -10,7 +11,8 @@ jest.mock('fs-extra', () => ({
 import fs from 'fs-extra';
 
 const mockCfgMgr = { getProperty: jest.fn().mockReturnValue('./config/schemas'), getResolvedDataPath: jest.fn().mockReturnValue('./config/schemas') };
-const mockEngine = { getManager: jest.fn(n => n==='ConfigurationManager'?mockCfgMgr:null) };
+const mockEngineRaw = { getManager: jest.fn(n => n==='ConfigurationManager'?mockCfgMgr:null) };
+const mockEngine = mockEngineRaw as unknown as WikiEngine;
 
 describe('SchemaManager', () => {
   let schemaManager;

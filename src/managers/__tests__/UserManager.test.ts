@@ -7,6 +7,7 @@
  */
 
 import UserManager from '../UserManager';
+import type { WikiEngine } from '../../types/WikiEngine';
 
 // Mock ConfigurationManager
 const mockConfigurationManager = {
@@ -53,7 +54,7 @@ describe('UserManager', () => {
       return config[key] !== undefined ? config[key] : defaultValue;
     });
 
-    userManager = new UserManager(mockEngine);
+    userManager = new UserManager(mockEngine as unknown as WikiEngine);
     await userManager.initialize();
   });
 
@@ -66,7 +67,7 @@ describe('UserManager', () => {
   describe('Initialization', () => {
     test('should require ConfigurationManager', async () => {
       const engineWithoutConfig = { getManager: jest.fn(() => null) };
-      const manager = new UserManager(engineWithoutConfig);
+      const manager = new UserManager(engineWithoutConfig as unknown as WikiEngine);
 
       await expect(manager.initialize()).rejects.toThrow('UserManager requires ConfigurationManager');
     });
@@ -363,7 +364,7 @@ describe('UserManager', () => {
         return defaultValue;
       });
 
-      const manager = new UserManager(mockEngine);
+      const manager = new UserManager(mockEngine as unknown as WikiEngine);
       await manager.initialize();
 
       expect(manager.providerClass).toBe('FileUserProvider');
@@ -387,7 +388,7 @@ describe('UserManager', () => {
 
   describe('Error Handling', () => {
     test('should handle missing provider gracefully', async () => {
-      const uninitializedManager = new UserManager(mockEngine);
+      const uninitializedManager = new UserManager(mockEngine as unknown as WikiEngine);
 
       // Operations should fail gracefully
       await expect(uninitializedManager.getUser('test')).rejects.toThrow();

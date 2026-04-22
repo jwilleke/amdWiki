@@ -123,7 +123,7 @@ class DOMVariableHandler {
   private engine: WikiEngine;
 
   /** VariableManager instance (loaded dynamically) */
-  private variableManager: VariableManager | null;
+  protected variableManager: VariableManager | null;
 
   /**
    * Creates a new DOMVariableHandler

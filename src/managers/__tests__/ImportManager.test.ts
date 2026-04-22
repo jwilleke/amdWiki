@@ -21,6 +21,9 @@ const mockEngine = {
 
 // Mock converter for testing
 class MockConverter {
+  formatId: string;
+  formatName: string;
+  fileExtensions: string[];
   constructor() {
     this.formatId = 'mock';
     this.formatName = 'Mock Format';

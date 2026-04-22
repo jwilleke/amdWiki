@@ -308,7 +308,7 @@ describe('ConfigurationManager', () => {
       const newConfigManager = new ConfigurationManager(mockEngine);
       await newConfigManager.initialize();
 
-      const keywords = newConfigManager.getProperty('ngdpbase.user-keywords');
+      const keywords = newConfigManager.getProperty('ngdpbase.user-keywords') as Record<string, { label: string }>;
 
       // Should have all three keywords: default, draft, and immigration
       expect(keywords).toHaveProperty('default');

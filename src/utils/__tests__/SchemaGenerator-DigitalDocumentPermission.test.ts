@@ -4,6 +4,11 @@
 
 import SchemaGenerator from '../SchemaGenerator';
 
+type PermissionRecord = { permissionType: string; [key: string]: unknown };
+function generatePerms(...args: Parameters<typeof SchemaGenerator.generateDigitalDocumentPermissions>): PermissionRecord[] {
+  return SchemaGenerator.generateDigitalDocumentPermissions(...args) as PermissionRecord[];
+}
+
 describe('SchemaGenerator DigitalDocumentPermission', () => {
   let mockEngine;
   let mockUserManager;
@@ -39,7 +44,7 @@ describe('SchemaGenerator DigitalDocumentPermission', () => {
       };
       
       const options = {}; // No engine
-      const permissions = SchemaGenerator.generateDigitalDocumentPermissions(pageData, null, options);
+      const permissions = generatePerms(pageData, null, options);
       
       expect(permissions).toEqual([]);
     });
@@ -56,7 +61,7 @@ describe('SchemaGenerator DigitalDocumentPermission', () => {
       };
       
       const options = { engine: mockEngineNoManagers };
-      const permissions = SchemaGenerator.generateDigitalDocumentPermissions(pageData, null, options);
+      const permissions = generatePerms(pageData, null, options);
       
       expect(permissions).toEqual([]);
     });
@@ -71,7 +76,7 @@ describe('SchemaGenerator DigitalDocumentPermission', () => {
       const options = { engine: mockEngine };
       mockACLManager.parseACL.mockReturnValue(null);
       
-      const permissions = SchemaGenerator.generateDigitalDocumentPermissions(pageData, null, options);
+      const permissions = generatePerms(pageData, null, options);
       
       expect(permissions).toHaveLength(6);
       
@@ -117,7 +122,7 @@ describe('SchemaGenerator DigitalDocumentPermission', () => {
       const options = { engine: mockEngine };
       mockACLManager.parseACL.mockReturnValue(null);
       
-      const permissions = SchemaGenerator.generateDigitalDocumentPermissions(pageData, null, options);
+      const permissions = generatePerms(pageData, null, options);
       
       expect(permissions).toHaveLength(2);
       
@@ -152,8 +157,8 @@ describe('SchemaGenerator DigitalDocumentPermission', () => {
       const options = { engine: mockEngine };
       mockACLManager.parseACL.mockReturnValue(null);
       
-      const permissions = SchemaGenerator.generateDigitalDocumentPermissions(pageData, null, options);
-      
+      const permissions = generatePerms(pageData, null, options);
+
       expect(permissions).toHaveLength(3);
       expect(permissions[0].permissionType).toBe('ReadPermission');
       expect(permissions[1].permissionType).toBe('WritePermission');
@@ -170,7 +175,7 @@ describe('SchemaGenerator DigitalDocumentPermission', () => {
       const options = { engine: mockEngine };
       mockACLManager.parseACL.mockReturnValue(null);
       
-      const permissions = SchemaGenerator.generateDigitalDocumentPermissions(pageData, null, options);
+      const permissions = generatePerms(pageData, null, options);
       
       expect(permissions).toHaveLength(3);
       expect(permissions[0].permissionType).toBe('ReadPermission');
@@ -200,7 +205,7 @@ describe('SchemaGenerator DigitalDocumentPermission', () => {
         return null;
       });
       
-      const permissions = SchemaGenerator.generateDigitalDocumentPermissions(pageData, null, options);
+      const permissions = generatePerms(pageData, null, options);
       
       expect(permissions).toHaveLength(2);
       expect(permissions[0].permissionType).toBe('WritePermission');

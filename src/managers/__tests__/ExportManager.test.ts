@@ -7,7 +7,8 @@ const {
 } = require('@jest/globals');
 import ExportManager from '../../managers/ExportManager';
 import LocaleUtils from '../../utils/LocaleUtils';
-import fs from 'fs/promises';
+import fsReal from 'fs/promises';
+const fs = fsReal as jest.Mocked<typeof fsReal>;
 import path from 'path';
 
 

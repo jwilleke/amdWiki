@@ -165,7 +165,7 @@ interface PushbackItem {
  */
 export class Tokenizer {
   /** Input string */
-  private input: string;
+  protected input: string;
 
   /** Length of input */
   private length: number;

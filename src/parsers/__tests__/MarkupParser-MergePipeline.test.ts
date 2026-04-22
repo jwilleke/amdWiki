@@ -395,7 +395,7 @@ Time: [{CurrentTimePlugin}]
       let wikiDocument;
 
       beforeEach(() => {
-        wikiDocument = new WikiDocument();
+        wikiDocument = new WikiDocument('');
       });
 
       test('creates variable node', async () => {
@@ -457,7 +457,7 @@ Time: [{CurrentTimePlugin}]
       let wikiDocument;
 
       beforeEach(() => {
-        wikiDocument = new WikiDocument();
+        wikiDocument = new WikiDocument('');
       });
 
       test('replaces single placeholder', () => {

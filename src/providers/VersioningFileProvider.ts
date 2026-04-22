@@ -159,7 +159,7 @@ class VersioningFileProvider extends FileSystemProvider {
   private privateVersionsDir: string | null;
 
   /** In-memory page index cache */
-  private pageIndex: PageIndex | null;
+  protected pageIndex: PageIndex | null;
 
   /** Write queue to serialize page index saves and prevent race conditions */
   private pageIndexWriteQueue: Promise<void>;

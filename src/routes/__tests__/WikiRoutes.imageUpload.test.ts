@@ -10,6 +10,7 @@ import express from 'express';
 import path from 'path';
 import fs from 'fs-extra';
 import WikiRoutes from '../WikiRoutes';
+import type { WikiEngine } from '../../types/WikiEngine';
 
 // Mock dependencies
 const mockUserManager = {
@@ -73,7 +74,7 @@ describe('WikiRoutes - Image Upload (Bug #76)', () => {
     app.use(express.urlencoded({ extended: true }));
 
     // Create WikiRoutes instance
-    wikiRoutes = new WikiRoutes(mockEngine);
+    wikiRoutes = new WikiRoutes(mockEngine as unknown as WikiEngine);
 
     // Register routes
     wikiRoutes.registerRoutes(app);

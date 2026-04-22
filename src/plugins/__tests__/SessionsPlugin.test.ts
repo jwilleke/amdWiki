@@ -4,7 +4,9 @@
  * @jest-environment node
  */
 
-import SessionsPlugin from '../SessionsPlugin';
+import SessionsPluginModule = require('../SessionsPlugin');
+import type { SimplePlugin } from '../types';
+const SessionsPlugin = SessionsPluginModule as unknown as SimplePlugin;
 function makeContext() {
   return {
     engine: {

@@ -1,6 +1,7 @@
 import MarkupParser from '../MarkupParser';
 import ParseContext from '../context/ParseContext';
-import { BaseSyntaxHandler } from '../handlers/BaseSyntaxHandler';
+import BaseSyntaxHandlerModule = require('../handlers/BaseSyntaxHandler');
+const BaseSyntaxHandler = BaseSyntaxHandlerModule.BaseSyntaxHandler ?? BaseSyntaxHandlerModule;
 
 // Mock handler class that properly extends BaseSyntaxHandler for testing
 class MockSyntaxHandler extends BaseSyntaxHandler {

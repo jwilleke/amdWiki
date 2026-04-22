@@ -4,7 +4,7 @@ describe('EmailManager', () => {
   let EmailManager;
   let mockLogger;
 
-  const makeConfigManager = (overrides = {}) => ({
+  const makeConfigManager = (overrides: Record<string, unknown> = {}) => ({
     getProperty: jest.fn((key, defaultValue) => {
       const values = {
         'ngdpbase.mail.enabled':               overrides.enabled    ?? false,

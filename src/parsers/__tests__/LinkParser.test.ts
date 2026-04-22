@@ -3,7 +3,7 @@
  * Tests all link parsing functionality including security features
  */
 
-import { LinkParser, Link } from '../LinkParser';
+import { LinkParser, Link, type LinkParserOptions } from '../LinkParser';
 
 describe('LinkParser', () => {
   let linkParser;
@@ -41,7 +41,7 @@ describe('LinkParser', () => {
       const customOptions = {
         allowedAttributes: ['class', 'id'],
         security: { validateUrls: false }
-      };
+      } as unknown as Partial<LinkParserOptions>;
       const parser = new LinkParser(customOptions);
       expect(parser.options.allowedAttributes).toEqual(['class', 'id']);
       expect(parser.options.security.validateUrls).toBe(false);

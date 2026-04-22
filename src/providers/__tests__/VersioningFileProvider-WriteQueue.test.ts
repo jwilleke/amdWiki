@@ -18,6 +18,7 @@ import os from 'os';
 
 // TypeScript 'private' keyword is compile-time only; bracket notation works at runtime via ts-jest
 import VersioningFileProvider from '../VersioningFileProvider';
+import type { WikiEngine } from '../../types/WikiEngine';
 
 describe('VersioningFileProvider - Write Queue', () => {
   let testDir;
@@ -67,7 +68,7 @@ describe('VersioningFileProvider - Write Queue', () => {
       config: {}
     };
 
-    provider = new VersioningFileProvider(engine);
+    provider = new VersioningFileProvider(engine as unknown as WikiEngine);
 
     // Manually set up the internal state needed for savePageIndex
     // Access private fields via bracket notation for testing

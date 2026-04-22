@@ -78,8 +78,8 @@ interface NotificationsData {
  * notificationManager.addNotification({ title: 'Welcome!', level: 'info' });
  */
 class NotificationManager extends BaseManager {
-  private notifications: Map<string, Notification>;
-  private notificationId: number;
+  protected notifications: Map<string, Notification>;
+  protected notificationId: number;
   private storagePath: string | null;
   private saveInterval: NodeJS.Timeout | null;
   private logger: typeof logger;

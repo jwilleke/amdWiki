@@ -32,6 +32,9 @@ jest.mock('fs-extra', () => ({
 import FileSystemMediaProvider from '../FileSystemMediaProvider';
 import { ExifDateTime } from 'exiftool-vendored';
 
+// Helper to construct the mocked ExifDateTime (which only takes year) without TS errors
+const MockExifDateTime = ExifDateTime as unknown as new (year: number) => ExifDateTime;
+
 const minimalConfig = {
   folders: [],
   ignoreDirs: [],
@@ -54,17 +57,17 @@ describe('FileSystemMediaProvider.extractYear()', () => {
 
   describe('tier 1 — EXIF date fields', () => {
     it('returns year from DateTimeOriginal ExifDateTime instance', () => {
-      const tags = { DateTimeOriginal: new ExifDateTime(2019) };
+      const tags = { DateTimeOriginal: new MockExifDateTime(2019) };
       expect(provider['extractYear'](tags, '/photos/img.jpg', mtime2026)).toBe(2019);
     });
 
     it('falls through to CreateDate when DateTimeOriginal is absent', () => {
-      const tags = { CreateDate: new ExifDateTime(2021) };
+      const tags = { CreateDate: new MockExifDateTime(2021) };
       expect(provider['extractYear'](tags, '/photos/img.jpg', mtime2026)).toBe(2021);
     });
 
     it('falls through to MediaCreateDate when DateTimeOriginal and CreateDate are absent', () => {
-      const tags = { MediaCreateDate: new ExifDateTime(2022) };
+      const tags = { MediaCreateDate: new MockExifDateTime(2022) };
       expect(provider['extractYear'](tags, '/photos/img.jpg', mtime2026)).toBe(2022);
     });
 
@@ -77,17 +80,17 @@ describe('FileSystemMediaProvider.extractYear()', () => {
     });
 
     it('accepts EXIF year 1800 (lower boundary)', () => {
-      const tags = { DateTimeOriginal: new ExifDateTime(1800) };
+      const tags = { DateTimeOriginal: new MockExifDateTime(1800) };
       expect(provider['extractYear'](tags, '/photos/img.jpg', mtime2026)).toBe(1800);
     });
 
     it('accepts EXIF year 2100 (upper boundary)', () => {
-      const tags = { DateTimeOriginal: new ExifDateTime(2100) };
+      const tags = { DateTimeOriginal: new MockExifDateTime(2100) };
       expect(provider['extractYear'](tags, '/photos/img.jpg', mtime2026)).toBe(2100);
     });
 
     it('ignores EXIF year outside valid range', () => {
-      const tags = { DateTimeOriginal: new ExifDateTime(1799) };
+      const tags = { DateTimeOriginal: new MockExifDateTime(1799) };
       // Should fall through to mtime
       expect(provider['extractYear'](tags, '/photos/img.jpg', mtime2026)).toBe(2026);
     });
@@ -140,7 +143,7 @@ describe('FileSystemMediaProvider.extractYear()', () => {
 
   describe('priority ordering', () => {
     it('EXIF takes priority over filename prefix', () => {
-      const tags = { DateTimeOriginal: new ExifDateTime(2019) };
+      const tags = { DateTimeOriginal: new MockExifDateTime(2019) };
       expect(provider['extractYear'](tags, '/photos/2024-img.jpg', mtime2026)).toBe(2019);
     });
 

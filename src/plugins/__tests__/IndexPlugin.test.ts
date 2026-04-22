@@ -4,7 +4,9 @@
  * @jest-environment node
  */
 
-import IndexPlugin from '../IndexPlugin';
+import IndexPluginModule = require('../IndexPlugin');
+import type { SimplePlugin } from '../types';
+const IndexPlugin = IndexPluginModule as unknown as SimplePlugin;
 function makeContext(pages) {
   return {
     engine: {

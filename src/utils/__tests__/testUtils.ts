@@ -37,7 +37,7 @@ async function cleanupTempDir(dirPath) {
  * @param {Object} options.metadata - Page metadata
  * @returns {string} Path to created file
  */
-async function createTestPage(dir, pageName, options = {}) {
+async function createTestPage(dir: string, pageName: string, options: { content?: string; metadata?: Record<string, unknown> } = {}) {
   const { content = '# Test Page\nTest content.', metadata = {} } = options;
   
   let fileContent = '';

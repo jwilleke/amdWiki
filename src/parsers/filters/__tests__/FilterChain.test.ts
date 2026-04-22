@@ -5,7 +5,7 @@ import BaseFilter from '../BaseFilter';
 class TestFilter extends BaseFilter {
   constructor(id = 'TestFilter', priority = 100) {
     super(priority, { description: 'Test filter' });
-    this.filterId = id;
+    (this as { filterId: string }).filterId = id;
   }
 
   async process(content, context) {
@@ -16,7 +16,7 @@ class TestFilter extends BaseFilter {
 class HighPriorityFilter extends BaseFilter {
   constructor() {
     super(200, { description: 'High priority test filter' });
-    this.filterId = 'HighPriorityFilter';
+    (this as { filterId: string }).filterId = 'HighPriorityFilter';
   }
 
   async process(content, context) {
@@ -27,7 +27,7 @@ class HighPriorityFilter extends BaseFilter {
 class ErrorFilter extends BaseFilter {
   constructor() {
     super(150, { description: 'Filter that throws errors' });
-    this.filterId = 'ErrorFilter';
+    (this as { filterId: string }).filterId = 'ErrorFilter';
   }
 
   async process(content, context) {

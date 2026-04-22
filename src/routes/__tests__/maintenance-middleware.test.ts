@@ -105,8 +105,8 @@ function startServer(expressApp) {
  * @param {Server} server - HTTP server instance
  * @returns {Promise<void>}
  */
-function closeServer(server) {
-  return new Promise((resolve) => {
+function closeServer(server): Promise<void> {
+  return new Promise<void>((resolve) => {
     if (server) {
       server.close(() => resolve());
     } else {

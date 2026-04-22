@@ -379,7 +379,6 @@ describe('ValidationManager', () => {
         uuid: uuid,
         slug: 'test-page',
         'system-category': 'General',
-        'system-category': 'General',
         'user-keywords': ['test'],
         lastModified: '2025-01-01T00:00:00.000Z'
       };

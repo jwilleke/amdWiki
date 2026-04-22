@@ -4116,7 +4116,7 @@ ${panes}
       );
 
       // Extract preference values from form and merge with existing
-      const preferences: Record<string, string | boolean | undefined> = { ...currentPreferences };
+      const preferences: Record<string, string | boolean | undefined> = { ...(currentPreferences as Record<string, string | boolean | undefined>) };
 
       // Helper: resolve dotted field names from nested req.body (qs extended parsing)
       // e.g. form field "editor.plain.smartpairs" is parsed as { editor: { plain: { smartpairs: 'on' } } }
@@ -4215,7 +4215,7 @@ ${panes}
         return res.status(400).json({ error: 'Invalid theme value' });
       }
       const userManager = this.engine.getManager('UserManager');
-      const prefs = { ...(currentUser.preferences || {}), 'display.theme': theme };
+      const prefs = { ...(currentUser.preferences as Record<string, unknown> || {}), 'display.theme': theme };
       await userManager.updateUser(currentUser.username ?? '', { preferences: prefs });
       return res.json({ ok: true });
     } catch (err: unknown) {

@@ -11,6 +11,7 @@
  */
 
 import WikiRoutes from '../WikiRoutes';
+import type { Request } from 'express';
 
 function makeAssetPage(results = [], total = null, hasMore = false) {
   return {
@@ -38,7 +39,7 @@ function makeReq(overrides = {}) {
     userContext: { roles: ['editor'] },
     query: {},
     ...overrides
-  };
+  } as unknown as Request;
 }
 
 function makeRes() {

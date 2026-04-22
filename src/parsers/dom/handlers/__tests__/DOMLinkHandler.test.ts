@@ -76,7 +76,7 @@ describe('DOMLinkHandler', () => {
     });
 
     test('warns if PageManager not available', async () => {
-      logger.warn.mockClear();
+      (logger.warn as jest.Mock).mockClear();
 
       const badEngine = {
         getManager: jest.fn(() => null)

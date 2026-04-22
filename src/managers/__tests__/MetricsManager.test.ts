@@ -156,7 +156,7 @@ describe('MetricsManager', () => {
     test('should create counters with correct names', async () => {
       await manager.initialize();
 
-      const counterNames = mockMeter.createCounter.mock.calls.map(c => c[0]);
+      const counterNames = (mockMeter.createCounter.mock.calls as Array<[string, ...unknown[]]>).map(c => c[0]);
       expect(counterNames).toContain('ngdpbase_page_views_total');
       expect(counterNames).toContain('ngdpbase_page_saves_total');
       expect(counterNames).toContain('ngdpbase_page_deletes_total');
@@ -169,7 +169,7 @@ describe('MetricsManager', () => {
     test('should create histograms with correct names', async () => {
       await manager.initialize();
 
-      const histogramNames = mockMeter.createHistogram.mock.calls.map(c => c[0]);
+      const histogramNames = (mockMeter.createHistogram.mock.calls as Array<[string, ...unknown[]]>).map(c => c[0]);
       expect(histogramNames).toContain('ngdpbase_page_view_duration_ms');
       expect(histogramNames).toContain('ngdpbase_page_save_duration_ms');
       expect(histogramNames).toContain('ngdpbase_page_delete_duration_ms');
@@ -198,7 +198,7 @@ describe('MetricsManager', () => {
       expect(counterNames).toContain('jimstest_page_views_total');
       expect(counterNames).toContain('jimstest_http_requests_total');
 
-      const histogramNames = mockMeter.createHistogram.mock.calls.map(c => c[0]);
+      const histogramNames = (mockMeter.createHistogram.mock.calls as Array<[string, ...unknown[]]>).map(c => c[0]);
       expect(histogramNames).toContain('jimstest_page_view_duration_ms');
 
       expect(mockMeterProvider.getMeter).toHaveBeenCalledWith('jimstest', '1.0.0');

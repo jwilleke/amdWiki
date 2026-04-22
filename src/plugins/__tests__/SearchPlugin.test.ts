@@ -13,7 +13,9 @@
  * - Pagination and max parameters continue to work
  */
 
-import SearchPlugin from '../SearchPlugin';
+import SearchPluginModule = require('../SearchPlugin');
+import type { SimplePlugin } from '../types';
+const SearchPlugin = SearchPluginModule as unknown as SimplePlugin;
 // ---------------------------------------------------------------------------
 // Mock helpers
 // ---------------------------------------------------------------------------
@@ -21,7 +23,7 @@ import SearchPlugin from '../SearchPlugin';
 /**
  * Build a fake SearchResult object (matches BaseSearchProvider.SearchResult shape).
  */
-function makeResult(name, title, opts = {}) {
+function makeResult(name: string, title: string, opts: { score?: number; snippet?: string; systemCategory?: string; userKeywords?: string; author?: string; editor?: string; lastModified?: string } = {}) {
   return {
     name,
     title,

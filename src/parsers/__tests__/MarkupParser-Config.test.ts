@@ -3,7 +3,8 @@ import PluginSyntaxHandler from '../handlers/PluginSyntaxHandler';
 
 // Mock ConfigurationManager
 class MockConfigurationManager {
-  constructor(config = {}) {
+  config: Record<string, unknown>;
+  constructor(config: Record<string, unknown> = {}) {
     this.config = {
       'ngdpbase.markup.enabled': true,
       'ngdpbase.markup.caching': true,
@@ -25,10 +26,11 @@ class MockConfigurationManager {
 
 // Mock CacheManager
 class MockCacheManager {
+  initialized: boolean;
   constructor() {
     this.initialized = true;
   }
-  
+
   isInitialized() {
     return this.initialized;
   }
@@ -43,9 +45,10 @@ class MockCacheManager {
 
 // Mock Engine
 class MockWikiEngine {
-  constructor(managers = {}) {
+  managers: Map<string, unknown>;
+  constructor(managers: { CacheManager?: MockCacheManager; ConfigurationManager?: MockConfigurationManager } = {}) {
     this.managers = new Map();
-    
+
     // Add default managers
     this.managers.set('CacheManager', managers.CacheManager || new MockCacheManager());
     this.managers.set('ConfigurationManager', managers.ConfigurationManager || new MockConfigurationManager());

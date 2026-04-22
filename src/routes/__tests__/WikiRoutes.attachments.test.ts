@@ -1,4 +1,5 @@
 import WikiRoutes from '../WikiRoutes';
+import type { WikiEngine } from '../../types/WikiEngine';
 
 // Mock dependencies
 const mockAttachmentManager = {
@@ -42,7 +43,7 @@ describe('WikiRoutes - Attachment Security (Issue #22)', () => {
   let wikiRoutes;
 
   beforeEach(() => {
-    wikiRoutes = new WikiRoutes(mockEngine);
+    wikiRoutes = new WikiRoutes(mockEngine as unknown as WikiEngine);
     jest.clearAllMocks();
   });
 

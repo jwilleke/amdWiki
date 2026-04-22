@@ -7,7 +7,9 @@ import MarkupParser from '../MarkupParser';
 
 // Mock ConfigurationManager that simulates app-default-config.json and app-custom-config.json
 class ModularConfigurationManager {
-  constructor(customOverrides = {}) {
+  defaultConfig: Record<string, unknown>;
+  customConfig: Record<string, unknown>;
+  constructor(customOverrides: Record<string, unknown> = {}) {
     // Simulate app-default-config.json values
     this.defaultConfig = {
       'ngdpbase.markup.enabled': true,

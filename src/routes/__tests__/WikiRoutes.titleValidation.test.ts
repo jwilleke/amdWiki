@@ -54,7 +54,12 @@ function makeConfigManager() {
   };
 }
 
-function makeEngine({ pageManager, validationManager, aclManager, configManager } = {}) {
+function makeEngine({ pageManager = undefined, validationManager = undefined, aclManager = undefined, configManager = undefined }: {
+  pageManager?: ReturnType<typeof makePageManager>;
+  validationManager?: ReturnType<typeof makeValidationManager>;
+  aclManager?: ReturnType<typeof makeACLManager>;
+  configManager?: ReturnType<typeof makeConfigManager>;
+} = {}) {
   const pm = pageManager      ?? makePageManager();
   const vm = validationManager ?? makeValidationManager();
   const acl = aclManager      ?? makeACLManager(true);

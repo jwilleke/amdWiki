@@ -6,7 +6,7 @@ describe('AddonsManager', () => {
   let tmpDir;
   let AddonsManager;
 
-  const makeConfigManager = (overrides = {}) => ({
+  const makeConfigManager = (overrides: Record<string, unknown> = {}) => ({
     getProperty: jest.fn((key, defaultValue) => {
       if (key === 'ngdpbase.managers.addons-manager.enabled') {
         return overrides.enabled ?? true;

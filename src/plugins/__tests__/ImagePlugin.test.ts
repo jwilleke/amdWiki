@@ -25,6 +25,7 @@
  */
 
 import path from 'path';
+import type { WikiEngine } from '../../types/WikiEngine';
 import fs from 'fs-extra';
 import PluginManager from '../../managers/PluginManager';
 const localTestImage = '/images/test.jpg';
@@ -57,7 +58,7 @@ describe('Image (via PluginManager)', () => {
       logger
     };
 
-    pm = new PluginManager(engine);
+    pm = new PluginManager(engine as unknown as WikiEngine);
     if (!pm.engine) pm.engine = engine; // safety if constructor signature differs
     await pm.registerPlugins();
 
