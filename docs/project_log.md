@@ -2,6 +2,24 @@
 
 AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version history.
 
+## 2026-04-22-02
+
+- Agent: Claude
+- Subject: Pull origin, add frontmatter to Using Metrics required page, run data migrations
+- Current Issue: none
+- Work Done:
+  - Pulled origin/master (460 files updated, including new journal addon)
+  - Added YAML frontmatter (uuid, title, slug, dates, system-category: documentation) to required-pages/c92e1ff2 (Using Metrics) — previously missing uuid caused it to be skipped by migration scripts
+  - Ran migrate-footnotes-to-sidecar.mjs: extracted 13 footnotes from 9 pages into data/footnotes/ sidecar JSON files; identified skipped page c92e1ff2 as missing uuid
+  - Ran migrate-page-tabs.mjs: cleaned 132 of 183 pages — removed inline "More Information / ReferringPagesPlugin" blocks and JSPWiki/markdown footnote HR separators; normalised CRLF line endings
+- Commits: 6fd64fab
+- Files Modified:
+  - required-pages/c92e1ff2-e038-4a49-8fd9-5ced0c318201.md
+  - package-lock.json
+  - data/pages/ (132 pages cleaned by migrate-page-tabs; 9 pages footnotes stripped by migrate-footnotes-to-sidecar)
+  - data/footnotes/ (9 new sidecar JSON files created)
+  - data/page-index.json (updated by migrate-footnotes-to-sidecar)
+
 ## 2026-04-22-01
 
 - Agent: Claude
