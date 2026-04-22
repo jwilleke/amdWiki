@@ -2,6 +2,32 @@
 
 AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version history.
 
+## 2026-04-22-04
+
+- Agent: Claude
+- Subject: Partial fix of ts-jest compiler warnings — issues #561–#568
+- Current Issue: #561, #562, #563, #564, #565, #566, #567, #568
+- Work Done:
+  - Created GH issues #561–#568 grouping all 79 ts-jest TS warnings by category
+  - Fixed production warnings: WikiRoutes.ts TS2698 spreads (lines 4119, 4218)
+  - Fixed ~40 test files: cast partial mock objects with as unknown as WikiEngine/Request/Response
+  - Fixed plugin tests: CommonJS default import pattern (TS1192) for 8 plugins
+  - Fixed BaseSyntaxHandler tests: named-vs-default import (TS2614) for 3 files
+  - Changed private→protected on NotificationManager, DOMParser, Tokenizer, DOMPluginHandler, DOMVariableHandler, VersioningFileProvider
+  - Fixed SchemaGenerator test: infinite recursion bug introduced by agent (TS2339 wrapper)
+  - ~68 ts-jest warnings remain — deferred to dedicated follow-up session
+  - All 114 test suites / 2972 tests pass; tsc --noEmit clean
+- Commits: 057807fb
+- Files Modified:
+  - src/routes/WikiRoutes.ts
+  - src/managers/NotificationManager.ts
+  - src/parsers/dom/DOMParser.ts
+  - src/parsers/dom/Tokenizer.ts
+  - src/parsers/dom/handlers/DOMPluginHandler.ts
+  - src/parsers/dom/handlers/DOMVariableHandler.ts
+  - src/providers/VersioningFileProvider.ts
+  - ~74 test files across src/ and addons/
+
 ## 2026-04-22-03
 
 - Agent: Claude
