@@ -2,6 +2,20 @@
 
 AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version history.
 
+## 2026-04-22-08
+
+- Agent: Claude
+- Subject: Add developer reference documentation for pluginFormatters utilities
+- Current Issue: none
+- Work Done:
+  - Created `docs/plugins/plugin-formatters.md` — full developer reference for `src/utils/pluginFormatters.ts`
+  - Documents all 19 exported functions with TypeScript signatures, parameter tables, and usage examples
+  - Sections: Parameter Parsing, Array Helpers, Output Formatters, Date & Duration, Miscellaneous, Types Reference
+  - Uses markdown tables (correct for `docs/` files per documentation standards)
+- Commits: bab323ef
+- Files Modified:
+  - docs/plugins/plugin-formatters.md (new)
+
 ## 2026-04-22-07
 
 - Agent: Claude
