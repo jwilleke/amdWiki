@@ -2,6 +2,37 @@
 
 AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version history.
 
+## 2026-04-22-06
+
+- Agent: Claude
+- Subject: Fix #557 — replace page-creator with author for private page ACL ownership
+- Current Issue: #557
+- Work Done:
+  - Changed ACLManager Tier 0 private page check to read `author` instead of `page-creator`
+  - Updated PageManager to no longer write `page-creator` to frontmatter; `author` now serves as sole ownership field
+  - Added `system` default author for documentation/system category pages (fallback was `anonymous`)
+  - Updated FileSystemProvider to use `author` for private page path routing
+  - Updated VersioningFileProvider to use `author` directly (was falling back to it anyway)
+  - Updated LunrSearchProvider creator fallback to use `author`
+  - Updated WikiRoutes.ts author-lock check; added `page-creator` and `system-location` to metrics exclusion list
+  - Updated journal addon (editor.ts, api.ts) to omit `page-creator` when creating private journal entries
+  - Updated ACLManager tests to use `author` instead of `page-creator` in mock metadata
+  - Stripped `page-creator` from 5 live private pages in jimstest-wiki (all had identical author value)
+  - tsc --noEmit clean; 240/240 affected tests pass
+- Commits: 397c0ac2
+- Files Modified:
+  - src/managers/ACLManager.ts
+  - src/managers/PageManager.ts
+  - src/managers/__tests__/ACLManager.test.ts
+  - src/providers/BasePageProvider.ts
+  - src/providers/FileSystemProvider.ts
+  - src/providers/LunrSearchProvider.ts
+  - src/providers/VersioningFileProvider.ts
+  - src/routes/WikiRoutes.ts
+  - src/types/Provider.ts
+  - addons/journal/routes/api.ts
+  - addons/journal/routes/editor.ts
+
 ## 2026-04-22-05
 
 - Agent: Claude
