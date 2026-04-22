@@ -33,7 +33,13 @@
  */
 
 import type { PluginContext, PluginParams, SimplePlugin } from './types';
-import { escapeHtml } from '../utils/pluginFormatters';
+import {
+  escapeHtml,
+  parsePageSizeParam,
+  parsePageParam,
+  applyPagination,
+  formatPaginationLinks
+} from '../utils/pluginFormatters';
 
 // ============================================================================
 // Type Definitions
@@ -131,6 +137,8 @@ interface ConfigAccessorParams extends PluginParams {
   caption?: string;
   table?: string | boolean;
   noheader?: string | boolean;
+  pageSize?: string | number;
+  page?: string | number;
 }
 
 interface ExtendedPluginContext extends PluginContext {
@@ -1307,7 +1315,10 @@ function displayConfigValue(
   after: string | undefined = undefined,
   caption = '',
   forceTable = false,
-  noheader = false
+  noheader = false,
+  pageSize = 0,
+  page = 1,
+  pageName = ''
 ): string {
   if (!key) {
     return '<p class="error">Missing required parameter: key</p><p class="text-muted">Usage: [{ConfigAccessor key=\'ngdpbase.some.key\'}]</p>';
@@ -1349,6 +1360,15 @@ function displayConfigValue(
     }
 
     // Otherwise, return formatted HTML table
+    let paginationHtml = '';
+    let displayKeys = matchingKeys;
+
+    if (pageSize > 0) {
+      const paged = applyPagination(matchingKeys, page, pageSize);
+      displayKeys = paged.items;
+      paginationHtml = formatPaginationLinks(paged.currentPage, paged.totalPages, pageName);
+    }
+
     let html = '<div class="config-accessor-plugin">\n';
     html += '  <div class="card">\n';
 
@@ -1369,7 +1389,7 @@ function displayConfigValue(
     html += '          </thead>\n';
     html += '          <tbody>\n';
 
-    for (const matchKey of matchingKeys) {
+    for (const matchKey of displayKeys) {
       const value = allProps[matchKey];
       const displayValue = typeof value === 'object' ?
         JSON.stringify(value, null, 2) :
@@ -1385,6 +1405,9 @@ function displayConfigValue(
     html += '        </table>\n';
     html += '      </div>\n';
     html += '    </div>\n';
+    if (paginationHtml) {
+      html += `    <div class="card-footer py-1">${paginationHtml}</div>\n`;
+    }
     html += '  </div>\n';
     html += '</div>\n';
 
@@ -1631,6 +1654,9 @@ const ConfigAccessorPlugin: SimplePlugin = {
     const caption = typeof opts.caption === 'string' ? opts.caption : '';
     const forceTable = opts.table === 'true' || opts.table === true;
     const noheader = opts.noheader === 'true' || opts.noheader === true;
+    const pageSize = parsePageSizeParam(opts.pageSize);
+    const rawPage = context.query?.['page'] ?? opts.page;
+    const page = parsePageParam(rawPage);
 
     try {
       // Get managers from engine
@@ -1648,7 +1674,7 @@ const ConfigAccessorPlugin: SimplePlugin = {
 
       // If key is provided, handle config value(s)
       if (key) {
-        return displayConfigValue(configManager, key, valueonly, before, after, caption, forceTable, noheader);
+        return displayConfigValue(configManager, key, valueonly, before, after, caption, forceTable, noheader, pageSize, page, context.pageName);
       }
 
       // Otherwise handle type-based display (type is guaranteed non-null here due to check above)
