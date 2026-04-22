@@ -2,6 +2,27 @@
 
 AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version history.
 
+## 2026-04-22-03
+
+- Agent: Claude
+- Subject: About Site page content, cache invalidation, and #569 ConfigAccessorPlugin pagination
+- Current Issue: #569
+- Work Done:
+  - Edited `data/pages/d00ff8dc` (About Site): added developer-audience content with Instance table, Active Addons table, and `[{ConfigAccessor}]` live config sections; updated `system-category` to `developer`
+  - Invalidated page cache for d00ff8dc via `POST /api/admin/cache/clear/page/:identifier`
+  - Filed GitHub issue #569: add `pageSize=` and `page=` parameters to ConfigAccessorPlugin
+  - Implemented #569 in `src/plugins/ConfigAccessorPlugin.ts`:
+    - Imported `parsePageSizeParam`, `parsePageParam`, `applyPagination`, `formatPaginationLinks` from `pluginFormatters`
+    - Added `pageSize?` and `page?` to `ConfigAccessorParams`
+    - Extended `displayConfigValue()` with `pageSize`, `page`, `pageName` parameters
+    - Applied `applyPagination()` to wildcard `matchingKeys`; pagination links rendered in `card-footer`
+    - Wired `context.query?.['page'] ?? opts.page` pattern (matches UndefinedPagesPlugin convention)
+  - TypeScript compiles clean; 125 pluginFormatters/UndefinedPages tests pass
+- Commits: c486fcc1
+- Files Modified:
+  - src/plugins/ConfigAccessorPlugin.ts
+  - data/pages/d00ff8dc-4a75-4a4b-9f75-4b5778418b96.md (live data, untracked)
+
 ## 2026-04-22-02
 
 - Agent: Claude
