@@ -4,6 +4,8 @@ import { promises as fs } from 'fs';
 import path from 'path';
 import type { WikiEngine } from '../types/WikiEngine';
 import type ConfigurationManager from './ConfigurationManager';
+import type EmailManager from './EmailManager';
+import type UserManager from './UserManager';
 
 /**
  * Notification object structure
@@ -147,6 +149,7 @@ class NotificationManager extends BaseManager {
     );
 
     this.logger.info(`NotificationManager initialized with persistence: path=${this.storagePath}, intervalMs=${Math.max(1000, intervalMs)}`);
+    this.validateEscalationConfig();
   }
 
   /**
@@ -243,6 +246,7 @@ class NotificationManager extends BaseManager {
     // Save to storage
     await this.saveNotifications();
 
+    this.escalateByEmail(fullNotification);  // fire-and-forget
     return id;
   }
 
@@ -428,6 +432,77 @@ class NotificationManager extends BaseManager {
       byType,
       byLevel
     };
+  }
+
+  private validateEscalationConfig(): void {
+    const configManager = this.engine?.getManager<ConfigurationManager>('ConfigurationManager');
+    if (!configManager) return;
+    if (!configManager.getProperty('ngdpbase.notifications.escalation.enabled', false)) return;
+
+    const emailManager = this.engine?.getManager<EmailManager>('EmailManager');
+    if (!emailManager?.isEnabled()) {
+      this.logger.warn('[NotificationManager] escalation.enabled=true but ngdpbase.mail.enabled=false — escalation emails will not send');
+      return;
+    }
+    if (emailManager.getProviderName() === 'console') {
+      this.logger.warn('[NotificationManager] escalation.enabled=true but mail provider is "console" — emails will print to log, not be delivered');
+    }
+    if (!emailManager.getFrom()) {
+      this.logger.warn('[NotificationManager] escalation.enabled=true but no from address configured — escalation emails will not send');
+      return;
+    }
+    this.logger.info('[NotificationManager] Email escalation active — levels: %s, role: %s',
+      configManager.getProperty('ngdpbase.notifications.escalation.levels', ['error']),
+      configManager.getProperty('ngdpbase.notifications.escalation.recipient-role', 'admin')
+    );
+  }
+
+  private escalateByEmail(notification: Notification): void {
+    this._doEscalateByEmail(notification).catch(err => {
+      this.logger.warn('[NotificationManager] Email escalation failed:', err);
+    });
+  }
+
+  private async _doEscalateByEmail(notification: Notification): Promise<void> {
+    const configManager = this.engine?.getManager<ConfigurationManager>('ConfigurationManager');
+    if (!configManager) return;
+
+    const enabled = configManager.getProperty('ngdpbase.notifications.escalation.enabled', false) as boolean;
+    if (!enabled) return;
+
+    const levels = configManager.getProperty('ngdpbase.notifications.escalation.levels', ['error']) as string[];
+    if (!levels.includes(notification.level)) return;
+
+    const emailManager = this.engine?.getManager<EmailManager>('EmailManager');
+    if (!emailManager?.isEnabled()) {
+      this.logger.debug('[NotificationManager] Email escalation skipped: mail not enabled');
+      return;
+    }
+    if (!emailManager.getFrom()) {
+      this.logger.warn('[NotificationManager] Email escalation skipped: no from address configured');
+      return;
+    }
+
+    const recipientRole = configManager.getProperty('ngdpbase.notifications.escalation.recipient-role', 'admin') as string;
+    const userManager = this.engine?.getManager<UserManager>('UserManager');
+    if (!userManager) return;
+
+    const recipients = await userManager.searchUsers('', { role: recipientRole });
+    const withEmail = recipients.filter(u => u.email && u.email.includes('@'));
+
+    if (withEmail.length === 0) {
+      this.logger.debug(`[NotificationManager] No ${recipientRole} users with email found for escalation`);
+      return;
+    }
+
+    const subject = `[${notification.level.toUpperCase()}] ${notification.title}`;
+    const text = `${notification.title}\n\n${notification.message}\n\nLevel: ${notification.level}\nCreated: ${notification.createdAt.toISOString()}`;
+    const html = `<h2>${notification.title}</h2><p>${notification.message}</p><p><strong>Level:</strong> ${notification.level}<br><strong>Created:</strong> ${notification.createdAt.toISOString()}</p>`;
+
+    for (const user of withEmail) {
+      await emailManager.sendTo(user.email, subject, text, html);
+      this.logger.info(`[NotificationManager] Escalation email sent to ${user.email} (${user.username})`);
+    }
   }
 
   /**

@@ -649,12 +649,224 @@ describe('NotificationManager', () => {
       // Mock fs.writeFile to throw error
       const originalWriteFile = require('fs').promises.writeFile;
       require('fs').promises.writeFile = jest.fn().mockRejectedValue(new Error('Disk full'));
-      
+
       // Should not throw error when saving fails
       await expect(notificationManager.saveNotifications()).resolves.not.toThrow();
-      
+
       // Restore original writeFile
       require('fs').promises.writeFile = originalWriteFile;
     });
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Email escalation tests — use a standalone describe so we can build custom
+// engine mocks without touching the shared beforeEach/afterEach above.
+// ---------------------------------------------------------------------------
+
+function makeEscalationEngine({
+  escalationEnabled = false,
+  levels = ['error'],
+  recipientRole = 'admin',
+  mailEnabled = true,
+  providerName = 'smtp',
+  from = 'wiki@example.com',
+  adminUsers = [{ username: 'jim', email: 'jim@example.com', roles: ['admin'] }],
+  sendTo = jest.fn().mockResolvedValue(undefined),
+  dataDir = '',
+} = {}) {
+  const configManager = {
+    getProperty: jest.fn((key, defaultValue) => {
+      if (key === 'ngdpbase.notifications.dir') return dataDir;
+      if (key === 'ngdpbase.notifications.file') return 'notifications.json';
+      if (key === 'ngdpbase.notifications.auto-save-interval') return 60000;
+      if (key === 'ngdpbase.notifications.escalation.enabled') return escalationEnabled;
+      if (key === 'ngdpbase.notifications.escalation.levels') return levels;
+      if (key === 'ngdpbase.notifications.escalation.recipient-role') return recipientRole;
+      return defaultValue;
+    }),
+    getResolvedDataPath: jest.fn((key, defaultValue) => {
+      if (key === 'ngdpbase.notifications.dir') return dataDir;
+      return defaultValue;
+    }),
+  };
+
+  const emailManager = {
+    isEnabled: jest.fn().mockReturnValue(mailEnabled),
+    getProviderName: jest.fn().mockReturnValue(providerName),
+    getFrom: jest.fn().mockReturnValue(from),
+    sendTo,
+  };
+
+  const userManager = {
+    searchUsers: jest.fn().mockResolvedValue(adminUsers),
+  };
+
+  return {
+    engine: {
+      getManager: jest.fn((name) => {
+        if (name === 'ConfigurationManager') return configManager;
+        if (name === 'EmailManager') return emailManager;
+        if (name === 'UserManager') return userManager;
+        return undefined;
+      }),
+    },
+    emailManager,
+    userManager,
+    configManager,
+  };
+}
+
+describe('NotificationManager — email escalation', () => {
+  let tempDir: string;
+  let testCounter = 0;
+
+  beforeEach(async () => {
+    testCounter++;
+    tempDir = path.join(__dirname, 'temp', `esc-${Date.now()}-${testCounter}`);
+    await fs.mkdir(tempDir, { recursive: true });
+  });
+
+  afterEach(async () => {
+    if (tempDir) {
+      await fs.rm(tempDir, { recursive: true, force: true }).catch(() => {});
+    }
+  });
+
+  // -- Startup validation --
+
+  test('validateEscalationConfig: escalation enabled but mail disabled → warn', async () => {
+    const { engine, configManager } = makeEscalationEngine({ dataDir: tempDir, escalationEnabled: true, mailEnabled: false });
+    const mgr = new NotificationManager(engine as any);
+    await mgr.initialize({});
+
+    const loggerInstance = (mgr as any).logger;
+    expect(loggerInstance.warn).toHaveBeenCalledWith(
+      expect.stringContaining('ngdpbase.mail.enabled=false'),
+    );
+    await mgr.shutdown();
+  });
+
+  test('validateEscalationConfig: escalation enabled + mail enabled but provider console → warn', async () => {
+    const { engine } = makeEscalationEngine({ dataDir: tempDir, escalationEnabled: true, providerName: 'console', from: 'wiki@example.com' });
+    const mgr = new NotificationManager(engine as any);
+    await mgr.initialize({});
+
+    const loggerInstance = (mgr as any).logger;
+    expect(loggerInstance.warn).toHaveBeenCalledWith(
+      expect.stringContaining('"console"'),
+    );
+    await mgr.shutdown();
+  });
+
+  test('validateEscalationConfig: all prerequisites met → info log', async () => {
+    const { engine } = makeEscalationEngine({ dataDir: tempDir, escalationEnabled: true });
+    const mgr = new NotificationManager(engine as any);
+    await mgr.initialize({});
+
+    const loggerInstance = (mgr as any).logger;
+    expect(loggerInstance.info).toHaveBeenCalledWith(
+      expect.stringContaining('Email escalation active'),
+      expect.anything(),
+      expect.anything(),
+    );
+    await mgr.shutdown();
+  });
+
+  // -- Runtime escalation --
+
+  test('escalation disabled (default) → sendTo not called', async () => {
+    const sendTo = jest.fn().mockResolvedValue(undefined);
+    const { engine } = makeEscalationEngine({ dataDir: tempDir, escalationEnabled: false, sendTo });
+    const mgr = new NotificationManager(engine as any);
+    await mgr.initialize({});
+
+    await mgr.createNotification({ level: 'error', title: 'Oops', message: 'Bad thing' });
+    // allow fire-and-forget to settle
+    await new Promise(r => setTimeout(r, 20));
+
+    expect(sendTo).not.toHaveBeenCalled();
+    await mgr.shutdown();
+  });
+
+  test('level not in escalation list → sendTo not called', async () => {
+    const sendTo = jest.fn().mockResolvedValue(undefined);
+    const { engine } = makeEscalationEngine({ dataDir: tempDir, escalationEnabled: true, levels: ['error'], sendTo });
+    const mgr = new NotificationManager(engine as any);
+    await mgr.initialize({});
+
+    await mgr.createNotification({ level: 'info', title: 'FYI', message: 'Just info' });
+    await new Promise(r => setTimeout(r, 20));
+
+    expect(sendTo).not.toHaveBeenCalled();
+    await mgr.shutdown();
+  });
+
+  test('error notification + escalation enabled → sendTo called for each admin with email', async () => {
+    const sendTo = jest.fn().mockResolvedValue(undefined);
+    const { engine } = makeEscalationEngine({
+      dataDir: tempDir,
+      escalationEnabled: true,
+      sendTo,
+      adminUsers: [
+        { username: 'jim', email: 'jim@example.com', roles: ['admin'] },
+        { username: 'alice', email: 'alice@example.com', roles: ['admin'] },
+      ],
+    });
+    const mgr = new NotificationManager(engine as any);
+    await mgr.initialize({});
+
+    await mgr.createNotification({ level: 'error', title: 'Disk full', message: 'Storage at 100%' });
+    await new Promise(r => setTimeout(r, 20));
+
+    expect(sendTo).toHaveBeenCalledTimes(2);
+    expect(sendTo).toHaveBeenCalledWith('jim@example.com', expect.stringContaining('[ERROR]'), expect.any(String), expect.any(String));
+    expect(sendTo).toHaveBeenCalledWith('alice@example.com', expect.stringContaining('[ERROR]'), expect.any(String), expect.any(String));
+    await mgr.shutdown();
+  });
+
+  test('mail not enabled at runtime → no send', async () => {
+    const sendTo = jest.fn().mockResolvedValue(undefined);
+    const { engine } = makeEscalationEngine({ dataDir: tempDir, escalationEnabled: true, mailEnabled: false, sendTo });
+    const mgr = new NotificationManager(engine as any);
+    await mgr.initialize({});
+
+    await mgr.createNotification({ level: 'error', title: 'Boom', message: 'Error' });
+    await new Promise(r => setTimeout(r, 20));
+
+    expect(sendTo).not.toHaveBeenCalled();
+    await mgr.shutdown();
+  });
+
+  test('no admin users with email → no send, no throw', async () => {
+    const sendTo = jest.fn().mockResolvedValue(undefined);
+    const { engine } = makeEscalationEngine({
+      dataDir: tempDir,
+      escalationEnabled: true,
+      sendTo,
+      adminUsers: [{ username: 'nomail', email: '', roles: ['admin'] }],
+    });
+    const mgr = new NotificationManager(engine as any);
+    await mgr.initialize({});
+
+    await expect(mgr.createNotification({ level: 'error', title: 'Boom', message: 'Error' })).resolves.toBeDefined();
+    await new Promise(r => setTimeout(r, 20));
+
+    expect(sendTo).not.toHaveBeenCalled();
+    await mgr.shutdown();
+  });
+
+  test('sendTo rejects → notification still created (fire-and-forget)', async () => {
+    const sendTo = jest.fn().mockRejectedValue(new Error('SMTP timeout'));
+    const { engine } = makeEscalationEngine({ dataDir: tempDir, escalationEnabled: true, sendTo });
+    const mgr = new NotificationManager(engine as any);
+    await mgr.initialize({});
+
+    const id = await mgr.createNotification({ level: 'error', title: 'Fail', message: 'Error' });
+    await new Promise(r => setTimeout(r, 20));
+
+    expect(id).toMatch(/^notification_\d+$/);
+    expect(mgr.getAllNotifications()).toHaveLength(1);
+    await mgr.shutdown();
   });
 });
