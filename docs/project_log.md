@@ -2,6 +2,27 @@
 
 AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version history.
 
+## 2026-04-22-09
+
+- Agent: Claude
+- Subject: Fix #555 — proper print pagination in Reader Mode
+- Current Issue: #555
+- Work Done:
+  - Expanded `@media print` block in `views/reader.ejs` with full pagination rules
+  - `break-after: avoid` on all heading levels (h1–h6) to prevent orphan headings at page bottom
+  - `break-inside: avoid` on headings, paragraphs, list items, blockquotes, pre, tables, figures, images
+  - `display: table-header-group` on thead so table headers repeat on each printed page
+  - `break-inside: avoid` on tr to keep rows intact
+  - Print-safe code block and inline code background colors with `print-color-adjust: exact`
+  - `white-space: pre-wrap` on pre blocks to prevent horizontal overflow on print
+  - URL annotation (`::after` with `attr(href)`) for external links; suppressed for internal/anchor links
+  - `max-width: 100%` on images to fit print page width
+  - Body reset for print: margins to 0, font-size 11pt, max-width 100%
+  - 72/72 E2E tests pass after server restart
+- Commits: 044c7507
+- Files Modified:
+  - views/reader.ejs
+
 ## 2026-04-22-08
 
 - Agent: Claude
