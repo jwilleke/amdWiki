@@ -42,7 +42,7 @@ export const SubmissionSchema = z.object({
     phone:   z.string().optional(),
     address: z.string().optional(),
   }).optional(),
-  data:          z.record(z.unknown()),
+  data:          z.record(z.string(), z.unknown()),
   status:        z.enum(['pending', 'processed', 'rejected']).default('pending'),
   handlerResult: z.unknown().optional(),
   notes:         z.string().optional(),
