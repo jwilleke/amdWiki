@@ -2,6 +2,26 @@
 
 AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version history.
 
+## 2026-04-22-10
+
+- Agent: Claude
+- Subject: Implement #457 — NotificationManager email escalation
+- Current Issue: #457
+- Work Done:
+  - Added `validateEscalationConfig()` to `NotificationManager.initialize()` — warns at startup if escalation is enabled but mail is off, from is empty, or provider is `console`; logs info when fully configured
+  - Added `escalateByEmail()` (fire-and-forget wrapper) and `_doEscalateByEmail()` (async) private methods
+  - `createNotification()` calls `escalateByEmail()` after `saveNotifications()` — email failures never affect notification creation
+  - Recipients resolved via `userManager.searchUsers('', { role: recipientRole })` filtered to users with valid email
+  - Added 3 config keys to `app-default-config.json`: `escalation.enabled` (default: false), `escalation.levels` (default: ["error"]), `escalation.recipient-role` (default: "admin")
+  - Enabled on jimstest dev instance with `levels: ["error","warning"]` — jim@willeke.com via Resend SMTP
+  - 9 new tests added (35 total passing): startup validation (3) + runtime escalation (6)
+- Commits: 85d46523
+- Files Modified:
+  - src/managers/NotificationManager.ts
+  - src/managers/__tests__/NotificationManager.test.ts
+  - config/app-default-config.json
+  - /Volumes/hd2/jimstest-wiki/data/config/app-custom-config.json
+
 ## 2026-04-22-09
 
 - Agent: Claude
