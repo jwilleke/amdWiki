@@ -1,0 +1,15 @@
+.ngdp-form {
+  max-width: 640px;
+  margin: 1.5rem 0;
+}
+
+.ngdp-form .card-title {
+  font-size: 1.15rem;
+}
+
+/* Spinner shown during submission */
+.ngdp-form .spinner-border {
+  width: 1rem;
+  height: 1rem;
+  border-width: 0.15em;
+}

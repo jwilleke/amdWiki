@@ -1,0 +1,121 @@
+<%- include('header', { title: 'Submission Detail', currentUser }) %>
+
+<div class="container mt-4" style="max-width:800px">
+  <nav aria-label="breadcrumb" class="mb-3">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="/admin/forms">Forms</a></li>
+      <li class="breadcrumb-item"><a href="/admin/forms/<%= encodeURIComponent(form.id) %>/submissions"><%= form.title %></a></li>
+      <li class="breadcrumb-item active">Detail</li>
+    </ol>
+  </nav>
+
+  <div class="card shadow-sm mb-4">
+    <div class="card-header d-flex justify-content-between align-items-center">
+      <h5 class="mb-0"><%= form.title %></h5>
+      <span class="badge bg-<%= submission.status === 'processed' ? 'success' : submission.status === 'rejected' ? 'danger' : 'warning text-dark' %>">
+        <%= submission.status %>
+      </span>
+    </div>
+    <div class="card-body">
+      <dl class="row mb-0">
+        <dt class="col-sm-3">Submission ID</dt>
+        <dd class="col-sm-9"><code><%= submission.id %></code></dd>
+
+        <dt class="col-sm-3">Submitted at</dt>
+        <dd class="col-sm-9"><%= new Date(submission.submittedAt).toLocaleString() %></dd>
+
+        <dt class="col-sm-3">Submitted by</dt>
+        <dd class="col-sm-9"><%= submission.submittedBy %></dd>
+
+        <% if (submission.onBehalfOf) { %>
+          <dt class="col-sm-3">On behalf of</dt>
+          <dd class="col-sm-9">
+            <% const obo = submission.onBehalfOf; %>
+            <% if (obo.name)    { %><div><strong>Name:</strong> <%= obo.name %></div><% } %>
+            <% if (obo.email)   { %><div><strong>Email:</strong> <%= obo.email %></div><% } %>
+            <% if (obo.phone)   { %><div><strong>Phone:</strong> <%= obo.phone %></div><% } %>
+            <% if (obo.address) { %><div><strong>Address:</strong> <%= obo.address %></div><% } %>
+          </dd>
+        <% } %>
+      </dl>
+    </div>
+  </div>
+
+  <!-- Form data -->
+  <div class="card shadow-sm mb-4">
+    <div class="card-header"><h6 class="mb-0">Submitted Data</h6></div>
+    <div class="card-body">
+      <dl class="row mb-0">
+        <% form.fields.forEach(field => { %>
+          <% if (field.type === 'hidden') return; %>
+          <dt class="col-sm-4"><%= field.label %></dt>
+          <dd class="col-sm-8">
+            <% const val = submission.data[field.name]; %>
+            <% if (field.type === 'checkbox') { %>
+              <i class="fas fa-<%= val ? 'check text-success' : 'times text-danger' %>"></i>
+            <% } else { %>
+              <%= val != null ? val : '—' %>
+            <% } %>
+          </dd>
+        <% }) %>
+      </dl>
+    </div>
+  </div>
+
+  <% if (submission.handlerResult) { %>
+    <div class="card shadow-sm mb-4">
+      <div class="card-header"><h6 class="mb-0">Handler Result</h6></div>
+      <div class="card-body">
+        <pre class="mb-0"><code><%= JSON.stringify(submission.handlerResult, null, 2) %></code></pre>
+      </div>
+    </div>
+  <% } %>
+
+  <!-- Update status -->
+  <div class="card shadow-sm">
+    <div class="card-header"><h6 class="mb-0">Update Status</h6></div>
+    <div class="card-body">
+      <form id="status-form">
+        <div class="mb-3">
+          <label class="form-label">Status</label>
+          <select name="status" class="form-select">
+            <option value="pending"   <%= submission.status === 'pending'   ? 'selected' : '' %>>Pending</option>
+            <option value="processed" <%= submission.status === 'processed' ? 'selected' : '' %>>Processed</option>
+            <option value="rejected"  <%= submission.status === 'rejected'  ? 'selected' : '' %>>Rejected</option>
+          </select>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Notes</label>
+          <textarea name="notes" class="form-control" rows="2"><%= submission.notes || '' %></textarea>
+        </div>
+        <div id="status-result"></div>
+        <button type="submit" class="btn btn-primary">Save</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+document.getElementById('status-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const data = Object.fromEntries(new FormData(e.target));
+  const result = document.getElementById('status-result');
+  try {
+    const res = await fetch('/admin/forms/<%= encodeURIComponent(form.id) %>/submissions/<%= encodeURIComponent(submission.id) %>/status', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+    const json = await res.json();
+    if (json.ok) {
+      result.innerHTML = '<div class="alert alert-success py-2">Status updated.</div>';
+    } else {
+      result.innerHTML = `<div class="alert alert-danger py-2">${json.error}</div>`;
+    }
+  } catch {
+    result.innerHTML = '<div class="alert alert-danger py-2">Network error.</div>';
+  }
+});
+</script>
+
+<%- include('footer') %>

@@ -1,0 +1,5 @@
+{
+  "_comment": "Default configuration for the forms addon. Override any key in app-custom-config.json.",
+  "ngdpbase.addons.forms.dataPath": "",
+  "ngdpbase.addons.forms.notifyRole": "admin"
+}

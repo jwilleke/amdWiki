@@ -1,0 +1,51 @@
+<%- include('header', { title: 'Forms Admin', currentUser }) %>
+
+<div class="container-fluid mt-4">
+  <div class="row">
+    <div class="col-12">
+      <h2><i class="fas fa-wpforms me-2"></i>Forms</h2>
+      <p class="text-muted">Manage form definitions and view submissions.</p>
+    </div>
+  </div>
+
+  <% if (forms.length === 0) { %>
+    <div class="alert alert-info">
+      No form definitions found. Add JSON files to <code>${FAST_STORAGE}/forms/definitions/</code>.
+    </div>
+  <% } else { %>
+    <div class="row">
+      <% forms.forEach(form => { %>
+        <div class="col-md-4 mb-4">
+          <div class="card shadow-sm h-100">
+            <div class="card-body">
+              <h5 class="card-title"><%= form.title %></h5>
+              <p class="text-muted small mb-1"><code><%= form.id %></code></p>
+              <% if (form.description) { %>
+                <p class="card-text small"><%= form.description %></p>
+              <% } %>
+              <div class="d-flex gap-2 flex-wrap mt-2">
+                <span class="badge bg-secondary"><%= form.fields.length %> fields</span>
+                <span class="badge bg-<%= form.submissionCount > 0 ? 'primary' : 'light text-dark' %>">
+                  <%= form.submissionCount %> submission<%= form.submissionCount !== 1 ? 's' : '' %>
+                </span>
+                <% if (form.handler) { %>
+                  <span class="badge bg-info text-dark">handler: <%= form.handler %></span>
+                <% } %>
+                <% if (form.proxySubmission) { %>
+                  <span class="badge bg-warning text-dark">proxy</span>
+                <% } %>
+              </div>
+            </div>
+            <div class="card-footer bg-transparent">
+              <a href="/admin/forms/<%= encodeURIComponent(form.id) %>/submissions" class="btn btn-sm btn-outline-primary">
+                View Submissions
+              </a>
+            </div>
+          </div>
+        </div>
+      <% }) %>
+    </div>
+  <% } %>
+</div>
+
+<%- include('footer') %>

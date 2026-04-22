@@ -1,0 +1,65 @@
+<%- include('header', { title: form.title + ' — Submissions', currentUser }) %>
+
+<div class="container-fluid mt-4">
+  <div class="row mb-3">
+    <div class="col">
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="/admin/forms">Forms</a></li>
+          <li class="breadcrumb-item active"><%= form.title %></li>
+        </ol>
+      </nav>
+      <h2><%= form.title %> — Submissions</h2>
+    </div>
+  </div>
+
+  <!-- Filter bar -->
+  <div class="row mb-3">
+    <div class="col-auto">
+      <div class="btn-group" role="group">
+        <a href="?status=all" class="btn btn-sm btn-<%= filterStatus === 'all' ? 'primary' : 'outline-secondary' %>">All</a>
+        <a href="?status=pending" class="btn btn-sm btn-<%= filterStatus === 'pending' ? 'warning' : 'outline-secondary' %>">Pending</a>
+        <a href="?status=processed" class="btn btn-sm btn-<%= filterStatus === 'processed' ? 'success' : 'outline-secondary' %>">Processed</a>
+        <a href="?status=rejected" class="btn btn-sm btn-<%= filterStatus === 'rejected' ? 'danger' : 'outline-secondary' %>">Rejected</a>
+      </div>
+    </div>
+  </div>
+
+  <% if (submissions.length === 0) { %>
+    <div class="alert alert-info">No submissions found.</div>
+  <% } else { %>
+    <div class="table-responsive">
+      <table class="table table-hover">
+        <thead class="table-light">
+          <tr>
+            <th>Submitted</th>
+            <th>By</th>
+            <th>On behalf of</th>
+            <th>Status</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <% submissions.forEach(sub => { %>
+            <tr>
+              <td class="text-nowrap"><small><%= new Date(sub.submittedAt).toLocaleString() %></small></td>
+              <td><small><%= sub.submittedBy %></small></td>
+              <td><small><%= sub.onBehalfOf ? (sub.onBehalfOf.name || sub.onBehalfOf.email || '—') : '—' %></small></td>
+              <td>
+                <span class="badge bg-<%= sub.status === 'processed' ? 'success' : sub.status === 'rejected' ? 'danger' : 'warning text-dark' %>">
+                  <%= sub.status %>
+                </span>
+              </td>
+              <td>
+                <a href="/admin/forms/<%= encodeURIComponent(form.id) %>/submissions/<%= encodeURIComponent(sub.id) %>"
+                   class="btn btn-sm btn-outline-primary">View</a>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  <% } %>
+</div>
+
+<%- include('footer') %>
