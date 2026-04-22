@@ -5,6 +5,15 @@ import logger from '../utils/logger';
 import BaseManager, { BackupData } from './BaseManager';
 import type { WikiEngine } from '../types/WikiEngine';
 
+interface ConfigManagerBackupData extends BackupData {
+  customConfig: Partial<WikiConfig> | null;
+  environment?: string;
+  defaultConfig?: Partial<WikiConfig> | null;
+  mergedConfig?: Partial<WikiConfig> | null;
+  paths?: { defaultConfigPath: string; customConfigPath: string };
+  statistics?: { defaultPropertiesCount: number; customPropertiesCount: number; mergedPropertiesCount: number };
+}
+
 /**
  * ConfigurationManager - Handles JSPWiki-compatible configuration management
  *
@@ -886,7 +895,7 @@ class ConfigurationManager extends BaseManager {
    *
    * @returns {Promise<BackupData>} Backup data containing custom configuration
    */
-  async backup(): Promise<BackupData> {
+  async backup(): Promise<ConfigManagerBackupData> {
     logger.info('[ConfigurationManager] Starting backup...');
 
     try {
@@ -939,7 +948,7 @@ class ConfigurationManager extends BaseManager {
    * @param {BackupData} backupData - Backup data from backup() method
    * @returns {Promise<void>}
    */
-  async restore(backupData: BackupData): Promise<void> {
+  async restore(backupData: ConfigManagerBackupData): Promise<void> {
     logger.info('[ConfigurationManager] Starting restore...');
 
     if (!backupData) {
