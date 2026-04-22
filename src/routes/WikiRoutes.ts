@@ -112,6 +112,7 @@ interface IUserManager {
 
 interface IConfigManager {
   getProperty(key: string, defaultValue: string): string;
+  getProperty(key: string, defaultValue: null): unknown;
   getProperty(key: string, defaultValue?: unknown): unknown;
   setProperty(key: string, value: unknown): Promise<void> | void;
   getCustomProperty(key: string): unknown;
