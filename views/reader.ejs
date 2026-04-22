@@ -92,8 +92,104 @@
         }
         
         @media print {
+            /* Hide UI chrome */
             .reader-actions {
-                display: none;
+                display: none !important;
+            }
+
+            /* Reset screen layout for print */
+            body {
+                max-width: 100%;
+                margin: 0;
+                padding: 0;
+                font-size: 11pt;
+                line-height: 1.5;
+                color: #000;
+                background: #fff;
+            }
+
+            .reader-header {
+                margin-bottom: 1.5em;
+                padding-bottom: 0.5em;
+                border-bottom: 1pt solid #000;
+            }
+
+            .reader-title {
+                font-size: 18pt;
+                color: #000;
+            }
+
+            .reader-meta {
+                font-size: 9pt;
+                color: #333;
+            }
+
+            /* Keep headings with the content that follows — prevents orphan headings */
+            .reader-content h1,
+            .reader-content h2,
+            .reader-content h3,
+            .reader-content h4,
+            .reader-content h5,
+            .reader-content h6 {
+                break-after: avoid;
+                break-inside: avoid;
+                color: #000;
+                margin-top: 1.5em;
+            }
+
+            /* Never break inside these elements */
+            .reader-content p,
+            .reader-content li,
+            .reader-content blockquote,
+            .reader-content pre,
+            .reader-content table,
+            .reader-content figure,
+            .reader-content img {
+                break-inside: avoid;
+            }
+
+            /* Tables: keep header row with first data row */
+            .reader-content thead {
+                display: table-header-group;
+            }
+
+            .reader-content tr {
+                break-inside: avoid;
+            }
+
+            /* Code blocks */
+            .reader-content pre {
+                white-space: pre-wrap;
+                word-break: break-all;
+                border: 1pt solid #ccc;
+                background: #f8f8f8 !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            /* Inline code */
+            .reader-content code {
+                background: #f1f1f1 !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            /* Links: show URL after link text */
+            .reader-content a[href]::after {
+                content: ' (' attr(href) ')';
+                font-size: 8pt;
+                color: #555;
+            }
+
+            /* Don't annotate internal/anchor links */
+            .reader-content a[href^="#"]::after,
+            .reader-content a[href^="/"]::after {
+                content: '';
+            }
+
+            /* Images: scale to fit page */
+            .reader-content img {
+                max-width: 100% !important;
             }
         }
         
