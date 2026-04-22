@@ -5,12 +5,12 @@ import { ApiContext } from '../../../dist/src/context/ApiContext';
 import type { WikiEngine } from '../../../dist/src/types/WikiEngine';
 import type EmailManager from '../../../dist/src/managers/EmailManager';
 import type NotificationManager from '../../../dist/src/managers/NotificationManager';
-import type ConfigurationManager from '../../../dist/src/managers/ConfigurationManager';
-import type FormsAddon from '../index';
 import { buildSubmissionValidator } from '../managers/FormsDataManager';
 import type FormsDataManager from '../managers/FormsDataManager';
 
-export default function apiRoutes(engine: WikiEngine, addon: FormsAddon): Router {
+type AddonRef = { callHandler(formId: string, submission: unknown, ctx: unknown): Promise<{ok: boolean; error?: string}> };
+
+export default function apiRoutes(engine: WikiEngine, addon: AddonRef): Router {
   const router = Router();
 
   function fdm(): FormsDataManager | undefined {
@@ -21,7 +21,7 @@ export default function apiRoutes(engine: WikiEngine, addon: FormsAddon): Router
   router.post('/submit/:formId', (req: Request, res: Response) => {
     void (async () => {
       try {
-        const { formId } = req.params;
+        const formId = String(req.params['formId']);
         const m = fdm();
         if (!m) { res.status(503).json({ ok: false, error: 'FormsDataManager not available' }); return; }
 
@@ -91,10 +91,6 @@ export default function apiRoutes(engine: WikiEngine, addon: FormsAddon): Router
 
         // ── 7. In-app notification (fire-and-forget) ───────────────────────
         const nm = engine.getManager<NotificationManager>('NotificationManager');
-        const notifyRole = form.notifyRole || (
-          engine.getManager<ConfigurationManager>('ConfigurationManager')
-            ?.getProperty('ngdpbase.addons.forms.notifyRole', 'admin') as string
-        );
         if (nm) {
           nm.createNotification({
             type:    'system',
@@ -116,7 +112,7 @@ export default function apiRoutes(engine: WikiEngine, addon: FormsAddon): Router
   router.get('/schema/:formId', (req: Request, res: Response) => {
     const m = fdm();
     if (!m) { res.status(503).json({ error: 'FormsDataManager not available' }); return; }
-    const form = m.getDefinition(req.params.formId);
+    const form = m.getDefinition(String(req.params['formId']));
     if (!form) { res.status(404).json({ error: 'Form not found' }); return; }
     // Strip optionsSource from response; resolved options are server-side only
     res.json(form);

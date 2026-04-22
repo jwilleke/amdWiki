@@ -1,11 +1,9 @@
 'use strict';
 
 import * as path from 'path';
-import * as fs from 'fs';
 import { promises as fsp } from 'fs';
 import { v4 as uuidv4 } from 'uuid';
 import { z } from 'zod';
-import type { WikiEngine } from '../../../dist/src/types/WikiEngine';
 
 // ── Zod schemas ───────────────────────────────────────────────────────────────
 
@@ -72,12 +70,10 @@ export function buildSubmissionValidator(form: FormDefinition): z.ZodObject<Reco
 // ── FormsDataManager ──────────────────────────────────────────────────────────
 
 export default class FormsDataManager {
-  private engine: WikiEngine;
   private dataPath: string;
   private definitions: Map<string, FormDefinition> = new Map();
 
-  constructor(engine: WikiEngine, dataPath: string) {
-    this.engine = engine;
+  constructor(_engine: unknown, dataPath: string) {
     this.dataPath = dataPath;
   }
 

@@ -40,6 +40,7 @@ import type { WikiEngine } from '../../dist/src/types/WikiEngine';
 import type { AddonStatusDetails } from '../../dist/src/managers/AddonsManager';
 import type PluginManager from '../../dist/src/managers/PluginManager';
 import type AddonsManager from '../../dist/src/managers/AddonsManager';
+import type { default as FormsAddon } from '../forms/index';
 import CalendarDataManager from './managers/CalendarDataManager';
 import CalendarPlugin from './plugins/CalendarPlugin';
 import apiRoutes from './routes/api';
@@ -53,7 +54,7 @@ const calendarAddon = {
   version: '2.0.0',
   description: 'Event calendar with FullCalendar UI and RFC 5545 support',
   author: '',
-  dependencies: [] as string[],
+  dependencies: ['forms'] as string[],
 
   /**
    * Called at startup when the add-on is enabled.
@@ -93,6 +94,43 @@ const calendarAddon = {
 
     // ── 6. Announce capability ───────────────────────────────────────────────
     engine.setCapability('calendar', true);
+
+    // ── 7. Register forms handler for clubhouse reservation ─────────────────
+    const formsAddon = engine.getManager<typeof FormsAddon>('FormsAddon');
+    if (formsAddon && dataManager) {
+      const dm = dataManager;
+      formsAddon.registerHandler('clubhouse-reservation', async (submission) => {
+        const data = submission.data as Record<string, string>;
+        const person = submission.onBehalfOf?.name
+          ? submission.onBehalfOf
+          : { name: data['name'], email: data['email'] };
+
+        const start = `${data['date']}T${data['startTime']}`;
+        const end   = `${data['date']}T${data['endTime']}`;
+
+        if (dm.checkConflict('clubhouse', start, end)) {
+          return { ok: false, error: 'That time slot is already reserved — please choose another time.' };
+        }
+
+        const event = await dm.create({
+          calendarId:  'clubhouse',
+          title:       `Reservation — ${person.name ?? 'Unknown'}`,
+          start,
+          end,
+          description: data['description'] ?? '',
+          createdBy:   submission.submittedBy,
+          _private: {
+            requester:      person.name,
+            requesterEmail: person.email,
+            address:        submission.onBehalfOf?.address ?? data['address'],
+            phone:          submission.onBehalfOf?.phone   ?? data['phone'],
+            submittedBy:    submission.submittedBy,
+          },
+        });
+
+        return { ok: true, calendarEventId: event.id };
+      });
+    }
   },
 
   /** Health check — shown in /admin add-ons panel. */
