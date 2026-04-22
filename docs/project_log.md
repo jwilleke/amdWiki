@@ -2,6 +2,27 @@
 
 AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version history.
 
+## 2026-04-22-01
+
+- Agent: Claude
+- Subject: Fix #558 — comments and footnotes not showing immediately after save
+- Current Issue: #558
+- Work Done:
+  - Diagnosed root cause: PluginSyntaxHandler caches rendered plugin output (CommentsPlugin, FootnotesPlugin) using a contextHash that includes a 5-minute timestamp bucket; since comments/footnotes are stored outside page content the contentHash never changes, so stale HTML is served for up to 5 minutes
+  - Added public `invalidateHandlerCache()` to RenderingManager (delegates to markupParser.invalidateHandlerCache())
+  - Added public `invalidatePageCache(identifier)` to PageManager (clears provider page/content caches + calls RenderingManager.invalidateHandlerCache())
+  - Added protected `invalidateHandlerCache(pageUuid)` helper to BaseManager (delegates to PageManager.invalidatePageCache)
+  - Called `this.invalidateHandlerCache(pageUuid)` in CommentManager.addComment() and deleteComment()
+  - Called `this.invalidateHandlerCache(pageUuid)` in FootnoteManager.addFootnote(), updateFootnote(), deleteFootnote()
+  - Fixed ESLint no-unsafe-call errors by using getManager<T> generic pattern instead of `as` casts
+- Commits: a09d6def
+- Files Modified:
+  - src/managers/RenderingManager.ts
+  - src/managers/PageManager.ts
+  - src/managers/BaseManager.ts
+  - src/managers/CommentManager.ts
+  - src/managers/FootnoteManager.ts
+
 ## 2026-04-21-13
 
 - Agent: Claude
