@@ -1838,10 +1838,10 @@ ${panes}
       }
 
       // Reject page names with characters that break URL routing or YAML parsing
-      const invalidChars = /[/\\#?%"'<>|*]/;
+      const invalidChars = /[/\\#?%"<>|*]/;
       if (invalidChars.test(pageName)) {
         return res.status(400).send(
-          'Page name contains invalid characters. The following are not allowed: / \\ # ? % " \' < > | *'
+          'Page name contains invalid characters. The following are not allowed: / \\ # ? % " < > | *'
         );
       }
 
@@ -2402,10 +2402,10 @@ ${panes}
 
       // Reject titles containing characters that break URL routing or YAML parsing
       if (title && typeof title === 'string') {
-        const invalidChars = /[/\\#?%"'<>|*]/;
+        const invalidChars = /[/\\#?%"<>|*]/;
         if (invalidChars.test(title)) {
           return res.status(400).send(
-            'Page title contains invalid characters. The following are not allowed: / \\ # ? % " \' < > | *'
+            'Page title contains invalid characters. The following are not allowed: / \\ # ? % " < > | *'
           );
         }
       }

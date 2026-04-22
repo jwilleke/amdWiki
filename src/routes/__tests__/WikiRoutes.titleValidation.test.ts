@@ -2,12 +2,13 @@
  * Unit tests for WikiRoutes — page title validation in savePage()
  *
  * savePage() rejects titles containing characters that break URL routing
- * or YAML parsing: / \ # ? % " ' < > | *
+ * or YAML parsing: / \ # ? % " < > | *
+ * Apostrophes (') are allowed — e.g. "President's Surveillance Program"
  *
  * Covers:
  * - Each invalid character triggers a 400
  * - Clean titles are accepted
- * - Titles with quotes/spaces (no special chars) are accepted
+ * - Titles with apostrophes are accepted
  * - Empty/absent title is not rejected by the validator
  * - createPageFromTemplate also rejects invalid page names
  */
@@ -118,7 +119,7 @@ describe('WikiRoutes — savePage() title validation', () => {
     wikiRoutes = new WikiRoutes(makeEngine());
   });
 
-  const invalidChars = ['/', '\\', '#', '?', '%', '"', "'", '<', '>', '|', '*'];
+  const invalidChars = ['/', '\\', '#', '?', '%', '"', '<', '>', '|', '*'];
 
   test.each(invalidChars)(
     'title containing "%s" is rejected with 400',
@@ -142,6 +143,15 @@ describe('WikiRoutes — savePage() title validation', () => {
     await wikiRoutes.savePage(req, res);
 
     // Title validation passes; any subsequent 400 is from another check (e.g., ACL)
+    expect(res.send).not.toHaveBeenCalledWith(expect.stringContaining('invalid characters'));
+  });
+
+  test("title with apostrophe is accepted — e.g. President's Surveillance Program", async () => {
+    const req = createSaveReq("President's Surveillance Program");
+    const res = createRes();
+
+    await wikiRoutes.savePage(req, res);
+
     expect(res.send).not.toHaveBeenCalledWith(expect.stringContaining('invalid characters'));
   });
 
