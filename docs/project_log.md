@@ -2,6 +2,60 @@
 
 AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version history.
 
+## 2026-04-22-12
+
+- Agent: Claude
+- Subject: Wire calendar addon to forms — clubhouse-reservation handler
+- Current Issue: #463
+- Work Done:
+  - Calendar addon registers a `clubhouse-reservation` handler with FormsAddon on startup
+  - Handler checks for time slot conflicts via `CalendarDataManager.checkConflict()` before creating event
+  - Calendar event stores requester name/email/phone/address in `_private` field
+  - Calendar addon declares `dependencies: ['forms']` so AddonsManager loads forms first
+  - Fixed TypeScript errors in forms addon: removed unused imports, fixed Express v5 `req.params` string casts, replaced unused `FormsAddon` value import with inline `AddonRef` interface
+- Commits: 94e577e9
+- Files Modified:
+  - addons/calendar/index.ts
+  - addons/calendar/package.json
+  - addons/forms/managers/FormsDataManager.ts
+  - addons/forms/routes/admin.ts
+  - addons/forms/routes/api.ts
+
+## 2026-04-22-11
+
+- Agent: Claude
+- Subject: Implement #463 — Generic Forms addon
+- Current Issue: #463
+- Work Done:
+  - Created `addons/forms/` addon: schema-driven form rendering, submission storage, handler hook registry
+  - `FormsDataManager`: loads `*.json` definitions from `${dataPath}/definitions/`, validates with Zod, saves submissions atomically to `${dataPath}/submissions/<formId>/<uuid>.json`
+  - Zod `FormDefinitionSchema` + `buildSubmissionValidator()` for per-form submission validation
+  - `POST /api/forms/submit/:formId`: validates, saves, calls handler, sends confirmation email + in-app notification (all fire-and-forget side effects)
+  - `FormsPlugin`: renders `[{Form id='...'}]` directive as Bootstrap 5 HTML; resolves `optionsSource: "config:key"` dropdowns at render time
+  - Three admin views: forms list with submission counts, submissions list with status filter, submission detail with inline status update
+  - Vanilla JS `forms-submit.js`: intercepts form submit, POSTs JSON, swaps success/error inline without page reload
+  - `forms-help.md` seeded as documentation page
+  - `clubhouse-reservation.json` form definition deployed to jimstest-wiki with all 9 fields, proxy submission enabled
+  - Added `ngdpbase.addons.forms.enabled/dataPath/notifyRole` config keys to `app-default-config.json`
+  - Forms addon enabled on jimstest dev instance
+- Commits: 201c434d
+- Files Modified:
+  - addons/forms/index.ts (new)
+  - addons/forms/package.json (new)
+  - addons/forms/managers/FormsDataManager.ts (new)
+  - addons/forms/routes/api.ts (new)
+  - addons/forms/routes/admin.ts (new)
+  - addons/forms/plugins/FormsPlugin.ts (new)
+  - addons/forms/views/forms-admin.ejs (new)
+  - addons/forms/views/forms-submissions.ejs (new)
+  - addons/forms/views/forms-submission-detail.ejs (new)
+  - addons/forms/public/js/forms-submit.js (new)
+  - addons/forms/public/css/forms.css (new)
+  - addons/forms/pages/forms-help.md (new)
+  - config/app-default-config.json
+  - /Volumes/hd2/jimstest-wiki/data/forms/definitions/clubhouse-reservation.json (new)
+  - /Volumes/hd2/jimstest-wiki/data/config/app-custom-config.json
+
 ## 2026-04-22-10
 
 - Agent: Claude
