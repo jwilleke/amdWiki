@@ -1,8 +1,7 @@
 ---
 uuid: "f0rm5-he1p-0000-0000-000000000001"
-slug: "forms-help"
-title: "Using Forms Addon"
 slug: "using-forms-addon"
+title: "Using Forms Addon"
 system-category: "documentation"
 user-keywords:
   - Forms
