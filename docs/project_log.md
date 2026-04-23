@@ -2,6 +2,30 @@
 
 AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version history.
 
+## 2026-04-23-11
+
+- Agent: Claude
+- Subject: Phase 2 (#581) elasticsearch admin page; Phase 3 (fairways #14) unit management page
+- Current Issue: #581, fairways #14
+- Work Done:
+  - Phase 2: Created addons/elasticsearch/routes/admin.ts — GET /addons/elasticsearch renders connection status badge and config summary
+  - Phase 2: Created addons/elasticsearch/views/admin-elasticsearch.ejs
+  - Phase 2: Updated elasticsearch index.ts — stores config, registers views dir, mounts route, dashboard URL → /addons/elasticsearch
+  - Phase 2: Updated elasticsearch tsconfig.json to include routes/**/*.ts
+  - Phase 3: Created fairways addons/fairways/routes/admin.js — GET / (dashboard), GET /search (AJAX), POST /:id (update unit)
+  - Phase 3: Created fairways addons/fairways/views/admin-fairways.ejs — searchable table with Bootstrap 5 edit modal, in-place row update
+  - Phase 3: Updated fairways index.js — registers views dir, mounts admin at /addons/fairways, dashboard URL updated
+  - All instances build/restart cleanly; all return 401 for unauthenticated requests
+- Commits: d81dc964 (ngdpbase), 6bfe137 (fairways-gen2-website)
+- Files Modified:
+  - addons/elasticsearch/index.ts
+  - addons/elasticsearch/tsconfig.json
+  - addons/elasticsearch/routes/admin.ts (new)
+  - addons/elasticsearch/views/admin-elasticsearch.ejs (new)
+  - (fairways-gen2-website) addons/fairways/index.js
+  - (fairways-gen2-website) addons/fairways/routes/admin.js (new)
+  - (fairways-gen2-website) addons/fairways/views/admin-fairways.ejs (new)
+
 ## 2026-04-23-10
 
 - Agent: Claude
