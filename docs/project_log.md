@@ -2,6 +2,29 @@
 
 AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version history.
 
+## 2026-04-23-08
+
+- Agent: Claude
+- Subject: SEMVER patch bump to 3.3.6; sync and rebuild all site instances
+- Current Issue: none
+- Work Done:
+  - Pulled latest commits (16 commits) into ngdpbase from origin/master
+  - Bumped version 3.3.5 → 3.3.6 via `src/utils/version.ts patch`; updated package.json, config/app-default-config.json, CHANGELOG.md
+  - Built, ran 118 unit suites / 3050 tests (all pass), ran 72 E2E tests (all pass) on ngdpbase (port 3000)
+  - Pushed 3.3.6 to origin/master
+  - Pulled, rebuilt, and retested all three other instances:
+    - fairways-base (port 2121): 118 suites / 3050 tests ✅, 72 E2E ✅
+    - ngdpbase-veg / ve-geology (port 3333): 118 suites / 3050 tests ✅, 72 E2E ✅
+    - ngdp-temp-builds/ngdpbase (port 3001): 118 suites / 3050 tests ✅, 72 E2E ✅
+  - All four instances running v3.3.6 with no failures
+- Commits: 37ce36d8
+- Files Modified:
+  - package.json
+  - config/app-default-config.json
+  - CHANGELOG.md
+  - addons/forms/index.js
+  - .claude/commands/semver.md
+
 ## 2026-04-23-07
 
 - Agent: Claude
