@@ -15863,3 +15863,29 @@ Subject: AGENTS.md implementation and project_log.md creation
   - ve-geology/addons/ve-geology/index.js
   - ve-geology/addons/ve-geology/routes/admin.js (new)
   - ve-geology/addons/ve-geology/views/admin-ve-geology.ejs (new)
+
+## 2026-04-23-13
+
+- Agent: Claude
+- Subject: Dependabot security audit — upgrade hono/follow-redirects, dismiss uuid
+- Current Issue: none
+- Work Done:
+  - Investigated all 13 open Dependabot alerts (hono, @hono/node-server, follow-redirects, uuid)
+  - Alerts 79-89 already dismissed (hono/follow-redirects already at patched versions before fix)
+  - Ran npm audit fix: upgraded @hono/node-server 1.19.11→1.19.14, hono 4.12.8→4.12.14, follow-redirects 1.15.11→1.16.0
+  - Added overrides for hono@^4.12.14 and follow-redirects@^1.16.0 to prevent regression
+  - Attempted uuid v9→v14 upgrade: blocked — v14 is pure ESM, breaks Jest/ts-jest CJS mode
+  - Dismissed uuid Dependabot alerts (95,94,93,92) with explanation; blocked until ESM migration (#579)
+  - pm2 ReDoS: no upstream fix available, tolerated
+  - Result: 2 remaining vulnerabilities (pm2 low/no fix, uuid moderate/ESM-blocked)
+- Commits:
+  - a3e0b52b chore(deps): upgrade hono/follow-redirects via npm audit fix; dismiss uuid alert
+- Files Modified:
+  - package.json
+  - package-lock.json
+  - addons/calendar/package.json
+  - addons/calendar/package-lock.json
+  - addons/forms/package.json
+  - addons/forms/package-lock.json
+  - addons/journal/package.json
+  - addons/journal/package-lock.json
