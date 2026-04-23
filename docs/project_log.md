@@ -2,6 +2,33 @@
 
 AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version history.
 
+## 2026-04-23-03
+
+- Agent: Claude
+- Subject: Forms-to-Calendar integration — section field type, form rearrangement, architecture doc, data wiring
+- Current Issue: #571, #572, #573
+- Work Done:
+  - Enabled forms addon in `data/config/app-custom-config.json`; created `data/forms/definitions/` directory
+  - Created `data/forms/definitions/clubhouse-reservation.json` form definition
+  - Configured clubhouse calendar in `app-custom-config.json` (workflow: reservation, visibility: authenticated)
+  - Updated `data/pages/2AEA3F75` (Clubhouse Calendar page) with `[{Calendar}]` and `[{Form}]` plugins
+  - Fixed `data/search-index/documents.json`: removed stale JSWiki duplicate "Yard Lights" entry, renamed key `fairways-yard-lights` → `yard-lights`
+  - Fixed `data/pages/2625EBDA` (Yard Lights): slug corrected
+  - Added `parcel` field to all 99 records in `data/fairways/units.json` (format: `66-09960.NNN`)
+  - FormsPlugin (#571): added `section` field type — groups fields into `<fieldset>/<legend>` blocks via `renderGroups()`; `renderFieldset()` helper shared with proxySubmission block
+  - FormsPlugin (#573 partial): moved proxySubmission fieldset to end of form (after regular fields)
+  - FormsDataManager: added `'section'` to FieldSchema enum; `buildSubmissionValidator()` skips section fields
+  - Restructured `clubhouse-reservation.json` with three sections: Reservation Details / Who Is the Reservation For? / Submitting on Behalf Of
+  - Created GitHub issues #571 (section field type), #572 (prefill from user context), #573 (proxySubmission UX), #574 (admin form builder UI)
+  - Created `docs/Forms-to-Calendar.md` — full architecture doc with startup flow, request/data flow diagrams, data store layout, config reference, links to #571–#574
+- Commits: af3f9c36 (rebased as 565e5cf0)
+- Files Modified:
+  - addons/forms/managers/FormsDataManager.ts
+  - addons/forms/plugins/FormsPlugin.ts
+  - docs/Forms-to-Calendar.md (new)
+  - data/config/app-custom-config.json (gitignored)
+  - data/forms/definitions/clubhouse-reservation.json (gitignored)
+
 ## 2026-04-23-02
 
 - Agent: Claude
@@ -120,7 +147,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - `createNotification()` calls `escalateByEmail()` after `saveNotifications()` — email failures never affect notification creation
   - Recipients resolved via `userManager.searchUsers('', { role: recipientRole })` filtered to users with valid email
   - Added 3 config keys to `app-default-config.json`: `escalation.enabled` (default: false), `escalation.levels` (default: ["error"]), `escalation.recipient-role` (default: "admin")
-  - Enabled on jimstest dev instance with `levels: ["error","warning"]` — jim@willeke.com via Resend SMTP
+  - Enabled on jimstest dev instance with `levels: ["error","warning"]` — <jim@willeke.com> via Resend SMTP
   - 9 new tests added (35 total passing): startup validation (3) + runtime escalation (6)
 - Commits: 85d46523
 - Files Modified:
