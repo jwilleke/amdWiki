@@ -15843,3 +15843,23 @@ Subject: AGENTS.md implementation and project_log.md creation
   - All tests pass (1570 passed, 308 skipped)
   - Build successful
   - Server restart verified
+
+## 2026-04-23-12
+
+- Agent: Claude
+- Subject: Phase 4 — ve-geology admin page; fairways EJS fix and parcel data model discussion
+- Current Issue: #11 (ve-geology), #14 (fairways), #15 (fairways)
+- Work Done:
+  - Fixed EJS escaping bug in fairways unit table (dash fallback spans rendered as literal text)
+  - Researched parcel vs unit data model; created fairways issue #15 to track parcel/deedOwner refactor
+  - Phase 4: created ve-geology admin status page at /addons/ve-geology
+  - ve-geology admin shows volcano/eruption/earthquake/HANS stats, elevated alert table, import job triggers
+  - Updated ve-geology/index.js: views dir registration, admin router mount, dashboard URL fixed
+- Commits:
+  - a3dbfac (fairways-gen2-website) fix(fairways): render dash span as HTML not escaped text in unit table
+  - 1c6973f (ve-geology) feat(#11): add /addons/ve-geology admin status and data page
+- Files Modified:
+  - fairways-gen2-website/addons/fairways/views/admin-fairways.ejs
+  - ve-geology/addons/ve-geology/index.js
+  - ve-geology/addons/ve-geology/routes/admin.js (new)
+  - ve-geology/addons/ve-geology/views/admin-ve-geology.ejs (new)
