@@ -15889,3 +15889,49 @@ Subject: AGENTS.md implementation and project_log.md creation
   - addons/forms/package-lock.json
   - addons/journal/package.json
   - addons/journal/package-lock.json
+
+## 2026-04-23-14
+
+- Agent: Claude
+- Subject: Standardize plugin documentation page titles to "Using <Name>Plugin" convention
+- Current Issue: #575
+- Work Done:
+  - Renamed all 21 plugin end-user documentation pages: updated title, slug, H1, lastModified in required-pages/
+  - Plugins renamed: FormPlugin, CalendarPlugin, AttachPlugin, TotalPagesPlugin, SearchPlugin, SessionsPlugin, IndexPlugin, MarqueePlugin, ImagePlugin, MediaPlugin, ReferringPagesPlugin, CommentsPlugin, UserLookupPlugin, FootnotesPlugin, VariablesPlugin, SlideshowPlugin, UndefinedPagesPlugin, UptimePlugin, RecentChangesPlugin, CounterPlugin, Current Time Plugin
+  - Updated 14 pages containing inbound wiki links ([XPlugin] → [Using XPlugin])
+  - Synced updated required-pages to data/pages/ live copies (25 files updated)
+  - Updated docs/proper-documentation-pages.md convention table to add "Plugin end-user guide" row with Using <Name>Plugin pattern
+- Commits:
+  - cb1e3286 docs(#575): rename 21 plugin pages to "Using <Name>Plugin" convention
+- Files Modified:
+  - docs/proper-documentation-pages.md
+  - required-pages/06F04848-8226-403B-9EC6-5420E4E0C0FE.md (TotalPagesPlugin → Using TotalPagesPlugin)
+  - required-pages/208fecc6-fde1-4463-a865-3a2b62e1cea7.md (IndexPlugin → Using IndexPlugin)
+  - required-pages/293dea72-81dc-4494-9827-abb3505cce46.md (inbound links)
+  - required-pages/2F27D2A7-9419-4C50-AD5E-83402EABAA06.md (SearchPlugin → Using SearchPlugin)
+  - required-pages/2db43b31-8316-417e-8cc5-d3306996512a.md (inbound links)
+  - required-pages/3C6B55E5-5262-4686-A436-7BFD5479BCC1.md (SessionsPlugin → Using SessionsPlugin)
+  - required-pages/4c0c0fa8-66dc-4cb3-9726-b007f874700c.md (inbound links)
+  - required-pages/654a0565-a16f-46aa-b1ec-8f2dc0adc592.md (MarqueePlugin → Using MarqueePlugin)
+  - required-pages/6bdacfac-300d-4d89-ad4a-2acc98e12bc5.md (ImagePlugin → Using ImagePlugin; inbound links)
+  - required-pages/70416655-ace4-4440-8ae6-8fed7587a94f.md (MediaPlugin → Using MediaPlugin; inbound links)
+  - required-pages/7b487295-af7e-4b4a-a2cb-6e3b6877a413.md (AttachPlugin → Using AttachPlugin; inbound links)
+  - required-pages/7e3a1b2c-4f5d-4e8a-9c6b-0d1e2f3a4b5c.md (inbound links)
+  - required-pages/84FC114E-8E05-40E9-AD5F-5222236B5F63.md (ReferringPagesPlugin → Using ReferringPagesPlugin; inbound links)
+  - required-pages/8d2c3b4a-9e1f-4c5d-a6b7-7e8f9a0b1c2d.md (VariablesPlugin → Using VariablesPlugin)
+  - required-pages/96A0B2F6-13D7-44C6-B541-B4E1A90E2DC7.md (inbound links)
+  - required-pages/9f3a4b2c-5d1e-4a8f-b2c9-8e7f6d5c4a3b.md (RecentChangesPlugin → Using RecentChangesPlugin)
+  - required-pages/E2BC4BF9-4DDB-40DD-8CE5-C418EE7FCC08.md (UptimePlugin → Using UptimePlugin)
+  - required-pages/a433c5a4-905a-448a-a0d3-dc063163d6f6.md (UndefinedPagesPlugin → Using UndefinedPagesPlugin; inbound links)
+  - required-pages/a4f9c2e1-7b3d-4a85-9e6f-1c2d3b4a5e6f.md (FormPlugin → Using FormPlugin)
+  - required-pages/a5e68176-258a-40e8-8f6b-f86729b06cd5.md (CommentsPlugin → Using CommentsPlugin)
+  - required-pages/b780e809-d45b-4c4b-84ec-ad30a74a3605.md (Current Time Plugin → Using Current Time Plugin)
+  - required-pages/bb03859d-eb3f-449e-b78b-7fef30082098.md (inbound links)
+  - required-pages/cfb76570-1bed-4ad0-a72d-6bb44cdabc7a.md (CalendarPlugin → Using CalendarPlugin)
+  - required-pages/d14ef7c7-299a-4729-a457-452679569ca9.md (inbound links)
+  - required-pages/d1ee72a5-84fd-4b97-bb77-56ec7751f9d7.md (UserLookupPlugin → Using UserLookupPlugin)
+  - required-pages/d96b072e-aebf-48e2-a5aa-2ffcc4daa821.md (FootnotesPlugin → Using FootnotesPlugin)
+  - required-pages/e36d72ac-3d76-4fc8-9e55-47dfeb09d456.md (inbound links)
+  - required-pages/f1f41a47-8d0d-4d46-a5e2-6208ba42e4a0.md (SlideshowPlugin → Using SlideshowPlugin)
+  - required-pages/fe7a378d-dfa5-4e37-9891-637568ebe0b4.md (inbound links)
+  - required-pages/ff2c3a6d-fdfc-479f-90e3-585dc2b3abd0.md (CounterPlugin → Using CounterPlugin)
