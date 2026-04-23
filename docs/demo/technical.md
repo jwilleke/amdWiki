@@ -27,6 +27,12 @@ Use this URL to run the kiosk through the curated demo page sequence:
 
 Open it in a separate browser window at the start of the session and leave it running as ambient background during breaks.
 
+Demo Sites
+
+- <http://jminim4:3000/view/Welcome>
+- <http://jminim4:3333/view/volcanoes-and-earthquakes>
+- <http://localhost:2121/view/home>
+
 ---
 
 ## Act 1 — Architecture Overview (5 min)
