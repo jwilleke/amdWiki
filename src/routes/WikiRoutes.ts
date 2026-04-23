@@ -1561,22 +1561,48 @@ ${panes}
       // Check if user can edit this page
       const canEdit = await aclManager.checkPagePermissionWithContext(wikiContext, 'edit');
 
-      // Render page content
-      const html = await renderingManager.textToHTML(wikiContext, markdown);
+      // Rendered-pages cache — keyed by pageName + sorted role set (#250)
+      const cacheManager = this.engine.getManager('CacheManager');
+      const renderCacheEnabled = configManager?.getProperty('ngdpbase.cache.rendered-pages.enabled', true) as boolean;
+      const roleKey = (userContext?.roles ?? []).slice().sort().join(',');
+      const renderCacheKey = `rendered-pages:${pageName}:${roleKey}`;
+      type RenderCacheEntry = { html: string; tabSectionHtml: string };
 
-      // Auto-inject Template:PageTabs tab section for all pages (#551)
-      // Excluded pages are configured in ngdpbase.page.notabs.
-      // Rendered separately from page content so each tab's plugins execute cleanly.
+      let html: string;
       let tabSectionHtml = '';
-      const tabsEnabled = configManager?.getProperty('ngdpbase.tab.pagetabs', true) as boolean;
-      if (tabsEnabled) {
-        const noTabsList = (configManager?.getProperty('ngdpbase.page.notabs', []) as string[]);
-        if (!noTabsList.includes(pageName)) {
-          const tabTemplateName = (configManager?.getProperty('ngdpbase.tab.pagetabs.template', 'Template:PageTabs'));
-          const tabTemplateContent = await pageManager.getPageContent(tabTemplateName).catch(() => null);
-          if (tabTemplateContent) {
-            tabSectionHtml = await this.buildPageTabsHtml(tabTemplateContent, wikiContext, renderingManager, configManager);
+
+      const cachedRender = renderCacheEnabled && cacheManager?.isInitialized?.()
+        ? (await cacheManager.get(renderCacheKey) as RenderCacheEntry | undefined) ?? null
+        : null;
+
+      if (cachedRender) {
+        html = cachedRender.html;
+        tabSectionHtml = cachedRender.tabSectionHtml;
+        logger.debug(`[VIEW] render cache HIT: ${renderCacheKey}`);
+      } else {
+        // Render page content
+        html = await renderingManager.textToHTML(wikiContext, markdown);
+
+        // Auto-inject Template:PageTabs tab section for all pages (#551)
+        // Excluded pages are configured in ngdpbase.page.notabs.
+        // Rendered separately from page content so each tab's plugins execute cleanly.
+        const tabsEnabled = configManager?.getProperty('ngdpbase.tab.pagetabs', true) as boolean;
+        if (tabsEnabled) {
+          const noTabsList = (configManager?.getProperty('ngdpbase.page.notabs', []) as string[]);
+          if (!noTabsList.includes(pageName)) {
+            const tabTemplateName = (configManager?.getProperty('ngdpbase.tab.pagetabs.template', 'Template:PageTabs'));
+            const tabTemplateContent = await pageManager.getPageContent(tabTemplateName).catch(() => null);
+            if (tabTemplateContent) {
+              tabSectionHtml = await this.buildPageTabsHtml(tabTemplateContent, wikiContext, renderingManager, configManager);
+            }
           }
+        }
+
+        // Store rendered output in cache (invalidated on save/delete/rename)
+        if (renderCacheEnabled && cacheManager?.isInitialized?.()) {
+          const ttl = configManager?.getProperty('ngdpbase.cache.rendered-pages.ttl', 0) as number;
+          await cacheManager.set(renderCacheKey, { html, tabSectionHtml }, ttl ? { ttl } : {}).catch(() => { /* non-fatal */ });
+          logger.debug(`[VIEW] render cache SET: ${renderCacheKey}`);
         }
       }
 
@@ -1997,15 +2023,15 @@ ${panes}
         metadata: metadata
       });
 
-      // Clear cache entries related to this page and pages that might link to it
+      // Clear rendered cache for this page and pages that might link to it
       const cacheManager = this.engine.getManager('CacheManager');
-      if (cacheManager && cacheManager.isInitialized()) {
+      if (cacheManager?.isInitialized?.()) {
         const referringPages = renderingManager.getReferringPages(pageName);
-        await cacheManager.del(`page:${pageName}`);
+        await cacheManager.clear(`rendered-pages:${pageName}:*`);
         for (const refPage of referringPages) {
-          await cacheManager.del(`page:${refPage}`);
+          await cacheManager.clear(`rendered-pages:${refPage}:*`);
         }
-        logger.debug(`🗑️  Cleared cache for ${pageName} and ${referringPages.length} referring pages`);
+        logger.debug(`🗑️  Cleared rendered cache for ${pageName} and ${referringPages.length} referring pages`);
       }
 
       // Redirect to edit the new page
@@ -2368,15 +2394,15 @@ ${panes}
         metadata: metadata
       });
 
-      // Clear cache entries related to this page and pages that might link to it
+      // Clear rendered cache for this page and pages that might link to it
       const cacheManager = this.engine.getManager('CacheManager');
-      if (cacheManager && cacheManager.isInitialized()) {
+      if (cacheManager?.isInitialized?.()) {
         const referringPages = renderingManager.getReferringPages(pageName);
-        await cacheManager.del(`page:${pageName}`);
+        await cacheManager.clear(`rendered-pages:${pageName}:*`);
         for (const refPage of referringPages) {
-          await cacheManager.del(`page:${refPage}`);
+          await cacheManager.clear(`rendered-pages:${refPage}:*`);
         }
-        logger.debug(`🗑️  Cleared cache for ${pageName} and ${referringPages.length} referring pages`);
+        logger.debug(`🗑️  Cleared rendered cache for ${pageName} and ${referringPages.length} referring pages`);
       }
 
       // Redirect to edit the new page (so user can see template result)
@@ -2673,24 +2699,23 @@ ${panes}
         metadata: metadata
       });
 
-      // Only clear cache entries related to this page, not the entire cache
+      // Clear rendered cache for this page and pages that link to it
       const cacheManager = this.engine.getManager('CacheManager');
-      if (cacheManager && cacheManager.isInitialized()) {
-        // Clear specific page cache and pages that link to it
+      if (cacheManager?.isInitialized?.()) {
         const referringPages = renderingManager.getReferringPages(finalTitle);
-        await cacheManager.del(`page:${finalTitle}`);
+        await cacheManager.clear(`rendered-pages:${finalTitle}:*`);
         for (const refPage of referringPages) {
-          await cacheManager.del(`page:${refPage}`);
+          await cacheManager.clear(`rendered-pages:${refPage}:*`);
         }
-        // On rename: also invalidate old title and its referring pages so RED-LINKs resolve
+        // On rename: also invalidate old title so RED-LINKs resolve on referring pages
         if (isRename) {
-          await cacheManager.del(`page:${pageName}`);
+          await cacheManager.clear(`rendered-pages:${pageName}:*`);
           for (const refPage of oldReferringPages) {
-            await cacheManager.del(`page:${refPage}`);
+            await cacheManager.clear(`rendered-pages:${refPage}:*`);
           }
-          logger.debug(`🗑️  Cleared cache for old title '${pageName}' and ${oldReferringPages.length} referring pages`);
+          logger.debug(`🗑️  Cleared rendered cache for old title '${pageName}' and ${oldReferringPages.length} referring pages`);
         }
-        logger.debug(`🗑️  Cleared cache for ${finalTitle} and ${referringPages.length} referring pages`);
+        logger.debug(`🗑️  Cleared rendered cache for ${finalTitle} and ${referringPages.length} referring pages`);
       }
 
       // Redirect to the updated page title if it changed (fallback to original name)
@@ -2815,6 +2840,16 @@ ${panes}
         logger.debug('🔄 Updating indexes after deletion...');
         renderingManager.removePageFromLinkGraph(pageName);
         await searchManager.removePageFromIndex(pageName);
+
+        // Clear rendered cache for deleted page and any pages that linked to it
+        const cacheManager = this.engine.getManager('CacheManager');
+        if (cacheManager?.isInitialized?.()) {
+          const referringPages = renderingManager.getReferringPages(pageName);
+          await cacheManager.clear(`rendered-pages:${pageName}:*`);
+          for (const refPage of referringPages) {
+            await cacheManager.clear(`rendered-pages:${refPage}:*`);
+          }
+        }
 
         logger.debug(`✅ Page deleted successfully: ${pageName}`);
         this.engine.getManager('MetricsManager')?.recordPageDelete?.(Date.now() - _metricsStart);
@@ -8447,8 +8482,8 @@ ${panes}
 
       // Also evict from the rendered-pages CacheManager region if available
       const cacheManager = this.engine.getManager('CacheManager');
-      if (cacheManager?.isInitialized()) {
-        try { await cacheManager.del?.(`rendered-pages:${identifier}`); } catch { /* non-fatal */ }
+      if (cacheManager?.isInitialized?.()) {
+        try { await cacheManager.clear(`rendered-pages:${identifier}:*`); } catch { /* non-fatal */ }
       }
 
       logger.info(`[AdminAPI] Page cache evicted for '${identifier}' by ${currentUser.username}`);
