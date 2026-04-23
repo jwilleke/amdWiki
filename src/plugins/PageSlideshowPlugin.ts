@@ -24,8 +24,8 @@
  *   cssclass   — Extra CSS class on the outer wrapper div (optional).
  */
 
-import type { SimplePlugin, PluginContext, PluginParams } from './types';
-import { escapeHtml, splitParam, parseBoolParam, extractExcerpt, shuffleArray } from '../utils/pluginFormatters';
+import type { SimplePlugin, PluginContext, PluginParams } from './types.js';
+import { escapeHtml, splitParam, parseBoolParam, extractExcerpt, shuffleArray } from '../utils/pluginFormatters.js';
 
 let _idCounter = 0;
 

@@ -23,12 +23,12 @@
  *   This handler processes those elements and sets proper href, class, etc.
  */
 
-import { LinkParser, Link } from '../../LinkParser';
-import logger from '../../../utils/logger';
-import PageNameMatcher from '../../../utils/PageNameMatcher';
-import { headingSlug } from '../../../utils/SectionUtils';
-import type WikiDocument from '../WikiDocument';
-import type { LinkedomElement } from '../WikiDocument';
+import { LinkParser, Link } from '../../LinkParser.js';
+import logger from '../../../utils/logger.js';
+import PageNameMatcher from '../../../utils/PageNameMatcher.js';
+import { headingSlug } from '../../../utils/SectionUtils.js';
+import type WikiDocument from '../WikiDocument.js';
+import type { LinkedomElement } from '../WikiDocument.js';
 
 /**
  * Link type enumeration
@@ -839,5 +839,3 @@ class DOMLinkHandler {
 
 export default DOMLinkHandler;
 
-// CommonJS compatibility
-module.exports = DOMLinkHandler;

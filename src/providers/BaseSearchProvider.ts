@@ -18,7 +18,7 @@
  * Related: GitHub Issue #102 - Configuration reorganization
  */
 
-import type { WikiEngine } from '../types/WikiEngine';
+import type { WikiEngine } from '../types/WikiEngine.js';
 
 /**
  * Provider information
@@ -417,5 +417,3 @@ abstract class BaseSearchProvider {
 export default BaseSearchProvider;
 export { WikiEngine, ProviderInfo };
 
-// CommonJS compatibility
-module.exports = BaseSearchProvider;

@@ -1,11 +1,11 @@
-import BaseManager from './BaseManager';
-import logger from '../utils/logger';
+import BaseManager from './BaseManager.js';
+import logger from '../utils/logger.js';
 import { promises as fs } from 'fs';
 import path from 'path';
-import type { WikiEngine } from '../types/WikiEngine';
-import type ConfigurationManager from './ConfigurationManager';
-import type EmailManager from './EmailManager';
-import type UserManager from './UserManager';
+import type { WikiEngine } from '../types/WikiEngine.js';
+import type ConfigurationManager from './ConfigurationManager.js';
+import type EmailManager from './EmailManager.js';
+import type UserManager from './UserManager.js';
 
 /**
  * Notification object structure
@@ -524,5 +524,3 @@ class NotificationManager extends BaseManager {
 
 export default NotificationManager;
 
-// CommonJS compatibility
-module.exports = NotificationManager;

@@ -1,8 +1,8 @@
-import BaseManager, { BackupData } from './BaseManager';
-import logger from '../utils/logger';
-import type { WikiEngine } from '../types/WikiEngine';
-import type ConfigurationManager from './ConfigurationManager';
-import type PageManager from './PageManager';
+import BaseManager, { BackupData } from './BaseManager.js';
+import logger from '../utils/logger.js';
+import type { WikiEngine } from '../types/WikiEngine.js';
+import type ConfigurationManager from './ConfigurationManager.js';
+import type PageManager from './PageManager.js';
 
 /**
  * Minimal interface for MediaManager — avoids a circular import.
@@ -51,7 +51,7 @@ export interface UploadOptions {
   description?: string;
   context?: UserContext;
   /** WikiContext for the current request — used to resolve page privacy */
-  wikiContext?: import('../context/WikiContext').default;
+  wikiContext?: import('../context/WikiContext.js').default;
 }
 
 /**
@@ -207,7 +207,7 @@ class AttachmentManager extends BaseManager {
     // Load and initialize provider
     try {
       type AttachmentProviderConstructor = new (engine: WikiEngine) => BaseAttachmentProvider;
-      const mod = await import(`../providers/${this.providerClass}`) as { default: AttachmentProviderConstructor };
+      const mod = await import(/* @vite-ignore */ `../providers/${this.providerClass}.js`) as { default: AttachmentProviderConstructor };
       this.attachmentProvider = new mod.default(this.engine);
       await this.attachmentProvider.initialize();
 
@@ -811,5 +811,3 @@ class AttachmentManager extends BaseManager {
 
 export default AttachmentManager;
 
-// CommonJS compatibility
-module.exports = AttachmentManager;

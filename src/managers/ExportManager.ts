@@ -1,11 +1,11 @@
-import BaseManager from './BaseManager';
+import BaseManager from './BaseManager.js';
 import fs from 'fs/promises';
 import path from 'path';
-import LocaleUtils from '../utils/LocaleUtils';
-import logger from '../utils/logger';
-import type { WikiEngine } from '../types/WikiEngine';
-import type PageManager from './PageManager';
-import type RenderingManager from './RenderingManager';
+import LocaleUtils from '../utils/LocaleUtils.js';
+import logger from '../utils/logger.js';
+import type { WikiEngine } from '../types/WikiEngine.js';
+import type PageManager from './PageManager.js';
+import type RenderingManager from './RenderingManager.js';
 
 /**
  * Export file metadata interface
@@ -457,5 +457,3 @@ class ExportManager extends BaseManager {
 
 export default ExportManager;
 
-// CommonJS compatibility
-module.exports = ExportManager;

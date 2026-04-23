@@ -12,7 +12,7 @@
  *   caption — Optional caption text displayed beneath the item
  */
 
-import type { PluginContext, PluginParams } from './types';
+import type { PluginContext, PluginParams } from './types.js';
 
 const MediaItemPlugin = {
   name: 'MediaItem',
@@ -31,4 +31,4 @@ const MediaItemPlugin = {
   }
 };
 
-module.exports = MediaItemPlugin;
+export default MediaItemPlugin;

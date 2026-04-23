@@ -32,14 +32,14 @@
  * Default 'after' value: '' (empty) for single values, '\n' (newline) for multiple values (wildcards)
  */
 
-import type { PluginContext, PluginParams, SimplePlugin } from './types';
+import type { PluginContext, PluginParams, SimplePlugin } from './types.js';
 import {
   escapeHtml,
   parsePageSizeParam,
   parsePageParam,
   applyPagination,
   formatPaginationLinks
-} from '../utils/pluginFormatters';
+} from '../utils/pluginFormatters.js';
 
 // ============================================================================
 // Type Definitions

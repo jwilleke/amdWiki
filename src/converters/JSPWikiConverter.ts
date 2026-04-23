@@ -9,7 +9,7 @@
  * @module JSPWikiConverter
  */
 
-import { IContentConverter, ConversionResult } from './IContentConverter';
+import { IContentConverter, ConversionResult } from './IContentConverter.js';
 
 /**
  * JSPWiki syntax to Markdown converter
@@ -517,5 +517,3 @@ class JSPWikiConverter implements IContentConverter {
 
 export default JSPWikiConverter;
 
-// CommonJS compatibility
-module.exports = JSPWikiConverter;

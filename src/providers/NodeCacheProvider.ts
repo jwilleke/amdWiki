@@ -1,8 +1,8 @@
-import BaseCacheProvider, { CacheStats, ProviderInfo, BackupData } from './BaseCacheProvider';
-import type { WikiEngine } from '../types/WikiEngine';
-import type ConfigurationManager from '../managers/ConfigurationManager';
+import BaseCacheProvider, { CacheStats, ProviderInfo, BackupData } from './BaseCacheProvider.js';
+import type { WikiEngine } from '../types/WikiEngine.js';
+import type ConfigurationManager from '../managers/ConfigurationManager.js';
 import NodeCache from 'node-cache';
-import logger from '../utils/logger';
+import logger from '../utils/logger.js';
 
 /**
  * NodeCache configuration interface
@@ -387,5 +387,3 @@ class NodeCacheProvider extends BaseCacheProvider {
 
 export default NodeCacheProvider;
 
-// CommonJS compatibility
-module.exports = NodeCacheProvider;

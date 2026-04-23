@@ -11,7 +11,7 @@
  * @module BaseMediaProvider
  */
 
-import type { AssetProvider, AssetRecord, AssetQuery, AssetPage, AssetInput, AssetMetadata } from '../types/Asset';
+import type { AssetProvider, AssetRecord, AssetQuery, AssetPage, AssetInput, AssetMetadata } from '../types/Asset.js';
 
 /**
  * Represents a single media item in the index.
@@ -198,7 +198,7 @@ abstract class BaseMediaProvider implements AssetProvider {
   abstract readonly displayName: string;
 
   /** Capabilities — override in subclasses. */
-  abstract readonly capabilities: import('../types/Asset').ProviderCapability[];
+  abstract readonly capabilities: import('../types/Asset.js').ProviderCapability[];
 
   /**
    * Convert a MediaItem to a unified AssetRecord.
@@ -337,5 +337,3 @@ abstract class BaseMediaProvider implements AssetProvider {
 
 export default BaseMediaProvider;
 
-// CommonJS compatibility
-module.exports = BaseMediaProvider;

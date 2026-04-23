@@ -15,10 +15,10 @@
  *   noheader — suppress the "Footnotes" heading (default: false)
  */
 
-import type { SimplePlugin, PluginContext, PluginParams } from './types';
-import type FootnoteManager from '../managers/FootnoteManager';
-import type { PageFootnote } from '../managers/FootnoteManager';
-import { parseBoolParam, escapeHtml } from '../utils/pluginFormatters';
+import type { SimplePlugin, PluginContext, PluginParams } from './types.js';
+import type FootnoteManager from '../managers/FootnoteManager.js';
+import type { PageFootnote } from '../managers/FootnoteManager.js';
+import { parseBoolParam, escapeHtml } from '../utils/pluginFormatters.js';
 
 interface PageManagerLike {
   getPage(name: string): Promise<{ content?: string; rawContent?: string } | null>;

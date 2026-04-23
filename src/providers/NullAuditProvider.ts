@@ -1,5 +1,5 @@
-import BaseAuditProvider, { WikiEngine, AuditFilters, AuditSearchResults, AuditStats } from './BaseAuditProvider';
-import { AuditEvent } from '../types';
+import BaseAuditProvider, { WikiEngine, AuditFilters, AuditSearchResults, AuditStats } from './BaseAuditProvider.js';
+import { AuditEvent } from '../types/index.js';
 
 /**
  * NullAuditProvider - No-op audit provider
@@ -129,5 +129,3 @@ class NullAuditProvider extends BaseAuditProvider {
 
 export default NullAuditProvider;
 
-// CommonJS compatibility
-module.exports = NullAuditProvider;

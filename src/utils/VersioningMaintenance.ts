@@ -1,7 +1,7 @@
 import fs from 'fs-extra';
 import path from 'path';
-import logger from './logger';
-import VersionCompression from './VersionCompression';
+import logger from './logger.js';
+import VersionCompression from './VersionCompression.js';
 
 /**
  * Page information from page index
@@ -595,5 +595,3 @@ class VersioningMaintenance {
 
 export default VersioningMaintenance;
 
-// CommonJS compatibility
-module.exports = VersioningMaintenance;

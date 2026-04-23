@@ -1,7 +1,7 @@
-import type { SimplePlugin, PluginContext, PluginParams } from './types';
-import type CommentManager from '../managers/CommentManager';
-import type { PageComment } from '../types/Comment';
-import { parseBoolParam } from '../utils/pluginFormatters';
+import type { SimplePlugin, PluginContext, PluginParams } from './types.js';
+import type CommentManager from '../managers/CommentManager.js';
+import type { PageComment } from '../types/Comment.js';
+import { parseBoolParam } from '../utils/pluginFormatters.js';
 
 function escapeHtml(text: string): string {
   return text

@@ -10,8 +10,8 @@
  *   [{VariablesPlugin type='plugins'}]         - Shows only available plugins
  */
 
-import type { SimplePlugin, PluginContext, PluginParams } from './types';
-import { escapeHtml } from '../utils/pluginFormatters';
+import type { SimplePlugin, PluginContext, PluginParams } from './types.js';
+import { escapeHtml } from '../utils/pluginFormatters.js';
 
 interface VariablesParams extends PluginParams {
   type?: string;
@@ -326,4 +326,4 @@ const VariablesPlugin: SimplePlugin = {
   }
 };
 
-module.exports = VariablesPlugin;
+export default VariablesPlugin;

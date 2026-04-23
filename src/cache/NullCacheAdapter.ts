@@ -1,4 +1,4 @@
-import ICacheAdapter, { type CacheStats } from './ICacheAdapter';
+import ICacheAdapter, { type CacheStats } from './ICacheAdapter.js';
 
 /**
  * Null cache adapter - no-op implementation
@@ -51,5 +51,3 @@ class NullCacheAdapter extends ICacheAdapter {
 
 export default NullCacheAdapter;
 
-// CommonJS compatibility
-module.exports = NullCacheAdapter;

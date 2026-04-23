@@ -1,18 +1,18 @@
-import BaseManager, { BackupData } from './BaseManager';
+import BaseManager, { BackupData } from './BaseManager.js';
 
 import crypto from 'crypto';
-import logger from '../utils/logger';
-import LocaleUtils from '../utils/LocaleUtils';
-import { WikiEngine } from '../types/WikiEngine';
-import { UserProvider, ProviderInfo } from '../types/Provider';
-import { User, Role, UserPreferences, UserSession } from '../types/User';
-import type ConfigurationManager from './ConfigurationManager';
-import type SchemaManager from './SchemaManager';
-import type PolicyEvaluator from './PolicyEvaluator';
-import type PolicyManager from './PolicyManager';
-import type PageManager from './PageManager';
-import type TemplateManager from './TemplateManager';
-import type ValidationManager from './ValidationManager';
+import logger from '../utils/logger.js';
+import LocaleUtils from '../utils/LocaleUtils.js';
+import { WikiEngine } from '../types/WikiEngine.js';
+import { UserProvider, ProviderInfo } from '../types/Provider.js';
+import { User, Role, UserPreferences, UserSession } from '../types/User.js';
+import type ConfigurationManager from './ConfigurationManager.js';
+import type SchemaManager from './SchemaManager.js';
+import type PolicyEvaluator from './PolicyEvaluator.js';
+import type PolicyManager from './PolicyManager.js';
+import type PageManager from './PageManager.js';
+import type TemplateManager from './TemplateManager.js';
+import type ValidationManager from './ValidationManager.js';
 import type { Request, Response, NextFunction } from 'express';
 
 /**
@@ -211,7 +211,7 @@ class UserManager extends BaseManager {
 
     // Load and initialize provider
     try {
-      const mod = await import(`../providers/${this.providerClass}`) as { default: UserProviderConstructor };
+      const mod = await import(/* @vite-ignore */ `../providers/${this.providerClass}.js`) as { default: UserProviderConstructor };
       const ProviderClass = mod.default;
 
       this.provider = new ProviderClass(this.engine);
@@ -1318,4 +1318,4 @@ class UserManager extends BaseManager {
   }
 }
 
-export = UserManager;
+export default UserManager;

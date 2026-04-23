@@ -1,10 +1,10 @@
-import BaseManager from './BaseManager';
-import RegionCache from '../cache/RegionCache';
-import type ICacheAdapter from '../cache/ICacheAdapter';
-import logger from '../utils/logger';
-import NullCacheProvider from '../providers/NullCacheProvider';
-import type { WikiEngine } from '../types/WikiEngine';
-import type ConfigurationManager from './ConfigurationManager';
+import BaseManager from './BaseManager.js';
+import RegionCache from '../cache/RegionCache.js';
+import type ICacheAdapter from '../cache/ICacheAdapter.js';
+import logger from '../utils/logger.js';
+import NullCacheProvider from '../providers/NullCacheProvider.js';
+import type { WikiEngine } from '../types/WikiEngine.js';
+import type ConfigurationManager from './ConfigurationManager.js';
 
 /**
  * Cache options for set operations
@@ -167,7 +167,7 @@ class CacheManager extends BaseManager {
     try {
       // Try to load provider class
       type CacheProviderConstructor = new (engine: WikiEngine) => BaseCacheProvider;
-      const mod = await import(`../providers/${this.providerClass}`) as { default: CacheProviderConstructor };
+      const mod = await import(/* @vite-ignore */ `../providers/${this.providerClass}.js`) as { default: CacheProviderConstructor };
       this.provider = new mod.default(this.engine);
       await this.provider.initialize();
 
@@ -416,5 +416,3 @@ class CacheManager extends BaseManager {
 
 export default CacheManager;
 
-// CommonJS compatibility
-module.exports = CacheManager;

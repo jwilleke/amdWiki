@@ -14,9 +14,9 @@
  * Epic: #41 - Implement JSPWikiMarkupParser for Complete Enhancement Support
  */
 
-import BaseFilter from './BaseFilter';
-import logger from '../../utils/logger';
-import type { ParseContext } from '../context/ParseContext';
+import BaseFilter from './BaseFilter.js';
+import logger from '../../utils/logger.js';
+import type { ParseContext } from '../context/ParseContext.js';
 
 /**
  * Filter chain configuration
@@ -811,5 +811,3 @@ class FilterChain {
 export default FilterChain;
 
 // Export for CommonJS (Jest compatibility)
-module.exports = FilterChain;
-(module.exports as Record<string, unknown>).default = FilterChain;

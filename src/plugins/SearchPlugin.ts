@@ -36,7 +36,7 @@
  * Related: GitHub Issue #111
  */
 
-import type { SimplePlugin, PluginContext, PluginParams } from './types';
+import type { SimplePlugin, PluginContext, PluginParams } from './types.js';
 import {
   escapeHtml,
   parseMaxParam,
@@ -50,7 +50,7 @@ import {
   formatAsCount,
   resolveUserParam,
   type PageLink
-} from '../utils/pluginFormatters';
+} from '../utils/pluginFormatters.js';
 
 interface SearchParams extends PluginParams {
   query?: string;
@@ -358,4 +358,4 @@ const SearchPlugin: SimplePlugin = {
   }
 };
 
-module.exports = SearchPlugin;
+export default SearchPlugin;

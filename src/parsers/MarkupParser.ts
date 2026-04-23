@@ -1,29 +1,29 @@
 import crypto from 'crypto';
 import showdown from 'showdown';
-import BaseManager from '../managers/BaseManager';
-import { HandlerRegistry } from './handlers/HandlerRegistry';
-import BaseSyntaxHandler from './handlers/BaseSyntaxHandler';
-import FilterChain from './filters/FilterChain';
-import { DOMParser as WikiDOMParser } from './dom/DOMParser';
-import DOMVariableHandler from './dom/handlers/DOMVariableHandler';
-import DOMPluginHandler from './dom/handlers/DOMPluginHandler';
-import DOMLinkHandler from './dom/handlers/DOMLinkHandler';
-import logger from '../utils/logger';
-import SecurityFilter from './filters/SecurityFilter';
-import SpamFilter from './filters/SpamFilter';
-import ValidationFilter from './filters/ValidationFilter';
-import JSPWikiPreprocessor from './handlers/JSPWikiPreprocessor';
-import PluginSyntaxHandler from './handlers/PluginSyntaxHandler';
-import WikiTagHandler from './handlers/WikiTagHandler';
-import WikiFormHandler from './handlers/WikiFormHandler';
-import AttachmentHandler from './handlers/AttachmentHandler';
-import LinkParserHandler from './handlers/LinkParserHandler';
-import ParseContext from './context/ParseContext';
-import WikiDocument from './dom/WikiDocument';
-import type { LinkedomElement } from './dom/WikiDocument';
-import { convertEmojiShortcodes } from './data/emoji-map';
-import type RegionCache from '../cache/RegionCache';
-import type { WikiEngine } from '../types/WikiEngine';
+import BaseManager from '../managers/BaseManager.js';
+import { HandlerRegistry } from './handlers/HandlerRegistry.js';
+import BaseSyntaxHandler from './handlers/BaseSyntaxHandler.js';
+import FilterChain from './filters/FilterChain.js';
+import { DOMParser as WikiDOMParser } from './dom/DOMParser.js';
+import DOMVariableHandler from './dom/handlers/DOMVariableHandler.js';
+import DOMPluginHandler from './dom/handlers/DOMPluginHandler.js';
+import DOMLinkHandler from './dom/handlers/DOMLinkHandler.js';
+import logger from '../utils/logger.js';
+import SecurityFilter from './filters/SecurityFilter.js';
+import SpamFilter from './filters/SpamFilter.js';
+import ValidationFilter from './filters/ValidationFilter.js';
+import JSPWikiPreprocessor from './handlers/JSPWikiPreprocessor.js';
+import PluginSyntaxHandler from './handlers/PluginSyntaxHandler.js';
+import WikiTagHandler from './handlers/WikiTagHandler.js';
+import WikiFormHandler from './handlers/WikiFormHandler.js';
+import AttachmentHandler from './handlers/AttachmentHandler.js';
+import LinkParserHandler from './handlers/LinkParserHandler.js';
+import ParseContext from './context/ParseContext.js';
+import WikiDocument from './dom/WikiDocument.js';
+import type { LinkedomElement } from './dom/WikiDocument.js';
+import { convertEmojiShortcodes } from './data/emoji-map.js';
+import type RegionCache from '../cache/RegionCache.js';
+import type { WikiEngine } from '../types/WikiEngine.js';
 
 // ============================================================================
 // Type Definitions
@@ -2550,5 +2550,3 @@ class MarkupParser extends BaseManager {
 export default MarkupParser;
 
 // Export for CommonJS (Jest compatibility)
-module.exports = MarkupParser;
-(module.exports as { default?: typeof MarkupParser }).default = MarkupParser;

@@ -1,8 +1,8 @@
-import BaseSyntaxHandler, { InitializationContext, ParseContext } from './BaseSyntaxHandler';
-import { LinkParser, type InterWikiSiteConfig, type ParserStats } from '../LinkParser';
+import BaseSyntaxHandler, { InitializationContext, ParseContext } from './BaseSyntaxHandler.js';
+import { LinkParser, type InterWikiSiteConfig, type ParserStats } from '../LinkParser.js';
 import * as fs from 'fs-extra';
 import * as path from 'path';
-import logger from '../../utils/logger';
+import logger from '../../utils/logger.js';
 
 /**
  * Wiki engine interface
@@ -381,5 +381,3 @@ class LinkParserHandler extends BaseSyntaxHandler {
 
 export default LinkParserHandler;
 
-// CommonJS compatibility
-module.exports = LinkParserHandler;

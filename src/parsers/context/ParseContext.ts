@@ -454,5 +454,3 @@ export { ParseContext };
 export default ParseContext;
 
 // Export for CommonJS (Jest compatibility)
-module.exports = ParseContext;
-(module.exports as Record<string, unknown>).default = ParseContext;

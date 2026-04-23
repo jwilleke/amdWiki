@@ -1,8 +1,8 @@
-import BaseAuditProvider, { AuditFilters, AuditSearchResults, AuditStats } from './BaseAuditProvider';
-import type { WikiEngine } from '../types/WikiEngine';
-import type ConfigurationManager from '../managers/ConfigurationManager';
-import logger from '../utils/logger';
-import { AuditEvent } from '../types';
+import BaseAuditProvider, { AuditFilters, AuditSearchResults, AuditStats } from './BaseAuditProvider.js';
+import type { WikiEngine } from '../types/WikiEngine.js';
+import type ConfigurationManager from '../managers/ConfigurationManager.js';
+import logger from '../utils/logger.js';
+import { AuditEvent } from '../types/index.js';
 
 /**
  * Database configuration
@@ -195,5 +195,3 @@ class DatabaseAuditProvider extends BaseAuditProvider {
 
 export default DatabaseAuditProvider;
 
-// CommonJS compatibility
-module.exports = DatabaseAuditProvider;

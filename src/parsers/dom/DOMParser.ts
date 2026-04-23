@@ -1,7 +1,7 @@
-import { Tokenizer } from './Tokenizer';
-import DOMBuilder from './DOMBuilder';
-import WikiDocument from './WikiDocument';
-import logger from '../../utils/logger';
+import { Tokenizer } from './Tokenizer.js';
+import DOMBuilder from './DOMBuilder.js';
+import WikiDocument from './WikiDocument.js';
+import logger from '../../utils/logger.js';
 
 /**
  * DOMParser - Complete DOM-based parsing pipeline for wiki markup
@@ -515,5 +515,3 @@ export { DOMParser };
 export default DOMParser;
 
 // CommonJS compatibility - support both default and named imports
-module.exports = DOMParser;
-Object.assign(module.exports, { DOMParser, ParseError, default: DOMParser });

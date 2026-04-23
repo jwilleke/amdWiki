@@ -272,6 +272,3 @@ export default class PageNameMatcher {
     return this.findMatch(newPageName, existingNames);
   }
 }
-
-// CommonJS compatibility
-module.exports = PageNameMatcher;

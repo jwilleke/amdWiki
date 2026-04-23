@@ -24,7 +24,7 @@
  *   https://jspwiki-wiki.apache.org/Wiki.jsp?page=UndefinedPagesPlugin
  */
 
-import type { SimplePlugin, PluginContext, PluginParams } from './types';
+import type { SimplePlugin, PluginContext, PluginParams } from './types.js';
 import {
   parseMaxParam,
   applyMax,
@@ -39,7 +39,7 @@ import {
   formatPaginationLinks,
   type PageLink,
   type TableOptions
-} from '../utils/pluginFormatters';
+} from '../utils/pluginFormatters.js';
 
 interface UndefinedPagesParams extends PluginParams {
   max?:           string | number;
@@ -232,4 +232,4 @@ const UndefinedPagesPlugin: SimplePlugin = {
   }
 };
 
-module.exports = UndefinedPagesPlugin;
+export default UndefinedPagesPlugin;

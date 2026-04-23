@@ -1,7 +1,7 @@
-import { TokenType } from './Tokenizer';
+import { TokenType } from './Tokenizer.js';
 import WikiDocument, {
   LinkedomElement
-} from './WikiDocument';
+} from './WikiDocument.js';
 
 /**
  * DOMBuilder - Converts tokens into a WikiDocument DOM tree
@@ -593,5 +593,3 @@ class DOMBuilder {
 
 export default DOMBuilder;
 
-// CommonJS compatibility
-module.exports = DOMBuilder;

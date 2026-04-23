@@ -32,6 +32,13 @@ const stripCjsShims: Plugin = {
 
 export default defineConfig({
   plugins: [stripCjsShims],
+  resolve: {
+    // Map .js imports to .ts sources so Vitest can resolve ESM-style imports
+    // (TypeScript emits `import './foo.js'` but source files are `.ts`)
+    extensionAlias: {
+      '.js': ['.ts', '.js']
+    }
+  },
   test: {
     globals: true,
     environment: 'node',

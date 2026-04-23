@@ -1,4 +1,4 @@
-import logger from './logger';
+import logger from './logger.js';
 
 /**
  * Schema generation options
@@ -812,5 +812,3 @@ class SchemaGenerator {
 
 export default SchemaGenerator;
 
-// CommonJS compatibility
-module.exports = SchemaGenerator;

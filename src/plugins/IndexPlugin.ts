@@ -6,8 +6,8 @@
  * https://github.com/apache/jspwiki/blob/master/jspwiki-main/src/main/java/org/apache/wiki/plugin/IndexPlugin.java
  */
 
-import type { SimplePlugin, PluginContext, PluginParams } from './types';
-import { escapeHtml } from '../utils/pluginFormatters';
+import type { SimplePlugin, PluginContext, PluginParams } from './types.js';
+import { escapeHtml } from '../utils/pluginFormatters.js';
 
 interface PageManager {
   getAllPages(): Promise<string[]>;
@@ -168,4 +168,4 @@ const IndexPlugin: SimplePlugin = {
   }
 };
 
-module.exports = IndexPlugin;
+export default IndexPlugin;

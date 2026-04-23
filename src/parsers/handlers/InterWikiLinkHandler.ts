@@ -1,8 +1,8 @@
-import BaseSyntaxHandler, { InitializationContext, ParseContext } from './BaseSyntaxHandler';
+import BaseSyntaxHandler, { InitializationContext, ParseContext } from './BaseSyntaxHandler.js';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 import * as crypto from 'crypto';
-import logger from '../../utils/logger';
+import logger from '../../utils/logger.js';
 
 /**
  * InterWiki link match information
@@ -606,5 +606,3 @@ class InterWikiLinkHandler extends BaseSyntaxHandler {
 
 export default InterWikiLinkHandler;
 
-// CommonJS compatibility
-module.exports = InterWikiLinkHandler;

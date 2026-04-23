@@ -18,14 +18,14 @@
  *   after  - Text/markup after each item (list format only)
  */
 
-import type { SimplePlugin, PluginContext, PluginParams } from './types';
+import type { SimplePlugin, PluginContext, PluginParams } from './types.js';
 import {
   parseMaxParam,
   applyMax,
   formatAsList,
   formatAsCount,
   type PageLink
-} from '../utils/pluginFormatters';
+} from '../utils/pluginFormatters.js';
 
 interface ReferringParams extends PluginParams {
   page?:   string;
@@ -85,4 +85,4 @@ const ReferringPagesPlugin: SimplePlugin = {
   }
 };
 
-module.exports = ReferringPagesPlugin;
+export default ReferringPagesPlugin;

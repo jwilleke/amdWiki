@@ -247,6 +247,3 @@ export default class DeltaStorage {
     return stats;
   }
 }
-
-// CommonJS compatibility
-module.exports = DeltaStorage;

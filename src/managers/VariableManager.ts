@@ -1,9 +1,9 @@
-import BaseManager from './BaseManager';
-import logger from '../utils/logger';
-import LocaleUtils from '../utils/LocaleUtils';
-import type { WikiEngine } from '../types/WikiEngine';
-import type ConfigurationManager from './ConfigurationManager';
-import type PageManager from './PageManager';
+import BaseManager from './BaseManager.js';
+import logger from '../utils/logger.js';
+import LocaleUtils from '../utils/LocaleUtils.js';
+import type { WikiEngine } from '../types/WikiEngine.js';
+import type ConfigurationManager from './ConfigurationManager.js';
+import type PageManager from './PageManager.js';
 
 /**
  * Variable handler function type
@@ -425,5 +425,3 @@ class VariableManager extends BaseManager {
 
 export default VariableManager;
 
-// CommonJS compatibility
-module.exports = VariableManager;

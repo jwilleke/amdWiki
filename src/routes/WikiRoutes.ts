@@ -12,44 +12,48 @@
  */
 
 import path from 'path';
+import { fileURLToPath } from 'url';
 import multer, { StorageEngine, Multer } from 'multer';
 import fs from 'fs';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 import fse from 'fs-extra';
 import matter from 'gray-matter';
 import { createPatch } from 'diff';
 import { exec } from 'child_process';
 import { Request, Response, Application } from 'express';
-import SchemaGenerator from '../utils/SchemaGenerator';
-import logger from '../utils/logger';
-import LocaleUtils from '../utils/LocaleUtils';
-import { extractSection, spliceSection } from '../utils/SectionUtils';
-import { shuffleArray } from '../utils/pluginFormatters';
-import WikiContext from '../context/WikiContext';
-import { ThemeManager } from '../managers/ThemeManager';
-import type { ReportProgress } from '../managers/BackgroundJobManager';
-import type { WikiPage, PageFrontmatter } from '../types/Page';
-import type AddonsManager from '../managers/AddonsManager';
-import type AssetManager from '../managers/AssetManager';
-import type AssetService from '../managers/AssetService';
-import type AttachmentManager from '../managers/AttachmentManager';
-import type AuthManager from '../managers/AuthManager';
-import type BackgroundJobManager from '../managers/BackgroundJobManager';
-import type BackupManager from '../managers/BackupManager';
-import type CacheManager from '../managers/CacheManager';
-import type CatalogManager from '../managers/CatalogManager';
-import type ExportManager from '../managers/ExportManager';
-import type ImportManager from '../managers/ImportManager';
-import type MediaManager from '../managers/MediaManager';
-import type MetricsManager from '../managers/MetricsManager';
-import type CommentManager from '../managers/CommentManager';
-import type FootnoteManager from '../managers/FootnoteManager';
-import type NotificationManager from '../managers/NotificationManager';
-import type PolicyValidator from '../managers/PolicyValidator';
-import type RenderingManager from '../managers/RenderingManager';
-import type TemplateManager from '../managers/TemplateManager';
-import type ValidationManager from '../managers/ValidationManager';
-import type VariableManager from '../managers/VariableManager';
-import { ApiContext, ApiError } from '../context/ApiContext';
+import SchemaGenerator from '../utils/SchemaGenerator.js';
+import logger from '../utils/logger.js';
+import LocaleUtils from '../utils/LocaleUtils.js';
+import { extractSection, spliceSection } from '../utils/SectionUtils.js';
+import { shuffleArray } from '../utils/pluginFormatters.js';
+import WikiContext from '../context/WikiContext.js';
+import { ThemeManager } from '../managers/ThemeManager.js';
+import type { ReportProgress } from '../managers/BackgroundJobManager.js';
+import type { WikiPage, PageFrontmatter } from '../types/Page.js';
+import type AddonsManager from '../managers/AddonsManager.js';
+import type AssetManager from '../managers/AssetManager.js';
+import type AssetService from '../managers/AssetService.js';
+import type AttachmentManager from '../managers/AttachmentManager.js';
+import type AuthManager from '../managers/AuthManager.js';
+import type BackgroundJobManager from '../managers/BackgroundJobManager.js';
+import type BackupManager from '../managers/BackupManager.js';
+import type CacheManager from '../managers/CacheManager.js';
+import type CatalogManager from '../managers/CatalogManager.js';
+import type ExportManager from '../managers/ExportManager.js';
+import type ImportManager from '../managers/ImportManager.js';
+import type MediaManager from '../managers/MediaManager.js';
+import type MetricsManager from '../managers/MetricsManager.js';
+import type CommentManager from '../managers/CommentManager.js';
+import type FootnoteManager from '../managers/FootnoteManager.js';
+import type NotificationManager from '../managers/NotificationManager.js';
+import type PolicyValidator from '../managers/PolicyValidator.js';
+import type RenderingManager from '../managers/RenderingManager.js';
+import type TemplateManager from '../managers/TemplateManager.js';
+import type ValidationManager from '../managers/ValidationManager.js';
+import type VariableManager from '../managers/VariableManager.js';
+import { ApiContext, ApiError } from '../context/ApiContext.js';
 
 /** Helper to extract error message from unknown error */
 function getErrorMessage(error: unknown): string {
@@ -398,7 +402,7 @@ class WikiRoutes {
     const themesDir = path.join(__dirname, '../../../themes');
     const themeManager = new ThemeManager(activeTheme, themesDir);
 
-    return new WikiContext(this.engine as unknown as import('../types/WikiEngine').WikiEngine, {
+    return new WikiContext(this.engine as unknown as import('../types/WikiEngine.js').WikiEngine, {
       context: options.context || WikiContext.CONTEXT.NONE,
       pageName: options.pageName ?? undefined,
       content: options.content ?? undefined,
@@ -571,7 +575,7 @@ class WikiRoutes {
       logger.info(`[TEMPLATE] LeftMenu ACL decision: ${canViewLeftMenu}`);
 
       if (canViewLeftMenu && leftMenuContent !== null) {
-        const ctx = new WikiContext(this.engine as unknown as import('../types/WikiEngine').WikiEngine, {
+        const ctx = new WikiContext(this.engine as unknown as import('../types/WikiEngine.js').WikiEngine, {
           pageName: 'LeftMenu',
           content: leftMenuContent,
           userContext,
@@ -612,7 +616,7 @@ class WikiRoutes {
       logger.info(`[TEMPLATE] Footer ACL decision: ${canViewFooter}`);
 
       if (canViewFooter && footerContent !== null) {
-        const ctx = new WikiContext(this.engine as unknown as import('../types/WikiEngine').WikiEngine, {
+        const ctx = new WikiContext(this.engine as unknown as import('../types/WikiEngine.js').WikiEngine, {
           pageName: 'Footer',
           content: footerContent,
           userContext,
@@ -3842,7 +3846,7 @@ ${panes}
    */
   async apiUsersSearch(req: Request, res: Response): Promise<void> {
     try {
-      const ctx = ApiContext.from(req, this.engine as unknown as import('../types/WikiEngine').WikiEngine);
+      const ctx = ApiContext.from(req, this.engine as unknown as import('../types/WikiEngine.js').WikiEngine);
       ctx.requireAuthenticated();
       ctx.requirePermission('search-user');
 
@@ -10698,4 +10702,3 @@ ${description}
 
 
 export default WikiRoutes;
-module.exports = WikiRoutes;

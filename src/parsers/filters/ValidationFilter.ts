@@ -1,5 +1,5 @@
-import BaseFilter from './BaseFilter';
-import logger from '../../utils/logger';
+import BaseFilter from './BaseFilter.js';
+import logger from '../../utils/logger.js';
 
 /**
  * Validation configuration interface
@@ -663,5 +663,3 @@ class ValidationFilter extends BaseFilter {
 
 export default ValidationFilter;
 
-// CommonJS compatibility
-module.exports = ValidationFilter;

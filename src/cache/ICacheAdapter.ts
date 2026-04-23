@@ -95,5 +95,3 @@ abstract class ICacheAdapter {
 
 export default ICacheAdapter;
 
-// CommonJS compatibility
-module.exports = ICacheAdapter;

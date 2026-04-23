@@ -10,11 +10,11 @@
  * provider registry details.
  */
 
-import BaseManager from './BaseManager';
-import type { WikiEngine } from '../types/WikiEngine';
-import WikiContext from '../context/WikiContext';
-import type { AssetPage } from '../types/Asset';
-import logger from '../utils/logger';
+import BaseManager from './BaseManager.js';
+import type { WikiEngine } from '../types/WikiEngine.js';
+import WikiContext from '../context/WikiContext.js';
+import type { AssetPage } from '../types/Asset.js';
+import logger from '../utils/logger.js';
 
 /**
  * Options for AssetService.search().
@@ -67,7 +67,7 @@ export interface AssetSearchOptions {
 // ---------------------------------------------------------------------------
 
 /** @deprecated Use AssetRecord from src/types/Asset.ts */
-export type AssetSearchResult = import('../types/Asset').AssetRecord;
+export type AssetSearchResult = import('../types/Asset.js').AssetRecord;
 
 /** @deprecated Use AssetPage from src/types/Asset.ts */
 export type AssetSearchPage = AssetPage;
@@ -118,5 +118,3 @@ class AssetService extends BaseManager {
 
 export default AssetService;
 
-// CommonJS compatibility
-module.exports = AssetService;

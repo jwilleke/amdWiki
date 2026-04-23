@@ -5,9 +5,9 @@
  * AuthManager as the default provider (always enabled).
  */
 
-import type { AuthProvider, AuthVerifyCredentials, AuthResult } from './BaseAuthProvider';
-import type { WikiEngine } from '../types/WikiEngine';
-import type UserManager from '../managers/UserManager';
+import type { AuthProvider, AuthVerifyCredentials, AuthResult } from './BaseAuthProvider.js';
+import type { WikiEngine } from '../types/WikiEngine.js';
+import type UserManager from '../managers/UserManager.js';
 
 export class PasswordAuthProvider implements AuthProvider {
   readonly id = 'password';

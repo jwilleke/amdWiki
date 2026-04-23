@@ -1,44 +1,44 @@
-import Engine from './core/Engine';
-import logger, { reconfigureLogger } from './utils/logger';
-import type { WikiConfig } from './types/Config';
-import type WikiContext from './context/WikiContext';
+import Engine from './core/Engine.js';
+import logger, { reconfigureLogger } from './utils/logger.js';
+import type { WikiConfig } from './types/Config.js';
+import type WikiContext from './context/WikiContext.js';
 
 // Managers
-import ConfigurationManager from './managers/ConfigurationManager';
-import NotificationManager from './managers/NotificationManager';
-import PageManager from './managers/PageManager';
-import PluginManager from './managers/PluginManager';
-import RenderingManager from './managers/RenderingManager';
-import SearchManager from './managers/SearchManager';
-import UserManager from './managers/UserManager';
-import ACLManager from './managers/ACLManager';
-import SchemaManager from './managers/SchemaManager';
-import VariableManager from './managers/VariableManager';
-import ValidationManager from './managers/ValidationManager';
-import PolicyManager from './managers/PolicyManager';
-import PolicyValidator from './managers/PolicyValidator';
-import PolicyEvaluator from './managers/PolicyEvaluator';
-import ExportManager from './managers/ExportManager';
-import TemplateManager from './managers/TemplateManager';
-import AttachmentManager from './managers/AttachmentManager';
-import MediaManager from './managers/MediaManager';
-import AssetManager from './managers/AssetManager';
-import AssetService from './managers/AssetService';
-import BackupManager from './managers/BackupManager';
-import CacheManager from './managers/CacheManager';
-import AuditManager from './managers/AuditManager';
-import AddonsManager from './managers/AddonsManager';
-import ImportManager from './managers/ImportManager';
-import AuthManager from './managers/AuthManager';
-import EmailManager from './managers/EmailManager';
-import MetricsManager from './managers/MetricsManager';
-import BackgroundJobManager from './managers/BackgroundJobManager';
-import CatalogManager from './managers/CatalogManager';
-import CommentManager from './managers/CommentManager';
-import FootnoteManager from './managers/FootnoteManager';
+import ConfigurationManager from './managers/ConfigurationManager.js';
+import NotificationManager from './managers/NotificationManager.js';
+import PageManager from './managers/PageManager.js';
+import PluginManager from './managers/PluginManager.js';
+import RenderingManager from './managers/RenderingManager.js';
+import SearchManager from './managers/SearchManager.js';
+import UserManager from './managers/UserManager.js';
+import ACLManager from './managers/ACLManager.js';
+import SchemaManager from './managers/SchemaManager.js';
+import VariableManager from './managers/VariableManager.js';
+import ValidationManager from './managers/ValidationManager.js';
+import PolicyManager from './managers/PolicyManager.js';
+import PolicyValidator from './managers/PolicyValidator.js';
+import PolicyEvaluator from './managers/PolicyEvaluator.js';
+import ExportManager from './managers/ExportManager.js';
+import TemplateManager from './managers/TemplateManager.js';
+import AttachmentManager from './managers/AttachmentManager.js';
+import MediaManager from './managers/MediaManager.js';
+import AssetManager from './managers/AssetManager.js';
+import AssetService from './managers/AssetService.js';
+import BackupManager from './managers/BackupManager.js';
+import CacheManager from './managers/CacheManager.js';
+import AuditManager from './managers/AuditManager.js';
+import AddonsManager from './managers/AddonsManager.js';
+import ImportManager from './managers/ImportManager.js';
+import AuthManager from './managers/AuthManager.js';
+import EmailManager from './managers/EmailManager.js';
+import MetricsManager from './managers/MetricsManager.js';
+import BackgroundJobManager from './managers/BackgroundJobManager.js';
+import CatalogManager from './managers/CatalogManager.js';
+import CommentManager from './managers/CommentManager.js';
+import FootnoteManager from './managers/FootnoteManager.js';
 
 // Parsers
-import MarkupParser from './parsers/MarkupParser';
+import MarkupParser from './parsers/MarkupParser.js';
 
 /**
  * WikiEngine - The core orchestrator for the wiki application
@@ -444,5 +444,3 @@ class WikiEngine extends Engine {
 
 export default WikiEngine;
 
-// CommonJS compatibility
-module.exports = WikiEngine;

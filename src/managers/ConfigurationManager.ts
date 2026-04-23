@@ -1,9 +1,9 @@
 import fs from 'fs-extra';
 import path from 'path';
-import { WikiConfig } from '../types/Config';
-import logger from '../utils/logger';
-import BaseManager, { BackupData } from './BaseManager';
-import type { WikiEngine } from '../types/WikiEngine';
+import { WikiConfig } from '../types/Config.js';
+import logger from '../utils/logger.js';
+import BaseManager, { BackupData } from './BaseManager.js';
+import type { WikiEngine } from '../types/WikiEngine.js';
 
 interface ConfigManagerBackupData extends BackupData {
   customConfig: Partial<WikiConfig> | null;
@@ -988,5 +988,3 @@ class ConfigurationManager extends BaseManager {
 
 export default ConfigurationManager;
 
-// CommonJS compatibility
-module.exports = ConfigurationManager;

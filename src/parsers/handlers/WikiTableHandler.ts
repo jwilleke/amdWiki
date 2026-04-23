@@ -1,5 +1,5 @@
-import BaseSyntaxHandler, { InitializationContext, ParseContext } from './BaseSyntaxHandler';
-import logger from '../../utils/logger';
+import BaseSyntaxHandler, { InitializationContext, ParseContext } from './BaseSyntaxHandler.js';
+import logger from '../../utils/logger.js';
 
 /**
  * Table cell information
@@ -209,5 +209,3 @@ class WikiTableHandler extends BaseSyntaxHandler {
 
 export default WikiTableHandler;
 
-// CommonJS compatibility
-module.exports = WikiTableHandler;

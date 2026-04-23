@@ -1,8 +1,8 @@
-import BaseManager from './BaseManager';
-import logger from '../utils/logger';
+import BaseManager from './BaseManager.js';
+import logger from '../utils/logger.js';
 import { promises as fs } from 'fs';
 import * as path from 'path';
-import { WikiEngine } from '../types/WikiEngine';
+import { WikiEngine } from '../types/WikiEngine.js';
 
 /**
  * Configuration options for TemplateManager initialization
@@ -532,4 +532,4 @@ class TemplateManager extends BaseManager {
   }
 }
 
-export = TemplateManager;
+export default TemplateManager;

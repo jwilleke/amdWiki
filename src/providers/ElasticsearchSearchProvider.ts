@@ -36,9 +36,9 @@ import BaseSearchProvider, {
   type SearchStatistics,
   type BackupData,
   type WikiEngine
-} from './BaseSearchProvider';
-import logger from '../utils/logger';
-import { TaggingService } from '../utils/TaggingService';
+} from './BaseSearchProvider.js';
+import logger from '../utils/logger.js';
+import { TaggingService } from '../utils/TaggingService.js';
 
 // ---------------------------------------------------------------------------
 // Internal document shape stored in ES
@@ -756,5 +756,3 @@ class ElasticsearchSearchProvider extends BaseSearchProvider {
 
 export default ElasticsearchSearchProvider;
 
-// CommonJS compatibility
-module.exports = ElasticsearchSearchProvider;

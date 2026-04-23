@@ -18,10 +18,10 @@
  * const auditManager = engine.getManager('AuditManager');
  * await auditManager.logAccess('admin', 'Main', 'view', 'granted');
  */
-import BaseManager from './BaseManager';
-import logger from '../utils/logger';
-import { WikiEngine } from '../types/WikiEngine';
-import type ConfigurationManager from './ConfigurationManager';
+import BaseManager from './BaseManager.js';
+import logger from '../utils/logger.js';
+import { WikiEngine } from '../types/WikiEngine.js';
+import type ConfigurationManager from './ConfigurationManager.js';
 
 /**
  * Base audit event structure
@@ -257,7 +257,7 @@ class AuditManager extends BaseManager {
   private async loadProvider(): Promise<void> {
     try {
       // Try to load provider class
-      const ProviderModule = await import(`../providers/${this.providerClass}`) as { default: AuditProviderConstructor };
+      const ProviderModule = await import(/* @vite-ignore */ `../providers/${this.providerClass}.js`) as { default: AuditProviderConstructor };
       const ProviderClass = ProviderModule.default;
 
       this.provider = new ProviderClass(this.engine);
@@ -545,4 +545,4 @@ class AuditManager extends BaseManager {
   }
 }
 
-export = AuditManager;
+export default AuditManager;

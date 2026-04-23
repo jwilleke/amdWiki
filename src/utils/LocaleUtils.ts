@@ -2,7 +2,7 @@
  * LocaleUtils - Utility functions for handling browser locale and internationalization
  */
 
-import logger from './logger';
+import logger from './logger.js';
 
 /**
  * Language quality pair from Accept-Language header parsing
@@ -345,5 +345,3 @@ class LocaleUtils {
 
 export default LocaleUtils;
 
-// CommonJS compatibility
-module.exports = LocaleUtils;

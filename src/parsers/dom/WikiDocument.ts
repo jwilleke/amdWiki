@@ -444,5 +444,3 @@ class WikiDocument {
 export default WikiDocument;
 
 // Export for CommonJS (Jest compatibility)
-module.exports = WikiDocument;
-(module.exports as Record<string, unknown>).default = WikiDocument;

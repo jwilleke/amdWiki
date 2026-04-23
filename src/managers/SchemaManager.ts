@@ -1,9 +1,9 @@
-import BaseManager from './BaseManager';
+import BaseManager from './BaseManager.js';
 import fs from 'fs-extra';
 import path from 'path';
-import logger from '../utils/logger';
-import type { WikiEngine } from '../types/WikiEngine';
-import type ConfigurationManager from './ConfigurationManager';
+import logger from '../utils/logger.js';
+import type { WikiEngine } from '../types/WikiEngine.js';
+import type ConfigurationManager from './ConfigurationManager.js';
 
 /**
  * JSON Schema type - represents a JSON Schema object
@@ -107,5 +107,3 @@ class SchemaManager extends BaseManager {
 
 export default SchemaManager;
 
-// CommonJS compatibility
-module.exports = SchemaManager;

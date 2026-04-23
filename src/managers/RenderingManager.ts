@@ -2,27 +2,27 @@
  * RenderingManager - Handles markdown rendering and macro expansion
  */
 
-import BaseManager from './BaseManager';
-import type ConfigurationManager from './ConfigurationManager';
-import type PageManager from './PageManager';
-import type PluginManager from './PluginManager';
-import type NotificationManager from './NotificationManager';
-import type MarkupParser from '../parsers/MarkupParser';
-import type WikiContext from '../context/WikiContext';
+import BaseManager from './BaseManager.js';
+import type ConfigurationManager from './ConfigurationManager.js';
+import type PageManager from './PageManager.js';
+import type PluginManager from './PluginManager.js';
+import type NotificationManager from './NotificationManager.js';
+import type MarkupParser from '../parsers/MarkupParser.js';
+import type WikiContext from '../context/WikiContext.js';
 
 /** Extract error message from unknown error type */
 function getErrorMessage(error: unknown): string {
   if (error instanceof Error) return error.message;
   return String(error);
 }
-import logger from '../utils/logger';
-import * as showdown from 'showdown';
+import logger from '../utils/logger.js';
+import showdown from 'showdown';
 // Footnotes are now handled in the WikiDocument DOM pipeline (MarkupParser Steps 3.5/3.6/4)
-import showdownSubSuperscript from '../extensions/showdown-sub-superscript';
-import showdownHeadingIds from '../extensions/showdown-heading-ids';
-import { LinkParser } from '../parsers/LinkParser';
-import PageNameMatcher from '../utils/PageNameMatcher';
-import { WikiEngine } from '../types/WikiEngine';
+import showdownSubSuperscript from '../extensions/showdown-sub-superscript.js';
+import showdownHeadingIds from '../extensions/showdown-heading-ids.js';
+import { LinkParser } from '../parsers/LinkParser.js';
+import PageNameMatcher from '../utils/PageNameMatcher.js';
+import { WikiEngine } from '../types/WikiEngine.js';
 import fs from 'fs';
 import path from 'path';
 
@@ -1520,4 +1520,4 @@ class RenderingManager extends BaseManager {
   }
 }
 
-export = RenderingManager;
+export default RenderingManager;

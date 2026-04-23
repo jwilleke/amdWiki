@@ -16,9 +16,9 @@
  *   [{MediaPlugin format='album-link' keyword='current'}]   — button linking to the keyword album page
  */
 
-import type { SimplePlugin, PluginContext, PluginParams } from './types';
-import { formatAsCount, formatAsList, parseMaxParam, applyMax, escapeHtml } from '../utils/pluginFormatters';
-import type { PageLink } from '../utils/pluginFormatters';
+import type { SimplePlugin, PluginContext, PluginParams } from './types.js';
+import { formatAsCount, formatAsList, parseMaxParam, applyMax, escapeHtml } from '../utils/pluginFormatters.js';
+import type { PageLink } from '../utils/pluginFormatters.js';
 
 interface MediaItem {
   id: string;
@@ -123,4 +123,4 @@ const MediaPlugin: SimplePlugin = {
   }
 };
 
-module.exports = MediaPlugin;
+export default MediaPlugin;

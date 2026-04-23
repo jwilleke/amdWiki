@@ -1,8 +1,8 @@
-import BaseManager from './BaseManager';
-import logger from '../utils/logger';
+import BaseManager from './BaseManager.js';
+import logger from '../utils/logger.js';
 import micromatch from 'micromatch';
-import { WikiEngine } from '../types/WikiEngine';
-import type PolicyManager from './PolicyManager';
+import { WikiEngine } from '../types/WikiEngine.js';
+import type PolicyManager from './PolicyManager.js';
 
 /**
  * User context for policy evaluation
@@ -286,4 +286,4 @@ class PolicyEvaluator extends BaseManager {
   }
 }
 
-export = PolicyEvaluator;
+export default PolicyEvaluator;

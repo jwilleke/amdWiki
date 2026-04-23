@@ -13,7 +13,7 @@
  *   max     — Maximum number of results to show (default: 20)
  */
 
-import type { PluginContext, PluginParams } from './types';
+import type { PluginContext, PluginParams } from './types.js';
 
 const MediaSearchPlugin = {
   name: 'MediaSearch',
@@ -32,4 +32,4 @@ const MediaSearchPlugin = {
   }
 };
 
-module.exports = MediaSearchPlugin;
+export default MediaSearchPlugin;

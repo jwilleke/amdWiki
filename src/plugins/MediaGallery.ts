@@ -13,7 +13,7 @@
  *   max     — Maximum number of items to show (default: 20)
  */
 
-import type { PluginContext, PluginParams } from './types';
+import type { PluginContext, PluginParams } from './types.js';
 
 const MediaGalleryPlugin = {
   name: 'MediaGallery',
@@ -32,4 +32,4 @@ const MediaGalleryPlugin = {
   }
 };
 
-module.exports = MediaGalleryPlugin;
+export default MediaGalleryPlugin;

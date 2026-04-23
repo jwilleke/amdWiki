@@ -6,13 +6,13 @@
  * The VariableManager is accessible via WikiEngine.getManager('VariableManager') after initialization.
  */
 
-import BaseManager from './BaseManager';
+import BaseManager from './BaseManager.js';
 import { v4 as uuidv4, validate as validateUuid } from 'uuid';
 import path from 'path';
-import logger from '../utils/logger';
-import type { WikiEngine } from '../types/WikiEngine';
-import type ConfigurationManager from './ConfigurationManager';
-import type PageManager from './PageManager';
+import logger from '../utils/logger.js';
+import type { WikiEngine } from '../types/WikiEngine.js';
+import type ConfigurationManager from './ConfigurationManager.js';
+import type PageManager from './PageManager.js';
 
 /**
  * Validation result interface
@@ -838,5 +838,3 @@ class ValidationManager extends BaseManager {
 
 export default ValidationManager;
 
-// CommonJS compatibility
-module.exports = ValidationManager;

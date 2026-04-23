@@ -5,10 +5,10 @@
  * data structures at runtime and provide TypeScript type narrowing.
  */
 
-import { WikiPage, PageFrontmatter, PageInfo } from './Page';
-import { VersionMetadata, VersionManifest } from './Version';
-import { User, UserSession } from './User';
-import { AttachmentMetadata, AuditEvent } from './Provider';
+import { WikiPage, PageFrontmatter, PageInfo } from './Page.js';
+import { VersionMetadata, VersionManifest } from './Version.js';
+import { User, UserSession } from './User.js';
+import { AttachmentMetadata, AuditEvent } from './Provider.js';
 
 /**
  * Check if value is a valid PageFrontmatter object

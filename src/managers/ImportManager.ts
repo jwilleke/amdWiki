@@ -30,17 +30,17 @@
 import path from 'path';
 import fs from 'fs-extra';
 import { v4 as uuidv4 } from 'uuid';
-import BaseManager, { BackupData } from './BaseManager';
-import type { WikiEngine } from '../types/WikiEngine';
-import { IContentConverter, ConversionResult } from '../converters/IContentConverter';
-import JSPWikiConverter from '../converters/JSPWikiConverter';
-import HtmlConverter from '../converters/HtmlConverter';
-import MarkdownConverter from '../converters/MarkdownConverter';
-import type ConfigurationManager from './ConfigurationManager';
-import type ValidationManager from './ValidationManager';
-import type PageManager from './PageManager';
-import type AttachmentManager from './AttachmentManager';
-import logger from '../utils/logger';
+import BaseManager, { BackupData } from './BaseManager.js';
+import type { WikiEngine } from '../types/WikiEngine.js';
+import { IContentConverter, ConversionResult } from '../converters/IContentConverter.js';
+import JSPWikiConverter from '../converters/JSPWikiConverter.js';
+import HtmlConverter from '../converters/HtmlConverter.js';
+import MarkdownConverter from '../converters/MarkdownConverter.js';
+import type ConfigurationManager from './ConfigurationManager.js';
+import type ValidationManager from './ValidationManager.js';
+import type PageManager from './PageManager.js';
+import type AttachmentManager from './AttachmentManager.js';
+import logger from '../utils/logger.js';
 
 /**
  * Options for import operations
@@ -1192,5 +1192,3 @@ class ImportManager extends BaseManager {
 
 export default ImportManager;
 
-// CommonJS compatibility
-module.exports = ImportManager;

@@ -1,5 +1,5 @@
-import type { WikiConfig } from '../types/Config';
-import type BaseManager from '../managers/BaseManager';
+import type { WikiConfig } from '../types/Config.js';
+import type BaseManager from '../managers/BaseManager.js';
 
 /**
  * Engine interface - Main wiki engine following JSPWiki architecture
@@ -236,5 +236,3 @@ class Engine {
 
 export default Engine;
 
-// CommonJS compatibility
-module.exports = Engine;

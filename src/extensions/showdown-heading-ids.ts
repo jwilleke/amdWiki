@@ -15,7 +15,7 @@
  * same-page anchor links [Display|#slug] navigate correctly.
  */
 
-import { headingSlug } from '../utils/SectionUtils';
+import { headingSlug } from '../utils/SectionUtils.js';
 
 interface ShowdownFilter {
   type: 'lang' | 'output';

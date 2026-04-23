@@ -34,8 +34,8 @@
  *   [{Image src='https://external.url/img.jpg' caption='External image'}]
  */
 
-import type { SimplePlugin, PluginContext, PluginParams } from './types';
-import { renderImageHtml } from './renderImage';
+import type { SimplePlugin, PluginContext, PluginParams } from './types.js';
+import { renderImageHtml } from './renderImage.js';
 
 interface ConfigManager {
   getProperty(key: string, defaultValue: string): string;
@@ -115,4 +115,4 @@ const ImagePlugin: SimplePlugin = {
   }
 };
 
-module.exports = ImagePlugin;
+export default ImagePlugin;

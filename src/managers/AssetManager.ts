@@ -15,11 +15,11 @@
 
 import fs from 'fs-extra';
 import path from 'path';
-import BaseManager from './BaseManager';
-import type { WikiEngine } from '../types/WikiEngine';
-import type { AssetProvider, AssetRecord, AssetPage, AssetQuery, AssetAggregations, AssetFacet, ProviderHealthStatus, ProviderHealthReport } from '../types/Asset';
-import type ConfigurationManager from './ConfigurationManager';
-import logger from '../utils/logger';
+import BaseManager from './BaseManager.js';
+import type { WikiEngine } from '../types/WikiEngine.js';
+import type { AssetProvider, AssetRecord, AssetPage, AssetQuery, AssetAggregations, AssetFacet, ProviderHealthStatus, ProviderHealthReport } from '../types/Asset.js';
+import type ConfigurationManager from './ConfigurationManager.js';
+import logger from '../utils/logger.js';
 
 class AssetManager extends BaseManager {
   readonly description = 'Provider registry for the unified Digital Asset Management framework';
@@ -435,5 +435,3 @@ class AssetManager extends BaseManager {
 
 export default AssetManager;
 
-// CommonJS compatibility
-module.exports = AssetManager;

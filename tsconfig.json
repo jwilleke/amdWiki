@@ -3,8 +3,8 @@
     /* Language and Environment */
     "target": "ES2022",
     "lib": ["ES2022"],
-    "module": "Node16",
-    "moduleResolution": "Node16",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
 
     /* JavaScript Support - Allow JS files during migration */
     "allowJs": true,
@@ -54,8 +54,10 @@
     "**/__tests__/**"
   ],
   "ts-node": {
+    "esm": true,
     "compilerOptions": {
-      "module": "commonjs"
+      "module": "NodeNext",
+      "moduleResolution": "NodeNext"
     }
   }
 }

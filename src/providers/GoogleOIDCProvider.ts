@@ -21,10 +21,10 @@ import type {
   AuthProvider,
   AuthVerifyCredentials,
   AuthResult
-} from './BaseAuthProvider';
-import type { WikiEngine } from '../types/WikiEngine';
-import type UserManager from '../managers/UserManager';
-import logger from '../utils/logger';
+} from './BaseAuthProvider.js';
+import type { WikiEngine } from '../types/WikiEngine.js';
+import type UserManager from '../managers/UserManager.js';
+import logger from '../utils/logger.js';
 
 export interface GoogleOIDCConfig {
   clientId: string;

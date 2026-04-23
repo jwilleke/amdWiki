@@ -1,7 +1,7 @@
-import BaseManager from './BaseManager';
-import logger from '../utils/logger';
-import type { WikiEngine } from '../types/WikiEngine';
-import type ConfigurationManager from './ConfigurationManager';
+import BaseManager from './BaseManager.js';
+import logger from '../utils/logger.js';
+import type { WikiEngine } from '../types/WikiEngine.js';
+import type ConfigurationManager from './ConfigurationManager.js';
 import type { Request, Response, RequestHandler } from 'express';
 
 // OpenTelemetry imports
@@ -273,5 +273,3 @@ class MetricsManager extends BaseManager {
 
 export default MetricsManager;
 
-// CommonJS compatibility
-module.exports = MetricsManager;

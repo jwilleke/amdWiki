@@ -141,7 +141,7 @@
   },
   "main": "dist/src/app.js",
   "keywords": [],
-  "type": "commonjs",
+  "type": "module",
   "overrides": {
     "gray-matter": {
       "js-yaml": "^3.14.1"

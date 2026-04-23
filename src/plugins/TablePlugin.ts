@@ -11,7 +11,7 @@
  * containing only "#" is handled by the table renderer in MarkupParser.
  */
 
-import type { SimplePlugin, PluginContext, PluginParams } from './types';
+import type { SimplePlugin, PluginContext, PluginParams } from './types.js';
 
 const TablePlugin: SimplePlugin = {
   name: 'TablePlugin',

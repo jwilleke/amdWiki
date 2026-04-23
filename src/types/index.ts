@@ -5,7 +5,7 @@
  * the ngdpbase application. Import types from this module to ensure consistency.
  *
  * @example
- * import { WikiPage, PageFrontmatter, User } from '../types';
+ * import { WikiPage, PageFrontmatter, User } from '../types/index.js';
  *
  * @module types
  */
@@ -18,7 +18,7 @@ export {
   PageSaveOptions,
   PageSearchResult,
   PageListOptions
-} from './Page';
+} from './Page.js';
 
 // Version types
 export {
@@ -30,7 +30,7 @@ export {
   VersionStorageInfo,
   VersionRetentionPolicy,
   VersionCleanupResult
-} from './Version';
+} from './Version.js';
 
 // User types
 export {
@@ -43,7 +43,7 @@ export {
   Role,
   Permission,
   UserProfile
-} from './User';
+} from './User.js';
 
 // Configuration types
 export {
@@ -54,7 +54,7 @@ export {
   ConfigPropertyDescriptor,
   ConfigChangeEvent,
   ConfigValidationResult
-} from './Config';
+} from './Config.js';
 
 // Provider types
 export {
@@ -68,13 +68,13 @@ export {
   CacheProvider,
   AuditProvider,
   AuditEvent
-} from './Provider';
+} from './Provider.js';
 
 // WikiEngine types
 export {
   WikiEngine,
   ManagerRegistry
-} from './WikiEngine';
+} from './WikiEngine.js';
 
 // Asset types (Epic #405 — unified AssetManager)
 export {
@@ -90,7 +90,7 @@ export {
   AssetPage,
   AssetInput,
   AssetProvider
-} from './Asset';
+} from './Asset.js';
 
 // Type guards
 export {
@@ -110,7 +110,7 @@ export {
   assertWikiPage,
   assertVersionMetadata,
   assertUser
-} from './guards';
+} from './guards.js';
 
 // Note: Individual type exports are handled by the named exports above
 // Manager and context types are defined in their respective implementation files

@@ -1,14 +1,14 @@
-import BaseAttachmentProvider, { FileInfo, User, AttachmentResult } from './BaseAttachmentProvider';
-import { AttachmentMetadata } from '../types';
-import type { AssetProvider, AssetRecord, AssetQuery, AssetPage, AssetInput, AssetMetadata } from '../types/Asset';
+import BaseAttachmentProvider, { FileInfo, User, AttachmentResult } from './BaseAttachmentProvider.js';
+import { AttachmentMetadata } from '../types/index.js';
+import type { AssetProvider, AssetRecord, AssetQuery, AssetPage, AssetInput, AssetMetadata } from '../types/Asset.js';
 import sharp from 'sharp';
-import { transformImage, parseSize } from '../utils/imageTransform';
+import { transformImage, parseSize } from '../utils/imageTransform.js';
 import fs from 'fs-extra';
 import * as path from 'path';
 import * as crypto from 'crypto';
-import logger from '../utils/logger';
-import type { WikiEngine } from '../types/WikiEngine';
-import type ConfigurationManager from '../managers/ConfigurationManager';
+import logger from '../utils/logger.js';
+import type { WikiEngine } from '../types/WikiEngine.js';
+import type ConfigurationManager from '../managers/ConfigurationManager.js';
 
 /**
  * Schema.org Person metadata
@@ -1032,7 +1032,7 @@ class BasicAttachmentProvider extends BaseAttachmentProvider implements AssetPro
 
   readonly id = 'local';
   readonly displayName = 'Local Attachments';
-  readonly capabilities: import('../types/Asset').ProviderCapability[] = ['upload', 'search', 'stream', 'thumbnail'];
+  readonly capabilities: import('../types/Asset.js').ProviderCapability[] = ['upload', 'search', 'stream', 'thumbnail'];
 
   /**
    * AssetProvider.getThumbnail() — generate (and cache) a JPEG thumbnail for image attachments.
@@ -1217,5 +1217,3 @@ class BasicAttachmentProvider extends BaseAttachmentProvider implements AssetPro
 
 export default BasicAttachmentProvider;
 
-// CommonJS compatibility
-module.exports = BasicAttachmentProvider;

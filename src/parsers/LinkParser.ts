@@ -38,9 +38,9 @@
  * @see https://github.com/jwilleke/ngdpbase/issues/75
  */
 
-import PageNameMatcher from '../utils/PageNameMatcher';
-import logger from '../utils/logger';
-import { headingSlug } from '../utils/SectionUtils';
+import PageNameMatcher from '../utils/PageNameMatcher.js';
+import logger from '../utils/logger.js';
+import { headingSlug } from '../utils/SectionUtils.js';
 
 /**
  * Default CSS classes for different link types
@@ -827,5 +827,3 @@ export class Link {
 
 export default { LinkParser, Link };
 
-// CommonJS compatibility
-module.exports = { LinkParser, Link };

@@ -7,9 +7,9 @@
  *   [{AttachmentsPlugin format='list' max='10'}] — limit list to 10 items
  */
 
-import type { SimplePlugin, PluginContext, PluginParams } from './types';
-import { formatAsCount, formatAsList, parseMaxParam, applyMax } from '../utils/pluginFormatters';
-import type { PageLink } from '../utils/pluginFormatters';
+import type { SimplePlugin, PluginContext, PluginParams } from './types.js';
+import { formatAsCount, formatAsList, parseMaxParam, applyMax } from '../utils/pluginFormatters.js';
+import type { PageLink } from '../utils/pluginFormatters.js';
 
 interface AttachmentMetadata {
   identifier: string;
@@ -59,4 +59,4 @@ const AttachmentsPlugin: SimplePlugin = {
   }
 };
 
-module.exports = AttachmentsPlugin;
+export default AttachmentsPlugin;

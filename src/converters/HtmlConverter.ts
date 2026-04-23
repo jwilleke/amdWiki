@@ -8,7 +8,7 @@
  * @module HtmlConverter
  */
 
-import { IContentConverter, ConversionResult } from './IContentConverter';
+import { IContentConverter, ConversionResult } from './IContentConverter.js';
 import TurndownService from 'turndown';
 
 import { parseHTML } from 'linkedom';
@@ -406,5 +406,3 @@ class HtmlConverter implements IContentConverter {
 
 export default HtmlConverter;
 
-// CommonJS compatibility
-module.exports = HtmlConverter;

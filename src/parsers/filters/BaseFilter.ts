@@ -1,4 +1,4 @@
-import logger from '../../utils/logger';
+import logger from '../../utils/logger.js';
 
 /**
  * BaseFilter - Abstract base class for all content filters with modular configuration
@@ -470,5 +470,3 @@ abstract class BaseFilter {
 export default BaseFilter;
 
 // Export for CommonJS (Jest compatibility)
-module.exports = BaseFilter;
-(module.exports as Record<string, unknown>).default = BaseFilter;

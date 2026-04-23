@@ -76,5 +76,3 @@ function showdownFootnotesFixed(): ShowdownFilter[] {
 
 export default showdownFootnotesFixed;
 
-// CommonJS compatibility
-module.exports = showdownFootnotesFixed;

@@ -14,14 +14,14 @@ import session from 'express-session';
 import sessionFileStore from 'session-file-store';
 import fs from 'fs-extra';
 
-import logger from './utils/logger';
-import WikiEngine from './WikiEngine';
-import type { WikiEngine as IWikiEngine } from './types/WikiEngine';
-import WikiRoutes from './routes/WikiRoutes';
-import InstallRoutes from './routes/InstallRoutes';
-import InstallService from './services/InstallService';
-import { ThemeManager } from './managers/ThemeManager';
-import type PageManager from './managers/PageManager';
+import logger from './utils/logger.js';
+import WikiEngine from './WikiEngine.js';
+import type { WikiEngine as IWikiEngine } from './types/WikiEngine.js';
+import WikiRoutes from './routes/WikiRoutes.js';
+import InstallRoutes from './routes/InstallRoutes.js';
+import InstallService from './services/InstallService.js';
+import { ThemeManager } from './managers/ThemeManager.js';
+import type PageManager from './managers/PageManager.js';
 
 // Project root — reliable because PM2/server.sh always run from the project directory.
 // __dirname would resolve to dist/src/ after compilation, so it cannot be used for

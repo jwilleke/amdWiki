@@ -9,7 +9,7 @@
  * `ngdpbase.mail.provider` config key ('console' | 'smtp').
  */
 
-import logger from '../utils/logger';
+import logger from '../utils/logger.js';
 
 /**
  * An outbound email message.

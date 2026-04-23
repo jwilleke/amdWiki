@@ -1,7 +1,7 @@
-import BaseManager from './BaseManager';
-import logger from '../utils/logger';
-import { WikiEngine } from '../types/WikiEngine';
-import type ConfigurationManager from './ConfigurationManager';
+import BaseManager from './BaseManager.js';
+import logger from '../utils/logger.js';
+import { WikiEngine } from '../types/WikiEngine.js';
+import type ConfigurationManager from './ConfigurationManager.js';
 
 /**
  * Policy definition
@@ -126,4 +126,4 @@ class PolicyManager extends BaseManager {
   }
 }
 
-export = PolicyManager;
+export default PolicyManager;

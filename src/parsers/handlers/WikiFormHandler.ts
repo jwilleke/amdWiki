@@ -1,6 +1,6 @@
-import BaseSyntaxHandler, { InitializationContext, ParseContext } from './BaseSyntaxHandler';
+import BaseSyntaxHandler, { InitializationContext, ParseContext } from './BaseSyntaxHandler.js';
 import * as crypto from 'crypto';
-import logger from '../../utils/logger';
+import logger from '../../utils/logger.js';
 
 /**
  * Form element match information
@@ -677,5 +677,3 @@ document.addEventListener('DOMContentLoaded', function() {
 
 export default WikiFormHandler;
 
-// CommonJS compatibility
-module.exports = WikiFormHandler;

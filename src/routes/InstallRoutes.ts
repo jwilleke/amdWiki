@@ -1,8 +1,8 @@
 import express, { Router, Request, Response } from 'express';
-import logger from '../utils/logger';
-import InstallService from '../services/InstallService';
-import type { WikiEngine } from '../types/WikiEngine';
-import type ConfigurationManager from '../managers/ConfigurationManager';
+import logger from '../utils/logger.js';
+import InstallService from '../services/InstallService.js';
+import type { WikiEngine } from '../types/WikiEngine.js';
+import type ConfigurationManager from '../managers/ConfigurationManager.js';
 
 /** Helper to extract error message from unknown error */
 function getErrorMessage(error: unknown): string {
@@ -300,4 +300,3 @@ class InstallRoutes {
 }
 
 export default InstallRoutes;
-module.exports = InstallRoutes;

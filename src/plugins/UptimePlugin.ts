@@ -1,5 +1,5 @@
-import type { SimplePlugin, PluginContext } from './types';
-import { formatDuration } from '../utils/pluginFormatters';
+import type { SimplePlugin, PluginContext } from './types.js';
+import { formatDuration } from '../utils/pluginFormatters.js';
 
 const UptimePlugin: SimplePlugin = {
   name: 'UptimePlugin',

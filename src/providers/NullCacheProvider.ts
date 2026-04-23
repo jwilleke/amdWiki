@@ -1,5 +1,5 @@
-import BaseCacheProvider, { CacheStats, ProviderInfo } from './BaseCacheProvider';
-import type { WikiEngine } from '../types/WikiEngine';
+import BaseCacheProvider, { CacheStats, ProviderInfo } from './BaseCacheProvider.js';
+import type { WikiEngine } from '../types/WikiEngine.js';
 
 /**
  * NullCacheProvider - No-op cache provider
@@ -123,5 +123,3 @@ class NullCacheProvider extends BaseCacheProvider {
 
 export default NullCacheProvider;
 
-// CommonJS compatibility
-module.exports = NullCacheProvider;

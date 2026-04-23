@@ -22,8 +22,8 @@
  *   cssclass  — Extra CSS class added to the outer wrapper (optional).
  */
 
-import type { SimplePlugin, PluginContext, PluginParams } from './types';
-import { escapeHtml } from '../utils/pluginFormatters';
+import type { SimplePlugin, PluginContext, PluginParams } from './types.js';
+import { escapeHtml } from '../utils/pluginFormatters.js';
 
 // ─── unique ID counter so multiple banners on one page don't share keyframes ──
 let _idCounter = 0;
@@ -171,4 +171,4 @@ const MarqueePlugin: SimplePlugin = {
   }
 };
 
-module.exports = MarqueePlugin;
+export default MarqueePlugin;

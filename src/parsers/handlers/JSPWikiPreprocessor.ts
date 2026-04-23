@@ -1,4 +1,4 @@
-import BaseSyntaxHandler, { ParseContext, HandlerMetadata } from './BaseSyntaxHandler';
+import BaseSyntaxHandler, { ParseContext, HandlerMetadata } from './BaseSyntaxHandler.js';
 
 /**
  * Block extraction result
@@ -454,5 +454,3 @@ class JSPWikiPreprocessor extends BaseSyntaxHandler {
 
 export default JSPWikiPreprocessor;
 
-// CommonJS compatibility
-module.exports = JSPWikiPreprocessor;

@@ -1,14 +1,14 @@
 import * as path from 'path';
 import * as fse from 'fs-extra';
 import matter from 'gray-matter';
-import BaseManager, { BackupData } from './BaseManager';
-import logger from '../utils/logger';
-import { WikiEngine } from '../types/WikiEngine';
-import { PageProvider, ProviderInfo } from '../types/Provider';
-import { WikiPage, PageFrontmatter } from '../types/Page';
-import type ConfigurationManager from './ConfigurationManager';
-import type ValidationManager from './ValidationManager';
-import type NotificationManager from './NotificationManager';
+import BaseManager, { BackupData } from './BaseManager.js';
+import logger from '../utils/logger.js';
+import { WikiEngine } from '../types/WikiEngine.js';
+import { PageProvider, ProviderInfo } from '../types/Provider.js';
+import { WikiPage, PageFrontmatter } from '../types/Page.js';
+import type ConfigurationManager from './ConfigurationManager.js';
+import type ValidationManager from './ValidationManager.js';
+import type NotificationManager from './NotificationManager.js';
 
 /**
  * Minimal WikiContext interface for type safety
@@ -110,7 +110,7 @@ class PageManager extends BaseManager {
 
     // Load and initialize provider
     try {
-      const mod = await import(`../providers/${this.providerClass}`) as { default: ProviderConstructor };
+      const mod = await import(/* @vite-ignore */ `../providers/${this.providerClass}.js`) as { default: ProviderConstructor };
       const ProviderClass = mod.default;
 
       this.provider = new ProviderClass(this.engine);
@@ -765,4 +765,4 @@ class PageManager extends BaseManager {
   }
 }
 
-export = PageManager;
+export default PageManager;

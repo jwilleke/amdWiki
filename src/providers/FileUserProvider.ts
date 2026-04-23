@@ -1,9 +1,9 @@
-import BaseUserProvider, { WikiEngine, BackupData } from './BaseUserProvider';
-import type ConfigurationManager from '../managers/ConfigurationManager';
+import BaseUserProvider, { WikiEngine, BackupData } from './BaseUserProvider.js';
+import type ConfigurationManager from '../managers/ConfigurationManager.js';
 import { promises as fs } from 'fs';
 import path from 'path';
-import logger from '../utils/logger';
-import { User, UserUpdateData, UserSession } from '../types';
+import logger from '../utils/logger.js';
+import { User, UserUpdateData, UserSession } from '../types/index.js';
 
 /**
  * FileUserProvider backup data structure
@@ -420,5 +420,3 @@ class FileUserProvider extends BaseUserProvider {
 
 export default FileUserProvider;
 
-// CommonJS compatibility
-module.exports = FileUserProvider;

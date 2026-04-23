@@ -1,6 +1,6 @@
-import logger from '../utils/logger';
-import { User, UserUpdateData, UserSession } from '../types';
-import type { WikiEngine } from '../types/WikiEngine';
+import logger from '../utils/logger.js';
+import { User, UserUpdateData, UserSession } from '../types/index.js';
+import type { WikiEngine } from '../types/WikiEngine.js';
 
 /**
  * Provider information
@@ -256,5 +256,3 @@ abstract class BaseUserProvider {
 export default BaseUserProvider;
 export { WikiEngine, ProviderInfo, BackupData };
 
-// CommonJS compatibility
-module.exports = BaseUserProvider;

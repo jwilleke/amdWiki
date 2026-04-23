@@ -19,13 +19,13 @@
  * Related: GitHub Issue #267 - Incremental search index + document persistence
  */
 
-import BaseSearchProvider, { SearchResult, SearchOptions, SearchCriteria, SearchStatistics, BackupData, WikiEngine } from './BaseSearchProvider';
-import { WikiPage } from '../types';
+import BaseSearchProvider, { SearchResult, SearchOptions, SearchCriteria, SearchStatistics, BackupData, WikiEngine } from './BaseSearchProvider.js';
+import { WikiPage } from '../types/index.js';
 import lunr from 'lunr';
-import logger from '../utils/logger';
+import logger from '../utils/logger.js';
 import fs from 'fs-extra';
 import path from 'path';
-import type MetricsManager from '../managers/MetricsManager';
+import type MetricsManager from '../managers/MetricsManager.js';
 
 /**
  * Lunr search index type (lunr types not fully typed)
@@ -911,5 +911,3 @@ class LunrSearchProvider extends BaseSearchProvider {
 
 export default LunrSearchProvider;
 
-// CommonJS compatibility
-module.exports = LunrSearchProvider;

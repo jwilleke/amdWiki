@@ -1,4 +1,4 @@
-import type { SimplePlugin, PluginContext } from './types';
+import type { SimplePlugin, PluginContext } from './types.js';
 
 /**
  * TabPlugin — defines a single tab within a [{Tabs}] body block.

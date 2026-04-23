@@ -1,8 +1,8 @@
 import fs from 'fs-extra';
 import path from 'path';
 import matter from 'gray-matter';
-import logger from './logger';
-import DeltaStorage from './DeltaStorage';
+import logger from './logger.js';
+import DeltaStorage from './DeltaStorage.js';
 
 /** Extract error message from unknown error type */
 function getErrorMessage(error: unknown): string {
@@ -734,5 +734,3 @@ class VersioningMigration {
 
 export default VersioningMigration;
 
-// CommonJS compatibility
-module.exports = VersioningMigration;

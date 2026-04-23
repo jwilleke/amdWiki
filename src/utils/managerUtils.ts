@@ -68,5 +68,3 @@ export function parseManagerFetchOptions(raw: Record<string, string> = {}): Mana
   return opts;
 }
 
-// CommonJS compatibility
-module.exports = { parseManagerFetchOptions };

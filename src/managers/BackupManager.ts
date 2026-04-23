@@ -1,11 +1,11 @@
-import BaseManager, { BackupData as BaseBackupData } from './BaseManager';
+import BaseManager, { BackupData as BaseBackupData } from './BaseManager.js';
 import fs from 'fs-extra';
 import path from 'path';
 import zlib from 'zlib';
 import { promisify } from 'util';
-import logger from '../utils/logger';
-import type { WikiEngine } from '../types/WikiEngine';
-import type ConfigurationManager from './ConfigurationManager';
+import logger from '../utils/logger.js';
+import type { WikiEngine } from '../types/WikiEngine.js';
+import type ConfigurationManager from './ConfigurationManager.js';
 
 const gzip = promisify(zlib.gzip);
 const gunzip = promisify(zlib.gunzip);
@@ -618,5 +618,3 @@ class BackupManager extends BaseManager {
 
 export default BackupManager;
 
-// CommonJS compatibility
-module.exports = BackupManager;

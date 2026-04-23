@@ -13,9 +13,9 @@
  *   This handler resolves them to actual values
  */
 
-import type WikiDocument from '../WikiDocument';
-import logger from '../../../utils/logger';
-import type { LinkedomElement } from '../WikiDocument';
+import type WikiDocument from '../WikiDocument.js';
+import logger from '../../../utils/logger.js';
+import type { LinkedomElement } from '../WikiDocument.js';
 
 /**
  * Context for variable resolution
@@ -362,5 +362,3 @@ class DOMVariableHandler {
 
 export default DOMVariableHandler;
 
-// CommonJS compatibility
-module.exports = DOMVariableHandler;

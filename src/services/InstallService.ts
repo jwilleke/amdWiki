@@ -1,7 +1,11 @@
 import * as fs from 'fs-extra';
 import * as path from 'path';
 import * as crypto from 'crypto';
-import logger from '../utils/logger';
+import { fileURLToPath } from 'url';
+import logger from '../utils/logger.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 /**
  * Wiki engine interface
@@ -966,5 +970,3 @@ class InstallService {
 
 export default InstallService;
 
-// CommonJS compatibility
-module.exports = InstallService;

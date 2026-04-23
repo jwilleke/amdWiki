@@ -1,21 +1,21 @@
-import FileSystemProvider from './FileSystemProvider';
+import FileSystemProvider from './FileSystemProvider.js';
 import fs from 'fs-extra';
 import path from 'path';
 import matter from 'gray-matter';
 import { v4 as uuidv4 } from 'uuid';
-import logger from '../utils/logger';
-import DeltaStorage, { DiffTuple } from '../utils/DeltaStorage';
-import PageNameMatcher from '../utils/PageNameMatcher';
+import logger from '../utils/logger.js';
+import DeltaStorage, { DiffTuple } from '../utils/DeltaStorage.js';
+import PageNameMatcher from '../utils/PageNameMatcher.js';
 import {
   WikiPage,
   PageFrontmatter,
   VersionContent,
   VersionDiff,
   VersionHistoryEntry
-} from '../types';
-import { WikiEngine, ProviderInfo } from './BasePageProvider';
-import type ConfigurationManager from '../managers/ConfigurationManager';
-import type MetricsManager from '../managers/MetricsManager';
+} from '../types/index.js';
+import { WikiEngine, ProviderInfo } from './BasePageProvider.js';
+import type ConfigurationManager from '../managers/ConfigurationManager.js';
+import type MetricsManager from '../managers/MetricsManager.js';
 
 /**
  * Page index entry structure
@@ -1967,5 +1967,3 @@ class VersioningFileProvider extends FileSystemProvider {
 
 export default VersioningFileProvider;
 
-// CommonJS compatibility
-module.exports = VersioningFileProvider;

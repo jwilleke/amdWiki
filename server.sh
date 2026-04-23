@@ -272,7 +272,7 @@ case "${1:-}" in
     echo "   Base config: config/app-default-config.json"
     echo "   Instance config: ${FAST_STORAGE:-${INSTANCE_DATA_FOLDER:-./data}}/config/${INSTANCE_CONFIG_FILE:-app-custom-config.json}"
     echo "   Logs: ${FAST_STORAGE:-${INSTANCE_DATA_FOLDER:-./data}}/logs/"
-    npx --no pm2 start ecosystem.config.js --env $ENV_NAME
+    npx --no pm2 start ecosystem.config.cjs --env $ENV_NAME
 
     # STEP 8: Wait for server to start and verify it's running
     echo "   Waiting for server to start..."

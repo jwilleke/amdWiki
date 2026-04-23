@@ -20,11 +20,11 @@ import type {
   AuthInitiateContext,
   AuthVerifyCredentials,
   AuthResult
-} from './BaseAuthProvider';
-import type { WikiEngine } from '../types/WikiEngine';
-import type UserManager from '../managers/UserManager';
-import type { MailProvider } from '../mail/MailProvider';
-import logger from '../utils/logger';
+} from './BaseAuthProvider.js';
+import type { WikiEngine } from '../types/WikiEngine.js';
+import type UserManager from '../managers/UserManager.js';
+import type { MailProvider } from '../mail/MailProvider.js';
+import logger from '../utils/logger.js';
 
 interface TokenEntry {
   username: string;

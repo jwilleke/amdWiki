@@ -1,9 +1,9 @@
-import BaseSyntaxHandler, { InitializationContext, ParseContext } from './BaseSyntaxHandler';
+import BaseSyntaxHandler, { InitializationContext, ParseContext } from './BaseSyntaxHandler.js';
 import * as path from 'path';
 import * as fs from 'fs/promises';
 import * as crypto from 'crypto';
 import sharp from 'sharp';
-import logger from '../../utils/logger';
+import logger from '../../utils/logger.js';
 
 /**
  * Attachment match information
@@ -903,5 +903,3 @@ class AttachmentHandler extends BaseSyntaxHandler {
 
 export default AttachmentHandler;
 
-// CommonJS compatibility
-module.exports = AttachmentHandler;

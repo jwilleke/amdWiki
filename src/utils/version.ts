@@ -16,6 +16,10 @@
 import fs from 'fs';
 import path from 'path';
 import { execSync } from 'child_process';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Find project root by walking up from __dirname until we find package.json
 function findProjectRoot(): string {

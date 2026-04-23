@@ -13,11 +13,11 @@
  * Related: #424 (CatalogManager), #507 (auto-tagging), #149 (microdata itemid)
  */
 
-import BaseManager from './BaseManager';
-import type { WikiEngine } from '../types/WikiEngine';
-import type ConfigurationManager from './ConfigurationManager';
-import type { CatalogProvider, CatalogTerm } from '../types/Catalog';
-import logger from '../utils/logger';
+import BaseManager from './BaseManager.js';
+import type { WikiEngine } from '../types/WikiEngine.js';
+import type ConfigurationManager from './ConfigurationManager.js';
+import type { CatalogProvider, CatalogTerm } from '../types/Catalog.js';
+import logger from '../utils/logger.js';
 
 // ---------------------------------------------------------------------------
 // DefaultCatalogProvider — reads ngdpbase.system-keywords from config
@@ -226,5 +226,3 @@ class CatalogManager extends BaseManager {
 
 export default CatalogManager;
 
-// CommonJS compatibility
-module.exports = CatalogManager;

@@ -18,15 +18,15 @@
 
 import fs from 'fs-extra';
 import path from 'path';
-import logger from '../utils/logger';
-import BaseManager from './BaseManager';
-import type { WikiEngine } from '../types/WikiEngine';
-import WikiContext from '../context/WikiContext';
-import BaseMediaProvider, { MediaItem, ScanResult } from '../providers/BaseMediaProvider';
-import FileSystemMediaProvider, { DEFAULT_MEDIA_EXTENSIONS } from '../providers/FileSystemMediaProvider';
-import { transformImage } from '../utils/imageTransform';
-import type ConfigurationManager from './ConfigurationManager';
-import type PageManager from './PageManager';
+import logger from '../utils/logger.js';
+import BaseManager from './BaseManager.js';
+import type { WikiEngine } from '../types/WikiEngine.js';
+import WikiContext from '../context/WikiContext.js';
+import BaseMediaProvider, { MediaItem, ScanResult } from '../providers/BaseMediaProvider.js';
+import FileSystemMediaProvider, { DEFAULT_MEDIA_EXTENSIONS } from '../providers/FileSystemMediaProvider.js';
+import { transformImage } from '../utils/imageTransform.js';
+import type ConfigurationManager from './ConfigurationManager.js';
+import type PageManager from './PageManager.js';
 
 class MediaManager extends BaseManager {
   /** Active media provider (null when not yet initialized) */
@@ -431,5 +431,3 @@ class MediaManager extends BaseManager {
 
 export default MediaManager;
 
-// CommonJS compatibility
-module.exports = MediaManager;

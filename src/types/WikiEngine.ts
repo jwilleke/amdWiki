@@ -5,7 +5,7 @@
  * WikiEngine is the central orchestrator that manages all subsystems.
  */
 
-import { WikiConfig } from './Config';
+import { WikiConfig } from './Config.js';
 import type { Logger } from 'winston';
 import type { Application } from 'express';
 

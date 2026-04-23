@@ -19,8 +19,8 @@
  * Note: Either 'name' or 'coords' must be provided.
  */
 
-import type { SimplePlugin, PluginContext, PluginParams } from './types';
-import { escapeHtml } from '../utils/pluginFormatters';
+import type { SimplePlugin, PluginContext, PluginParams } from './types.js';
+import { escapeHtml } from '../utils/pluginFormatters.js';
 
 interface ConfigManager {
   getProperty(key: string, defaultValue: string): string;
@@ -191,4 +191,4 @@ const LocationPlugin: SimplePlugin = {
   }
 };
 
-module.exports = LocationPlugin;
+export default LocationPlugin;

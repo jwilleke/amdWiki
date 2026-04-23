@@ -1,9 +1,9 @@
  
  
 // src/utils/sessionUtils.ts
-import ConfigurationManager from '../managers/ConfigurationManager';
-import UserManager from '../managers/UserManager';
-import type { WikiEngine } from '../types/WikiEngine';
+import ConfigurationManager from '../managers/ConfigurationManager.js';
+import UserManager from '../managers/UserManager.js';
+import type { WikiEngine } from '../types/WikiEngine.js';
 import { Request } from 'express';
 
 /**

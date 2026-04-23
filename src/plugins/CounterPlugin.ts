@@ -24,7 +24,7 @@
  * https://jspwiki-wiki.apache.org/Wiki.jsp?page=Counter
  */
 
-import type { PluginContext, PluginParams } from './types';
+import type { PluginContext, PluginParams } from './types.js';
 
 interface CounterContext extends PluginContext {
   counters?: Record<string, number>;
@@ -166,4 +166,4 @@ const CounterPlugin = {
   }
 };
 
-module.exports = CounterPlugin;
+export default CounterPlugin;

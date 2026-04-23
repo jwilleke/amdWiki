@@ -16,11 +16,11 @@
 import crypto from 'crypto';
 import path from 'path';
 import fs from 'fs-extra';
-import { transformImage, parseSize } from '../utils/imageTransform';
+import { transformImage, parseSize } from '../utils/imageTransform.js';
 import { ExifTool } from 'exiftool-vendored';
 import { minimatch } from 'minimatch';
-import logger from '../utils/logger';
-import BaseMediaProvider, { MediaItem, ScanResult } from './BaseMediaProvider';
+import logger from '../utils/logger.js';
+import BaseMediaProvider, { MediaItem, ScanResult } from './BaseMediaProvider.js';
 
 /**
  * Configuration for FileSystemMediaProvider.
@@ -124,7 +124,7 @@ class FileSystemMediaProvider extends BaseMediaProvider {
   // AssetProvider identity (Epic #405 Phase 1)
   readonly id = 'media-library';
   readonly displayName = 'Media Library';
-  readonly capabilities: import('../types/Asset').ProviderCapability[] = ['search', 'thumbnail'];
+  readonly capabilities: import('../types/Asset.js').ProviderCapability[] = ['search', 'thumbnail'];
 
   private readonly config: FileSystemMediaProviderConfig;
   /** In-memory index: id → MediaIndexEntry */
@@ -625,7 +625,7 @@ class FileSystemMediaProvider extends BaseMediaProvider {
       const orientation = typeof rawTags.Orientation === 'number' ? rawTags.Orientation : 1;
 
       // Build structured camera metadata from EXIF tags
-      const cameraObj: import('../types/Asset').AssetCamera = {};
+      const cameraObj: import('../types/Asset.js').AssetCamera = {};
       if (typeof rawTags.Make === 'string') cameraObj.make = rawTags.Make;
       if (typeof rawTags.Model === 'string') cameraObj.model = rawTags.Model;
       const lensModel = typeof rawTags.LensModel === 'string' ? rawTags.LensModel
@@ -644,7 +644,7 @@ class FileSystemMediaProvider extends BaseMediaProvider {
       const lat = typeof rawTags.GPSLatitude === 'number' ? rawTags.GPSLatitude : undefined;
       const lng = typeof rawTags.GPSLongitude === 'number' ? rawTags.GPSLongitude : undefined;
       const alt = typeof rawTags.GPSAltitude === 'number' ? rawTags.GPSAltitude : undefined;
-      const gpsObj: import('../types/Asset').AssetGPS | undefined =
+      const gpsObj: import('../types/Asset.js').AssetGPS | undefined =
         lat !== undefined && lng !== undefined ? { latitude: lat, longitude: lng, altitude: alt } : undefined;
 
       // IPTC/XMP creator (may be an array — use first element)
@@ -809,5 +809,3 @@ class FileSystemMediaProvider extends BaseMediaProvider {
 
 export default FileSystemMediaProvider;
 
-// CommonJS compatibility
-module.exports = FileSystemMediaProvider;

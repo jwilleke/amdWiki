@@ -1,6 +1,6 @@
 import fs from 'fs-extra';
 import path from 'path';
-import logger from './logger';
+import logger from './logger.js';
 
 /**
  * Page info from index
@@ -563,5 +563,3 @@ class VersioningAnalytics {
 
 export default VersioningAnalytics;
 
-// CommonJS compatibility
-module.exports = VersioningAnalytics;

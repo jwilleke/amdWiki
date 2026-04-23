@@ -1,12 +1,12 @@
-import BaseManager from './BaseManager';
+import BaseManager from './BaseManager.js';
 import { promises as fs } from 'fs';
-import logger from '../utils/logger';
-import { WikiEngine } from '../types/WikiEngine';
-import type ConfigurationManager from './ConfigurationManager';
-import type UserManager from './UserManager';
-import type PolicyEvaluator from './PolicyEvaluator';
-import type NotificationManager from './NotificationManager';
-import type { PageFrontmatter } from '../types/Page';
+import logger from '../utils/logger.js';
+import { WikiEngine } from '../types/WikiEngine.js';
+import type ConfigurationManager from './ConfigurationManager.js';
+import type UserManager from './UserManager.js';
+import type PolicyEvaluator from './PolicyEvaluator.js';
+import type NotificationManager from './NotificationManager.js';
+import type { PageFrontmatter } from '../types/Page.js';
 
 /**
  * Minimal WikiContext interface for type safety
@@ -311,7 +311,7 @@ class ACLManager extends BaseManager {
     // Tier 0: private user-keyword — hard constraint, not overridable by front matter
     const userKeywords: string[] = (wikiContext.pageMetadata?.['user-keywords']) ?? [];
     if (userKeywords.includes('private')) {
-      const creator = (wikiContext.pageMetadata?.author as string | undefined) ?? '';
+      const creator = (wikiContext.pageMetadata?.author) ?? '';
       const userRoles = userContext?.roles ?? [];
       const username  = userContext?.username ?? '';
       const allowed   = userRoles.includes('admin') || username === creator;
@@ -981,4 +981,4 @@ class ACLManager extends BaseManager {
   // - The accessPolicies Map is just a runtime cache that can be rebuilt from config
 }
 
-export = ACLManager;
+export default ACLManager;

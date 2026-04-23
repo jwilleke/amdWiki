@@ -26,8 +26,8 @@
  */
 
 import type { Request } from 'express';
-import type { WikiEngine } from '../types/WikiEngine';
-import type ConfigurationManager from '../managers/ConfigurationManager';
+import type { WikiEngine } from '../types/WikiEngine.js';
+import type ConfigurationManager from '../managers/ConfigurationManager.js';
 
 // ── ApiError ────────────────────────────────────────────────────────────────
 
@@ -177,5 +177,3 @@ export class ApiContext {
   }
 }
 
-// CommonJS compatibility
-module.exports = { ApiContext, ApiError };

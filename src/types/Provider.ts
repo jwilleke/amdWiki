@@ -5,10 +5,10 @@
  * search, cache, audit) following JSPWiki's provider pattern for pluggable backends.
  */
 
-import { WikiPage, PageFrontmatter, PageInfo, PageSaveOptions, PageSearchResult, PageListOptions } from './Page';
-import { VersionManifest, VersionContent, VersionDiff, VersionHistoryEntry } from './Version';
-import { User, UserUpdateData, UserSession } from './User';
-import { WikiEngine } from './WikiEngine';
+import { WikiPage, PageFrontmatter, PageInfo, PageSaveOptions, PageSearchResult, PageListOptions } from './Page.js';
+import { VersionManifest, VersionContent, VersionDiff, VersionHistoryEntry } from './Version.js';
+import { User, UserUpdateData, UserSession } from './User.js';
+import { WikiEngine } from './WikiEngine.js';
 
 /**
  * Provider information returned by getProviderInfo()

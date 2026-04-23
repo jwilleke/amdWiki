@@ -8,8 +8,8 @@
  * disappears completely when there are no links to show.
  */
 
-import type { SimplePlugin, PluginContext, PluginParams } from './types';
-import { escapeHtml } from '../utils/pluginFormatters';
+import type { SimplePlugin, PluginContext, PluginParams } from './types.js';
+import { escapeHtml } from '../utils/pluginFormatters.js';
 
 interface PinnedPage {
   pageName: string;

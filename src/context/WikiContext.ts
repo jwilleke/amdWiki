@@ -7,18 +7,18 @@
  */
 
 import type { Request, Response } from 'express';
-import * as Showdown from 'showdown';
-import logger from '../utils/logger';
-import type { WikiEngine } from '../types/WikiEngine';
-import type PageManager from '../managers/PageManager';
-import type RenderingManager from '../managers/RenderingManager';
-import type PluginManager from '../managers/PluginManager';
-import type VariableManager from '../managers/VariableManager';
-import type ACLManager from '../managers/ACLManager';
-import type MarkupParser from '../parsers/MarkupParser';
-import type { VariableContext } from '../managers/VariableManager';
-import type { ThemeInfo } from '../managers/ThemeManager';
-import type { PageFrontmatter } from '../types/Page';
+import Showdown from 'showdown';
+import logger from '../utils/logger.js';
+import type { WikiEngine } from '../types/WikiEngine.js';
+import type PageManager from '../managers/PageManager.js';
+import type RenderingManager from '../managers/RenderingManager.js';
+import type PluginManager from '../managers/PluginManager.js';
+import type VariableManager from '../managers/VariableManager.js';
+import type ACLManager from '../managers/ACLManager.js';
+import type MarkupParser from '../parsers/MarkupParser.js';
+import type { VariableContext } from '../managers/VariableManager.js';
+import type { ThemeInfo } from '../managers/ThemeManager.js';
+import type { PageFrontmatter } from '../types/Page.js';
 
 /**
  * Request information extracted from Express request
@@ -442,5 +442,3 @@ class WikiContext {
 
 export default WikiContext;
 
-// CommonJS compatibility
-module.exports = WikiContext;

@@ -1,5 +1,5 @@
-import BaseSyntaxHandler, { InitializationContext, ParseContext } from './BaseSyntaxHandler';
-import logger from '../../utils/logger';
+import BaseSyntaxHandler, { InitializationContext, ParseContext } from './BaseSyntaxHandler.js';
+import logger from '../../utils/logger.js';
 
 /**
  * Variable match information
@@ -171,5 +171,3 @@ class VariableSyntaxHandler extends BaseSyntaxHandler {
 
 export default VariableSyntaxHandler;
 
-// CommonJS compatibility
-module.exports = VariableSyntaxHandler;

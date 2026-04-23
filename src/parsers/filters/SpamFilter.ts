@@ -1,5 +1,5 @@
-import BaseFilter from './BaseFilter';
-import logger from '../../utils/logger';
+import BaseFilter from './BaseFilter.js';
+import logger from '../../utils/logger.js';
 
 /**
  * Spam configuration interface
@@ -532,5 +532,3 @@ class SpamFilter extends BaseFilter {
 
 export default SpamFilter;
 
-// CommonJS compatibility
-module.exports = SpamFilter;

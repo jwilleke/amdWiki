@@ -41,9 +41,9 @@
  * Related issue: #274 [{ATTACH filename}] produces "Plugin 'ATTACH' not found"
  */
 
-import type { SimplePlugin, PluginContext, PluginParams } from './types';
-import { renderImageHtml } from './renderImage';
-import { escapeHtml } from '../utils/pluginFormatters';
+import type { SimplePlugin, PluginContext, PluginParams } from './types.js';
+import { renderImageHtml } from './renderImage.js';
+import { escapeHtml } from '../utils/pluginFormatters.js';
 
 interface AttachmentManager {
   resolveAttachmentSrc(src: string, pageName: string): Promise<{ url: string; mimeType: string } | null>;
@@ -172,4 +172,4 @@ const AttachPlugin: SimplePlugin = {
   }
 };
 
-module.exports = AttachPlugin;
+export default AttachPlugin;

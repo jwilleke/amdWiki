@@ -1,6 +1,6 @@
-import BaseSyntaxHandler, { InitializationContext, ParseContext } from './BaseSyntaxHandler';
+import BaseSyntaxHandler, { InitializationContext, ParseContext } from './BaseSyntaxHandler.js';
 import * as crypto from 'crypto';
-import logger from '../../utils/logger';
+import logger from '../../utils/logger.js';
 
 /**
  * WikiTag match information
@@ -742,5 +742,3 @@ class WikiTagHandler extends BaseSyntaxHandler {
 
 export default WikiTagHandler;
 
-// CommonJS compatibility
-module.exports = WikiTagHandler;

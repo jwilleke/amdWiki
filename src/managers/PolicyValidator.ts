@@ -1,9 +1,21 @@
-import BaseManager from './BaseManager';
-import logger from '../utils/logger';
+import BaseManager from './BaseManager.js';
+import logger from '../utils/logger.js';
 import Ajv, { ValidateFunction, ErrorObject } from 'ajv';
 import addFormats from 'ajv-formats';
-import { WikiEngine } from '../types/WikiEngine';
-import type PolicyManager from './PolicyManager';
+import { WikiEngine } from '../types/WikiEngine.js';
+import type PolicyManager from './PolicyManager.js';
+
+// CJS/ESM interop: Ajv lacks "exports" field; NodeNext treats default import as module namespace.
+// Cast to a constructable/callable type to work around NodeNext namespace typing restrictions.
+interface AjvLike {
+  compile(schema: unknown): ValidateFunction;
+  validate(schema: unknown, data: unknown): boolean;
+  errors: ErrorObject[] | null;
+}
+ 
+const AjvCtor = Ajv as unknown as new (...args: unknown[]) => AjvLike;
+ 
+const applyFormats = addFormats as unknown as (ajv: AjvLike) => void;
 
 /**
  * Subject type enumeration
@@ -178,7 +190,7 @@ interface PolicySchema {
  */
 class PolicyValidator extends BaseManager {
   private policyManager: PolicyManager | null;
-  private schemaValidator: Ajv | null;
+  private schemaValidator: AjvLike | null;
   private policySchema: PolicySchema | null;
   private schemaValidatorCompiled: ValidateFunction | null;
   private validationCache: Map<string, ValidationResult>;
@@ -202,12 +214,12 @@ class PolicyValidator extends BaseManager {
     }
 
     // Initialize JSON schema validator
-    this.schemaValidator = new Ajv({
+    this.schemaValidator = new AjvCtor({
       allErrors: true,
       verbose: true,
       strict: false
     });
-    addFormats(this.schemaValidator);
+    applyFormats(this.schemaValidator);
 
     // Load policy schema
     this.loadPolicySchema();
@@ -889,4 +901,4 @@ class PolicyValidator extends BaseManager {
   }
 }
 
-export = PolicyValidator;
+export default PolicyValidator;

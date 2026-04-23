@@ -3,8 +3,8 @@
  * Returns the total number of pages in the wiki
  */
 
-import type { SimplePlugin, PluginContext, PluginParams } from './types';
-import { formatAsCount } from '../utils/pluginFormatters';
+import type { SimplePlugin, PluginContext, PluginParams } from './types.js';
+import { formatAsCount } from '../utils/pluginFormatters.js';
 
 interface PageManager {
   getAllPages(): Promise<unknown[]>;
@@ -45,4 +45,4 @@ const TotalPagesPlugin: SimplePlugin = {
   }
 };
 
-module.exports = TotalPagesPlugin;
+export default TotalPagesPlugin;

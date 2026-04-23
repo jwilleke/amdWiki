@@ -24,13 +24,13 @@
  *   [{UserLookup role='admin' fields='username,displayName,email,roles' max='20'}]
  */
 
-import type { SimplePlugin, PluginContext, PluginParams } from './types';
+import type { SimplePlugin, PluginContext, PluginParams } from './types.js';
 import {
   escapeHtml,
   parseMaxParam,
   resolveUserParam,
   formatAsTable
-} from '../utils/pluginFormatters';
+} from '../utils/pluginFormatters.js';
 
 /** All fields the API may return (permission-gated server-side) */
 const ALL_FIELDS = ['username', 'displayName', 'email', 'roles', 'lastLogin', 'isActive'] as const;
@@ -142,4 +142,3 @@ const UserLookupPlugin: SimplePlugin = {
 };
 
 export default UserLookupPlugin;
-module.exports = UserLookupPlugin;

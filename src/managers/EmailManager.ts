@@ -16,14 +16,14 @@
  * @see {@link https://github.com/jwilleke/ngdpbase/issues/456}
  */
 
-import BaseManager from './BaseManager';
-import type { BackupData } from './BaseManager';
-import type { WikiEngine } from '../types/WikiEngine';
-import type ConfigurationManager from './ConfigurationManager';
-import type { MailMessage, MailProvider } from '../mail/MailProvider';
-import { ConsoleMailProvider } from '../mail/MailProvider';
-import { NodemailerMailProvider } from '../mail/NodemailerMailProvider';
-import logger from '../utils/logger';
+import BaseManager from './BaseManager.js';
+import type { BackupData } from './BaseManager.js';
+import type { WikiEngine } from '../types/WikiEngine.js';
+import type ConfigurationManager from './ConfigurationManager.js';
+import type { MailMessage, MailProvider } from '../mail/MailProvider.js';
+import { ConsoleMailProvider } from '../mail/MailProvider.js';
+import { NodemailerMailProvider } from '../mail/NodemailerMailProvider.js';
+import logger from '../utils/logger.js';
 
 class EmailManager extends BaseManager implements MailProvider {
   private provider: MailProvider;
@@ -148,5 +148,3 @@ class EmailManager extends BaseManager implements MailProvider {
 
 export default EmailManager;
 
-// CommonJS compatibility
-module.exports = EmailManager;

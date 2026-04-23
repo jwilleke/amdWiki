@@ -1,5 +1,5 @@
-import type { SimplePlugin, PluginContext } from './types';
-import type ConfigurationManager from '../managers/ConfigurationManager';
+import type { SimplePlugin, PluginContext } from './types.js';
+import type ConfigurationManager from '../managers/ConfigurationManager.js';
 
 const TAB_REGEX = /\[\{Tab\s+name='([^']+)'\s*\}\]([\s\S]*?)\[\{\/Tab\}\]/g;
 

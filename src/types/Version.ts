@@ -5,7 +5,7 @@
  * manifests, and version history structures used by VersioningFileProvider.
  */
 
-import { DiffTuple } from '../utils/DeltaStorage';
+import { DiffTuple } from '../utils/DeltaStorage.js';
 
 /**
  * Version metadata

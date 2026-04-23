@@ -1,5 +1,5 @@
-import { AuditEvent } from '../types';
-import type { WikiEngine } from '../types/WikiEngine';
+import { AuditEvent } from '../types/index.js';
+import type { WikiEngine } from '../types/WikiEngine.js';
 
 /**
  * Provider information
@@ -330,5 +330,3 @@ abstract class BaseAuditProvider {
 export default BaseAuditProvider;
 export { WikiEngine, ProviderInfo };
 
-// CommonJS compatibility
-module.exports = BaseAuditProvider;

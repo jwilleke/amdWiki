@@ -1,6 +1,6 @@
 import NodeCache from 'node-cache';
-import logger from '../utils/logger';
-import ICacheAdapter, { type CacheStats } from './ICacheAdapter';
+import logger from '../utils/logger.js';
+import ICacheAdapter, { type CacheStats } from './ICacheAdapter.js';
 
 /**
  * NodeCacheAdapter configuration options
@@ -330,5 +330,3 @@ class NodeCacheAdapter extends ICacheAdapter {
 
 export default NodeCacheAdapter;
 
-// CommonJS compatibility
-module.exports = NodeCacheAdapter;

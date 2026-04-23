@@ -1,7 +1,7 @@
-import BaseCacheProvider, { CacheStats, ProviderInfo } from './BaseCacheProvider';
-import type { WikiEngine } from '../types/WikiEngine';
-import type ConfigurationManager from '../managers/ConfigurationManager';
-import logger from '../utils/logger';
+import BaseCacheProvider, { CacheStats, ProviderInfo } from './BaseCacheProvider.js';
+import type { WikiEngine } from '../types/WikiEngine.js';
+import type ConfigurationManager from '../managers/ConfigurationManager.js';
+import logger from '../utils/logger.js';
 
 /**
  * Redis configuration interface
@@ -201,5 +201,3 @@ class RedisCacheProvider extends BaseCacheProvider {
 
 export default RedisCacheProvider;
 
-// CommonJS compatibility
-module.exports = RedisCacheProvider;

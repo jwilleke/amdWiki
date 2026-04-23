@@ -1,9 +1,9 @@
-import BaseManager from './BaseManager';
+import BaseManager from './BaseManager.js';
 import fs from 'fs-extra';
 import path from 'path';
-import logger from '../utils/logger';
-import type { WikiEngine } from '../types/WikiEngine';
-import type ConfigurationManager from './ConfigurationManager';
+import logger from '../utils/logger.js';
+import type { WikiEngine } from '../types/WikiEngine.js';
+import type ConfigurationManager from './ConfigurationManager.js';
 
 /**
  * Plugin function type - old-style callable function plugin
@@ -438,5 +438,3 @@ class PluginManager extends BaseManager {
 
 export default PluginManager;
 
-// CommonJS compatibility
-module.exports = PluginManager;

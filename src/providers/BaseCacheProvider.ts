@@ -1,4 +1,4 @@
-import type { WikiEngine } from '../types/WikiEngine';
+import type { WikiEngine } from '../types/WikiEngine.js';
 
 /**
  * Cache statistics structure
@@ -184,5 +184,3 @@ abstract class BaseCacheProvider {
 
 export default BaseCacheProvider;
 
-// CommonJS compatibility
-module.exports = BaseCacheProvider;

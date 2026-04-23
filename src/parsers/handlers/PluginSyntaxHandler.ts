@@ -1,6 +1,6 @@
-import BaseSyntaxHandler, { InitializationContext, ParseContext } from './BaseSyntaxHandler';
+import BaseSyntaxHandler, { InitializationContext, ParseContext } from './BaseSyntaxHandler.js';
 import * as crypto from 'crypto';
-import logger from '../../utils/logger';
+import logger from '../../utils/logger.js';
 
 /**
  * Plugin match information
@@ -487,5 +487,3 @@ class PluginSyntaxHandler extends BaseSyntaxHandler {
 
 export default PluginSyntaxHandler;
 
-// CommonJS compatibility
-module.exports = PluginSyntaxHandler;

@@ -7,6 +7,6 @@
  * @module converters
  */
 
-export { IContentConverter, ConversionResult } from './IContentConverter';
-export { default as JSPWikiConverter } from './JSPWikiConverter';
-export { default as MarkdownConverter } from './MarkdownConverter';
+export { IContentConverter, ConversionResult } from './IContentConverter.js';
+export { default as JSPWikiConverter } from './JSPWikiConverter.js';
+export { default as MarkdownConverter } from './MarkdownConverter.js';

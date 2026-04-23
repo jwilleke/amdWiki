@@ -20,21 +20,21 @@
  * @see {@link https://github.com/jwilleke/ngdpbase/issues/396}
  */
 
-import BaseManager from './BaseManager';
-import type { BackupData } from './BaseManager';
-import type { WikiEngine } from '../types/WikiEngine';
-import type ConfigurationManager from './ConfigurationManager';
-import type UserManager from './UserManager';
+import BaseManager from './BaseManager.js';
+import type { BackupData } from './BaseManager.js';
+import type { WikiEngine } from '../types/WikiEngine.js';
+import type ConfigurationManager from './ConfigurationManager.js';
+import type UserManager from './UserManager.js';
 import type {
   AuthProvider,
   AuthInitiateContext,
   AuthVerifyCredentials
-} from '../providers/BaseAuthProvider';
-import { PasswordAuthProvider } from '../providers/PasswordAuthProvider';
-import { MagicLinkAuthProvider } from '../providers/MagicLinkAuthProvider';
-import { GoogleOIDCProvider } from '../providers/GoogleOIDCProvider';
-import type EmailManager from './EmailManager';
-import logger from '../utils/logger';
+} from '../providers/BaseAuthProvider.js';
+import { PasswordAuthProvider } from '../providers/PasswordAuthProvider.js';
+import { MagicLinkAuthProvider } from '../providers/MagicLinkAuthProvider.js';
+import { GoogleOIDCProvider } from '../providers/GoogleOIDCProvider.js';
+import type EmailManager from './EmailManager.js';
+import logger from '../utils/logger.js';
 
 export interface AuthenticateResult {
   success: boolean;
@@ -220,5 +220,3 @@ class AuthManager extends BaseManager {
 
 export default AuthManager;
 
-// CommonJS compatibility
-module.exports = AuthManager;

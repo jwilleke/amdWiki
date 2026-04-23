@@ -14,13 +14,13 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import matter from 'gray-matter';
-import BaseManager from './BaseManager';
-import type { BackupData } from './BaseManager';
-import type { WikiEngine } from '../types/WikiEngine';
-import type ConfigurationManager from './ConfigurationManager';
-import type PageManager from './PageManager';
-import type SearchManager from './SearchManager';
-import logger from '../utils/logger';
+import BaseManager from './BaseManager.js';
+import type { BackupData } from './BaseManager.js';
+import type { WikiEngine } from '../types/WikiEngine.js';
+import type ConfigurationManager from './ConfigurationManager.js';
+import type PageManager from './PageManager.js';
+import type SearchManager from './SearchManager.js';
+import logger from '../utils/logger.js';
 
 /**
  * Standard interface that all add-ons must implement
@@ -909,5 +909,3 @@ class AddonsManager extends BaseManager {
 
 export default AddonsManager;
 
-// CommonJS compatibility
-module.exports = AddonsManager;

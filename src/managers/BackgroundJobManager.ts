@@ -1,7 +1,7 @@
 import { randomUUID } from 'crypto';
-import BaseManager from './BaseManager';
-import logger from '../utils/logger';
-import type { WikiEngine } from '../types/WikiEngine';
+import BaseManager from './BaseManager.js';
+import logger from '../utils/logger.js';
+import type { WikiEngine } from '../types/WikiEngine.js';
 
 /**
  * Callback supplied to job run functions so they can push live progress
@@ -216,4 +216,3 @@ class BackgroundJobManager extends BaseManager {
 }
 
 export default BackgroundJobManager;
-module.exports = BackgroundJobManager;

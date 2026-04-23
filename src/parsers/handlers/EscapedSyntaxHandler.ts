@@ -1,5 +1,5 @@
-import BaseSyntaxHandler from './BaseSyntaxHandler';
-import logger from '../../utils/logger';
+import BaseSyntaxHandler from './BaseSyntaxHandler.js';
+import logger from '../../utils/logger.js';
 
 /**
  * Match information interface
@@ -147,5 +147,3 @@ class EscapedSyntaxHandler extends BaseSyntaxHandler {
 
 export default EscapedSyntaxHandler;
 
-// CommonJS compatibility
-module.exports = EscapedSyntaxHandler;

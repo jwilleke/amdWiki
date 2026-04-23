@@ -11,7 +11,7 @@
  */
 
 import matter from 'gray-matter';
-import { IContentConverter, ConversionResult } from './IContentConverter';
+import { IContentConverter, ConversionResult } from './IContentConverter.js';
 
 /**
  * Frontmatter fields that are surfaced as first-class metadata.
@@ -95,5 +95,3 @@ class MarkdownConverter implements IContentConverter {
 
 export default MarkdownConverter;
 
-// CommonJS compatibility
-module.exports = MarkdownConverter;

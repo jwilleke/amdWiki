@@ -8,9 +8,9 @@
  * Epic: #41 - Implement JSPWikiMarkupParser for Complete Enhancement Support
  */
 
-import BaseSyntaxHandler from './BaseSyntaxHandler';
-import logger from '../../utils/logger';
-import type { DependencySpec } from './BaseSyntaxHandler';
+import BaseSyntaxHandler from './BaseSyntaxHandler.js';
+import logger from '../../utils/logger.js';
+import type { DependencySpec } from './BaseSyntaxHandler.js';
 
 // Re-export for use in type assertions
 export type { DependencySpec };
@@ -688,7 +688,3 @@ export { HandlerRegistry };
 // Export for ES modules - HandlerRegistrationError already exported inline above
 export default HandlerRegistry;
 
-// Export for CommonJS (Jest compatibility)
-// Must export class directly for instanceof checks to work
-module.exports = HandlerRegistry;
-Object.assign(module.exports, { HandlerRegistry, HandlerRegistrationError, default: HandlerRegistry });

@@ -15,7 +15,7 @@
  * [{CurrentTimePlugin format='EEEE, MMMM d, yyyy'}] - Custom date format
  */
 
-import type { SimplePlugin, PluginContext, PluginParams } from './types';
+import type { SimplePlugin, PluginContext, PluginParams } from './types.js';
 
 interface UserPreferences {
   locale?: string;
@@ -275,4 +275,4 @@ const CurrentTimePlugin: SimplePlugin = {
   }
 };
 
-module.exports = CurrentTimePlugin;
+export default CurrentTimePlugin;

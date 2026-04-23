@@ -1,4 +1,4 @@
-import logger from '../../utils/logger';
+import logger from '../../utils/logger.js';
 
 /**
  * BaseSyntaxHandler - Abstract base class for all markup syntax handlers
@@ -751,7 +751,3 @@ export class HandlerExecutionError extends Error {
 // Export for ES modules
 export default BaseSyntaxHandler;
 
-// Export for CommonJS (Jest compatibility)
-// Must export class directly for instanceof checks to work
-module.exports = BaseSyntaxHandler;
-Object.assign(module.exports, { BaseSyntaxHandler, HandlerExecutionError, default: BaseSyntaxHandler });

@@ -1,5 +1,5 @@
-import type ICacheAdapter from './ICacheAdapter';
-import type { CacheStats } from './ICacheAdapter';
+import type ICacheAdapter from './ICacheAdapter.js';
+import type { CacheStats } from './ICacheAdapter.js';
 
 /**
  * Cache set options
@@ -233,5 +233,3 @@ class RegionCache {
 
 export default RegionCache;
 
-// CommonJS compatibility
-module.exports = RegionCache;

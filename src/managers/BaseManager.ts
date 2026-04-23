@@ -15,8 +15,8 @@
  * @see {@link WikiEngine} for the main engine
  */
 
-import type { WikiEngine } from '../types/WikiEngine';
-import type { ManagerFetchOptions } from '../utils/managerUtils';
+import type { WikiEngine } from '../types/WikiEngine.js';
+import type { ManagerFetchOptions } from '../utils/managerUtils.js';
 
 /**
  * Backup data structure returned by backup() method
@@ -242,5 +242,3 @@ abstract class BaseManager {
 
 export default BaseManager;
 
-// CommonJS compatibility
-module.exports = BaseManager;

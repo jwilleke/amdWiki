@@ -1,5 +1,5 @@
-import BaseFilter from './BaseFilter';
-import logger from '../../utils/logger';
+import BaseFilter from './BaseFilter.js';
+import logger from '../../utils/logger.js';
 
 /**
  * Security configuration interface
@@ -514,5 +514,3 @@ class SecurityFilter extends BaseFilter {
 
 export default SecurityFilter;
 
-// CommonJS compatibility
-module.exports = SecurityFilter;

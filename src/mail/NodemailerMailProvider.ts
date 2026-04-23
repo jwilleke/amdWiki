@@ -11,8 +11,8 @@
  */
 
 import nodemailer from 'nodemailer';
-import type { MailMessage, MailProvider } from './MailProvider';
-import logger from '../utils/logger';
+import type { MailMessage, MailProvider } from './MailProvider.js';
+import logger from '../utils/logger.js';
 
 export interface SmtpConfig {
   host: string;

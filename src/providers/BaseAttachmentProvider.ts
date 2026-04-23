@@ -1,7 +1,7 @@
-import logger from '../utils/logger';
-import { AttachmentMetadata, AttachmentProvider } from '../types';
-import type { WikiEngine } from '../types/WikiEngine';
-import { ProviderInfo } from './BasePageProvider';
+import logger from '../utils/logger.js';
+import { AttachmentMetadata, AttachmentProvider } from '../types/index.js';
+import type { WikiEngine } from '../types/WikiEngine.js';
+import { ProviderInfo } from './BasePageProvider.js';
 
 /**
  * File information for attachment uploads
@@ -245,5 +245,3 @@ abstract class BaseAttachmentProvider implements AttachmentProvider {
 export default BaseAttachmentProvider;
 export { FileInfo, User, AttachmentResult };
 
-// CommonJS compatibility
-module.exports = BaseAttachmentProvider;

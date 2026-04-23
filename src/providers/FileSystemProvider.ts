@@ -1,12 +1,12 @@
-import BasePageProvider, { WikiEngine, ProviderInfo } from './BasePageProvider';
+import BasePageProvider, { WikiEngine, ProviderInfo } from './BasePageProvider.js';
 import fs from 'fs-extra';
 import path from 'path';
 import matter from 'gray-matter';
 import { v4 as uuidv4 } from 'uuid';
-import logger from '../utils/logger';
-import PageNameMatcher from '../utils/PageNameMatcher';
-import { WikiPage, PageFrontmatter, PageInfo, PageSaveOptions, PageListOptions } from '../types';
-import type ConfigurationManager from '../managers/ConfigurationManager';
+import logger from '../utils/logger.js';
+import PageNameMatcher from '../utils/PageNameMatcher.js';
+import { WikiPage, PageFrontmatter, PageInfo, PageSaveOptions, PageListOptions } from '../types/index.js';
+import type ConfigurationManager from '../managers/ConfigurationManager.js';
 
 /**
  * Page cache info (internal)
@@ -925,5 +925,3 @@ class FileSystemProvider extends BasePageProvider {
 
 export default FileSystemProvider;
 
-// CommonJS compatibility
-module.exports = FileSystemProvider;

@@ -1,11 +1,11 @@
 import fs from 'fs';
 import path from 'path';
 import { randomUUID } from 'crypto';
-import BaseManager from './BaseManager';
-import logger from '../utils/logger';
-import type { WikiEngine } from '../types/WikiEngine';
-import type ConfigurationManager from './ConfigurationManager';
-import type { PageComment } from '../types/Comment';
+import BaseManager from './BaseManager.js';
+import logger from '../utils/logger.js';
+import type { WikiEngine } from '../types/WikiEngine.js';
+import type ConfigurationManager from './ConfigurationManager.js';
+import type { PageComment } from '../types/Comment.js';
 
 export default class CommentManager extends BaseManager {
   private commentsDir: string = './data/comments';

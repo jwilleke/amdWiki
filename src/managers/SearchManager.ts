@@ -1,7 +1,7 @@
-import BaseManager, { BackupData } from './BaseManager';
-import type ConfigurationManager from './ConfigurationManager';
-import logger from '../utils/logger';
-import { WikiEngine } from '../types/WikiEngine';
+import BaseManager, { BackupData } from './BaseManager.js';
+import type ConfigurationManager from './ConfigurationManager.js';
+import logger from '../utils/logger.js';
+import { WikiEngine } from '../types/WikiEngine.js';
 
 /**
  * Search result structure
@@ -279,7 +279,7 @@ class SearchManager extends BaseManager {
 
     try {
       // Try to load provider class
-      const providerModule = await import(`../providers/${this.providerClass}`) as { default: SearchProviderConstructor };
+      const providerModule = await import(/* @vite-ignore */ `../providers/${this.providerClass}.js`) as { default: SearchProviderConstructor };
       const ProviderClass: SearchProviderConstructor = providerModule.default;
 
       this.provider = new ProviderClass(this.engine);
@@ -923,4 +923,4 @@ class SearchManager extends BaseManager {
   }
 }
 
-export = SearchManager;
+export default SearchManager;

@@ -1,6 +1,6 @@
-import logger from '../utils/logger';
-import { WikiPage, PageFrontmatter, PageInfo, PageSaveOptions, PageListOptions } from '../types';
-import { VersionHistoryEntry, VersionContent, VersionDiff } from '../types';
+import logger from '../utils/logger.js';
+import { WikiPage, PageFrontmatter, PageInfo, PageSaveOptions, PageListOptions } from '../types/index.js';
+import { VersionHistoryEntry, VersionContent, VersionDiff } from '../types/index.js';
 
 /**
  * WikiEngine interface (simplified)
@@ -343,5 +343,3 @@ abstract class BasePageProvider {
 export default BasePageProvider;
 export { WikiEngine, ProviderInfo };
 
-// CommonJS compatibility
-module.exports = BasePageProvider;

@@ -1,5 +1,5 @@
-import BaseSyntaxHandler, { InitializationContext, ParseContext } from './BaseSyntaxHandler';
-import logger from '../../utils/logger';
+import BaseSyntaxHandler, { InitializationContext, ParseContext } from './BaseSyntaxHandler.js';
+import logger from '../../utils/logger.js';
 
 /**
  * Wiki link match information
@@ -257,5 +257,3 @@ class WikiLinkHandler extends BaseSyntaxHandler {
 
 export default WikiLinkHandler;
 
-// CommonJS compatibility
-module.exports = WikiLinkHandler;

@@ -13,9 +13,9 @@
  *   This handler executes them and replaces with rendered output
  */
 
-import type WikiDocument from '../WikiDocument';
-import logger from '../../../utils/logger';
-import type { LinkedomElement, LinkedomNode } from '../WikiDocument';
+import type WikiDocument from '../WikiDocument.js';
+import logger from '../../../utils/logger.js';
+import type { LinkedomElement, LinkedomNode } from '../WikiDocument.js';
 
 /**
  * Plugin execution context
@@ -580,5 +580,3 @@ class DOMPluginHandler {
 
 export default DOMPluginHandler;
 
-// CommonJS compatibility
-module.exports = DOMPluginHandler;

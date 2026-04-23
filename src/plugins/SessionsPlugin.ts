@@ -10,8 +10,8 @@
  * https://jspwiki-wiki.apache.org/Wiki.jsp?page=SessionsPlugin
  */
 
-import type { SimplePlugin, PluginContext, PluginParams } from './types';
-import { escapeHtml, formatAsList, formatAsCount } from '../utils/pluginFormatters';
+import type { SimplePlugin, PluginContext, PluginParams } from './types.js';
+import { escapeHtml, formatAsList, formatAsCount } from '../utils/pluginFormatters.js';
 
 interface ConfigManager {
   getProperty(key: string, defaultValue: string | number): string | number;
@@ -128,4 +128,4 @@ const SessionsPlugin: SimplePlugin = {
   }
 };
 
-module.exports = SessionsPlugin;
+export default SessionsPlugin;
