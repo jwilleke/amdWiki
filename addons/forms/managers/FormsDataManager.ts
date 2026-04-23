@@ -16,6 +16,7 @@ export const FieldSchema = z.object({
   placeholder:   z.string().optional(),
   optionsSource: z.string().optional(),
   options:       z.array(z.string()).optional(),
+  prefill:       z.string().optional() // e.g. "user.email", "user.cellPhone"
 });
 
 export const FormDefinitionSchema = z.object({
@@ -41,12 +42,12 @@ export const SubmissionSchema = z.object({
     name:    z.string().optional(),
     email:   z.string().optional(),
     phone:   z.string().optional(),
-    address: z.string().optional(),
+    address: z.string().optional()
   }).optional(),
   data:          z.record(z.string(), z.unknown()),
   status:        z.enum(['pending', 'processed', 'rejected']).default('pending'),
   handlerResult: z.unknown().optional(),
-  notes:         z.string().optional(),
+  notes:         z.string().optional()
 });
 
 export type FormSubmission   = z.infer<typeof SubmissionSchema>;
@@ -96,7 +97,7 @@ export default class FormsDataManager {
     for (const file of files) {
       try {
         const raw = await fsp.readFile(path.join(defsDir, file), 'utf8');
-        const json = JSON.parse(raw);
+        const json: unknown = JSON.parse(raw);
         const result = FormDefinitionSchema.safeParse(json);
         if (!result.success) {
           console.warn(`[FormsDataManager] Invalid form definition ${file}:`, result.error.format());
@@ -122,7 +123,7 @@ export default class FormsDataManager {
     const full: FormSubmission = {
       ...submission,
       id: submission.id ?? uuidv4(),
-      status: submission.status ?? 'pending',
+      status: submission.status ?? 'pending'
     };
 
     const dir = path.join(this.dataPath, 'submissions', full.formId);

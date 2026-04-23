@@ -45,8 +45,6 @@ function renderField(field: FormField & { resolvedOptions?: string[] }): string 
     </div>`;
   } else if (field.type === 'hidden') {
     return `<input type="hidden" name="${escHtml(field.name)}">`;
-  } else if (field.type === 'section') {
-    return `<div class="ngdp-form-section mt-4 mb-2"><strong>${escHtml(field.label)}</strong><hr class="mt-1"></div>`;
   } else {
     control = `<input type="${escHtml(field.type)}" name="${escHtml(field.name)}" id="field-${escHtml(field.name)}" class="form-control"${placeholder}${required}>`;
   }
@@ -58,13 +56,41 @@ function renderField(field: FormField & { resolvedOptions?: string[] }): string 
   </div>`;
 }
 
-function renderForm(form: FormDefinition, resolvedFields: (FormField & { resolvedOptions?: string[] })[]): string {
-  const proxyBlock = form.proxySubmission ? `
-    <fieldset class="mb-4 border rounded p-3">
-      <legend class="float-none w-auto px-2 fs-6 fw-semibold">Submitting on behalf of</legend>
+type ResolvedField = FormField & { resolvedOptions?: string[] };
+
+function renderFieldset(label: string, fieldsHtml: string): string {
+  return `<fieldset class="mb-4 border rounded p-3">
+      <legend class="float-none w-auto px-2 fs-6 fw-semibold">${escHtml(label)}</legend>
+      ${fieldsHtml}
+    </fieldset>`;
+}
+
+function renderGroups(resolvedFields: ResolvedField[]): string {
+  type Group = { label: string | null; fields: ResolvedField[] };
+  const groups: Group[] = [];
+  let current: Group = { label: null, fields: [] };
+
+  for (const field of resolvedFields) {
+    if (field.type === 'section') {
+      if (current.label !== null || current.fields.length > 0) groups.push(current);
+      current = { label: field.label, fields: [] };
+    } else {
+      current.fields.push(field);
+    }
+  }
+  if (current.label !== null || current.fields.length > 0) groups.push(current);
+
+  return groups.map(g => {
+    const html = g.fields.map(renderField).join('\n');
+    return g.label ? renderFieldset(g.label, html) : html;
+  }).join('\n');
+}
+
+function renderForm(form: FormDefinition, resolvedFields: ResolvedField[]): string {
+  const proxyBlock = form.proxySubmission ? renderFieldset('Submitting on Behalf Of', `
       <div class="mb-3">
         <label class="form-label" for="obo-name">Full Name <span class="text-danger">*</span></label>
-        <input type="text" name="onBehalfOf[name]" id="obo-name" class="form-control" required>
+        <input type="text" name="onBehalfOf[name]" id="obo-name" class="form-control">
       </div>
       <div class="mb-3">
         <label class="form-label" for="obo-email">Email</label>
@@ -75,12 +101,9 @@ function renderForm(form: FormDefinition, resolvedFields: (FormField & { resolve
         <input type="tel" name="onBehalfOf[phone]" id="obo-phone" class="form-control">
       </div>
       <div class="mb-3">
-        <label class="form-label" for="obo-address">Address</label>
+        <label class="form-label" for="obo-address">Unit Address</label>
         <input type="text" name="onBehalfOf[address]" id="obo-address" class="form-control">
-      </div>
-    </fieldset>` : '';
-
-  const fields = resolvedFields.map(renderField).join('\n');
+      </div>`) : '';
 
   return `<div class="ngdp-form card shadow-sm" id="form-wrapper-${escHtml(form.id)}">
   <div class="card-body">
@@ -88,8 +111,8 @@ function renderForm(form: FormDefinition, resolvedFields: (FormField & { resolve
     ${form.description ? `<p class="text-muted mb-3">${escHtml(form.description)}</p>` : ''}
     <div id="form-result-${escHtml(form.id)}"></div>
     <form data-ngdp-form="${escHtml(form.id)}" novalidate>
+      ${renderGroups(resolvedFields)}
       ${proxyBlock}
-      ${fields}
       <button type="submit" class="btn btn-primary">Submit</button>
     </form>
   </div>
@@ -129,7 +152,7 @@ const FormsPlugin = {
     });
 
     return renderForm(form, resolvedFields);
-  },
+  }
 };
 
 export default FormsPlugin;
