@@ -2,6 +2,26 @@
 
 AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version history.
 
+## 2026-04-23-19
+
+- Agent: Claude
+- Subject: Add rendered HTML cache read-through in viewPage() for issue #250
+- Current Issue: #250
+- Work Done:
+  - Implemented rendered HTML cache read-through in WikiRoutes.viewPage()
+  - Cache key: `rendered-pages:<pageName>:<sortedRoles>` (role-based for ACL correctness)
+  - Cache TTL configurable via `ngdpbase.cache.rendered-pages.ttl` (0 = no expiry)
+  - Cache enabled/disabled via `ngdpbase.cache.rendered-pages.enabled` (default true)
+  - Updated all save/create/rename/delete invalidation to use `cacheManager.clear('rendered-pages:<page>:*')` glob pattern to evict all role variants
+  - Added delete-path cache invalidation (was previously missing entirely)
+  - Fixed admin endpoint invalidation to use glob pattern
+  - Changed all `cacheManager?.isInitialized()` and `cacheManager && cacheManager.isInitialized()` calls to `cacheManager?.isInitialized?.()` to guard against stub objects in tests
+  - Tests: 118/118, 3050/3050 passing
+- Commits:
+  - 2895c61e perf(#250): add rendered HTML cache read-through in viewPage()
+- Files Modified:
+  - src/routes/WikiRoutes.ts
+
 ## 2026-04-23-18
 
 - Agent: Claude
