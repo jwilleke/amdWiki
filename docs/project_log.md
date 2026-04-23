@@ -2,6 +2,27 @@
 
 AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version history.
 
+## 2026-04-23-07
+
+- Agent: Claude
+- Subject: Platform docs updated for registerDashboardCard(); admin-addons Author/Description display fix
+- Current Issue: none
+- Work Done:
+  - `docs/platform/addon-architecture.md`: added Section 7b documenting `AddonDashboardCard` interface and `registerDashboardCard()` / `getDashboardCards()` API
+  - `docs/platform/addon-development-guide.md`: added "Register an Admin Dashboard Card" to Section 4; checklist updated; forms added as plain-JS reference implementation alongside calendar; "Last updated" bumped to 2026-04-23
+  - `views/admin-addons.ejs`: fixed Author and Description columns rendering raw HTML string instead of a styled dash — replaced `<%= val || '<span>…</span>' %>` (escaped) with EJS conditional blocks
+  - Set `author: 'Jim Willeke'` on all four addons: forms, calendar, journal, elasticsearch
+- Commits: 42f6ef55 365bcb31 de4b41f1
+- Files Modified:
+  - docs/platform/addon-architecture.md
+  - docs/platform/addon-development-guide.md
+  - views/admin-addons.ejs
+  - addons/forms/index.ts
+  - addons/forms/index.js
+  - addons/calendar/index.ts
+  - addons/journal/index.ts
+  - addons/elasticsearch/index.ts
+
 ## 2026-04-23-06
 
 - Agent: Claude
