@@ -2,6 +2,41 @@
 
 AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version history.
 
+## 2026-04-23-05
+
+- Agent: Claude
+- Subject: #572 prefill from user context; tests for forms addon; documentation convention for end-user pages
+- Current Issue: #572, #575
+- Work Done:
+  - FormsPlugin: prefill field values from `context.userContext` — supports `user.displayName`, `user.email`, `user.cellPhone`, `user.homePhone`, `user.firstName`, `user.lastName`; lazy-loads `data/fairways/units.json` for `user.unit.*` paths when user has a `parcel`
+  - FormsPlugin.js patched to mirror `.ts` changes (forms addon has no tsconfig/build step)
+  - FormsDataManager: fixed `buildSubmissionValidator` — required text/textarea/date/time fields now use `z.string().min(1)` to reject empty submissions (was incorrectly using `z.string()`)
+  - FormsDataManager.js patched to mirror validator fix
+  - New test suite: `addons/forms/__tests__/FormsDataManager.test.ts` — field schema, form definition schema, submission validator (57 assertions, catches the `z.string()` empty-string bug)
+  - New test suite: `addons/forms/__tests__/FormsPlugin.test.ts` — prefill injection, unit address lookup, XSS escaping, section fieldsets, proxy block, dropdown selected, anonymous users
+  - New test suite: `addons/forms/__tests__/api.test.ts` — 503/404 guards, onBehalfOf server validation, time-range check
+  - Documentation: created `required-pages/bb03859d-eb3f-449e-b78b-7fef30082098.md` ("Form Definition Reference") — full admin JSON schema reference
+  - Documentation: updated `required-pages/a4f9c2e1-7b3d-4a85-9e6f-1c2d3b4a5e6f.md` (FormPlugin page) — added link to Form Definition Reference, expanded Notes
+  - Documentation: created `addons/forms/pages/af15d030-3676-4a67-8b21-0d844dacb51a.md` ("Using FormPlugin") end-user guide; deleted old `using-forms-addon.md`
+  - Documentation: updated `docs/proper-documentation-pages.md` with "Using X" end-user title convention, audience table, file location rules, reference to #575
+  - Documentation: updated `docs/platform/addon-architecture.md` — added forms row to "Existing Addons at a Glance" table
+  - Created GitHub issue #575 for standardizing all end-user doc titles to "Using X" convention
+- Commits: 5716ce96 994a65cb 3501891f c2873fbc 1ed7b703 f791861e
+- Files Modified:
+  - addons/forms/plugins/FormsPlugin.ts
+  - addons/forms/plugins/FormsPlugin.js
+  - addons/forms/managers/FormsDataManager.ts
+  - addons/forms/managers/FormsDataManager.js
+  - addons/forms/__tests__/FormsDataManager.test.ts (new)
+  - addons/forms/__tests__/FormsPlugin.test.ts (new)
+  - addons/forms/__tests__/api.test.ts (new)
+  - required-pages/bb03859d-eb3f-449e-b78b-7fef30082098.md (new)
+  - required-pages/a4f9c2e1-7b3d-4a85-9e6f-1c2d3b4a5e6f.md
+  - addons/forms/pages/af15d030-3676-4a67-8b21-0d844dacb51a.md (new)
+  - addons/forms/pages/using-forms-addon.md (deleted)
+  - docs/proper-documentation-pages.md
+  - docs/platform/addon-architecture.md
+
 ## 2026-04-23-04
 
 - Agent: Claude
