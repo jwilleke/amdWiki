@@ -5,6 +5,7 @@
     "lib": ["ES2022"],
     "module": "commonjs",
     "moduleResolution": "node",
+    "ignoreDeprecations": "5.0",
 
     /* JavaScript Support - Allow JS files during migration */
     "allowJs": true,
