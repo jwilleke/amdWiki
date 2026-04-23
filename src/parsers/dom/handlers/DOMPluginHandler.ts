@@ -55,7 +55,7 @@ export interface PluginContext {
   /** WikiDocument reference */
   wikiDocument?: WikiDocument;
   /** Plugin DOM element */
-  pluginElement?: Element | null;
+  pluginElement?: LinkedomElement | null;
   /** Link graph for plugins like ReferringPagesPlugin */
   linkGraph?: Record<string, unknown>;
   /** Page context (nested structure) */
@@ -403,7 +403,7 @@ class DOMPluginHandler {
 
         // DOM context
         wikiDocument: context.wikiDocument,
-        pluginElement: pluginElement as Element | null,
+        pluginElement: pluginElement as LinkedomElement | null,
 
         // Link graph for ReferringPagesPlugin
         linkGraph: linkGraph

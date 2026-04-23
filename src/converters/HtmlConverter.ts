@@ -69,15 +69,15 @@ class HtmlConverter implements IContentConverter {
 
     // Keep code blocks with language hints
     this.turndown.addRule('fencedCodeBlock', {
-      filter: (node: HTMLElement): boolean => {
+      filter: (node: LinkedomElement): boolean => {
         return (
           node.nodeName === 'PRE' &&
           node.firstChild !== null &&
           node.firstChild.nodeName === 'CODE'
         );
       },
-      replacement: (_content: string, node: HTMLElement): string => {
-        const codeNode = node.firstChild as HTMLElement;
+      replacement: (_content: string, node: LinkedomElement): string => {
+        const codeNode = node.firstChild as LinkedomElement;
         const className = codeNode.getAttribute('class') || '';
         const langMatch = className.match(/language-(\S+)/);
         const lang = langMatch ? langMatch[1] : '';

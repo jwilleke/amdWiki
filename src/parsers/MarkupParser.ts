@@ -20,6 +20,7 @@ import AttachmentHandler from './handlers/AttachmentHandler';
 import LinkParserHandler from './handlers/LinkParserHandler';
 import ParseContext from './context/ParseContext';
 import WikiDocument from './dom/WikiDocument';
+import type { LinkedomElement } from './dom/WikiDocument';
 import { convertEmojiShortcodes } from './data/emoji-map';
 import type RegionCache from '../cache/RegionCache';
 import type { WikiEngine } from '../types/WikiEngine';
@@ -2045,15 +2046,15 @@ class MarkupParser extends BaseManager {
     // Sort nodes by ID (descending) to handle nested replacements correctly
     // Example: Plugin containing variable must be replaced after the plugin
     const sortedNodes = Array.from(nodes).sort((a, b) => {
-      const elemA = a as Element;
-      const elemB = b as Element;
+      const elemA = a as LinkedomElement;
+      const elemB = b as LinkedomElement;
       const idA = parseInt(elemA.getAttribute('data-jspwiki-id') || '0');
       const idB = parseInt(elemB.getAttribute('data-jspwiki-id') || '0');
       return idB - idA; // Descending order
     });
 
     for (const node of sortedNodes) {
-      const element = node as Element;
+      const element = node as LinkedomElement;
       const id = element.getAttribute('data-jspwiki-id');
       const placeholder = `<span data-jspwiki-placeholder="${uuid}-${id}"></span>`;
 
@@ -2063,7 +2064,7 @@ class MarkupParser extends BaseManager {
         rendered = element.outerHTML;
       } else if (element.textContent !== undefined) {
         // Fallback for nodes without outerHTML
-        rendered = element.textContent;
+        rendered = element.textContent ?? '';
       } else {
         // Empty node
         rendered = '';
@@ -2358,6 +2359,7 @@ class MarkupParser extends BaseManager {
    * that cached RED-LINK resolutions are discarded and the next render re-evaluates
    * link targets against the updated page inventory.
    */
+  // eslint-disable-next-line @typescript-eslint/no-misused-promises
   async invalidateHandlerCache(): Promise<void> {
     if (this.cacheStrategies.handlerResults) {
       try {

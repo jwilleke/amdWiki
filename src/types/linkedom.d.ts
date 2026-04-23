@@ -6,11 +6,13 @@ declare module 'linkedom' {
   interface LinkedomText {
     textContent: string | null;
     nodeType: number;
+    nodeName: string;
   }
 
   interface LinkedomComment {
     textContent: string | null;
     nodeType: number;
+    nodeName: string;
   }
 
   interface LinkedomNodeList extends ArrayLike<LinkedomNode> {
@@ -25,9 +27,11 @@ declare module 'linkedom' {
 
   interface LinkedomElement {
     innerHTML: string;
+    outerHTML: string;
     textContent: string | null;
     className: string;
     nodeType: number;
+    nodeName: string;
     tagName: string;
     childNodes: LinkedomNodeList;
     firstChild: LinkedomNode | null;
