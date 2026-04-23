@@ -53,7 +53,7 @@ const calendarAddon = {
   name: 'calendar',
   version: '2.0.0',
   description: 'Event calendar with FullCalendar UI and RFC 5545 support',
-  author: 'ngdpbase',
+  author: 'Jim Willeke',
   dependencies: ['forms'] as string[],
 
   /**

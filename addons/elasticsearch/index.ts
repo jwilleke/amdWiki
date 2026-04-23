@@ -42,7 +42,7 @@ const elasticsearchAddon = {
   name: 'elasticsearch',
   version: '1.0.0',
   description: 'Elasticsearch external asset provider (sist2/S3/NAS)',
-  author: 'ngdpbase',
+  author: 'Jim Willeke',
   dependencies: [] as string[],
 
   /**

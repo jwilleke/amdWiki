@@ -58,7 +58,7 @@ const formsAddon = {
   name: 'forms',
   version: '1.0.0',
   description: 'Generic schema-driven forms — define JSON forms, render on wiki pages, store submissions, trigger hooks',
-  author: 'ngdpbase',
+  author: 'Jim Willeke',
   dependencies: [] as string[],
 
   _handlers: new Map<string, FormHandler>(),
