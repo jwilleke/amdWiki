@@ -8,7 +8,7 @@ user-keywords:
   - Style Guide
   - Authoring
 slug: proper-documentation-pages
-lastModified: '2026-04-18T00:00:00.000Z'
+lastModified: '2026-04-23T00:00:00.000Z'
 author: system
 ---
 # Proper Documentation Pages
@@ -20,6 +20,23 @@ This page describes the standards and conventions for writing documentation page
 Do not use the word "Wiki" to describe this site or its features. Pages, content, markup, and plugins are the vocabulary — not wiki pages, wiki markup, or wiki syntax.
 
 Use the site name (visible in [{ConfigAccessor type='siteName'}]) when referring to the platform, or simply say "this site."
+
+## Page Title Conventions
+
+Use the title pattern that matches the page's **audience and purpose**:
+
+| Page type | Title pattern | Example |
+| --- | --- | --- |
+| End-user how-to (editors, residents, general users) | `Using <Feature>` | `Using FormPlugin`, `Using Reservation Form` |
+| Admin/operator reference | Descriptive noun phrase | `Form Definition Reference`, `Configuration Properties Reference` |
+| Developer/system reference | Technical name | `API Documentation`, `Plugin` |
+| Plugin reference (technical name only) | `<Name>Plugin` | `CalendarPlugin`, `AttachPlugin` |
+
+**End-user pages** use the `Using <Feature>` prefix because it signals task-oriented guidance rather than a technical reference. A page titled "Using FormPlugin" tells the reader immediately that it explains how to accomplish something, not how the system works internally.
+
+End-user pages should live in the relevant addon's `pages/` directory with a **UUID filename** (e.g. `addons/forms/pages/af15d030-3676-4a67-8b21-0d844dacb51a.md`). The `slug` in frontmatter is `using-<feature>` (lowercase, hyphenated).
+
+See GitHub issue [#575](https://github.com/jwilleke/ngdpbase/issues/575) for the list of pages scheduled for renaming under this convention.
 
 ## Page Structure
 
