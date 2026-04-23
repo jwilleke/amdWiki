@@ -32,7 +32,7 @@ my-addon-repo/
 The `addons/` subdirectory is what gets wired into ngdpbase via config.
 You can host multiple add-ons in one repo under the same `addons/` directory.
 
-Use [`addons/calendar/`](../../addons/calendar/) in the ngdpbase repo as a reference implementation.
+Use [`addons/calendar/`](../../addons/calendar/) or [`addons/forms/`](../../addons/forms/) in the ngdpbase repo as reference implementations. Calendar uses TypeScript with its own `tsconfig.json`; forms is plain JS (no compile step) — pick the pattern that fits your addon.
 
 ---
 
@@ -183,6 +183,26 @@ async register(engine, config) {
 
 The URL is injected into every page's `<head>` via `res.locals.addonStylesheets`.
 Make sure the path is served (see static middleware above or `addons/` core serving).
+
+### Register an Admin Dashboard Card
+
+Any addon with an admin UI should register a card on the `/admin` dashboard. The card shows the addon's live `status()` message and a link to the admin page. No template editing needed — registration is sufficient.
+
+```javascript
+async register(engine, config) {
+  const addonsManager = engine.getManager('AddonsManager');
+  if (addonsManager) {
+    addonsManager.registerDashboardCard({
+      addonName: 'my-addon',   // must match your addon name
+      title: 'My Addon',
+      icon: 'fas fa-cog',      // any Font Awesome class
+      adminUrl: '/admin/my-addon',
+    });
+  }
+}
+```
+
+Cards appear between the Add-ons summary and Page Management rows on `/admin`. The card body displays `status().message` automatically.
 
 ### Seed Wiki Pages
 
@@ -588,7 +608,8 @@ Keep core PRs self-contained — no add-on-specific code in the core repo.
 - [ ] `addons-path` in instance config points to the repo's `addons/` directory (string or array of strings)
 - [ ] Static assets mounted via `engine.app.use()` in `register()`
 - [ ] `engine.setCapability('my-addon', true)` called if you have admin UI sections
-- [ ] `status()` returns `{ healthy: bool }` for admin health display
+- [ ] `addonsManager.registerDashboardCard(...)` called if you have an admin UI page
+- [ ] `status()` returns `{ healthy: bool, message: string }` for admin health display
 - [ ] `shutdown()` closes any open connections or file handles
 - [ ] Dependencies declared in `dependencies[]` if your add-on relies on another
 - [ ] Seed pages in `pages/` use real UUID v4 filenames and matching `uuid` frontmatter
@@ -600,11 +621,12 @@ Keep core PRs self-contained — no add-on-specific code in the core repo.
 
 | Resource | Contents |
 |----------|----------|
-| [`addons/calendar/`](../../addons/calendar/) | Event calendar with FullCalendar UI — reference implementation |
+| [`addons/calendar/`](../../addons/calendar/) | Event calendar with FullCalendar UI — TypeScript reference implementation |
+| [`addons/forms/`](../../addons/forms/) | Schema-driven forms with submission storage — plain JS reference implementation |
 | [`docs/platform/ngdp-as-platform.md`](./ngdp-as-platform.md) | Platform overview, use-case analysis, roadmap |
 | [`docs/platform/platform-core-capabilities.md`](./platform-core-capabilities.md) | All built-in managers and APIs |
 | [AddonsManager source](../src/managers/AddonsManager.ts) | Discovery, loading, lifecycle implementation |
 
 ---
 
-Last updated: 2026-04-05
+Last updated: 2026-04-23

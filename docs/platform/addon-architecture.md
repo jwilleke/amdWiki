@@ -208,6 +208,35 @@ The layout template iterates `res.locals.addonStylesheets` (set in `app.ts`) and
 
 ---
 
+## 7b. Admin Dashboard Cards
+
+Any addon with an admin UI can register a card on the `/admin` dashboard. Cards appear between the Add-ons summary row and the Page Management row, showing live status output from the addon's `status()` method plus a link to the addon's admin page.
+
+```typescript
+export interface AddonDashboardCard {
+  addonName: string;  // must match addon name in registry
+  title: string;      // card header text
+  icon: string;       // Font Awesome class, e.g. 'fas fa-calendar-alt'
+  adminUrl: string;   // link target for the "Manage" button
+}
+```
+
+```typescript
+const addonsManager = engine.getManager<AddonsManager>('AddonsManager');
+if (addonsManager) {
+  addonsManager.registerDashboardCard({
+    addonName: 'my-addon',
+    title: 'My Addon',
+    icon: 'fas fa-cog',
+    adminUrl: '/admin/my-addon',
+  });
+}
+```
+
+`adminDashboard()` in `WikiRoutes.ts` calls `getDashboardCards()` and enriches each card with the addon's live `AddonStatusDetails` (the `message` field is displayed on the card). No template editing is needed — registering the card is sufficient.
+
+---
+
 ## 8. Page Seeding
 
 Place Markdown files in `addons/{name}/pages/`. Required frontmatter:
