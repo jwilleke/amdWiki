@@ -85,7 +85,35 @@ export default function apiRoutes(engine: WikiEngine, addon: AddonRef): Router {
 
         if (emailManager?.isEnabled() && submitterEmail) {
           const subject = `[Submitted] ${form.title}`;
-          const text = `Your submission for "${form.title}" was received.\n\nSubmission ID: ${submission.id}`;
+          const cm = engine.getManager<import('../../../dist/src/managers/ConfigurationManager').default>('ConfigurationManager');
+          const baseUrl = (cm?.getProperty('ngdpbase.baseURL', '') as string).replace(/\/$/, '');
+
+          // Build detail lines from submission data for fields with values
+          const data = submission.data as Record<string, string>;
+          const detailFields = form.fields.filter(f =>
+            !['hidden', 'checkbox', 'section'].includes(f.type) && data[f.name]
+          );
+          const details = detailFields
+            .map(f => `  ${f.label}: ${data[f.name]}`)
+            .join('\n');
+
+          const obo = submission.onBehalfOf;
+          const requesterBlock = obo?.name
+            ? `Submitted for: ${obo.name}${obo.email ? ` <${obo.email}>` : ''}${obo.phone ? ` · ${obo.phone}` : ''}\n`
+            : '';
+
+          const linkLine = form.confirmationUrl
+            ? `\nView reservation: ${baseUrl}${form.confirmationUrl}\n`
+            : '';
+
+          const text = [
+            `Your submission for "${form.title}" has been received.`,
+            '',
+            requesterBlock + (details ? `Details:\n${details}` : ''),
+            linkLine,
+            `Submission ID: ${submission.id}`,
+          ].join('\n').trim();
+
           emailManager.sendTo(submitterEmail, subject, text).catch(() => {});
         }
 

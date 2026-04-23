@@ -45,6 +45,8 @@ function renderField(field: FormField & { resolvedOptions?: string[] }): string 
     </div>`;
   } else if (field.type === 'hidden') {
     return `<input type="hidden" name="${escHtml(field.name)}">`;
+  } else if (field.type === 'section') {
+    return `<div class="ngdp-form-section mt-4 mb-2"><strong>${escHtml(field.label)}</strong><hr class="mt-1"></div>`;
   } else {
     control = `<input type="${escHtml(field.type)}" name="${escHtml(field.name)}" id="field-${escHtml(field.name)}" class="form-control"${placeholder}${required}>`;
   }

@@ -9,7 +9,7 @@ import { z } from 'zod';
 
 export const FieldSchema = z.object({
   name:          z.string(),
-  type:          z.enum(['text', 'email', 'tel', 'textarea', 'date', 'time', 'dropdown', 'checkbox', 'hidden']),
+  type:          z.enum(['text', 'email', 'tel', 'textarea', 'date', 'time', 'dropdown', 'checkbox', 'hidden', 'section']),
   label:         z.string(),
   required:      z.boolean().default(false),
   description:   z.string().optional(),
@@ -25,6 +25,7 @@ export const FormDefinitionSchema = z.object({
   handler:         z.string().optional(),
   proxySubmission: z.boolean().default(false),
   notifyRole:      z.string().default('admin'),
+  confirmationUrl: z.string().optional(),
   fields:          z.array(FieldSchema).min(1),
 });
 
@@ -56,7 +57,7 @@ export type SubmissionStatus = 'pending' | 'processed' | 'rejected';
 export function buildSubmissionValidator(form: FormDefinition): z.ZodObject<Record<string, z.ZodTypeAny>> {
   const shape: Record<string, z.ZodTypeAny> = {};
   for (const field of form.fields) {
-    if (field.type === 'hidden') continue;
+    if (field.type === 'hidden' || field.type === 'section') continue;
     let rule: z.ZodTypeAny = z.string();
     if (field.type === 'email')    rule = z.string().email(`${field.label} must be a valid email`);
     if (field.type === 'tel')      rule = z.string().min(7, `${field.label} must be at least 7 characters`);
