@@ -16,7 +16,7 @@ export const FieldSchema = z.object({
   placeholder:   z.string().optional(),
   optionsSource: z.string().optional(),
   options:       z.array(z.string()).optional(),
-  prefill:       z.string().optional(),
+  prefill:       z.string().optional()
 });
 
 export const FormDefinitionSchema = z.object({
@@ -27,7 +27,7 @@ export const FormDefinitionSchema = z.object({
   proxySubmission: z.boolean().default(false),
   notifyRole:      z.string().default('admin'),
   confirmationUrl: z.string().optional(),
-  fields:          z.array(FieldSchema).min(1),
+  fields:          z.array(FieldSchema).min(1)
 });
 
 export type FormField      = z.infer<typeof FieldSchema>;
@@ -59,10 +59,18 @@ export function buildSubmissionValidator(form: FormDefinition): z.ZodObject<Reco
   const shape: Record<string, z.ZodTypeAny> = {};
   for (const field of form.fields) {
     if (field.type === 'hidden' || field.type === 'section') continue;
-    let rule: z.ZodTypeAny = z.string();
-    if (field.type === 'email')    rule = z.string().email(`${field.label} must be a valid email`);
-    if (field.type === 'tel')      rule = z.string().min(7, `${field.label} must be at least 7 characters`);
-    if (field.type === 'checkbox') rule = z.union([z.literal('on'), z.literal('true'), z.literal('1')]);
+    let rule: z.ZodTypeAny;
+    if (field.type === 'email') {
+      rule = z.string().email(`${field.label} must be a valid email`);
+    } else if (field.type === 'tel') {
+      rule = z.string().min(7, `${field.label} must be at least 7 characters`);
+    } else if (field.type === 'checkbox') {
+      rule = z.union([z.literal('on'), z.literal('true'), z.literal('1')]);
+    } else {
+      rule = field.required
+        ? z.string().min(1, `${field.label} is required`)
+        : z.string();
+    }
     if (!field.required) rule = rule.optional().or(z.literal(''));
     shape[field.name] = rule;
   }
