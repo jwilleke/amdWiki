@@ -35,29 +35,30 @@ Open it in a separate browser window at the start of the session and leave it ru
 
 ### What it is
 
-ngdpbase is a TypeScript/Node.js content platform built around a plugin-driven markup parser and an 18-manager engine. It is not a wrapper around an existing wiki engine — the JSPWiki-compatible markup parser is a clean-room implementation.
+ngdpbase is a TypeScript/Node.js content platform built around a plugin-driven markup parser and a 30-manager engine. It is not a wrapper around an existing wiki engine — the JSPWiki-compatible markup parser is a clean-room implementation. The full codebase — core engine and all four domain addons — is TypeScript compiled to native ESM.
 
 ### Core concepts to name-drop
 
 | Concept | What to say |
 | --- | --- |
 | **No database** | All content is Markdown files on disk. Swap storage providers without changing application code. |
-| **Manager pattern** | 18 managers (`PageManager`, `PluginManager`, `UserManager`, …) each own one concern and are initialized in dependency order. |
+| **Manager pattern** | 30 managers (`PageManager`, `PluginManager`, `CacheManager`, …) each own one concern and are initialized in dependency order. |
 | **Plugin auto-discovery** | Drop a `.ts` file into `src/plugins/` — it is loaded and registered automatically on next build. |
-| **Domain addons** | A single codebase runs multiple sites. Each addon contributes pages, routes, themes, and nav items independently. |
+| **Domain addons** | A single codebase runs multiple sites. Each addon (calendar, forms, journal, elasticsearch) contributes pages, routes, themes, and nav items independently. All addons are TypeScript/ESM packages. |
 | **Required pages** | System UI pages (LeftMenu, Header, About You, …) are Markdown files versioned in the repo and seeded on first boot. |
+| **Rendered HTML cache** | Parsed and rendered page HTML is cached in `CacheManager` per page per role-set. Cache is invalidated on save, rename, or delete — zero stale reads. |
 
 ### Show the project structure briefly
 
 ```
 src/
   engine/        — WikiEngine bootstrap, manager registry
-  managers/      — 18 managers (PageManager, PluginManager, …)
+  managers/      — 30 managers (PageManager, PluginManager, CacheManager, …)
   plugins/       — auto-discovered plugin modules
   parsers/       — MarkupParser (7-phase pipeline)
   routes/        — Express route handlers
   types/         — shared TypeScript interfaces
-addons/          — domain addon packages (calendar, journal, elasticsearch)
+addons/          — domain addon packages (calendar, forms, journal, elasticsearch)
 required-pages/  — system UI pages as Markdown + frontmatter
 views/           — EJS templates (header, footer, page layouts)
 ```
@@ -102,11 +103,11 @@ Raw Markup
    - `[{ConfigAccessor key='ngdpbase.server.*'}]` renders a live table from the running config — no separate API call from the browser
    - The config table is rendered server-side and included in the page HTML
 
-4. **Show the cache key** (talk track):
+4. **Show the cache** (talk track):
 
-   > "The parser is cached per-user per-page with an MD5 key that includes the page name, user identity, locale, preferences (including pinned pages), and a 5-minute timestamp bucket. Cache misses trigger a full pipeline run; hits are microsecond-fast."
+   > "Rendered HTML is cached in `CacheManager` under the key `rendered-pages:<pageName>:<sortedRoles>`. The role-set in the key ensures users with different access levels never see each other's cached output. On a cache hit the entire rendering pipeline — textToHTML, tab sections, all plugin execution — is skipped entirely. Cache is invalidated automatically on every save, rename, or delete."
 
-   Point to `src/parsers/MarkupParser.ts` → `generateCacheKey()`.
+   Point to `src/routes/WikiRoutes.ts` → `viewPage()` for the read-through, and to `CacheManager` regions for the storage layer.
 
 ### Plugin execution
 
@@ -153,9 +154,18 @@ WikiEngine.initialize()
       registerNavItems()   — contribute sidebar links
 ```
 
-Point to `addons/` directory — each addon is its own npm package with a `tsconfig.json`.
+Point to `addons/` directory — each addon is its own TypeScript/ESM npm package with a `tsconfig.json`.
 
-> "The host engine never knows what addons are installed. Addons register themselves. Adding a new vertical (recipes, property management, geology data) is a new directory, not a fork."
+The four current addons and what each contributes:
+
+| Addon | What it adds |
+| --- | --- |
+| **calendar** | Reservation system with admin view, conflict detection, email confirmations |
+| **forms** | Schema-driven forms: JSON field definitions, multi-type fields (text, dropdown, section/fieldset, hidden), proxy submission (on-behalf-of), handler hooks, email confirmation, submission store |
+| **journal** | Timestamped log entries with per-page journals and admin management |
+| **elasticsearch** | Full-text + sist2 asset search via Elasticsearch, admin status dashboard |
+
+> "The host engine never knows what addons are installed. Addons register themselves. Adding a new vertical is a new directory and a new JSON form definition — not a fork."
 
 ### My Links — a concrete addon-aware feature
 
@@ -307,6 +317,7 @@ highlight.js runs in Phase 7 (post-processing) — no client-side JS needed to a
 | Why no database? | Files are inspectable, versionable with git, trivially backed up, and portable. The FileSystemProvider abstraction allows a database backend without changing application code. |
 | How does search work? | Lunr.js full-text index built in-memory on startup and incrementally updated on page save. Index lives on fast storage (SSD path configurable). Elasticsearch addon available for larger deployments. |
 | What is the plugin security model? | Plugins execute server-side in the Node.js process. There is no sandbox — plugin authors are trusted developers. User-provided markup cannot inject arbitrary plugins; only registered plugin names are dispatched. |
+| How fast is page rendering? | Rendered HTML is cached in `CacheManager` per page per role-set. On a cache hit the rendering pipeline is bypassed entirely — response time drops to file I/O + template render. Cache is automatically invalidated on save, rename, or delete. |
 | Can it scale horizontally? | Currently single-process. FileSystemProvider requires a shared mount or provider swap (S3/database) for multi-node. Session store is already configurable. |
 | What is the multi-site story? | Domain addons share one process and one engine. For fully isolated tenants, run separate processes — `server.sh` makes this a one-liner per instance. |
 
