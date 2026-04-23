@@ -31,6 +31,7 @@
 
 import { Client } from '@elastic/elasticsearch';
 import type { WikiEngine } from '../../dist/src/types/WikiEngine';
+import type AddonsManager from '../../dist/src/managers/AddonsManager';
 import type { AddonStatusDetails } from '../../dist/src/managers/AddonsManager';
 import type AssetManager from '../../dist/src/managers/AssetManager';
 import { Sist2AssetProvider } from './src/Sist2AssetProvider';
@@ -87,6 +88,16 @@ const elasticsearchAddon = {
       // by listening for the manager-ready event if the engine supports it.
       // For now, log a warning; the provider will be unavailable.
       logger.warn('[elasticsearch addon] AssetManager not available — sist2 provider not registered');
+    }
+
+    const addonsManager = engine.getManager<AddonsManager>('AddonsManager');
+    if (addonsManager) {
+      addonsManager.registerDashboardCard({
+        addonName: 'elasticsearch',
+        title: 'Elasticsearch',
+        icon: 'fas fa-search',
+        adminUrl: '/admin/addons'
+      });
     }
 
     engine.setCapability('sist2', true);

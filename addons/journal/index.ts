@@ -160,7 +160,17 @@ const journalAddon = {
       reminderTimer = setTimeout(() => { void fireReminders(); }, msUntilNext());
     }
 
-    // ── 8. Announce capability ───────────────────────────────────────────────
+    // ── 8. Register dashboard card ───────────────────────────────────────────
+    if (addonsManager) {
+      addonsManager.registerDashboardCard({
+        addonName: 'journal',
+        title: 'Journal',
+        icon: 'fas fa-book',
+        adminUrl: '/admin/journal'
+      });
+    }
+
+    // ── 9. Announce capability ───────────────────────────────────────────────
     engine.setCapability('journal', true);
   },
 
