@@ -2,6 +2,24 @@
 
 AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version history.
 
+## 2026-04-23-04
+
+- Agent: Claude
+- Subject: proxySubmission UX — optional "For Another Occupant" block with server-side name validation
+- Current Issue: #573
+- Work Done:
+  - Renamed proxy fieldset from "Submitting on Behalf Of" to "For Another Occupant"
+  - Removed `required` from obo Full Name field — block is now fully optional in HTML
+  - Added instructional paragraph: "Complete this section only if submitting on behalf of another resident."
+  - Server-side validation in `api.ts`: trims all four obo fields, sets `anyFilled` flag, returns 400 if any field filled but name is empty
+  - Patched `FormsPlugin.js` and `api.js` to mirror `.ts` changes (forms addon has no tsconfig/build step)
+- Commits: cd1af2e1
+- Files Modified:
+  - addons/forms/plugins/FormsPlugin.ts
+  - addons/forms/plugins/FormsPlugin.js
+  - addons/forms/routes/api.ts
+  - addons/forms/routes/api.js
+
 ## 2026-04-23-03
 
 - Agent: Claude
