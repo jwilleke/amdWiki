@@ -2,6 +2,20 @@
 
 AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version history.
 
+## 2026-04-23-15
+
+- Agent: Claude
+- Subject: Vitest migration (#582) — fix final 2 test failures; all 118/118 pass
+- Current Issue: #582
+- Work Done:
+  - Fixed FormsPlugin.test.ts `resolves unit address from units.json by parcel`: switched from `vi.mock('fs')` + `require()` to `vi.spyOn(fsMod.promises, 'readFile')` to patch the live fs.promises object in-place, bypassing CJS/ESM module caching
+  - Fixed routes.test.ts `GET /profile should return 200`: LocaleUtils mock was missing `default` export key; profilePage is the only route handler that calls `LocaleUtils.getDateFormatOptions()` directly
+  - All 118 test files, 3050 tests now pass
+- Commits: ed4c0d48 (feat commit from prior session continuation)
+- Files Modified:
+  - addons/forms/__tests__/FormsPlugin.test.ts
+  - src/routes/__tests__/routes.test.ts
+
 ## 2026-04-23-11
 
 - Agent: Claude
