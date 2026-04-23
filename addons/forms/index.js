@@ -84,7 +84,7 @@ const formsAddon = {
                 addonName: 'forms',
                 title: 'Forms',
                 icon: 'fas fa-wpforms',
-                adminUrl: '/admin/forms',
+                adminUrl: '/admin/forms'
             });
         }
         // ── 6. Register views directory ──────────────────────────────────────────

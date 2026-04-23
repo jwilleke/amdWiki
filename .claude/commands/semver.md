@@ -6,3 +6,4 @@ pass all tests
 ./server.sh start
 pass all E2E tests
 and push to remote
+the run skill /othersites.md
