@@ -2,6 +2,44 @@
 
 AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version history.
 
+## 2026-04-23-06
+
+- Agent: Claude
+- Subject: #574 Forms Admin UI Builder; #576 Admin dashboard addon cards
+- Current Issue: #574, #576
+- Work Done:
+  - FormsDataManager: added `saveDefinition()`, `deleteDefinition()`, `reloadDefinition()` methods; JS mirror updated and missing `prefill`/`confirmationUrl` fields fixed
+  - New `addons/forms/routes/builder.ts` + `.js`: GET/POST routes at `/admin/forms/builder` for create, edit, delete form definitions
+  - New `addons/forms/views/forms-builder.ejs`: Bootstrap 5 builder UI with dynamic field rows (add/remove/reorder/type-specific options); uses `fieldsJson` hidden input + JS `renderFields()`
+  - Updated `addons/forms/views/forms-admin.ejs`: New Form button, Edit/Delete per card, flash message support
+  - `admin.ts` + `.js`: pass `req.query` to view for flash message rendering
+  - `index.ts` + `.js`: mount builder routes at `/admin/forms/builder` before admin routes
+  - 12 new tests in `addons/forms/__tests__/builder.test.ts` covering saveDefinition, deleteDefinition, reloadDefinition, and getSubmissionCount delete guard; 69 total forms tests passing
+  - `src/managers/AddonsManager.ts`: added `AddonDashboardCard` interface + `registerDashboardCard()` / `getDashboardCards()` methods
+  - `src/routes/WikiRoutes.ts`: extended `adminDashboard()` to fetch registered cards and enrich with live `AddonStatusDetails`
+  - `views/admin-dashboard.ejs`: new addon cards row rendered between Add-ons summary and Page Management rows
+  - `addons/forms/index.ts` + `.js`: register Forms dashboard card (icon, title, adminUrl)
+  - `addons/calendar/index.ts` + `.js`: register Calendar dashboard card
+  - Full project rebuild via `npm run build` (compiles src/ → dist/ and addons/calendar)
+- Commits: 44d43bfb 4754672c
+- Files Modified:
+  - addons/forms/managers/FormsDataManager.ts
+  - addons/forms/managers/FormsDataManager.js
+  - addons/forms/routes/builder.ts (new)
+  - addons/forms/routes/builder.js (new)
+  - addons/forms/routes/admin.ts
+  - addons/forms/routes/admin.js
+  - addons/forms/views/forms-builder.ejs (new)
+  - addons/forms/views/forms-admin.ejs
+  - addons/forms/index.ts
+  - addons/forms/index.js
+  - addons/forms/__tests__/builder.test.ts (new)
+  - src/managers/AddonsManager.ts
+  - src/routes/WikiRoutes.ts
+  - views/admin-dashboard.ejs
+  - addons/calendar/index.ts
+  - addons/calendar/index.js
+
 ## 2026-04-23-05
 
 - Agent: Claude
