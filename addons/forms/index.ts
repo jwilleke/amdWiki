@@ -39,6 +39,7 @@ import type { FormSubmission } from './managers/FormsDataManager';
 import FormsPlugin from './plugins/FormsPlugin';
 import apiRoutes from './routes/api';
 import adminRoutes from './routes/admin';
+import builderRoutes from './routes/builder';
 
 export interface HandlerResult {
   ok: boolean;
@@ -116,8 +117,9 @@ const formsAddon = {
     engine.app?.set('views', [...[existing].flat(), path.join(__dirname, 'views')]);
 
     // ── 7. Mount routes ──────────────────────────────────────────────────────
-    engine.app?.use('/api/forms',   apiRoutes(engine, formsAddon));
-    engine.app?.use('/admin/forms', adminRoutes(engine, formsAddon));
+    engine.app?.use('/api/forms',           apiRoutes(engine, formsAddon));
+    engine.app?.use('/admin/forms/builder', builderRoutes(engine));
+    engine.app?.use('/admin/forms',         adminRoutes(engine, formsAddon));
 
     // ── 8. Announce capability ───────────────────────────────────────────────
     engine.setCapability('forms', true);
@@ -128,14 +130,14 @@ const formsAddon = {
     return {
       healthy: true,
       records: count,
-      message: `Forms addon active — ${count} form definition${count === 1 ? '' : 's'} loaded`,
+      message: `Forms addon active — ${count} form definition${count === 1 ? '' : 's'} loaded`
     };
   },
 
   async shutdown(): Promise<void> {
     dataManager = null;
     this._handlers.clear();
-  },
+  }
 };
 
 export default formsAddon;

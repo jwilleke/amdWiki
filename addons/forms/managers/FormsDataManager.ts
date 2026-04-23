@@ -198,4 +198,40 @@ export default class FormsDataManager {
       return 0;
     }
   }
+
+  async saveDefinition(form: FormDefinition): Promise<void> {
+    const filePath = path.join(this.dataPath, 'definitions', `${form.id}.json`);
+    const tmp = `${filePath}.tmp`;
+    await fsp.writeFile(tmp, JSON.stringify(form, null, 2), 'utf8');
+    await fsp.rename(tmp, filePath);
+    this.definitions.set(form.id, form);
+  }
+
+  async deleteDefinition(formId: string): Promise<boolean> {
+    const filePath = path.join(this.dataPath, 'definitions', `${formId}.json`);
+    try {
+      await fsp.unlink(filePath);
+      this.definitions.delete(formId);
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  async reloadDefinition(formId: string): Promise<FormDefinition | undefined> {
+    const filePath = path.join(this.dataPath, 'definitions', `${formId}.json`);
+    try {
+      const raw = await fsp.readFile(filePath, 'utf8');
+      const json: unknown = JSON.parse(raw);
+      const result = FormDefinitionSchema.safeParse(json);
+      if (!result.success) {
+        console.warn(`[FormsDataManager] Invalid form definition ${formId}.json:`, result.error.format());
+        return undefined;
+      }
+      this.definitions.set(result.data.id, result.data);
+      return result.data;
+    } catch {
+      return undefined;
+    }
+  }
 }

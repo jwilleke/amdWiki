@@ -2,19 +2,37 @@
 
 <div class="container-fluid mt-4">
   <div class="row">
+    <div class="col-12 d-flex align-items-center justify-content-between mb-2">
+      <h2 class="mb-0"><i class="fas fa-wpforms me-2"></i>Forms</h2>
+      <a href="/admin/forms/builder/new" class="btn btn-success btn-sm">
+        <i class="fas fa-plus me-1"></i>New Form
+      </a>
+    </div>
     <div class="col-12">
-      <h2><i class="fas fa-wpforms me-2"></i>Forms</h2>
       <p class="text-muted">Manage form definitions and view submissions.</p>
     </div>
   </div>
 
+  <% var flash = typeof query !== 'undefined' && query ? query.flash : undefined; %>
+  <% if (flash === 'saved') { %>
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+      <i class="fas fa-check-circle me-1"></i>Form definition saved.
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+  <% } else if (flash === 'deleted') { %>
+    <div class="alert alert-info alert-dismissible fade show" role="alert">
+      <i class="fas fa-trash me-1"></i>Form definition deleted.
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+  <% } %>
+
   <% if (forms.length === 0) { %>
     <div class="alert alert-info">
-      No form definitions found. Add JSON files to <code>${FAST_STORAGE}/forms/definitions/</code>.
+      No form definitions found. Click <strong>New Form</strong> to create one.
     </div>
   <% } else { %>
     <div class="row">
-      <% forms.forEach(form => { %>
+      <% forms.forEach(function(form) { %>
         <div class="col-md-4 mb-4">
           <div class="card shadow-sm h-100">
             <div class="card-body">
@@ -36,10 +54,19 @@
                 <% } %>
               </div>
             </div>
-            <div class="card-footer bg-transparent">
+            <div class="card-footer bg-transparent d-flex gap-2 flex-wrap">
               <a href="/admin/forms/<%= encodeURIComponent(form.id) %>/submissions" class="btn btn-sm btn-outline-primary">
                 View Submissions
               </a>
+              <a href="/admin/forms/builder/<%= encodeURIComponent(form.id) %>" class="btn btn-sm btn-outline-secondary">
+                <i class="fas fa-edit me-1"></i>Edit
+              </a>
+              <form method="POST" action="/admin/forms/builder/<%= encodeURIComponent(form.id) %>/delete" style="display:inline"
+                onsubmit="return confirm('Delete form &quot;<%= form.id %>&quot;?\n\nDeletion is blocked if submissions exist.')">
+                <button type="submit" class="btn btn-sm btn-outline-danger">
+                  <i class="fas fa-trash me-1"></i>Delete
+                </button>
+              </form>
             </div>
           </div>
         </div>

@@ -1,0 +1,270 @@
+<%
+const PREFILL_PATHS = [
+  'user.displayName','user.firstName','user.lastName',
+  'user.email','user.cellPhone','user.homePhone',
+  'user.unit.address'
+];
+%>
+<%- include('header', { title: (isNew ? 'New Form' : 'Edit Form') + ' — Builder', currentUser }) %>
+
+<div class="container-fluid mt-4">
+  <div class="row mb-3">
+    <div class="col-12">
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="/admin">Admin</a></li>
+          <li class="breadcrumb-item"><a href="/admin/forms">Forms</a></li>
+          <li class="breadcrumb-item active"><%= isNew ? 'New Form' : 'Edit: ' + form.id %></li>
+        </ol>
+      </nav>
+      <h2><i class="fas fa-wpforms me-2"></i><%= isNew ? 'New Form' : 'Edit Form' %></h2>
+    </div>
+  </div>
+
+  <% if (errors && errors.length > 0) { %>
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+      <strong>Please fix the following:</strong>
+      <ul class="mb-0 mt-1">
+        <% errors.forEach(function(e) { %><li><%= e %></li><% }) %>
+      </ul>
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+  <% } %>
+
+  <form method="POST" action="<%= isNew ? '/admin/forms/builder' : '/admin/forms/builder/' + encodeURIComponent(form.id) %>" id="builder-form">
+
+    <%/* ── Form Metadata ──────────────────────────────────────────────── */%>
+    <div class="card mb-4">
+      <div class="card-header fw-semibold">Form Metadata</div>
+      <div class="card-body">
+        <div class="row g-3">
+
+          <div class="col-md-4">
+            <label class="form-label fw-semibold">Form ID <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" name="id"
+              value="<%= form?.id ?? '' %>"
+              <% if (isNew) { %>placeholder="lowercase-with-hyphens" pattern="[a-z0-9-]+" title="Lowercase letters, digits, and hyphens only" required<% } else { %>disabled<% } %>>
+            <div class="form-text">Used as the filename and in <code>[{Form id='...'}]</code>. Cannot change after creation.</div>
+          </div>
+
+          <div class="col-md-8">
+            <label class="form-label fw-semibold">Title <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" name="title"
+              value="<%= form?.title ?? '' %>" required
+              placeholder="Displayed at top of the rendered form">
+          </div>
+
+          <div class="col-12">
+            <label class="form-label fw-semibold">Description</label>
+            <textarea class="form-control" name="description" rows="2"
+              placeholder="Optional subtitle shown below the title"><%= form?.description ?? '' %></textarea>
+          </div>
+
+          <div class="col-md-4">
+            <label class="form-label fw-semibold">Handler</label>
+            <input type="text" class="form-control" name="handler"
+              value="<%= form?.handler ?? '' %>"
+              placeholder="e.g. clubhouse-reservation">
+            <div class="form-text">Server-side handler key. Leave blank to store submissions only.</div>
+          </div>
+
+          <div class="col-md-4">
+            <label class="form-label fw-semibold">Notify Role</label>
+            <input type="text" class="form-control" name="notifyRole"
+              value="<%= form?.notifyRole ?? 'admin' %>">
+            <div class="form-text">Role that receives an in-app notification on submission.</div>
+          </div>
+
+          <div class="col-md-4">
+            <label class="form-label fw-semibold">Confirmation URL</label>
+            <input type="text" class="form-control" name="confirmationUrl"
+              value="<%= form?.confirmationUrl ?? '' %>"
+              placeholder="/view/my-page">
+            <div class="form-text">Optional URL appended in the confirmation email.</div>
+          </div>
+
+          <div class="col-12">
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" name="proxySubmission" id="proxySubmission"
+                <%= form?.proxySubmission ? 'checked' : '' %>>
+              <label class="form-check-label" for="proxySubmission">
+                <strong>Proxy Submission</strong> — adds a "For Another Occupant" fieldset so staff can submit on behalf of a resident
+              </label>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <%/* ── Field List ─────────────────────────────────────────────────── */%>
+    <div class="card mb-4">
+      <div class="card-header d-flex align-items-center justify-content-between fw-semibold">
+        <span>Fields</span>
+        <button type="button" class="btn btn-sm btn-success" onclick="addField()">
+          <i class="fas fa-plus me-1"></i>Add Field
+        </button>
+      </div>
+      <div class="card-body p-2">
+        <div id="fields-container"></div>
+        <p id="no-fields-msg" class="text-muted text-center py-3 mb-0" style="display:none">
+          No fields yet. Click <strong>Add Field</strong> to get started.
+        </p>
+      </div>
+    </div>
+
+    <input type="hidden" name="fieldsJson" id="fieldsJson">
+
+    <div class="d-flex gap-2 mb-5">
+      <button type="submit" class="btn btn-primary">
+        <i class="fas fa-save me-1"></i><%= isNew ? 'Create Form' : 'Save Changes' %>
+      </button>
+      <a href="/admin/forms" class="btn btn-outline-secondary">Cancel</a>
+      <% if (!isNew) { %>
+        <button type="button" class="btn btn-outline-danger ms-auto"
+          onclick="if(confirm('Delete this form definition? This cannot be undone.\n\nNote: deletion is blocked if any submissions exist.')) { document.getElementById('delete-form').submit(); }">
+          <i class="fas fa-trash me-1"></i>Delete Form
+        </button>
+      <% } %>
+    </div>
+
+  </form>
+
+  <% if (!isNew) { %>
+    <form id="delete-form" method="POST"
+      action="/admin/forms/builder/<%= encodeURIComponent(form.id) %>/delete"
+      style="display:none"></form>
+  <% } %>
+</div>
+
+<datalist id="prefill-list">
+  <% PREFILL_PATHS.forEach(function(p) { %><option value="<%= p %>"><% }) %>
+</datalist>
+
+<script>
+var FIELD_TYPES = ['text','email','tel','textarea','date','time','dropdown','checkbox','hidden','section'];
+var fields = <%- JSON.stringify(form?.fields ?? []) %>.map(function(f) { return Object.assign({}, f); });
+
+function escAttr(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function renderFields() {
+  var container = document.getElementById('fields-container');
+  var noMsg = document.getElementById('no-fields-msg');
+  if (fields.length === 0) {
+    container.innerHTML = '';
+    noMsg.style.display = '';
+    return;
+  }
+  noMsg.style.display = 'none';
+
+  container.innerHTML = fields.map(function(f, i) {
+    var isFirst = i === 0;
+    var isLast = i === fields.length - 1;
+    var isDropdown = f.type === 'dropdown';
+    var isSection = f.type === 'section';
+    var optionsText = Array.isArray(f.options) ? f.options.join('\n') : '';
+
+    var typeOptions = FIELD_TYPES.map(function(t) {
+      return '<option value="' + t + '"' + (f.type === t ? ' selected' : '') + '>' + t + '</option>';
+    }).join('');
+
+    var reorderBtns =
+      '<button type="button" class="btn btn-sm btn-outline-secondary" ' + (isFirst ? 'disabled' : '') + ' onclick="moveUp(' + i + ')" title="Move up">▲</button>' +
+      '<button type="button" class="btn btn-sm btn-outline-secondary" ' + (isLast ? 'disabled' : '') + ' onclick="moveDown(' + i + ')" title="Move down">▼</button>' +
+      '<button type="button" class="btn btn-sm btn-outline-danger" onclick="removeField(' + i + ')" title="Remove">&times;</button>';
+
+    var requiredCheck = isSection
+      ? '<span class="text-muted small">(section)</span>'
+      : '<div class="form-check"><input class="form-check-input" type="checkbox" id="req-' + i + '"' + (f.required ? ' checked' : '') + ' onchange="updateField(' + i + ',\'required\',this.checked)">' +
+        '<label class="form-check-label small" for="req-' + i + '">Required</label></div>';
+
+    var extraFields = isSection ? '' :
+      '<div class="col-md-4"><label class="form-label form-label-sm mb-1">Placeholder</label>' +
+      '<input type="text" class="form-control form-control-sm" value="' + escAttr(f.placeholder ?? '') + '" oninput="updateField(' + i + ',\'placeholder\',this.value)"></div>' +
+
+      '<div class="col-md-4"><label class="form-label form-label-sm mb-1">Description / Help text</label>' +
+      '<input type="text" class="form-control form-control-sm" value="' + escAttr(f.description ?? '') + '" oninput="updateField(' + i + ',\'description\',this.value)"></div>' +
+
+      '<div class="col-md-4"><label class="form-label form-label-sm mb-1">Prefill path</label>' +
+      '<input type="text" class="form-control form-control-sm" list="prefill-list" value="' + escAttr(f.prefill ?? '') + '" oninput="updateField(' + i + ',\'prefill\',this.value)" placeholder="e.g. user.email"></div>' +
+
+      (isDropdown
+        ? '<div class="col-12"><label class="form-label form-label-sm mb-1">Options <span class="text-muted">(one per line)</span></label>' +
+          '<textarea class="form-control form-control-sm" rows="3" oninput="updateFieldOptions(' + i + ',this.value)">' + escHtml(optionsText) + '</textarea></div>'
+        : '');
+
+    return '<div class="border rounded p-3 mb-2 bg-light field-row" data-idx="' + i + '">' +
+      '<div class="d-flex align-items-center gap-2 mb-2">' +
+        '<span class="badge bg-secondary me-1">' + (i + 1) + '</span>' +
+        '<div style="min-width:140px"><select class="form-select form-select-sm" onchange="updateField(' + i + ',\'type\',this.value);renderFields()">' + typeOptions + '</select></div>' +
+        '<div class="ms-auto d-flex gap-1">' + reorderBtns + '</div>' +
+      '</div>' +
+      '<div class="row g-2">' +
+        '<div class="col-md-3"><label class="form-label form-label-sm mb-1">Name</label>' +
+        '<input type="text" class="form-control form-control-sm" value="' + escAttr(f.name ?? '') + '" oninput="updateField(' + i + ',\'name\',this.value)" placeholder="machine-name"></div>' +
+
+        '<div class="col-md-5"><label class="form-label form-label-sm mb-1">Label</label>' +
+        '<input type="text" class="form-control form-control-sm" value="' + escAttr(f.label ?? '') + '" oninput="updateField(' + i + ',\'label\',this.value)" placeholder="Display label"></div>' +
+
+        '<div class="col-md-2 d-flex align-items-end pb-1">' + requiredCheck + '</div>' +
+        extraFields +
+      '</div>' +
+    '</div>';
+  }).join('');
+}
+
+function updateField(idx, key, val) {
+  if (key === 'required') {
+    fields[idx][key] = Boolean(val);
+  } else if (key === 'name' || key === 'type' || key === 'label') {
+    fields[idx][key] = String(val);
+  } else {
+    var trimmed = String(val).trim();
+    fields[idx][key] = trimmed || undefined;
+  }
+}
+
+function updateFieldOptions(idx, text) {
+  var opts = text.split('\n').map(function(s) { return s.trim(); }).filter(Boolean);
+  fields[idx]['options'] = opts.length ? opts : undefined;
+}
+
+function addField() {
+  fields.push({ name: '', type: 'text', label: '', required: false });
+  renderFields();
+}
+
+function removeField(idx) {
+  fields.splice(idx, 1);
+  renderFields();
+}
+
+function moveUp(idx) {
+  if (idx === 0) return;
+  var tmp = fields[idx - 1];
+  fields[idx - 1] = fields[idx];
+  fields[idx] = tmp;
+  renderFields();
+}
+
+function moveDown(idx) {
+  if (idx === fields.length - 1) return;
+  var tmp = fields[idx + 1];
+  fields[idx + 1] = fields[idx];
+  fields[idx] = tmp;
+  renderFields();
+}
+
+document.getElementById('builder-form').addEventListener('submit', function() {
+  document.getElementById('fieldsJson').value = JSON.stringify(fields);
+});
+
+renderFields();
+</script>
+
+<%- include('footer') %>
