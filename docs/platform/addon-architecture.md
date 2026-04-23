@@ -370,6 +370,7 @@ interface AddonManifest {
 |-------|------|-------------|--------|--------|-------|
 | `calendar` | additive | `CalendarDataManager` (extends BaseManager, owns JSON event store) | `CalendarPlugin` (FullCalendar embed) | `/api/calendar`, `/admin/calendar` | UpcomingEvents, My Calendar, Calendar Help |
 | `elasticsearch` | additive | none | none | none | none |
+| `forms` | additive | `FormsDataManager` (loads JSON form definitions, stores submissions per form) | `FormsPlugin` (renders schema-driven Bootstrap form; supports `section` fieldsets, `prefill` from user context, `proxySubmission` block) | `/api/forms/submit/:formId`, `/api/forms/schema/:formId`, `/admin/forms` | Using FormPlugin, Form Definition Reference |
 | `journal` | additive | `JournalDataManager` (sidecar index, streak, facets); `JournalTemplateManager` (built-in + custom writing templates) | `JournalPlugin` (timeline/streak/on-this-day) | `/journal`, `/api/journal`, `/admin/journal` | journalhelp, myjournal |
 
 ---
