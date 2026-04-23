@@ -2,6 +2,22 @@
 
 AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version history.
 
+## 2026-04-23-09
+
+- Agent: Claude
+- Subject: Addon /addons/ URL scheme — docs update and GitHub issues
+- Current Issue: #580, #581
+- Work Done:
+  - Created GitHub issues for four addon URL scheme phases: #580 (move journal/calendar/forms), #581 (elasticsearch admin page), fairways #14 (fairways admin page), ve-geology #11 (ve-geology admin page)
+  - Updated docs/platform/addon-development-guide.md: adminUrl example /admin/my-addon → /addons/my-addon
+  - Updated docs/platform/addon-architecture.md: adminUrl example + routes table (calendar, forms, journal, elasticsearch entries)
+  - Updated docs/Forms-to-Calendar.md: Admin Surfaces table /admin/forms, /admin/calendar → /addons/
+- Commits: 573c8e23
+- Files Modified:
+  - docs/Forms-to-Calendar.md
+  - docs/platform/addon-architecture.md
+  - docs/platform/addon-development-guide.md
+
 ## 2026-04-23-08
 
 - Agent: Claude
