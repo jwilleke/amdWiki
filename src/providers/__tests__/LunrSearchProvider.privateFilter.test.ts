@@ -15,7 +15,7 @@
  */
 
 // Opt out of the global LunrSearchProvider mock so we test the real implementation
-jest.unmock('../LunrSearchProvider');
+vi.unmock('../LunrSearchProvider');
 
 import LunrSearchProvider from '../LunrSearchProvider';
 
@@ -101,7 +101,7 @@ beforeEach(() => {
 
   // Mock the Lunr index to return all three documents as hits
   provider['searchIndex'] = {
-    search: jest.fn().mockReturnValue([
+    search: vi.fn().mockReturnValue([
       { ref: 'AlicePrivatePage', score: 1.0, matchData: {} },
       { ref: 'BobPrivatePage',   score: 0.9, matchData: {} },
       { ref: 'PublicPage',       score: 0.8, matchData: {} }

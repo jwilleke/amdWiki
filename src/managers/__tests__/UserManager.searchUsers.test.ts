@@ -33,20 +33,20 @@ describe('UserManager#searchUsers()', () => {
   ];
 
   const makeEngine = () => ({
-    getManager: jest.fn().mockReturnValue(null),
-    logger: { info: jest.fn(), warn: jest.fn(), error: jest.fn(), debug: jest.fn() }
+    getManager: vi.fn().mockReturnValue(null),
+    logger: { info: vi.fn(), warn: vi.fn(), error: vi.fn(), debug: vi.fn() }
   });
 
-  beforeEach(() => {
-    jest.resetModules();
-    UserManager = require('../UserManager');
-    if (UserManager.default) UserManager = UserManager.default;
+  beforeEach(async () => {
+    vi.resetModules();
+    const mod = await import('../UserManager');
+    UserManager = mod.default ?? mod;
 
     mockProvider = {
-      getAllUsers: jest.fn().mockResolvedValue(new Map(users.map(u => [u.username, u]))),
-      getUser: jest.fn(),
-      saveUser: jest.fn(),
-      deleteUser: jest.fn()
+      getAllUsers: vi.fn().mockResolvedValue(new Map(users.map(u => [u.username, u]))),
+      getUser: vi.fn(),
+      saveUser: vi.fn(),
+      deleteUser: vi.fn()
     };
 
     manager = new UserManager(makeEngine());

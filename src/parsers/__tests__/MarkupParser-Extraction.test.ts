@@ -13,10 +13,10 @@ describe('MarkupParser.extractJSPWikiSyntax()', () => {
   beforeEach(() => {
     // Create minimal mock engine
     mockEngine = {
-      getManager: jest.fn((name) => {
+      getManager: vi.fn((name) => {
         if (name === 'ConfigurationManager') {
           return {
-            getProperty: jest.fn((key, defaultValue) => defaultValue)
+            getProperty: vi.fn((key, defaultValue) => defaultValue)
           };
         }
         return null;

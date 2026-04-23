@@ -32,12 +32,12 @@ describe('Location (via PluginManager)', () => {
     }
 
     const logger = {
-      info: jest.fn(),
-      warn: jest.fn(),
-      debug: jest.fn(),
-      error: jest.fn()
+      info: vi.fn(),
+      warn: vi.fn(),
+      debug: vi.fn(),
+      error: vi.fn()
     };
-    const cfgMgr = { getProperty: jest.fn().mockReturnValue([pluginsDir]) };
+    const cfgMgr = { getProperty: vi.fn().mockReturnValue([pluginsDir]) };
     const engine = {
       getManager: (name) => (name === 'ConfigurationManager' ? cfgMgr : null),
       logger
@@ -58,7 +58,7 @@ describe('Location (via PluginManager)', () => {
 
   beforeEach(() => {
     const mockConfigManager = {
-      getProperty: jest.fn().mockImplementation((key, def) => {
+      getProperty: vi.fn().mockImplementation((key, def) => {
         const configMap = {
           'ngdpbase.location.default-provider': 'osm'
         };
@@ -68,7 +68,7 @@ describe('Location (via PluginManager)', () => {
 
     mockContext = {
       engine: {
-        getManager: jest.fn().mockImplementation((name) => {
+        getManager: vi.fn().mockImplementation((name) => {
           if (name === 'ConfigurationManager') {
             return mockConfigManager;
           }
@@ -425,7 +425,7 @@ describe('Location (via PluginManager)', () => {
     it('handles errors gracefully', () => {
       const badContext = {
         engine: {
-          getManager: jest.fn(() => {
+          getManager: vi.fn(() => {
             throw new Error('Manager error');
           })
         }
@@ -466,7 +466,7 @@ describe('Location (via PluginManager)', () => {
   describe('ConfigurationManager integration', () => {
     it('uses default provider from config', () => {
       const customConfigManager = {
-        getProperty: jest.fn().mockImplementation((key, def) => {
+        getProperty: vi.fn().mockImplementation((key, def) => {
           if (key === 'ngdpbase.location.default-provider') return 'google';
           return def;
         })
@@ -474,7 +474,7 @@ describe('Location (via PluginManager)', () => {
 
       const contextWithCustomConfig = {
         engine: {
-          getManager: jest.fn().mockReturnValue(customConfigManager)
+          getManager: vi.fn().mockReturnValue(customConfigManager)
         }
       };
 
@@ -487,7 +487,7 @@ describe('Location (via PluginManager)', () => {
     it('falls back to osm when ConfigurationManager unavailable', () => {
       const contextWithoutConfig = {
         engine: {
-          getManager: jest.fn().mockReturnValue(null)
+          getManager: vi.fn().mockReturnValue(null)
         }
       };
 
@@ -499,7 +499,7 @@ describe('Location (via PluginManager)', () => {
 
     it('explicit provider overrides config default', () => {
       const customConfigManager = {
-        getProperty: jest.fn().mockImplementation((key, def) => {
+        getProperty: vi.fn().mockImplementation((key, def) => {
           if (key === 'ngdpbase.location.default-provider') return 'google';
           return def;
         })
@@ -507,7 +507,7 @@ describe('Location (via PluginManager)', () => {
 
       const contextWithCustomConfig = {
         engine: {
-          getManager: jest.fn().mockReturnValue(customConfigManager)
+          getManager: vi.fn().mockReturnValue(customConfigManager)
         }
       };
 

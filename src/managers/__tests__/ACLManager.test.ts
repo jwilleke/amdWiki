@@ -14,7 +14,7 @@ import type { WikiEngine } from '../../types/WikiEngine';
 
 // Mock ConfigurationManager
 const mockConfigurationManager = {
-  getProperty: jest.fn((key, defaultValue) => {
+  getProperty: vi.fn((key, defaultValue) => {
     if (key === 'ngdpbase.access.policies') {
       return [];  // Return empty array for policies
     }
@@ -27,13 +27,13 @@ const mockConfigurationManager = {
 
 // Mock UserManager
 const mockUserManager = {
-  hasPermission: jest.fn(),
-  hasRole: jest.fn()
+  hasPermission: vi.fn(),
+  hasRole: vi.fn()
 };
 
 // Mock engine
 const mockEngine = {
-  getManager: jest.fn((name) => {
+  getManager: vi.fn((name) => {
     if (name === 'UserManager') {
       return mockUserManager;
     }
@@ -50,7 +50,7 @@ describe('ACLManager', () => {
 
   beforeEach(async () => {
     // Clear mocks
-    jest.clearAllMocks();
+    vi.clearAllMocks();
 
     aclManager = new ACLManager(mockEngine as unknown as WikiEngine);
     await aclManager.initialize();
@@ -272,7 +272,7 @@ describe('ACLManager', () => {
     test('should handle PolicyEvaluator errors gracefully', async () => {
       // Create a mock PolicyEvaluator that throws an error
       const mockPolicyEvaluator = {
-        evaluateAccess: jest.fn(() => {
+        evaluateAccess: vi.fn(() => {
           throw new Error('Policy evaluation failed');
         })
       };

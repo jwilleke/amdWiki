@@ -6,7 +6,7 @@ describe('AuthManager', () => {
   let mockConfigManager;
 
   const makeConfigManager = (overrides: Record<string, unknown> = {}) => ({
-    getProperty: jest.fn((key, defaultValue) => {
+    getProperty: vi.fn((key, defaultValue) => {
       const values = {
         'ngdpbase.auth.magic-link.enabled': overrides.magicLinkEnabled ?? false,
         'ngdpbase.auth.magic-link.ttl-minutes': 15,
@@ -19,22 +19,21 @@ describe('AuthManager', () => {
   });
 
   const makeMockEmailManager = () => ({
-    send: jest.fn().mockResolvedValue(undefined),
-    sendTo: jest.fn().mockResolvedValue(undefined),
-    getProviderName: jest.fn().mockReturnValue('console'),
-    isEnabled: jest.fn().mockReturnValue(false)
+    send: vi.fn().mockResolvedValue(undefined),
+    sendTo: vi.fn().mockResolvedValue(undefined),
+    getProviderName: vi.fn().mockReturnValue('console'),
+    isEnabled: vi.fn().mockReturnValue(false)
   });
 
-  beforeEach(() => {
-    jest.resetModules();
-    jest.clearAllMocks();
-
-    AuthManager = require('../AuthManager');
-    if (AuthManager.default) AuthManager = AuthManager.default;
+  beforeEach(async () => {
+    vi.resetModules();
+    vi.clearAllMocks();
+    const mod = await import('../AuthManager');
+    AuthManager = mod.default ?? mod;
   });
 
   const makeEngine = (configManager, extraManagers = {}) => ({
-    getManager: jest.fn((name) => {
+    getManager: vi.fn((name) => {
       if (name === 'ConfigurationManager') return configManager;
       if (name === 'EmailManager') return extraManagers.EmailManager ?? makeMockEmailManager();
       return extraManagers[name] ?? null;
@@ -87,8 +86,8 @@ describe('AuthManager', () => {
 
     test('delegates password auth to PasswordAuthProvider', async () => {
       const mockUserManager = {
-        authenticateUser: jest.fn().mockResolvedValue({ username: 'alice' }),
-        getUser: jest.fn().mockResolvedValue({ username: 'alice' })
+        authenticateUser: vi.fn().mockResolvedValue({ username: 'alice' }),
+        getUser: vi.fn().mockResolvedValue({ username: 'alice' })
       };
       const cm = makeConfigManager();
       const manager = new AuthManager(makeEngine(cm, { UserManager: mockUserManager }));
@@ -101,7 +100,7 @@ describe('AuthManager', () => {
 
     test('returns { success: false } on bad password', async () => {
       const mockUserManager = {
-        authenticateUser: jest.fn().mockResolvedValue(null)
+        authenticateUser: vi.fn().mockResolvedValue(null)
       };
       const cm = makeConfigManager();
       const manager = new AuthManager(makeEngine(cm, { UserManager: mockUserManager }));
@@ -113,7 +112,7 @@ describe('AuthManager', () => {
 
     test('delegates magic-link verify to MagicLinkAuthProvider', async () => {
       const mockUserManager = {
-        getUserByEmail: jest.fn().mockResolvedValue({ username: 'alice', email: 'a@b.com' })
+        getUserByEmail: vi.fn().mockResolvedValue({ username: 'alice', email: 'a@b.com' })
       };
       const cm = makeConfigManager({ magicLinkEnabled: true });
       const manager = new AuthManager(makeEngine(cm, { UserManager: mockUserManager }));

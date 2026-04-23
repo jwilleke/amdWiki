@@ -11,7 +11,7 @@ import type { WikiEngine } from '../../types/WikiEngine';
 
 // Mock ConfigurationManager
 const mockConfigurationManager = {
-  getProperty: jest.fn((key, defaultValue) => {
+  getProperty: vi.fn((key, defaultValue) => {
     const config = {
       'ngdpbase.user.provider.default': 'fileuserprovider',
       'ngdpbase.user.provider': 'fileuserprovider',
@@ -27,18 +27,18 @@ const mockConfigurationManager = {
 
 // Mock engine
 const mockEngine = {
-  getManager: jest.fn((name) => {
+  getManager: vi.fn((name) => {
     if (name === 'ConfigurationManager') return mockConfigurationManager;
     return null;
   }),
-  getConfig: jest.fn(() => ({ get: jest.fn() }))
+  getConfig: vi.fn(() => ({ get: vi.fn() }))
 };
 
 describe('UserManager', () => {
   let userManager;
 
   beforeEach(async () => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
 
     // Reset mock implementation to default behavior
     mockConfigurationManager.getProperty.mockImplementation((key, defaultValue) => {
@@ -66,7 +66,7 @@ describe('UserManager', () => {
 
   describe('Initialization', () => {
     test('should require ConfigurationManager', async () => {
-      const engineWithoutConfig = { getManager: jest.fn(() => null) };
+      const engineWithoutConfig = { getManager: vi.fn(() => null) };
       const manager = new UserManager(engineWithoutConfig as unknown as WikiEngine);
 
       await expect(manager.initialize()).rejects.toThrow('UserManager requires ConfigurationManager');
@@ -104,7 +104,7 @@ describe('UserManager', () => {
   describe('User CRUD Operations', () => {
     test('getUser() should call provider and strip password', async () => {
       const mockUser = { username: 'test', email: 'test@example.com', password: 'hashed' };
-      userManager.provider.getUser = jest.fn().mockResolvedValue(mockUser);
+      userManager.provider.getUser = vi.fn().mockResolvedValue(mockUser);
 
       const result = await userManager.getUser('test');
 
@@ -114,7 +114,7 @@ describe('UserManager', () => {
     });
 
     test('getUser() should return undefined for null result', async () => {
-      userManager.provider.getUser = jest.fn().mockResolvedValue(null);
+      userManager.provider.getUser = vi.fn().mockResolvedValue(null);
 
       const result = await userManager.getUser('nonexistent');
 
@@ -123,7 +123,7 @@ describe('UserManager', () => {
 
     test('getUsers() should call provider', async () => {
       const mockUsers = [{ username: 'user1' }, { username: 'user2' }];
-      userManager.provider.getAllUsers = jest.fn().mockResolvedValue(mockUsers);
+      userManager.provider.getAllUsers = vi.fn().mockResolvedValue(mockUsers);
 
       const result = await userManager.getUsers();
 
@@ -134,22 +134,22 @@ describe('UserManager', () => {
     test('createUser() should check for existing user', async () => {
       const userData = { username: 'test', password: 'pass123', email: 'test@example.com' };
 
-      userManager.provider.userExists = jest.fn().mockResolvedValue(true);
-      userManager.provider.getAllUsernames = jest.fn().mockResolvedValue(['test', 'admin']);
+      userManager.provider.userExists = vi.fn().mockResolvedValue(true);
+      userManager.provider.getAllUsernames = vi.fn().mockResolvedValue(['test', 'admin']);
 
       await expect(userManager.createUser(userData)).rejects.toThrow('Username already exists');
     });
 
     test('deleteUser() should throw if user not found', async () => {
-      userManager.provider.getUser = jest.fn().mockResolvedValue(null);
+      userManager.provider.getUser = vi.fn().mockResolvedValue(null);
 
       await expect(userManager.deleteUser('nonexistent')).rejects.toThrow('User not found');
     });
 
     test('deleteUser() should call provider for existing user', async () => {
       const mockUser = { username: 'test', isSystem: false };
-      userManager.provider.getUser = jest.fn().mockResolvedValue(mockUser);
-      userManager.provider.deleteUser = jest.fn().mockResolvedValue(undefined);
+      userManager.provider.getUser = vi.fn().mockResolvedValue(mockUser);
+      userManager.provider.deleteUser = vi.fn().mockResolvedValue(undefined);
 
       await userManager.deleteUser('test');
 
@@ -167,8 +167,8 @@ describe('UserManager', () => {
         isActive: true,
         loginCount: 0
       };
-      userManager.provider.getUser = jest.fn().mockResolvedValue(mockUser);
-      userManager.provider.updateUser = jest.fn().mockResolvedValue(undefined);
+      userManager.provider.getUser = vi.fn().mockResolvedValue(mockUser);
+      userManager.provider.updateUser = vi.fn().mockResolvedValue(undefined);
 
       const result = await userManager.authenticateUser('test', 'password');
 
@@ -186,7 +186,7 @@ describe('UserManager', () => {
         password: hashedPassword,
         isActive: true
       };
-      userManager.provider.getUser = jest.fn().mockResolvedValue(mockUser);
+      userManager.provider.getUser = vi.fn().mockResolvedValue(mockUser);
 
       const result = await userManager.authenticateUser('test', 'wrongpass');
 
@@ -199,7 +199,7 @@ describe('UserManager', () => {
         password: 'hash',
         isActive: false
       };
-      userManager.provider.getUser = jest.fn().mockResolvedValue(mockUser);
+      userManager.provider.getUser = vi.fn().mockResolvedValue(mockUser);
 
       const result = await userManager.authenticateUser('test', 'password');
 
@@ -235,7 +235,7 @@ describe('UserManager', () => {
 
     test('hasRole() should check user roles', async () => {
       const mockUser = { username: 'test', roles: ['admin', 'user'] };
-      userManager.provider.getUser = jest.fn().mockResolvedValue(mockUser);
+      userManager.provider.getUser = vi.fn().mockResolvedValue(mockUser);
 
       const result = await userManager.hasRole('test', 'admin');
 
@@ -244,7 +244,7 @@ describe('UserManager', () => {
 
     test('hasRole() should return false for role not assigned', async () => {
       const mockUser = { username: 'test', roles: ['user'] };
-      userManager.provider.getUser = jest.fn().mockResolvedValue(mockUser);
+      userManager.provider.getUser = vi.fn().mockResolvedValue(mockUser);
 
       const result = await userManager.hasRole('test', 'admin');
 
@@ -258,7 +258,7 @@ describe('UserManager', () => {
     beforeEach(() => {
       // Mock PolicyManager for permission tests
       mockPolicyManager = {
-        getAllPolicies: jest.fn(() => [
+        getAllPolicies: vi.fn(() => [
           {
             id: 'policy1',
             subjects: [
@@ -280,7 +280,7 @@ describe('UserManager', () => {
       };
 
       // Override engine.getManager to return mock PolicyManager
-      mockEngine.getManager = jest.fn((name) => {
+      mockEngine.getManager = vi.fn((name) => {
         if (name === 'ConfigurationManager') return mockConfigurationManager;
         if (name === 'PolicyManager') return mockPolicyManager;
         return null;
@@ -289,7 +289,7 @@ describe('UserManager', () => {
 
     test('getUserPermissions() should aggregate from policies', async () => {
       const mockUser = { username: 'test', roles: ['user'], isActive: true };
-      userManager.provider.getUser = jest.fn().mockResolvedValue(mockUser);
+      userManager.provider.getUser = vi.fn().mockResolvedValue(mockUser);
 
       const permissions = await userManager.getUserPermissions('test');
 
@@ -299,7 +299,7 @@ describe('UserManager', () => {
 
     test('hasPermission() should check user permissions via policies', async () => {
       const mockUser = { username: 'test', roles: ['admin'], isActive: true };
-      userManager.provider.getUser = jest.fn().mockResolvedValue(mockUser);
+      userManager.provider.getUser = vi.fn().mockResolvedValue(mockUser);
 
       const permissions = await userManager.getUserPermissions('test');
       const result = permissions.length > 0;
@@ -309,7 +309,7 @@ describe('UserManager', () => {
 
     test('getUserPermissions() should return empty array without PolicyManager', async () => {
       // Override to return no PolicyManager
-      mockEngine.getManager = jest.fn((name) => {
+      mockEngine.getManager = vi.fn((name) => {
         if (name === 'ConfigurationManager') return mockConfigurationManager;
         return null;
       });

@@ -1,13 +1,16 @@
 import { HandlerRegistry, HandlerRegistrationError } from '../HandlerRegistry';
-import BaseSyntaxHandlerModule = require('../BaseSyntaxHandler');
-const BaseSyntaxHandler = BaseSyntaxHandlerModule.BaseSyntaxHandler ?? BaseSyntaxHandlerModule;
+import BaseSyntaxHandlerModule from '../BaseSyntaxHandler';
+const BaseSyntaxHandler = (BaseSyntaxHandlerModule as any).BaseSyntaxHandler ?? BaseSyntaxHandlerModule;
 
 // Mock logger to capture error logs
-jest.mock('../../../utils/logger', () => ({
-  info: jest.fn(),
-  warn: jest.fn(),
-  error: jest.fn(),
-  debug: jest.fn()
+vi.mock('../../../utils/logger', () => ({
+  default: {
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
+    debug: vi.fn()
+
+  }
 }));
 
 import logger from '../../../utils/logger';
@@ -81,7 +84,7 @@ class ConflictingHandler extends BaseSyntaxHandler {
 
 // Mock engine for testing
 const createMockEngine = () => ({
-  getManager: jest.fn((name) => {
+  getManager: vi.fn((name) => {
     if (name === 'TestManager') return { initialized: true };
     return null;
   })

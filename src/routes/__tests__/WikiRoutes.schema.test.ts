@@ -7,7 +7,7 @@ import WikiRoutes from '../../routes/WikiRoutes';
 
 // Mock dependencies
 const mockSchemaManager = {
-  getComprehensiveSiteData: jest.fn().mockReturnValue({
+  getComprehensiveSiteData: vi.fn().mockReturnValue({
     adminUsers: [{
       '@type': 'Person',
       '@id': 'admin-1',
@@ -20,45 +20,45 @@ const mockSchemaManager = {
       'name': 'Test Organization'
     }]
   }),
-  getOrganizations: jest.fn().mockReturnValue([{
+  getOrganizations: vi.fn().mockReturnValue([{
     '@id': 'org-1',
     'name': 'Test Organization',
     'legalName': 'Test Corp LLC'
   }]),
-  createOrganization: jest.fn().mockImplementation((data) => {
+  createOrganization: vi.fn().mockImplementation((data) => {
     if (!data.name) throw new Error('Organization name is required');
     return { ...data, '@type': 'Organization' };
   }),
-  updateOrganization: jest.fn().mockReturnValue(true),
-  deleteOrganization: jest.fn().mockReturnValue(true),
-  saveOrganizations: jest.fn()
+  updateOrganization: vi.fn().mockReturnValue(true),
+  deleteOrganization: vi.fn().mockReturnValue(true),
+  saveOrganizations: vi.fn()
 };
 
 const mockPageManager = {
-  getPageContent: jest.fn().mockResolvedValue('# Welcome\nTest content'),
-  getPageMetadata: jest.fn().mockResolvedValue({ title: 'Welcome' }),
-  getPage: jest.fn().mockReturnValue({ title: 'Test', content: 'Test' })
+  getPageContent: vi.fn().mockResolvedValue('# Welcome\nTest content'),
+  getPageMetadata: vi.fn().mockResolvedValue({ title: 'Welcome' }),
+  getPage: vi.fn().mockReturnValue({ title: 'Test', content: 'Test' })
 };
 
 const mockRenderingManager = {
-  textToHTML: jest.fn().mockResolvedValue('<p>Rendered</p>')
+  textToHTML: vi.fn().mockResolvedValue('<p>Rendered</p>')
 };
 
 const mockACLManager = {
-  removeACLMarkup: jest.fn().mockReturnValue('Clean content'),
-  checkPagePermissionWithContext: jest.fn().mockResolvedValue(true)
+  removeACLMarkup: vi.fn().mockReturnValue('Clean content'),
+  checkPagePermissionWithContext: vi.fn().mockResolvedValue(true)
 };
 
 const mockConfigManager = {
-  getProperty: jest.fn().mockReturnValue('Welcome')
+  getProperty: vi.fn().mockReturnValue('Welcome')
 };
 
 const mockUserManager = {
-  hasPermission: jest.fn().mockReturnValue(true)
+  hasPermission: vi.fn().mockReturnValue(true)
 };
 
 const mockEngine = {
-  getManager: jest.fn((name) => {
+  getManager: vi.fn((name) => {
     const managers = {
       'SchemaManager': mockSchemaManager,
       'PageManager': mockPageManager,
@@ -76,7 +76,7 @@ describe('WikiRoutes Schema.org Integration', () => {
 
   beforeEach(() => {
     wikiRoutes = new WikiRoutes(mockEngine);
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe('SchemaManager Integration', () => {
@@ -150,11 +150,11 @@ describe('WikiRoutes Schema.org Integration', () => {
 
     const createMockRes = () => {
       const res = {
-        status: jest.fn().mockReturnThis(),
-        json: jest.fn().mockReturnThis(),
-        send: jest.fn().mockReturnThis(),
-        render: jest.fn().mockReturnThis(),
-        redirect: jest.fn().mockReturnThis()
+        status: vi.fn().mockReturnThis(),
+        json: vi.fn().mockReturnThis(),
+        send: vi.fn().mockReturnThis(),
+        render: vi.fn().mockReturnThis(),
+        redirect: vi.fn().mockReturnThis()
       };
       return res;
     };

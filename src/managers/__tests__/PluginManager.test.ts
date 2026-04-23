@@ -4,17 +4,17 @@ import fs from 'fs-extra';
 
 describe('PluginManager.registerPlugins', () => {
   const makeLogger = () => ({
-    info: jest.fn(),
-    warn: jest.fn(),
-    debug: jest.fn(),
-    error: jest.fn()
+    info: vi.fn(),
+    warn: vi.fn(),
+    debug: vi.fn(),
+    error: vi.fn()
   });
 
   let tmpDirA;
   let tmpDirB;
 
   beforeAll(async () => {
-    jest.setTimeout(20000);
+    vi.setConfig({ testTimeout: 20000 });
   });
 
   beforeEach(async () => {
@@ -25,8 +25,8 @@ describe('PluginManager.registerPlugins', () => {
   afterEach(async () => {
     await fs.remove(tmpDirA).catch(() => { });
     await fs.remove(tmpDirB).catch(() => { });
-    jest.resetModules();
-    jest.clearAllMocks();
+    vi.resetModules();
+    vi.clearAllMocks();
   });
 
   test('loads plugins only from configured search paths and only .js/.ts (excluding test files)', async () => {
@@ -66,7 +66,7 @@ describe('PluginManager.registerPlugins', () => {
 
     const logger = makeLogger();
     const cfgMgr = {
-      getProperty: jest.fn().mockReturnValue([tmpDirA]) // ONLY tmpDirA is allowed
+      getProperty: vi.fn().mockReturnValue([tmpDirA]) // ONLY tmpDirA is allowed
     };
     const engine = {
       getManager: (name) => (name === 'ConfigurationManager' ? cfgMgr : null),
@@ -74,14 +74,14 @@ describe('PluginManager.registerPlugins', () => {
     };
 
     // Load PluginManager fresh
-    const PluginManager = require('../PluginManager');
+    const PluginManager = await import('../PluginManager').then((m: any) => m.default ?? m);
 
     // Create instance and intercept loadPlugin to observe what it would load
     const pm = typeof PluginManager === 'function' ? new PluginManager(engine) : new PluginManager();
     if (!pm.engine) pm.engine = engine;
 
     const loadCalls = [];
-    pm.loadPlugin = jest.fn(async (candidate) => {
+    pm.loadPlugin = vi.fn(async (candidate) => {
       loadCalls.push(candidate);
     });
 
@@ -111,11 +111,11 @@ describe('PluginManager.registerPlugins', () => {
       logger
     };
 
-    const PluginManager = require('../PluginManager');
+    const PluginManager = await import('../PluginManager').then((m: any) => m.default ?? m);
     const pm = typeof PluginManager === 'function' ? new PluginManager(engine) : new PluginManager();
     if (!pm.engine) pm.engine = engine;
 
-    pm.loadPlugin = jest.fn();
+    pm.loadPlugin = vi.fn();
 
     await pm.registerPlugins();
 
@@ -130,17 +130,17 @@ describe('PluginManager.registerPlugins', () => {
 
   test('does not load anything when searchPaths config is missing/empty', async () => {
     const logger = makeLogger();
-    const cfgMgr = { getProperty: jest.fn().mockReturnValue([]) };
+    const cfgMgr = { getProperty: vi.fn().mockReturnValue([]) };
     const engine = {
       getManager: () => cfgMgr,
       logger
     };
 
-    const PluginManager = require('../PluginManager');
+    const PluginManager = await import('../PluginManager').then((m: any) => m.default ?? m);
     const pm = typeof PluginManager === 'function' ? new PluginManager(engine) : new PluginManager();
     if (!pm.engine) pm.engine = engine;
 
-    pm.loadPlugin = jest.fn();
+    pm.loadPlugin = vi.fn();
 
     await pm.registerPlugins();
 
@@ -158,7 +158,7 @@ describe('PluginManager.registerPlugins', () => {
     const logger = makeLogger();
     const missingDir = path.join(os.tmpdir(), 'pm-missing-' + Date.now());
 
-    const cfgMgr = { getProperty: jest.fn().mockReturnValue([missingDir, tmpDirB]) };
+    const cfgMgr = { getProperty: vi.fn().mockReturnValue([missingDir, tmpDirB]) };
     const engine = {
       getManager: () => cfgMgr,
       logger
@@ -174,11 +174,11 @@ describe('PluginManager.registerPlugins', () => {
       'utf8'
     );
 
-    const PluginManager = require('../PluginManager');
+    const PluginManager = await import('../PluginManager').then((m: any) => m.default ?? m);
     const pm = typeof PluginManager === 'function' ? new PluginManager(engine) : new PluginManager();
     if (!pm.engine) pm.engine = engine;
 
-    pm.loadPlugin = jest.fn();
+    pm.loadPlugin = vi.fn();
 
     await pm.registerPlugins();
 
@@ -201,18 +201,18 @@ describe('PluginManager.registerPlugins', () => {
     const path = require('path');
     const fs = require('fs-extra');
 
-    const logger = { info: jest.fn(), warn: jest.fn(), debug: jest.fn(), error: jest.fn() };
+    const logger = { info: vi.fn(), warn: vi.fn(), debug: vi.fn(), error: vi.fn() };
     const pluginsDir = path.resolve(process.cwd(), 'dist/src/plugins');
     const exists = await fs.pathExists(pluginsDir);
     expect(exists).toBe(true);
 
-    const cfgMgr = { getProperty: jest.fn().mockReturnValue([pluginsDir]) };
+    const cfgMgr = { getProperty: vi.fn().mockReturnValue([pluginsDir]) };
     const engine = {
       getManager: (name) => (name === 'ConfigurationManager' ? cfgMgr : null),
       logger
     };
 
-    const PluginManager = require('../PluginManager');
+    const PluginManager = await import('../PluginManager').then((m: any) => m.default ?? m);
     const pm = new PluginManager(engine);
     await pm.registerPlugins();
 

@@ -2,7 +2,7 @@
  * Tests for CounterPlugin
  */
 
-import CounterPluginModule = require('../CounterPlugin');
+import CounterPluginModule from '../CounterPlugin' ;
 import type { SimplePlugin } from '../types';
 const CounterPlugin = CounterPluginModule as unknown as SimplePlugin;
 describe('CounterPlugin', () => {
@@ -380,8 +380,8 @@ describe('CounterPlugin', () => {
     });
 
     test('should log errors to console', () => {
-      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
-      const consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+      const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
 
       // Invalid increment should trigger warning
       CounterPlugin.execute(mockContext, { increment: 'not-a-number' });
@@ -399,18 +399,18 @@ describe('CounterPlugin', () => {
 
     test('should not throw on initialization', () => {
       const mockEngine = {
-        getManager: jest.fn()
+        getManager: vi.fn()
       };
       expect(() => CounterPlugin.initialize(mockEngine)).not.toThrow();
     });
 
     test('should register counter variable with VariableManager', () => {
-      const mockRegisterVariable = jest.fn();
+      const mockRegisterVariable = vi.fn();
       const mockVariableManager = {
         registerVariable: mockRegisterVariable
       };
       const mockEngine = {
-        getManager: jest.fn((name) => {
+        getManager: vi.fn((name) => {
           if (name === 'VariableManager') return mockVariableManager;
           return null;
         })
@@ -424,7 +424,7 @@ describe('CounterPlugin', () => {
 
     test('should handle missing VariableManager gracefully', () => {
       const mockEngine = {
-        getManager: jest.fn(() => null)
+        getManager: vi.fn(() => null)
       };
 
       // Should not throw when VariableManager is missing (silently skips registration)

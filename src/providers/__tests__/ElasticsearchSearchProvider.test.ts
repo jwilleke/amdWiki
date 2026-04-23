@@ -11,24 +11,24 @@
 // ---------------------------------------------------------------------------
 
 const mockClientInstance = {
-  ping:          jest.fn(),
-  close:         jest.fn(),
-  index:         jest.fn(),
-  delete:        jest.fn(),
-  deleteByQuery: jest.fn(),
-  count:         jest.fn(),
-  bulk:          jest.fn(),
-  search:        jest.fn(),
-  get:           jest.fn(),
+  ping:          vi.fn(),
+  close:         vi.fn(),
+  index:         vi.fn(),
+  delete:        vi.fn(),
+  deleteByQuery: vi.fn(),
+  count:         vi.fn(),
+  bulk:          vi.fn(),
+  search:        vi.fn(),
+  get:           vi.fn(),
   indices: {
-    exists: jest.fn(),
-    create: jest.fn(),
-    stats:  jest.fn()
+    exists: vi.fn(),
+    create: vi.fn(),
+    stats:  vi.fn()
   }
 };
 
-jest.mock('@elastic/elasticsearch', () => ({
-  Client: jest.fn(() => mockClientInstance)
+vi.mock('@elastic/elasticsearch', () => ({
+  Client: vi.fn(function () { return mockClientInstance; })
 }));
 
 import ElasticsearchSearchProvider from '../ElasticsearchSearchProvider';
@@ -50,11 +50,11 @@ function makeEngine(configOverrides = {}, extraManagers = {}) {
   };
 
   const configManager = {
-    getProperty: jest.fn((key, def) => defaultConfig[key] ?? def)
+    getProperty: vi.fn((key, def) => defaultConfig[key] ?? def)
   };
 
   return {
-    getManager: jest.fn((name) => {
+    getManager: vi.fn((name) => {
       if (name === 'ConfigurationManager') return configManager;
       return extraManagers[name] ?? null;
     })
@@ -64,8 +64,8 @@ function makeEngine(configOverrides = {}, extraManagers = {}) {
 function makePageManager(pages = {}) {
   // pages: { pageName: { content, metadata } }
   return {
-    getAllPages: jest.fn().mockResolvedValue(Object.keys(pages)),
-    getPage: jest.fn((name) => Promise.resolve(pages[name] ?? null))
+    getAllPages: vi.fn().mockResolvedValue(Object.keys(pages)),
+    getPage: vi.fn((name) => Promise.resolve(pages[name] ?? null))
   };
 }
 
@@ -100,7 +100,7 @@ function makeSearchResp(hits, total) {
 
 // Reset mocks before each test
 beforeEach(() => {
-  jest.clearAllMocks();
+  vi.clearAllMocks();
   mockClientInstance.indices.exists.mockResolvedValue(true);
   mockClientInstance.indices.create.mockResolvedValue({});
   mockClientInstance.ping.mockResolvedValue(true);
@@ -215,8 +215,8 @@ describe('buildIndex()', () => {
 
   test('skips pages that getPage returns null for', async () => {
     const pageManager = {
-      getAllPages: jest.fn().mockResolvedValue(['exists', 'missing']),
-      getPage: jest.fn((name) => Promise.resolve(name === 'exists' ? makePage() : null))
+      getAllPages: vi.fn().mockResolvedValue(['exists', 'missing']),
+      getPage: vi.fn((name) => Promise.resolve(name === 'exists' ? makePage() : null))
     };
     const engine = makeEngine({}, { PageManager: pageManager });
 
@@ -522,7 +522,7 @@ describe('getDocumentCount()', () => {
 
 describe('Auto-tagging via TaggingService', () => {
   const mockCatalogManager = {
-    getTerms: jest.fn().mockResolvedValue([
+    getTerms: vi.fn().mockResolvedValue([
       { term: 'geology',      label: 'Geology',      category: 'subject' },
       { term: 'medicine',     label: 'Medicine',     category: 'subject' },
       { term: 'oceanography', label: 'Oceanography', category: 'subject' },
@@ -531,7 +531,7 @@ describe('Auto-tagging via TaggingService', () => {
   };
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     mockClientInstance.indices.exists.mockResolvedValue(true);
     mockClientInstance.indices.stats.mockResolvedValue({ indices: {} });
   });

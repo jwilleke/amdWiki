@@ -45,10 +45,10 @@ function makePageData({ authorLock = true, author = PAGE_AUTHOR } = {}) {
 
 function makePageManager(pageData) {
   return {
-    getPage:         jest.fn().mockResolvedValue(pageData),
-    getPageMetadata: jest.fn().mockResolvedValue(pageData?.metadata ?? null),
-    pageExists:      jest.fn().mockReturnValue(true),
-    getCurrentPageProvider: jest.fn().mockReturnValue({
+    getPage:         vi.fn().mockResolvedValue(pageData),
+    getPageMetadata: vi.fn().mockResolvedValue(pageData?.metadata ?? null),
+    pageExists:      vi.fn().mockReturnValue(true),
+    getCurrentPageProvider: vi.fn().mockReturnValue({
       pageIndex: { pages: { [PAGE_UUID]: { location: 'public', creator: PAGE_AUTHOR } } }
     })
   };
@@ -56,13 +56,13 @@ function makePageManager(pageData) {
 
 function makeACLManager(permitted = true) {
   return {
-    checkPagePermissionWithContext: jest.fn().mockResolvedValue(permitted)
+    checkPagePermissionWithContext: vi.fn().mockResolvedValue(permitted)
   };
 }
 
 function makeConfigManager() {
   return {
-    getProperty: jest.fn((key, defaultValue) => {
+    getProperty: vi.fn((key, defaultValue) => {
       if (key === 'ngdpbase.system-category') {
         return {
           general:    { label: 'general',    storageLocation: 'regular',  enabled: true },
@@ -85,7 +85,7 @@ function makeEngine({ pageManager = undefined, aclManager = undefined, configMan
   const cm  = configManager ?? makeConfigManager();
 
   return {
-    getManager: jest.fn((name) => {
+    getManager: vi.fn((name) => {
       switch (name) {
       case 'PageManager':          return pm;
       case 'ACLManager':           return acl;
@@ -110,11 +110,11 @@ function createReq(userContext, params = {}) {
 
 function createRes() {
   return {
-    status:   jest.fn().mockReturnThis(),
-    json:     jest.fn().mockReturnThis(),
-    send:     jest.fn().mockReturnThis(),
-    render:   jest.fn().mockReturnThis(),
-    redirect: jest.fn().mockReturnThis()
+    status:   vi.fn().mockReturnThis(),
+    json:     vi.fn().mockReturnThis(),
+    send:     vi.fn().mockReturnThis(),
+    render:   vi.fn().mockReturnThis(),
+    redirect: vi.fn().mockReturnThis()
   };
 }
 
@@ -126,10 +126,10 @@ function createRes() {
  * - renderError → calls res.status(code).render('error', { code }) directly
  */
 function installSpies(wikiRoutes, userContext) {
-  jest.spyOn(wikiRoutes, 'createWikiContext').mockReturnValue({ userContext });
-  jest.spyOn(wikiRoutes, 'checkPrivatePageAccess').mockResolvedValue(true);
-  jest.spyOn(wikiRoutes, 'isRequiredPage').mockResolvedValue(false);
-  jest.spyOn(wikiRoutes, 'renderError').mockImplementation(
+  vi.spyOn(wikiRoutes, 'createWikiContext').mockReturnValue({ userContext });
+  vi.spyOn(wikiRoutes, 'checkPrivatePageAccess').mockResolvedValue(true);
+  vi.spyOn(wikiRoutes, 'isRequiredPage').mockResolvedValue(false);
+  vi.spyOn(wikiRoutes, 'renderError').mockImplementation(
     async (_req, res, code, _title, _message) => {
       res.status(code).render('error', { code });
     }
@@ -144,7 +144,7 @@ describe('WikiRoutes — author-lock enforcement in editPage()', () => {
   let wikiRoutes;
 
   afterEach(() => {
-    jest.restoreAllMocks();
+    vi.restoreAllMocks();
   });
 
   // ── Denied access ───────────────────────────────────────────────────────

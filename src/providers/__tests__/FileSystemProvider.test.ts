@@ -6,7 +6,7 @@
  * - Page cache management
  * - Save/load operations
  *
- * Note: jest.setup.js conditionally skips mocking FileSystemProvider
+ * Note: vi.setup.js conditionally skips mocking FileSystemProvider
  * when this test file is running.
  *
  * @jest-environment node
@@ -14,17 +14,17 @@
 
 import path from 'path';
 import fs from 'fs-extra';
+import FileSystemProvider from '../FileSystemProvider';
 
-// Force load the TypeScript version - unmock and use requireActual to bypass jest.setup.js mock
-jest.unmock('../FileSystemProvider');
-const FileSystemProvider = jest.requireActual('../FileSystemProvider');
+// Force load the real implementation — vi.unmock is hoisted before the import resolves
+vi.unmock('../FileSystemProvider');
 
 // Unique test directory for each test run
 let TEST_DIR;
 let TEST_PAGES_DIR;
 let TEST_REQUIRED_DIR;
 
-// Create mock engine without jest.fn() to avoid mock interference
+// Create mock engine without vi.fn() to avoid mock interference
 const createMockConfigManager = (pagesDir, requiredDir) => ({
   getProperty: (key, defaultValue) => {
     const config = {
@@ -45,7 +45,7 @@ const createMockConfigManager = (pagesDir, requiredDir) => ({
   getInstanceDataFolder: () => TEST_DIR
 });
 
-// Create mock engine (plain functions, no jest.fn)
+// Create mock engine (plain functions, no vi.fn)
 const createMockEngine = () => ({
   getManager: (name) => {
     if (name === 'ConfigurationManager') {

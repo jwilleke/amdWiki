@@ -46,13 +46,13 @@ describe('Image (via PluginManager)', () => {
     }
 
     const logger = {
-      info: jest.fn(),
-      warn: jest.fn(),
-      debug: jest.fn(),
-      error: jest.fn()
+      info: vi.fn(),
+      warn: vi.fn(),
+      debug: vi.fn(),
+      error: vi.fn()
     };
     // PluginManager expects ConfigurationManager.getProperty(...) in production code
-    const cfgMgr = { getProperty: jest.fn().mockReturnValue([pluginsDir]) };
+    const cfgMgr = { getProperty: vi.fn().mockReturnValue([pluginsDir]) };
     const engine = {
       getManager: (name) => (name === 'ConfigurationManager' ? cfgMgr : null),
       logger
@@ -73,7 +73,7 @@ describe('Image (via PluginManager)', () => {
 
   beforeEach(() => {
     const mockConfigManager = {
-      getProperty: jest.fn().mockImplementation((key, def) => {
+      getProperty: vi.fn().mockImplementation((key, def) => {
         const configMap = {
           'ngdpbase.features.images.default-alt': 'Uploaded image',
           'ngdpbase.features.images.default-class': 'wiki-image'
@@ -84,7 +84,7 @@ describe('Image (via PluginManager)', () => {
 
     mockContext = {
       engine: {
-        getManager: jest.fn().mockImplementation((name) => {
+        getManager: vi.fn().mockImplementation((name) => {
           if (name === 'ConfigurationManager') {
             return mockConfigManager;
           }
@@ -159,7 +159,7 @@ describe('Image (via PluginManager)', () => {
     it('handles errors gracefully', async () => {
       const badContext = {
         engine: {
-          getConfig: jest.fn(() => {
+          getConfig: vi.fn(() => {
             throw new Error('Config error');
           })
         }
@@ -363,7 +363,7 @@ describe('Image (via PluginManager)', () => {
     it('falls back to default values when ConfigurationManager unavailable', async () => {
       const contextWithoutConfig = {
         engine: {
-          getManager: jest.fn().mockReturnValue(null)
+          getManager: vi.fn().mockReturnValue(null)
         }
       };
 
@@ -377,7 +377,7 @@ describe('Image (via PluginManager)', () => {
 
     it('uses ConfigurationManager values when available', async () => {
       const customConfigManager = {
-        getProperty: jest.fn().mockImplementation((key, def) => {
+        getProperty: vi.fn().mockImplementation((key, def) => {
           if (key === 'ngdpbase.features.images.default-alt') return 'Custom Alt';
           if (key === 'ngdpbase.features.images.default-class')
             return 'custom-class';
@@ -387,7 +387,7 @@ describe('Image (via PluginManager)', () => {
 
       const contextWithCustomConfig = {
         engine: {
-          getManager: jest.fn().mockImplementation((name) => {
+          getManager: vi.fn().mockImplementation((name) => {
             if (name === 'ConfigurationManager') return customConfigManager;
             return null;
           })
@@ -403,14 +403,14 @@ describe('Image (via PluginManager)', () => {
 
     it('handles ConfigurationManager errors gracefully', async () => {
       const faultyConfigManager = {
-        getProperty: jest.fn().mockImplementation(() => {
+        getProperty: vi.fn().mockImplementation(() => {
           throw new Error('Config error');
         })
       };
 
       const contextWithFaultyConfig = {
         engine: {
-          getManager: jest.fn().mockReturnValue(faultyConfigManager)
+          getManager: vi.fn().mockReturnValue(faultyConfigManager)
         }
       };
 
@@ -614,11 +614,11 @@ describe('Image (via PluginManager)', () => {
         ...mockContext,
         pageName: 'test-page',
         engine: {
-          getManager: jest.fn().mockImplementation((name) => {
+          getManager: vi.fn().mockImplementation((name) => {
             if (name === 'AttachmentManager') return mockAttachmentManager;
             if (name === 'ConfigurationManager') {
               return {
-                getProperty: jest.fn().mockImplementation((key, def) => {
+                getProperty: vi.fn().mockImplementation((key, def) => {
                   const configMap = {
                     'ngdpbase.features.images.default-alt': 'Uploaded image',
                     'ngdpbase.features.images.default-class': 'wiki-image'
@@ -635,7 +635,7 @@ describe('Image (via PluginManager)', () => {
 
     it('uses resolved URL from AttachmentManager', async () => {
       const mockAttachmentManager = {
-        resolveAttachmentSrc: jest.fn().mockResolvedValue({
+        resolveAttachmentSrc: vi.fn().mockResolvedValue({
           url: '/attachments/98bc3898c535c328abbe6e5c5c7c43ba220b8a035d6bb3f9f54fcadf833aee90',
           mimeType: 'image/webp'
         })
@@ -658,7 +658,7 @@ describe('Image (via PluginManager)', () => {
 
     it('uses raw src when resolveAttachmentSrc returns null (not found)', async () => {
       const mockAttachmentManager = {
-        resolveAttachmentSrc: jest.fn().mockResolvedValue(null)
+        resolveAttachmentSrc: vi.fn().mockResolvedValue(null)
       };
 
       const context = makeContextWithAttachmentManager(mockAttachmentManager);

@@ -1,11 +1,14 @@
 
 // Mock logger before requiring managers
-jest.mock('../../utils/logger', () => ({
-  info: jest.fn(),
-  warn: jest.fn(),
-  error: jest.fn(),
-  debug: jest.fn(),
-  child: () => ({ info: jest.fn(), warn: jest.fn(), error: jest.fn(), debug: jest.fn() })
+vi.mock('../../utils/logger', () => ({
+  default: {
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
+    debug: vi.fn(),
+    child: () => ({ info: vi.fn(), warn: vi.fn(), error: vi.fn(), debug: vi.fn() })
+
+  }
 }));
 
 import CatalogManager from '../CatalogManager';
@@ -17,7 +20,7 @@ import type { WikiEngine } from '../../types/WikiEngine';
 
 function makeMockEngine(systemKeywords = {}) {
   const configManager = {
-    getProperty: jest.fn((key, defaultVal) => {
+    getProperty: vi.fn((key, defaultVal) => {
       if (key === 'ngdpbase.system-keywords') return systemKeywords;
       if (key === 'ngdpbase.catalog.ai.enabled') return false;
       if (key === 'ngdpbase.catalog.ai.threshold') return 0.7;
@@ -25,7 +28,7 @@ function makeMockEngine(systemKeywords = {}) {
     })
   };
   return {
-    getManager: jest.fn((name) => name === 'ConfigurationManager' ? configManager : undefined)
+    getManager: vi.fn((name) => name === 'ConfigurationManager' ? configManager : undefined)
   };
 }
 
@@ -202,15 +205,15 @@ describe('ValidationManager — loadSystemKeywords', () => {
   let ValidationManager;
   let validationManager;
 
-  beforeEach(() => {
-    // Require inline so logger mock applies
-    ValidationManager = require('../ValidationManager');
-    validationManager = new ValidationManager({ getManager: jest.fn() });
+  beforeEach(async () => {
+    const mod = await import('../ValidationManager');
+    ValidationManager = mod.default ?? mod;
+    validationManager = new ValidationManager({ getManager: vi.fn() });
   });
 
   test('loadSystemKeywords() populates validSystemKeywords from config', () => {
     const mockCfg = {
-      getProperty: jest.fn((key, def) => {
+      getProperty: vi.fn((key, def) => {
         if (key === 'ngdpbase.system-keywords') {
           return {
             draft: { label: 'draft', enabled: true },
@@ -236,7 +239,7 @@ describe('ValidationManager — loadSystemKeywords', () => {
 
   test('loadSystemKeywords() handles empty system-keywords object', () => {
     const mockCfg = {
-      getProperty: jest.fn((key, def) => key === 'ngdpbase.system-keywords' ? {} : def)
+      getProperty: vi.fn((key, def) => key === 'ngdpbase.system-keywords' ? {} : def)
     };
     validationManager.loadSystemKeywords(mockCfg);
     expect(validationManager.getValidSystemKeywords()).toEqual([]);

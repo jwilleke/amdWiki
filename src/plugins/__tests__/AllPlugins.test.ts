@@ -42,15 +42,15 @@ describe('All Plugins (via PluginManager)', () => {
 
     // Setup mock logger
     mockLogger = {
-      info: jest.fn(),
-      warn: jest.fn(),
-      debug: jest.fn(),
-      error: jest.fn()
+      info: vi.fn(),
+      warn: vi.fn(),
+      debug: vi.fn(),
+      error: vi.fn()
     };
 
     // Setup mock configuration manager
     mockConfigManager = {
-      getProperty: jest.fn().mockImplementation((key, defaultValue) => {
+      getProperty: vi.fn().mockImplementation((key, defaultValue) => {
         if (key === 'ngdpbase.managers.plugin-manager.search-paths') {
           return [pluginsDir];
         }
@@ -69,20 +69,20 @@ describe('All Plugins (via PluginManager)', () => {
     mockEngine = {
       logger: mockLogger,
       startTime: Date.now() - 60000, // 1 minute ago for uptime tests
-      getManager: jest.fn().mockImplementation((name) => {
+      getManager: vi.fn().mockImplementation((name) => {
         switch (name) {
         case 'ConfigurationManager':
         case 'ConfigManager':
           return mockConfigManager;
         case 'PageManager':
           return {
-            getAllPages: jest.fn().mockReturnValue(['TestPage1', 'TestPage2', 'TestPage3'])
+            getAllPages: vi.fn().mockReturnValue(['TestPage1', 'TestPage2', 'TestPage3'])
           };
         default:
           return null;
         }
       }),
-      getConfig: jest.fn().mockReturnValue(mockConfigManager)
+      getConfig: vi.fn().mockReturnValue(mockConfigManager)
     };
 
     // Initialize PluginManager
@@ -90,7 +90,7 @@ describe('All Plugins (via PluginManager)', () => {
     await pluginManager.initialize();
 
     // Setup console.error spy to suppress error output during tests
-    consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
     // Setup mock context for plugin execution
     mockContext = {
@@ -103,9 +103,9 @@ describe('All Plugins (via PluginManager)', () => {
   });
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     // Setup global fetch for SessionsPlugin tests
-    global.fetch = jest.fn().mockResolvedValue({
+    global.fetch = vi.fn().mockResolvedValue({
       ok: true,
       json: async () => ({ sessionCount: 3 })
     });
@@ -247,7 +247,7 @@ describe('All Plugins (via PluginManager)', () => {
     });
 
     test('should handle SessionsPlugin network errors', async () => {
-      global.fetch = jest.fn().mockRejectedValue(new Error('Network error'));
+      global.fetch = vi.fn().mockRejectedValue(new Error('Network error'));
 
       const result = await pluginManager.execute('SessionsPlugin', 'TestPage', {}, mockContext);
 

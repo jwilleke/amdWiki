@@ -6,9 +6,9 @@
  * and infer the MIME type from the extension.
  */
 
-// Unmock BasicAttachmentProvider — the global jest.setup.js mocks it, but
+// Unmock BasicAttachmentProvider — the global vi.setup.js mocks it, but
 // these tests need the real implementation.
-jest.unmock('../BasicAttachmentProvider');
+vi.unmock('../BasicAttachmentProvider');
 
 import path from 'path';
 import fs from 'fs-extra';
@@ -19,13 +19,13 @@ import type { WikiEngine } from '../../types/WikiEngine';
 
 function makeEngine(storageDir) {
   const configManager = {
-    getProperty: jest.fn().mockImplementation((key, defaultValue) => {
+    getProperty: vi.fn().mockImplementation((key, defaultValue) => {
       if (key === 'ngdpbase.attachment.maxsize') return 10485760;
       if (key === 'ngdpbase.attachment.allowedtypes') return '';
       if (key === 'ngdpbase.attachment.provider.basic.hashmethod') return 'sha256';
       return defaultValue;
     }),
-    getResolvedDataPath: jest.fn().mockImplementation((key, defaultValue) => {
+    getResolvedDataPath: vi.fn().mockImplementation((key, defaultValue) => {
       if (key === 'ngdpbase.attachment.provider.basic.storagedir') return storageDir;
       if (key === 'ngdpbase.attachment.metadatafile') return path.join(storageDir, 'attachment-metadata.json');
       return defaultValue;
@@ -33,7 +33,7 @@ function makeEngine(storageDir) {
   };
 
   return {
-    getManager: jest.fn().mockImplementation((name) => {
+    getManager: vi.fn().mockImplementation((name) => {
       if (name === 'ConfigurationManager') return configManager;
       return null;
     })
@@ -114,8 +114,9 @@ describe('BasicAttachmentProvider — getAttachment() disk-scan fallback', () =>
     const attachmentId = 'orphan1234abcdef'.padEnd(64, '0');
     await fs.writeFile(path.join(storageDir, `${attachmentId}.webp`), Buffer.from('data'));
 
-    // logger is globally mocked in jest.setup.js
-    const logger = require('../../utils/logger');
+    // logger is globally mocked in vitest.setup.ts
+    const loggerMod = await import('../../utils/logger');
+    const logger = (loggerMod).default ?? loggerMod;
     logger.warn.mockClear();
 
     await provider.getAttachment(attachmentId);

@@ -1,6 +1,7 @@
 'use strict';
 
 import UserLookupPlugin from '../UserLookupPlugin';
+import { type MockInstance } from 'vitest';
 
 const alice = { username: 'alice', displayName: 'Alice Smith', email: 'alice@example.com', roles: ['admin'],  lastLogin: '2026-04-18', isActive: true  };
 const bob   = { username: 'bob',   displayName: 'Bob Jones',   email: 'bob@example.com',   roles: ['editor'], lastLogin: '2026-04-17', isActive: true  };
@@ -12,8 +13,8 @@ function makeContext(users: object[], username = 'admin') {
     linkGraph: {},
     userContext: { username, isAuthenticated: true, roles: ['admin'] },
     engine: {
-      getManager: jest.fn().mockReturnValue({
-        searchUsers: jest.fn().mockResolvedValue(users)
+      getManager: vi.fn().mockReturnValue({
+        searchUsers: vi.fn().mockResolvedValue(users)
       })
     }
   };
@@ -66,35 +67,35 @@ describe('UserLookupPlugin', () => {
   test('passes q param to searchUsers', async () => {
     const ctx = makeContext([alice]);
     await UserLookupPlugin.execute(ctx, { q: 'alice' });
-    const searchUsers = (ctx.engine.getManager() as { searchUsers: jest.Mock }).searchUsers;
+    const searchUsers = (ctx.engine.getManager() as { searchUsers: MockInstance }).searchUsers;
     expect(searchUsers).toHaveBeenCalledWith('alice', expect.any(Object));
   });
 
   test('resolves $currentUser token to logged-in username', async () => {
     const ctx = makeContext([alice], 'alice');
     await UserLookupPlugin.execute(ctx, { q: '$currentUser' });
-    const searchUsers = (ctx.engine.getManager() as { searchUsers: jest.Mock }).searchUsers;
+    const searchUsers = (ctx.engine.getManager() as { searchUsers: MockInstance }).searchUsers;
     expect(searchUsers).toHaveBeenCalledWith('alice', expect.any(Object));
   });
 
   test('passes role filter to searchUsers', async () => {
     const ctx = makeContext([alice]);
     await UserLookupPlugin.execute(ctx, { role: 'admin' });
-    const searchUsers = (ctx.engine.getManager() as { searchUsers: jest.Mock }).searchUsers;
+    const searchUsers = (ctx.engine.getManager() as { searchUsers: MockInstance }).searchUsers;
     expect(searchUsers).toHaveBeenCalledWith(expect.any(String), expect.objectContaining({ role: 'admin' }));
   });
 
   test('passes max as limit to searchUsers', async () => {
     const ctx = makeContext([alice]);
     await UserLookupPlugin.execute(ctx, { max: '5' });
-    const searchUsers = (ctx.engine.getManager() as { searchUsers: jest.Mock }).searchUsers;
+    const searchUsers = (ctx.engine.getManager() as { searchUsers: MockInstance }).searchUsers;
     expect(searchUsers).toHaveBeenCalledWith(expect.any(String), expect.objectContaining({ limit: 5 }));
   });
 
   test('passes activeOnly=false when param set', async () => {
     const ctx = makeContext([alice, dave]);
     await UserLookupPlugin.execute(ctx, { activeOnly: 'false' });
-    const searchUsers = (ctx.engine.getManager() as { searchUsers: jest.Mock }).searchUsers;
+    const searchUsers = (ctx.engine.getManager() as { searchUsers: MockInstance }).searchUsers;
     expect(searchUsers).toHaveBeenCalledWith(expect.any(String), expect.objectContaining({ activeOnly: false }));
   });
 
@@ -106,7 +107,7 @@ describe('UserLookupPlugin', () => {
   });
 
   test('returns error message when UserManager unavailable', async () => {
-    const ctx = { pageName: 'Test', linkGraph: {}, engine: { getManager: jest.fn().mockReturnValue(null) } };
+    const ctx = { pageName: 'Test', linkGraph: {}, engine: { getManager: vi.fn().mockReturnValue(null) } };
     const html = await UserLookupPlugin.execute(ctx as never, {});
     expect(html).toContain('plugin-error');
     expect(html).toContain('UserManager not available');

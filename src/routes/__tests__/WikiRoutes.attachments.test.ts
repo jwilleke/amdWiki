@@ -3,15 +3,15 @@ import type { WikiEngine } from '../../types/WikiEngine';
 
 // Mock dependencies
 const mockAttachmentManager = {
-  uploadAttachment: jest.fn(),
-  getAttachment: jest.fn(),
-  getAttachmentMetadata: jest.fn().mockResolvedValue(null), // null = not private
-  deleteAttachment: jest.fn(),
-  getAttachmentPath: jest.fn()
+  uploadAttachment: vi.fn(),
+  getAttachment: vi.fn(),
+  getAttachmentMetadata: vi.fn().mockResolvedValue(null), // null = not private
+  deleteAttachment: vi.fn(),
+  getAttachmentPath: vi.fn()
 };
 
 const mockEngine = {
-  getManager: jest.fn((name) => {
+  getManager: vi.fn((name) => {
     if (name === 'AttachmentManager') return mockAttachmentManager;
     return null;
   })
@@ -29,12 +29,12 @@ const createMockReq = (userContext = null, params = {}, body = {}, file = null) 
 
 const createMockRes = () => {
   const res = {
-    status: jest.fn().mockReturnThis(),
-    json: jest.fn().mockReturnThis(),
-    send: jest.fn().mockReturnThis(),
-    redirect: jest.fn().mockReturnThis(),
-    setHeader: jest.fn().mockReturnThis(),
-    sendFile: jest.fn()
+    status: vi.fn().mockReturnThis(),
+    json: vi.fn().mockReturnThis(),
+    send: vi.fn().mockReturnThis(),
+    redirect: vi.fn().mockReturnThis(),
+    setHeader: vi.fn().mockReturnThis(),
+    sendFile: vi.fn()
   };
   return res;
 };
@@ -44,7 +44,7 @@ describe('WikiRoutes - Attachment Security (Issue #22)', () => {
 
   beforeEach(() => {
     wikiRoutes = new WikiRoutes(mockEngine as unknown as WikiEngine);
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe('uploadAttachment', () => {

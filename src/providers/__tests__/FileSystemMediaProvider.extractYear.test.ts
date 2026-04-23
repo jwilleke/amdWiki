@@ -2,14 +2,14 @@
  * Unit tests for FileSystemMediaProvider.extractYear()
  *
  * Imported directly from source (not dist/) so no build step is required.
- * Uses jest.unmock() to bypass the global provider mock in jest.setup.js,
+ * Uses vi.unmock() to bypass the global provider mock in vi.setup.js,
  * then mocks heavy dependencies (exiftool-vendored, sharp, fs-extra) to
  * prevent spawning child processes during the test run.
  */
 
-jest.unmock('../FileSystemMediaProvider');
+vi.unmock('../FileSystemMediaProvider');
 
-jest.mock('exiftool-vendored', () => ({
+vi.mock('exiftool-vendored', () => ({
   ExifTool: class MockExifTool {
     async read() { return {}; }
     async end() {}
@@ -19,14 +19,14 @@ jest.mock('exiftool-vendored', () => ({
   }
 }));
 
-jest.mock('sharp', () => () => ({}));
+vi.mock('sharp', () => ({ default: () => ({}) }));
 
-jest.mock('fs-extra', () => ({
-  pathExists: jest.fn().mockResolvedValue(false),
-  readJson: jest.fn(),
-  writeJson: jest.fn(),
-  ensureDir: jest.fn(),
-  stat: jest.fn()
+vi.mock('fs-extra', () => ({
+  pathExists: vi.fn().mockResolvedValue(false),
+  readJson: vi.fn(),
+  writeJson: vi.fn(),
+  ensureDir: vi.fn(),
+  stat: vi.fn()
 }));
 
 import FileSystemMediaProvider from '../FileSystemMediaProvider';

@@ -15,7 +15,7 @@ import type { WikiEngine } from '../../types/WikiEngine';
 
 // Mock ConfigurationManager
 const mockConfigurationManager = {
-  getProperty: jest.fn((key, defaultValue) => {
+  getProperty: vi.fn((key, defaultValue) => {
     if (key === 'ngdpbase.search.enabled') {
       return true;
     }
@@ -31,7 +31,7 @@ const mockConfigurationManager = {
 
 // Mock PageManager
 const mockPageManager = {
-  getAllPages: jest.fn().mockResolvedValue([
+  getAllPages: vi.fn().mockResolvedValue([
     {
       title: 'Welcome',
       content: 'Welcome to our wiki platform',
@@ -49,7 +49,7 @@ const mockPageManager = {
 
 // Mock engine
 const mockEngine = {
-  getManager: jest.fn((name) => {
+  getManager: vi.fn((name) => {
     if (name === 'ConfigurationManager') {
       return mockConfigurationManager;
     }
@@ -65,7 +65,7 @@ describe('SearchManager', () => {
 
   beforeEach(async () => {
     // Clear mocks
-    jest.clearAllMocks();
+    vi.clearAllMocks();
 
     searchManager = new SearchManager(mockEngine as unknown as WikiEngine);
     await searchManager.initialize();
@@ -89,7 +89,7 @@ describe('SearchManager', () => {
 
     test('should throw error if ConfigurationManager missing', async () => {
       const badEngine = {
-        getManager: jest.fn().mockReturnValue(null)
+        getManager: vi.fn().mockReturnValue(null)
       };
 
       const newSearchManager = new SearchManager(badEngine as unknown as WikiEngine);
@@ -253,7 +253,7 @@ describe('SearchManager', () => {
   describe('Configuration-based behavior', () => {
     test('should skip provider loading when search disabled', async () => {
       const disabledConfigManager = {
-        getProperty: jest.fn((key, defaultValue) => {
+        getProperty: vi.fn((key, defaultValue) => {
           if (key === 'ngdpbase.search.enabled') {
             return false; // Disable search
           }
@@ -262,7 +262,7 @@ describe('SearchManager', () => {
       };
 
       const disabledEngine = {
-        getManager: jest.fn((name) => {
+        getManager: vi.fn((name) => {
           if (name === 'ConfigurationManager') {
             return disabledConfigManager;
           }

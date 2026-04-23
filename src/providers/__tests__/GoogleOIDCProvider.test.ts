@@ -1,42 +1,45 @@
 'use strict';
 
 // Mock google-auth-library before requiring the provider
-jest.mock('google-auth-library', () => {
-  const mockGetToken = jest.fn();
-  const mockVerifyIdToken = jest.fn();
-  const mockGenerateAuthUrl = jest.fn();
+vi.mock('google-auth-library', () => {
+  const mockGetToken = vi.fn();
+  const mockVerifyIdToken = vi.fn();
+  const mockGenerateAuthUrl = vi.fn();
 
-  const MockOAuth2Client = jest.fn().mockImplementation(() => ({
-    getToken: mockGetToken,
-    verifyIdToken: mockVerifyIdToken,
-    generateAuthUrl: mockGenerateAuthUrl
-  }));
+  const MockOAuth2Client = vi.fn().mockImplementation(function () {
+    return {
+      getToken: mockGetToken,
+      verifyIdToken: mockVerifyIdToken,
+      generateAuthUrl: mockGenerateAuthUrl
+    };
+  });
 
-  (MockOAuth2Client as jest.Mock & { _mockGetToken: jest.Mock; _mockVerifyIdToken: jest.Mock; _mockGenerateAuthUrl: jest.Mock })._mockGetToken = mockGetToken;
-  (MockOAuth2Client as jest.Mock & { _mockGetToken: jest.Mock; _mockVerifyIdToken: jest.Mock; _mockGenerateAuthUrl: jest.Mock })._mockVerifyIdToken = mockVerifyIdToken;
-  (MockOAuth2Client as jest.Mock & { _mockGetToken: jest.Mock; _mockVerifyIdToken: jest.Mock; _mockGenerateAuthUrl: jest.Mock })._mockGenerateAuthUrl = mockGenerateAuthUrl;
+  (MockOAuth2Client as MockInstance & { _mockGetToken: MockInstance; _mockVerifyIdToken: MockInstance; _mockGenerateAuthUrl: MockInstance })._mockGetToken = mockGetToken;
+  (MockOAuth2Client as MockInstance & { _mockGetToken: MockInstance; _mockVerifyIdToken: MockInstance; _mockGenerateAuthUrl: MockInstance })._mockVerifyIdToken = mockVerifyIdToken;
+  (MockOAuth2Client as MockInstance & { _mockGetToken: MockInstance; _mockVerifyIdToken: MockInstance; _mockGenerateAuthUrl: MockInstance })._mockGenerateAuthUrl = mockGenerateAuthUrl;
 
   return { OAuth2Client: MockOAuth2Client };
 });
 
 import { OAuth2Client } from 'google-auth-library';
 import { GoogleOIDCProvider } from '../GoogleOIDCProvider';
+import { type MockInstance } from 'vitest';
 
-type MockedOAuth2Client = typeof OAuth2Client & { _mockGetToken: jest.Mock; _mockVerifyIdToken: jest.Mock; _mockGenerateAuthUrl: jest.Mock };
+type MockedOAuth2Client = typeof OAuth2Client & { _mockGetToken: MockInstance; _mockVerifyIdToken: MockInstance; _mockGenerateAuthUrl: MockInstance };
 const mockGetToken      = (OAuth2Client as unknown as MockedOAuth2Client)._mockGetToken;
 const mockVerifyIdToken = (OAuth2Client as unknown as MockedOAuth2Client)._mockVerifyIdToken;
 const mockGenerateAuthUrl = (OAuth2Client as unknown as MockedOAuth2Client)._mockGenerateAuthUrl;
 
 const makeUserManager = (overrides = {}) => ({
-  getUserByEmail: jest.fn().mockResolvedValue(undefined),
-  getUser:        jest.fn().mockResolvedValue(undefined),
-  createUser:     jest.fn().mockResolvedValue(undefined),
-  updateUser:     jest.fn().mockResolvedValue(undefined),
+  getUserByEmail: vi.fn().mockResolvedValue(undefined),
+  getUser:        vi.fn().mockResolvedValue(undefined),
+  createUser:     vi.fn().mockResolvedValue(undefined),
+  updateUser:     vi.fn().mockResolvedValue(undefined),
   ...overrides
 });
 
 const makeEngine = (userManager) => ({
-  getManager: jest.fn((name) => name === 'UserManager' ? userManager : null)
+  getManager: vi.fn((name) => name === 'UserManager' ? userManager : null)
 });
 
 const defaultConfig = {
@@ -53,7 +56,7 @@ describe('GoogleOIDCProvider', () => {
   let userManager;
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     mockGenerateAuthUrl.mockReturnValue('https://accounts.google.com/o/oauth2/auth?...');
     userManager = makeUserManager();
     provider = new GoogleOIDCProvider(makeEngine(userManager), defaultConfig);

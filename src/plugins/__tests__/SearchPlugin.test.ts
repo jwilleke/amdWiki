@@ -13,7 +13,7 @@
  * - Pagination and max parameters continue to work
  */
 
-import SearchPluginModule = require('../SearchPlugin');
+import SearchPluginModule from '../SearchPlugin' ;
 import type { SimplePlugin } from '../types';
 const SearchPlugin = SearchPluginModule as unknown as SimplePlugin;
 // ---------------------------------------------------------------------------
@@ -52,8 +52,8 @@ function makeContext(opts = {}) {
   } = opts;
 
   const mockSearchManager = {
-    advancedSearch: jest.fn().mockResolvedValue(advancedSearchResults),
-    search: jest.fn().mockResolvedValue(searchResults)
+    advancedSearch: vi.fn().mockResolvedValue(advancedSearchResults),
+    search: vi.fn().mockResolvedValue(searchResults)
   };
 
   return {

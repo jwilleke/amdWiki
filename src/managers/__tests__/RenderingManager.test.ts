@@ -16,7 +16,7 @@ import type { WikiEngine } from '../../types/WikiEngine';
 
 // Mock ConfigurationManager
 const mockConfigurationManager = {
-  getProperty: jest.fn((key, defaultValue) => {
+  getProperty: vi.fn((key, defaultValue) => {
     if (key === 'ngdpbase.translator-reader.match-english-plurals') {
       return true;
     }
@@ -31,13 +31,13 @@ const mockConfigurationManager = {
     }
     return defaultValue;
   }),
-  getBaseURL: jest.fn().mockReturnValue('http://localhost:3000')
+  getBaseURL: vi.fn().mockReturnValue('http://localhost:3000')
 };
 
 // Mock PageManager
 const mockPageManager = {
-  getAllPages: jest.fn().mockResolvedValue(['Welcome', 'TestPage', 'Categories']),
-  getPage: jest.fn().mockImplementation(async (pageName) => {
+  getAllPages: vi.fn().mockResolvedValue(['Welcome', 'TestPage', 'Categories']),
+  getPage: vi.fn().mockImplementation(async (pageName) => {
     const pages = {
       'Welcome': { title: 'Welcome', content: 'Welcome to the wiki' },
       'TestPage': { title: 'TestPage', content: 'Test page content with [Welcome] link' },
@@ -45,15 +45,15 @@ const mockPageManager = {
     };
     return pages[pageName] || null;
   }),
-  pageExists: jest.fn().mockImplementation((pageName) => {
+  pageExists: vi.fn().mockImplementation((pageName) => {
     return ['Welcome', 'TestPage', 'Categories'].includes(pageName);
   })
 };
 
 // Mock Engine
 const mockEngine = {
-  log: jest.fn(),
-  getManager: jest.fn((name) => {
+  log: vi.fn(),
+  getManager: vi.fn((name) => {
     if (name === 'ConfigurationManager') {
       return mockConfigurationManager;
     }
@@ -62,8 +62,8 @@ const mockEngine = {
     }
     return null;
   }),
-  getConfig: jest.fn().mockReturnValue({
-    get: jest.fn().mockReturnValue({
+  getConfig: vi.fn().mockReturnValue({
+    get: vi.fn().mockReturnValue({
       wiki: { pagesDir: './pages' }
     })
   })
@@ -74,7 +74,7 @@ describe('RenderingManager', () => {
 
   beforeEach(async () => {
     renderingManager = new RenderingManager(mockEngine as unknown as WikiEngine);
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     await renderingManager.initialize();
   });
 
@@ -137,14 +137,14 @@ describe('RenderingManager', () => {
 
       // Update mock to return our test PageManager
       const testEngine = {
-        log: jest.fn(),
+        log: vi.fn(),
         getManager: (name) => {
           if (name === 'ConfigurationManager') return mockConfigurationManager;
           if (name === 'PageManager') return mockPageManagerWithPlurals;
           return null;
         },
-        getConfig: jest.fn().mockReturnValue({
-          get: jest.fn().mockReturnValue({
+        getConfig: vi.fn().mockReturnValue({
+          get: vi.fn().mockReturnValue({
             wiki: { pagesDir: './pages' }
           })
         })
@@ -181,8 +181,8 @@ describe('RenderingManager', () => {
     test('should handle unresolved links gracefully', async () => {
       // Setup: Page links to a non-existent page
       const mockPageManagerWithBadLink = {
-        getAllPages: jest.fn().mockResolvedValue(['TestPage']),
-        getPage: jest.fn().mockImplementation(async (pageName) => {
+        getAllPages: vi.fn().mockResolvedValue(['TestPage']),
+        getPage: vi.fn().mockImplementation(async (pageName) => {
           if (pageName === 'TestPage') {
             return { title: 'TestPage', content: 'Link to [NonExistentPage]' };
           }
@@ -190,7 +190,7 @@ describe('RenderingManager', () => {
         })
       };
 
-      mockEngine.getManager = jest.fn((name) => {
+      mockEngine.getManager = vi.fn((name) => {
         if (name === 'ConfigurationManager') return mockConfigurationManager;
         if (name === 'PageManager') return mockPageManagerWithBadLink;
         return null;
@@ -210,8 +210,8 @@ describe('RenderingManager', () => {
       // Issue #294: [text](https://...) adds the URL as a link graph key, which then
       // shows up in UndefinedPagesPlugin as an "undefined page".
       const mockPM = {
-        getAllPages: jest.fn().mockResolvedValue(['Sarcopenia']),
-        getPage: jest.fn().mockImplementation(async (pageName) => {
+        getAllPages: vi.fn().mockResolvedValue(['Sarcopenia']),
+        getPage: vi.fn().mockImplementation(async (pageName) => {
           if (pageName === 'Sarcopenia') {
             return {
               title: 'Sarcopenia',
@@ -222,13 +222,13 @@ describe('RenderingManager', () => {
         })
       };
       const testEngine = {
-        log: jest.fn(),
+        log: vi.fn(),
         getManager: (name) => {
           if (name === 'ConfigurationManager') return mockConfigurationManager;
           if (name === 'PageManager') return mockPM;
           return null;
         },
-        getConfig: jest.fn().mockReturnValue({ get: jest.fn().mockReturnValue({ wiki: { pagesDir: './pages' } }) })
+        getConfig: vi.fn().mockReturnValue({ get: vi.fn().mockReturnValue({ wiki: { pagesDir: './pages' } }) })
       };
       const testManager = new RenderingManager(testEngine as unknown as WikiEngine);
       await testManager.initialize();

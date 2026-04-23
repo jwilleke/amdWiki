@@ -16,18 +16,18 @@ describe('SchemaGenerator DigitalDocumentPermission', () => {
   
   beforeEach(() => {
     mockUserManager = {
-      getRole: jest.fn(),
-      hasPermission: jest.fn(),
-      getUserPermissions: jest.fn()
+      getRole: vi.fn(),
+      hasPermission: vi.fn(),
+      getUserPermissions: vi.fn()
     };
     
     mockACLManager = {
-      parseACL: jest.fn(),
-      checkPagePermission: jest.fn()
+      parseACL: vi.fn(),
+      checkPagePermission: vi.fn()
     };
     
     mockEngine = {
-      getManager: jest.fn((name) => {
+      getManager: vi.fn((name) => {
         if (name === 'UserManager') return mockUserManager;
         if (name === 'ACLManager') return mockACLManager;
         return null;
@@ -57,7 +57,7 @@ describe('SchemaGenerator DigitalDocumentPermission', () => {
       };
       
       const mockEngineNoManagers = {
-        getManager: jest.fn(() => null)
+        getManager: vi.fn(() => null)
       };
       
       const options = { engine: mockEngineNoManagers };

@@ -2,17 +2,20 @@ import fs from 'fs-extra';
 import path from 'path';
 
 // Mock logger before requiring ConfigurationManager
-jest.mock('../../utils/logger', () => ({
-  info: jest.fn(),
-  warn: jest.fn(),
-  error: jest.fn(),
-  debug: jest.fn(),
-  child: () => ({
-    info: jest.fn(),
-    warn: jest.fn(),
-    error: jest.fn(),
-    debug: jest.fn()
-  })
+vi.mock('../../utils/logger', () => ({
+  default: {
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
+    debug: vi.fn(),
+    child: () => ({
+      info: vi.fn(),
+      warn: vi.fn(),
+      error: vi.fn(),
+      debug: vi.fn()
+    })
+
+  }
 }));
 
 import ConfigurationManager from '../ConfigurationManager';
@@ -59,7 +62,7 @@ describe('ConfigurationManager', () => {
 
     // Create mock engine
     mockEngine = {
-      getManager: jest.fn()
+      getManager: vi.fn()
     };
 
     // Create ConfigurationManager

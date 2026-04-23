@@ -3,19 +3,19 @@ import type { WikiEngine } from '../../types/WikiEngine';
 
 // Mock managers for testing
 const mockParser = {
-  parse: jest.fn((content) => `<p>Parsed: ${content}</p>`)
+  parse: vi.fn((content) => `<p>Parsed: ${content}</p>`)
 };
 
 const mockRenderingManager = {
-  getParser: jest.fn(() => mockParser)
+  getParser: vi.fn(() => mockParser)
 };
 
 const mockVariableManager = {
-  expandVariables: jest.fn((content) => content.replace(/\[\{\$pagename\}\]/g, 'TestPage'))
+  expandVariables: vi.fn((content) => content.replace(/\[\{\$pagename\}\]/g, 'TestPage'))
 };
 
 const mockEngine = {
-  getManager: jest.fn((managerName) => {
+  getManager: vi.fn((managerName) => {
     switch (managerName) {
     case 'RenderingManager':
       return mockRenderingManager;
@@ -35,7 +35,7 @@ describe('WikiContext', () => {
   let context;
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
 
     context = new WikiContext(mockEngine as unknown as WikiEngine, {
       context: WikiContext.CONTEXT.VIEW,

@@ -1,8 +1,8 @@
 // Opt out of the global VersioningFileProvider and FileSystemProvider mocks
-jest.unmock('../VersioningFileProvider');
-jest.unmock('../../providers/VersioningFileProvider');
-jest.unmock('../FileSystemProvider');
-jest.unmock('../../providers/FileSystemProvider');
+vi.unmock('../VersioningFileProvider');
+vi.unmock('../../providers/VersioningFileProvider');
+vi.unmock('../FileSystemProvider');
+vi.unmock('../../providers/FileSystemProvider');
 
 import VersioningFileProvider from '../VersioningFileProvider';
 import VersioningMaintenance from '../../utils/VersioningMaintenance';
@@ -24,7 +24,7 @@ describe('VersioningFileProvider - Maintenance', () => {
     const indexPath = path.join(testDir, 'data', 'page-index.json');
 
     configManager = {
-      getProperty: jest.fn((key, defaultValue) => {
+      getProperty: vi.fn((key, defaultValue) => {
         if (key === 'ngdpbase.page.provider.filesystem.storagedir') return path.join(testDir, 'pages');
         if (key === 'ngdpbase.page.provider.versioning.indexfile') return indexPath;
         if (key === 'ngdpbase.page.provider.versioning.maxversions') return 50;
@@ -32,16 +32,16 @@ describe('VersioningFileProvider - Maintenance', () => {
         if (key === 'ngdpbase.page.provider.versioning.checkpointinterval') return 10;
         return defaultValue;
       }),
-      getResolvedDataPath: jest.fn((key, defaultPath) => {
+      getResolvedDataPath: vi.fn((key, defaultPath) => {
         if (key === 'ngdpbase.page.provider.filesystem.storagedir') return path.join(testDir, 'pages');
         if (key === 'ngdpbase.page.provider.versioning.indexfile') return path.join(testDir, 'data', 'page-index.json');
         return defaultPath;
       }),
-      getInstanceDataFolder: jest.fn(() => testDir)
+      getInstanceDataFolder: vi.fn(() => testDir)
     };
 
     engine = {
-      getManager: jest.fn((managerName) => {
+      getManager: vi.fn((managerName) => {
         if (managerName === 'ConfigurationManager') {
           return configManager;
         }

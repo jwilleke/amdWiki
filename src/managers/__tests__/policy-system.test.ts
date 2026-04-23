@@ -94,7 +94,7 @@ describe('Policy System Integration', () => {
       await engine.shutdown();
     }
     // Clean up test-created subdirectories from the FAST_STORAGE path used
-    // during this test run (set to /tmp/ngdpbase-test-N by jest.setup.js).
+    // during this test run (set to /tmp/ngdpbase-test-N by vi.setup.js).
     // Never touches live ./data/ directories.
     const dataDir = process.env.FAST_STORAGE || path.join(process.cwd(), 'data');
     const testSubdirs = ['sessions', 'logs', 'search-index'];

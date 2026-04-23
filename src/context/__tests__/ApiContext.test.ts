@@ -5,7 +5,7 @@ import type { Request } from 'express';
 
 // ── helpers ──────────────────────────────────────────────────────────────────
 
-const mockEngine = { getManager: jest.fn() };
+const mockEngine = { getManager: vi.fn() };
 
 function makeReq({ userContext = {}, session = {} } = {}) {
   return { userContext, session } as unknown as Request;
@@ -175,8 +175,8 @@ describe('ApiContext#hasPermission()', () => {
 
   function makeEngineWithDefs() {
     return {
-      getManager: jest.fn().mockReturnValue({
-        getProperty: jest.fn((key, def) =>
+      getManager: vi.fn().mockReturnValue({
+        getProperty: vi.fn((key, def) =>
           key === 'ngdpbase.roles.definitions' ? roleDefs : def
         )
       })
@@ -215,7 +215,7 @@ describe('ApiContext#hasPermission()', () => {
   });
 
   test('returns false when ConfigurationManager is unavailable', () => {
-    const engine = { getManager: jest.fn().mockReturnValue(null) };
+    const engine = { getManager: vi.fn().mockReturnValue(null) };
     const ctx = ctxWithRoles(engine, 'admin');
     expect(ctx.hasPermission('admin-system')).toBe(false);
   });
@@ -237,8 +237,8 @@ describe('ApiContext#requirePermission()', () => {
 
   function makeEngineWithDefs() {
     return {
-      getManager: jest.fn().mockReturnValue({
-        getProperty: jest.fn((key, def) =>
+      getManager: vi.fn().mockReturnValue({
+        getProperty: vi.fn((key, def) =>
           key === 'ngdpbase.roles.definitions' ? roleDefs : def
         )
       })

@@ -7,7 +7,7 @@ describe('ValidationManager', () => {
 
   beforeEach(() => {
     mockEngine = {
-      getManager: jest.fn()
+      getManager: vi.fn()
     };
     validationManager = new ValidationManager(mockEngine);
   });
@@ -279,7 +279,7 @@ describe('ValidationManager', () => {
     let mockPageManager;
 
     beforeEach(() => {
-      mockPageManager = { getPage: jest.fn() };
+      mockPageManager = { getPage: vi.fn() };
       mockEngine.getManager.mockReturnValue(mockPageManager);
     });
 

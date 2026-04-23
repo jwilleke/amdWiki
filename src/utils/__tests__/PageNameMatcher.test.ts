@@ -5,11 +5,9 @@
  * Tests the string matching logic for plural/singular page name variations.
  */
 
-// Clear the jest.setup.js mock and get the real implementation
-// For CommonJS modules, jest.requireActual returns the module.exports directly
-const actualModule = jest.requireActual('../PageNameMatcher');
-// Handle both default export and named export patterns
-const PageNameMatcher = actualModule.default || actualModule;
+// Use real implementation — vi.unmock is hoisted before the import resolves
+vi.unmock('../PageNameMatcher');
+import PageNameMatcher from '../PageNameMatcher';
 
 describe('PageNameMatcher', () => {
   describe('Constructor', () => {

@@ -4,19 +4,22 @@ import NotificationManager from '../NotificationManager';
 import type { WikiEngine } from '../../types/WikiEngine';
 
 // Mock logger to avoid console output during tests
-jest.mock('../../utils/logger', () => ({
-  child: () => ({
-    info: jest.fn(),
-    warn: jest.fn(),
-    error: jest.fn(),
-    debug: jest.fn()
-  })
+vi.mock('../../utils/logger', () => ({
+  default: {
+    child: () => ({
+      info: vi.fn(),
+      warn: vi.fn(),
+      error: vi.fn(),
+      debug: vi.fn()
+    })
+
+  }
 }));
 
 // Helper function to create a properly mocked engine with ConfigurationManager
 function createMockEngine(dataDir) {
   const mockConfigManager = {
-    getProperty: jest.fn((key, defaultValue) => {
+    getProperty: vi.fn((key, defaultValue) => {
       if (key === 'ngdpbase.directories.data' || key === 'ngdpbase.notifications.dir') {
         return dataDir;
       }
@@ -29,7 +32,7 @@ function createMockEngine(dataDir) {
       return defaultValue;
     }),
     // Support INSTANCE_DATA_FOLDER feature
-    getResolvedDataPath: jest.fn((key, defaultValue) => {
+    getResolvedDataPath: vi.fn((key, defaultValue) => {
       if (key === 'ngdpbase.notifications.dir') {
         return dataDir;
       }
@@ -38,7 +41,7 @@ function createMockEngine(dataDir) {
   };
 
   return {
-    getManager: jest.fn((name) => {
+    getManager: vi.fn((name) => {
       if (name === 'ConfigurationManager' || name === 'ConfigManager') {
         return mockConfigManager;
       }
@@ -103,7 +106,7 @@ describe('NotificationManager', () => {
       };
 
       // Spy on createNotification to verify it's called
-      const createSpy = jest.spyOn(notificationManager, 'createNotification');
+      const createSpy = vi.spyOn(notificationManager, 'createNotification');
       
       const result = await notificationManager.addNotification(notification);
       
@@ -303,7 +306,7 @@ describe('NotificationManager', () => {
 
       // Mock fs.mkdir to throw error
       const originalMkdir = require('fs').promises.mkdir;
-      require('fs').promises.mkdir = jest.fn().mockRejectedValue(new Error('Permission denied'));
+      require('fs').promises.mkdir = vi.fn().mockRejectedValue(new Error('Permission denied'));
 
       // Should not throw error, just log warning
       await expect(manager.initialize({})).resolves.not.toThrow();
@@ -648,7 +651,7 @@ describe('NotificationManager', () => {
     test('should handle save errors gracefully', async () => {
       // Mock fs.writeFile to throw error
       const originalWriteFile = require('fs').promises.writeFile;
-      require('fs').promises.writeFile = jest.fn().mockRejectedValue(new Error('Disk full'));
+      require('fs').promises.writeFile = vi.fn().mockRejectedValue(new Error('Disk full'));
 
       // Should not throw error when saving fails
       await expect(notificationManager.saveNotifications()).resolves.not.toThrow();
@@ -672,11 +675,11 @@ function makeEscalationEngine({
   providerName = 'smtp',
   from = 'wiki@example.com',
   adminUsers = [{ username: 'jim', email: 'jim@example.com', roles: ['admin'] }],
-  sendTo = jest.fn().mockResolvedValue(undefined),
-  dataDir = '',
+  sendTo = vi.fn().mockResolvedValue(undefined),
+  dataDir = ''
 } = {}) {
   const configManager = {
-    getProperty: jest.fn((key, defaultValue) => {
+    getProperty: vi.fn((key, defaultValue) => {
       if (key === 'ngdpbase.notifications.dir') return dataDir;
       if (key === 'ngdpbase.notifications.file') return 'notifications.json';
       if (key === 'ngdpbase.notifications.auto-save-interval') return 60000;
@@ -685,35 +688,35 @@ function makeEscalationEngine({
       if (key === 'ngdpbase.notifications.escalation.recipient-role') return recipientRole;
       return defaultValue;
     }),
-    getResolvedDataPath: jest.fn((key, defaultValue) => {
+    getResolvedDataPath: vi.fn((key, defaultValue) => {
       if (key === 'ngdpbase.notifications.dir') return dataDir;
       return defaultValue;
-    }),
+    })
   };
 
   const emailManager = {
-    isEnabled: jest.fn().mockReturnValue(mailEnabled),
-    getProviderName: jest.fn().mockReturnValue(providerName),
-    getFrom: jest.fn().mockReturnValue(from),
-    sendTo,
+    isEnabled: vi.fn().mockReturnValue(mailEnabled),
+    getProviderName: vi.fn().mockReturnValue(providerName),
+    getFrom: vi.fn().mockReturnValue(from),
+    sendTo
   };
 
   const userManager = {
-    searchUsers: jest.fn().mockResolvedValue(adminUsers),
+    searchUsers: vi.fn().mockResolvedValue(adminUsers)
   };
 
   return {
     engine: {
-      getManager: jest.fn((name) => {
+      getManager: vi.fn((name) => {
         if (name === 'ConfigurationManager') return configManager;
         if (name === 'EmailManager') return emailManager;
         if (name === 'UserManager') return userManager;
         return undefined;
-      }),
+      })
     },
     emailManager,
     userManager,
-    configManager,
+    configManager
   };
 }
 
@@ -742,7 +745,7 @@ describe('NotificationManager — email escalation', () => {
 
     const loggerInstance = (mgr as any).logger;
     expect(loggerInstance.warn).toHaveBeenCalledWith(
-      expect.stringContaining('ngdpbase.mail.enabled=false'),
+      expect.stringContaining('ngdpbase.mail.enabled=false')
     );
     await mgr.shutdown();
   });
@@ -754,7 +757,7 @@ describe('NotificationManager — email escalation', () => {
 
     const loggerInstance = (mgr as any).logger;
     expect(loggerInstance.warn).toHaveBeenCalledWith(
-      expect.stringContaining('"console"'),
+      expect.stringContaining('"console"')
     );
     await mgr.shutdown();
   });
@@ -768,7 +771,7 @@ describe('NotificationManager — email escalation', () => {
     expect(loggerInstance.info).toHaveBeenCalledWith(
       expect.stringContaining('Email escalation active'),
       expect.anything(),
-      expect.anything(),
+      expect.anything()
     );
     await mgr.shutdown();
   });
@@ -776,7 +779,7 @@ describe('NotificationManager — email escalation', () => {
   // -- Runtime escalation --
 
   test('escalation disabled (default) → sendTo not called', async () => {
-    const sendTo = jest.fn().mockResolvedValue(undefined);
+    const sendTo = vi.fn().mockResolvedValue(undefined);
     const { engine } = makeEscalationEngine({ dataDir: tempDir, escalationEnabled: false, sendTo });
     const mgr = new NotificationManager(engine as any);
     await mgr.initialize({});
@@ -790,7 +793,7 @@ describe('NotificationManager — email escalation', () => {
   });
 
   test('level not in escalation list → sendTo not called', async () => {
-    const sendTo = jest.fn().mockResolvedValue(undefined);
+    const sendTo = vi.fn().mockResolvedValue(undefined);
     const { engine } = makeEscalationEngine({ dataDir: tempDir, escalationEnabled: true, levels: ['error'], sendTo });
     const mgr = new NotificationManager(engine as any);
     await mgr.initialize({});
@@ -803,15 +806,15 @@ describe('NotificationManager — email escalation', () => {
   });
 
   test('error notification + escalation enabled → sendTo called for each admin with email', async () => {
-    const sendTo = jest.fn().mockResolvedValue(undefined);
+    const sendTo = vi.fn().mockResolvedValue(undefined);
     const { engine } = makeEscalationEngine({
       dataDir: tempDir,
       escalationEnabled: true,
       sendTo,
       adminUsers: [
         { username: 'jim', email: 'jim@example.com', roles: ['admin'] },
-        { username: 'alice', email: 'alice@example.com', roles: ['admin'] },
-      ],
+        { username: 'alice', email: 'alice@example.com', roles: ['admin'] }
+      ]
     });
     const mgr = new NotificationManager(engine as any);
     await mgr.initialize({});
@@ -826,7 +829,7 @@ describe('NotificationManager — email escalation', () => {
   });
 
   test('mail not enabled at runtime → no send', async () => {
-    const sendTo = jest.fn().mockResolvedValue(undefined);
+    const sendTo = vi.fn().mockResolvedValue(undefined);
     const { engine } = makeEscalationEngine({ dataDir: tempDir, escalationEnabled: true, mailEnabled: false, sendTo });
     const mgr = new NotificationManager(engine as any);
     await mgr.initialize({});
@@ -839,12 +842,12 @@ describe('NotificationManager — email escalation', () => {
   });
 
   test('no admin users with email → no send, no throw', async () => {
-    const sendTo = jest.fn().mockResolvedValue(undefined);
+    const sendTo = vi.fn().mockResolvedValue(undefined);
     const { engine } = makeEscalationEngine({
       dataDir: tempDir,
       escalationEnabled: true,
       sendTo,
-      adminUsers: [{ username: 'nomail', email: '', roles: ['admin'] }],
+      adminUsers: [{ username: 'nomail', email: '', roles: ['admin'] }]
     });
     const mgr = new NotificationManager(engine as any);
     await mgr.initialize({});
@@ -857,7 +860,7 @@ describe('NotificationManager — email escalation', () => {
   });
 
   test('sendTo rejects → notification still created (fire-and-forget)', async () => {
-    const sendTo = jest.fn().mockRejectedValue(new Error('SMTP timeout'));
+    const sendTo = vi.fn().mockRejectedValue(new Error('SMTP timeout'));
     const { engine } = makeEscalationEngine({ dataDir: tempDir, escalationEnabled: true, sendTo });
     const mgr = new NotificationManager(engine as any);
     await mgr.initialize({});

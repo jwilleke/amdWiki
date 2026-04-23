@@ -6,11 +6,14 @@
  */
 
 // Mock logger to capture warnings
-jest.mock('../../../../utils/logger', () => ({
-  info: jest.fn(),
-  warn: jest.fn(),
-  error: jest.fn(),
-  debug: jest.fn()
+vi.mock('../../../../utils/logger', () => ({
+  default: {
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
+    debug: vi.fn()
+
+  }
 }));
 
 import logger from '../../../../utils/logger';
@@ -33,7 +36,7 @@ const createMockEngine = () => {
   });
 
   return {
-    getManager: jest.fn((name) => {
+    getManager: vi.fn((name) => {
       if (name === 'VariableManager') {
         return {
           variableHandlers
@@ -81,7 +84,7 @@ describe('DOMVariableHandler', () => {
       logger.warn.mockClear();
 
       const badEngine = {
-        getManager: jest.fn(() => null)
+        getManager: vi.fn(() => null)
       };
 
       const badHandler = new DOMVariableHandler(badEngine);
@@ -211,7 +214,7 @@ describe('DOMVariableHandler', () => {
     test('warns if VariableManager not available', async () => {
       // Create a new handler with an engine that doesn't provide VariableManager
       const badEngine = {
-        getManager: jest.fn(() => null)
+        getManager: vi.fn(() => null)
       };
       const badHandler = new DOMVariableHandler(badEngine);
 

@@ -2,7 +2,7 @@ import path from 'path';
 import fs from 'fs-extra';
 import WikiEngine from '../WikiEngine';
 
-// Logger is mocked globally in jest.setup.js
+// Logger is mocked globally in vi.setup.js
 
 describe('WikiEngine', () => {
   let engine;

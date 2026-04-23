@@ -2,12 +2,10 @@
  * Tests for FormsPlugin — prefill, field rendering, section grouping
  */
 
-import { jest } from '@jest/globals';
-
 // ── Mock fs so unit lookup doesn't hit disk ───────────────────────────────────
 
-const mockReadFile = jest.fn<(p: string, enc: string) => Promise<string>>();
-jest.mock('fs', () => ({
+const mockReadFile = vi.fn<(p: string, enc: string) => Promise<string>>();
+vi.mock('fs', () => ({
   promises: { readFile: (p: string, enc: string) => mockReadFile(p, enc) }
 }));
 
@@ -23,14 +21,14 @@ const UNITS = [
 
 function makeEngine(formDef: object | null, resolveDataPath = '/data/fairways') {
   return {
-    getManager: jest.fn((name: string) => {
+    getManager: vi.fn((name: string) => {
       if (name === 'FormsDataManager') {
-        return { getDefinition: jest.fn(() => formDef) };
+        return { getDefinition: vi.fn(() => formDef) };
       }
       if (name === 'ConfigurationManager') {
         return {
-          resolveDataPath: jest.fn(() => resolveDataPath),
-          getProperty: jest.fn(() => [])
+          resolveDataPath: vi.fn(() => resolveDataPath),
+          getProperty: vi.fn(() => [])
         };
       }
       return undefined;

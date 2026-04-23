@@ -1,8 +1,8 @@
 // Opt out of the global VersioningFileProvider and FileSystemProvider mocks
-jest.unmock('../VersioningFileProvider');
-jest.unmock('../../providers/VersioningFileProvider');
-jest.unmock('../FileSystemProvider');
-jest.unmock('../../providers/FileSystemProvider');
+vi.unmock('../VersioningFileProvider');
+vi.unmock('../../providers/VersioningFileProvider');
+vi.unmock('../FileSystemProvider');
+vi.unmock('../../providers/FileSystemProvider');
 
 import VersioningFileProvider from '../VersioningFileProvider';
 import fs from 'fs-extra';
@@ -25,7 +25,7 @@ describe('VersioningFileProvider', () => {
 
     // Create mock engine and ConfigurationManager
     configManager = {
-      getProperty: jest.fn((key, defaultValue) => {
+      getProperty: vi.fn((key, defaultValue) => {
         const config = {
           'ngdpbase.page.enabled': true,
           'ngdpbase.page.provider.filesystem.storagedir': path.join(testDir, 'pages'),
@@ -43,7 +43,7 @@ describe('VersioningFileProvider', () => {
         };
         return config[key] !== undefined ? config[key] : defaultValue;
       }),
-      getResolvedDataPath: jest.fn((key, defaultValue) => {
+      getResolvedDataPath: vi.fn((key, defaultValue) => {
         if (key === 'ngdpbase.page.provider.versioning.indexfile') {
           return path.join(testDir, 'data', 'page-index.json');
         }
@@ -55,11 +55,11 @@ describe('VersioningFileProvider', () => {
         }
         return defaultValue;
       }),
-      getInstanceDataFolder: jest.fn(() => testDir)
+      getInstanceDataFolder: vi.fn(() => testDir)
     };
 
     engine = {
-      getManager: jest.fn((managerName) => {
+      getManager: vi.fn((managerName) => {
         if (managerName === 'ConfigurationManager') {
           return configManager;
         }
@@ -150,7 +150,7 @@ describe('VersioningFileProvider', () => {
     });
 
     test('should validate configuration values', async () => {
-      configManager.getProperty = jest.fn((key, defaultValue) => {
+      configManager.getProperty = vi.fn((key, defaultValue) => {
         if (key === 'ngdpbase.page.provider.versioning.maxversions') return -5;
         if (key === 'ngdpbase.page.provider.versioning.retentiondays') return 0;
         return defaultValue;
@@ -176,7 +176,7 @@ describe('VersioningFileProvider', () => {
     });
 
     test('should handle compression setting', async () => {
-      configManager.getProperty = jest.fn((key, defaultValue) => {
+      configManager.getProperty = vi.fn((key, defaultValue) => {
         if (key === 'ngdpbase.page.provider.versioning.compression') return 'none';
         return defaultValue;
       });
@@ -187,7 +187,7 @@ describe('VersioningFileProvider', () => {
     });
 
     test('should handle delta storage disabled', async () => {
-      configManager.getProperty = jest.fn((key, defaultValue) => {
+      configManager.getProperty = vi.fn((key, defaultValue) => {
         if (key === 'ngdpbase.page.provider.versioning.deltastorage') return false;
         return defaultValue;
       });
@@ -371,7 +371,7 @@ describe('VersioningFileProvider', () => {
 
     test('should store full content when deltaStorage disabled', async () => {
       // Disable delta storage
-      configManager.getProperty = jest.fn((key, defaultValue) => {
+      configManager.getProperty = vi.fn((key, defaultValue) => {
         if (key === 'ngdpbase.page.provider.versioning.deltastorage') return false;
         if (key === 'ngdpbase.page.provider.filesystem.storagedir') return path.join(testDir, 'pages');
         if (key === 'ngdpbase.page.provider.filesystem.requiredpagesdir') return path.join(testDir, 'required-pages');
@@ -537,7 +537,7 @@ describe('VersioningFileProvider', () => {
 
       // Mock fs.writeFile to fail for version files
       const originalWriteFile = fs.writeFile;
-      fs.writeFile = jest.fn((filePath, content, encoding) => {
+      fs.writeFile = vi.fn((filePath, content, encoding) => {
         if (filePath.includes('/versions/')) {
           return Promise.reject(new Error('Disk full'));
         }
@@ -579,7 +579,7 @@ describe('VersioningFileProvider', () => {
   describe('Required Pages', () => {
     test('should store required pages in correct location', async () => {
       // Mock system categories config
-      configManager.getProperty = jest.fn((key, defaultValue) => {
+      configManager.getProperty = vi.fn((key, defaultValue) => {
         if (key === 'ngdpbase.system-category') {
           return {
             Navigation: {
@@ -1152,7 +1152,9 @@ describe('VersioningFileProvider', () => {
       expect(await fs.pathExists(path.join(pagesDir(), 'double-process.md'))).toBe(false);
 
       // Second boot — index exists; fast path skips migration entirely
-      const provider2 = new (require('../VersioningFileProvider'))(engine);
+      const VFPMod = await import('../VersioningFileProvider');
+      const VFP2 = (VFPMod).default ?? VFPMod;
+      const provider2 = new VFP2(engine);
       await expect(provider2.initialize()).resolves.not.toThrow();
 
       // Still just one UUID-named file

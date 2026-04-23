@@ -12,17 +12,18 @@ describe('PluginManager.registerPlugin()', () => {
   let PluginManager;
   let mockEngine;
 
-  beforeEach(() => {
-    jest.resetModules();
-    PluginManager = require('../PluginManager');
+  beforeEach(async () => {
+    vi.resetModules();
+    const mod = await import('../PluginManager');
+    PluginManager = mod.default ?? mod;
 
     mockEngine = {
-      getManager: jest.fn(),
+      getManager: vi.fn(),
       logger: {
-        info: jest.fn(),
-        warn: jest.fn(),
-        debug: jest.fn(),
-        error: jest.fn()
+        info: vi.fn(),
+        warn: vi.fn(),
+        debug: vi.fn(),
+        error: vi.fn()
       }
     };
   });
@@ -38,7 +39,7 @@ describe('PluginManager.registerPlugin()', () => {
     const pm = makeManager();
     const plugin = {
       name: 'HelloPlugin',
-      execute: jest.fn().mockResolvedValue('<b>hello</b>')
+      execute: vi.fn().mockResolvedValue('<b>hello</b>')
     };
 
     await pm.registerPlugin('HelloPlugin', plugin);
@@ -50,7 +51,7 @@ describe('PluginManager.registerPlugin()', () => {
     const pm = makeManager();
     const plugin = {
       name: 'EchoPlugin',
-      execute: jest.fn().mockResolvedValue('echo output')
+      execute: vi.fn().mockResolvedValue('echo output')
     };
 
     await pm.registerPlugin('EchoPlugin', plugin);
@@ -61,11 +62,11 @@ describe('PluginManager.registerPlugin()', () => {
 
   test('calls initialize(engine) on registration if present', async () => {
     const pm = makeManager();
-    const initFn = jest.fn().mockResolvedValue(undefined);
+    const initFn = vi.fn().mockResolvedValue(undefined);
     const plugin = {
       name: 'InitPlugin',
       initialize: initFn,
-      execute: jest.fn().mockResolvedValue('')
+      execute: vi.fn().mockResolvedValue('')
     };
 
     await pm.registerPlugin('InitPlugin', plugin);
@@ -75,7 +76,7 @@ describe('PluginManager.registerPlugin()', () => {
 
   test('registers a function plugin', async () => {
     const pm = makeManager();
-    const pluginFn = jest.fn().mockResolvedValue('fn result');
+    const pluginFn = vi.fn().mockResolvedValue('fn result');
 
     await pm.registerPlugin('FnPlugin', pluginFn);
 
@@ -94,8 +95,8 @@ describe('PluginManager.registerPlugin()', () => {
 
   test('overwrites an existing plugin with the same name', async () => {
     const pm = makeManager();
-    const v1 = { name: 'P', execute: jest.fn().mockResolvedValue('v1') };
-    const v2 = { name: 'P', execute: jest.fn().mockResolvedValue('v2') };
+    const v1 = { name: 'P', execute: vi.fn().mockResolvedValue('v1') };
+    const v2 = { name: 'P', execute: vi.fn().mockResolvedValue('v2') };
 
     await pm.registerPlugin('P', v1);
     await pm.registerPlugin('P', v2);
@@ -107,8 +108,8 @@ describe('PluginManager.registerPlugin()', () => {
   test('calls fetch(engine) before execute() when fetch is present', async () => {
     const pm = makeManager();
     const callOrder = [];
-    const fetchFn = jest.fn().mockImplementation(() => { callOrder.push('fetch'); });
-    const executeFn = jest.fn().mockImplementation(() => { callOrder.push('execute'); return 'done'; });
+    const fetchFn = vi.fn().mockImplementation(() => { callOrder.push('fetch'); });
+    const executeFn = vi.fn().mockImplementation(() => { callOrder.push('execute'); return 'done'; });
     const plugin = { name: 'FetchPlugin', fetch: fetchFn, execute: executeFn };
 
     await pm.registerPlugin('FetchPlugin', plugin);
@@ -124,8 +125,8 @@ describe('PluginManager.registerPlugin()', () => {
     let receivedEngine;
     const plugin = {
       name: 'EngineCheckPlugin',
-      fetch: jest.fn().mockImplementation((eng) => { receivedEngine = eng; }),
-      execute: jest.fn().mockResolvedValue('')
+      fetch: vi.fn().mockImplementation((eng) => { receivedEngine = eng; }),
+      execute: vi.fn().mockResolvedValue('')
     };
 
     await pm.registerPlugin('EngineCheckPlugin', plugin);
@@ -136,7 +137,7 @@ describe('PluginManager.registerPlugin()', () => {
 
   test('execute() works normally when fetch is absent', async () => {
     const pm = makeManager();
-    const plugin = { name: 'NoFetchPlugin', execute: jest.fn().mockResolvedValue('result') };
+    const plugin = { name: 'NoFetchPlugin', execute: vi.fn().mockResolvedValue('result') };
 
     await pm.registerPlugin('NoFetchPlugin', plugin);
     const result = await pm.execute('NoFetchPlugin', 'TestPage', {});

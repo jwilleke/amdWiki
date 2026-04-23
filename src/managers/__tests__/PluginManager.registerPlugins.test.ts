@@ -15,10 +15,10 @@ import path from 'path';
 import fs from 'fs-extra';
 
 const makeLogger = () => ({
-  info: jest.fn(),
-  warn: jest.fn(),
-  debug: jest.fn(),
-  error: jest.fn()
+  info: vi.fn(),
+  warn: vi.fn(),
+  debug: vi.fn(),
+  error: vi.fn()
 });
 
 const makeEngine = (cfgMgr, logger = makeLogger()) => ({
@@ -30,8 +30,8 @@ describe('PluginManager.registerPlugins', () => {
   let tmpA, tmpB;
 
   beforeEach(async () => {
-    jest.resetModules();
-    jest.clearAllMocks();
+    vi.resetModules();
+    vi.clearAllMocks();
     tmpA = await fs.mkdtemp(path.join(os.tmpdir(), 'pm-a-'));
     tmpB = await fs.mkdtemp(path.join(os.tmpdir(), 'pm-b-'));
 
@@ -62,9 +62,9 @@ describe('PluginManager.registerPlugins', () => {
   });
 
   test('loads plugins only from configured searchPaths (array)', async () => {
-    const cfgMgr = { getProperty: jest.fn().mockReturnValue([tmpA, tmpB]) };
+    const cfgMgr = { getProperty: vi.fn().mockReturnValue([tmpA, tmpB]) };
     const engine = makeEngine(cfgMgr);
-    const PluginManager = require('../PluginManager');
+    const PluginManager = await import('../PluginManager').then((m: any) => m.default ?? m);
     const pm = new PluginManager(engine);
 
     await pm.registerPlugins();
@@ -84,9 +84,9 @@ describe('PluginManager.registerPlugins', () => {
   });
 
   test('accepts comma-separated string searchPaths', async () => {
-    const cfgMgr = { getProperty: jest.fn().mockReturnValue(`${tmpA},${tmpB}`) };
+    const cfgMgr = { getProperty: vi.fn().mockReturnValue(`${tmpA},${tmpB}`) };
     const engine = makeEngine(cfgMgr);
-    const PluginManager = require('../PluginManager');
+    const PluginManager = await import('../PluginManager').then((m: any) => m.default ?? m);
     const pm = new PluginManager(engine);
 
     await pm.registerPlugins();
@@ -99,7 +99,7 @@ describe('PluginManager.registerPlugins', () => {
 
   test('skips when ConfigurationManager is missing', async () => {
     const engine = { getManager: () => null, logger: makeLogger() };
-    const PluginManager = require('../PluginManager');
+    const PluginManager = await import('../PluginManager').then((m: any) => m.default ?? m);
     const pm = new PluginManager(engine);
 
     await pm.registerPlugins();
@@ -109,9 +109,9 @@ describe('PluginManager.registerPlugins', () => {
   });
 
   test('skips when searchPaths config is empty', async () => {
-    const cfgMgr = { getProperty: jest.fn().mockReturnValue([]) };
+    const cfgMgr = { getProperty: vi.fn().mockReturnValue([]) };
     const engine = makeEngine(cfgMgr);
-    const PluginManager = require('../PluginManager');
+    const PluginManager = await import('../PluginManager').then((m: any) => m.default ?? m);
     const pm = new PluginManager(engine);
 
     await pm.registerPlugins();
@@ -125,9 +125,9 @@ describe('PluginManager.registerPlugins', () => {
     const notADir = path.join(os.tmpdir(), `pm-file-${Date.now()}.js`);
     await fs.writeFile(notADir, 'not a dir', 'utf8');
 
-    const cfgMgr = { getProperty: jest.fn().mockReturnValue([missingDir, notADir, tmpA]) };
+    const cfgMgr = { getProperty: vi.fn().mockReturnValue([missingDir, notADir, tmpA]) };
     const engine = makeEngine(cfgMgr);
-    const PluginManager = require('../PluginManager');
+    const PluginManager = await import('../PluginManager').then((m: any) => m.default ?? m);
     const pm = new PluginManager(engine);
 
     await pm.registerPlugins();
@@ -143,9 +143,9 @@ describe('PluginManager.registerPlugins', () => {
   });
 
   test('registerPlugins sets allowedRoots and loadPlugin blocks outside roots', async () => {
-    const cfgMgr = { getProperty: jest.fn().mockReturnValue([tmpA]) };
+    const cfgMgr = { getProperty: vi.fn().mockReturnValue([tmpA]) };
     const engine = makeEngine(cfgMgr);
-    const PluginManager = require('../PluginManager');
+    const PluginManager = await import('../PluginManager').then((m: any) => m.default ?? m);
     const pm = new PluginManager(engine);
 
     await pm.registerPlugins();

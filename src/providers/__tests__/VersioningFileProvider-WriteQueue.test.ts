@@ -10,7 +10,7 @@
  */
 
 // Opt out of the global VersioningFileProvider mock so we test the real implementation
-jest.unmock('../../providers/VersioningFileProvider');
+vi.unmock('../../providers/VersioningFileProvider');
 
 import fs from 'fs-extra';
 import path from 'path';
@@ -34,7 +34,7 @@ describe('VersioningFileProvider - Write Queue', () => {
     indexPath = path.join(testDir, 'data', 'page-index.json');
 
     const configManager = {
-      getProperty: jest.fn((key, defaultValue) => {
+      getProperty: vi.fn((key, defaultValue) => {
         const config = {
           'ngdpbase.page.enabled': true,
           'ngdpbase.page.provider.filesystem.storagedir': path.join(testDir, 'pages'),
@@ -51,7 +51,7 @@ describe('VersioningFileProvider - Write Queue', () => {
         };
         return config[key] !== undefined ? config[key] : defaultValue;
       }),
-      getResolvedDataPath: jest.fn((key, defaultValue) => {
+      getResolvedDataPath: vi.fn((key, defaultValue) => {
         if (key === 'ngdpbase.page.provider.versioning.indexfile') {
           return indexPath;
         }
@@ -60,9 +60,9 @@ describe('VersioningFileProvider - Write Queue', () => {
     };
 
     const engine = {
-      getManager: jest.fn((name) => {
+      getManager: vi.fn((name) => {
         if (name === 'ConfigurationManager') return configManager;
-        if (name === 'CacheManager') return { get: jest.fn(), set: jest.fn(), delete: jest.fn() };
+        if (name === 'CacheManager') return { get: vi.fn(), set: vi.fn(), delete: vi.fn() };
         return null;
       }),
       config: {}

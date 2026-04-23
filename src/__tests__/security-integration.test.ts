@@ -1,29 +1,29 @@
 
 // Mock all managers
 const mockUserManager = {
-  getCurrentUser: jest.fn(),
-  hasPermission: jest.fn()
+  getCurrentUser: vi.fn(),
+  hasPermission: vi.fn()
 };
 
 const mockACLManager = {
-  checkAttachmentPermission: jest.fn(),
-  isSystemAdminCategoryPage: jest.fn()
+  checkAttachmentPermission: vi.fn(),
+  isSystemAdminCategoryPage: vi.fn()
 };
 
 const mockAttachmentManager = {
-  uploadAttachment: jest.fn(),
-  getAttachment: jest.fn(),
-  deleteAttachment: jest.fn(),
-  getAttachmentPath: jest.fn()
+  uploadAttachment: vi.fn(),
+  getAttachment: vi.fn(),
+  deleteAttachment: vi.fn(),
+  getAttachmentPath: vi.fn()
 };
 
 const mockPageManager = {
-  getPage: jest.fn()
+  getPage: vi.fn()
 };
 
 // Mock engine with all managers
 const mockEngine = {
-  getManager: jest.fn((name) => {
+  getManager: vi.fn((name) => {
     switch (name) {
     case 'UserManager': return mockUserManager;
     case 'ACLManager': return mockACLManager;
@@ -45,7 +45,7 @@ const mockEngine = {
 
 describe('Security Integration Tests (Issue #22 + PR #18)', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     // Reset maintenance mode
     mockEngine.config.features.maintenance.enabled = false;
   });

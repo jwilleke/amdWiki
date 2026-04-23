@@ -1,68 +1,71 @@
 
 // Mock logger before requiring MetricsManager
-jest.mock('../../utils/logger', () => ({
-  info: jest.fn(),
-  warn: jest.fn(),
-  error: jest.fn(),
-  debug: jest.fn(),
+vi.mock('../../utils/logger', () => ({
+  info: vi.fn(),
+  warn: vi.fn(),
+  error: vi.fn(),
+  debug: vi.fn(),
   default: {
-    info: jest.fn(),
-    warn: jest.fn(),
-    error: jest.fn(),
-    debug: jest.fn()
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
+    debug: vi.fn()
   }
 }));
 
 // Mock OpenTelemetry modules to avoid port conflicts and real metric collection
-const mockCounter = { add: jest.fn() };
-const mockHistogram = { record: jest.fn() };
+const mockCounter = { add: vi.fn() };
+const mockHistogram = { record: vi.fn() };
 const mockMeter = {
-  createCounter: jest.fn(() => mockCounter),
-  createHistogram: jest.fn(() => mockHistogram)
+  createCounter: vi.fn(() => mockCounter),
+  createHistogram: vi.fn(() => mockHistogram)
 };
 const mockMeterProvider = {
-  getMeter: jest.fn(() => mockMeter),
-  shutdown: jest.fn().mockResolvedValue(undefined)
+  getMeter: vi.fn(() => mockMeter),
+  shutdown: vi.fn().mockResolvedValue(undefined)
 };
-const mockGetMetricsRequestHandler = jest.fn();
+const mockGetMetricsRequestHandler = vi.fn();
 const mockPrometheusExporter = {
   getMetricsRequestHandler: mockGetMetricsRequestHandler
 };
-const mockOtlpReaderShutdown = jest.fn().mockResolvedValue(undefined);
+const mockOtlpReaderShutdown = vi.fn().mockResolvedValue(undefined);
 const mockOtlpReader = {
   shutdown: mockOtlpReaderShutdown
 };
 const mockOtlpExporter = {};
 
-jest.mock('@opentelemetry/sdk-metrics', () => ({
-  MeterProvider: jest.fn(() => mockMeterProvider),
-  PeriodicExportingMetricReader: jest.fn(() => mockOtlpReader)
+vi.mock('@opentelemetry/sdk-metrics', () => ({
+  MeterProvider: vi.fn(function () { return mockMeterProvider; }),
+  PeriodicExportingMetricReader: vi.fn(function () { return mockOtlpReader; })
 }));
 
-jest.mock('@opentelemetry/exporter-prometheus', () => ({
-  PrometheusExporter: jest.fn(() => mockPrometheusExporter)
+vi.mock('@opentelemetry/exporter-prometheus', () => ({
+  PrometheusExporter: vi.fn(function () { return mockPrometheusExporter; })
 }));
 
-jest.mock('@opentelemetry/exporter-metrics-otlp-http', () => ({
-  OTLPMetricExporter: jest.fn(() => mockOtlpExporter)
+vi.mock('@opentelemetry/exporter-metrics-otlp-http', () => ({
+  OTLPMetricExporter: vi.fn(function () { return mockOtlpExporter; })
 }));
 
-jest.mock('@opentelemetry/resources', () => ({
-  resourceFromAttributes: jest.fn((attrs) => ({ attributes: attrs }))
+vi.mock('@opentelemetry/resources', () => ({
+  resourceFromAttributes: vi.fn((attrs) => ({ attributes: attrs }))
 }));
 
-jest.mock('@opentelemetry/semantic-conventions', () => ({
+vi.mock('@opentelemetry/semantic-conventions', () => ({
   ATTR_SERVICE_NAME: 'service.name'
 }));
 
-jest.mock('@opentelemetry/api', () => ({
+vi.mock('@opentelemetry/api', () => ({
   metrics: {
-    setGlobalMeterProvider: jest.fn(),
-    disable: jest.fn()
+    setGlobalMeterProvider: vi.fn(),
+    disable: vi.fn()
   }
 }));
 
 import MetricsManager from '../MetricsManager';
+import { MeterProvider, PeriodicExportingMetricReader } from '@opentelemetry/sdk-metrics';
+import { OTLPMetricExporter } from '@opentelemetry/exporter-metrics-otlp-http';
+import { resourceFromAttributes } from '@opentelemetry/resources';
 
 describe('MetricsManager', () => {
   let manager;
@@ -70,10 +73,10 @@ describe('MetricsManager', () => {
   let mockConfigManager;
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
 
     mockConfigManager = {
-      getProperty: jest.fn((key, defaultValue) => {
+      getProperty: vi.fn((key, defaultValue) => {
         const config = {
           'ngdpbase.telemetry.enabled': false,
           'ngdpbase.telemetry.metrics.port': 9464,
@@ -86,7 +89,7 @@ describe('MetricsManager', () => {
     };
 
     mockEngine = {
-      getManager: jest.fn((name) => {
+      getManager: vi.fn((name) => {
         if (name === 'ConfigurationManager') return mockConfigManager;
         return undefined;
       })
@@ -132,7 +135,7 @@ describe('MetricsManager', () => {
 
   describe('enabled mode', () => {
     beforeEach(() => {
-      mockConfigManager.getProperty = jest.fn((key, defaultValue) => {
+      mockConfigManager.getProperty = vi.fn((key, defaultValue) => {
         const config = {
           'ngdpbase.telemetry.enabled': true,
           'ngdpbase.telemetry.metrics.port': 9464,
@@ -180,7 +183,7 @@ describe('MetricsManager', () => {
     });
 
     test('should derive metric prefix from applicationName', async () => {
-      mockConfigManager.getProperty = jest.fn((key, defaultValue) => {
+      mockConfigManager.getProperty = vi.fn((key, defaultValue) => {
         const config = {
           'ngdpbase.telemetry.enabled': true,
           'ngdpbase.application-name': 'jimstest',
@@ -222,10 +225,8 @@ describe('MetricsManager', () => {
     });
 
     test('should set service.name resource from telemetry.serviceName config', async () => {
-      const { MeterProvider } = require('@opentelemetry/sdk-metrics');
-      const { resourceFromAttributes } = require('@opentelemetry/resources');
 
-      mockConfigManager.getProperty = jest.fn((key, defaultValue) => {
+      mockConfigManager.getProperty = vi.fn((key, defaultValue) => {
         const config = {
           'ngdpbase.telemetry.enabled': true,
           'ngdpbase.application-name': 'jimstest',
@@ -249,7 +250,6 @@ describe('MetricsManager', () => {
     });
 
     test('should fall back to prefix for service.name when serviceName not configured', async () => {
-      const { resourceFromAttributes } = require('@opentelemetry/resources');
 
       // Default config has no serviceName — falls back to prefix
       await manager.initialize();
@@ -267,7 +267,7 @@ describe('MetricsManager', () => {
 
   describe('shutdown', () => {
     test('should clean up meter provider on shutdown', async () => {
-      mockConfigManager.getProperty = jest.fn((key, defaultValue) => {
+      mockConfigManager.getProperty = vi.fn((key, defaultValue) => {
         if (key === 'ngdpbase.telemetry.enabled') return true;
         const config = {
           'ngdpbase.telemetry.metrics.port': 9464,
@@ -293,15 +293,12 @@ describe('MetricsManager', () => {
   });
 
   describe('OTLP export', () => {
-    const { PeriodicExportingMetricReader } = require('@opentelemetry/sdk-metrics');
-    const { OTLPMetricExporter } = require('@opentelemetry/exporter-metrics-otlp-http');
-
     beforeEach(() => {
-      jest.clearAllMocks();
+      vi.clearAllMocks();
     });
 
     test('should create OTLP reader when otlp.enabled=true and endpoint is set', async () => {
-      mockConfigManager.getProperty = jest.fn((key, defaultValue) => {
+      mockConfigManager.getProperty = vi.fn((key, defaultValue) => {
         const config = {
           'ngdpbase.telemetry.enabled': true,
           'ngdpbase.telemetry.metrics.port': 9464,
@@ -332,7 +329,7 @@ describe('MetricsManager', () => {
     });
 
     test('should NOT create OTLP reader when otlp.enabled=false', async () => {
-      mockConfigManager.getProperty = jest.fn((key, defaultValue) => {
+      mockConfigManager.getProperty = vi.fn((key, defaultValue) => {
         const config = {
           'ngdpbase.telemetry.enabled': true,
           'ngdpbase.telemetry.metrics.port': 9464,
@@ -352,7 +349,7 @@ describe('MetricsManager', () => {
     });
 
     test('should NOT create OTLP reader when endpoint is empty', async () => {
-      mockConfigManager.getProperty = jest.fn((key, defaultValue) => {
+      mockConfigManager.getProperty = vi.fn((key, defaultValue) => {
         const config = {
           'ngdpbase.telemetry.enabled': true,
           'ngdpbase.telemetry.metrics.port': 9464,
@@ -372,7 +369,7 @@ describe('MetricsManager', () => {
     });
 
     test('should shut down OTLP reader on shutdown', async () => {
-      mockConfigManager.getProperty = jest.fn((key, defaultValue) => {
+      mockConfigManager.getProperty = vi.fn((key, defaultValue) => {
         const config = {
           'ngdpbase.telemetry.enabled': true,
           'ngdpbase.telemetry.metrics.port': 9464,
@@ -398,7 +395,7 @@ describe('MetricsManager', () => {
 
   describe('error handling', () => {
     test('should disable metrics and log warning when ConfigurationManager unavailable', async () => {
-      mockEngine.getManager = jest.fn(() => undefined);
+      mockEngine.getManager = vi.fn(() => undefined);
       manager = new MetricsManager(mockEngine);
 
       await manager.initialize();

@@ -16,7 +16,7 @@ class MockPluginManager {
 
 // Mock engine
 const createMockEngine = () => ({
-  getManager: jest.fn((name) => {
+  getManager: vi.fn((name) => {
     if (name === 'PluginManager') return new MockPluginManager();
     return null;
   })
@@ -167,8 +167,8 @@ describe('PluginSyntaxHandler', () => {
     test('should handle plugin execution errors', async () => {
       // Mock plugin manager to throw error
       const errorEngine = {
-        getManager: jest.fn(() => ({
-          execute: jest.fn().mockRejectedValue(new Error('Plugin execution failed'))
+        getManager: vi.fn(() => ({
+          execute: vi.fn().mockRejectedValue(new Error('Plugin execution failed'))
         }))
       };
 
@@ -183,7 +183,7 @@ describe('PluginSyntaxHandler', () => {
 
     test('should handle missing PluginManager', async () => {
       const noPluginEngine = {
-        getManager: jest.fn(() => null)
+        getManager: vi.fn(() => null)
       };
       
       const noPluginContext = new ParseContext('test', { pageName: 'Test' }, noPluginEngine);
@@ -283,7 +283,8 @@ describe('PluginSyntaxHandler', () => {
 
   describe('Integration', () => {
     test('should integrate with MarkupParser', async () => {
-      const MarkupParser = require('../../MarkupParser');
+      const MarkupParserMod = await import('../../MarkupParser');
+      const MarkupParser = (MarkupParserMod).default ?? MarkupParserMod;
       const parser = new MarkupParser(mockEngine);
 
       // Initialize parser - this auto-registers PluginSyntaxHandler

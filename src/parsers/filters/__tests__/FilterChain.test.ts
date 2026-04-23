@@ -55,10 +55,10 @@ class MockConfigurationManager {
 
 // Mock engine
 const createMockEngine = (config = {}) => ({
-  getManager: jest.fn((name) => {
+  getManager: vi.fn((name) => {
     if (name === 'ConfigurationManager') return new MockConfigurationManager(config);
     if (name === 'NotificationManager') return {
-      addNotification: jest.fn()
+      addNotification: vi.fn()
     };
     return null;
   })
@@ -108,8 +108,8 @@ describe('FilterChain Modular Configuration', () => {
 
     test('should handle configuration loading errors gracefully', async () => {
       const errorEngine = {
-        getManager: jest.fn(() => ({
-          getProperty: jest.fn(() => { throw new Error('Config error'); })
+        getManager: vi.fn(() => ({
+          getProperty: vi.fn(() => { throw new Error('Config error'); })
         }))
       };
       
@@ -126,7 +126,7 @@ describe('FilterChain Modular Configuration', () => {
 
     test('should work without ConfigurationManager', async () => {
       const engineWithoutConfig = {
-        getManager: jest.fn(() => null)
+        getManager: vi.fn(() => null)
       };
       
       const noConfigFilterChain = new FilterChain(engineWithoutConfig);
@@ -439,8 +439,8 @@ describe('FilterChain Modular Configuration', () => {
 
     test('should continue processing when ConfigurationManager fails', async () => {
       const errorEngine = {
-        getManager: jest.fn(() => ({
-          getProperty: jest.fn(() => { throw new Error('Config error'); })
+        getManager: vi.fn(() => ({
+          getProperty: vi.fn(() => { throw new Error('Config error'); })
         }))
       };
       

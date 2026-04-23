@@ -14,8 +14,8 @@
 
 // Unmock FileSystemProvider to use actual implementation for integration tests
 // Must happen before any requires
-jest.unmock('../../providers/FileSystemProvider');
-jest.unmock('../../utils/PageNameMatcher');
+vi.unmock('../../providers/FileSystemProvider');
+vi.unmock('../../utils/PageNameMatcher');
 
 import path from 'path';
 import fs from 'fs-extra';
@@ -28,7 +28,7 @@ let TEST_REQUIRED_DIR;
 
 // Create mock ConfigurationManager with test directories
 const createMockConfigManager = () => ({
-  getProperty: jest.fn((key, defaultValue) => {
+  getProperty: vi.fn((key, defaultValue) => {
     const config = {
       'ngdpbase.page.enabled': true,
       'ngdpbase.page.provider': 'filesystemprovider',
@@ -41,18 +41,18 @@ const createMockConfigManager = () => ({
     return config[key] !== undefined ? config[key] : defaultValue;
   }),
   // Support INSTANCE_DATA_FOLDER feature
-  getResolvedDataPath: jest.fn((key, defaultValue) => {
+  getResolvedDataPath: vi.fn((key, defaultValue) => {
     if (key === 'ngdpbase.page.provider.filesystem.storagedir') {
       return TEST_PAGES_DIR;
     }
     return defaultValue;
   }),
-  getInstanceDataFolder: jest.fn(() => TEST_DIR)
+  getInstanceDataFolder: vi.fn(() => TEST_DIR)
 });
 
 // Create mock engine
 const createMockEngine = () => ({
-  getManager: jest.fn((name) => {
+  getManager: vi.fn((name) => {
     if (name === 'ConfigurationManager') {
       return createMockConfigManager();
     }

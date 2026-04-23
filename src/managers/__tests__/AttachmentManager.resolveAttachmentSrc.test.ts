@@ -17,11 +17,11 @@ import AttachmentManager from '../AttachmentManager';
 import type { WikiEngine } from '../../types/WikiEngine';
 
 const mockMediaManager = {
-  findByFilename: jest.fn()
+  findByFilename: vi.fn()
 };
 
 const mockEngine = {
-  getManager: jest.fn((name) => {
+  getManager: vi.fn((name) => {
     if (name === 'MediaManager') return mockMediaManager;
     return null;
   })
@@ -31,8 +31,8 @@ function makeManager(providerMethods = {}) {
   const manager = new AttachmentManager(mockEngine as unknown as WikiEngine);
   // Bypass initialize() — inject a mock provider directly
   manager['attachmentProvider'] = {
-    getAttachmentsForPage: jest.fn().mockResolvedValue([]),
-    getAttachmentByFilename: jest.fn().mockResolvedValue(null),
+    getAttachmentsForPage: vi.fn().mockResolvedValue([]),
+    getAttachmentByFilename: vi.fn().mockResolvedValue(null),
     ...providerMethods
   };
   return manager;
@@ -40,7 +40,7 @@ function makeManager(providerMethods = {}) {
 
 describe('AttachmentManager.resolveAttachmentSrc', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe('step 0: media:// URI scheme', () => {
@@ -66,11 +66,11 @@ describe('AttachmentManager.resolveAttachmentSrc', () => {
 
     it('media:// when MediaManager unavailable → null, no attachment lookup', async () => {
       // Override engine to return null for MediaManager
-      const engineNoMedia = { getManager: jest.fn().mockReturnValue(null) };
+      const engineNoMedia = { getManager: vi.fn().mockReturnValue(null) };
       const manager = new AttachmentManager(engineNoMedia);
       manager['attachmentProvider'] = {
-        getAttachmentsForPage: jest.fn(),
-        getAttachmentByFilename: jest.fn()
+        getAttachmentsForPage: vi.fn(),
+        getAttachmentByFilename: vi.fn()
       };
 
       const result = await manager.resolveAttachmentSrc('media://photo.jpg', 'MyPage');
@@ -91,7 +91,7 @@ describe('AttachmentManager.resolveAttachmentSrc', () => {
     it('media:// does not fall through to attachment lookup', async () => {
       mockMediaManager.findByFilename.mockResolvedValue(null);
       const manager = makeManager({
-        getAttachmentByFilename: jest.fn().mockResolvedValue({
+        getAttachmentByFilename: vi.fn().mockResolvedValue({
           name: 'photo.jpg', url: '/attachments/x', encodingFormat: 'image/jpeg', identifier: 'x'
         })
       });
@@ -140,10 +140,10 @@ describe('AttachmentManager.resolveAttachmentSrc', () => {
   describe('step 3: current-page attachment lookup', () => {
     it('filename found on current page → { url, mimeType } from metadata', async () => {
       const manager = makeManager({
-        getAttachmentsForPage: jest.fn().mockResolvedValue([
+        getAttachmentsForPage: vi.fn().mockResolvedValue([
           { name: 'photo.jpg', url: '/attachments/abc123', encodingFormat: 'image/jpeg', identifier: 'abc123' }
         ]),
-        getAttachmentByFilename: jest.fn().mockResolvedValue(null)
+        getAttachmentByFilename: vi.fn().mockResolvedValue(null)
       });
 
       const result = await manager.resolveAttachmentSrc('photo.jpg', 'MyPage');
@@ -155,7 +155,7 @@ describe('AttachmentManager.resolveAttachmentSrc', () => {
 
     it('multiple page attachments — matches by exact filename', async () => {
       const manager = makeManager({
-        getAttachmentsForPage: jest.fn().mockResolvedValue([
+        getAttachmentsForPage: vi.fn().mockResolvedValue([
           { name: 'other.png', url: '/attachments/other', encodingFormat: 'image/png', identifier: 'other' },
           { name: 'photo.jpg', url: '/attachments/abc123', encodingFormat: 'image/jpeg', identifier: 'abc123' }
         ])
@@ -170,8 +170,8 @@ describe('AttachmentManager.resolveAttachmentSrc', () => {
   describe('step 4: global filename search', () => {
     it('filename not on page but found globally → { url, mimeType }', async () => {
       const manager = makeManager({
-        getAttachmentsForPage: jest.fn().mockResolvedValue([]),
-        getAttachmentByFilename: jest.fn().mockResolvedValue({
+        getAttachmentsForPage: vi.fn().mockResolvedValue([]),
+        getAttachmentByFilename: vi.fn().mockResolvedValue({
           name: 'global.png',
           url: '/attachments/global123',
           encodingFormat: 'image/png',
@@ -189,8 +189,8 @@ describe('AttachmentManager.resolveAttachmentSrc', () => {
   describe('step 5: not found → null', () => {
     it('filename not found anywhere → null', async () => {
       const manager = makeManager({
-        getAttachmentsForPage: jest.fn().mockResolvedValue([]),
-        getAttachmentByFilename: jest.fn().mockResolvedValue(null)
+        getAttachmentsForPage: vi.fn().mockResolvedValue([]),
+        getAttachmentByFilename: vi.fn().mockResolvedValue(null)
       });
 
       const result = await manager.resolveAttachmentSrc('missing.jpg', 'MyPage');
@@ -230,8 +230,8 @@ describe('AttachmentManager.resolveAttachmentSrc', () => {
   describe('provider errors are swallowed (resilience)', () => {
     it('getAttachmentsForPage throws → falls through to global search', async () => {
       const manager = makeManager({
-        getAttachmentsForPage: jest.fn().mockRejectedValue(new Error('DB error')),
-        getAttachmentByFilename: jest.fn().mockResolvedValue({
+        getAttachmentsForPage: vi.fn().mockRejectedValue(new Error('DB error')),
+        getAttachmentByFilename: vi.fn().mockResolvedValue({
           name: 'photo.jpg',
           url: '/attachments/fallback',
           encodingFormat: 'image/jpeg',
@@ -246,8 +246,8 @@ describe('AttachmentManager.resolveAttachmentSrc', () => {
 
     it('both lookups throw → null', async () => {
       const manager = makeManager({
-        getAttachmentsForPage: jest.fn().mockRejectedValue(new Error('error')),
-        getAttachmentByFilename: jest.fn().mockRejectedValue(new Error('error'))
+        getAttachmentsForPage: vi.fn().mockRejectedValue(new Error('error')),
+        getAttachmentByFilename: vi.fn().mockRejectedValue(new Error('error'))
       });
 
       const result = await manager.resolveAttachmentSrc('photo.jpg', 'MyPage');

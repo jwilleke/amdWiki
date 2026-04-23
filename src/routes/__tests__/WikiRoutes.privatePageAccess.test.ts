@@ -45,32 +45,32 @@ function makeProvider(location = 'private', creator = PAGE_CREATOR) {
 /** PageManager stub */
 function makePageManager(uuid = PAGE_UUID, location = 'private', creator = PAGE_CREATOR) {
   return {
-    getPageMetadata: jest.fn().mockResolvedValue({ uuid }),
-    getCurrentPageProvider: jest.fn().mockReturnValue(makeProvider(location, creator))
+    getPageMetadata: vi.fn().mockResolvedValue({ uuid }),
+    getCurrentPageProvider: vi.fn().mockReturnValue(makeProvider(location, creator))
   };
 }
 
 /** AttachmentManager stub */
 function makeAttachmentManager({ isPrivate = false, pageName = PAGE_NAME } = {}) {
   return {
-    getAttachmentMetadata: jest.fn().mockResolvedValue(
+    getAttachmentMetadata: vi.fn().mockResolvedValue(
       isPrivate
         ? { isPrivate: true, mentions: [{ name: pageName }] }
         : null
     ),
-    getAttachment: jest.fn().mockResolvedValue({
+    getAttachment: vi.fn().mockResolvedValue({
       buffer: Buffer.from('file-bytes'),
       metadata: { name: 'photo.jpg', encodingFormat: 'image/jpeg', contentSize: 10 }
     }),
-    uploadAttachment: jest.fn(),
-    deleteAttachment: jest.fn()
+    uploadAttachment: vi.fn(),
+    deleteAttachment: vi.fn()
   };
 }
 
 /** Engine stub */
 function makeEngine(pageManager, attachmentManager) {
   return {
-    getManager: jest.fn((name) => {
+    getManager: vi.fn((name) => {
       if (name === 'PageManager')      return pageManager;
       if (name === 'AttachmentManager') return attachmentManager;
       return null;
@@ -90,12 +90,12 @@ function createReq(userContext = null, params = {}) {
 
 function createRes() {
   const res = {
-    status:     jest.fn().mockReturnThis(),
-    json:       jest.fn().mockReturnThis(),
-    send:       jest.fn().mockReturnThis(),
-    render:     jest.fn().mockReturnThis(),
-    redirect:   jest.fn().mockReturnThis(),
-    setHeader:  jest.fn().mockReturnThis()
+    status:     vi.fn().mockReturnThis(),
+    json:       vi.fn().mockReturnThis(),
+    send:       vi.fn().mockReturnThis(),
+    render:     vi.fn().mockReturnThis(),
+    redirect:   vi.fn().mockReturnThis(),
+    setHeader:  vi.fn().mockReturnThis()
   };
   return res;
 }

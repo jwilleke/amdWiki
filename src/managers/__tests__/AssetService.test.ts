@@ -19,6 +19,7 @@
  */
 
 import AssetService from '../AssetService';
+import { type MockInstance } from 'vitest';
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -44,15 +45,15 @@ function makeAssetPage(records = [makeAssetRecord()]) {
 }
 
 /**
- * Build a mock engine.  assetManagerSearch is the jest.fn() used for
+ * Build a mock engine.  assetManagerSearch is the vi.fn() used for
  * AssetManager.search() — callers can inspect its call args.
  */
-function makeEngine({ assetManagerSearch = undefined, noAssetManager = false }: { assetManagerSearch?: jest.Mock; noAssetManager?: boolean } = {}) {
+function makeEngine({ assetManagerSearch = undefined, noAssetManager = false }: { assetManagerSearch?: MockInstance; noAssetManager?: boolean } = {}) {
   const mockAssetManager = noAssetManager ? undefined : {
-    search: assetManagerSearch ?? jest.fn().mockResolvedValue(makeAssetPage())
+    search: assetManagerSearch ?? vi.fn().mockResolvedValue(makeAssetPage())
   };
   return {
-    getManager: jest.fn((name) => {
+    getManager: vi.fn((name) => {
       if (name === 'AssetManager') return mockAssetManager;
       return undefined;
     }),
@@ -75,7 +76,7 @@ describe('AssetService.search()', () => {
   describe('return shape (AssetPage)', () => {
     it('returns { results, total, hasMore } from AssetManager unchanged', async () => {
       const page = makeAssetPage([makeAssetRecord(), makeAssetRecord({ id: 'a2' })]);
-      const { service } = makeService({ assetManagerSearch: jest.fn().mockResolvedValue(page) });
+      const { service } = makeService({ assetManagerSearch: vi.fn().mockResolvedValue(page) });
 
       const result = await service.search();
 
@@ -97,7 +98,7 @@ describe('AssetService.search()', () => {
 
   describe('delegation to AssetManager', () => {
     it('calls AssetManager.search() once per search() call', async () => {
-      const assetManagerSearch = jest.fn().mockResolvedValue(makeAssetPage());
+      const assetManagerSearch = vi.fn().mockResolvedValue(makeAssetPage());
       const { service } = makeService({ assetManagerSearch });
 
       await service.search();
@@ -106,7 +107,7 @@ describe('AssetService.search()', () => {
     });
 
     it('passes query to AssetManager', async () => {
-      const assetManagerSearch = jest.fn().mockResolvedValue(makeAssetPage());
+      const assetManagerSearch = vi.fn().mockResolvedValue(makeAssetPage());
       const { service } = makeService({ assetManagerSearch });
 
       await service.search({ query: 'sunset' });
@@ -115,7 +116,7 @@ describe('AssetService.search()', () => {
     });
 
     it('passes year to AssetManager', async () => {
-      const assetManagerSearch = jest.fn().mockResolvedValue(makeAssetPage());
+      const assetManagerSearch = vi.fn().mockResolvedValue(makeAssetPage());
       const { service } = makeService({ assetManagerSearch });
 
       await service.search({ year: 2023 });
@@ -124,7 +125,7 @@ describe('AssetService.search()', () => {
     });
 
     it('passes mimeCategory to AssetManager', async () => {
-      const assetManagerSearch = jest.fn().mockResolvedValue(makeAssetPage());
+      const assetManagerSearch = vi.fn().mockResolvedValue(makeAssetPage());
       const { service } = makeService({ assetManagerSearch });
 
       await service.search({ mimeCategory: 'image' });
@@ -133,7 +134,7 @@ describe('AssetService.search()', () => {
     });
 
     it('passes pageSize and offset to AssetManager', async () => {
-      const assetManagerSearch = jest.fn().mockResolvedValue(makeAssetPage());
+      const assetManagerSearch = vi.fn().mockResolvedValue(makeAssetPage());
       const { service } = makeService({ assetManagerSearch });
 
       await service.search({ pageSize: 10, offset: 20 });
@@ -142,7 +143,7 @@ describe('AssetService.search()', () => {
     });
 
     it('passes sort and order to AssetManager', async () => {
-      const assetManagerSearch = jest.fn().mockResolvedValue(makeAssetPage());
+      const assetManagerSearch = vi.fn().mockResolvedValue(makeAssetPage());
       const { service } = makeService({ assetManagerSearch });
 
       await service.search({ sort: 'caption', order: 'desc' });
@@ -151,7 +152,7 @@ describe('AssetService.search()', () => {
     });
 
     it('passes wikiContext to AssetManager', async () => {
-      const assetManagerSearch = jest.fn().mockResolvedValue(makeAssetPage());
+      const assetManagerSearch = vi.fn().mockResolvedValue(makeAssetPage());
       const { service } = makeService({ assetManagerSearch });
       const ctx = { user: 'alice' };
 
@@ -161,7 +162,7 @@ describe('AssetService.search()', () => {
     });
 
     it('applies default query="" when not provided', async () => {
-      const assetManagerSearch = jest.fn().mockResolvedValue(makeAssetPage());
+      const assetManagerSearch = vi.fn().mockResolvedValue(makeAssetPage());
       const { service } = makeService({ assetManagerSearch });
 
       await service.search();
@@ -170,7 +171,7 @@ describe('AssetService.search()', () => {
     });
 
     it('applies default pageSize=48 when not provided', async () => {
-      const assetManagerSearch = jest.fn().mockResolvedValue(makeAssetPage());
+      const assetManagerSearch = vi.fn().mockResolvedValue(makeAssetPage());
       const { service } = makeService({ assetManagerSearch });
 
       await service.search();
@@ -179,7 +180,7 @@ describe('AssetService.search()', () => {
     });
 
     it('applies default sort=date order=asc when not provided', async () => {
-      const assetManagerSearch = jest.fn().mockResolvedValue(makeAssetPage());
+      const assetManagerSearch = vi.fn().mockResolvedValue(makeAssetPage());
       const { service } = makeService({ assetManagerSearch });
 
       await service.search();
@@ -194,7 +195,7 @@ describe('AssetService.search()', () => {
 
   describe('types filter translation', () => {
     it('types=["attachment"] passes providerId="local" to AssetManager', async () => {
-      const assetManagerSearch = jest.fn().mockResolvedValue(makeAssetPage());
+      const assetManagerSearch = vi.fn().mockResolvedValue(makeAssetPage());
       const { service } = makeService({ assetManagerSearch });
 
       await service.search({ types: ['attachment'] });
@@ -203,7 +204,7 @@ describe('AssetService.search()', () => {
     });
 
     it('types=["media"] passes providerId="media-library" to AssetManager', async () => {
-      const assetManagerSearch = jest.fn().mockResolvedValue(makeAssetPage());
+      const assetManagerSearch = vi.fn().mockResolvedValue(makeAssetPage());
       const { service } = makeService({ assetManagerSearch });
 
       await service.search({ types: ['media'] });
@@ -212,7 +213,7 @@ describe('AssetService.search()', () => {
     });
 
     it('types=["attachment","media"] does not pass providerId (search all)', async () => {
-      const assetManagerSearch = jest.fn().mockResolvedValue(makeAssetPage());
+      const assetManagerSearch = vi.fn().mockResolvedValue(makeAssetPage());
       const { service } = makeService({ assetManagerSearch });
 
       await service.search({ types: ['attachment', 'media'] });
@@ -222,7 +223,7 @@ describe('AssetService.search()', () => {
     });
 
     it('types omitted does not pass providerId (search all)', async () => {
-      const assetManagerSearch = jest.fn().mockResolvedValue(makeAssetPage());
+      const assetManagerSearch = vi.fn().mockResolvedValue(makeAssetPage());
       const { service } = makeService({ assetManagerSearch });
 
       await service.search({});

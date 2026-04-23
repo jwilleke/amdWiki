@@ -37,8 +37,8 @@ class MockCacheManager {
   
   region(regionName) {
     return {
-      get: jest.fn().mockResolvedValue(null),
-      set: jest.fn().mockResolvedValue(true)
+      get: vi.fn().mockResolvedValue(null),
+      set: vi.fn().mockResolvedValue(true)
     };
   }
 }
@@ -116,7 +116,7 @@ describe('MarkupParser Configuration Integration', () => {
 
     test('should handle configuration loading errors gracefully', async () => {
       const errorConfigManager = {
-        getProperty: jest.fn().mockImplementation(() => {
+        getProperty: vi.fn().mockImplementation(() => {
           throw new Error('Config error');
         })
       };
@@ -217,7 +217,7 @@ describe('MarkupParser Configuration Integration', () => {
       // Mock RenderingManager
       const mockRenderingManager = {
         converter: {
-          makeHtml: jest.fn().mockReturnValue('<h1>Title</h1>')
+          makeHtml: vi.fn().mockReturnValue('<h1>Title</h1>')
         }
       };
       mockEngine.managers.set('RenderingManager', mockRenderingManager);

@@ -2,11 +2,12 @@ import express from 'express';
 import request from 'supertest';
 import path from 'path';
 import WikiRoutes from '../WikiRoutes';
+import { type MockInstance } from 'vitest';
 
 // Mock LocaleUtils
-jest.mock('../../utils/LocaleUtils', () => ({
-  getDateFormatOptions: jest.fn().mockReturnValue(['MM/dd/yyyy', 'dd/MM/yyyy', 'yyyy-MM-dd']),
-  getDateFormatFromLocale: jest.fn().mockReturnValue('MM/dd/yyyy')
+vi.mock('../../utils/LocaleUtils', () => ({
+  getDateFormatOptions: vi.fn().mockReturnValue(['MM/dd/yyyy', 'dd/MM/yyyy', 'yyyy-MM-dd']),
+  getDateFormatFromLocale: vi.fn().mockReturnValue('MM/dd/yyyy')
 }));
 
 // Mock WikiContext - the central context object for all wiki operations
@@ -14,32 +15,34 @@ jest.mock('../../utils/LocaleUtils', () => ({
 // Note: mockUserContext is accessed by the mock factory function
 let mockUserContext = null;
 
-jest.mock('../../context/WikiContext', () => {
-  const MockWikiContext = jest.fn().mockImplementation((engine, options = {}) => ({
-    engine: engine,
-    context: options.context || 'none',
-    pageName: options.pageName || null,
-    content: options.content || null,
-    userContext: options.userContext || mockUserContext,
-    request: options.request || null,
-    response: options.response || null,
-    pageManager: engine?.getManager?.('PageManager'),
-    renderingManager: engine?.getManager?.('RenderingManager'),
-    pluginManager: engine?.getManager?.('PluginManager'),
-    variableManager: engine?.getManager?.('VariableManager'),
-    aclManager: engine?.getManager?.('ACLManager'),
-    getContext: jest.fn().mockReturnValue(options.context || 'none'),
-    renderMarkdown: jest.fn().mockResolvedValue('<p>Rendered content</p>'),
-    toParseOptions: jest.fn().mockReturnValue({
-      pageContext: {
-        pageName: options.pageName,
-        userContext: options.userContext || mockUserContext
-      },
-      engine: engine
-    })
-  }));
+vi.mock('../../context/WikiContext', () => {
+  const MockWikiContext = vi.fn().mockImplementation(function (engine, options = {}) {
+    return {
+      engine: engine,
+      context: options.context || 'none',
+      pageName: options.pageName || null,
+      content: options.content || null,
+      userContext: options.userContext || mockUserContext,
+      request: options.request || null,
+      response: options.response || null,
+      pageManager: engine?.getManager?.('PageManager'),
+      renderingManager: engine?.getManager?.('RenderingManager'),
+      pluginManager: engine?.getManager?.('PluginManager'),
+      variableManager: engine?.getManager?.('VariableManager'),
+      aclManager: engine?.getManager?.('ACLManager'),
+      getContext: vi.fn().mockReturnValue(options.context || 'none'),
+      renderMarkdown: vi.fn().mockResolvedValue('<p>Rendered content</p>'),
+      toParseOptions: vi.fn().mockReturnValue({
+        pageContext: {
+          pageName: options.pageName,
+          userContext: options.userContext || mockUserContext
+        },
+        engine: engine
+      })
+    };
+  });
   // Add static CONTEXT enum used by WikiRoutes
-  (MockWikiContext as jest.Mock & { CONTEXT: unknown }).CONTEXT = {
+  (MockWikiContext as MockInstance & { CONTEXT: unknown }).CONTEXT = {
     VIEW: 'view',
     EDIT: 'edit',
     PREVIEW: 'preview',
@@ -47,14 +50,14 @@ jest.mock('../../context/WikiContext', () => {
     INFO: 'info',
     NONE: 'none'
   };
-  return MockWikiContext;
+  return { default: MockWikiContext };
 });
 
 // Mock the WikiEngine and its managers
-jest.mock('../../WikiEngine', () => {
+vi.mock('../../WikiEngine', () => {
   // Create mock managers once
   const mockUserManager = {
-    getCurrentUser: jest.fn().mockResolvedValue({
+    getCurrentUser: vi.fn().mockResolvedValue({
       username: 'testuser',
       displayName: 'Test User',
       email: 'test@example.com',
@@ -64,9 +67,9 @@ jest.mock('../../WikiEngine', () => {
       lastLogin: new Date('2024-01-01'),
       roles: ['authenticated']
     }),
-    hasPermission: jest.fn().mockReturnValue(true),
-    destroySession: jest.fn().mockResolvedValue(true),
-    getUsers: jest.fn().mockResolvedValue([
+    hasPermission: vi.fn().mockReturnValue(true),
+    destroySession: vi.fn().mockResolvedValue(true),
+    getUsers: vi.fn().mockResolvedValue([
       { 
         username: 'admin', 
         displayName: 'Admin User',
@@ -86,17 +89,17 @@ jest.mock('../../WikiEngine', () => {
         roles: ['authenticated'] 
       }
     ]),
-    getRoles: jest.fn().mockResolvedValue([
+    getRoles: vi.fn().mockResolvedValue([
       { name: 'admin', permissions: ['read', 'write', 'admin'] },
       { name: 'authenticated', permissions: ['read', 'write'] }
     ]),
-    createUser: jest.fn().mockResolvedValue(true),
-    updateUser: jest.fn().mockResolvedValue(true),
-    deleteUser: jest.fn().mockResolvedValue(true),
-    createRole: jest.fn().mockResolvedValue(true),
-    updateRolePermissions: jest.fn().mockResolvedValue(true),
-    deleteRole: jest.fn().mockResolvedValue(true),
-    authenticateUser: jest.fn().mockResolvedValue({
+    createUser: vi.fn().mockResolvedValue(true),
+    updateUser: vi.fn().mockResolvedValue(true),
+    deleteUser: vi.fn().mockResolvedValue(true),
+    createRole: vi.fn().mockResolvedValue(true),
+    updateRolePermissions: vi.fn().mockResolvedValue(true),
+    deleteRole: vi.fn().mockResolvedValue(true),
+    authenticateUser: vi.fn().mockResolvedValue({
       username: 'testuser',
       displayName: 'Test User',
       email: 'test@example.com',
@@ -106,10 +109,10 @@ jest.mock('../../WikiEngine', () => {
       lastLogin: new Date('2024-01-01'),
       roles: ['authenticated']
     }),
-    registerUser: jest.fn().mockResolvedValue(true),
-    updateProfile: jest.fn().mockResolvedValue(true),
-    updatePreferences: jest.fn().mockResolvedValue(true),
-    getUser: jest.fn().mockResolvedValue({
+    registerUser: vi.fn().mockResolvedValue(true),
+    updateProfile: vi.fn().mockResolvedValue(true),
+    updatePreferences: vi.fn().mockResolvedValue(true),
+    getUser: vi.fn().mockResolvedValue({
       username: 'testuser',
       displayName: 'Test User',
       email: 'test@example.com',
@@ -118,20 +121,20 @@ jest.mock('../../WikiEngine', () => {
       lastLogin: new Date('2024-01-01'),
       preferences: {}
     }),
-    getPermissions: jest.fn().mockReturnValue(new Map([
+    getPermissions: vi.fn().mockReturnValue(new Map([
       ['read', 'Read access to pages'],
       ['write', 'Write access to pages'],
       ['admin', 'Administrative access']
     ])),
-    getUserPermissions: jest.fn().mockResolvedValue(['read', 'write']),
-    createSession: jest.fn().mockResolvedValue('session-id-123'),
-    isUserInRole: jest.fn().mockReturnValue(true)
+    getUserPermissions: vi.fn().mockResolvedValue(['read', 'write']),
+    createSession: vi.fn().mockResolvedValue('session-id-123'),
+    isUserInRole: vi.fn().mockReturnValue(true)
   };
 
   const mockPageManager = {
-    getPageNames: jest.fn().mockResolvedValue(['Welcome', 'TestPage']),
-    getAllPages: jest.fn().mockResolvedValue([]),
-    getPage: jest.fn().mockImplementation((pageName) => {
+    getPageNames: vi.fn().mockResolvedValue(['Welcome', 'TestPage']),
+    getAllPages: vi.fn().mockResolvedValue([]),
+    getPage: vi.fn().mockImplementation((pageName) => {
       if (pageName === 'Footer' || pageName === 'LeftMenu' || pageName === 'NonExistentPage') {
         return Promise.resolve(null); // These pages don't exist
       }
@@ -140,91 +143,91 @@ jest.mock('../../WikiEngine', () => {
         metadata: { title: 'TestPage' }
       });
     }),
-    savePage: jest.fn().mockResolvedValue(true),
-    savePageWithContext: jest.fn().mockResolvedValue(true),
-    deletePage: jest.fn().mockResolvedValue(true),
-    deletePageWithContext: jest.fn().mockResolvedValue(true),
-    getPageContent: jest.fn().mockImplementation((pageName) => {
+    savePage: vi.fn().mockResolvedValue(true),
+    savePageWithContext: vi.fn().mockResolvedValue(true),
+    deletePage: vi.fn().mockResolvedValue(true),
+    deletePageWithContext: vi.fn().mockResolvedValue(true),
+    getPageContent: vi.fn().mockImplementation((pageName) => {
       if (pageName === 'Footer' || pageName === 'LeftMenu' || pageName === 'NonExistentPage') {
         return Promise.reject(new Error(`Page "${pageName}" not found`));
       }
       return Promise.resolve('# Test Page\nThis is a test page.');
     }),
-    getPageMetadata: jest.fn().mockResolvedValue({ title: 'TestPage', author: 'testuser' }),
-    isRequiredPage: jest.fn().mockReturnValue(false),
+    getPageMetadata: vi.fn().mockResolvedValue({ title: 'TestPage', author: 'testuser' }),
+    isRequiredPage: vi.fn().mockReturnValue(false),
     provider: {
-      getVersionHistory: jest.fn().mockResolvedValue([])
+      getVersionHistory: vi.fn().mockResolvedValue([])
     }
   };
 
   const mockRenderingManager = {
-    renderContent: jest.fn().mockReturnValue('<p>This is rendered content</p>'),
-    renderMarkdown: jest.fn().mockReturnValue('<p>This is rendered markdown</p>'),
-    textToHTML: jest.fn().mockResolvedValue('<p>This is rendered content</p>'),
-    getReferringPages: jest.fn().mockReturnValue([]),
-    rebuildLinkGraph: jest.fn().mockResolvedValue(true),
-    updatePageInLinkGraph: jest.fn(),
-    addPageToCache: jest.fn(),
-    removePageFromLinkGraph: jest.fn()
+    renderContent: vi.fn().mockReturnValue('<p>This is rendered content</p>'),
+    renderMarkdown: vi.fn().mockReturnValue('<p>This is rendered markdown</p>'),
+    textToHTML: vi.fn().mockResolvedValue('<p>This is rendered content</p>'),
+    getReferringPages: vi.fn().mockReturnValue([]),
+    rebuildLinkGraph: vi.fn().mockResolvedValue(true),
+    updatePageInLinkGraph: vi.fn(),
+    addPageToCache: vi.fn(),
+    removePageFromLinkGraph: vi.fn()
   };
 
   const mockSearchManager = {
-    search: jest.fn().mockResolvedValue([]),
-    advancedSearch: jest.fn().mockResolvedValue([]),
-    advancedSearchWithContext: jest.fn().mockResolvedValue([]),
-    searchByCategories: jest.fn().mockReturnValue([]),
-    searchByCategory: jest.fn().mockReturnValue([]),
-    searchByUserKeywordsList: jest.fn().mockReturnValue([]),
-    searchByUserKeywords: jest.fn().mockReturnValue([]),
-    rebuildIndex: jest.fn().mockResolvedValue(true),
-    updatePageInIndex: jest.fn().mockResolvedValue(true),
-    removePageFromIndex: jest.fn().mockResolvedValue(true)
+    search: vi.fn().mockResolvedValue([]),
+    advancedSearch: vi.fn().mockResolvedValue([]),
+    advancedSearchWithContext: vi.fn().mockResolvedValue([]),
+    searchByCategories: vi.fn().mockReturnValue([]),
+    searchByCategory: vi.fn().mockReturnValue([]),
+    searchByUserKeywordsList: vi.fn().mockReturnValue([]),
+    searchByUserKeywords: vi.fn().mockReturnValue([]),
+    rebuildIndex: vi.fn().mockResolvedValue(true),
+    updatePageInIndex: vi.fn().mockResolvedValue(true),
+    removePageFromIndex: vi.fn().mockResolvedValue(true)
   };
 
   const mockTemplateManager = {
-    render: jest.fn().mockImplementation((template, data, callback) => {
+    render: vi.fn().mockImplementation((template, data, callback) => {
       if (callback) callback(null, '<html>Test Template</html>');
       return '<html>Test Template</html>';
     }),
-    getTemplates: jest.fn().mockResolvedValue(['basic', 'template1', 'template2']),
-    getTemplate: jest.fn().mockResolvedValue({
+    getTemplates: vi.fn().mockResolvedValue(['basic', 'template1', 'template2']),
+    getTemplate: vi.fn().mockResolvedValue({
       name: 'basic',
       content: '# {{title}}\nTemplate content here'
     }),
-    applyTemplate: jest.fn().mockResolvedValue('# New Page\nTemplate content here')
+    applyTemplate: vi.fn().mockResolvedValue('# New Page\nTemplate content here')
   };
 
   const mockCacheManager = {
-    isInitialized: jest.fn().mockReturnValue(true),
-    clear: jest.fn().mockResolvedValue(true),
-    del: jest.fn().mockResolvedValue(true),
-    get: jest.fn().mockReturnValue(null),
-    set: jest.fn().mockResolvedValue(true)
+    isInitialized: vi.fn().mockReturnValue(true),
+    clear: vi.fn().mockResolvedValue(true),
+    del: vi.fn().mockResolvedValue(true),
+    get: vi.fn().mockReturnValue(null),
+    set: vi.fn().mockResolvedValue(true)
   };
 
   const mockACLManager = {
-    checkPagePermission: jest.fn().mockResolvedValue(true),
-    checkPagePermissionWithContext: jest.fn().mockResolvedValue(true),
-    removeACLMarkup: jest.fn().mockReturnValue('Content without ACL markup'),
-    parseACL: jest.fn().mockReturnValue({ permissions: [] })
+    checkPagePermission: vi.fn().mockResolvedValue(true),
+    checkPagePermissionWithContext: vi.fn().mockResolvedValue(true),
+    removeACLMarkup: vi.fn().mockReturnValue('Content without ACL markup'),
+    parseACL: vi.fn().mockReturnValue({ permissions: [] })
   };
 
   const mockNotificationManager = {
-    dismissNotification: jest.fn().mockResolvedValue(true),
-    clearAllNotifications: jest.fn().mockResolvedValue(true),
-    getNotifications: jest.fn().mockReturnValue([]),
-    createMaintenanceNotification: jest.fn().mockResolvedValue(true),
-    getAllNotifications: jest.fn().mockReturnValue([]),
-    getStats: jest.fn().mockReturnValue({ total: 0, active: 0, expired: 0, byType: {}, byLevel: {} })
+    dismissNotification: vi.fn().mockResolvedValue(true),
+    clearAllNotifications: vi.fn().mockResolvedValue(true),
+    getNotifications: vi.fn().mockReturnValue([]),
+    createMaintenanceNotification: vi.fn().mockResolvedValue(true),
+    getAllNotifications: vi.fn().mockReturnValue([]),
+    getStats: vi.fn().mockReturnValue({ total: 0, active: 0, expired: 0, byType: {}, byLevel: {} })
   };
 
   const mockSchemaManager = {
-    getPerson: jest.fn().mockResolvedValue(null),
-    getOrganization: jest.fn().mockResolvedValue(null)
+    getPerson: vi.fn().mockResolvedValue(null),
+    getOrganization: vi.fn().mockResolvedValue(null)
   };
 
   const mockConfigurationManager = {
-    getProperty: jest.fn((key, defaultValue) => {
+    getProperty: vi.fn((key, defaultValue) => {
       const defaults = {
         'ngdpbase.front-page': 'Welcome',
         'ngdpbase.theme.active': 'default',
@@ -240,24 +243,24 @@ jest.mock('../../WikiEngine', () => {
       };
       return key in defaults ? defaults[key] : defaultValue;
     }),
-    getCustomProperty: jest.fn().mockReturnValue(null),
-    get: jest.fn().mockReturnValue(null),
-    getAllProperties: jest.fn().mockReturnValue({}),
-    getResolvedDataPath: jest.fn((key, defaultPath) => defaultPath)
+    getCustomProperty: vi.fn().mockReturnValue(null),
+    get: vi.fn().mockReturnValue(null),
+    getAllProperties: vi.fn().mockReturnValue({}),
+    getResolvedDataPath: vi.fn((key, defaultPath) => defaultPath)
   };
 
   const mockVariableManager = {
-    expandVariables: jest.fn().mockReturnValue('expanded content')
+    expandVariables: vi.fn().mockReturnValue('expanded content')
   };
 
   const mockExportManager = {
-    getExports: jest.fn().mockResolvedValue([])
+    getExports: vi.fn().mockResolvedValue([])
   };
 
   const mockValidationManager = {
-    validateContent: jest.fn().mockResolvedValue({ isValid: true }),
-    validateMetadata: jest.fn().mockResolvedValue({ isValid: true }),
-    generateValidMetadata: jest.fn().mockImplementation((title, baseMetadata) => ({
+    validateContent: vi.fn().mockResolvedValue({ isValid: true }),
+    validateMetadata: vi.fn().mockResolvedValue({ isValid: true }),
+    generateValidMetadata: vi.fn().mockImplementation((title, baseMetadata) => ({
       title: title || 'Untitled',
       uuid: baseMetadata?.uuid || 'test-uuid-123',
       'system-category': baseMetadata?.['system-category'] || 'General',
@@ -269,40 +272,43 @@ jest.mock('../../WikiEngine', () => {
   };
 
   const mockBackgroundJobManager = {
-    registerJob: jest.fn(),
-    enqueue: jest.fn().mockResolvedValue('mock-run-id'),
-    getStatus: jest.fn().mockReturnValue(null),
-    getActiveJobs: jest.fn().mockReturnValue([])
+    registerJob: vi.fn(),
+    enqueue: vi.fn().mockResolvedValue('mock-run-id'),
+    getStatus: vi.fn().mockReturnValue(null),
+    getActiveJobs: vi.fn().mockReturnValue([])
   };
 
-  return jest.fn().mockImplementation(() => ({
-    getManager: jest.fn((name) => {
-      const mockManagers = {
-        UserManager: mockUserManager,
-        PageManager: mockPageManager,
-        RenderingManager: mockRenderingManager,
-        SearchManager: mockSearchManager,
-        TemplateManager: mockTemplateManager,
-        ACLManager: mockACLManager,
-        NotificationManager: mockNotificationManager,
-        SchemaManager: mockSchemaManager,
-        ConfigurationManager: mockConfigurationManager,
-        VariableManager: mockVariableManager,
-        ExportManager: mockExportManager,
-        ValidationManager: mockValidationManager,
-        CacheManager: mockCacheManager,
-        BackgroundJobManager: mockBackgroundJobManager
-      };
-      return mockManagers[name] || {};
-    }),
-    getApplicationName: jest.fn().mockReturnValue('ngdpbase'),
-    getCapabilities: jest.fn().mockReturnValue({}),
-    config: {
-      features: {
-        maintenance: { enabled: false, allowAdmins: true }
+  const MockEngine = vi.fn().mockImplementation(function () {
+    return {
+      getManager: vi.fn((name) => {
+        const mockManagers = {
+          UserManager: mockUserManager,
+          PageManager: mockPageManager,
+          RenderingManager: mockRenderingManager,
+          SearchManager: mockSearchManager,
+          TemplateManager: mockTemplateManager,
+          ACLManager: mockACLManager,
+          NotificationManager: mockNotificationManager,
+          SchemaManager: mockSchemaManager,
+          ConfigurationManager: mockConfigurationManager,
+          VariableManager: mockVariableManager,
+          ExportManager: mockExportManager,
+          ValidationManager: mockValidationManager,
+          CacheManager: mockCacheManager,
+          BackgroundJobManager: mockBackgroundJobManager
+        };
+        return mockManagers[name] || {};
+      }),
+      getApplicationName: vi.fn().mockReturnValue('ngdpbase'),
+      getCapabilities: vi.fn().mockReturnValue({}),
+      config: {
+        features: {
+          maintenance: { enabled: false, allowAdmins: true }
+        }
       }
-    }
-  }));
+    };
+  });
+  return { default: MockEngine };
 });
 
 describe('WikiRoutes - Comprehensive Route Testing', () => {
@@ -312,6 +318,11 @@ describe('WikiRoutes - Comprehensive Route Testing', () => {
   let mockUserManager;
   let mockPageManager;
   let mockACLManager;
+  let mockNotificationManager;
+  let mockSchemaManager;
+  let mockRenderingManager;
+  let mockSearchManager;
+  let mockTemplateManager;
 
   // Helper function to create user context objects for WikiContext
   const createUserContext = (username = 'testuser', roles = ['authenticated', 'Authenticated', 'All'], isAuthenticated = true) => ({
@@ -322,7 +333,7 @@ describe('WikiRoutes - Comprehensive Route Testing', () => {
     roles: roles
   });
 
-  beforeEach(() => {
+  beforeEach(async () => {
     // Initialize default authenticated user context for WikiContext mock
     // This is used by the MockWikiContext when creating WikiContext instances
     mockUserContext = createUserContext('testuser', ['authenticated', 'Authenticated', 'All'], true);
@@ -397,7 +408,8 @@ describe('WikiRoutes - Comprehensive Route Testing', () => {
     });
 
     // Create WikiRoutes instance with the same mock engine
-    const WikiEngine = require('../../WikiEngine');
+    const WikiEngineModule = await import('../../WikiEngine');
+    const WikiEngine = (WikiEngineModule).default ?? WikiEngineModule;
     mockEngine = new WikiEngine();
     wikiRoutes = new WikiRoutes(mockEngine);
 
@@ -411,8 +423,8 @@ describe('WikiRoutes - Comprehensive Route Testing', () => {
     mockSearchManager = mockEngine.getManager('SearchManager');
     mockTemplateManager = mockEngine.getManager('TemplateManager');
 
-    // Set up default mock implementations - using defaults from jest.mock()
-    // No additional setup needed as jest.mock() provides the defaults
+    // Set up default mock implementations - using defaults from vi.mock()
+    // No additional setup needed as vi.mock() provides the defaults
 
     // Register routes
     wikiRoutes.registerRoutes(app);
@@ -420,7 +432,7 @@ describe('WikiRoutes - Comprehensive Route Testing', () => {
 
   afterEach(() => {
     // Clear all mocks but preserve the WikiEngine mock setup
-    jest.clearAllMocks();
+    vi.clearAllMocks();
 
     // Re-establish default mock implementations
     mockUserManager.getCurrentUser.mockResolvedValue({

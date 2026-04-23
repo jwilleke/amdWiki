@@ -9,18 +9,18 @@
  * These tests mock resolveAttachmentSrc directly.
  */
 
-import AttachPluginModule = require('../AttachPlugin');
+import AttachPluginModule from '../AttachPlugin' ;
 import type { SimplePlugin } from '../types';
 const AttachPlugin = AttachPluginModule as unknown as SimplePlugin;
 function makeContext(resolvedValue) {
   const mockAttachmentManager = {
-    resolveAttachmentSrc: jest.fn().mockResolvedValue(resolvedValue)
+    resolveAttachmentSrc: vi.fn().mockResolvedValue(resolvedValue)
   };
   return {
     pageName: 'TestPage',
     linkGraph: {},
     engine: {
-      getManager: jest.fn().mockImplementation((name) => {
+      getManager: vi.fn().mockImplementation((name) => {
         if (name === 'AttachmentManager') return mockAttachmentManager;
         return null;
       })
@@ -112,7 +112,7 @@ describe('AttachPlugin', () => {
         pageName: 'TestPage',
         linkGraph: {},
         engine: {
-          getManager: jest.fn().mockReturnValue(null)
+          getManager: vi.fn().mockReturnValue(null)
         }
       };
       const result = await AttachPlugin.execute(context, { src: 'photo.jpg' });
@@ -280,13 +280,13 @@ describe('AttachPlugin', () => {
   describe('error handling', () => {
     it('resolveAttachmentSrc throwing → error span', async () => {
       const mockAttachmentManager = {
-        resolveAttachmentSrc: jest.fn().mockRejectedValue(new Error('Provider error'))
+        resolveAttachmentSrc: vi.fn().mockRejectedValue(new Error('Provider error'))
       };
       const context = {
         pageName: 'TestPage',
         linkGraph: {},
         engine: {
-          getManager: jest.fn().mockImplementation((name) => {
+          getManager: vi.fn().mockImplementation((name) => {
             if (name === 'AttachmentManager') return mockAttachmentManager;
             return null;
           })

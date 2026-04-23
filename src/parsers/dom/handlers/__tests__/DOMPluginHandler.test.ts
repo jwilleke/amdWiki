@@ -6,11 +6,14 @@
  */
 
 // Mock logger to capture warnings
-jest.mock('../../../../utils/logger', () => ({
-  info: jest.fn(),
-  warn: jest.fn(),
-  error: jest.fn(),
-  debug: jest.fn()
+vi.mock('../../../../utils/logger', () => ({
+  default: {
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
+    debug: vi.fn()
+
+  }
 }));
 
 import logger from '../../../../utils/logger';
@@ -40,10 +43,10 @@ const createMockEngine = () => {
   };
 
   return {
-    getManager: jest.fn((name) => {
+    getManager: vi.fn((name) => {
       if (name === 'PluginManager') {
         return {
-          execute: jest.fn(async (pluginName, pageName, params, context) => {
+          execute: vi.fn(async (pluginName, pageName, params, context) => {
             const plugin = mockPlugins[pluginName];
             if (!plugin) {
               throw new Error(`Plugin not found: ${pluginName}`);
@@ -94,7 +97,7 @@ describe('DOMPluginHandler', () => {
       logger.warn.mockClear();
 
       const badEngine = {
-        getManager: jest.fn(() => null)
+        getManager: vi.fn(() => null)
       };
 
       const badHandler = new DOMPluginHandler(badEngine);
@@ -335,7 +338,7 @@ describe('DOMPluginHandler', () => {
     test('warns if PluginManager not available', async () => {
       // Create a new handler with an engine that doesn't provide PluginManager
       const badEngine = {
-        getManager: jest.fn(() => null)
+        getManager: vi.fn(() => null)
       };
       const badHandler = new DOMPluginHandler(badEngine);
 

@@ -15,8 +15,8 @@ import type { Client } from '@elastic/elasticsearch';
 
 function makeClient(overrides = {}) {
   return {
-    search: jest.fn(),
-    get: jest.fn(),
+    search: vi.fn(),
+    get: vi.fn(),
     ...overrides
   } as unknown as Client;
 }
@@ -66,7 +66,7 @@ function makeSearchResponse(docs, total) {
 // Mock global fetch
 // ---------------------------------------------------------------------------
 
-const mockFetch = jest.fn();
+const mockFetch = vi.fn();
 global.fetch = mockFetch;
 
 beforeEach(() => {
@@ -80,7 +80,7 @@ beforeEach(() => {
 describe('search()', () => {
   test('no query uses match_all', async () => {
     const client = makeClient({
-      search: jest.fn().mockResolvedValue(makeSearchResponse([makeSist2Doc()], 1))
+      search: vi.fn().mockResolvedValue(makeSearchResponse([makeSist2Doc()], 1))
     });
     const provider = new Sist2AssetProvider(client, 'sist2', 'http://sist2:4090', []);
 
@@ -92,7 +92,7 @@ describe('search()', () => {
 
   test('text query uses multi_match on name/path/content/tag', async () => {
     const client = makeClient({
-      search: jest.fn().mockResolvedValue(makeSearchResponse([makeSist2Doc()], 1))
+      search: vi.fn().mockResolvedValue(makeSearchResponse([makeSist2Doc()], 1))
     });
     const provider = new Sist2AssetProvider(client, 'sist2', 'http://sist2:4090', []);
 
@@ -108,7 +108,7 @@ describe('search()', () => {
 
   test('mimeCategory image adds prefix filter', async () => {
     const client = makeClient({
-      search: jest.fn().mockResolvedValue(makeSearchResponse([], 0))
+      search: vi.fn().mockResolvedValue(makeSearchResponse([], 0))
     });
     const provider = new Sist2AssetProvider(client, 'sist2', 'http://sist2:4090', []);
 
@@ -120,7 +120,7 @@ describe('search()', () => {
 
   test('mimeCategory document adds terms filter', async () => {
     const client = makeClient({
-      search: jest.fn().mockResolvedValue(makeSearchResponse([], 0))
+      search: vi.fn().mockResolvedValue(makeSearchResponse([], 0))
     });
     const provider = new Sist2AssetProvider(client, 'sist2', 'http://sist2:4090', []);
 
@@ -134,7 +134,7 @@ describe('search()', () => {
 
   test('year filter adds mtime range', async () => {
     const client = makeClient({
-      search: jest.fn().mockResolvedValue(makeSearchResponse([], 0))
+      search: vi.fn().mockResolvedValue(makeSearchResponse([], 0))
     });
     const provider = new Sist2AssetProvider(client, 'sist2', 'http://sist2:4090', []);
 
@@ -151,7 +151,7 @@ describe('search()', () => {
 
   test('indexIds adds terms filter on index field', async () => {
     const client = makeClient({
-      search: jest.fn().mockResolvedValue(makeSearchResponse([], 0))
+      search: vi.fn().mockResolvedValue(makeSearchResponse([], 0))
     });
     const provider = new Sist2AssetProvider(client, 'sist2', 'http://sist2:4090', [1776001547]);
 
@@ -163,7 +163,7 @@ describe('search()', () => {
 
   test('empty indexIds does not add index filter', async () => {
     const client = makeClient({
-      search: jest.fn().mockResolvedValue(makeSearchResponse([], 0))
+      search: vi.fn().mockResolvedValue(makeSearchResponse([], 0))
     });
     const provider = new Sist2AssetProvider(client, 'sist2', 'http://sist2:4090', []);
 
@@ -177,7 +177,7 @@ describe('search()', () => {
 
   test('pagination params forwarded to ES', async () => {
     const client = makeClient({
-      search: jest.fn().mockResolvedValue(makeSearchResponse([], 0))
+      search: vi.fn().mockResolvedValue(makeSearchResponse([], 0))
     });
     const provider = new Sist2AssetProvider(client, 'sist2', 'http://sist2:4090', []);
 
@@ -191,7 +191,7 @@ describe('search()', () => {
   test('returns correct AssetPage shape', async () => {
     const doc = makeSist2Doc();
     const client = makeClient({
-      search: jest.fn().mockResolvedValue(makeSearchResponse([doc], 1))
+      search: vi.fn().mockResolvedValue(makeSearchResponse([doc], 1))
     });
     const provider = new Sist2AssetProvider(client, 'sist2', 'http://sist2:4090', []);
 
@@ -212,7 +212,7 @@ describe('getById()', () => {
   test('returns mapped AssetRecord on hit', async () => {
     const doc = makeSist2Doc();
     const client = makeClient({
-      get: jest.fn().mockResolvedValue({
+      get: vi.fn().mockResolvedValue({
         found: true,
         _id: '69dba20b.00001234',
         _source: doc
@@ -230,7 +230,7 @@ describe('getById()', () => {
 
   test('returns null when not found (statusCode 404)', async () => {
     const client = makeClient({
-      get: jest.fn().mockRejectedValue({ statusCode: 404 })
+      get: vi.fn().mockRejectedValue({ statusCode: 404 })
     });
     const provider = new Sist2AssetProvider(client, 'sist2', 'http://sist2:4090', []);
 
@@ -240,7 +240,7 @@ describe('getById()', () => {
 
   test('re-throws non-404 errors', async () => {
     const client = makeClient({
-      get: jest.fn().mockRejectedValue({ statusCode: 500, message: 'ES error' })
+      get: vi.fn().mockRejectedValue({ statusCode: 500, message: 'ES error' })
     });
     const provider = new Sist2AssetProvider(client, 'sist2', 'http://sist2:4090', []);
 
@@ -320,7 +320,7 @@ describe('AssetRecord field mapping', () => {
   function getRecord(docOverrides = {}) {
     const doc = makeSist2Doc(docOverrides);
     const client = makeClient({
-      get: jest.fn().mockResolvedValue({ found: true, _id: 'test-id', _source: doc })
+      get: vi.fn().mockResolvedValue({ found: true, _id: 'test-id', _source: doc })
     });
     const provider = new Sist2AssetProvider(client, 'sist2', 'http://sist2:4090', []);
     // Access private method via cast
@@ -519,7 +519,7 @@ describe('search() path access control', () => {
 
   test('no pathAccess config → no path filter in ES query', async () => {
     const client = makeClient({
-      search: jest.fn().mockResolvedValue(makeSearchResponse([], 0))
+      search: vi.fn().mockResolvedValue(makeSearchResponse([], 0))
     });
     const provider = new Sist2AssetProvider(client, 'sist2', 'http://sist2:4090', [], null);
 
@@ -532,7 +532,7 @@ describe('search() path access control', () => {
 
   test('admin role → no path filter added (unrestricted)', async () => {
     const client = makeClient({
-      search: jest.fn().mockResolvedValue(makeSearchResponse([], 0))
+      search: vi.fn().mockResolvedValue(makeSearchResponse([], 0))
     });
     const provider = new Sist2AssetProvider(client, 'sist2', 'http://sist2:4090', [], pathAccess);
 
@@ -545,7 +545,7 @@ describe('search() path access control', () => {
 
   test('editor role → path bool/should filter added', async () => {
     const client = makeClient({
-      search: jest.fn().mockResolvedValue(makeSearchResponse([], 0))
+      search: vi.fn().mockResolvedValue(makeSearchResponse([], 0))
     });
     const provider = new Sist2AssetProvider(client, 'sist2', 'http://sist2:4090', [], pathAccess);
 
@@ -561,7 +561,7 @@ describe('search() path access control', () => {
 
   test('username match → username paths included', async () => {
     const client = makeClient({
-      search: jest.fn().mockResolvedValue(makeSearchResponse([], 0))
+      search: vi.fn().mockResolvedValue(makeSearchResponse([], 0))
     });
     const provider = new Sist2AssetProvider(client, 'sist2', 'http://sist2:4090', [], pathAccess);
 
@@ -578,7 +578,7 @@ describe('search() path access control', () => {
 
   test('no userRoles/username → no path filter added (fall-through)', async () => {
     const client = makeClient({
-      search: jest.fn().mockResolvedValue(makeSearchResponse([], 0))
+      search: vi.fn().mockResolvedValue(makeSearchResponse([], 0))
     });
     const provider = new Sist2AssetProvider(client, 'sist2', 'http://sist2:4090', [], pathAccess);
 
@@ -591,7 +591,7 @@ describe('search() path access control', () => {
 
   test('role not in pathAccess → no path filter (permissive fallback)', async () => {
     const client = makeClient({
-      search: jest.fn().mockResolvedValue(makeSearchResponse([], 0))
+      search: vi.fn().mockResolvedValue(makeSearchResponse([], 0))
     });
     const provider = new Sist2AssetProvider(client, 'sist2', 'http://sist2:4090', [], pathAccess);
 

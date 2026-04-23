@@ -1,17 +1,20 @@
 import SchemaManager from '../SchemaManager';
 import type { WikiEngine } from '../../types/WikiEngine';
 
-jest.mock('fs-extra', () => ({
-  readdir: jest.fn(),
-  readJson: jest.fn(),
-  existsSync: jest.fn(),
-  ensureDir: jest.fn()
-}));
+vi.mock('fs-extra', () => {
+  const fns = {
+    readdir: vi.fn(),
+    readJson: vi.fn(),
+    existsSync: vi.fn(),
+    ensureDir: vi.fn()
+  };
+  return { default: fns, ...fns };
+});
 
 import fs from 'fs-extra';
 
-const mockCfgMgr = { getProperty: jest.fn().mockReturnValue('./config/schemas'), getResolvedDataPath: jest.fn().mockReturnValue('./config/schemas') };
-const mockEngineRaw = { getManager: jest.fn(n => n==='ConfigurationManager'?mockCfgMgr:null) };
+const mockCfgMgr = { getProperty: vi.fn().mockReturnValue('./config/schemas'), getResolvedDataPath: vi.fn().mockReturnValue('./config/schemas') };
+const mockEngineRaw = { getManager: vi.fn(n => n==='ConfigurationManager'?mockCfgMgr:null) };
 const mockEngine = mockEngineRaw as unknown as WikiEngine;
 
 describe('SchemaManager', () => {
@@ -19,7 +22,7 @@ describe('SchemaManager', () => {
 
   beforeEach(() => {
     schemaManager = new SchemaManager(mockEngine);
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe('Constructor', () => {
@@ -56,7 +59,7 @@ describe('SchemaManager', () => {
     });
 
     it('should throw error if ConfigurationManager not available', async () => {
-      const engineWithoutConfig = { getManager: jest.fn(() => null) };
+      const engineWithoutConfig = { getManager: vi.fn(() => null) };
       const manager = new SchemaManager(engineWithoutConfig);
 
       await expect(manager.initialize({})).rejects.toThrow('SchemaManager requires ConfigurationManager');

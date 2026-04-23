@@ -13,88 +13,92 @@ import path from 'path';
 import WikiRoutes from '../WikiRoutes';
 
 // Mock LocaleUtils
-jest.mock('../../utils/LocaleUtils', () => ({
-  getDateFormatOptions: jest.fn().mockReturnValue(['MM/dd/yyyy', 'dd/MM/yyyy', 'yyyy-MM-dd']),
-  getDateFormatFromLocale: jest.fn().mockReturnValue('MM/dd/yyyy')
+vi.mock('../../utils/LocaleUtils', () => ({
+  default: {
+    getDateFormatOptions: vi.fn().mockReturnValue(['MM/dd/yyyy', 'dd/MM/yyyy', 'yyyy-MM-dd']),
+    getDateFormatFromLocale: vi.fn().mockReturnValue('MM/dd/yyyy')
+  },
+  getDateFormatOptions: vi.fn().mockReturnValue(['MM/dd/yyyy', 'dd/MM/yyyy', 'yyyy-MM-dd']),
+  getDateFormatFromLocale: vi.fn().mockReturnValue('MM/dd/yyyy')
 }));
 
 // Mock the WikiEngine with maintenance mode support
-jest.mock('../../WikiEngine', () => {
+vi.mock('../../WikiEngine', () => {
   let maintenanceModeEnabled = false;
 
   const mockUserManager = {
-    getCurrentUser: jest.fn().mockResolvedValue({
+    getCurrentUser: vi.fn().mockResolvedValue({
       username: 'testuser',
       displayName: 'Test User',
       email: 'test@example.com',
       isAuthenticated: true,
       roles: ['authenticated']
     }),
-    hasPermission: jest.fn().mockReturnValue(true),
-    destroySession: jest.fn().mockResolvedValue(true),
-    authenticateUser: jest.fn().mockResolvedValue({
+    hasPermission: vi.fn().mockReturnValue(true),
+    destroySession: vi.fn().mockResolvedValue(true),
+    authenticateUser: vi.fn().mockResolvedValue({
       username: 'admin',
       displayName: 'Admin User',
       email: 'admin@example.com',
       isAuthenticated: true,
       roles: ['admin']
     }),
-    createSession: jest.fn().mockResolvedValue('session-id-123'),
-    isUserInRole: jest.fn().mockImplementation((user, role) => {
+    createSession: vi.fn().mockResolvedValue('session-id-123'),
+    isUserInRole: vi.fn().mockImplementation((user, role) => {
       if (role === 'admin') return user?.roles?.includes('admin');
       return true;
     })
   };
 
   const mockPageManager = {
-    getPageNames: jest.fn().mockResolvedValue(['Welcome', 'TestPage']),
-    getAllPages: jest.fn().mockResolvedValue([]),
-    getPage: jest.fn().mockResolvedValue({
+    getPageNames: vi.fn().mockResolvedValue(['Welcome', 'TestPage']),
+    getAllPages: vi.fn().mockResolvedValue([]),
+    getPage: vi.fn().mockResolvedValue({
       content: '# Test Page\nThis is a test page.',
       metadata: { title: 'TestPage' }
     }),
-    getPageContent: jest.fn().mockResolvedValue('# Test Page'),
-    getPageMetadata: jest.fn().mockResolvedValue({ title: 'TestPage' }),
+    getPageContent: vi.fn().mockResolvedValue('# Test Page'),
+    getPageMetadata: vi.fn().mockResolvedValue({ title: 'TestPage' }),
     provider: {
-      getVersionHistory: jest.fn().mockResolvedValue([])
+      getVersionHistory: vi.fn().mockResolvedValue([])
     }
   };
 
   const mockRenderingManager = {
-    renderContent: jest.fn().mockReturnValue('<p>Content</p>'),
-    textToHTML: jest.fn().mockResolvedValue('<p>Content</p>')
+    renderContent: vi.fn().mockReturnValue('<p>Content</p>'),
+    textToHTML: vi.fn().mockResolvedValue('<p>Content</p>')
   };
 
   const mockACLManager = {
-    checkPagePermission: jest.fn().mockResolvedValue(true),
-    checkPagePermissionWithContext: jest.fn().mockResolvedValue(true),
-    removeACLMarkup: jest.fn().mockReturnValue('Content')
+    checkPagePermission: vi.fn().mockResolvedValue(true),
+    checkPagePermissionWithContext: vi.fn().mockResolvedValue(true),
+    removeACLMarkup: vi.fn().mockReturnValue('Content')
   };
 
   const mockNotificationManager = {
-    getNotifications: jest.fn().mockReturnValue([]),
-    getAllNotifications: jest.fn().mockReturnValue([]),
-    createMaintenanceNotification: jest.fn().mockResolvedValue(true),
-    dismissNotification: jest.fn().mockResolvedValue(true),
-    clearAllNotifications: jest.fn().mockResolvedValue(true)
+    getNotifications: vi.fn().mockReturnValue([]),
+    getAllNotifications: vi.fn().mockReturnValue([]),
+    createMaintenanceNotification: vi.fn().mockResolvedValue(true),
+    dismissNotification: vi.fn().mockResolvedValue(true),
+    clearAllNotifications: vi.fn().mockResolvedValue(true)
   };
 
   const mockSearchManager = {
-    search: jest.fn().mockResolvedValue([])
+    search: vi.fn().mockResolvedValue([])
   };
 
   const mockSchemaManager = {
-    getPersonSchema: jest.fn().mockResolvedValue(null),
-    getOrganizationSchema: jest.fn().mockResolvedValue(null)
+    getPersonSchema: vi.fn().mockResolvedValue(null),
+    getOrganizationSchema: vi.fn().mockResolvedValue(null)
   };
 
   const mockTemplateManager = {
-    render: jest.fn().mockReturnValue('<html>Template</html>'),
-    getTemplates: jest.fn().mockResolvedValue([])
+    render: vi.fn().mockReturnValue('<html>Template</html>'),
+    getTemplates: vi.fn().mockResolvedValue([])
   };
 
   const mockConfigManager = {
-    getProperty: jest.fn().mockImplementation((key, defaultValue) => {
+    getProperty: vi.fn().mockImplementation((key, defaultValue) => {
       if (key === 'ngdpbase.maintenance.enabled') return maintenanceModeEnabled;
       if (key === 'ngdpbase.maintenance.message') return 'Site is under maintenance';
       if (key === 'ngdpbase.front-page') return 'Welcome';
@@ -103,20 +107,20 @@ jest.mock('../../WikiEngine', () => {
       if (key === 'ngdpbase.version') return '1.0.0';
       return defaultValue;
     }),
-    setProperty: jest.fn().mockImplementation((key, value) => {
+    setProperty: vi.fn().mockImplementation((key, value) => {
       if (key === 'ngdpbase.maintenance.enabled') maintenanceModeEnabled = value;
       return true;
     }),
-    getCustomProperty: jest.fn().mockReturnValue(null),
-    getAllProperties: jest.fn().mockReturnValue({}),
-    getResolvedDataPath: jest.fn((key, defaultPath) => defaultPath)
+    getCustomProperty: vi.fn().mockReturnValue(null),
+    getAllProperties: vi.fn().mockReturnValue({}),
+    getResolvedDataPath: vi.fn((key, defaultPath) => defaultPath)
   };
 
   const mockBackgroundJobManager = {
-    registerJob: jest.fn(),
-    enqueue: jest.fn().mockResolvedValue('mock-run-id'),
-    getStatus: jest.fn().mockReturnValue(null),
-    getActiveJobs: jest.fn().mockReturnValue([])
+    registerJob: vi.fn(),
+    enqueue: vi.fn().mockResolvedValue('mock-run-id'),
+    getStatus: vi.fn().mockReturnValue(null),
+    getActiveJobs: vi.fn().mockReturnValue([])
   };
 
   const managers = {
@@ -132,23 +136,26 @@ jest.mock('../../WikiEngine', () => {
     BackgroundJobManager: mockBackgroundJobManager
   };
 
-  return jest.fn().mockImplementation(() => ({
-    initialize: jest.fn().mockResolvedValue(true),
-    shutdown: jest.fn().mockResolvedValue(true),
-    getManager: jest.fn().mockImplementation((name) => managers[name] || {}),
-    getApplicationName: jest.fn().mockReturnValue('ngdpbase'),
-    getCapabilities: jest.fn().mockReturnValue({}),
-    config: { features: { maintenance: { enabled: false, allowAdmins: true } } },
-    isInitialized: jest.fn().mockReturnValue(true),
-    isMaintenanceMode: jest.fn().mockImplementation(() => maintenanceModeEnabled),
-    enableMaintenanceMode: jest.fn().mockImplementation(() => {
-      maintenanceModeEnabled = true;
-    }),
-    disableMaintenanceMode: jest.fn().mockImplementation(() => {
-      maintenanceModeEnabled = false;
-    }),
-    _resetMaintenanceMode: () => { maintenanceModeEnabled = false; }
-  }));
+  const MockWikiEngine = vi.fn().mockImplementation(function () {
+    return {
+      initialize: vi.fn().mockResolvedValue(true),
+      shutdown: vi.fn().mockResolvedValue(true),
+      getManager: vi.fn().mockImplementation((name) => managers[name] || {}),
+      getApplicationName: vi.fn().mockReturnValue('ngdpbase'),
+      getCapabilities: vi.fn().mockReturnValue({}),
+      config: { features: { maintenance: { enabled: false, allowAdmins: true } } },
+      isInitialized: vi.fn().mockReturnValue(true),
+      isMaintenanceMode: vi.fn().mockImplementation(() => maintenanceModeEnabled),
+      enableMaintenanceMode: vi.fn().mockImplementation(() => {
+        maintenanceModeEnabled = true;
+      }),
+      disableMaintenanceMode: vi.fn().mockImplementation(() => {
+        maintenanceModeEnabled = false;
+      }),
+      _resetMaintenanceMode: () => { maintenanceModeEnabled = false; }
+    };
+  });
+  return { default: MockWikiEngine };
 });
 
 describe('Maintenance Mode', () => {
@@ -206,9 +213,10 @@ describe('Maintenance Mode', () => {
     return testApp;
   };
 
-  beforeEach(() => {
+  beforeEach(async () => {
     // Reset maintenance mode state
-    const WikiEngine = require('../../WikiEngine');
+    const WikiEngineMod = await import('../../WikiEngine');
+    const WikiEngine = (WikiEngineMod).default ?? WikiEngineMod;
     mockEngine = new WikiEngine();
     mockEngine._resetMaintenanceMode();
 
@@ -226,7 +234,7 @@ describe('Maintenance Mode', () => {
   });
 
   afterEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe('Normal Operation (Maintenance Mode Disabled)', () => {

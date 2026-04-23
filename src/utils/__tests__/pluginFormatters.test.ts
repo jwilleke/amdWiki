@@ -12,7 +12,7 @@
  * Related: GitHub Issue #238 (Code Consolidation)
  */
 
-const {
+import {
   parseMaxParam,
   applyMax,
   escapeHtml,
@@ -25,7 +25,7 @@ const {
   parsePageSizeParam,
   applyPagination,
   formatPaginationLinks
-} = require('../pluginFormatters');
+} from '../pluginFormatters';
 
 // ---------------------------------------------------------------------------
 // parseMaxParam

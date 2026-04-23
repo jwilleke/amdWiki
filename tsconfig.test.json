@@ -9,7 +9,8 @@
     "checkJs": false,
     "declaration": false,
     "declarationMap": false,
-    "sourceMap": true
+    "sourceMap": true,
+    "types": ["vitest/globals", "node"]
   },
   "include": [
     "src/**/*.ts",
@@ -17,7 +18,8 @@
     "src/**/__tests__/**/*.ts",
     "src/**/__tests__/**/*.js",
     "addons/**/__tests__/**/*.ts",
-    "jest.setup.ts",
+    "vitest.setup.ts",
+    "vitest.config.ts",
     "playwright.config.ts",
     "scripts/**/*.ts",
     "tests/e2e/**/*.ts"

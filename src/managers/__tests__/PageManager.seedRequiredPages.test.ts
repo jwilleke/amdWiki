@@ -9,11 +9,14 @@ import fse from 'fs-extra';
 // We set up a temp required-pages dir and a temp pages dir, then call initialize()
 // and assert which files landed in pagesDir.
 
-jest.mock('../../utils/logger', () => ({
-  info:  jest.fn(),
-  warn:  jest.fn(),
-  error: jest.fn(),
-  debug: jest.fn()
+vi.mock('../../utils/logger', () => ({
+  default: {
+    info:  vi.fn(),
+    warn:  vi.fn(),
+    error: vi.fn(),
+    debug: vi.fn()
+
+  }
 }));
 
 import PageManager from '../PageManager';
@@ -55,7 +58,7 @@ describe('PageManager.seedRequiredPages() — github-only filtering', () => {
 
   const makeEngine = (overrides = {}) => {
     const cm = {
-      getProperty: jest.fn((key, def) => {
+      getProperty: vi.fn((key, def) => {
         const map = {
           'ngdpbase.page.enabled':                           true,
           'ngdpbase.page.provider':                          'filesystemprovider',
@@ -66,13 +69,13 @@ describe('PageManager.seedRequiredPages() — github-only filtering', () => {
         };
         return map[key] !== undefined ? map[key] : def;
       }),
-      getResolvedDataPath: jest.fn((key, def) => {
+      getResolvedDataPath: vi.fn((key, def) => {
         if (key === 'ngdpbase.page.provider.filesystem.storagedir') return pagesDir;
         return def;
       })
     };
     return {
-      getManager: jest.fn((name) => name === 'ConfigurationManager' ? cm : null)
+      getManager: vi.fn((name) => name === 'ConfigurationManager' ? cm : null)
     };
   };
 

@@ -66,7 +66,7 @@ class MockUserManager {
 
 // Mock engine
 const createMockEngine = (userContext = null) => ({
-  getManager: jest.fn((name) => {
+  getManager: vi.fn((name) => {
     switch (name) {
     case 'PageManager': return new MockPageManager();
     case 'PolicyManager': return new MockPolicyManager();
@@ -379,7 +379,7 @@ describe('WikiTagHandler', () => {
 
     test('should handle MarkupParser unavailable for recursive processing', async () => {
       const engineWithoutMarkup = {
-        getManager: jest.fn((name) => {
+        getManager: vi.fn((name) => {
           if (name === 'MarkupParser') return null;
           return createMockEngine().getManager(name);
         })
@@ -409,10 +409,10 @@ describe('WikiTagHandler', () => {
     test('should prevent unauthorized includes', async () => {
       // Mock PolicyManager to deny access
       const restrictiveEngine = {
-        getManager: jest.fn((name) => {
+        getManager: vi.fn((name) => {
           if (name === 'PolicyManager') {
             return {
-              checkPermission: jest.fn().mockResolvedValue(false)
+              checkPermission: vi.fn().mockResolvedValue(false)
             };
           }
           return createMockEngine().getManager(name);
@@ -555,7 +555,8 @@ describe('WikiTagHandler', () => {
 
   describe('Integration', () => {
     test('should integrate with MarkupParser', async () => {
-      const MarkupParser = require('../../MarkupParser');
+      const MarkupParserMod = await import('../../MarkupParser');
+      const MarkupParser = (MarkupParserMod).default ?? MarkupParserMod;
       const mockEngine = createMockEngine();
       const parser = new MarkupParser(mockEngine);
       

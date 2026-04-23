@@ -4,11 +4,14 @@
  */
 
 // Mock logger to capture debug output
-jest.mock('../../../utils/logger', () => ({
-  info: jest.fn(),
-  warn: jest.fn(),
-  error: jest.fn(),
-  debug: jest.fn()
+vi.mock('../../../utils/logger', () => ({
+  default: {
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
+    debug: vi.fn()
+
+  }
 }));
 
 import logger from '../../../utils/logger';
@@ -38,8 +41,8 @@ describe('DOMParser', () => {
     });
 
     test('accepts error callbacks', () => {
-      const onError = jest.fn();
-      const onWarning = jest.fn();
+      const onError = vi.fn();
+      const onWarning = vi.fn();
       const customParser = new DOMParser({
         onError,
         onWarning
@@ -323,7 +326,7 @@ function hello() {
     });
 
     test('calls onError callback on error', () => {
-      const onError = jest.fn();
+      const onError = vi.fn();
       const errorParser = new DOMParser({ onError, throwOnError: false });
 
       errorParser.parse(123);

@@ -1,7 +1,7 @@
 import MarkupParser from '../MarkupParser';
 import ParseContext from '../context/ParseContext';
-import BaseSyntaxHandlerModule = require('../handlers/BaseSyntaxHandler');
-const BaseSyntaxHandler = BaseSyntaxHandlerModule.BaseSyntaxHandler ?? BaseSyntaxHandlerModule;
+import BaseSyntaxHandlerModule from '../handlers/BaseSyntaxHandler';
+const BaseSyntaxHandler = (BaseSyntaxHandlerModule as any).BaseSyntaxHandler ?? BaseSyntaxHandlerModule;
 
 // Mock handler class that properly extends BaseSyntaxHandler for testing
 class MockSyntaxHandler extends BaseSyntaxHandler {
@@ -264,7 +264,7 @@ describe('MarkupParser', () => {
 
   describe('Handler Registration', () => {
     test('should register syntax handlers', async () => {
-      const { BaseSyntaxHandler } = require('../handlers/BaseSyntaxHandler');
+      const { default: BaseSyntaxHandler } = await import('../handlers/BaseSyntaxHandler');
       
       class MockHandler extends BaseSyntaxHandler {
         constructor() {
@@ -288,7 +288,7 @@ describe('MarkupParser', () => {
     });
 
     test('should unregister syntax handlers', async () => {
-      const { BaseSyntaxHandler } = require('../handlers/BaseSyntaxHandler');
+      const { default: BaseSyntaxHandler } = await import('../handlers/BaseSyntaxHandler');
       
       class MockHandler extends BaseSyntaxHandler {
         constructor() {
@@ -314,7 +314,7 @@ describe('MarkupParser', () => {
     });
 
     test('should execute registered handlers during content transformation', async () => {
-      const { BaseSyntaxHandler } = require('../handlers/BaseSyntaxHandler');
+      const { default: BaseSyntaxHandler } = await import('../handlers/BaseSyntaxHandler');
 
       class MockHandler extends BaseSyntaxHandler {
         constructor() {
@@ -345,7 +345,7 @@ describe('MarkupParser', () => {
     test('should handle handler errors gracefully', async () => {
       // Create a proper mock handler that extends BaseSyntaxHandler
       const errorHandler = new MockSyntaxHandler(/error/, 100, {
-        processImpl: jest.fn().mockRejectedValue(new Error('Handler error'))
+        processImpl: vi.fn().mockRejectedValue(new Error('Handler error'))
       });
 
       await markupParser.registerHandler(errorHandler);

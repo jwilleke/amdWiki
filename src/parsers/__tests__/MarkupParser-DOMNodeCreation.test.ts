@@ -25,7 +25,7 @@ const createMockEngine = () => {
   variableHandlers.set('applicationname', () => 'ngdpbase');
 
   const pluginManager = {
-    execute: jest.fn(async (pluginName, pageName, params, context) => {
+    execute: vi.fn(async (pluginName, pageName, params, context) => {
       if (pluginName === 'CurrentTimePlugin') {
         return '<div>Current time: 12:00 PM</div>';
       }
@@ -40,7 +40,7 @@ const createMockEngine = () => {
   };
 
   return {
-    getManager: jest.fn((name) => {
+    getManager: vi.fn((name) => {
       if (name === 'VariableManager') {
         return { variableHandlers };
       }
@@ -522,7 +522,7 @@ describe('MarkupParser - DOM Node Creation (Phase 2)', () => {
     test('plugin handler handles missing PluginManager gracefully', async () => {
       // Create engine that returns null for PluginManager
       const badEngine = {
-        getManager: jest.fn((name) => {
+        getManager: vi.fn((name) => {
           if (name === 'PluginManager') {
             return null;
           }

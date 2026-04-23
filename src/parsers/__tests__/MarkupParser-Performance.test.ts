@@ -1,8 +1,9 @@
 import MarkupParser from '../MarkupParser';
+import { type MockInstance } from 'vitest';
 
 // Enhanced Mock CacheManager with multiple regions
 class MockAdvancedCacheManager {
-  regions: Map<string, { cache: Map<string, unknown>; get: jest.Mock; set: jest.Mock }>;
+  regions: Map<string, { cache: Map<string, unknown>; get: MockInstance; set: MockInstance }>;
   initialized: boolean;
   constructor() {
     this.regions = new Map();
@@ -17,11 +18,11 @@ class MockAdvancedCacheManager {
     if (!this.regions.has(regionName)) {
       this.regions.set(regionName, {
         cache: new Map(),
-        get: jest.fn(async (key) => {
+        get: vi.fn(async (key) => {
           const region = this.regions.get(regionName);
           return region.cache.get(key) || null;
         }),
-        set: jest.fn(async (key, value, options) => {
+        set: vi.fn(async (key, value, options) => {
           const region = this.regions.get(regionName);
           region.cache.set(key, value);
         })

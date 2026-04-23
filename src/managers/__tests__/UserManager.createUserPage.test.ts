@@ -32,14 +32,14 @@ const TEST_USER = {
 
 function makePageManager({ pageAlreadyExists = false } = {}) {
   return {
-    pageExists: jest.fn().mockReturnValue(pageAlreadyExists),
-    savePage:   jest.fn().mockResolvedValue(undefined)
+    pageExists: vi.fn().mockReturnValue(pageAlreadyExists),
+    savePage:   vi.fn().mockResolvedValue(undefined)
   };
 }
 
 function makeTemplateManager() {
   return {
-    applyTemplate: jest.fn((templateName, vars) =>
+    applyTemplate: vi.fn((templateName, vars) =>
       `# ${vars.pageName}\n\n## About Me\n\n*Stub content for ${vars.displayName}*`
     )
   };
@@ -47,13 +47,13 @@ function makeTemplateManager() {
 
 function makeValidationManager() {
   return {
-    generateValidMetadata: jest.fn((title, meta) => ({ title, ...meta }))
+    generateValidMetadata: vi.fn((title, meta) => ({ title, ...meta }))
   };
 }
 
 function makeConfigManager() {
   return {
-    getProperty: jest.fn((key, defaultValue) => {
+    getProperty: vi.fn((key, defaultValue) => {
       const config = {
         'ngdpbase.user.provider':         'fileuserprovider',
         'ngdpbase.user.provider.default': 'fileuserprovider',
@@ -80,7 +80,7 @@ function makeEngine({ pageManager = undefined, templateManager = undefined, vali
   const cm = configManager     ?? makeConfigManager();
 
   return {
-    getManager: jest.fn((name) => {
+    getManager: vi.fn((name) => {
       switch (name) {
       case 'PageManager':          return pm;
       case 'TemplateManager':      return tm;
@@ -89,7 +89,7 @@ function makeEngine({ pageManager = undefined, templateManager = undefined, vali
       default:                     return null;
       }
     }),
-    getConfig: jest.fn(() => ({ get: jest.fn() }))
+    getConfig: vi.fn(() => ({ get: vi.fn() }))
   };
 }
 
@@ -115,7 +115,7 @@ describe('UserManager.createUserPage()', () => {
 
   afterEach(async () => {
     if (userManager?.initialized) await userManager.shutdown();
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   test('page is saved with title "Profile: {displayName}"', async () => {
@@ -189,7 +189,7 @@ describe('UserManager.createUserPage()', () => {
   test('returns false when PageManager is unavailable', async () => {
     const eng = makeEngine({ pageManager: null });
     // override PageManager to return null
-    eng.getManager = jest.fn((name) => {
+    eng.getManager = vi.fn((name) => {
       if (name === 'ConfigurationManager') return makeConfigManager();
       return null;
     });
@@ -206,7 +206,7 @@ describe('UserManager.createUserPage()', () => {
   test('returns false when TemplateManager is unavailable', async () => {
     const pm  = makePageManager();
     const eng = makeEngine({ pageManager: pm });
-    eng.getManager = jest.fn((name) => {
+    eng.getManager = vi.fn((name) => {
       if (name === 'ConfigurationManager') return makeConfigManager();
       if (name === 'PageManager')          return pm;
       return null;  // TemplateManager → null

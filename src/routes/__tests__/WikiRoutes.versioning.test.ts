@@ -17,26 +17,26 @@ describe('WikiRoutes - Version Management API', () => {
   beforeEach(() => {
     // Mock provider with versioning support
     mockProvider = {
-      getVersionHistory: jest.fn(),
-      getPageVersion: jest.fn(),
-      compareVersions: jest.fn(),
-      restoreVersion: jest.fn()
+      getVersionHistory: vi.fn(),
+      getPageVersion: vi.fn(),
+      compareVersions: vi.fn(),
+      restoreVersion: vi.fn()
     };
 
     // Mock PageManager
     mockPageManager = {
       provider: mockProvider,
-      pageExists: jest.fn(),
-      getPage: jest.fn()
+      pageExists: vi.fn(),
+      getPage: vi.fn()
     };
 
     // Mock WikiEngine
     mockEngine = {
-      getManager: jest.fn((name) => {
+      getManager: vi.fn((name) => {
         if (name === 'PageManager') return mockPageManager;
         if (name === 'ConfigurationManager') {
           return {
-            getProperty: jest.fn((key, defaultValue) => defaultValue)
+            getProperty: vi.fn((key, defaultValue) => defaultValue)
           };
         }
         return null;
@@ -63,7 +63,7 @@ describe('WikiRoutes - Version Management API', () => {
   });
 
   afterEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   // ============================================================================

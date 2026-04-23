@@ -11,7 +11,7 @@ import type { WikiEngine } from '../../types/WikiEngine';
 
 // Mock ConfigurationManager
 const mockConfigurationManager = {
-  getProperty: jest.fn((key, defaultValue) => {
+  getProperty: vi.fn((key, defaultValue) => {
     const config = {
       'ngdpbase.page.enabled': true,
       'ngdpbase.page.provider.default': 'filesystemprovider',
@@ -25,18 +25,18 @@ const mockConfigurationManager = {
 
 // Mock engine
 const mockEngine = {
-  getManager: jest.fn((name) => {
+  getManager: vi.fn((name) => {
     if (name === 'ConfigurationManager') return mockConfigurationManager;
     return null;
   }),
-  getConfig: jest.fn(() => ({ get: jest.fn() }))
+  getConfig: vi.fn(() => ({ get: vi.fn() }))
 };
 
 describe('PageManager', () => {
   let pageManager;
 
   beforeEach(async () => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
 
     // Reset mock implementation to default behavior
     mockConfigurationManager.getProperty.mockImplementation((key, defaultValue) => {
@@ -62,7 +62,7 @@ describe('PageManager', () => {
 
   describe('Initialization', () => {
     test('should require ConfigurationManager', async () => {
-      const engineWithoutConfig = { getManager: jest.fn(() => null) };
+      const engineWithoutConfig = { getManager: vi.fn(() => null) };
       const manager = new PageManager(engineWithoutConfig);
 
       await expect(manager.initialize()).rejects.toThrow('PageManager requires ConfigurationManager');
@@ -108,7 +108,7 @@ describe('PageManager', () => {
   describe('Proxy Methods', () => {
     test('getPage() should delegate to provider', async () => {
       const mockPage = { title: 'Test', content: '# Test' };
-      pageManager.provider.getPage = jest.fn().mockResolvedValue(mockPage);
+      pageManager.provider.getPage = vi.fn().mockResolvedValue(mockPage);
 
       const result = await pageManager.getPage('Test');
 
@@ -117,7 +117,7 @@ describe('PageManager', () => {
     });
 
     test('getPageContent() should delegate to provider', async () => {
-      pageManager.provider.getPageContent = jest.fn().mockResolvedValue('# Content');
+      pageManager.provider.getPageContent = vi.fn().mockResolvedValue('# Content');
 
       const result = await pageManager.getPageContent('Test');
 
@@ -127,7 +127,7 @@ describe('PageManager', () => {
 
     test('getPageMetadata() should delegate to provider', async () => {
       const mockMetadata = { title: 'Test', uuid: '123' };
-      pageManager.provider.getPageMetadata = jest.fn().mockResolvedValue(mockMetadata);
+      pageManager.provider.getPageMetadata = vi.fn().mockResolvedValue(mockMetadata);
 
       const result = await pageManager.getPageMetadata('Test');
 
@@ -136,7 +136,7 @@ describe('PageManager', () => {
     });
 
     test('savePage() should delegate to provider', async () => {
-      pageManager.provider.savePage = jest.fn().mockResolvedValue(undefined);
+      pageManager.provider.savePage = vi.fn().mockResolvedValue(undefined);
 
       await pageManager.savePage('Test', '# Content', { category: 'General' });
 
@@ -144,7 +144,7 @@ describe('PageManager', () => {
     });
 
     test('deletePage() should delegate to provider', async () => {
-      pageManager.provider.deletePage = jest.fn().mockResolvedValue(undefined);
+      pageManager.provider.deletePage = vi.fn().mockResolvedValue(undefined);
 
       await pageManager.deletePage('Test');
 
@@ -152,7 +152,7 @@ describe('PageManager', () => {
     });
 
     test('pageExists() should delegate to provider', () => {
-      pageManager.provider.pageExists = jest.fn().mockReturnValue(true);
+      pageManager.provider.pageExists = vi.fn().mockReturnValue(true);
 
       const result = pageManager.pageExists('Test');
 
@@ -162,7 +162,7 @@ describe('PageManager', () => {
 
     test('getAllPages() should delegate to provider', async () => {
       const mockPages = [{ title: 'Page1' }, { title: 'Page2' }];
-      pageManager.provider.getAllPages = jest.fn().mockResolvedValue(mockPages);
+      pageManager.provider.getAllPages = vi.fn().mockResolvedValue(mockPages);
 
       const result = await pageManager.getAllPages();
 
@@ -171,7 +171,7 @@ describe('PageManager', () => {
     });
 
     test('refreshPageList() should delegate to provider', async () => {
-      pageManager.provider.refreshPageList = jest.fn().mockResolvedValue(undefined);
+      pageManager.provider.refreshPageList = vi.fn().mockResolvedValue(undefined);
 
       await pageManager.refreshPageList();
 
@@ -187,7 +187,7 @@ describe('PageManager', () => {
     });
 
     test('savePageWithContext() should extract data from WikiContext', async () => {
-      pageManager.provider.savePage = jest.fn().mockResolvedValue(undefined);
+      pageManager.provider.savePage = vi.fn().mockResolvedValue(undefined);
 
       const wikiContext = {
         pageName: 'Test Page',
@@ -208,7 +208,7 @@ describe('PageManager', () => {
     });
 
     test('savePageWithContext() should use anonymous if no user', async () => {
-      pageManager.provider.savePage = jest.fn().mockResolvedValue(undefined);
+      pageManager.provider.savePage = vi.fn().mockResolvedValue(undefined);
 
       const wikiContext = {
         pageName: 'Test Page',
@@ -231,7 +231,7 @@ describe('PageManager', () => {
     });
 
     test('deletePageWithContext() should extract pageName from WikiContext', async () => {
-      pageManager.provider.deletePage = jest.fn().mockResolvedValue(undefined);
+      pageManager.provider.deletePage = vi.fn().mockResolvedValue(undefined);
 
       const wikiContext = {
         pageName: 'Test Page',
@@ -247,7 +247,7 @@ describe('PageManager', () => {
   describe('Backup and Restore', () => {
     test('backup() should delegate to provider and wrap result', async () => {
       const providerBackup = { pages: [{ title: 'Test' }] };
-      pageManager.provider.backup = jest.fn().mockResolvedValue(providerBackup);
+      pageManager.provider.backup = vi.fn().mockResolvedValue(providerBackup);
 
       const result = await pageManager.backup();
 
@@ -265,7 +265,7 @@ describe('PageManager', () => {
         providerBackup: providerBackup
       };
 
-      pageManager.provider.restore = jest.fn().mockResolvedValue(undefined);
+      pageManager.provider.restore = vi.fn().mockResolvedValue(undefined);
 
       await pageManager.restore(managerBackup);
 
@@ -286,7 +286,7 @@ describe('PageManager', () => {
   describe('shutdown()', () => {
     test('should call provider shutdown', async () => {
       // Mock shutdown method
-      pageManager.provider.shutdown = jest.fn().mockResolvedValue(undefined);
+      pageManager.provider.shutdown = vi.fn().mockResolvedValue(undefined);
 
       await pageManager.shutdown();
 

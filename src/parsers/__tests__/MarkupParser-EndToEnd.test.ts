@@ -83,8 +83,8 @@ class ComprehensiveMockEngine {
     return {
       isInitialized: () => true,
       region: (name) => ({
-        get: jest.fn().mockResolvedValue(null),
-        set: jest.fn().mockResolvedValue(true)
+        get: vi.fn().mockResolvedValue(null),
+        set: vi.fn().mockResolvedValue(true)
       })
     };
   }
@@ -169,13 +169,13 @@ class ComprehensiveMockEngine {
   
   createNotificationManager() {
     return {
-      addNotification: jest.fn()
+      addNotification: vi.fn()
     };
   }
   
   createAuditManager() {
     return {
-      logSecurityEvent: jest.fn()
+      logSecurityEvent: vi.fn()
     };
   }
 }

@@ -15,12 +15,12 @@ const mockWikiEngine = {
 
 // Mock the UserManager
 const mockUserManager = {
-  getCurrentUser: jest.fn()
+  getCurrentUser: vi.fn()
 };
 
 // Mock the engine getter
-jest.mock('../../WikiEngine', () => ({
-  getInstance: jest.fn(() => mockWikiEngine)
+vi.mock('../../WikiEngine', () => ({
+  getInstance: vi.fn(() => mockWikiEngine)
 }));
 
 // Import the app after setting up mocks
@@ -120,7 +120,7 @@ describe('Maintenance Mode Middleware (PR #18)', () => {
   let port;
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     // Reset maintenance mode to disabled
     mockWikiEngine.config.features.maintenance.enabled = false;
   });

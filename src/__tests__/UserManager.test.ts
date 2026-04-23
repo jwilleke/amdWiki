@@ -2,52 +2,58 @@ import UserManager from '../managers/UserManager';
 import type { WikiEngine } from '../types/WikiEngine';
 
 // Mock fs module
-jest.mock('fs', () => ({
+vi.mock('fs', () => ({
   promises: {
-    mkdir: jest.fn().mockResolvedValue(undefined),
-    readFile: jest.fn().mockResolvedValue('{}'),
-    writeFile: jest.fn().mockResolvedValue(undefined),
-    stat: jest.fn().mockResolvedValue({ isDirectory: () => true }),
-    access: jest.fn().mockResolvedValue(undefined),
-    unlink: jest.fn().mockResolvedValue(undefined),
-    rm: jest.fn().mockResolvedValue(undefined)
+    mkdir: vi.fn().mockResolvedValue(undefined),
+    readFile: vi.fn().mockResolvedValue('{}'),
+    writeFile: vi.fn().mockResolvedValue(undefined),
+    stat: vi.fn().mockResolvedValue({ isDirectory: () => true }),
+    access: vi.fn().mockResolvedValue(undefined),
+    unlink: vi.fn().mockResolvedValue(undefined),
+    rm: vi.fn().mockResolvedValue(undefined)
   }
 }));
 
 // Mock logger
-jest.mock('../utils/logger', () => ({
-  info: jest.fn(),
-  warn: jest.fn(),
-  error: jest.fn(),
-  debug: jest.fn()
+vi.mock('../utils/logger', () => ({
+  default: {
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
+    debug: vi.fn()
+
+  }
 }));
 
 // Mock the provider with all methods used by UserManager
-jest.mock('../providers/FileUserProvider', () => {
-  return jest.fn().mockImplementation(() => ({
-    initialize: jest.fn().mockResolvedValue(undefined),
-    getProviderInfo: jest.fn().mockReturnValue({
-      name: 'FileUserProvider',
-      version: '1.0.0',
-      features: ['local-storage']
-    }),
-    // User methods
-    getAllUsers: jest.fn().mockResolvedValue(new Map()),
-    getAllUsernames: jest.fn().mockResolvedValue([]),
-    getUser: jest.fn().mockResolvedValue(null),
-    createUser: jest.fn().mockResolvedValue(undefined),
-    updateUser: jest.fn().mockResolvedValue(undefined),
-    deleteUser: jest.fn().mockResolvedValue(undefined),
-    userExists: jest.fn().mockResolvedValue(false),
-    // Session methods
-    createSession: jest.fn().mockResolvedValue(undefined),
-    getSession: jest.fn().mockResolvedValue(null),
-    deleteSession: jest.fn().mockResolvedValue(undefined),
-    getAllSessions: jest.fn().mockResolvedValue(new Map()),
-    // Backup methods
-    backup: jest.fn().mockResolvedValue(undefined),
-    restore: jest.fn().mockResolvedValue(undefined)
-  }));
+vi.mock('../providers/FileUserProvider', () => {
+  const MockProvider = vi.fn().mockImplementation(function () {
+    return {
+      initialize: vi.fn().mockResolvedValue(undefined),
+      getProviderInfo: vi.fn().mockReturnValue({
+        name: 'FileUserProvider',
+        version: '1.0.0',
+        features: ['local-storage']
+      }),
+      // User methods
+      getAllUsers: vi.fn().mockResolvedValue(new Map()),
+      getAllUsernames: vi.fn().mockResolvedValue([]),
+      getUser: vi.fn().mockResolvedValue(null),
+      createUser: vi.fn().mockResolvedValue(undefined),
+      updateUser: vi.fn().mockResolvedValue(undefined),
+      deleteUser: vi.fn().mockResolvedValue(undefined),
+      userExists: vi.fn().mockResolvedValue(false),
+      // Session methods
+      createSession: vi.fn().mockResolvedValue(undefined),
+      getSession: vi.fn().mockResolvedValue(null),
+      deleteSession: vi.fn().mockResolvedValue(undefined),
+      getAllSessions: vi.fn().mockResolvedValue(new Map()),
+      // Backup methods
+      backup: vi.fn().mockResolvedValue(undefined),
+      restore: vi.fn().mockResolvedValue(undefined)
+    };
+  });
+  return { default: MockProvider };
 });
 
 describe('UserManager', () => {
@@ -56,11 +62,11 @@ describe('UserManager', () => {
   let mockConfigManager;
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
 
     // Create mock ConfigurationManager
     mockConfigManager = {
-      getProperty: jest.fn((key, defaultValue) => {
+      getProperty: vi.fn((key, defaultValue) => {
         const config = {
           'ngdpbase.user.provider.default': 'fileuserprovider',
           'ngdpbase.user.provider': 'fileuserprovider',
@@ -80,7 +86,7 @@ describe('UserManager', () => {
 
     // Create mock engine
     mockEngine = {
-      getManager: jest.fn((name) => {
+      getManager: vi.fn((name) => {
         if (name === 'ConfigurationManager') return mockConfigManager;
         return null;
       })
@@ -102,7 +108,7 @@ describe('UserManager', () => {
   describe('initialization', () => {
     test('should throw error if ConfigurationManager is not available', async () => {
       const engineWithoutConfig = {
-        getManager: jest.fn().mockReturnValue(null)
+        getManager: vi.fn().mockReturnValue(null)
       };
       const manager = new UserManager(engineWithoutConfig as unknown as WikiEngine);
 
@@ -268,7 +274,7 @@ describe('UserManager', () => {
     beforeEach(async () => {
       await userManager.initialize();
       // Mock provider to return a user with roles
-      userManager.provider.getUser = jest.fn().mockImplementation((username) => {
+      userManager.provider.getUser = vi.fn().mockImplementation((username) => {
         if (username === 'admin') {
           return Promise.resolve({ username: 'admin', roles: ['admin'] });
         }

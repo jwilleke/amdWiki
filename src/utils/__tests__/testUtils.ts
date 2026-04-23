@@ -83,12 +83,12 @@ async function createTestPages(dir, pages) {
  */
 function createMockEngine(managers = {}) {
   return {
-    getManager: jest.fn((name) => managers[name] || null),
-    getConfig: jest.fn(() => ({
-      get: jest.fn()
+    getManager: vi.fn((name) => managers[name] || null),
+    getConfig: vi.fn(() => ({
+      get: vi.fn()
     })),
     isInitialized: true,
-    shutdown: jest.fn()
+    shutdown: vi.fn()
   };
 }
 
@@ -134,14 +134,14 @@ function createMockRequest(options = {}) {
  */
 function createMockResponse(options = {}) {
   const res = {
-    status: jest.fn().mockReturnThis(),
-    json: jest.fn().mockReturnThis(),
-    send: jest.fn().mockReturnThis(),
-    render: jest.fn().mockReturnThis(),
-    redirect: jest.fn().mockReturnThis(),
-    cookie: jest.fn().mockReturnThis(),
-    clearCookie: jest.fn().mockReturnThis(),
-    set: jest.fn().mockReturnThis(),
+    status: vi.fn().mockReturnThis(),
+    json: vi.fn().mockReturnThis(),
+    send: vi.fn().mockReturnThis(),
+    render: vi.fn().mockReturnThis(),
+    redirect: vi.fn().mockReturnThis(),
+    cookie: vi.fn().mockReturnThis(),
+    clearCookie: vi.fn().mockReturnThis(),
+    set: vi.fn().mockReturnThis(),
     ...options
   };
   return res;
@@ -216,9 +216,9 @@ describe('Test Utilities', () => {
     expect(true).toBe(true);
   });
 
-  it('should export utility functions', () => {
+  it('should export utility functions', async () => {
     // Test that the module structure is correct
-    const moduleExports = require('../../../src/utils/__tests__/testUtils');
+    const moduleExports = await import('../../../src/utils/__tests__/testUtils');
     expect(typeof moduleExports).toBe('object');
   });
 });

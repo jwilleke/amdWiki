@@ -7,7 +7,7 @@ describe('AddonsManager', () => {
   let AddonsManager;
 
   const makeConfigManager = (overrides: Record<string, unknown> = {}) => ({
-    getProperty: jest.fn((key, defaultValue) => {
+    getProperty: vi.fn((key, defaultValue) => {
       if (key === 'ngdpbase.managers.addons-manager.enabled') {
         return overrides.enabled ?? true;
       }
@@ -32,30 +32,28 @@ describe('AddonsManager', () => {
       }
       return defaultValue;
     }),
-    getAllProperties: jest.fn(() => overrides.allProperties ?? {}),
-    getCustomProperty: jest.fn((key) => overrides.customProperties?.[key] ?? null),
-    setRuntimeProperty: jest.fn()
+    getAllProperties: vi.fn(() => overrides.allProperties ?? {}),
+    getCustomProperty: vi.fn((key) => overrides.customProperties?.[key] ?? null),
+    setRuntimeProperty: vi.fn()
   });
 
   const makeEngine = (configManager) => ({
-    getManager: jest.fn((name) =>
+    getManager: vi.fn((name) =>
       name === 'ConfigurationManager' ? configManager : null
     )
   });
 
   beforeAll(() => {
-    jest.setTimeout(20000);
+    vi.setConfig({ testTimeout: 20000 });
   });
 
   beforeEach(async () => {
     tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), 'addons-test-'));
-    jest.resetModules();
-    jest.clearAllMocks();
+    vi.resetModules();
+    vi.clearAllMocks();
     // Fresh import each test
-    AddonsManager = require('../AddonsManager');
-    if (AddonsManager.default) {
-      AddonsManager = AddonsManager.default;
-    }
+    const mod = await import('../AddonsManager');
+    AddonsManager = mod.default ?? mod;
   });
 
   afterEach(async () => {
@@ -915,23 +913,23 @@ describe('AddonsManager', () => {
      * existingPages is a map of slug → page object returned by getPage().
      */
     const makePageManager = (existingSlugs = [], existingPages = {}) => ({
-      pageExists: jest.fn((slug) => existingSlugs.includes(slug)),
-      savePage: jest.fn().mockResolvedValue(undefined),
-      getPage: jest.fn((slug) => Promise.resolve(existingPages[slug] ?? null))
+      pageExists: vi.fn((slug) => existingSlugs.includes(slug)),
+      savePage: vi.fn().mockResolvedValue(undefined),
+      getPage: vi.fn((slug) => Promise.resolve(existingPages[slug] ?? null))
     });
 
     /**
      * Build a mock SearchManager.
      */
     const makeSearchManager = () => ({
-      updatePageInIndex: jest.fn().mockResolvedValue(undefined)
+      updatePageInIndex: vi.fn().mockResolvedValue(undefined)
     });
 
     /**
      * Build an engine that returns ConfigurationManager, PageManager, and optionally SearchManager.
      */
     const makeEngineWithPageManager = (configManager, pageManager, searchManager = null) => ({
-      getManager: jest.fn((name) => {
+      getManager: vi.fn((name) => {
         if (name === 'ConfigurationManager') return configManager;
         if (name === 'PageManager') return pageManager;
         if (name === 'SearchManager') return searchManager;

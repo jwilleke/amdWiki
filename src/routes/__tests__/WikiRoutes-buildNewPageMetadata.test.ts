@@ -24,7 +24,7 @@ describe('WikiRoutes.buildNewPageMetadata()', () => {
   beforeEach(() => {
     // Create mock ValidationManager
     mockValidationManager = {
-      generateValidMetadata: jest.fn((title, options) => ({
+      generateValidMetadata: vi.fn((title, options) => ({
         title: title,
         'system-category': options['system-category'] || 'general',
         'user-keywords': options['user-keywords'] || [],
@@ -37,7 +37,7 @@ describe('WikiRoutes.buildNewPageMetadata()', () => {
 
     // Create mock ConfigurationManager with system-category config
     mockConfigurationManager = {
-      getProperty: jest.fn((key, defaultVal) => {
+      getProperty: vi.fn((key, defaultVal) => {
         if (key === 'ngdpbase.system-category') {
           return {
             general: { label: 'general', default: true, enabled: true },
@@ -51,7 +51,7 @@ describe('WikiRoutes.buildNewPageMetadata()', () => {
 
     // Create mock Engine
     mockEngine = {
-      getManager: jest.fn((name) => {
+      getManager: vi.fn((name) => {
         if (name === 'ValidationManager') return mockValidationManager;
         if (name === 'ConfigurationManager') return mockConfigurationManager;
         return null;
@@ -116,7 +116,7 @@ describe('WikiRoutes.buildNewPageMetadata()', () => {
   describe('Fallback when ValidationManager unavailable', () => {
     beforeEach(() => {
       // Remove ValidationManager
-      mockEngine.getManager = jest.fn((name) => {
+      mockEngine.getManager = vi.fn((name) => {
         if (name === 'ConfigurationManager') return mockConfigurationManager;
         return null;
       });
@@ -199,7 +199,7 @@ describe('WikiRoutes.buildNewPageMetadata()', () => {
   describe('ConfigurationManager default category resolution', () => {
     beforeEach(() => {
       // Remove ValidationManager to test fallback path
-      mockEngine.getManager = jest.fn((name) => {
+      mockEngine.getManager = vi.fn((name) => {
         if (name === 'ConfigurationManager') return mockConfigurationManager;
         return null;
       });
@@ -240,7 +240,7 @@ describe('WikiRoutes.buildNewPageMetadata()', () => {
     });
 
     test('should fallback to "general" when ConfigurationManager unavailable', () => {
-      mockEngine.getManager = jest.fn(() => null);
+      mockEngine.getManager = vi.fn(() => null);
       wikiRoutes = new WikiRoutes(mockEngine);
 
       const result = wikiRoutes.buildNewPageMetadata('Test Page');
@@ -259,7 +259,7 @@ describe('WikiRoutes.buildNewPageMetadata()', () => {
 
   describe('Edge Cases', () => {
     test('should trim whitespace from title', () => {
-      mockEngine.getManager = jest.fn((name) => {
+      mockEngine.getManager = vi.fn((name) => {
         if (name === 'ConfigurationManager') return mockConfigurationManager;
         return null;
       });

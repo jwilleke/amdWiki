@@ -27,7 +27,7 @@ const createMockEngine = () => {
   variableHandlers.set('version', () => '1.0.0');
 
   const pluginManager = {
-    execute: jest.fn(async (pluginName, pageName, params, context) => {
+    execute: vi.fn(async (pluginName, pageName, params, context) => {
       if (pluginName === 'TableOfContents' || pluginName === 'TOC') {
         return '<div class="toc"><ul><li><a href="#section1">Section 1</a></li></ul></div>';
       }
@@ -42,7 +42,7 @@ const createMockEngine = () => {
   };
 
   return {
-    getManager: jest.fn((name) => {
+    getManager: vi.fn((name) => {
       if (name === 'VariableManager') {
         return { variableHandlers };
       }

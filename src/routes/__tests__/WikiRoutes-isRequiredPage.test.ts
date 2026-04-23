@@ -20,16 +20,16 @@ describe('WikiRoutes.isRequiredPage()', () => {
   beforeEach(() => {
     // Create mock PageManager
     mockPageManager = {
-      getPageMetadata: jest.fn()
+      getPageMetadata: vi.fn()
     };
 
     // Create mock Engine
     mockEngine = {
-      getManager: jest.fn((name) => {
+      getManager: vi.fn((name) => {
         if (name === 'PageManager') return mockPageManager;
         if (name === 'ConfigurationManager') {
           return {
-            getProperty: jest.fn((key) => {
+            getProperty: vi.fn((key) => {
               if (key === 'ngdpbase.system-category') {
                 return {
                   general:       { label: 'general',       storageLocation: 'regular',  enabled: true },

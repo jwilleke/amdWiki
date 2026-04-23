@@ -1,3 +1,4 @@
+import { type MockInstance } from 'vitest';
 /**
  * Unit tests for AssetManager — provider registry (#435) + health checking (#437)
  *                                + pageAssets reverse index (#438)
@@ -19,7 +20,7 @@
  *   - removePageAssets(): removes page entry from index
  */
 
-const AssetManager = (() => { const mod = require('../AssetManager'); return mod.default ?? mod; })();
+import AssetManager from '../AssetManager';
 
 // ---------------------------------------------------------------------------
 // Fixture provider factory
@@ -30,8 +31,8 @@ function makeProvider(overrides: Record<string, unknown> = {}) {
     id: 'test-fixture',
     displayName: 'Test Fixture Provider',
     capabilities: ['search'],
-    search: jest.fn().mockResolvedValue({ results: [], total: 0, hasMore: false }),
-    getById: jest.fn().mockResolvedValue(null),
+    search: vi.fn().mockResolvedValue({ results: [], total: 0, hasMore: false }),
+    getById: vi.fn().mockResolvedValue(null),
     ...overrides
   };
 }
@@ -60,11 +61,11 @@ function makeEngine({
 }: {
   attachmentProvider?: ReturnType<typeof makeProvider>;
   mediaProvider?: ReturnType<typeof makeProvider>;
-  getAttachmentByFilename?: jest.Mock;
-  findByFilename?: jest.Mock;
+  getAttachmentByFilename?: MockInstance;
+  findByFilename?: MockInstance;
 } = {}) {
   return {
-    getManager: jest.fn((name) => {
+    getManager: vi.fn((name) => {
       if (name === 'AttachmentManager') {
         const base = attachmentProvider ? { provider: attachmentProvider } : {};
         return getAttachmentByFilename
@@ -201,8 +202,8 @@ describe('AssetManager.search()', () => {
 
   it('fans out to all registered providers', async () => {
     const { manager } = makeManager();
-    const p1 = makeProvider({ id: 'p1', search: jest.fn().mockResolvedValue({ results: [makeAssetRecord({ id: 'a1', providerId: 'p1' })], total: 1, hasMore: false }) });
-    const p2 = makeProvider({ id: 'p2', search: jest.fn().mockResolvedValue({ results: [makeAssetRecord({ id: 'a2', providerId: 'p2' })], total: 1, hasMore: false }) });
+    const p1 = makeProvider({ id: 'p1', search: vi.fn().mockResolvedValue({ results: [makeAssetRecord({ id: 'a1', providerId: 'p1' })], total: 1, hasMore: false }) });
+    const p2 = makeProvider({ id: 'p2', search: vi.fn().mockResolvedValue({ results: [makeAssetRecord({ id: 'a2', providerId: 'p2' })], total: 1, hasMore: false }) });
 
     manager.registerProvider(p1);
     manager.registerProvider(p2);
@@ -220,7 +221,7 @@ describe('AssetManager.search()', () => {
   it('scopes search to a single provider when providerId is given', async () => {
     const { manager } = makeManager();
     const p1 = makeProvider({ id: 'p1' });
-    const p2 = makeProvider({ id: 'p2', search: jest.fn().mockResolvedValue({ results: [makeAssetRecord({ id: 'a2', providerId: 'p2' })], total: 1, hasMore: false }) });
+    const p2 = makeProvider({ id: 'p2', search: vi.fn().mockResolvedValue({ results: [makeAssetRecord({ id: 'a2', providerId: 'p2' })], total: 1, hasMore: false }) });
 
     manager.registerProvider(p1);
     manager.registerProvider(p2);
@@ -244,8 +245,8 @@ describe('AssetManager.search()', () => {
 
   it('skips a failing provider and returns results from others', async () => {
     const { manager } = makeManager();
-    const failing = makeProvider({ id: 'bad', search: jest.fn().mockRejectedValue(new Error('network error')) });
-    const healthy = makeProvider({ id: 'good', search: jest.fn().mockResolvedValue({ results: [makeAssetRecord({ id: 'a1', providerId: 'good' })], total: 1, hasMore: false }) });
+    const failing = makeProvider({ id: 'bad', search: vi.fn().mockRejectedValue(new Error('network error')) });
+    const healthy = makeProvider({ id: 'good', search: vi.fn().mockResolvedValue({ results: [makeAssetRecord({ id: 'a1', providerId: 'good' })], total: 1, hasMore: false }) });
 
     manager.registerProvider(failing);
     manager.registerProvider(healthy);
@@ -261,7 +262,7 @@ describe('AssetManager.search()', () => {
     const records = Array.from({ length: 10 }, (_, i) =>
       makeAssetRecord({ id: `a${i}`, dateCreated: `2024-01-0${(i % 9) + 1}T00:00:00Z` })
     );
-    const provider = makeProvider({ search: jest.fn().mockResolvedValue({ results: records, total: 10, hasMore: false }) });
+    const provider = makeProvider({ search: vi.fn().mockResolvedValue({ results: records, total: 10, hasMore: false }) });
     manager.registerProvider(provider);
 
     const page = await manager.search({ pageSize: 3 });
@@ -273,7 +274,7 @@ describe('AssetManager.search()', () => {
 
   it('hasMore is false when all results fit on one page', async () => {
     const { manager } = makeManager();
-    const provider = makeProvider({ search: jest.fn().mockResolvedValue({ results: [makeAssetRecord()], total: 1, hasMore: false }) });
+    const provider = makeProvider({ search: vi.fn().mockResolvedValue({ results: [makeAssetRecord()], total: 1, hasMore: false }) });
     manager.registerProvider(provider);
 
     const page = await manager.search({ pageSize: 10 });
@@ -282,7 +283,7 @@ describe('AssetManager.search()', () => {
   });
 
   it('a provider registered after initialize() participates in fan-out (plugin pattern)', async () => {
-    const attachmentProvider = makeProvider({ id: 'local', search: jest.fn().mockResolvedValue({ results: [makeAssetRecord({ id: 'att-1', providerId: 'local' })], total: 1, hasMore: false }) });
+    const attachmentProvider = makeProvider({ id: 'local', search: vi.fn().mockResolvedValue({ results: [makeAssetRecord({ id: 'att-1', providerId: 'local' })], total: 1, hasMore: false }) });
     const { manager } = makeManager({ attachmentProvider });
 
     await manager.initialize();
@@ -291,7 +292,7 @@ describe('AssetManager.search()', () => {
     const pluginProvider = makeProvider({
       id: 'plugin-store',
       displayName: 'Plugin Asset Store',
-      search: jest.fn().mockResolvedValue({ results: [makeAssetRecord({ id: 'plugin-1', providerId: 'plugin-store' })], total: 1, hasMore: false })
+      search: vi.fn().mockResolvedValue({ results: [makeAssetRecord({ id: 'plugin-1', providerId: 'plugin-store' })], total: 1, hasMore: false })
     });
     manager.registerProvider(pluginProvider);
 
@@ -317,9 +318,9 @@ describe('AssetManager.getById()', () => {
   it('returns the first matching record across providers', async () => {
     const { manager } = makeManager();
     const record = makeAssetRecord({ id: 'found-1' });
-    const p1 = makeProvider({ id: 'p1', getById: jest.fn().mockResolvedValue(null) });
-    const p2 = makeProvider({ id: 'p2', getById: jest.fn().mockResolvedValue(record) });
-    const p3 = makeProvider({ id: 'p3', getById: jest.fn().mockResolvedValue(makeAssetRecord({ id: 'other' })) });
+    const p1 = makeProvider({ id: 'p1', getById: vi.fn().mockResolvedValue(null) });
+    const p2 = makeProvider({ id: 'p2', getById: vi.fn().mockResolvedValue(record) });
+    const p3 = makeProvider({ id: 'p3', getById: vi.fn().mockResolvedValue(makeAssetRecord({ id: 'other' })) });
 
     manager.registerProvider(p1);
     manager.registerProvider(p2);
@@ -335,8 +336,8 @@ describe('AssetManager.getById()', () => {
   it('scopes lookup to a specific provider when providerId given', async () => {
     const { manager } = makeManager();
     const record = makeAssetRecord({ id: 'a1', providerId: 'p2' });
-    const p1 = makeProvider({ id: 'p1', getById: jest.fn().mockResolvedValue(makeAssetRecord({ id: 'a1', providerId: 'p1' })) });
-    const p2 = makeProvider({ id: 'p2', getById: jest.fn().mockResolvedValue(record) });
+    const p1 = makeProvider({ id: 'p1', getById: vi.fn().mockResolvedValue(makeAssetRecord({ id: 'a1', providerId: 'p1' })) });
+    const p2 = makeProvider({ id: 'p2', getById: vi.fn().mockResolvedValue(record) });
 
     manager.registerProvider(p1);
     manager.registerProvider(p2);
@@ -349,7 +350,7 @@ describe('AssetManager.getById()', () => {
 
   it('returns null when provider throws', async () => {
     const { manager } = makeManager();
-    manager.registerProvider(makeProvider({ getById: jest.fn().mockRejectedValue(new Error('fail')) }));
+    manager.registerProvider(makeProvider({ getById: vi.fn().mockRejectedValue(new Error('fail')) }));
 
     expect(await manager.getById('any')).toBeNull();
   });
@@ -379,7 +380,7 @@ describe('AssetManager.getThumbnail()', () => {
     const provider = makeProvider({
       id: 'p1',
       capabilities: ['search', 'thumbnail'],
-      getThumbnail: jest.fn().mockResolvedValue(buf)
+      getThumbnail: vi.fn().mockResolvedValue(buf)
     });
     manager.registerProvider(provider);
 
@@ -394,7 +395,7 @@ describe('AssetManager.getThumbnail()', () => {
     const provider = makeProvider({
       id: 'p1',
       capabilities: ['thumbnail'],
-      getThumbnail: jest.fn().mockRejectedValue(new Error('sharp error'))
+      getThumbnail: vi.fn().mockRejectedValue(new Error('sharp error'))
     });
     manager.registerProvider(provider);
 
@@ -458,7 +459,7 @@ describe('AssetManager.initialize()', () => {
   it('runs health check during initialize() — healthy provider is marked healthy', async () => {
     const attachmentProvider = makeProvider({
       id: 'local',
-      healthCheck: jest.fn().mockResolvedValue(true)
+      healthCheck: vi.fn().mockResolvedValue(true)
     });
     const { manager } = makeManager({ attachmentProvider });
 
@@ -472,7 +473,7 @@ describe('AssetManager.initialize()', () => {
   it('runs health check during initialize() — degraded provider is marked degraded', async () => {
     const attachmentProvider = makeProvider({
       id: 'local',
-      healthCheck: jest.fn().mockResolvedValue(false)
+      healthCheck: vi.fn().mockResolvedValue(false)
     });
     const { manager } = makeManager({ attachmentProvider });
 
@@ -490,7 +491,7 @@ describe('AssetManager.initialize()', () => {
 describe('AssetManager.checkProviderHealth()', () => {
   it('marks provider healthy when healthCheck() returns true', async () => {
     const { manager } = makeManager();
-    const provider = makeProvider({ healthCheck: jest.fn().mockResolvedValue(true) });
+    const provider = makeProvider({ healthCheck: vi.fn().mockResolvedValue(true) });
     manager.registerProvider(provider);
 
     await manager.checkProviderHealth();
@@ -502,7 +503,7 @@ describe('AssetManager.checkProviderHealth()', () => {
 
   it('marks provider degraded when healthCheck() returns false', async () => {
     const { manager } = makeManager();
-    const provider = makeProvider({ healthCheck: jest.fn().mockResolvedValue(false) });
+    const provider = makeProvider({ healthCheck: vi.fn().mockResolvedValue(false) });
     manager.registerProvider(provider);
 
     await manager.checkProviderHealth();
@@ -514,7 +515,7 @@ describe('AssetManager.checkProviderHealth()', () => {
 
   it('marks provider degraded when healthCheck() throws (e.g. NAS/SMB unmounted)', async () => {
     const { manager } = makeManager();
-    const provider = makeProvider({ healthCheck: jest.fn().mockRejectedValue(new Error('ENOENT: volume not mounted')) });
+    const provider = makeProvider({ healthCheck: vi.fn().mockRejectedValue(new Error('ENOENT: volume not mounted')) });
     manager.registerProvider(provider);
 
     await manager.checkProviderHealth();
@@ -538,7 +539,7 @@ describe('AssetManager.checkProviderHealth()', () => {
 
   it('updates status from degraded to healthy after recovery', async () => {
     const { manager } = makeManager();
-    const healthCheck = jest.fn().mockResolvedValueOnce(false).mockResolvedValueOnce(true);
+    const healthCheck = vi.fn().mockResolvedValueOnce(false).mockResolvedValueOnce(true);
     const provider = makeProvider({ healthCheck });
     manager.registerProvider(provider);
 
@@ -551,8 +552,8 @@ describe('AssetManager.checkProviderHealth()', () => {
 
   it('checks all registered providers independently', async () => {
     const { manager } = makeManager();
-    const healthy = makeProvider({ id: 'p-healthy', healthCheck: jest.fn().mockResolvedValue(true) });
-    const degraded = makeProvider({ id: 'p-degraded', healthCheck: jest.fn().mockResolvedValue(false) });
+    const healthy = makeProvider({ id: 'p-healthy', healthCheck: vi.fn().mockResolvedValue(true) });
+    const degraded = makeProvider({ id: 'p-degraded', healthCheck: vi.fn().mockResolvedValue(false) });
     manager.registerProvider(healthy);
     manager.registerProvider(degraded);
 
@@ -584,9 +585,9 @@ describe('AssetManager.getProviderHealth()', () => {
 
   it('returns one report per registered provider', async () => {
     const { manager } = makeManager();
-    manager.registerProvider(makeProvider({ id: 'p1', healthCheck: jest.fn().mockResolvedValue(true) }));
-    manager.registerProvider(makeProvider({ id: 'p2', healthCheck: jest.fn().mockResolvedValue(true) }));
-    manager.registerProvider(makeProvider({ id: 'p3', healthCheck: jest.fn().mockResolvedValue(false) }));
+    manager.registerProvider(makeProvider({ id: 'p1', healthCheck: vi.fn().mockResolvedValue(true) }));
+    manager.registerProvider(makeProvider({ id: 'p2', healthCheck: vi.fn().mockResolvedValue(true) }));
+    manager.registerProvider(makeProvider({ id: 'p3', healthCheck: vi.fn().mockResolvedValue(false) }));
 
     await manager.checkProviderHealth();
 
@@ -595,7 +596,7 @@ describe('AssetManager.getProviderHealth()', () => {
 
   it('report includes checkedAt ISO timestamp after health check', async () => {
     const { manager } = makeManager();
-    manager.registerProvider(makeProvider({ healthCheck: jest.fn().mockResolvedValue(true) }));
+    manager.registerProvider(makeProvider({ healthCheck: vi.fn().mockResolvedValue(true) }));
 
     await manager.checkProviderHealth();
 
@@ -605,7 +606,7 @@ describe('AssetManager.getProviderHealth()', () => {
 
   it('report includes error message for degraded provider', async () => {
     const { manager } = makeManager();
-    manager.registerProvider(makeProvider({ healthCheck: jest.fn().mockRejectedValue(new Error('volume offline')) }));
+    manager.registerProvider(makeProvider({ healthCheck: vi.fn().mockRejectedValue(new Error('volume offline')) }));
 
     await manager.checkProviderHealth();
 
@@ -615,7 +616,7 @@ describe('AssetManager.getProviderHealth()', () => {
 
   it('error is undefined for healthy provider', async () => {
     const { manager } = makeManager();
-    manager.registerProvider(makeProvider({ healthCheck: jest.fn().mockResolvedValue(true) }));
+    manager.registerProvider(makeProvider({ healthCheck: vi.fn().mockResolvedValue(true) }));
 
     await manager.checkProviderHealth();
 
@@ -633,13 +634,13 @@ describe('degraded provider skipping', () => {
     const { manager } = makeManager();
     const degraded = makeProvider({
       id: 'p-nas',
-      healthCheck: jest.fn().mockResolvedValue(false),
-      search: jest.fn().mockResolvedValue({ results: [makeAssetRecord({ id: 'nas-1', providerId: 'p-nas' })], total: 1, hasMore: false })
+      healthCheck: vi.fn().mockResolvedValue(false),
+      search: vi.fn().mockResolvedValue({ results: [makeAssetRecord({ id: 'nas-1', providerId: 'p-nas' })], total: 1, hasMore: false })
     });
     const healthy = makeProvider({
       id: 'p-local',
-      healthCheck: jest.fn().mockResolvedValue(true),
-      search: jest.fn().mockResolvedValue({ results: [makeAssetRecord({ id: 'local-1', providerId: 'p-local' })], total: 1, hasMore: false })
+      healthCheck: vi.fn().mockResolvedValue(true),
+      search: vi.fn().mockResolvedValue({ results: [makeAssetRecord({ id: 'local-1', providerId: 'p-local' })], total: 1, hasMore: false })
     });
 
     manager.registerProvider(degraded);
@@ -658,13 +659,13 @@ describe('degraded provider skipping', () => {
     const record = makeAssetRecord({ id: 'a1', providerId: 'p-local' });
     const degraded = makeProvider({
       id: 'p-nas',
-      healthCheck: jest.fn().mockResolvedValue(false),
-      getById: jest.fn().mockResolvedValue(makeAssetRecord({ id: 'a1', providerId: 'p-nas' }))
+      healthCheck: vi.fn().mockResolvedValue(false),
+      getById: vi.fn().mockResolvedValue(makeAssetRecord({ id: 'a1', providerId: 'p-nas' }))
     });
     const healthy = makeProvider({
       id: 'p-local',
-      healthCheck: jest.fn().mockResolvedValue(true),
-      getById: jest.fn().mockResolvedValue(record)
+      healthCheck: vi.fn().mockResolvedValue(true),
+      getById: vi.fn().mockResolvedValue(record)
     });
 
     manager.registerProvider(degraded);
@@ -682,7 +683,7 @@ describe('degraded provider skipping', () => {
     // Register but do NOT call checkProviderHealth → status stays 'unknown'
     const provider = makeProvider({
       id: 'p1',
-      search: jest.fn().mockResolvedValue({ results: [makeAssetRecord()], total: 1, hasMore: false })
+      search: vi.fn().mockResolvedValue({ results: [makeAssetRecord()], total: 1, hasMore: false })
     });
     manager.registerProvider(provider);
 
@@ -694,11 +695,11 @@ describe('degraded provider skipping', () => {
 
   it('recovered provider is included in fan-out after re-check', async () => {
     const { manager } = makeManager();
-    const healthCheck = jest.fn().mockResolvedValueOnce(false).mockResolvedValueOnce(true);
+    const healthCheck = vi.fn().mockResolvedValueOnce(false).mockResolvedValueOnce(true);
     const provider = makeProvider({
       id: 'p1',
       healthCheck,
-      search: jest.fn().mockResolvedValue({ results: [makeAssetRecord()], total: 1, hasMore: false })
+      search: vi.fn().mockResolvedValue({ results: [makeAssetRecord()], total: 1, hasMore: false })
     });
     manager.registerProvider(provider);
 
@@ -721,7 +722,7 @@ describe('degraded provider skipping', () => {
 describe('AssetManager.syncPageAssets()', () => {
   it('stores local attachment composite key for [{Image src="filename"}] refs', async () => {
     const { manager } = makeManager({
-      getAttachmentByFilename: jest.fn().mockResolvedValue({ id: 'uuid-1', identifier: 'uuid-1' })
+      getAttachmentByFilename: vi.fn().mockResolvedValue({ id: 'uuid-1', identifier: 'uuid-1' })
     });
     await manager.syncPageAssets('SomePage', "[{Image src='photo.jpg'}]");
     const assets = await manager.getAssetsForPage('SomePage');
@@ -735,10 +736,10 @@ describe('AssetManager.syncPageAssets()', () => {
     const record = makeAssetRecord({ id: 'uuid-1', providerId: 'local' });
     const localProvider = makeProvider({
       id: 'local',
-      getById: jest.fn().mockResolvedValue(record)
+      getById: vi.fn().mockResolvedValue(record)
     });
     const { manager } = makeManager({
-      getAttachmentByFilename: jest.fn().mockResolvedValue({ id: 'uuid-1' })
+      getAttachmentByFilename: vi.fn().mockResolvedValue({ id: 'uuid-1' })
     });
     manager.registerProvider(localProvider);
 
@@ -754,10 +755,10 @@ describe('AssetManager.syncPageAssets()', () => {
     const record = makeAssetRecord({ id: 'media-hash-abc', providerId: 'media-library' });
     const mediaProvider = makeProvider({
       id: 'media-library',
-      getById: jest.fn().mockResolvedValue(record)
+      getById: vi.fn().mockResolvedValue(record)
     });
     const { manager } = makeManager({
-      findByFilename: jest.fn().mockResolvedValue({ id: 'media-hash-abc' })
+      findByFilename: vi.fn().mockResolvedValue({ id: 'media-hash-abc' })
     });
     manager.registerProvider(mediaProvider);
 
@@ -773,12 +774,12 @@ describe('AssetManager.syncPageAssets()', () => {
     const attRecord = makeAssetRecord({ id: 'att-1', providerId: 'local' });
     const localProvider = makeProvider({
       id: 'local',
-      getById: jest.fn()
+      getById: vi.fn()
         .mockResolvedValueOnce(attRecord)
         .mockResolvedValueOnce(attRecord)
     });
     const { manager } = makeManager({
-      getAttachmentByFilename: jest.fn()
+      getAttachmentByFilename: vi.fn()
         .mockResolvedValueOnce({ id: 'att-1' })
         .mockResolvedValueOnce({ id: 'att-1' })
     });
@@ -792,7 +793,7 @@ describe('AssetManager.syncPageAssets()', () => {
   });
 
   it('skips http:// and https:// external URLs', async () => {
-    const getAttachmentByFilename = jest.fn().mockResolvedValue({ id: 'att-1' });
+    const getAttachmentByFilename = vi.fn().mockResolvedValue({ id: 'att-1' });
     const { manager } = makeManager({ getAttachmentByFilename });
 
     await manager.syncPageAssets('SomePage', "[{Image src='https://example.com/img.jpg'}]");
@@ -803,7 +804,7 @@ describe('AssetManager.syncPageAssets()', () => {
   });
 
   it('skips absolute /path/ URLs', async () => {
-    const getAttachmentByFilename = jest.fn().mockResolvedValue({ id: 'att-1' });
+    const getAttachmentByFilename = vi.fn().mockResolvedValue({ id: 'att-1' });
     const { manager } = makeManager({ getAttachmentByFilename });
 
     await manager.syncPageAssets('SomePage', "[{Image src='/static/logo.png'}]");
@@ -815,9 +816,9 @@ describe('AssetManager.syncPageAssets()', () => {
     const record = makeAssetRecord({ id: 'att-new', providerId: 'local' });
     const localProvider = makeProvider({
       id: 'local',
-      getById: jest.fn().mockResolvedValue(record)
+      getById: vi.fn().mockResolvedValue(record)
     });
-    const getAttachmentByFilename = jest.fn()
+    const getAttachmentByFilename = vi.fn()
       .mockResolvedValueOnce({ id: 'att-old' })
       .mockResolvedValueOnce({ id: 'att-new' });
     const { manager } = makeManager({ getAttachmentByFilename });
@@ -834,7 +835,7 @@ describe('AssetManager.syncPageAssets()', () => {
 
   it('handles unresolvable filename gracefully — returns no composite key', async () => {
     const { manager } = makeManager({
-      getAttachmentByFilename: jest.fn().mockResolvedValue(null)
+      getAttachmentByFilename: vi.fn().mockResolvedValue(null)
     });
 
     await expect(
@@ -847,7 +848,7 @@ describe('AssetManager.syncPageAssets()', () => {
 
   it('handles AttachmentManager lookup throwing — does not crash', async () => {
     const { manager } = makeManager({
-      getAttachmentByFilename: jest.fn().mockRejectedValue(new Error('disk error'))
+      getAttachmentByFilename: vi.fn().mockRejectedValue(new Error('disk error'))
     });
 
     await expect(
@@ -876,10 +877,10 @@ describe('AssetManager.getAssetsForPage()', () => {
   it('filters out stale composite keys where asset has been deleted', async () => {
     const localProvider = makeProvider({
       id: 'local',
-      getById: jest.fn().mockResolvedValue(null) // asset deleted
+      getById: vi.fn().mockResolvedValue(null) // asset deleted
     });
     const { manager } = makeManager({
-      getAttachmentByFilename: jest.fn().mockResolvedValue({ id: 'deleted-id' })
+      getAttachmentByFilename: vi.fn().mockResolvedValue({ id: 'deleted-id' })
     });
     manager.registerProvider(localProvider);
 
@@ -891,9 +892,9 @@ describe('AssetManager.getAssetsForPage()', () => {
 
   it('filters out stale composite keys where provider has been removed', async () => {
     // Sync with a provider registered
-    const localProvider = makeProvider({ id: 'local', getById: jest.fn().mockResolvedValue(null) });
+    const localProvider = makeProvider({ id: 'local', getById: vi.fn().mockResolvedValue(null) });
     const { manager } = makeManager({
-      getAttachmentByFilename: jest.fn().mockResolvedValue({ id: 'att-1' })
+      getAttachmentByFilename: vi.fn().mockResolvedValue({ id: 'att-1' })
     });
     manager.registerProvider(localProvider);
     await manager.syncPageAssets('SomePage', "[{Image src='photo.jpg'}]");
@@ -911,11 +912,11 @@ describe('AssetManager.getAssetsForPage()', () => {
     const rec2 = makeAssetRecord({ id: 'a2', providerId: 'local' });
     const localProvider = makeProvider({
       id: 'local',
-      getById: jest.fn()
+      getById: vi.fn()
         .mockResolvedValueOnce(rec1)
         .mockResolvedValueOnce(rec2)
     });
-    const getAttachmentByFilename = jest.fn()
+    const getAttachmentByFilename = vi.fn()
       .mockResolvedValueOnce({ id: 'a1' })
       .mockResolvedValueOnce({ id: 'a2' });
     const { manager } = makeManager({ getAttachmentByFilename });
@@ -937,9 +938,9 @@ describe('AssetManager.getAssetsForPage()', () => {
 describe('AssetManager.removePageAssets()', () => {
   it('removes the page entry so getAssetsForPage returns empty', async () => {
     const record = makeAssetRecord({ id: 'a1', providerId: 'local' });
-    const localProvider = makeProvider({ id: 'local', getById: jest.fn().mockResolvedValue(record) });
+    const localProvider = makeProvider({ id: 'local', getById: vi.fn().mockResolvedValue(record) });
     const { manager } = makeManager({
-      getAttachmentByFilename: jest.fn().mockResolvedValue({ id: 'a1' })
+      getAttachmentByFilename: vi.fn().mockResolvedValue({ id: 'a1' })
     });
     manager.registerProvider(localProvider);
 
@@ -957,8 +958,8 @@ describe('AssetManager.removePageAssets()', () => {
 
   it('does not affect other pages in the index', async () => {
     const rec = makeAssetRecord({ id: 'a1', providerId: 'local' });
-    const localProvider = makeProvider({ id: 'local', getById: jest.fn().mockResolvedValue(rec) });
-    const getAttachmentByFilename = jest.fn().mockResolvedValue({ id: 'a1' });
+    const localProvider = makeProvider({ id: 'local', getById: vi.fn().mockResolvedValue(rec) });
+    const getAttachmentByFilename = vi.fn().mockResolvedValue({ id: 'a1' });
     const { manager } = makeManager({ getAttachmentByFilename });
     manager.registerProvider(localProvider);
 

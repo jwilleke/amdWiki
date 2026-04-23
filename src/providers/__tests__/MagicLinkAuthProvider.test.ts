@@ -9,14 +9,14 @@ describe('MagicLinkAuthProvider', () => {
   let mockMailProvider;
 
   beforeEach(() => {
-    mockMailProvider = { send: jest.fn().mockResolvedValue(undefined) };
+    mockMailProvider = { send: vi.fn().mockResolvedValue(undefined) };
 
     mockUserManager = {
-      getUserByEmail: jest.fn()
+      getUserByEmail: vi.fn()
     };
 
     mockEngine = {
-      getManager: jest.fn((name) => {
+      getManager: vi.fn((name) => {
         if (name === 'UserManager') return mockUserManager;
         return null;
       })

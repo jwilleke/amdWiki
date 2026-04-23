@@ -7,15 +7,15 @@ import fs from 'fs-extra';
 import ImportManager from '../ImportManager';
 
 // Mock AttachmentManager
-const mockUploadAttachment = jest.fn().mockResolvedValue({ identifier: 'abc123' });
+const mockUploadAttachment = vi.fn().mockResolvedValue({ identifier: 'abc123' });
 
 // Mock WikiEngine
 const mockEngine = {
-  getManager: jest.fn((name) => {
+  getManager: vi.fn((name) => {
     if (name === 'AttachmentManager') {
       return { uploadAttachment: mockUploadAttachment };
     }
-    return { getProperty: jest.fn().mockReturnValue('./data/pages') };
+    return { getProperty: vi.fn().mockReturnValue('./data/pages') };
   })
 };
 
@@ -473,10 +473,10 @@ See [OtherPage] for more.`;
     it('should use ValidationManager defaults when available', async () => {
       // Create a manager with a mock ValidationManager
       const mockValidationEngine = {
-        getManager: jest.fn((name) => {
+        getManager: vi.fn((name) => {
           if (name === 'ValidationManager') {
             return {
-              generateValidMetadata: jest.fn((title, opts) => ({
+              generateValidMetadata: vi.fn((title, opts) => ({
                 title,
                 uuid: opts.uuid || 'test-uuid',
                 slug: title.toLowerCase().replace(/\s+/g, '-'),
@@ -487,9 +487,9 @@ See [OtherPage] for more.`;
             };
           }
           if (name === 'AttachmentManager') {
-            return { uploadAttachment: jest.fn().mockResolvedValue({ identifier: 'abc' }) };
+            return { uploadAttachment: vi.fn().mockResolvedValue({ identifier: 'abc' }) };
           }
-          return { getProperty: jest.fn().mockReturnValue('./data/pages') };
+          return { getProperty: vi.fn().mockReturnValue('./data/pages') };
         })
       };
 
@@ -521,9 +521,9 @@ See [OtherPage] for more.`;
 
   describe('keyword normalization (#545)', () => {
     const mockKwEngine = {
-      getManager: jest.fn((name) => {
-        if (name === 'AttachmentManager') return { uploadAttachment: jest.fn().mockResolvedValue({ identifier: 'abc' }) };
-        return { getProperty: jest.fn().mockReturnValue('./data/pages'), setProperty: jest.fn().mockResolvedValue(undefined) };
+      getManager: vi.fn((name) => {
+        if (name === 'AttachmentManager') return { uploadAttachment: vi.fn().mockResolvedValue({ identifier: 'abc' }) };
+        return { getProperty: vi.fn().mockReturnValue('./data/pages'), setProperty: vi.fn().mockResolvedValue(undefined) };
       })
     };
 

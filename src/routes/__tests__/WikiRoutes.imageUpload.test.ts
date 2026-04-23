@@ -1,10 +1,3 @@
-const {
-  describe,
-  test,
-  expect,
-  beforeEach,
-  afterEach
-} = require('@jest/globals');
 import request from 'supertest';
 import express from 'express';
 import path from 'path';
@@ -14,12 +7,12 @@ import type { WikiEngine } from '../../types/WikiEngine';
 
 // Mock dependencies
 const mockUserManager = {
-  getCurrentUser: jest.fn(),
-  hasPermission: jest.fn()
+  getCurrentUser: vi.fn(),
+  hasPermission: vi.fn()
 };
 
 const mockConfigManager = {
-  getProperty: jest.fn((key, defaultValue) => {
+  getProperty: vi.fn((key, defaultValue) => {
     const config = {
       'ngdpbase.features.images.maxUploadSize': 10 * 1024 * 1024,
       'ngdpbase.features.images.default-alt': 'Uploaded image',
@@ -30,7 +23,7 @@ const mockConfigManager = {
 };
 
 const mockEngine = {
-  getManager: jest.fn((name) => {
+  getManager: vi.fn((name) => {
     switch (name) {
     case 'UserManager':
       return mockUserManager;
@@ -41,10 +34,10 @@ const mockEngine = {
     }
   }),
   logger: {
-    info: jest.fn(),
-    warn: jest.fn(),
-    error: jest.fn(),
-    debug: jest.fn()
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
+    debug: vi.fn()
   }
 };
 
@@ -60,7 +53,7 @@ describe('WikiRoutes - Image Upload (Bug #76)', () => {
 
   beforeEach(async () => {
     // Clear all mocks
-    jest.clearAllMocks();
+    vi.clearAllMocks();
 
     // Initialize array to track uploaded files
     uploadedFiles = [];

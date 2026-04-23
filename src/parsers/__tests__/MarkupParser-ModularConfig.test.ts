@@ -103,28 +103,28 @@ class ModularMockEngine {
     return {
       isInitialized: () => true,
       region: (name) => ({
-        get: jest.fn().mockResolvedValue(null),
-        set: jest.fn().mockResolvedValue(true)
+        get: vi.fn().mockResolvedValue(null),
+        set: vi.fn().mockResolvedValue(true)
       })
     };
   }
   
   createMockAttachmentManager() {
     return {
-      getAttachmentPath: jest.fn().mockResolvedValue('/attachments/test.pdf'),
-      attachmentExists: jest.fn().mockResolvedValue(false)
+      getAttachmentPath: vi.fn().mockResolvedValue('/attachments/test.pdf'),
+      attachmentExists: vi.fn().mockResolvedValue(false)
     };
   }
   
   createMockPluginManager() {
     return {
-      executePlugin: jest.fn().mockResolvedValue('<div>Plugin Result</div>')
+      executePlugin: vi.fn().mockResolvedValue('<div>Plugin Result</div>')
     };
   }
   
   createMockPageManager() {
     return {
-      getPage: jest.fn().mockResolvedValue({ content: 'Page content' })
+      getPage: vi.fn().mockResolvedValue({ content: 'Page content' })
     };
   }
   
@@ -134,20 +134,20 @@ class ModularMockEngine {
   
   createMockPolicyManager() {
     return {
-      checkPermission: jest.fn().mockResolvedValue(true)
+      checkPermission: vi.fn().mockResolvedValue(true)
     };
   }
   
   createMockVariableManager() {
     return {
-      expandVariables: jest.fn().mockReturnValue('expanded content')
+      expandVariables: vi.fn().mockReturnValue('expanded content')
     };
   }
   
   createMockRenderingManager() {
     return {
       converter: {
-        makeHtml: jest.fn().mockReturnValue('<p>HTML content</p>')
+        makeHtml: vi.fn().mockReturnValue('<p>HTML content</p>')
       }
     };
   }
@@ -526,7 +526,7 @@ describe('MarkupParser Modular Configuration System', () => {
       // Mock configuration manager that throws errors
       const errorEngine = new ModularMockEngine();
       errorEngine.managers.set('ConfigurationManager', {
-        getProperty: jest.fn().mockImplementation(() => {
+        getProperty: vi.fn().mockImplementation(() => {
           throw new Error('Configuration error');
         })
       });

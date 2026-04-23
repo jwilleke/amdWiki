@@ -12,10 +12,10 @@ import path from 'path';
 import fs from 'fs-extra';
 
 const makeLogger = () => ({
-  info: jest.fn(),
-  warn: jest.fn(),
-  debug: jest.fn(),
-  error: jest.fn()
+  info: vi.fn(),
+  warn: vi.fn(),
+  debug: vi.fn(),
+  error: vi.fn()
 });
 
 describe('PluginManager.loadPlugin', () => {
@@ -26,12 +26,12 @@ describe('PluginManager.loadPlugin', () => {
   let pm;
 
   beforeAll(() => {
-    jest.setTimeout(20000);
+    vi.setConfig({ testTimeout: 20000 });
   });
 
   beforeEach(async () => {
-    jest.resetModules();
-    jest.clearAllMocks();
+    vi.resetModules();
+    vi.clearAllMocks();
 
     tmpRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'pm-load-'));
     logger = makeLogger();
@@ -40,7 +40,8 @@ describe('PluginManager.loadPlugin', () => {
       logger
     };
 
-    PluginManager = require('../PluginManager');
+    const mod = await import('../PluginManager');
+    PluginManager = mod.default ?? mod;
     pm = new PluginManager(engine);
 
     // Allow only tmpRoot

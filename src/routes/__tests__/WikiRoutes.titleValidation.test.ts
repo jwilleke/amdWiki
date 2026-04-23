@@ -21,31 +21,31 @@ import WikiRoutes from '../WikiRoutes';
 
 function makePageManager(existingPage = null) {
   return {
-    getPage:         jest.fn().mockResolvedValue(existingPage),
-    getPageMetadata: jest.fn().mockResolvedValue(existingPage?.metadata ?? null),
-    pageExists:      jest.fn().mockReturnValue(!!existingPage),
-    savePage:        jest.fn().mockResolvedValue(undefined),
-    getCurrentPageProvider: jest.fn().mockReturnValue({ pageIndex: { pages: {} } })
+    getPage:         vi.fn().mockResolvedValue(existingPage),
+    getPageMetadata: vi.fn().mockResolvedValue(existingPage?.metadata ?? null),
+    pageExists:      vi.fn().mockReturnValue(!!existingPage),
+    savePage:        vi.fn().mockResolvedValue(undefined),
+    getCurrentPageProvider: vi.fn().mockReturnValue({ pageIndex: { pages: {} } })
   };
 }
 
 function makeValidationManager() {
   return {
-    generateValidMetadata: jest.fn((title, meta) => ({ title, ...meta })),
-    getAvailableCategories: jest.fn().mockReturnValue([]),
-    getAvailableRoles: jest.fn().mockReturnValue([])
+    generateValidMetadata: vi.fn((title, meta) => ({ title, ...meta })),
+    getAvailableCategories: vi.fn().mockReturnValue([]),
+    getAvailableRoles: vi.fn().mockReturnValue([])
   };
 }
 
 function makeACLManager(allowed = true) {
   return {
-    checkAccess: jest.fn().mockResolvedValue({ allowed, reason: 'ok' })
+    checkAccess: vi.fn().mockResolvedValue({ allowed, reason: 'ok' })
   };
 }
 
 function makeConfigManager() {
   return {
-    getProperty: jest.fn((key, defaultValue) => {
+    getProperty: vi.fn((key, defaultValue) => {
       // Provide a valid system-category so savePage can get past category validation
       if (key === 'ngdpbase.system-category') {
         return { general: { enabled: true, label: 'general' } };
@@ -67,7 +67,7 @@ function makeEngine({ pageManager = undefined, validationManager = undefined, ac
   const cm = configManager    ?? makeConfigManager();
 
   return {
-    getManager: jest.fn((name) => {
+    getManager: vi.fn((name) => {
       switch (name) {
       case 'PageManager':          return pm;
       case 'ValidationManager':    return vm;
@@ -100,11 +100,11 @@ function createSaveReq(title, params = { page: 'TestPage' }) {
 
 function createRes() {
   return {
-    status:   jest.fn().mockReturnThis(),
-    json:     jest.fn().mockReturnThis(),
-    send:     jest.fn().mockReturnThis(),
-    render:   jest.fn().mockReturnThis(),
-    redirect: jest.fn().mockReturnThis()
+    status:   vi.fn().mockReturnThis(),
+    json:     vi.fn().mockReturnThis(),
+    send:     vi.fn().mockReturnThis(),
+    render:   vi.fn().mockReturnThis(),
+    redirect: vi.fn().mockReturnThis()
   };
 }
 

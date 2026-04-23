@@ -1,6 +1,5 @@
-import BaseSyntaxHandlerModule = require('../BaseSyntaxHandler');
-const BaseSyntaxHandler = BaseSyntaxHandlerModule.BaseSyntaxHandler ?? BaseSyntaxHandlerModule;
-const HandlerExecutionError = BaseSyntaxHandlerModule.HandlerExecutionError;
+import BaseSyntaxHandlerModule, { HandlerExecutionError } from '../BaseSyntaxHandler';
+const BaseSyntaxHandler = (BaseSyntaxHandlerModule as any).BaseSyntaxHandler ?? BaseSyntaxHandlerModule;
 
 // Mock context for testing
 const createMockContext = (overrides = {}) => ({
@@ -8,7 +7,7 @@ const createMockContext = (overrides = {}) => ({
   userName: 'TestUser',
   getTotalTime: () => 100,
   engine: {
-    getManager: jest.fn(() => null)
+    getManager: vi.fn(() => null)
   },
   ...overrides
 });
@@ -160,7 +159,7 @@ describe('BaseSyntaxHandler', () => {
       const handler = new TestHandler();
       const context = createMockContext();
       
-      const initSpy = jest.spyOn(handler, 'onInitialize');
+      const initSpy = vi.spyOn(handler, 'onInitialize');
       
       await handler.initialize(context);
       await handler.initialize(context); // Second call
@@ -185,10 +184,10 @@ describe('BaseSyntaxHandler', () => {
     test('should initialize with valid dependencies', async () => {
       const handler = new DependentHandler();
       const mockEngine = {
-        getManager: jest.fn((name) => name === 'TestManager' ? {} : null)
+        getManager: vi.fn((name) => name === 'TestManager' ? {} : null)
       };
       const mockHandlerRegistry = {
-        getHandler: jest.fn((name) => name === 'TestHandler' ? new TestHandler() : null)
+        getHandler: vi.fn((name) => name === 'TestHandler' ? new TestHandler() : null)
       };
       const context = createMockContext({ 
         engine: mockEngine,

@@ -1,31 +1,31 @@
-const {
-  describe,
-  test,
-  expect,
-  beforeEach,
-  afterEach
-} = require('@jest/globals');
 import ExportManager from '../../managers/ExportManager';
 import LocaleUtils from '../../utils/LocaleUtils';
-import fsReal from 'fs/promises';
-const fs = fsReal as jest.Mocked<typeof fsReal>;
 import path from 'path';
-
+import { type Mocked } from 'vitest';
 
 // Mock fs/promises module to avoid real file I/O
-jest.mock('fs/promises', () => ({
-  mkdir: jest.fn(),
-  writeFile: jest.fn(),
-  readdir: jest.fn(),
-  stat: jest.fn(),
-  unlink: jest.fn()
-}));
+// Use shared vi.fn() instances so ExportManager's default import matches test assertions
+vi.mock('fs/promises', () => {
+  const mkdir = vi.fn();
+  const writeFile = vi.fn();
+  const readdir = vi.fn();
+  const stat = vi.fn();
+  const unlink = vi.fn();
+  return {
+    default: { mkdir, writeFile, readdir, stat, unlink },
+    mkdir, writeFile, readdir, stat, unlink
+  };
+});
 
 // Mock LocaleUtils to control formatted date/time output
-jest.mock('../../utils/LocaleUtils', () => ({
-  formatDate: jest.fn(),
-  formatTime: jest.fn()
-}));
+vi.mock('../../utils/LocaleUtils', () => {
+  const formatDate = vi.fn();
+  const formatTime = vi.fn();
+  return { default: { formatDate, formatTime }, formatDate, formatTime };
+});
+
+import fsDefault from 'fs/promises';
+const fs = fsDefault as unknown as Mocked<{ mkdir: any; writeFile: any; readdir: any; stat: any; unlink: any }>;
 
 describe('ExportManager', () => {
   let exportManager;
@@ -35,10 +35,10 @@ describe('ExportManager', () => {
 
   // Setup fresh instance and mocks before each test
   beforeEach(() => {
-    mockPageManager = { getPage: jest.fn() };
-    mockRenderingManager = { renderMarkdown: jest.fn() };
+    mockPageManager = { getPage: vi.fn() };
+    mockRenderingManager = { renderMarkdown: vi.fn() };
     mockEngine = {
-      getManager: jest.fn((name) => {
+      getManager: vi.fn((name) => {
         if (name === 'PageManager') return mockPageManager;
         if (name === 'RenderingManager') return mockRenderingManager;
         return null;
@@ -49,7 +49,7 @@ describe('ExportManager', () => {
 
   // Clear all mocks after each test to avoid cross-test pollution
   afterEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   // Tests for initialization of ExportManager

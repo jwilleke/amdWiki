@@ -4,7 +4,7 @@
  * @jest-environment node
  */
 
-import MarqueePluginModule = require('../MarqueePlugin');
+import MarqueePluginModule from '../MarqueePlugin' ;
 import type { SimplePlugin } from '../types';
 const MarqueePlugin = MarqueePluginModule as unknown as SimplePlugin;
 const ctx = { pageName: 'TestPage', linkGraph: {} };

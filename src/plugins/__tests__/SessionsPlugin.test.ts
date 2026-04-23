@@ -4,19 +4,19 @@
  * @jest-environment node
  */
 
-import SessionsPluginModule = require('../SessionsPlugin');
+import SessionsPluginModule from '../SessionsPlugin' ;
 import type { SimplePlugin } from '../types';
 const SessionsPlugin = SessionsPluginModule as unknown as SimplePlugin;
 function makeContext() {
   return {
     engine: {
-      getManager: jest.fn((name) => {
+      getManager: vi.fn((name) => {
         if (name === 'ConfigurationManager' || name === 'ConfigManager') {
           return { getProperty: (key, defaultVal) => defaultVal };
         }
         return null;
       }),
-      logger: { error: jest.fn() }
+      logger: { error: vi.fn() }
     }
   };
 }
@@ -26,12 +26,12 @@ describe('SessionsPlugin', () => {
 
   beforeEach(() => {
     mockContext = makeContext();
-    global.fetch = jest.fn();
+    global.fetch = vi.fn();
   });
 
   afterEach(() => {
     delete global.fetch;
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   // --- property=count (default) ---
@@ -151,7 +151,7 @@ describe('SessionsPlugin', () => {
   // --- config / defaults ---
 
   test('uses defaults when ConfigurationManager unavailable', async () => {
-    const ctx = { engine: { getManager: () => null, logger: { error: jest.fn() } } };
+    const ctx = { engine: { getManager: () => null, logger: { error: vi.fn() } } };
     global.fetch.mockResolvedValue({ ok: true, json: async () => ({ sessionCount: 2 }) });
     const out = await SessionsPlugin.execute(ctx, {});
     expect(out).toBe('2');

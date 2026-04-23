@@ -22,12 +22,12 @@ function makeAssetPage(results = [], total = null, hasMore = false) {
 }
 
 function makeAssetService(page = makeAssetPage()) {
-  return { search: jest.fn().mockResolvedValue(page) };
+  return { search: vi.fn().mockResolvedValue(page) };
 }
 
 function makeEngine(assetService) {
   return {
-    getManager: jest.fn((name) => {
+    getManager: vi.fn((name) => {
       if (name === 'AssetService') return assetService;
       return null;
     })
@@ -44,8 +44,8 @@ function makeReq(overrides = {}) {
 
 function makeRes() {
   const res = {
-    status: jest.fn().mockReturnThis(),
-    json: jest.fn().mockReturnThis()
+    status: vi.fn().mockReturnThis(),
+    json: vi.fn().mockReturnThis()
   };
   return res;
 }
@@ -54,7 +54,7 @@ function makeRes() {
 function makeRoutes(assetService) {
   const engine = makeEngine(assetService);
   const routes = new WikiRoutes(engine);
-  routes.createWikiContext = jest.fn().mockReturnValue({ userContext: {} });
+  routes.createWikiContext = vi.fn().mockReturnValue({ userContext: {} });
   return routes;
 }
 
@@ -99,9 +99,9 @@ describe('WikiRoutes.assetSearch — GET /api/assets/search', () => {
 
   describe('service unavailable', () => {
     it('returns 503 when AssetService is not registered', async () => {
-      const engine = { getManager: jest.fn().mockReturnValue(null) };
+      const engine = { getManager: vi.fn().mockReturnValue(null) };
       const routes = new WikiRoutes(engine);
-      routes.createWikiContext = jest.fn().mockReturnValue({});
+      routes.createWikiContext = vi.fn().mockReturnValue({});
       const req = makeReq({ query: {} });
       const res = makeRes();
 
@@ -215,7 +215,7 @@ describe('WikiRoutes.assetSearch — GET /api/assets/search', () => {
 
   describe('error handling', () => {
     it('returns 500 when AssetService.search() throws', async () => {
-      const service = { search: jest.fn().mockRejectedValue(new Error('unexpected')) };
+      const service = { search: vi.fn().mockRejectedValue(new Error('unexpected')) };
       const routes = makeRoutes(service);
       const req = makeReq({ query: {} });
       const res = makeRes();

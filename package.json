@@ -14,13 +14,13 @@
     "build:addons": "cd addons/forms && npm install --silent && cd ../calendar && npm install --silent && npx tsc -p tsconfig.json && cd ../elasticsearch && npm install --silent && npx tsc -p tsconfig.json && cd ../journal && npm install --silent && npx tsc -p tsconfig.json",
     "build:watch": "tsc --watch",
     "typecheck": "tsc --noEmit",
-    "test": "NODE_ENV=test jest",
-    "test:watch": "NODE_ENV=test jest --watch",
-    "test:coverage": "NODE_ENV=test jest --coverage",
-    "test:ci": "NODE_ENV=test jest --coverage --ci",
-    "test:changed": "NODE_ENV=test jest --changedSince=HEAD --bail",
-    "test:integration": "NODE_ENV=test jest --testPathPatterns=integration.test.js --runInBand",
-    "test:unit": "NODE_ENV=test jest --testPathIgnorePatterns=integration.test.js",
+    "test": "NODE_ENV=test vitest run",
+    "test:watch": "NODE_ENV=test vitest",
+    "test:coverage": "NODE_ENV=test vitest run --coverage",
+    "test:ci": "NODE_ENV=test vitest run --coverage",
+    "test:changed": "NODE_ENV=test vitest run --changed",
+    "test:integration": "NODE_ENV=test vitest run --reporter=verbose integration.test",
+    "test:unit": "NODE_ENV=test vitest run",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:headed": "playwright test --headed",
@@ -102,14 +102,12 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.39.2",
-    "@jest/globals": "^30.1.2",
     "@playwright/test": "^1.57.0",
     "@types/cookie-parser": "^1.4.10",
     "@types/express": "^5.0.5",
     "@types/express-session": "^1.18.2",
     "@types/fast-diff": "^1.1.0",
     "@types/fs-extra": "^11.0.4",
-    "@types/jest": "^30.0.0",
     "@types/js-yaml": "^4.0.9",
     "@types/lunr": "^2.3.7",
     "@types/micromatch": "^4.0.10",
@@ -123,64 +121,25 @@
     "@types/winston": "^2.4.4",
     "@typescript-eslint/eslint-plugin": "^8.50.0",
     "@typescript-eslint/parser": "^8.50.0",
+    "@vitest/coverage-v8": "^4.1.5",
     "baseline-browser-mapping": "^2.9.7",
     "eslint": "^9.39.2",
     "eslint-config-prettier": "^10.1.8",
     "eslint-formatter-summary": "^2.0.2",
     "eslint-plugin-prettier": "^5.5.4",
-    "jest": "^30.1.3",
-    "jest-environment-jsdom": "^30.2.0",
+    "jsdom": "^29.0.2",
     "lint-staged": "^16.2.7",
     "prettier": "^3.7.4",
     "supertest": "^7.1.4",
-    "ts-jest": "^29.4.5",
     "ts-node": "^10.9.2",
     "tsx": "^4.21.0",
     "typedoc": "^0.28.15",
     "typedoc-plugin-markdown": "^4.9.0",
     "typescript": "^5.9.3",
-    "typescript-eslint": "^8.50.0"
+    "typescript-eslint": "^8.50.0",
+    "vitest": "^4.1.5"
   },
   "main": "dist/src/app.js",
-  "jest": {
-    "preset": "ts-jest",
-    "testEnvironment": "node",
-    "setupFilesAfterEnv": [
-      "<rootDir>/jest.setup.ts"
-    ],
-    "testMatch": [
-      "**/__tests__/**/*.ts",
-      "**/*.test.ts"
-    ],
-    "collectCoverageFrom": [
-      "src/**/*.ts",
-      "!src/**/__tests__/**",
-      "!src/legacy/**",
-      "!**/*.d.ts"
-    ],
-    "coverageDirectory": "coverage",
-    "coverageReporters": [
-      "text",
-      "lcov",
-      "html"
-    ],
-    "transform": {
-      "^.+\\.ts$": [
-        "ts-jest",
-        {
-          "tsconfig": "tsconfig.test.json",
-          "diagnostics": {
-            "warnOnly": true
-          }
-        }
-      ]
-    },
-    "moduleFileExtensions": [
-      "ts",
-      "js",
-      "json"
-    ]
-  },
   "keywords": [],
   "type": "commonjs",
   "overrides": {

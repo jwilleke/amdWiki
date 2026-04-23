@@ -2,7 +2,7 @@
  * Tests for CurrentTimePlugin
  */
 
-import CurrentTimePluginModule = require('../CurrentTimePlugin');
+import CurrentTimePluginModule from '../CurrentTimePlugin' ;
 import type { SimplePlugin } from '../types';
 const CurrentTimePlugin = CurrentTimePluginModule as unknown as SimplePlugin;
 describe('CurrentTimePlugin', () => {
@@ -234,7 +234,7 @@ describe('CurrentTimePlugin', () => {
 
     test('should not throw on initialization', () => {
       const mockEngine = {
-        getManager: jest.fn()
+        getManager: vi.fn()
       };
       expect(() => CurrentTimePlugin.initialize(mockEngine)).not.toThrow();
     });

@@ -1,7 +1,7 @@
 
 // Mock the WikiRoutes class
 const mockWikiRoutes = {
-  getCommonTemplateData: jest.fn().mockResolvedValue({
+  getCommonTemplateData: vi.fn().mockResolvedValue({
     user: { username: 'testuser' },
     pageTitle: 'Admin Dashboard'
   })
@@ -9,7 +9,7 @@ const mockWikiRoutes = {
 
 // Mock the engine
 const mockEngine = {
-  getManager: jest.fn((name) => {
+  getManager: vi.fn((name) => {
     if (name === 'WikiRoutes') return mockWikiRoutes;
     return null;
   })

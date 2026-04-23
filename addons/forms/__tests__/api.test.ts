@@ -45,7 +45,7 @@ function makeContext(engine: ReturnType<typeof makeEngine>) {
   const app = express();
   app.use(express.json());
   // Stub ApiContext.from so it doesn't need a real session
-  jest.mock('../../../dist/src/context/ApiContext', () => ({
+  vi.mock('../../../dist/src/context/ApiContext', () => ({
     ApiContext: { from: () => ({ username: 'testuser' }) }
   }), { virtual: true });
   app.use('/api/forms', apiRoutes(engine as never, noopAddon));

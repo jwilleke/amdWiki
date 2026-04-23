@@ -5,7 +5,7 @@ describe('EmailManager', () => {
   let mockLogger;
 
   const makeConfigManager = (overrides: Record<string, unknown> = {}) => ({
-    getProperty: jest.fn((key, defaultValue) => {
+    getProperty: vi.fn((key, defaultValue) => {
       const values = {
         'ngdpbase.mail.enabled':               overrides.enabled    ?? false,
         'ngdpbase.mail.provider':              overrides.provider   ?? 'console',
@@ -23,19 +23,19 @@ describe('EmailManager', () => {
   });
 
   const makeEngine = (configManager) => ({
-    getManager: jest.fn((name) => {
+    getManager: vi.fn((name) => {
       if (name === 'ConfigurationManager') return configManager;
       return null;
     })
   });
 
-  beforeEach(() => {
-    jest.resetModules();
-    jest.clearAllMocks();
-    // Get the globally-mocked logger (from jest.setup.js) after resetModules
-    EmailManager = require('../EmailManager');
-    if (EmailManager.default) EmailManager = EmailManager.default;
-    mockLogger = require('../../utils/logger');
+  beforeEach(async () => {
+    vi.resetModules();
+    vi.clearAllMocks();
+    const mod = await import('../EmailManager');
+    EmailManager = mod.default ?? mod;
+    const logMod = await import('../../utils/logger');
+    mockLogger = (logMod).default ?? logMod;
   });
 
   describe('initialization', () => {
@@ -199,7 +199,7 @@ describe('EmailManager', () => {
       await manager.initialize();
 
       // Replace the internal provider with a spy
-      const spy = jest.fn().mockResolvedValue(undefined);
+      const spy = vi.fn().mockResolvedValue(undefined);
       manager.provider = { send: spy };
 
       await manager.send({ to: 'user@example.com', subject: 'Hi', text: 'Hello' });

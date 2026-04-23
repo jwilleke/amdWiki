@@ -6,32 +6,36 @@
  */
 
 // Mock logger to capture warnings
-jest.mock('../../../../utils/logger', () => ({
-  info: jest.fn(),
-  warn: jest.fn(),
-  error: jest.fn(),
-  debug: jest.fn()
+vi.mock('../../../../utils/logger', () => ({
+  default: {
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
+    debug: vi.fn()
+
+  }
 }));
 
 import logger from '../../../../utils/logger';
 import DOMLinkHandler from '../DOMLinkHandler';
 import WikiDocument from '../../WikiDocument';
 import { DOMParser } from '../../DOMParser';
+import { type MockInstance } from 'vitest';
 
 // Mock engine with PageManager and ConfigurationManager
 const createMockEngine = () => {
   const mockPageNames = ['HomePage', 'WikiDocumentation', 'TestPage', 'PageIndex'];
 
   return {
-    getManager: jest.fn((name) => {
+    getManager: vi.fn((name) => {
       if (name === 'PageManager') {
         return {
-          getAllPages: jest.fn(async () => mockPageNames)
+          getAllPages: vi.fn(async () => mockPageNames)
         };
       }
       if (name === 'ConfigurationManager') {
         return {
-          getProperty: jest.fn((key, defaultValue) => {
+          getProperty: vi.fn((key, defaultValue) => {
             if (key === 'ngdpbase.translator-reader.match-english-plurals') return true;
             if (key === 'ngdpbase.interwiki.enabled') return true;
             if (key === 'ngdpbase.interwiki.sites') {
@@ -76,10 +80,10 @@ describe('DOMLinkHandler', () => {
     });
 
     test('warns if PageManager not available', async () => {
-      (logger.warn as jest.Mock).mockClear();
+      (logger.warn as MockInstance).mockClear();
 
       const badEngine = {
-        getManager: jest.fn(() => null)
+        getManager: vi.fn(() => null)
       };
 
       const badHandler = new DOMLinkHandler(badEngine);

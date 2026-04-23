@@ -22,8 +22,8 @@ class MockEngine {
       ['CacheManager', {
         isInitialized: () => true,
         region: () => ({
-          get: jest.fn().mockResolvedValue(null),
-          set: jest.fn().mockResolvedValue(true)
+          get: vi.fn().mockResolvedValue(null),
+          set: vi.fn().mockResolvedValue(true)
         })
       }],
       ['PluginManager', {
@@ -39,8 +39,8 @@ class MockEngine {
       ['PolicyManager', { checkPermission: () => true }],
       ['VariableManager', { expandVariables: (s) => s }],
       ['AttachmentManager', { getAttachmentPath: async () => '', attachmentExists: async () => false }],
-      ['NotificationManager', { addNotification: jest.fn() }],
-      ['AuditManager', { logSecurityEvent: jest.fn() }]
+      ['NotificationManager', { addNotification: vi.fn() }],
+      ['AuditManager', { logSecurityEvent: vi.fn() }]
     ]);
   }
   getManager(name) { return this.managers.get(name) || null; }
