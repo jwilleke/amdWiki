@@ -7,6 +7,8 @@
  *   [{Form id='clubhouse-reservation'}]
  */
 
+import * as path from 'path';
+import { promises as fsp } from 'fs';
 import type { PluginContext, PluginParams } from '../../../dist/src/managers/PluginManager';
 import type ConfigurationManager from '../../../dist/src/managers/ConfigurationManager';
 import type FormsDataManager from '../managers/FormsDataManager';
@@ -20,21 +22,44 @@ function escHtml(str: string): string {
     .replace(/"/g, '&quot;');
 }
 
-function renderField(field: FormField & { resolvedOptions?: string[] }): string {
+type ResolvedField = FormField & { resolvedOptions?: string[]; prefillValue?: string };
+
+function resolvePrefill(
+  dotPath: string,
+  userCtx: Record<string, unknown>,
+  unitRecord: Record<string, unknown> | undefined
+): string {
+  if (!dotPath.startsWith('user.')) return '';
+  const sub = dotPath.slice(5);
+  if (sub.startsWith('unit.')) {
+    if (!unitRecord) return '';
+    const unitField = sub.slice(5);
+    const val = unitRecord[unitField];
+    return typeof val === 'string' ? val : '';
+  }
+  const val = userCtx[sub];
+  return typeof val === 'string' ? val : '';
+}
+
+function renderField(field: ResolvedField): string {
   const required = field.required ? ' required' : '';
   const placeholder = field.placeholder ? ` placeholder="${escHtml(field.placeholder)}"` : '';
   const desc = field.description
     ? `<div class="form-text text-muted">${escHtml(field.description)}</div>`
     : '';
   const requiredBadge = field.required ? ' <span class="text-danger">*</span>' : '';
+  const pv = field.prefillValue ?? '';
 
   let control = '';
 
   if (field.type === 'textarea') {
-    control = `<textarea name="${escHtml(field.name)}" class="form-control"${placeholder}${required} rows="4"></textarea>`;
+    control = `<textarea name="${escHtml(field.name)}" class="form-control"${placeholder}${required} rows="4">${escHtml(pv)}</textarea>`;
   } else if (field.type === 'dropdown') {
     const opts = (field.resolvedOptions ?? field.options ?? [])
-      .map(o => `<option value="${escHtml(o)}">${escHtml(o)}</option>`)
+      .map(o => {
+        const sel = pv && o === pv ? ' selected' : '';
+        return `<option value="${escHtml(o)}"${sel}>${escHtml(o)}</option>`;
+      })
       .join('');
     control = `<select name="${escHtml(field.name)}" class="form-select"${required}><option value="">— select —</option>${opts}</select>`;
   } else if (field.type === 'checkbox') {
@@ -46,7 +71,8 @@ function renderField(field: FormField & { resolvedOptions?: string[] }): string 
   } else if (field.type === 'hidden') {
     return `<input type="hidden" name="${escHtml(field.name)}">`;
   } else {
-    control = `<input type="${escHtml(field.type)}" name="${escHtml(field.name)}" id="field-${escHtml(field.name)}" class="form-control"${placeholder}${required}>`;
+    const valueAttr = pv ? ` value="${escHtml(pv)}"` : '';
+    control = `<input type="${escHtml(field.type)}" name="${escHtml(field.name)}" id="field-${escHtml(field.name)}" class="form-control"${placeholder}${required}${valueAttr}>`;
   }
 
   return `<div class="mb-3">
@@ -55,8 +81,6 @@ function renderField(field: FormField & { resolvedOptions?: string[] }): string 
     ${desc}
   </div>`;
 }
-
-type ResolvedField = FormField & { resolvedOptions?: string[] };
 
 function renderFieldset(label: string, fieldsHtml: string): string {
   return `<fieldset class="mb-4 border rounded p-3">
@@ -142,14 +166,36 @@ const FormsPlugin = {
 
     const cm = context.engine.getManager<ConfigurationManager>('ConfigurationManager');
 
-    // Resolve optionsSource for dropdown fields
-    const resolvedFields = form.fields.map(field => {
+    // Resolve unit record for user.unit.* prefill paths
+    const userCtx = context.userContext as Record<string, unknown> | undefined;
+    let unitRecord: Record<string, unknown> | undefined;
+    const needsUnit = form.fields.some(f => f.prefill?.startsWith('user.unit.'));
+    if (needsUnit && userCtx && cm) {
+      const parcel = userCtx['parcel'] as string | undefined;
+      if (parcel) {
+        try {
+          const fairwaysPath = cm.resolveDataPath('fairways');
+          const raw = await fsp.readFile(path.join(fairwaysPath, 'units.json'), 'utf8');
+          const units = JSON.parse(raw) as Array<Record<string, unknown>>;
+          unitRecord = units.find(u => u['parcel'] === parcel);
+        } catch { /* unit lookup failed — prefill renders empty */ }
+      }
+    }
+
+    // Resolve optionsSource and prefill for each field
+    const resolvedFields: ResolvedField[] = form.fields.map(field => {
+      let base: ResolvedField;
       if (field.type === 'dropdown' && field.optionsSource?.startsWith('config:') && cm) {
         const key = field.optionsSource.slice(7);
         const opts = cm.getProperty(key, []) as string[];
-        return { ...field, resolvedOptions: opts };
+        base = { ...field, resolvedOptions: opts };
+      } else {
+        base = { ...field, resolvedOptions: field.options };
       }
-      return { ...field, resolvedOptions: field.options };
+      if (field.prefill && userCtx) {
+        base.prefillValue = resolvePrefill(field.prefill, userCtx, unitRecord);
+      }
+      return base;
     });
 
     return renderForm(form, resolvedFields);
