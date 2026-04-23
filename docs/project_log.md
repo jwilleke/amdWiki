@@ -2,6 +2,39 @@
 
 AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version history.
 
+## 2026-04-23-10
+
+- Agent: Claude
+- Subject: Phase 1 (#580) — move addon management pages from /admin/ to /addons/
+- Current Issue: #580
+- Work Done:
+  - Moved route mounts for journal, calendar, and forms from /admin/<name> to /addons/<name>
+  - Updated dashboard card adminUrls for all three addons
+  - Updated POST redirect in addons/journal/routes/admin.ts
+  - Updated all four redirects in addons/forms/routes/builder.ts
+  - Updated views/admin-journal.ejs form action
+  - Updated all /admin/forms refs in four forms views (forms-admin, forms-builder, forms-submissions, forms-submission-detail)
+  - Fixed pre-existing bug in addons/forms/routes/admin.ts: catch blocks were returning 500 for ApiError (auth failures); now return 401/403
+  - Build, 118 suites/3050 tests, 72 E2E — all pass
+  - Posted completion comment on GitHub issue #580
+- Commits: a05ff438, 9d64cf6f
+- Files Modified:
+  - addons/calendar/index.ts
+  - addons/calendar/routes/admin.ts
+  - addons/forms/index.js
+  - addons/forms/index.ts
+  - addons/forms/routes/admin.ts
+  - addons/forms/routes/admin.js
+  - addons/forms/routes/builder.js
+  - addons/forms/routes/builder.ts
+  - addons/forms/views/forms-admin.ejs
+  - addons/forms/views/forms-builder.ejs
+  - addons/forms/views/forms-submission-detail.ejs
+  - addons/forms/views/forms-submissions.ejs
+  - addons/journal/index.ts
+  - addons/journal/routes/admin.ts
+  - views/admin-journal.ejs
+
 ## 2026-04-23-09
 
 - Agent: Claude
