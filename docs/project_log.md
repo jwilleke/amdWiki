@@ -2,6 +2,59 @@
 
 AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version history.
 
+## 2026-04-23-18
+
+- Agent: Claude
+- Subject: Migrate all four addon source files to ESM (issue #583); close #186 TypeScript Migration
+- Current Issue: #583
+- Work Done:
+  - Opened issue #583 to track addon ESM migration
+  - Closed issue #186 (TypeScript Migration) — core src/ was already fully migrated
+  - Identified all 24 addon .ts source files still using CJS patterns ('use strict', module.exports, missing .js extensions)
+  - Added `"type": "module"` to all four addon package.json files (required for NodeNext module resolution)
+  - Wrote and ran codemod to: remove 'use strict', remove module.exports shims, add export default, fix import * as path/express, add .js extensions to all relative imports, add fileURLToPath/__dirname shims
+  - Fixed inline `import(...)` type references in journal routes (not caught by top-level import regex)
+  - Fixed inline dynamic import in forms/routes/api.ts (ConfigurationManager)
+  - Fixed missing elasticsearch/routes/admin.ts (not in initial survey)
+  - Build: zero TypeScript errors
+  - Tests: 118/118, 3050/3050
+  - E2E: 72/72
+- Commits:
+  - 650cb0fb feat(#583): migrate all addon source files to ESM
+- Files Modified:
+  - addons/calendar/index.ts
+  - addons/calendar/managers/CalendarDataManager.ts
+  - addons/calendar/package.json
+  - addons/calendar/plugins/CalendarPlugin.ts
+  - addons/calendar/routes/admin.ts
+  - addons/calendar/routes/api.ts
+  - addons/calendar/routes/reservations.ts
+  - addons/elasticsearch/index.ts
+  - addons/elasticsearch/package.json
+  - addons/elasticsearch/routes/admin.ts
+  - addons/elasticsearch/src/Sist2AssetProvider.ts
+  - addons/forms/index.js
+  - addons/forms/index.ts
+  - addons/forms/managers/FormsDataManager.js
+  - addons/forms/managers/FormsDataManager.ts
+  - addons/forms/package.json
+  - addons/forms/plugins/FormsPlugin.ts
+  - addons/forms/routes/admin.js
+  - addons/forms/routes/admin.ts
+  - addons/forms/routes/api.ts
+  - addons/forms/routes/builder.js
+  - addons/forms/routes/builder.ts
+  - addons/journal/index.ts
+  - addons/journal/managers/JournalDataManager.ts
+  - addons/journal/managers/JournalTemplateManager.ts
+  - addons/journal/package.json
+  - addons/journal/plugins/JournalPlugin.ts
+  - addons/journal/routes/admin.ts
+  - addons/journal/routes/api.ts
+  - addons/journal/routes/editor.ts
+  - addons/journal/routes/helpers.ts
+  - addons/journal/routes/public.ts
+
 ## 2026-04-23-17
 
 - Agent: Claude
