@@ -45,7 +45,7 @@ export default function builderRoutes(engine: WikiEngine): Router {
 
   // ── GET / → redirect to list ─────────────────────────────────────────────────
   router.get('/', (_req: Request, res: Response) => {
-    res.redirect('/admin/forms');
+    res.redirect('/addons/forms');
   });
 
   // ── GET /new → blank builder ─────────────────────────────────────────────────
@@ -124,7 +124,7 @@ export default function builderRoutes(engine: WikiEngine): Router {
         }
 
         await m.saveDefinition(result.data);
-        res.redirect('/admin/forms?flash=saved');
+        res.redirect('/addons/forms?flash=saved');
       } catch (err) {
         if (handleAuthError(err, res)) return;
         res.status(500).send(String(err));
@@ -171,7 +171,7 @@ export default function builderRoutes(engine: WikiEngine): Router {
         }
 
         await m.saveDefinition(result.data);
-        res.redirect('/admin/forms?flash=saved');
+        res.redirect('/addons/forms?flash=saved');
       } catch (err) {
         if (handleAuthError(err, res)) return;
         res.status(500).send(String(err));
@@ -206,7 +206,7 @@ export default function builderRoutes(engine: WikiEngine): Router {
         }
 
         await m.deleteDefinition(formId);
-        res.redirect('/admin/forms?flash=deleted');
+        res.redirect('/addons/forms?flash=deleted');
       } catch (err) {
         if (handleAuthError(err, res)) return;
         res.status(500).send(String(err));

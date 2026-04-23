@@ -15,10 +15,10 @@ const tslib_1 = require("tslib");
  * Routes:
  *   POST /api/forms/submit/:formId        — submit a form
  *   GET  /api/forms/schema/:formId        — get form definition JSON
- *   GET  /admin/forms                     — list all forms + submission counts
- *   GET  /admin/forms/:formId/submissions — list submissions for a form
- *   GET  /admin/forms/:formId/submissions/:id — view a submission
- *   POST /admin/forms/:formId/submissions/:id/status — update submission status
+ *   GET  /addons/forms                     — list all forms + submission counts
+ *   GET  /addons/forms/:formId/submissions — list submissions for a form
+ *   GET  /addons/forms/:formId/submissions/:id — view a submission
+ *   POST /addons/forms/:formId/submissions/:id/status — update submission status
  *
  * Handler hook:
  *   const formsAddon = engine.getManager('FormsAddon');
@@ -84,7 +84,7 @@ const formsAddon = {
                 addonName: 'forms',
                 title: 'Forms',
                 icon: 'fas fa-wpforms',
-                adminUrl: '/admin/forms'
+                adminUrl: '/addons/forms'
             });
         }
         // ── 6. Register views directory ──────────────────────────────────────────
@@ -92,8 +92,8 @@ const formsAddon = {
         engine.app?.set('views', [...[existing].flat(), path.join(__dirname, 'views')]);
         // ── 7. Mount routes ──────────────────────────────────────────────────────
         engine.app?.use('/api/forms', (0, api_1.default)(engine, formsAddon));
-        engine.app?.use('/admin/forms/builder', (0, builder_1.default)(engine));
-        engine.app?.use('/admin/forms', (0, admin_1.default)(engine, formsAddon));
+        engine.app?.use('/addons/forms/builder', (0, builder_1.default)(engine));
+        engine.app?.use('/addons/forms', (0, admin_1.default)(engine, formsAddon));
         // ── 8. Announce capability ───────────────────────────────────────────────
         engine.setCapability('forms', true);
     },

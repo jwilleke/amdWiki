@@ -36,8 +36,8 @@
  *   GET  /journal/mood/:mood       — filter by mood
  *
  * Admin:
- *   GET  /admin/journal            — config panel (admin only)
- *   POST /admin/journal/settings   — placeholder save
+ *   GET  /addons/journal           — config panel (admin only)
+ *   POST /addons/journal/settings  — placeholder save
  */
 
 import * as path from 'path';
@@ -109,7 +109,7 @@ const journalAddon = {
     engine.app?.use('/api/journal',   apiRoutes(engine, config));
     engine.app?.use('/journal',       editorRoutes(engine, config));
     engine.app?.use('/journal',       publicRoutes(engine, config));
-    engine.app?.use('/admin/journal', adminRoutes(engine, config));
+    engine.app?.use('/addons/journal', adminRoutes(engine, config));
 
     // ── 6b. Wiki-link alias: [journal] → /journal ────────────────────────────
     // Addons load before WikiRoutes, so this fires before the /view/:pageName catch-all.
@@ -166,7 +166,7 @@ const journalAddon = {
         addonName: 'journal',
         title: 'Journal',
         icon: 'fas fa-book',
-        adminUrl: '/admin/journal'
+        adminUrl: '/addons/journal'
       });
     }
 

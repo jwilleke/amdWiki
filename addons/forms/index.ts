@@ -14,10 +14,10 @@
  * Routes:
  *   POST /api/forms/submit/:formId        — submit a form
  *   GET  /api/forms/schema/:formId        — get form definition JSON
- *   GET  /admin/forms                     — list all forms + submission counts
- *   GET  /admin/forms/:formId/submissions — list submissions for a form
- *   GET  /admin/forms/:formId/submissions/:id — view a submission
- *   POST /admin/forms/:formId/submissions/:id/status — update submission status
+ *   GET  /addons/forms                     — list all forms + submission counts
+ *   GET  /addons/forms/:formId/submissions — list submissions for a form
+ *   GET  /addons/forms/:formId/submissions/:id — view a submission
+ *   POST /addons/forms/:formId/submissions/:id/status — update submission status
  *
  * Handler hook:
  *   const formsAddon = engine.getManager('FormsAddon');
@@ -114,7 +114,7 @@ const formsAddon = {
         addonName: 'forms',
         title: 'Forms',
         icon: 'fas fa-wpforms',
-        adminUrl: '/admin/forms'
+        adminUrl: '/addons/forms'
       });
     }
 
@@ -124,8 +124,8 @@ const formsAddon = {
 
     // ── 7. Mount routes ──────────────────────────────────────────────────────
     engine.app?.use('/api/forms',           apiRoutes(engine, formsAddon));
-    engine.app?.use('/admin/forms/builder', builderRoutes(engine));
-    engine.app?.use('/admin/forms',         adminRoutes(engine, formsAddon));
+    engine.app?.use('/addons/forms/builder', builderRoutes(engine));
+    engine.app?.use('/addons/forms',         adminRoutes(engine, formsAddon));
 
     // ── 8. Announce capability ───────────────────────────────────────────────
     engine.setCapability('forms', true);

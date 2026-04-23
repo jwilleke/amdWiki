@@ -40,7 +40,7 @@ function builderRoutes(engine) {
     }
     // ── GET / → redirect to list ─────────────────────────────────────────────────
     router.get('/', (_req, res) => {
-        res.redirect('/admin/forms');
+        res.redirect('/addons/forms');
     });
     // ── GET /new → blank builder ─────────────────────────────────────────────────
     router.get('/new', (req, res) => {
@@ -120,7 +120,7 @@ function builderRoutes(engine) {
                     return;
                 }
                 await m.saveDefinition(result.data);
-                res.redirect('/admin/forms?flash=saved');
+                res.redirect('/addons/forms?flash=saved');
             }
             catch (err) {
                 if (handleAuthError(err, res))
@@ -169,7 +169,7 @@ function builderRoutes(engine) {
                     return;
                 }
                 await m.saveDefinition(result.data);
-                res.redirect('/admin/forms?flash=saved');
+                res.redirect('/addons/forms?flash=saved');
             }
             catch (err) {
                 if (handleAuthError(err, res))
@@ -207,7 +207,7 @@ function builderRoutes(engine) {
                     return;
                 }
                 await m.deleteDefinition(formId);
-                res.redirect('/admin/forms?flash=deleted');
+                res.redirect('/addons/forms?flash=deleted');
             }
             catch (err) {
                 if (handleAuthError(err, res))

@@ -2,11 +2,11 @@
 
 /**
  * Admin routes for the journal add-on.
- * Mounted at /admin/journal in register().
+ * Mounted at /addons/journal in register().
  *
  * Endpoints:
- *   GET   /admin/journal           — config panel
- *   POST  /admin/journal/settings  — save config (placeholder — config stored externally)
+ *   GET   /addons/journal           — config panel
+ *   POST  /addons/journal/settings  — save config (placeholder — config stored externally)
  */
 
 import { Router, type Request, type Response } from 'express';
@@ -85,7 +85,7 @@ export default function adminRoutes(engine: WikiEngine, config: Record<string, u
 
       // Config changes require editing app-custom-config.json directly.
       // This route exists as a placeholder for a future config-write API.
-      res.redirect('/admin/journal?success=Settings+saved+(restart+required+for+config+changes)');
+      res.redirect('/addons/journal?success=Settings+saved+(restart+required+for+config+changes)');
     } catch (err) {
       if (err instanceof ApiError) {
         res.status(err.status).send(err.message);

@@ -3,8 +3,8 @@
 <div class="container mt-4" style="max-width:800px">
   <nav aria-label="breadcrumb" class="mb-3">
     <ol class="breadcrumb">
-      <li class="breadcrumb-item"><a href="/admin/forms">Forms</a></li>
-      <li class="breadcrumb-item"><a href="/admin/forms/<%= encodeURIComponent(form.id) %>/submissions"><%= form.title %></a></li>
+      <li class="breadcrumb-item"><a href="/addons/forms">Forms</a></li>
+      <li class="breadcrumb-item"><a href="/addons/forms/<%= encodeURIComponent(form.id) %>/submissions"><%= form.title %></a></li>
       <li class="breadcrumb-item active">Detail</li>
     </ol>
   </nav>
@@ -101,7 +101,7 @@ document.getElementById('status-form').addEventListener('submit', async (e) => {
   const data = Object.fromEntries(new FormData(e.target));
   const result = document.getElementById('status-result');
   try {
-    const res = await fetch('/admin/forms/<%= encodeURIComponent(form.id) %>/submissions/<%= encodeURIComponent(submission.id) %>/status', {
+    const res = await fetch('/addons/forms/<%= encodeURIComponent(form.id) %>/submissions/<%= encodeURIComponent(submission.id) %>/status', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data)

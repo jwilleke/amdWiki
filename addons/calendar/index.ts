@@ -25,7 +25,7 @@
  *   DELETE /api/calendar/reservations/:id         — cancel reservation (owner/manager/admin)
  *
  * Admin route:
- *   GET    /admin/calendar                        — management dashboard (admin/clubhouse-manager)
+ *   GET    /addons/calendar                       — management dashboard (admin/clubhouse-manager)
  *
  * Markup directives:
  *   [{Calendar}]
@@ -89,14 +89,14 @@ const calendarAddon = {
         addonName: 'calendar',
         title: 'Calendar',
         icon: 'fas fa-calendar-alt',
-        adminUrl: '/admin/calendar'
+        adminUrl: '/addons/calendar'
       });
     }
 
     // ── 5. Mount API routes ──────────────────────────────────────────────────
     engine.app?.use('/api/calendar', apiRoutes(engine, config));
     engine.app?.use('/api/calendar', reservationRoutes(engine, config));
-    engine.app?.use('/admin/calendar', adminRoutes(engine, config));
+    engine.app?.use('/addons/calendar', adminRoutes(engine, config));
 
     // ── 6. Announce capability ───────────────────────────────────────────────
     engine.setCapability('calendar', true);

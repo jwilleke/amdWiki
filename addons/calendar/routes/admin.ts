@@ -8,10 +8,10 @@ import type { CalendarConfig } from '../managers/CalendarConfig';
 
 /**
  * Admin routes for the calendar add-on.
- * Mounted at /admin/calendar in register().
+ * Mounted at /addons/calendar in register().
  *
  * Endpoints:
- *   GET  /admin/calendar       — calendar management dashboard
+ *   GET  /addons/calendar      — calendar management dashboard
  */
 export default function adminRoutes(
   engine: WikiEngine,
@@ -30,7 +30,7 @@ export default function adminRoutes(
     return raw as Record<string, CalendarConfig>;
   }
 
-  // ── GET /admin/calendar ──────────────────────────────────────────────────
+  // ── GET /addons/calendar ─────────────────────────────────────────────────
   router.get('/', (req: Request, res: Response) => {
     try {
       const ctx = ApiContext.from(req, engine);
