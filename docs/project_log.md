@@ -2,6 +2,27 @@
 
 AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version history.
 
+## 2026-04-23-01
+
+- Agent: Claude
+- Subject: Forms addon bug fixes, docs corrections, multi-site deployment
+- Current Issue: #463
+- Work Done:
+  - Fixed duplicate `slug` key in `using-forms-addon.md` frontmatter (caused YAML parse failure, page not seeding)
+  - Replaced fake UUID `f0rm5-he1p-0000-0000-000000000001` with valid UUID v4 `a8581ca3-9330-43d3-a854-55e627eb56a8`
+  - Renamed page file from `forms-help.md` to `using-forms-addon.md` to match slug
+  - Replaced live `[{Form id='clubhouse-reservation'}]` example in FormPlugin doc with code blocks — form definitions are site-specific, not universal
+  - Fixed `z.record(z.unknown())` → `z.record(z.string(), z.unknown())` for Zod v3 backward compatibility
+  - Added `cd addons/forms && npm install --silent` to `build:addons` script so forms dependencies are always installed before compilation
+  - Deployed to fairways-base (port 2121) and ngdpbase-veg (port 3333): git pull → build → unit tests (2981/2981) → E2E tests (72/72) → server start
+  - Verified end-to-end reservation flow on Fairways: form submission created calendar event `88e08f38` for Jim Willeke Apr 24
+- Commits: 5102fcfb, 095ab05d, affeae3e, 99bedec6
+- Files Modified:
+  - addons/forms/pages/using-forms-addon.md (renamed from forms-help.md; UUID + slug fixes)
+  - required-pages/a4f9c2e1-7b3d-4a85-9e6f-1c2d3b4a5e6f.md
+  - addons/forms/managers/FormsDataManager.ts
+  - package.json
+
 ## 2026-04-22-13
 
 - Agent: Claude
