@@ -2,6 +2,26 @@
 
 AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version history.
 
+## 2026-04-23-17
+
+- Agent: Claude
+- Subject: /othersites — propagate ESM migration to all three other instances; fix playwright.config.ts __dirname
+- Current Issue: #579
+- Work Done:
+  - Pushed ESM migration commits (91b0a074, 47a9397a) to remote (were 3 commits ahead of origin)
+  - git pull on fairways-base, ngdpbase-veg, ngdp-temp-builds/ngdpbase — all 161-file ESM migration pulled cleanly
+  - Rebuilt all three instances (npm run build) — zero errors
+  - Ran unit tests on all three — 118/118 files, 3050/3050 tests each
+  - Started all three servers — online with 0 restarts
+  - Ran E2E tests — all three failed: playwright.config.ts used __dirname (not available in ESM scope)
+  - Fixed playwright.config.ts: added fileURLToPath/import.meta.url __dirname shim (commit 137ea008)
+  - Pulled fix and re-ran E2E on all three sites: fairways-base 72/72, ngdpbase-veg 72/72
+  - ngdp-temp-builds: auth.setup failed (pre-existing incomplete install wizard, not a code issue)
+- Commits:
+  - 137ea008 fix(#579): add ESM __dirname shim to playwright.config.ts
+- Files Modified:
+  - playwright.config.ts
+
 ## 2026-04-23-16
 
 - Agent: Claude
