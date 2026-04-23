@@ -8,7 +8,7 @@ function adminRoutes(engine, _addon) {
     function fdm() {
         return engine.getManager('FormsDataManager');
     }
-    // ── GET /admin/forms ───────────────────────────────────────────────────────
+    // ── GET /addons/forms ─────────────────────────────────────────────────────
     router.get('/', (req, res) => {
         void (async () => {
             try {
@@ -28,11 +28,15 @@ function adminRoutes(engine, _addon) {
                 });
             }
             catch (err) {
+                if (err instanceof ApiContext_1.ApiError) {
+                    res.status(err.status).send(err.message);
+                    return;
+                }
                 res.status(500).send(String(err));
             }
         })();
     });
-    // ── GET /admin/forms/:formId/submissions ───────────────────────────────────
+    // ── GET /addons/forms/:formId/submissions ─────────────────────────────────
     router.get('/:formId/submissions', (req, res) => {
         void (async () => {
             try {
@@ -57,11 +61,15 @@ function adminRoutes(engine, _addon) {
                 });
             }
             catch (err) {
+                if (err instanceof ApiContext_1.ApiError) {
+                    res.status(err.status).send(err.message);
+                    return;
+                }
                 res.status(500).send(String(err));
             }
         })();
     });
-    // ── GET /admin/forms/:formId/submissions/:submissionId ─────────────────────
+    // ── GET /addons/forms/:formId/submissions/:submissionId ───────────────────
     router.get('/:formId/submissions/:submissionId', (req, res) => {
         void (async () => {
             try {
@@ -87,11 +95,15 @@ function adminRoutes(engine, _addon) {
                 });
             }
             catch (err) {
+                if (err instanceof ApiContext_1.ApiError) {
+                    res.status(err.status).send(err.message);
+                    return;
+                }
                 res.status(500).send(String(err));
             }
         })();
     });
-    // ── POST /admin/forms/:formId/submissions/:submissionId/status ─────────────
+    // ── POST /addons/forms/:formId/submissions/:submissionId/status ───────────
     router.post('/:formId/submissions/:submissionId/status', (req, res) => {
         void (async () => {
             try {
@@ -114,6 +126,10 @@ function adminRoutes(engine, _addon) {
                 res.json({ ok: true });
             }
             catch (err) {
+                if (err instanceof ApiContext_1.ApiError) {
+                    res.status(err.status).json({ ok: false, error: err.message });
+                    return;
+                }
                 res.status(500).json({ ok: false, error: String(err) });
             }
         })();

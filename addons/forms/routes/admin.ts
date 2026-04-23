@@ -1,7 +1,7 @@
 'use strict';
 
 import { Router, type Request, type Response } from 'express';
-import { ApiContext } from '../../../dist/src/context/ApiContext';
+import { ApiContext, ApiError } from '../../../dist/src/context/ApiContext';
 import type { WikiEngine } from '../../../dist/src/types/WikiEngine';
 import type FormsDataManager from '../managers/FormsDataManager';
 import type { SubmissionStatus } from '../managers/FormsDataManager';
@@ -13,7 +13,7 @@ export default function adminRoutes(engine: WikiEngine, _addon: unknown): Router
     return engine.getManager<FormsDataManager>('FormsDataManager');
   }
 
-  // ── GET /admin/forms ───────────────────────────────────────────────────────
+  // ── GET /addons/forms ─────────────────────────────────────────────────────
   router.get('/', (req: Request, res: Response) => {
     void (async () => {
       try {
@@ -37,12 +37,13 @@ export default function adminRoutes(engine: WikiEngine, _addon: unknown): Router
           query: req.query
         });
       } catch (err) {
+        if (err instanceof ApiError) { res.status(err.status).send(err.message); return; }
         res.status(500).send(String(err));
       }
     })();
   });
 
-  // ── GET /admin/forms/:formId/submissions ───────────────────────────────────
+  // ── GET /addons/forms/:formId/submissions ─────────────────────────────────
   router.get('/:formId/submissions', (req: Request, res: Response) => {
     void (async () => {
       try {
@@ -65,12 +66,13 @@ export default function adminRoutes(engine: WikiEngine, _addon: unknown): Router
           filterStatus: status ?? 'all'
         });
       } catch (err) {
+        if (err instanceof ApiError) { res.status(err.status).send(err.message); return; }
         res.status(500).send(String(err));
       }
     })();
   });
 
-  // ── GET /admin/forms/:formId/submissions/:submissionId ─────────────────────
+  // ── GET /addons/forms/:formId/submissions/:submissionId ───────────────────
   router.get('/:formId/submissions/:submissionId', (req: Request, res: Response) => {
     void (async () => {
       try {
@@ -92,12 +94,13 @@ export default function adminRoutes(engine: WikiEngine, _addon: unknown): Router
           submission
         });
       } catch (err) {
+        if (err instanceof ApiError) { res.status(err.status).send(err.message); return; }
         res.status(500).send(String(err));
       }
     })();
   });
 
-  // ── POST /admin/forms/:formId/submissions/:submissionId/status ─────────────
+  // ── POST /addons/forms/:formId/submissions/:submissionId/status ───────────
   router.post('/:formId/submissions/:submissionId/status', (req: Request, res: Response) => {
     void (async () => {
       try {
@@ -119,6 +122,7 @@ export default function adminRoutes(engine: WikiEngine, _addon: unknown): Router
         if (!updated) { res.status(404).json({ ok: false, error: 'Submission not found' }); return; }
         res.json({ ok: true });
       } catch (err) {
+        if (err instanceof ApiError) { res.status(err.status).json({ ok: false, error: err.message }); return; }
         res.status(500).json({ ok: false, error: String(err) });
       }
     })();
