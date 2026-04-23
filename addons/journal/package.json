@@ -5,7 +5,7 @@
   "private": true,
   "dependencies": {
     "express": "^5.2.1",
-    "uuid": "^9.0.0"
+    "uuid": "^9.0.1"
   },
   "devDependencies": {
     "@types/express": "^5.0.0",
