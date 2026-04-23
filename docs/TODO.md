@@ -12,6 +12,60 @@ slug: ngdpbase-todo
 
 # Project Development TODO
 
+## [FEATURE] ADD-ON Request - Response System #494
+
+Usere stories 
+
+Mjor category for requests
+
+- Maintenance
+  - ANIMAL
+  - DRIVEWAY
+  - FIREPLACE
+  - GUTTERS-DOWNSPOUT
+  - LANDSCAPING
+  - LIGHTING
+  - MAILBOX
+  - PAINTING
+  - PETS
+  - RAILING
+  - ROOF
+  - SIDING
+  - SNOW-ICE
+  - STEPS-WALKWAY
+  - SURFACE WATER
+  - TRASH
+  - OTHER
+
+- Clubhouse
+  - Make Reservation
+  - Cancel Reservation
+  - List My Reservations
+- Question
+- BOARD REQUEST
+
+
+ANIMAL
+DRIVEWAY
+FIREPLACE
+GUTTERS-DOWNSPOUT
+LANDSCAPING
+LIGHTING
+MAILBOX
+PAINTING
+PETS
+RAILING
+ROOF
+SIDING
+SNOW-ICE
+STEPS-WALKWAY
+SURFACE WATER
+TRASH
+UNIT OWNER - Maintenance
+OTHER
+
+
+
   1. Test mocks don't fully implement WikiEngine (most common — ~20 files)
   Partial mock objects like { getManager: jest.Mock<...> } passed as WikiEngine. The WikiEngine type has grown over time and test mocks haven't kept up.
 
