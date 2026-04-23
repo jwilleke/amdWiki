@@ -16,7 +16,7 @@ export const FieldSchema = z.object({
   placeholder:   z.string().optional(),
   optionsSource: z.string().optional(),
   options:       z.array(z.string()).optional(),
-  prefill:       z.string().optional() // e.g. "user.email", "user.cellPhone"
+  prefill:       z.string().optional(),
 });
 
 export const FormDefinitionSchema = z.object({
