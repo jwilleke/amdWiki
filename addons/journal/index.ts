@@ -64,7 +64,7 @@ const journalAddon = {
   name: 'journal',
   version: '1.0.0',
   description: 'Personal journal — entries are wiki pages with timeline rendering',
-  author: '',
+  author: 'ngdpbase',
   dependencies: [] as string[],
 
   async register(engine: WikiEngine, config: Record<string, unknown>): Promise<void> {

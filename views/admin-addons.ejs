@@ -65,8 +65,8 @@
                                 <% } %>
                             </td>
                             <td><code><%= addon.version || '—' %></code></td>
-                            <td><%= addon.description || '<span class="text-muted">—</span>' %></td>
-                            <td><%= addon.author || '<span class="text-muted">—</span>' %></td>
+                            <td><% if (addon.description) { %><%= addon.description %><% } else { %><span class="text-muted">—</span><% } %></td>
+                            <td><% if (addon.author) { %><%= addon.author %><% } else { %><span class="text-muted">—</span><% } %></td>
                             <td>
                                 <% if (addon.dependencies && addon.dependencies.length > 0) { %>
                                     <% addon.dependencies.forEach(dep => { %>

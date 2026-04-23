@@ -42,13 +42,13 @@ const elasticsearchAddon = {
   name: 'elasticsearch',
   version: '1.0.0',
   description: 'Elasticsearch external asset provider (sist2/S3/NAS)',
-  author: '',
+  author: 'ngdpbase',
   dependencies: [] as string[],
 
   /**
    * Called at startup when the add-on is enabled.
    */
-  // eslint-disable-next-line @typescript-eslint/require-await
+   
   async register(engine: WikiEngine, config: Record<string, unknown>): Promise<void> {
     const esUrl    = typeof config['es-url']    === 'string' ? config['es-url']    : 'http://localhost:9200';
     const esIndex  = typeof config['es-index']  === 'string' ? config['es-index']  : 'sist2';
@@ -105,7 +105,7 @@ const elasticsearchAddon = {
   },
 
   /** Cleanup on graceful shutdown. */
-  // eslint-disable-next-line @typescript-eslint/require-await
+   
   async shutdown(): Promise<void> {
     provider = null;
   }
