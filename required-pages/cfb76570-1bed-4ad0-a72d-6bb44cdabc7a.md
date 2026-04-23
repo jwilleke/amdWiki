@@ -1,5 +1,5 @@
 ---
-title: CalendarPlugin
+title: Using CalendarPlugin
 uuid: cfb76570-1bed-4ad0-a72d-6bb44cdabc7a
 system-category: documentation
 user-keywords:
@@ -7,11 +7,11 @@ user-keywords:
   - Calendar
   - Events
   - Schedule
-slug: calendarplugin
-lastModified: '2026-04-05T00:00:00.000Z'
+slug: using-calendarplugin
+lastModified: '2026-04-23T00:00:00.000Z'
 author: system
 ---
-# CalendarPlugin
+# Using CalendarPlugin
 
 The **CalendarPlugin** embeds an interactive event calendar into any page.
 

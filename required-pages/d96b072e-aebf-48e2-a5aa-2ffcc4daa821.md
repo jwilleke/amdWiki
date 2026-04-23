@@ -1,5 +1,5 @@
 ---
-title: FootnotesPlugin
+title: Using FootnotesPlugin
 uuid: d96b072e-aebf-48e2-a5aa-2ffcc4daa821
 system-category: documentation
 user-keywords:
@@ -8,11 +8,11 @@ user-keywords:
   - references
   - external links
   - citations
-slug: footnotesplugin
-lastModified: '2026-04-21T13:00:00.000Z'
+slug: using-footnotesplugin
+lastModified: '2026-04-23T00:00:00.000Z'
 author: system
 ---
-# FootnotesPlugin
+# Using FootnotesPlugin
 
 [{FootnotesPlugin}] collects all footnote definitions from the current page and renders them as a numbered reference list.
 

@@ -1,5 +1,5 @@
 ---
-title: ImagePlugin
+title: Using ImagePlugin
 system-category: documentation
 user-keywords:
   - Image
@@ -9,11 +9,11 @@ user-keywords:
   - Plugin
   - Picture
 uuid: 6bdacfac-300d-4d89-ad4a-2acc98e12bc5
-slug: imageplugin
-lastModified: '2026-04-20T00:00:00.000Z'
+slug: using-imageplugin
+lastModified: '2026-04-23T00:00:00.000Z'
 author: system
 ---
-# ImagePlugin
+# Using ImagePlugin
 
 The **ImagePlugin** embeds images in pages with flexible layout and display options. See [Plugins] for a complete list of available plugins.
 
@@ -163,4 +163,4 @@ If the [Media] feature is enabled, reference library photos without uploading th
 
 Use `width='300'` for a fixed pixel size, or `width='50%'` for relative sizing. Use `display='full'` for full container width.
 
-For uploading files, see [Attachments]. To embed files (PDFs, documents, and images), see [AttachPlugin]. To browse and embed photos from the media library, see [Media].
+For uploading files, see [Attachments]. To embed files (PDFs, documents, and images), see [Using AttachPlugin]. To browse and embed photos from the media library, see [Media].

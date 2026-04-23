@@ -1,5 +1,5 @@
 ---
-title: CounterPlugin
+title: Using CounterPlugin
 system-category: documentation
 user-keywords:
   - Counter
@@ -7,11 +7,11 @@ user-keywords:
   - Numbering
   - Sequential
 uuid: ff2c3a6d-fdfc-479f-90e3-585dc2b3abd0
-slug: counterplugin
-lastModified: '2026-04-19T00:00:00.000Z'
+slug: using-counterplugin
+lastModified: '2026-04-23T00:00:00.000Z'
 author: system
 ---
-# CounterPlugin
+# Using CounterPlugin
 
 The **CounterPlugin** maintains page-level counters that increment each time they render — useful for numbering figures, sections, or any sequential items on a page.
 

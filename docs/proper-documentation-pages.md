@@ -28,10 +28,10 @@ Use the title pattern that matches the page's **audience and purpose**:
 | Page type | Audience | Title pattern | Example |
 | --- | --- | --- | --- |
 | End-user guide | Residents, members, visitors — people who *use* the site | `Using <Feature>` | `Using Reservation Form`, `Using the Calendar` |
+| Plugin end-user guide | Anyone using a built-in plugin | `Using <Name>Plugin` | `Using CalendarPlugin`, `Using AttachPlugin`, `Using FormPlugin` |
 | Editor/admin how-to | Page editors and site administrators | Descriptive verb phrase | `Embedding a Form`, `Managing Submissions` |
 | Admin/operator reference | Administrators | Descriptive noun phrase | `Form Definition Reference`, `Configuration Properties Reference` |
 | Developer/system reference | Developers | Technical name | `API Documentation`, `Plugin` |
-| Plugin reference | Developers/editors | `<Name>Plugin` | `CalendarPlugin`, `AttachPlugin`, `FormPlugin` |
 
 ### The "Using \<Feature\>" pattern — end-user only
 
