@@ -2,6 +2,25 @@
 
 AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version history.
 
+## 2026-04-23-02
+
+- Agent: Claude
+- Subject: Forms addon — enhanced confirmation email, section field type, confirmationUrl
+- Current Issue: #463, #571
+- Work Done:
+  - Added `section` field type to Zod enum in FormsDataManager; skip in validator; render as labelled `<hr>` divider in FormsPlugin
+  - Added `confirmationUrl` optional field to FormDefinitionSchema
+  - Enhanced confirmation email: includes all field values, onBehalfOf requester block, link to reservation page, submission ID
+  - Skip section/hidden/checkbox fields in email detail lines
+  - Added `confirmationUrl: "/view/makeareservation"` to Fairways clubhouse-reservation.json
+  - Built and deployed to Fairways (port 2121)
+- Commits: c5f1b580
+- Files Modified:
+  - addons/forms/managers/FormsDataManager.ts
+  - addons/forms/plugins/FormsPlugin.ts
+  - addons/forms/routes/api.ts
+  - /Volumes/hd2A/workspaces/github/fairways-base/data/forms/definitions/clubhouse-reservation.json (live data)
+
 ## 2026-04-23-01
 
 - Agent: Claude
