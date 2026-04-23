@@ -5,10 +5,13 @@ import WikiRoutes from '../WikiRoutes';
 import { type MockInstance } from 'vitest';
 
 // Mock LocaleUtils
-vi.mock('../../utils/LocaleUtils', () => ({
-  getDateFormatOptions: vi.fn().mockReturnValue(['MM/dd/yyyy', 'dd/MM/yyyy', 'yyyy-MM-dd']),
-  getDateFormatFromLocale: vi.fn().mockReturnValue('MM/dd/yyyy')
-}));
+vi.mock('../../utils/LocaleUtils', () => {
+  const methods = {
+    getDateFormatOptions: vi.fn().mockReturnValue(['MM/dd/yyyy', 'dd/MM/yyyy', 'yyyy-MM-dd']),
+    getDateFormatFromLocale: vi.fn().mockReturnValue('MM/dd/yyyy')
+  };
+  return { default: methods, ...methods };
+});
 
 // Mock WikiContext - the central context object for all wiki operations
 // This allows tests to control userContext, pageName, and other context properties

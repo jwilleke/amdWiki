@@ -3,15 +3,20 @@
  */
 
 // ── Mock fs so unit lookup doesn't hit disk ───────────────────────────────────
+// vi.spyOn patches the live fs.promises object in-place so the spy is
+// observed regardless of whether the module used ESM import or CJS require.
+import * as fsMod from 'fs';
 
-const mockReadFile = vi.fn<(p: string, enc: string) => Promise<string>>();
-vi.mock('fs', () => ({
-  promises: { readFile: (p: string, enc: string) => mockReadFile(p, enc) }
-}));
+let readFileSpy: ReturnType<typeof vi.spyOn>;
 
-// Import AFTER mocking so the mock is in place when the module loads
-const FormsPluginModule = require('../plugins/FormsPlugin') as { default: { name: string; execute: (ctx: unknown, params: unknown) => Promise<string> } };
-const FormsPlugin = FormsPluginModule.default;
+// Import AFTER registering the spy (spy is set up in beforeEach/beforeAll)
+type FormsPluginType = { name: string; execute: (ctx: unknown, params: unknown) => Promise<string> };
+let FormsPlugin: FormsPluginType;
+
+beforeAll(async () => {
+  const mod = await import('../plugins/FormsPlugin');
+  FormsPlugin = ((mod as unknown as { default: FormsPluginType }).default ?? mod) as FormsPluginType;
+});
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -153,6 +158,11 @@ describe('FormsPlugin — prefill with logged-in user', () => {
 describe('FormsPlugin — user.unit.* prefill', () => {
   const userCtx = { username: 'jim', displayName: 'Jim', parcel: '66-09960.043', roles: [] };
 
+  // vi.spyOn patches the live fs.promises object in-place so the spy is
+  // observed regardless of whether FormsPlugin used ESM import or CJS require.
+   
+  let readFileSpy: any;
+
   function makeUnitForm() {
     return {
       ...makeForm([
@@ -162,11 +172,15 @@ describe('FormsPlugin — user.unit.* prefill', () => {
   }
 
   beforeEach(() => {
-    mockReadFile.mockReset();
+    readFileSpy = vi.spyOn(fsMod.promises, 'readFile');
+  });
+
+  afterEach(() => {
+    readFileSpy?.mockRestore();
   });
 
   test('resolves unit address from units.json by parcel', async () => {
-    mockReadFile.mockResolvedValue(JSON.stringify(UNITS) as unknown as never);
+    readFileSpy.mockResolvedValue(JSON.stringify(UNITS));
     const ctx = {
       engine: makeEngine(makeUnitForm()),
       userContext: userCtx,
@@ -174,14 +188,14 @@ describe('FormsPlugin — user.unit.* prefill', () => {
     };
     const html = await FormsPlugin.execute(ctx, { id: 'test-form' });
     expect(html).toContain('value="43 Fairways Drive"');
-    expect(mockReadFile).toHaveBeenCalledWith(
+    expect(readFileSpy).toHaveBeenCalledWith(
       expect.stringContaining('units.json'),
       'utf8'
     );
   });
 
   test('renders empty address when parcel does not match any unit', async () => {
-    mockReadFile.mockResolvedValue(JSON.stringify(UNITS) as unknown as never);
+    readFileSpy.mockResolvedValue(JSON.stringify(UNITS));
     const ctx = {
       engine: makeEngine(makeUnitForm()),
       userContext: { ...userCtx, parcel: '66-09960.999' },
@@ -192,7 +206,7 @@ describe('FormsPlugin — user.unit.* prefill', () => {
   });
 
   test('renders empty address when units.json read fails', async () => {
-    mockReadFile.mockRejectedValue(new Error('ENOENT') as unknown as never);
+    readFileSpy.mockRejectedValue(new Error('ENOENT'));
     const ctx = {
       engine: makeEngine(makeUnitForm()),
       userContext: userCtx,
@@ -210,7 +224,7 @@ describe('FormsPlugin — user.unit.* prefill', () => {
       pageName: 'test'
     };
     const html = await FormsPlugin.execute(ctx, { id: 'test-form' });
-    expect(mockReadFile).not.toHaveBeenCalled();
+    expect(readFileSpy).not.toHaveBeenCalled();
     expect(html).toContain('name="address"');
   });
 
@@ -224,7 +238,7 @@ describe('FormsPlugin — user.unit.* prefill', () => {
       pageName: 'test'
     };
     await FormsPlugin.execute(ctx, { id: 'test-form' });
-    expect(mockReadFile).not.toHaveBeenCalled();
+    expect(readFileSpy).not.toHaveBeenCalled();
   });
 });
 
