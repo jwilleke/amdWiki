@@ -6304,7 +6304,17 @@ ${panes}
           }
         } else {
           const destContent: string = await fse.readFile(destPath, 'utf8');
-          const { data: destData } = matter(destContent);
+          let destData: Record<string, unknown> = {};
+          try {
+            ({ data: destData } = matter(destContent));
+          } catch (yamlErr) {
+            // Live copy has malformed YAML frontmatter (e.g. missing closing ---).
+            // Treat as modified so the admin can re-sync to heal it.
+            logger.warn(`[adminRequiredPages] malformed frontmatter in live copy ${uuid}: ${String(yamlErr)}`);
+            status = 'modified';
+            comparison.push({ uuid, title, slug, lastModified, status, userModified, liveUuid, titleDrift, liveTitle, affectedLinks });
+            continue;
+          }
           // Auto-heal System/Admin → system (invalid legacy category)
           if ((destData['system-category'] as string | undefined)?.toLowerCase() === 'system/admin') {
             destData['system-category'] = 'system';
