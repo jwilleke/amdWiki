@@ -1,0 +1,87 @@
+<%- include('header', { pageName: 'Elasticsearch Admin' }) %>
+
+<div class="container mt-4">
+
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1><i class="fas fa-search"></i> Elasticsearch / sist2</h1>
+    <a href="/admin" class="btn btn-sm btn-secondary">
+      <i class="fas fa-arrow-left"></i> Admin
+    </a>
+  </div>
+
+  <%# ── Status card ──────────────────────────────────────────────────────── %>
+  <div class="card mb-4">
+    <div class="card-header d-flex align-items-center gap-2">
+      <h5 class="mb-0"><i class="fas fa-heartbeat"></i> Connection Status</h5>
+      <% if (healthy) { %>
+        <span class="badge bg-success ms-auto">Healthy</span>
+      <% } else { %>
+        <span class="badge bg-danger ms-auto">Unreachable</span>
+      <% } %>
+    </div>
+    <div class="card-body">
+      <p class="mb-0 <%= healthy ? 'text-success' : 'text-danger' %>">
+        <i class="fas fa-<%= healthy ? 'check-circle' : 'exclamation-triangle' %> me-1"></i>
+        <%= message %>
+      </p>
+    </div>
+  </div>
+
+  <%# ── Configuration card ──────────────────────────────────────────────── %>
+  <div class="card mb-4">
+    <div class="card-header">
+      <h5 class="mb-0"><i class="fas fa-cog"></i> Configuration</h5>
+    </div>
+    <div class="card-body p-0">
+      <table class="table table-sm mb-0">
+        <tbody>
+          <tr>
+            <th class="ps-3" style="width:200px">es-url</th>
+            <td><code><%= config.esUrl %></code></td>
+          </tr>
+          <tr>
+            <th class="ps-3">es-index</th>
+            <td><code><%= config.esIndex %></code></td>
+          </tr>
+          <tr>
+            <th class="ps-3">sist2-url</th>
+            <td><code><%= config.sist2Url %></code></td>
+          </tr>
+          <tr>
+            <th class="ps-3">index-ids</th>
+            <td>
+              <% if (config.indexIds.length === 0) { %>
+                <span class="text-muted">all indices</span>
+              <% } else { %>
+                <% config.indexIds.forEach(function(id) { %>
+                  <span class="badge bg-secondary me-1"><%= id %></span>
+                <% }); %>
+              <% } %>
+            </td>
+          </tr>
+          <tr>
+            <th class="ps-3">hidden-paths</th>
+            <td>
+              <% if (!config.hiddenPaths || config.hiddenPaths.length === 0) { %>
+                <span class="text-muted">none</span>
+              <% } else { %>
+                <ul class="mb-0 ps-3">
+                  <% config.hiddenPaths.forEach(function(p) { %>
+                    <li><code><%= p %></code></li>
+                  <% }); %>
+                </ul>
+              <% } %>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="card-footer text-muted small">
+      Configuration is read from <code>app-custom-config.json</code> under
+      <code>ngdpbase.addons.elasticsearch.*</code>. Restart the server to apply changes.
+    </div>
+  </div>
+
+</div>
+
+<%- include('footer') %>

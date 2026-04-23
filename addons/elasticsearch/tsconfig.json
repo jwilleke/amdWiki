@@ -10,6 +10,7 @@
   },
   "include": [
     "index.ts",
+    "routes/**/*.ts",
     "src/**/*.ts",
     "../../src/types/**/*.d.ts"
   ],

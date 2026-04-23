@@ -29,6 +29,7 @@
  * Tags: sist2 `tag` field maps to AssetRecord.keywords (read-only).
  */
 
+import * as path from 'path';
 import { Client } from '@elastic/elasticsearch';
 import type { WikiEngine } from '../../dist/src/types/WikiEngine';
 import type AddonsManager from '../../dist/src/managers/AddonsManager';
@@ -36,8 +37,10 @@ import type { AddonStatusDetails } from '../../dist/src/managers/AddonsManager';
 import type AssetManager from '../../dist/src/managers/AssetManager';
 import { Sist2AssetProvider } from './src/Sist2AssetProvider';
 import logger from '../../dist/src/utils/logger';
+import adminRoutes from './routes/admin';
 
 let provider: Sist2AssetProvider | null = null;
+let storedConfig: { esUrl: string; esIndex: string; sist2Url: string; indexIds: number[]; hiddenPaths: string[] | null } | null = null;
 
 const elasticsearchAddon = {
   name: 'elasticsearch',
@@ -79,6 +82,7 @@ const elasticsearchAddon = {
 
     const client = new Client({ node: esUrl });
     provider = new Sist2AssetProvider(client, esIndex, sist2Url, indexIds, pathAccess, hiddenPaths);
+    storedConfig = { esUrl, esIndex, sist2Url, indexIds, hiddenPaths };
 
     const assetManager = engine.getManager<AssetManager>('AssetManager');
     if (assetManager) {
@@ -90,13 +94,20 @@ const elasticsearchAddon = {
       logger.warn('[elasticsearch addon] AssetManager not available — sist2 provider not registered');
     }
 
+    // ── Register addon-local views directory ──────────────────────────────────
+    const existing = (engine.app?.get('views') as string | string[]) ?? [];
+    engine.app?.set('views', [...[existing].flat(), path.join(__dirname, 'views')]);
+
+    // ── Mount admin route ─────────────────────────────────────────────────────
+    engine.app?.use('/addons/elasticsearch', adminRoutes(engine, () => provider, storedConfig!));
+
     const addonsManager = engine.getManager<AddonsManager>('AddonsManager');
     if (addonsManager) {
       addonsManager.registerDashboardCard({
         addonName: 'elasticsearch',
         title: 'Elasticsearch',
         icon: 'fas fa-search',
-        adminUrl: '/admin/addons'
+        adminUrl: '/addons/elasticsearch'
       });
     }
 
@@ -119,6 +130,7 @@ const elasticsearchAddon = {
    
   async shutdown(): Promise<void> {
     provider = null;
+    storedConfig = null;
   }
 };
 
