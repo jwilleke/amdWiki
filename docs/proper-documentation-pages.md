@@ -25,18 +25,46 @@ Use the site name (visible in [{ConfigAccessor type='siteName'}]) when referring
 
 Use the title pattern that matches the page's **audience and purpose**:
 
-| Page type | Title pattern | Example |
-| --- | --- | --- |
-| End-user how-to (editors, residents, general users) | `Using <Feature>` | `Using FormPlugin`, `Using Reservation Form` |
-| Admin/operator reference | Descriptive noun phrase | `Form Definition Reference`, `Configuration Properties Reference` |
-| Developer/system reference | Technical name | `API Documentation`, `Plugin` |
-| Plugin reference (technical name only) | `<Name>Plugin` | `CalendarPlugin`, `AttachPlugin` |
+| Page type | Audience | Title pattern | Example |
+| --- | --- | --- | --- |
+| End-user guide | Residents, members, visitors — people who *use* the site | `Using <Feature>` | `Using Reservation Form`, `Using the Calendar` |
+| Editor/admin how-to | Page editors and site administrators | Descriptive verb phrase | `Embedding a Form`, `Managing Submissions` |
+| Admin/operator reference | Administrators | Descriptive noun phrase | `Form Definition Reference`, `Configuration Properties Reference` |
+| Developer/system reference | Developers | Technical name | `API Documentation`, `Plugin` |
+| Plugin reference | Developers/editors | `<Name>Plugin` | `CalendarPlugin`, `AttachPlugin`, `FormPlugin` |
 
-**End-user pages** use the `Using <Feature>` prefix because it signals task-oriented guidance rather than a technical reference. A page titled "Using FormPlugin" tells the reader immediately that it explains how to accomplish something, not how the system works internally.
+### The "Using \<Feature\>" pattern — end-user only
 
-End-user pages should live in the relevant addon's `pages/` directory with a **UUID filename** (e.g. `addons/forms/pages/af15d030-3676-4a67-8b21-0d844dacb51a.md`). The `slug` in frontmatter is `using-<feature>` (lowercase, hyphenated).
+The `Using <Feature>` prefix is **reserved for true end-user documentation** — pages written for the people who visit and use the site (residents, members, the general public). It is not used for pages aimed at editors embedding plugins, administrators configuring the system, or developers building addons.
 
-See GitHub issue [#575](https://github.com/jwilleke/ngdpbase/issues/575) for the list of pages scheduled for renaming under this convention.
+A page titled "Using Reservation Form" answers the question a resident asks: *how do I make a reservation?* It covers what the form looks like, what to fill in, and what happens after submitting. It does not explain how the form was defined, how the plugin is embedded, or how the handler works.
+
+**What belongs in a "Using X" page:**
+
+- Step-by-step task guidance written in plain language
+- What the user sees on the screen
+- What they need to enter and why
+- What happens after they act (confirmation, next steps)
+- Common problems and how to resolve them
+
+**What does not belong in a "Using X" page:**
+
+- Plugin invocation syntax (`[{Form id='...'}]`)
+- JSON configuration or form definition properties
+- Admin panel instructions
+- Technical implementation details
+
+### File location and naming
+
+End-user pages live in the relevant addon's `pages/` directory with a **UUID filename**:
+
+```
+addons/<addon>/pages/<uuid>.md
+```
+
+The `slug` in frontmatter follows the title: `using-<feature>` in lowercase with hyphens (e.g. `using-reservation-form`).
+
+See GitHub issue [#575](https://github.com/jwilleke/ngdpbase/issues/575) for the list of pages to be created or renamed under this convention.
 
 ## Page Structure
 
