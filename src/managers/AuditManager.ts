@@ -270,7 +270,7 @@ class AuditManager extends BaseManager {
       const isHealthy = await this.provider.isHealthy();
       if (!isHealthy) {
         logger.warn(`Audit provider ${this.providerClass} health check failed, switching to NullAuditProvider`);
-        const NullModule = await import('../providers/NullAuditProvider') as unknown as { default: AuditProviderConstructor };
+        const NullModule = await import('../providers/NullAuditProvider.js') as unknown as { default: AuditProviderConstructor };
         const NullAuditProvider = NullModule.default;
 
         this.provider = new NullAuditProvider(this.engine);
@@ -283,7 +283,7 @@ class AuditManager extends BaseManager {
       logger.error(`Failed to load audit provider: ${this.providerClass}`, error);
       // Fall back to NullAuditProvider on any error
       logger.warn('Falling back to NullAuditProvider due to provider load error');
-      const NullModule = await import('../providers/NullAuditProvider') as unknown as { default: AuditProviderConstructor };
+      const NullModule = await import('../providers/NullAuditProvider.js') as unknown as { default: AuditProviderConstructor };
       const NullAuditProvider = NullModule.default;
 
       this.provider = new NullAuditProvider(this.engine);

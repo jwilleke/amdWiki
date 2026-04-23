@@ -301,7 +301,7 @@ class SearchManager extends BaseManager {
       // Try fallback to LunrSearchProvider
       if (this.providerClass !== 'LunrSearchProvider') {
         logger.info('Falling back to LunrSearchProvider');
-        const providerModule = await import('../providers/LunrSearchProvider') as unknown as { default: SearchProviderConstructor };
+        const providerModule = await import('../providers/LunrSearchProvider.js') as unknown as { default: SearchProviderConstructor };
         const ProviderClass: SearchProviderConstructor = providerModule.default;
 
         this.provider = new ProviderClass(this.engine);

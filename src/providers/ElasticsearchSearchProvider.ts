@@ -23,12 +23,12 @@
  * Related: #189 (Lunr alternatives), #504 (ES search integration), #507 (auto-tagging)
  */
 
-import { Client } from '@elastic/elasticsearch';
-import type {
-  AggregationsStringTermsBucket,
-  QueryDslQueryContainer,
-  SearchHit
-} from '@elastic/elasticsearch/lib/api/types';
+import { Client, estypes } from '@elastic/elasticsearch';
+
+// Type aliases for commonly used ES types (estypes namespace is the stable export path)
+type AggregationsStringTermsBucket = estypes.AggregationsStringTermsBucket;
+type QueryDslQueryContainer = estypes.QueryDslQueryContainer;
+type SearchHit<T> = estypes.SearchHit<T>;
 import BaseSearchProvider, {
   type SearchResult,
   type SearchOptions,

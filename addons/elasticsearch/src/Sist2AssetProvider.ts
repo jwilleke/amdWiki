@@ -11,8 +11,12 @@
  * Write-back (POST /tag/<id>) is deferred to a future issue.
  */
 
-import type { Client } from '@elastic/elasticsearch';
-import type { QueryDslQueryContainer, QueryDslTextQueryType, SortCombinations, AggregationsCalendarInterval } from '@elastic/elasticsearch/lib/api/types';
+import type { Client, estypes } from '@elastic/elasticsearch';
+
+type QueryDslQueryContainer = estypes.QueryDslQueryContainer;
+type QueryDslTextQueryType = estypes.QueryDslTextQueryType;
+type SortCombinations = estypes.SortCombinations;
+type AggregationsCalendarInterval = estypes.AggregationsCalendarInterval;
 import type {
   AssetProvider,
   AssetRecord,
