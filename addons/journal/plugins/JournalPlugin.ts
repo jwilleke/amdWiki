@@ -1,4 +1,3 @@
-'use strict';
 
 /**
  * JournalPlugin — renders a journal timeline or widget inline in a wiki page.
@@ -14,9 +13,9 @@
  *   limit  — max entries for timeline view (default: 10)
  */
 
-import type { PluginContext, PluginParams } from '../../../dist/src/managers/PluginManager';
-import type SearchManager from '../../../dist/src/managers/SearchManager';
-import type PageManager from '../../../dist/src/managers/PageManager';
+import type { PluginContext, PluginParams } from '../../../dist/src/managers/PluginManager.js';
+import type SearchManager from '../../../dist/src/managers/SearchManager.js';
+import type PageManager from '../../../dist/src/managers/PageManager.js';
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -193,4 +192,3 @@ const JournalPlugin = {
 };
 
 export default JournalPlugin;
-module.exports = JournalPlugin;

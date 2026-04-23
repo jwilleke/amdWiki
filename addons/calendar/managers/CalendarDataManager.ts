@@ -1,13 +1,12 @@
-'use strict';
 
 import { existsSync, mkdirSync, readdirSync } from 'fs';
 import { readFile, writeFile } from 'fs/promises';
-import * as path from 'path';
+import path from 'path';
 import { v4 as uuidv4 } from 'uuid';
 import { areIntervalsOverlapping, parseISO, addDays, format } from 'date-fns';
-import BaseManager from '../../../dist/src/managers/BaseManager';
-import type { WikiEngine } from '../../../dist/src/types/WikiEngine';
-import type { ManagerFetchOptions } from '../../../dist/src/utils/managerUtils';
+import BaseManager from '../../../dist/src/managers/BaseManager.js';
+import type { WikiEngine } from '../../../dist/src/types/WikiEngine.js';
+import type { ManagerFetchOptions } from '../../../dist/src/utils/managerUtils.js';
 
 /**
  * CalendarEvent — internal storage shape.
@@ -370,7 +369,7 @@ class CalendarDataManager extends BaseManager {
    *
    * Events with `class: CONFIDENTIAL` are always excluded.
    */
-  // eslint-disable-next-line @typescript-eslint/require-await
+   
   override async toMarqueeText(options: ManagerFetchOptions = {}): Promise<string> {
     const raw = options as Record<string, unknown>;
 
@@ -409,4 +408,3 @@ class CalendarDataManager extends BaseManager {
 }
 
 export default CalendarDataManager;
-module.exports = CalendarDataManager;

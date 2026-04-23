@@ -1,6 +1,5 @@
-'use strict';
 
-import * as path from 'path';
+import path from 'path';
 import { promises as fsp } from 'fs';
 import { v4 as uuidv4 } from 'uuid';
 import { z } from 'zod';

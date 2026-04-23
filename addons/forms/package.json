@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Generic schema-driven forms addon for ngdpbase — define forms as JSON, render on any wiki page, store submissions, trigger handler hooks",
   "private": true,
+  "type": "module",
   "dependencies": {
     "express": "^5.2.1",
     "uuid": "^9.0.1",

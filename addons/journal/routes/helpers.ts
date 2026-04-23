@@ -1,8 +1,7 @@
-'use strict';
 
-import type { WikiEngine } from '../../../dist/src/types/WikiEngine';
-import type PageManager from '../../../dist/src/managers/PageManager';
-import type RenderingManager from '../../../dist/src/managers/RenderingManager';
+import type { WikiEngine } from '../../../dist/src/types/WikiEngine.js';
+import type PageManager from '../../../dist/src/managers/PageManager.js';
+import type RenderingManager from '../../../dist/src/managers/RenderingManager.js';
 
 function formatLeftMenuContent(content: string): string {
   content = content.replace(/<ul>/g, '<ul class="nav flex-column">');
@@ -21,7 +20,7 @@ function formatLeftMenuContent(content: string): string {
 
 export async function getLeftMenu(
   engine: WikiEngine,
-  userContext: import('../../../dist/src/context/WikiContext').UserContext | null
+  userContext: import('../../../dist/src/context/WikiContext.js').UserContext | null
 ): Promise<string | null> {
   try {
     const pm = engine.getManager<PageManager>('PageManager');

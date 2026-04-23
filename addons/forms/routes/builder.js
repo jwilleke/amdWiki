@@ -1,11 +1,8 @@
-'use strict';
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.default = builderRoutes;
-const express_1 = require("express");
-const ApiContext_1 = require("../../../dist/src/context/ApiContext");
-const FormsDataManager_1 = require("../managers/FormsDataManager");
-function builderRoutes(engine) {
-    const router = (0, express_1.Router)();
+import { Router } from 'express';
+import { ApiContext, ApiError } from '../../../dist/src/context/ApiContext.js';
+import { FormDefinitionSchema } from '../managers/FormsDataManager.js';
+export default function builderRoutes(engine) {
+    const router = Router();
     function fdm() {
         return engine.getManager('FormsDataManager');
     }
@@ -32,7 +29,7 @@ function builderRoutes(engine) {
         };
     }
     function handleAuthError(err, res) {
-        if (err instanceof ApiContext_1.ApiError) {
+        if (err instanceof ApiError) {
             res.status(err.status).send(err.message);
             return true;
         }
@@ -45,7 +42,7 @@ function builderRoutes(engine) {
     // ── GET /new → blank builder ─────────────────────────────────────────────────
     router.get('/new', (req, res) => {
         try {
-            const ctx = ApiContext_1.ApiContext.from(req, engine);
+            const ctx = ApiContext.from(req, engine);
             ctx.requireAuthenticated();
             ctx.requireRole('admin');
             res.render('forms-builder', { currentUser: req.userContext, form: null, isNew: true, errors: [] });
@@ -59,7 +56,7 @@ function builderRoutes(engine) {
     // ── GET /:formId → edit existing ─────────────────────────────────────────────
     router.get('/:formId', (req, res) => {
         try {
-            const ctx = ApiContext_1.ApiContext.from(req, engine);
+            const ctx = ApiContext.from(req, engine);
             ctx.requireAuthenticated();
             ctx.requireRole('admin');
             const form = fdm()?.getDefinition(String(req.params['formId']));
@@ -79,7 +76,7 @@ function builderRoutes(engine) {
     router.post('/', (req, res) => {
         void (async () => {
             try {
-                const ctx = ApiContext_1.ApiContext.from(req, engine);
+                const ctx = ApiContext.from(req, engine);
                 ctx.requireAuthenticated();
                 ctx.requireRole('admin');
                 const body = req.body;
@@ -109,7 +106,7 @@ function builderRoutes(engine) {
                     return;
                 }
                 const payload = { ...assemblePayload(body, rawId), fields };
-                const result = FormsDataManager_1.FormDefinitionSchema.safeParse(payload);
+                const result = FormDefinitionSchema.safeParse(payload);
                 if (!result.success) {
                     res.status(400).render('forms-builder', {
                         currentUser: req.userContext,
@@ -133,7 +130,7 @@ function builderRoutes(engine) {
     router.post('/:formId', (req, res) => {
         void (async () => {
             try {
-                const ctx = ApiContext_1.ApiContext.from(req, engine);
+                const ctx = ApiContext.from(req, engine);
                 ctx.requireAuthenticated();
                 ctx.requireRole('admin');
                 const formId = String(req.params['formId']);
@@ -158,7 +155,7 @@ function builderRoutes(engine) {
                     return;
                 }
                 const payload = { ...assemblePayload(body, formId), fields };
-                const result = FormsDataManager_1.FormDefinitionSchema.safeParse(payload);
+                const result = FormDefinitionSchema.safeParse(payload);
                 if (!result.success) {
                     res.status(400).render('forms-builder', {
                         currentUser: req.userContext,
@@ -182,7 +179,7 @@ function builderRoutes(engine) {
     router.post('/:formId/delete', (req, res) => {
         void (async () => {
             try {
-                const ctx = ApiContext_1.ApiContext.from(req, engine);
+                const ctx = ApiContext.from(req, engine);
                 ctx.requireAuthenticated();
                 ctx.requireRole('admin');
                 const formId = String(req.params['formId']);

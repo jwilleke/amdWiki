@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "sist2/Elasticsearch NAS asset provider for ngdpbase",
   "private": true,
+  "type": "module",
   "dependencies": {
     "@elastic/elasticsearch": "^8.15.0"
   },

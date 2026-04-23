@@ -1,4 +1,3 @@
-'use strict';
 
 /**
  * Editor routes for the journal add-on.
@@ -16,15 +15,15 @@
 
 import { Router, type Request, type Response } from 'express';
 import { v4 as uuidv4 } from 'uuid';
-import { ApiContext, ApiError } from '../../../dist/src/context/ApiContext';
-import WikiContext from '../../../dist/src/context/WikiContext';
-import type { WikiEngine } from '../../../dist/src/types/WikiEngine';
-import type PageManager from '../../../dist/src/managers/PageManager';
-import type UserManager from '../../../dist/src/managers/UserManager';
-import type JournalDataManager from '../managers/JournalDataManager';
-import type { JournalIndexEntry } from '../managers/JournalDataManager';
-import type JournalTemplateManager from '../managers/JournalTemplateManager';
-import { getLeftMenu } from './helpers';
+import { ApiContext, ApiError } from '../../../dist/src/context/ApiContext.js';
+import WikiContext from '../../../dist/src/context/WikiContext.js';
+import type { WikiEngine } from '../../../dist/src/types/WikiEngine.js';
+import type PageManager from '../../../dist/src/managers/PageManager.js';
+import type UserManager from '../../../dist/src/managers/UserManager.js';
+import type JournalDataManager from '../managers/JournalDataManager.js';
+import type { JournalIndexEntry } from '../managers/JournalDataManager.js';
+import type JournalTemplateManager from '../managers/JournalTemplateManager.js';
+import { getLeftMenu } from './helpers.js';
 
 export default function editorRoutes(engine: WikiEngine, config: Record<string, unknown>): Router {
   const router = Router();
@@ -53,10 +52,10 @@ export default function editorRoutes(engine: WikiEngine, config: Record<string, 
     return Array.isArray(v) ? (v[0] ?? '') : (v ?? '');
   }
 
-  async function resolveUserContext(req: Request): Promise<import('../../../dist/src/context/WikiContext').UserContext> {
+  async function resolveUserContext(req: Request): Promise<import('../../../dist/src/context/WikiContext.js').UserContext> {
     const um = engine.getManager<UserManager>('UserManager');
     const uc = req.userContext || (um ? await um.getCurrentUser(req) : null);
-    return uc as import('../../../dist/src/context/WikiContext').UserContext;
+    return uc as import('../../../dist/src/context/WikiContext.js').UserContext;
   }
 
   function handleError(err: unknown, res: Response): void {
@@ -431,4 +430,3 @@ export default function editorRoutes(engine: WikiEngine, config: Record<string, 
   return router;
 }
 
-module.exports = editorRoutes;

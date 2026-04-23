@@ -24,8 +24,8 @@ import type {
   AssetQuery,
   AssetAggregations,
   ProviderCapability
-} from '../../../dist/src/types/Asset';
-import type { Sist2Document } from './types';
+} from '../../../dist/src/types/Asset.js';
+import type { Sist2Document } from './types.js';
 
 /**
  * Document types sist2 treats as "document" for mimeCategory filtering.

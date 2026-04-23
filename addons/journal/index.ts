@@ -1,4 +1,3 @@
-'use strict';
 
 /**
  * Journal Add-on for ngdpbase
@@ -40,21 +39,25 @@
  *   POST /addons/journal/settings  — placeholder save
  */
 
-import * as path from 'path';
-import * as express from 'express';
-import type { WikiEngine } from '../../dist/src/types/WikiEngine';
-import type { AddonStatusDetails } from '../../dist/src/managers/AddonsManager';
-import type PluginManager from '../../dist/src/managers/PluginManager';
-import type AddonsManager from '../../dist/src/managers/AddonsManager';
-import type NotificationManager from '../../dist/src/managers/NotificationManager';
-import type ConfigurationManager from '../../dist/src/managers/ConfigurationManager';
-import JournalDataManager from './managers/JournalDataManager';
-import JournalTemplateManager from './managers/JournalTemplateManager';
-import JournalPlugin from './plugins/JournalPlugin';
-import apiRoutes from './routes/api';
-import publicRoutes from './routes/public';
-import editorRoutes from './routes/editor';
-import adminRoutes from './routes/admin';
+import path from 'path';
+import express from 'express';
+import type { WikiEngine } from '../../dist/src/types/WikiEngine.js';
+import type { AddonStatusDetails } from '../../dist/src/managers/AddonsManager.js';
+import type PluginManager from '../../dist/src/managers/PluginManager.js';
+import type AddonsManager from '../../dist/src/managers/AddonsManager.js';
+import type NotificationManager from '../../dist/src/managers/NotificationManager.js';
+import type ConfigurationManager from '../../dist/src/managers/ConfigurationManager.js';
+import JournalDataManager from './managers/JournalDataManager.js';
+import JournalTemplateManager from './managers/JournalTemplateManager.js';
+import JournalPlugin from './plugins/JournalPlugin.js';
+import apiRoutes from './routes/api.js';
+import publicRoutes from './routes/public.js';
+import editorRoutes from './routes/editor.js';
+import adminRoutes from './routes/admin.js';
+
+import { fileURLToPath } from 'url';
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 let dataManager: JournalDataManager | null = null;
 let templateManager: JournalTemplateManager | null = null;
@@ -193,4 +196,3 @@ const journalAddon = {
 };
 
 export default journalAddon;
-module.exports = journalAddon;

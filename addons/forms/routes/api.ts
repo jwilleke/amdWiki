@@ -1,12 +1,11 @@
-'use strict';
 
 import { Router, type Request, type Response } from 'express';
-import { ApiContext } from '../../../dist/src/context/ApiContext';
-import type { WikiEngine } from '../../../dist/src/types/WikiEngine';
-import type EmailManager from '../../../dist/src/managers/EmailManager';
-import type NotificationManager from '../../../dist/src/managers/NotificationManager';
-import { buildSubmissionValidator } from '../managers/FormsDataManager';
-import type FormsDataManager from '../managers/FormsDataManager';
+import { ApiContext } from '../../../dist/src/context/ApiContext.js';
+import type { WikiEngine } from '../../../dist/src/types/WikiEngine.js';
+import type EmailManager from '../../../dist/src/managers/EmailManager.js';
+import type NotificationManager from '../../../dist/src/managers/NotificationManager.js';
+import { buildSubmissionValidator } from '../managers/FormsDataManager.js';
+import type FormsDataManager from '../managers/FormsDataManager.js';
 
 type AddonRef = { callHandler(formId: string, submission: unknown, ctx: unknown): Promise<{ok: boolean; error?: string}> };
 
@@ -96,7 +95,7 @@ export default function apiRoutes(engine: WikiEngine, addon: AddonRef): Router {
 
         if (emailManager?.isEnabled() && submitterEmail) {
           const subject = `[Submitted] ${form.title}`;
-          const cm = engine.getManager<import('../../../dist/src/managers/ConfigurationManager').default>('ConfigurationManager');
+          const cm = engine.getManager<import('../../../dist/src/managers/ConfigurationManager.js').default>('ConfigurationManager');
           const baseUrl = (cm?.getProperty('ngdpbase.baseURL', '') as string).replace(/\/$/, '');
 
           // Build detail lines from submission data for fields with values

@@ -1,4 +1,3 @@
-'use strict';
 
 /**
  * Admin routes for the elasticsearch add-on.
@@ -9,9 +8,9 @@
  */
 
 import { Router, type Request, type Response } from 'express';
-import { ApiContext, ApiError } from '../../../dist/src/context/ApiContext';
-import type { WikiEngine } from '../../../dist/src/types/WikiEngine';
-import type { Sist2AssetProvider } from '../src/Sist2AssetProvider';
+import { ApiContext, ApiError } from '../../../dist/src/context/ApiContext.js';
+import type { WikiEngine } from '../../../dist/src/types/WikiEngine.js';
+import type { Sist2AssetProvider } from '../src/Sist2AssetProvider.js';
 
 export interface ElasticsearchAdminConfig {
   esUrl: string;

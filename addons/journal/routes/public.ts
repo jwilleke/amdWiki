@@ -1,4 +1,3 @@
-'use strict';
 
 /**
  * Public read-only journal routes.
@@ -12,14 +11,14 @@
  */
 
 import { Router, type Request, type Response } from 'express';
-import { ApiContext, ApiError } from '../../../dist/src/context/ApiContext';
-import type { WikiEngine } from '../../../dist/src/types/WikiEngine';
-import type JournalDataManager from '../managers/JournalDataManager';
-import type RenderingManager from '../../../dist/src/managers/RenderingManager';
-import type AttachmentManager from '../../../dist/src/managers/AttachmentManager';
-import type PageManager from '../../../dist/src/managers/PageManager';
-import type UserManager from '../../../dist/src/managers/UserManager';
-import { getLeftMenu } from './helpers';
+import { ApiContext, ApiError } from '../../../dist/src/context/ApiContext.js';
+import type { WikiEngine } from '../../../dist/src/types/WikiEngine.js';
+import type JournalDataManager from '../managers/JournalDataManager.js';
+import type RenderingManager from '../../../dist/src/managers/RenderingManager.js';
+import type AttachmentManager from '../../../dist/src/managers/AttachmentManager.js';
+import type PageManager from '../../../dist/src/managers/PageManager.js';
+import type UserManager from '../../../dist/src/managers/UserManager.js';
+import { getLeftMenu } from './helpers.js';
 
 export default function publicRoutes(engine: WikiEngine, _config: Record<string, unknown>): Router {
   const router = Router();
@@ -217,4 +216,3 @@ export default function publicRoutes(engine: WikiEngine, _config: Record<string,
   return router;
 }
 
-module.exports = publicRoutes;

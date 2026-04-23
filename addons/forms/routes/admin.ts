@@ -1,10 +1,9 @@
-'use strict';
 
 import { Router, type Request, type Response } from 'express';
-import { ApiContext, ApiError } from '../../../dist/src/context/ApiContext';
-import type { WikiEngine } from '../../../dist/src/types/WikiEngine';
-import type FormsDataManager from '../managers/FormsDataManager';
-import type { SubmissionStatus } from '../managers/FormsDataManager';
+import { ApiContext, ApiError } from '../../../dist/src/context/ApiContext.js';
+import type { WikiEngine } from '../../../dist/src/types/WikiEngine.js';
+import type FormsDataManager from '../managers/FormsDataManager.js';
+import type { SubmissionStatus } from '../managers/FormsDataManager.js';
 
 export default function adminRoutes(engine: WikiEngine, _addon: unknown): Router {
   const router = Router();

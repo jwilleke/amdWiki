@@ -1,4 +1,3 @@
-'use strict';
 
 /**
  * Calendar Add-on for ngdpbase
@@ -34,18 +33,22 @@
  *   [{MarqueePlugin fetch='CalendarDataManager.toMarqueeText(calendarId=events,days=30)'}]
  */
 
-import * as path from 'path';
-import * as express from 'express';
-import type { WikiEngine } from '../../dist/src/types/WikiEngine';
-import type { AddonStatusDetails } from '../../dist/src/managers/AddonsManager';
-import type PluginManager from '../../dist/src/managers/PluginManager';
-import type AddonsManager from '../../dist/src/managers/AddonsManager';
-import type { default as FormsAddon } from '../forms/index';
-import CalendarDataManager from './managers/CalendarDataManager';
-import CalendarPlugin from './plugins/CalendarPlugin';
-import apiRoutes from './routes/api';
-import reservationRoutes from './routes/reservations';
-import adminRoutes from './routes/admin';
+import path from 'path';
+import express from 'express';
+import type { WikiEngine } from '../../dist/src/types/WikiEngine.js';
+import type { AddonStatusDetails } from '../../dist/src/managers/AddonsManager.js';
+import type PluginManager from '../../dist/src/managers/PluginManager.js';
+import type AddonsManager from '../../dist/src/managers/AddonsManager.js';
+import type { default as FormsAddon } from '../forms/index.js';
+import CalendarDataManager from './managers/CalendarDataManager.js';
+import CalendarPlugin from './plugins/CalendarPlugin.js';
+import apiRoutes from './routes/api.js';
+import reservationRoutes from './routes/reservations.js';
+import adminRoutes from './routes/admin.js';
+
+import { fileURLToPath } from 'url';
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 let dataManager: CalendarDataManager | null = null;
 
@@ -158,4 +161,3 @@ const calendarAddon = {
 };
 
 export default calendarAddon;
-module.exports = calendarAddon;

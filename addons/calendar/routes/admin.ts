@@ -1,10 +1,9 @@
-'use strict';
 
 import { Router, type Request, type Response } from 'express';
-import { ApiContext, ApiError } from '../../../dist/src/context/ApiContext';
-import type { WikiEngine } from '../../../dist/src/types/WikiEngine';
-import type CalendarDataManager from '../managers/CalendarDataManager';
-import type { CalendarConfig } from '../managers/CalendarConfig';
+import { ApiContext, ApiError } from '../../../dist/src/context/ApiContext.js';
+import type { WikiEngine } from '../../../dist/src/types/WikiEngine.js';
+import type CalendarDataManager from '../managers/CalendarDataManager.js';
+import type { CalendarConfig } from '../managers/CalendarConfig.js';
 
 /**
  * Admin routes for the calendar add-on.
@@ -74,4 +73,3 @@ export default function adminRoutes(
   return router;
 }
 
-module.exports = adminRoutes;

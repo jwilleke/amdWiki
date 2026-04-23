@@ -1,4 +1,3 @@
-'use strict';
 
 /**
  * Elasticsearch External Asset Add-on for ngdpbase
@@ -29,15 +28,19 @@
  * Tags: sist2 `tag` field maps to AssetRecord.keywords (read-only).
  */
 
-import * as path from 'path';
+import path from 'path';
 import { Client } from '@elastic/elasticsearch';
-import type { WikiEngine } from '../../dist/src/types/WikiEngine';
-import type AddonsManager from '../../dist/src/managers/AddonsManager';
-import type { AddonStatusDetails } from '../../dist/src/managers/AddonsManager';
-import type AssetManager from '../../dist/src/managers/AssetManager';
-import { Sist2AssetProvider } from './src/Sist2AssetProvider';
-import logger from '../../dist/src/utils/logger';
-import adminRoutes from './routes/admin';
+import type { WikiEngine } from '../../dist/src/types/WikiEngine.js';
+import type AddonsManager from '../../dist/src/managers/AddonsManager.js';
+import type { AddonStatusDetails } from '../../dist/src/managers/AddonsManager.js';
+import type AssetManager from '../../dist/src/managers/AssetManager.js';
+import { Sist2AssetProvider } from './src/Sist2AssetProvider.js';
+import logger from '../../dist/src/utils/logger.js';
+import adminRoutes from './routes/admin.js';
+
+import { fileURLToPath } from 'url';
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 let provider: Sist2AssetProvider | null = null;
 let storedConfig: { esUrl: string; esIndex: string; sist2Url: string; indexIds: number[]; hiddenPaths: string[] | null } | null = null;
@@ -99,7 +102,7 @@ const elasticsearchAddon = {
     engine.app?.set('views', [...[existing].flat(), path.join(__dirname, 'views')]);
 
     // ── Mount admin route ─────────────────────────────────────────────────────
-    engine.app?.use('/addons/elasticsearch', adminRoutes(engine, () => provider, storedConfig!));
+    engine.app?.use('/addons/elasticsearch', adminRoutes(engine, () => provider, storedConfig));
 
     const addonsManager = engine.getManager<AddonsManager>('AddonsManager');
     if (addonsManager) {
@@ -135,4 +138,3 @@ const elasticsearchAddon = {
 };
 
 export default elasticsearchAddon;
-module.exports = elasticsearchAddon;

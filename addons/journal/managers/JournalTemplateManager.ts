@@ -1,10 +1,9 @@
-'use strict';
 
 import { existsSync, mkdirSync, readdirSync } from 'fs';
 import { readFile } from 'fs/promises';
-import * as path from 'path';
-import BaseManager from '../../../dist/src/managers/BaseManager';
-import type { WikiEngine } from '../../../dist/src/types/WikiEngine';
+import path from 'path';
+import BaseManager from '../../../dist/src/managers/BaseManager.js';
+import type { WikiEngine } from '../../../dist/src/types/WikiEngine.js';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -172,4 +171,3 @@ class JournalTemplateManager extends BaseManager {
 }
 
 export default JournalTemplateManager;
-module.exports = JournalTemplateManager;

@@ -1,10 +1,7 @@
-'use strict';
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.default = adminRoutes;
-const express_1 = require("express");
-const ApiContext_1 = require("../../../dist/src/context/ApiContext");
-function adminRoutes(engine, _addon) {
-    const router = (0, express_1.Router)();
+import { Router } from 'express';
+import { ApiContext, ApiError } from '../../../dist/src/context/ApiContext.js';
+export default function adminRoutes(engine, _addon) {
+    const router = Router();
     function fdm() {
         return engine.getManager('FormsDataManager');
     }
@@ -12,7 +9,7 @@ function adminRoutes(engine, _addon) {
     router.get('/', (req, res) => {
         void (async () => {
             try {
-                const ctx = ApiContext_1.ApiContext.from(req, engine);
+                const ctx = ApiContext.from(req, engine);
                 ctx.requireAuthenticated();
                 ctx.requireRole('admin');
                 const m = fdm();
@@ -28,7 +25,7 @@ function adminRoutes(engine, _addon) {
                 });
             }
             catch (err) {
-                if (err instanceof ApiContext_1.ApiError) {
+                if (err instanceof ApiError) {
                     res.status(err.status).send(err.message);
                     return;
                 }
@@ -40,7 +37,7 @@ function adminRoutes(engine, _addon) {
     router.get('/:formId/submissions', (req, res) => {
         void (async () => {
             try {
-                const ctx = ApiContext_1.ApiContext.from(req, engine);
+                const ctx = ApiContext.from(req, engine);
                 ctx.requireAuthenticated();
                 ctx.requireRole('admin');
                 const m = fdm();
@@ -61,7 +58,7 @@ function adminRoutes(engine, _addon) {
                 });
             }
             catch (err) {
-                if (err instanceof ApiContext_1.ApiError) {
+                if (err instanceof ApiError) {
                     res.status(err.status).send(err.message);
                     return;
                 }
@@ -73,7 +70,7 @@ function adminRoutes(engine, _addon) {
     router.get('/:formId/submissions/:submissionId', (req, res) => {
         void (async () => {
             try {
-                const ctx = ApiContext_1.ApiContext.from(req, engine);
+                const ctx = ApiContext.from(req, engine);
                 ctx.requireAuthenticated();
                 ctx.requireRole('admin');
                 const m = fdm();
@@ -95,7 +92,7 @@ function adminRoutes(engine, _addon) {
                 });
             }
             catch (err) {
-                if (err instanceof ApiContext_1.ApiError) {
+                if (err instanceof ApiError) {
                     res.status(err.status).send(err.message);
                     return;
                 }
@@ -107,7 +104,7 @@ function adminRoutes(engine, _addon) {
     router.post('/:formId/submissions/:submissionId/status', (req, res) => {
         void (async () => {
             try {
-                const ctx = ApiContext_1.ApiContext.from(req, engine);
+                const ctx = ApiContext.from(req, engine);
                 ctx.requireAuthenticated();
                 ctx.requireRole('admin');
                 const body = req.body;
@@ -126,7 +123,7 @@ function adminRoutes(engine, _addon) {
                 res.json({ ok: true });
             }
             catch (err) {
-                if (err instanceof ApiContext_1.ApiError) {
+                if (err instanceof ApiError) {
                     res.status(err.status).json({ ok: false, error: err.message });
                     return;
                 }

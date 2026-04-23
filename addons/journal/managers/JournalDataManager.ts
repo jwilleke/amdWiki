@@ -1,10 +1,9 @@
-'use strict';
 
 import { existsSync, mkdirSync } from 'fs';
 import { readFile, writeFile } from 'fs/promises';
-import * as path from 'path';
-import BaseManager from '../../../dist/src/managers/BaseManager';
-import type { WikiEngine } from '../../../dist/src/types/WikiEngine';
+import path from 'path';
+import BaseManager from '../../../dist/src/managers/BaseManager.js';
+import type { WikiEngine } from '../../../dist/src/types/WikiEngine.js';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -199,7 +198,7 @@ class JournalDataManager extends BaseManager {
 
   // ── BaseManager overrides ────────────────────────────────────────────────────
 
-  // eslint-disable-next-line @typescript-eslint/require-await
+   
   async toMarqueeText(): Promise<string> {
     const total = this.count();
     return `Journal: ${total} entr${total === 1 ? 'y' : 'ies'} indexed`;
@@ -207,4 +206,3 @@ class JournalDataManager extends BaseManager {
 }
 
 export default JournalDataManager;
-module.exports = JournalDataManager;

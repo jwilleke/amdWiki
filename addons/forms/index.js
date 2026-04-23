@@ -1,6 +1,3 @@
-'use strict';
-Object.defineProperty(exports, "__esModule", { value: true });
-const tslib_1 = require("tslib");
 /**
  * Forms Add-on for ngdpbase
  *
@@ -27,13 +24,16 @@ const tslib_1 = require("tslib");
  *     return { ok: true };
  *   });
  */
-const path = tslib_1.__importStar(require("path"));
-const express = tslib_1.__importStar(require("express"));
-const FormsDataManager_1 = tslib_1.__importDefault(require("./managers/FormsDataManager"));
-const FormsPlugin_1 = tslib_1.__importDefault(require("./plugins/FormsPlugin"));
-const api_1 = tslib_1.__importDefault(require("./routes/api"));
-const admin_1 = tslib_1.__importDefault(require("./routes/admin"));
-const builder_1 = tslib_1.__importDefault(require("./routes/builder"));
+import path from 'path';
+import express from 'express';
+import FormsDataManager from './managers/FormsDataManager.js';
+import FormsPlugin from './plugins/FormsPlugin.js';
+import apiRoutes from './routes/api.js';
+import adminRoutes from './routes/admin.js';
+import builderRoutes from './routes/builder.js';
+import { fileURLToPath } from 'url';
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 let dataManager = null;
 const formsAddon = {
     name: 'forms',
@@ -64,7 +64,7 @@ const formsAddon = {
             ? config['dataPath']
             : (cm?.resolveDataPath?.('forms') ?? './data/forms');
         // ── 1. FormsDataManager ──────────────────────────────────────────────────
-        dataManager = new FormsDataManager_1.default(engine, dataPath);
+        dataManager = new FormsDataManager(engine, dataPath);
         await dataManager.initialize();
         engine.registerManager('FormsDataManager', dataManager);
         // ── 2. Register self as FormsAddon so other addons can call registerHandler
@@ -72,7 +72,7 @@ const formsAddon = {
         // ── 3. Register markup plugin ────────────────────────────────────────────
         const pluginManager = engine.getManager('PluginManager');
         if (pluginManager) {
-            await pluginManager.registerPlugin('Form', FormsPlugin_1.default);
+            await pluginManager.registerPlugin('Form', FormsPlugin);
         }
         // ── 4. Serve static assets ───────────────────────────────────────────────
         engine.app?.use('/addons/forms', express.static(path.join(__dirname, 'public')));
@@ -91,9 +91,9 @@ const formsAddon = {
         const existing = engine.app?.get('views') ?? [];
         engine.app?.set('views', [...[existing].flat(), path.join(__dirname, 'views')]);
         // ── 7. Mount routes ──────────────────────────────────────────────────────
-        engine.app?.use('/api/forms', (0, api_1.default)(engine, formsAddon));
-        engine.app?.use('/addons/forms/builder', (0, builder_1.default)(engine));
-        engine.app?.use('/addons/forms', (0, admin_1.default)(engine, formsAddon));
+        engine.app?.use('/api/forms', apiRoutes(engine, formsAddon));
+        engine.app?.use('/addons/forms/builder', builderRoutes(engine));
+        engine.app?.use('/addons/forms', adminRoutes(engine, formsAddon));
         // ── 8. Announce capability ───────────────────────────────────────────────
         engine.setCapability('forms', true);
     },
@@ -110,6 +110,5 @@ const formsAddon = {
         this._handlers.clear();
     }
 };
-exports.default = formsAddon;
-module.exports = formsAddon;
+export default formsAddon;
 //# sourceMappingURL=index.js.map

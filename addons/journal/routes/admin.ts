@@ -1,4 +1,3 @@
-'use strict';
 
 /**
  * Admin routes for the journal add-on.
@@ -10,9 +9,9 @@
  */
 
 import { Router, type Request, type Response } from 'express';
-import { ApiContext, ApiError } from '../../../dist/src/context/ApiContext';
-import type { WikiEngine } from '../../../dist/src/types/WikiEngine';
-import type JournalDataManager from '../managers/JournalDataManager';
+import { ApiContext, ApiError } from '../../../dist/src/context/ApiContext.js';
+import type { WikiEngine } from '../../../dist/src/types/WikiEngine.js';
+import type JournalDataManager from '../managers/JournalDataManager.js';
 
 export default function adminRoutes(engine: WikiEngine, config: Record<string, unknown>): Router {
   const router = Router();
@@ -99,4 +98,3 @@ export default function adminRoutes(engine: WikiEngine, config: Record<string, u
   return router;
 }
 
-module.exports = adminRoutes;

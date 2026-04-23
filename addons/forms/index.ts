@@ -1,4 +1,3 @@
-'use strict';
 
 /**
  * Forms Add-on for ngdpbase
@@ -27,19 +26,23 @@
  *   });
  */
 
-import * as path from 'path';
-import * as express from 'express';
-import type { WikiEngine } from '../../dist/src/types/WikiEngine';
-import type { AddonStatusDetails } from '../../dist/src/managers/AddonsManager';
-import type PluginManager from '../../dist/src/managers/PluginManager';
-import type AddonsManager from '../../dist/src/managers/AddonsManager';
-import type ConfigurationManager from '../../dist/src/managers/ConfigurationManager';
-import FormsDataManager from './managers/FormsDataManager';
-import type { FormSubmission } from './managers/FormsDataManager';
-import FormsPlugin from './plugins/FormsPlugin';
-import apiRoutes from './routes/api';
-import adminRoutes from './routes/admin';
-import builderRoutes from './routes/builder';
+import path from 'path';
+import express from 'express';
+import type { WikiEngine } from '../../dist/src/types/WikiEngine.js';
+import type { AddonStatusDetails } from '../../dist/src/managers/AddonsManager.js';
+import type PluginManager from '../../dist/src/managers/PluginManager.js';
+import type AddonsManager from '../../dist/src/managers/AddonsManager.js';
+import type ConfigurationManager from '../../dist/src/managers/ConfigurationManager.js';
+import FormsDataManager from './managers/FormsDataManager.js';
+import type { FormSubmission } from './managers/FormsDataManager.js';
+import FormsPlugin from './plugins/FormsPlugin.js';
+import apiRoutes from './routes/api.js';
+import adminRoutes from './routes/admin.js';
+import builderRoutes from './routes/builder.js';
+
+import { fileURLToPath } from 'url';
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 export interface HandlerResult {
   ok: boolean;
@@ -147,4 +150,3 @@ const formsAddon = {
 };
 
 export default formsAddon;
-module.exports = formsAddon;

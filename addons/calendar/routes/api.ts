@@ -1,12 +1,11 @@
-'use strict';
 
 import { Router, type Request, type Response } from 'express';
 import { generateIcsCalendar } from 'ts-ics';
 import type { IcsEvent } from 'ts-ics';
-import { ApiContext, ApiError } from '../../../dist/src/context/ApiContext';
-import type { WikiEngine } from '../../../dist/src/types/WikiEngine';
-import type CalendarDataManager from '../managers/CalendarDataManager';
-import type { CalendarEvent } from '../managers/CalendarDataManager';
+import { ApiContext, ApiError } from '../../../dist/src/context/ApiContext.js';
+import type { WikiEngine } from '../../../dist/src/types/WikiEngine.js';
+import type CalendarDataManager from '../managers/CalendarDataManager.js';
+import type { CalendarEvent } from '../managers/CalendarDataManager.js';
 
 /**
  * API routes for the calendar add-on.
@@ -223,4 +222,3 @@ function toIcsEvent(e: CalendarEvent): IcsEvent {
   return event;
 }
 
-module.exports = apiRoutes;

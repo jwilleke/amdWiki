@@ -1,11 +1,10 @@
-'use strict';
 
 import { Router, type Request, type Response } from 'express';
-import { ApiContext, ApiError } from '../../../dist/src/context/ApiContext';
-import type { WikiEngine } from '../../../dist/src/types/WikiEngine';
-import type CalendarDataManager from '../managers/CalendarDataManager';
-import type EmailManager from '../../../dist/src/managers/EmailManager';
-import type { CalendarConfig } from '../managers/CalendarConfig';
+import { ApiContext, ApiError } from '../../../dist/src/context/ApiContext.js';
+import type { WikiEngine } from '../../../dist/src/types/WikiEngine.js';
+import type CalendarDataManager from '../managers/CalendarDataManager.js';
+import type EmailManager from '../../../dist/src/managers/EmailManager.js';
+import type { CalendarConfig } from '../managers/CalendarConfig.js';
 
 /**
  * Reservation routes for the calendar add-on.
@@ -173,4 +172,3 @@ export default function reservationRoutes(
   return router;
 }
 
-module.exports = reservationRoutes;

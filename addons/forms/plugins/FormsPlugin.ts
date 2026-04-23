@@ -1,4 +1,3 @@
-'use strict';
 
 /**
  * FormsPlugin — renders a form inline in a wiki page.
@@ -7,12 +6,12 @@
  *   [{Form id='clubhouse-reservation'}]
  */
 
-import * as path from 'path';
+import path from 'path';
 import { promises as fsp } from 'fs';
-import type { PluginContext, PluginParams } from '../../../dist/src/managers/PluginManager';
-import type ConfigurationManager from '../../../dist/src/managers/ConfigurationManager';
-import type FormsDataManager from '../managers/FormsDataManager';
-import type { FormDefinition, FormField } from '../managers/FormsDataManager';
+import type { PluginContext, PluginParams } from '../../../dist/src/managers/PluginManager.js';
+import type ConfigurationManager from '../../../dist/src/managers/ConfigurationManager.js';
+import type FormsDataManager from '../managers/FormsDataManager.js';
+import type { FormDefinition, FormField } from '../managers/FormsDataManager.js';
 
 function escHtml(str: string): string {
   return String(str)
