@@ -2,6 +2,54 @@
 
 AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version history.
 
+## 2026-04-23-16
+
+- Agent: Claude
+- Subject: Full ESM migration (#579) — type:module, NodeNext, .js extensions, CJS shim removal
+- Current Issue: #579
+- Work Done:
+  - Updated tsconfig.json: module/moduleResolution Node16 → NodeNext; ts-node block uses ESM mode
+  - Updated package.json: "type": "commonjs" → "type": "module"
+  - Renamed ecosystem.config.js → ecosystem.config.cjs; updated server.sh reference
+  - Codemod added .js extensions to 579 relative imports across 158 source files
+  - Added .js suffix + @vite-ignore to 6 dynamic provider template-literal imports
+  - Changed 10 manager files: export = ClassName → export default ClassName
+  - Removed module.exports / Object.assign(module.exports) CJS shims from 114 files
+  - Removed (module.exports as...).default = X shims from 8 parser files
+  - Added fileURLToPath/__dirname ESM shim to version.ts, WikiRoutes.ts, InstallService.ts
+  - Fixed showdown CJS interop: import * as showdown → import showdown (default) in RenderingManager, WikiContext
+  - Fixed Ajv/ajv-formats NodeNext CJS interop in PolicyValidator via AjvLike interface + cast
+  - Added vitest.config.ts resolve.extensionAlias (.js → .ts) for test-time resolution
+  - Fixed pre-existing build breakage (DOM type errors: HTMLElement/Element → LinkedomElement)
+  - Result: npm run build clean, 118/118 tests pass (3050/3050), server starts and serves HTTP
+- Commits: 23c6314b (build fix), 91b0a074 (ESM migration)
+- Files Modified:
+  - tsconfig.json
+  - package.json
+  - server.sh
+  - ecosystem.config.cjs (new)
+  - vitest.config.ts
+  - src/utils/version.ts
+  - src/routes/WikiRoutes.ts
+  - src/services/InstallService.ts
+  - src/managers/RenderingManager.ts
+  - src/context/WikiContext.ts
+  - src/managers/PolicyValidator.ts
+  - src/managers/ACLManager.ts
+  - src/managers/AuditManager.ts
+  - src/managers/PageManager.ts
+  - src/managers/PolicyEvaluator.ts
+  - src/managers/PolicyManager.ts
+  - src/managers/RenderingManager.ts
+  - src/managers/SearchManager.ts
+  - src/managers/TemplateManager.ts
+  - src/managers/UserManager.ts
+  - src/types/linkedom.d.ts
+  - src/converters/HtmlConverter.ts
+  - src/parsers/MarkupParser.ts
+  - src/parsers/dom/handlers/DOMPluginHandler.ts
+  - 134 additional source files (import extension additions, CJS shim removals)
+
 ## 2026-04-23-15
 
 - Agent: Claude
