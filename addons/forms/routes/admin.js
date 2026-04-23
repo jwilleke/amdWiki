@@ -19,12 +19,12 @@ function adminRoutes(engine, _addon) {
                 const definitions = m?.getAllDefinitions() ?? [];
                 const formsWithCounts = await Promise.all(definitions.map(async (form) => ({
                     ...form,
-                    submissionCount: await m.getSubmissionCount(form.id),
+                    submissionCount: await m.getSubmissionCount(form.id)
                 })));
                 res.render('forms-admin', {
                     currentUser: req.userContext,
                     forms: formsWithCounts,
-                    query: req.query,
+                    query: req.query
                 });
             }
             catch (err) {
@@ -53,7 +53,7 @@ function adminRoutes(engine, _addon) {
                     currentUser: req.userContext,
                     form,
                     submissions,
-                    filterStatus: status ?? 'all',
+                    filterStatus: status ?? 'all'
                 });
             }
             catch (err) {
@@ -83,7 +83,7 @@ function adminRoutes(engine, _addon) {
                 res.render('forms-submission-detail', {
                     currentUser: req.userContext,
                     form,
-                    submission,
+                    submission
                 });
             }
             catch (err) {

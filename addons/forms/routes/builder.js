@@ -1,26 +1,25 @@
 'use strict';
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.default = builderRoutes;
 const express_1 = require("express");
 const ApiContext_1 = require("../../../dist/src/context/ApiContext");
 const FormsDataManager_1 = require("../managers/FormsDataManager");
-
 function builderRoutes(engine) {
     const router = (0, express_1.Router)();
-
     function fdm() {
         return engine.getManager('FormsDataManager');
     }
-
     function parseFields(raw) {
-        if (typeof raw !== 'string') return null;
+        if (typeof raw !== 'string')
+            return null;
         try {
             const parsed = JSON.parse(raw);
             return Array.isArray(parsed) ? parsed : null;
-        } catch {
+        }
+        catch {
             return null;
         }
     }
-
     function assemblePayload(body, formId) {
         return {
             id: formId,
@@ -29,10 +28,9 @@ function builderRoutes(engine) {
             handler: typeof body['handler'] === 'string' && body['handler'].trim() ? body['handler'].trim() : undefined,
             proxySubmission: body['proxySubmission'] === 'on' || body['proxySubmission'] === 'true',
             notifyRole: typeof body['notifyRole'] === 'string' && body['notifyRole'].trim() ? body['notifyRole'].trim() : 'admin',
-            confirmationUrl: typeof body['confirmationUrl'] === 'string' && body['confirmationUrl'].trim() ? body['confirmationUrl'].trim() : undefined,
+            confirmationUrl: typeof body['confirmationUrl'] === 'string' && body['confirmationUrl'].trim() ? body['confirmationUrl'].trim() : undefined
         };
     }
-
     function handleAuthError(err, res) {
         if (err instanceof ApiContext_1.ApiError) {
             res.status(err.status).send(err.message);
@@ -40,75 +38,76 @@ function builderRoutes(engine) {
         }
         return false;
     }
-
-    // GET / → redirect to list
+    // ── GET / → redirect to list ─────────────────────────────────────────────────
     router.get('/', (_req, res) => {
         res.redirect('/admin/forms');
     });
-
-    // GET /new → blank builder
+    // ── GET /new → blank builder ─────────────────────────────────────────────────
     router.get('/new', (req, res) => {
         try {
             const ctx = ApiContext_1.ApiContext.from(req, engine);
             ctx.requireAuthenticated();
             ctx.requireRole('admin');
             res.render('forms-builder', { currentUser: req.userContext, form: null, isNew: true, errors: [] });
-        } catch (err) {
-            if (handleAuthError(err, res)) return;
+        }
+        catch (err) {
+            if (handleAuthError(err, res))
+                return;
             res.status(500).send(String(err));
         }
     });
-
-    // GET /:formId → edit existing
+    // ── GET /:formId → edit existing ─────────────────────────────────────────────
     router.get('/:formId', (req, res) => {
         try {
             const ctx = ApiContext_1.ApiContext.from(req, engine);
             ctx.requireAuthenticated();
             ctx.requireRole('admin');
             const form = fdm()?.getDefinition(String(req.params['formId']));
-            if (!form) { res.status(404).send('Form not found'); return; }
+            if (!form) {
+                res.status(404).send('Form not found');
+                return;
+            }
             res.render('forms-builder', { currentUser: req.userContext, form, isNew: false, errors: [] });
-        } catch (err) {
-            if (handleAuthError(err, res)) return;
+        }
+        catch (err) {
+            if (handleAuthError(err, res))
+                return;
             res.status(500).send(String(err));
         }
     });
-
-    // POST / → create new definition
+    // ── POST / → create new definition ──────────────────────────────────────────
     router.post('/', (req, res) => {
         void (async () => {
             try {
                 const ctx = ApiContext_1.ApiContext.from(req, engine);
                 ctx.requireAuthenticated();
                 ctx.requireRole('admin');
-
                 const body = req.body;
                 const rawId = typeof body['id'] === 'string' ? body['id'].trim() : '';
                 const fields = parseFields(body['fieldsJson']);
-
                 if (!fields) {
                     res.status(400).render('forms-builder', {
                         currentUser: req.userContext,
                         form: { ...assemblePayload(body, rawId), fields: [] },
                         isNew: true,
-                        errors: ['Invalid field data — could not parse fields.'],
+                        errors: ['Invalid field data — could not parse fields.']
                     });
                     return;
                 }
-
                 const m = fdm();
-                if (!m) { res.status(503).send('Forms addon not available'); return; }
-
+                if (!m) {
+                    res.status(503).send('Forms addon not available');
+                    return;
+                }
                 if (m.getDefinition(rawId)) {
                     res.status(409).render('forms-builder', {
                         currentUser: req.userContext,
                         form: { ...assemblePayload(body, rawId), fields },
                         isNew: true,
-                        errors: [`A form with ID "${rawId}" already exists — edit it instead.`],
+                        errors: [`A form with ID "${rawId}" already exists — edit it instead.`]
                     });
                     return;
                 }
-
                 const payload = { ...assemblePayload(body, rawId), fields };
                 const result = FormsDataManager_1.FormDefinitionSchema.safeParse(payload);
                 if (!result.success) {
@@ -116,46 +115,48 @@ function builderRoutes(engine) {
                         currentUser: req.userContext,
                         form: payload,
                         isNew: true,
-                        errors: result.error.errors.map(e => `${e.path.join('.') || 'form'}: ${e.message}`),
+                        errors: result.error.errors.map(e => `${e.path.join('.') || 'form'}: ${e.message}`)
                     });
                     return;
                 }
-
                 await m.saveDefinition(result.data);
                 res.redirect('/admin/forms?flash=saved');
-            } catch (err) {
-                if (handleAuthError(err, res)) return;
+            }
+            catch (err) {
+                if (handleAuthError(err, res))
+                    return;
                 res.status(500).send(String(err));
             }
         })();
     });
-
-    // POST /:formId → update existing
+    // ── POST /:formId → update existing ─────────────────────────────────────────
     router.post('/:formId', (req, res) => {
         void (async () => {
             try {
                 const ctx = ApiContext_1.ApiContext.from(req, engine);
                 ctx.requireAuthenticated();
                 ctx.requireRole('admin');
-
                 const formId = String(req.params['formId']);
                 const m = fdm();
-                if (!m) { res.status(503).send('Forms addon not available'); return; }
-                if (!m.getDefinition(formId)) { res.status(404).send('Form not found'); return; }
-
+                if (!m) {
+                    res.status(503).send('Forms addon not available');
+                    return;
+                }
+                if (!m.getDefinition(formId)) {
+                    res.status(404).send('Form not found');
+                    return;
+                }
                 const body = req.body;
                 const fields = parseFields(body['fieldsJson']);
-
                 if (!fields) {
                     res.status(400).render('forms-builder', {
                         currentUser: req.userContext,
                         form: { ...assemblePayload(body, formId), fields: [] },
                         isNew: false,
-                        errors: ['Invalid field data — could not parse fields.'],
+                        errors: ['Invalid field data — could not parse fields.']
                     });
                     return;
                 }
-
                 const payload = { ...assemblePayload(body, formId), fields };
                 const result = FormsDataManager_1.FormDefinitionSchema.safeParse(payload);
                 if (!result.success) {
@@ -163,56 +164,58 @@ function builderRoutes(engine) {
                         currentUser: req.userContext,
                         form: payload,
                         isNew: false,
-                        errors: result.error.errors.map(e => `${e.path.join('.') || 'form'}: ${e.message}`),
+                        errors: result.error.errors.map(e => `${e.path.join('.') || 'form'}: ${e.message}`)
                     });
                     return;
                 }
-
                 await m.saveDefinition(result.data);
                 res.redirect('/admin/forms?flash=saved');
-            } catch (err) {
-                if (handleAuthError(err, res)) return;
+            }
+            catch (err) {
+                if (handleAuthError(err, res))
+                    return;
                 res.status(500).send(String(err));
             }
         })();
     });
-
-    // POST /:formId/delete → delete definition
+    // ── POST /:formId/delete → delete definition ─────────────────────────────────
     router.post('/:formId/delete', (req, res) => {
         void (async () => {
             try {
                 const ctx = ApiContext_1.ApiContext.from(req, engine);
                 ctx.requireAuthenticated();
                 ctx.requireRole('admin');
-
                 const formId = String(req.params['formId']);
                 const m = fdm();
-                if (!m) { res.status(503).send('Forms addon not available'); return; }
-
+                if (!m) {
+                    res.status(503).send('Forms addon not available');
+                    return;
+                }
                 const form = m.getDefinition(formId);
-                if (!form) { res.status(404).send('Form not found'); return; }
-
+                if (!form) {
+                    res.status(404).send('Form not found');
+                    return;
+                }
                 const count = await m.getSubmissionCount(formId);
                 if (count > 0) {
                     res.status(409).render('forms-builder', {
                         currentUser: req.userContext,
                         form,
                         isNew: false,
-                        errors: [`Cannot delete — ${count} submission${count !== 1 ? 's' : ''} exist. Clear all submissions first.`],
+                        errors: [`Cannot delete — ${count} submission${count !== 1 ? 's' : ''} exist. Clear all submissions first.`]
                     });
                     return;
                 }
-
                 await m.deleteDefinition(formId);
                 res.redirect('/admin/forms?flash=deleted');
-            } catch (err) {
-                if (handleAuthError(err, res)) return;
+            }
+            catch (err) {
+                if (handleAuthError(err, res))
+                    return;
                 res.status(500).send(String(err));
             }
         })();
     });
-
     return router;
 }
-exports.default = builderRoutes;
-module.exports = builderRoutes;
+//# sourceMappingURL=builder.js.map

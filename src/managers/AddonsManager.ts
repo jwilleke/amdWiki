@@ -114,6 +114,21 @@ interface AddonEntry {
 }
 
 /**
+ * Card registered by an add-on for display on the admin dashboard.
+ * The card's live stats are sourced from the add-on's existing status() method.
+ */
+export interface AddonDashboardCard {
+  /** Must match the add-on's registered name */
+  addonName: string;
+  /** Card heading */
+  title: string;
+  /** Font Awesome class, e.g. 'fas fa-wpforms' */
+  icon: string;
+  /** URL of the add-on's admin page */
+  adminUrl: string;
+}
+
+/**
  * Status information returned by getStatus()
  */
 export interface AddonStatus {
@@ -147,6 +162,9 @@ class AddonsManager extends BaseManager {
   /** Stylesheets registered by add-ons via registerStylesheet() */
   private registeredStylesheets: Array<{ url: string; addonName: string }>;
 
+  /** Dashboard cards registered by add-ons via registerDashboardCard() */
+  private dashboardCards: Map<string, AddonDashboardCard>;
+
   /** Name of the first domain addon loaded — only one is permitted */
   private domainAddonName: string | null;
 
@@ -156,6 +174,7 @@ class AddonsManager extends BaseManager {
     this.addonsPaths = ['./addons'];
     this.resolvedAddonsPaths = [];
     this.registeredStylesheets = [];
+    this.dashboardCards = new Map();
     this.domainAddonName = null;
   }
 
@@ -767,6 +786,23 @@ class AddonsManager extends BaseManager {
    */
   getRegisteredStylesheets(): string[] {
     return this.registeredStylesheets.map(s => s.url);
+  }
+
+  /**
+   * Register a dashboard card for this add-on. Called from the add-on's register() function.
+   * Live stats shown on the card are sourced from the add-on's existing status() method.
+   */
+  registerDashboardCard(card: AddonDashboardCard): void {
+    this.dashboardCards.set(card.addonName, card);
+    logger.debug(`[AddonsManager] Dashboard card registered by ${card.addonName}`);
+  }
+
+  /**
+   * Return all registered dashboard cards in registration order.
+   * Called by the admin dashboard route to populate the addon cards row.
+   */
+  getDashboardCards(): AddonDashboardCard[] {
+    return Array.from(this.dashboardCards.values());
   }
 
   /**

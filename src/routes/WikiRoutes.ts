@@ -4592,8 +4592,9 @@ ${panes}
         // non-fatal — badge just won't show
       }
 
-      // Gather add-ons summary for dashboard card
+      // Gather add-ons summary and registered dashboard cards
       let addonsSummary = { total: 0, loaded: 0, errored: 0, disabled: 0 };
+      let addonCards: Array<{ addonName: string; title: string; icon: string; adminUrl: string; statusDetails?: unknown }> = [];
       try {
         const addonsManager = this.engine.getManager('AddonsManager');
         if (addonsManager) {
@@ -4604,6 +4605,10 @@ ${panes}
             errored: addonStatuses.filter((a: { error: string | null }) => a.error).length,
             disabled: addonStatuses.filter((a: { enabled: boolean }) => !a.enabled).length
           };
+          addonCards = addonsManager.getDashboardCards().map((card: { addonName: string; title: string; icon: string; adminUrl: string }) => ({
+            ...card,
+            statusDetails: addonStatuses.find((s: { name: string }) => s.name === card.addonName)?.details
+          }));
         }
       } catch {
         // non-fatal — summary card just won't show counts
@@ -4627,7 +4632,8 @@ ${panes}
         csrfToken: req.session.csrfToken,
         successMessage: req.query.success || null,
         errorMessage: req.query.error || null,
-        addonsSummary
+        addonsSummary,
+        addonCards
       };
 
       res.render('admin-dashboard', templateData);

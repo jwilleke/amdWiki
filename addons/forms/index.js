@@ -76,18 +76,24 @@ const formsAddon = {
         }
         // ── 4. Serve static assets ───────────────────────────────────────────────
         engine.app?.use('/addons/forms', express.static(path.join(__dirname, 'public')));
-        // ── 5. Register stylesheet ───────────────────────────────────────────────
+        // ── 5. Register stylesheet + dashboard card ──────────────────────────────
         const addonsManager = engine.getManager('AddonsManager');
         if (addonsManager) {
             addonsManager.registerStylesheet('/addons/forms/css/forms.css', 'forms');
+            addonsManager.registerDashboardCard({
+                addonName: 'forms',
+                title: 'Forms',
+                icon: 'fas fa-wpforms',
+                adminUrl: '/admin/forms',
+            });
         }
         // ── 6. Register views directory ──────────────────────────────────────────
         const existing = engine.app?.get('views') ?? [];
         engine.app?.set('views', [...[existing].flat(), path.join(__dirname, 'views')]);
         // ── 7. Mount routes ──────────────────────────────────────────────────────
-        engine.app?.use('/api/forms',           (0, api_1.default)(engine, formsAddon));
+        engine.app?.use('/api/forms', (0, api_1.default)(engine, formsAddon));
         engine.app?.use('/admin/forms/builder', (0, builder_1.default)(engine));
-        engine.app?.use('/admin/forms',         (0, admin_1.default)(engine, formsAddon));
+        engine.app?.use('/admin/forms', (0, admin_1.default)(engine, formsAddon));
         // ── 8. Announce capability ───────────────────────────────────────────────
         engine.setCapability('forms', true);
     },
@@ -96,13 +102,13 @@ const formsAddon = {
         return {
             healthy: true,
             records: count,
-            message: `Forms addon active — ${count} form definition${count === 1 ? '' : 's'} loaded`,
+            message: `Forms addon active — ${count} form definition${count === 1 ? '' : 's'} loaded`
         };
     },
     async shutdown() {
         dataManager = null;
         this._handlers.clear();
-    },
+    }
 };
 exports.default = formsAddon;
 module.exports = formsAddon;

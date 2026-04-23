@@ -106,10 +106,16 @@ const formsAddon = {
     // ── 4. Serve static assets ───────────────────────────────────────────────
     engine.app?.use('/addons/forms', express.static(path.join(__dirname, 'public')));
 
-    // ── 5. Register stylesheet ───────────────────────────────────────────────
+    // ── 5. Register stylesheet + dashboard card ──────────────────────────────
     const addonsManager = engine.getManager<AddonsManager>('AddonsManager');
     if (addonsManager) {
       addonsManager.registerStylesheet('/addons/forms/css/forms.css', 'forms');
+      addonsManager.registerDashboardCard({
+        addonName: 'forms',
+        title: 'Forms',
+        icon: 'fas fa-wpforms',
+        adminUrl: '/admin/forms'
+      });
     }
 
     // ── 6. Register views directory ──────────────────────────────────────────

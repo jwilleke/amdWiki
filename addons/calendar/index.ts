@@ -81,10 +81,16 @@ const calendarAddon = {
       express.static(path.join(__dirname, 'public'))
     );
 
-    // ── 4. Register stylesheet ───────────────────────────────────────────────
+    // ── 4. Register stylesheet + dashboard card ──────────────────────────────
     const addonsManager = engine.getManager<AddonsManager>('AddonsManager');
     if (addonsManager) {
       addonsManager.registerStylesheet('/addons/calendar/css/calendar.css', 'calendar');
+      addonsManager.registerDashboardCard({
+        addonName: 'calendar',
+        title: 'Calendar',
+        icon: 'fas fa-calendar-alt',
+        adminUrl: '/admin/calendar'
+      });
     }
 
     // ── 5. Mount API routes ──────────────────────────────────────────────────
@@ -124,8 +130,8 @@ const calendarAddon = {
             requesterEmail: person.email,
             address:        submission.onBehalfOf?.address ?? data['address'],
             phone:          submission.onBehalfOf?.phone   ?? data['phone'],
-            submittedBy:    submission.submittedBy,
-          },
+            submittedBy:    submission.submittedBy
+          }
         });
 
         return { ok: true, calendarEventId: event.id };

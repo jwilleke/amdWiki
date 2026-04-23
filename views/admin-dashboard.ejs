@@ -230,6 +230,29 @@
         </div>
     </div>
 
+    <!-- Row 2b: Per-addon cards (registered via AddonsManager.registerDashboardCard) -->
+    <% if (typeof addonCards !== 'undefined' && addonCards && addonCards.length > 0) { %>
+    <div class="row">
+      <% addonCards.forEach(function(card) { %>
+      <div class="col-lg-4 col-md-6 mb-4">
+        <div class="card h-100">
+          <div class="card-header">
+            <h5 class="mb-0"><i class="<%= card.icon %> me-2"></i><%= card.title %></h5>
+          </div>
+          <div class="card-body">
+            <% if (card.statusDetails && card.statusDetails.message) { %>
+              <p class="text-muted small mb-3"><%= card.statusDetails.message %></p>
+            <% } %>
+            <a href="<%= card.adminUrl %>" class="btn btn-sm btn-outline-primary">
+              <i class="fas fa-cog me-1"></i>Manage <%= card.title %>
+            </a>
+          </div>
+        </div>
+      </div>
+      <% }) %>
+    </div>
+    <% } %>
+
     <!-- Row 3: Page Management & Media Management -->
     <div class="row">
 

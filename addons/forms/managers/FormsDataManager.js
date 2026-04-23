@@ -17,7 +17,7 @@ exports.FieldSchema = zod_1.z.object({
     placeholder: zod_1.z.string().optional(),
     optionsSource: zod_1.z.string().optional(),
     options: zod_1.z.array(zod_1.z.string()).optional(),
-    prefill: zod_1.z.string().optional(),
+    prefill: zod_1.z.string().optional()
 });
 exports.FormDefinitionSchema = zod_1.z.object({
     id: zod_1.z.string().regex(/^[a-z0-9-]+$/, 'Form id must be lowercase alphanumeric with hyphens'),
@@ -27,7 +27,7 @@ exports.FormDefinitionSchema = zod_1.z.object({
     proxySubmission: zod_1.z.boolean().default(false),
     notifyRole: zod_1.z.string().default('admin'),
     confirmationUrl: zod_1.z.string().optional(),
-    fields: zod_1.z.array(exports.FieldSchema).min(1),
+    fields: zod_1.z.array(exports.FieldSchema).min(1)
 });
 exports.SubmissionSchema = zod_1.z.object({
     id: zod_1.z.string(),
@@ -38,12 +38,12 @@ exports.SubmissionSchema = zod_1.z.object({
         name: zod_1.z.string().optional(),
         email: zod_1.z.string().optional(),
         phone: zod_1.z.string().optional(),
-        address: zod_1.z.string().optional(),
+        address: zod_1.z.string().optional()
     }).optional(),
     data: zod_1.z.record(zod_1.z.string(), zod_1.z.unknown()),
     status: zod_1.z.enum(['pending', 'processed', 'rejected']).default('pending'),
     handlerResult: zod_1.z.unknown().optional(),
-    notes: zod_1.z.string().optional(),
+    notes: zod_1.z.string().optional()
 });
 // ── Validator builder ─────────────────────────────────────────────────────────
 function buildSubmissionValidator(form) {
@@ -54,11 +54,14 @@ function buildSubmissionValidator(form) {
         let rule;
         if (field.type === 'email') {
             rule = zod_1.z.string().email(`${field.label} must be a valid email`);
-        } else if (field.type === 'tel') {
+        }
+        else if (field.type === 'tel') {
             rule = zod_1.z.string().min(7, `${field.label} must be at least 7 characters`);
-        } else if (field.type === 'checkbox') {
+        }
+        else if (field.type === 'checkbox') {
             rule = zod_1.z.union([zod_1.z.literal('on'), zod_1.z.literal('true'), zod_1.z.literal('1')]);
-        } else {
+        }
+        else {
             rule = field.required
                 ? zod_1.z.string().min(1, `${field.label} is required`)
                 : zod_1.z.string();
@@ -117,7 +120,7 @@ class FormsDataManager {
         const full = {
             ...submission,
             id: submission.id ?? (0, uuid_1.v4)(),
-            status: submission.status ?? 'pending',
+            status: submission.status ?? 'pending'
         };
         const dir = path.join(this.dataPath, 'submissions', full.formId);
         await fs_1.promises.mkdir(dir, { recursive: true });
