@@ -188,9 +188,9 @@ The calendar event title is always `Reservation — <resident name>`, regardless
 
 | URL | What it shows |
 |---|---|
-| `/admin/forms` | All forms, submission counts, status filter |
-| `/admin/forms/clubhouse-reservation/submissions` | Per-submission detail, mark processed/rejected |
-| `/admin/calendar` | Full calendar management, edit/delete events |
+| `/addons/forms` | All forms, submission counts, status filter |
+| `/addons/forms/clubhouse-reservation/submissions` | Per-submission detail, mark processed/rejected |
+| `/addons/calendar` | Full calendar management, edit/delete events |
 | `/api/calendar/clubhouse/feed.ics` | RFC 5545 iCal feed for external calendar apps |
 
 ---

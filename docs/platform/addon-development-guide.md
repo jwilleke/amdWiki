@@ -196,7 +196,7 @@ async register(engine, config) {
       addonName: 'my-addon',   // must match your addon name
       title: 'My Addon',
       icon: 'fas fa-cog',      // any Font Awesome class
-      adminUrl: '/admin/my-addon',
+      adminUrl: '/addons/my-addon',
     });
   }
 }
