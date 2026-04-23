@@ -87,9 +87,10 @@ function renderGroups(resolvedFields: ResolvedField[]): string {
 }
 
 function renderForm(form: FormDefinition, resolvedFields: ResolvedField[]): string {
-  const proxyBlock = form.proxySubmission ? renderFieldset('Submitting on Behalf Of', `
+  const proxyBlock = form.proxySubmission ? renderFieldset('For Another Occupant', `
+      <p class="text-muted small mb-3">Complete this section only if submitting on behalf of another resident. Leave blank if submitting for yourself.</p>
       <div class="mb-3">
-        <label class="form-label" for="obo-name">Full Name <span class="text-danger">*</span></label>
+        <label class="form-label" for="obo-name">Full Name</label>
         <input type="text" name="onBehalfOf[name]" id="obo-name" class="form-control">
       </div>
       <div class="mb-3">

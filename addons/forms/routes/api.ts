@@ -52,12 +52,23 @@ export default function apiRoutes(engine: WikiEngine, addon: AddonRef): Router {
         let onBehalfOf: Record<string, string | undefined> | undefined;
         if (form.proxySubmission && body['onBehalfOf'] && typeof body['onBehalfOf'] === 'object') {
           const obo = body['onBehalfOf'] as Record<string, unknown>;
-          onBehalfOf = {
-            name:    typeof obo['name']    === 'string' ? obo['name']    : undefined,
-            email:   typeof obo['email']   === 'string' ? obo['email']   : undefined,
-            phone:   typeof obo['phone']   === 'string' ? obo['phone']   : undefined,
-            address: typeof obo['address'] === 'string' ? obo['address'] : undefined,
-          };
+          const oboName    = typeof obo['name']    === 'string' ? obo['name'].trim()    : '';
+          const oboEmail   = typeof obo['email']   === 'string' ? obo['email'].trim()   : '';
+          const oboPhone   = typeof obo['phone']   === 'string' ? obo['phone'].trim()   : '';
+          const oboAddress = typeof obo['address'] === 'string' ? obo['address'].trim() : '';
+          const anyFilled  = oboName || oboEmail || oboPhone || oboAddress;
+          if (anyFilled && !oboName) {
+            res.status(400).json({ ok: false, error: 'Full Name is required when submitting on behalf of someone.' });
+            return;
+          }
+          if (anyFilled) {
+            onBehalfOf = {
+              name:    oboName    || undefined,
+              email:   oboEmail   || undefined,
+              phone:   oboPhone   || undefined,
+              address: oboAddress || undefined
+            };
+          }
         }
 
         // ── 4. Save submission ─────────────────────────────────────────────
@@ -67,7 +78,7 @@ export default function apiRoutes(engine: WikiEngine, addon: AddonRef): Router {
           submittedBy,
           onBehalfOf,
           data: validationResult.data as Record<string, unknown>,
-          status: 'pending',
+          status: 'pending'
         });
 
         // ── 5. Call handler ────────────────────────────────────────────────
@@ -111,7 +122,7 @@ export default function apiRoutes(engine: WikiEngine, addon: AddonRef): Router {
             '',
             requesterBlock + (details ? `Details:\n${details}` : ''),
             linkLine,
-            `Submission ID: ${submission.id}`,
+            `Submission ID: ${submission.id}`
           ].join('\n').trim();
 
           emailManager.sendTo(submitterEmail, subject, text).catch(() => {});
@@ -124,7 +135,7 @@ export default function apiRoutes(engine: WikiEngine, addon: AddonRef): Router {
             type:    'system',
             title:   `New form submission: ${form.title}`,
             message: `Submitted by ${submittedBy}${onBehalfOf?.name ? ` on behalf of ${onBehalfOf.name}` : ''}`,
-            level:   'info',
+            level:   'info'
           }).catch(() => {});
         }
 
