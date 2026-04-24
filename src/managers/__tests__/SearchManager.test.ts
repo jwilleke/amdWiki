@@ -417,6 +417,14 @@ describe('SearchManager', () => {
     });
   });
 
+  describe('backup() with working provider.backup()', () => {
+    test('returns providerBackup when provider.backup() resolves', async () => {
+      searchManager.provider.backup = vi.fn().mockResolvedValue({ docs: [] });
+      const result = await searchManager.backup();
+      expect(result.providerBackup).toBeDefined();
+    });
+  });
+
   describe('restore()', () => {
     test('does nothing when provider is null', async () => {
       searchManager.provider = null;
@@ -426,6 +434,12 @@ describe('SearchManager', () => {
     test('does not throw with valid backup data', async () => {
       const backupData = await searchManager.backup();
       await expect(searchManager.restore(backupData)).resolves.not.toThrow();
+    });
+
+    test('calls provider.restore() when provider exists and restore() is a function', async () => {
+      searchManager.provider.restore = vi.fn().mockResolvedValue(undefined);
+      await expect(searchManager.restore({ managerName: 'SearchManager' })).resolves.not.toThrow();
+      expect(searchManager.provider.restore).toHaveBeenCalled();
     });
   });
 
@@ -439,6 +453,19 @@ describe('SearchManager', () => {
       const closeSpy = vi.spyOn(searchManager.provider, 'close').mockResolvedValue(undefined);
       await searchManager.shutdown();
       expect(closeSpy).toHaveBeenCalled();
+    });
+
+    test('handles provider.close() throwing without rethrowing', async () => {
+      searchManager.provider.close = vi.fn().mockRejectedValue(new Error('close error'));
+      await expect(searchManager.shutdown()).resolves.not.toThrow();
+    });
+  });
+
+  describe('multiSearch()', () => {
+    test('returns empty array when advancedSearch throws', async () => {
+      searchManager.provider.advancedSearch = vi.fn().mockRejectedValue(new Error('search failed'));
+      const result = await searchManager.multiSearch({ query: 'test' });
+      expect(result).toEqual([]);
     });
   });
 });

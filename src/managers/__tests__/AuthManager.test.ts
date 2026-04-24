@@ -172,4 +172,64 @@ describe('AuthManager', () => {
       expect(ids).toContain('magic-link');
     });
   });
+
+  describe('getMagicLinkRedirect()', () => {
+    test('returns "/" when magic-link provider not registered', async () => {
+      const cm = makeConfigManager({ magicLinkEnabled: false });
+      const manager = new AuthManager(makeEngine(cm));
+      await manager.initialize();
+      expect(manager.getMagicLinkRedirect('sometoken')).toBe('/');
+    });
+
+    test('returns token redirect from registered provider', async () => {
+      const cm = makeConfigManager({ magicLinkEnabled: true });
+      const manager = new AuthManager(makeEngine(cm));
+      await manager.initialize();
+      const redirect = manager.getMagicLinkRedirect('no-such-token');
+      expect(typeof redirect).toBe('string');
+    });
+  });
+
+  describe('getGoogleOIDCRedirect()', () => {
+    test('returns "/" when google-oidc provider not registered', async () => {
+      const cm = makeConfigManager();
+      const manager = new AuthManager(makeEngine(cm));
+      await manager.initialize();
+      expect(manager.getGoogleOIDCRedirect('nonce')).toBe('/');
+    });
+  });
+
+  describe('isEnabled()', () => {
+    test('returns true for registered provider', async () => {
+      const cm = makeConfigManager();
+      const manager = new AuthManager(makeEngine(cm));
+      await manager.initialize();
+      expect(manager.isEnabled('password')).toBe(true);
+    });
+
+    test('returns false for unregistered provider', async () => {
+      const cm = makeConfigManager();
+      const manager = new AuthManager(makeEngine(cm));
+      await manager.initialize();
+      expect(manager.isEnabled('unknown-provider')).toBe(false);
+    });
+  });
+
+  describe('backup() and restore()', () => {
+    test('backup() returns provider list', async () => {
+      const cm = makeConfigManager({ magicLinkEnabled: true });
+      const manager = new AuthManager(makeEngine(cm));
+      await manager.initialize();
+      const backup = await manager.backup();
+      expect(backup.managerName).toBe('AuthManager');
+      expect((backup.data as { providers: string[] }).providers).toContain('password');
+    });
+
+    test('restore() resolves without error', async () => {
+      const cm = makeConfigManager();
+      const manager = new AuthManager(makeEngine(cm));
+      await manager.initialize();
+      await expect(manager.restore({ managerName: 'AuthManager', timestamp: '', data: null })).resolves.toBeUndefined();
+    });
+  });
 });

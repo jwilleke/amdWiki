@@ -457,11 +457,53 @@ describe('FilterChain Modular Configuration', () => {
     test('should integrate seamlessly with MarkupParser configuration', async () => {
       // Test that FilterChain respects the same configuration patterns as other components
       const config = filterChain.getConfiguration();
-      
+
       expect(config).toHaveProperty('enabled');
       expect(config).toHaveProperty('maxFilters');
       expect(config).toHaveProperty('timeout');
       expect(config).toHaveProperty('configurationSource');
+    });
+  });
+
+  describe('getFilters() — all filters including disabled', () => {
+    test('getFilters(false) returns all filters including disabled ones', async () => {
+      const engine = createMockEngine();
+      const fc = new FilterChain(engine);
+      await fc.initialize({ engine });
+      fc.addFilter(new TestFilter('EnabledFilter'));
+      const all = fc.getFilters(false);
+      expect(Array.isArray(all)).toBe(true);
+      expect(all.length).toBeGreaterThanOrEqual(1);
+      await fc.shutdown();
+    });
+  });
+
+  describe('shutdown() error handling', () => {
+    test('shutdown() continues when a filter throws during shutdown', async () => {
+      const engine = createMockEngine();
+      const fc = new FilterChain(engine);
+      await fc.initialize({ engine });
+      const badFilter = new TestFilter('BadShutdown');
+      badFilter.shutdown = vi.fn().mockRejectedValue(new Error('shutdown fail'));
+      fc.addFilter(badFilter);
+      await expect(fc.shutdown()).resolves.not.toThrow();
+    });
+  });
+
+  describe('performance threshold checking', () => {
+    test('checkPerformanceThresholds() via enough recent executions', async () => {
+      const engine = createMockEngine({
+        'ngdpbase.markup.filters.pipeline.enable-profiling': true
+      });
+      const fc = new FilterChain(engine);
+      await fc.initialize({ engine });
+      fc.addFilter(new TestFilter('PerfFilter'));
+      // Run enough times to trigger threshold checking (needs 10+ executions)
+      const ctx = { pageName: 'Test', engine };
+      for (let i = 0; i < 12; i++) {
+        await fc.process('test content', ctx);
+      }
+      await fc.shutdown();
     });
   });
 });

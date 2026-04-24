@@ -464,4 +464,74 @@ describe('ValidationManager', () => {
       expect(result['user-keywords']).toBeUndefined();
     });
   });
+
+  describe('validatePage()', () => {
+    const validUuid = uuidv4();
+    const validMeta = {
+      title: 'My Page',
+      'system-category': 'General',
+      'user-keywords': ['tag1'],
+      uuid: validUuid,
+      lastModified: new Date().toISOString(),
+      slug: 'my-page'
+    };
+
+    test('returns filenameValid=false and error for invalid filename', () => {
+      const result = validationManager.validatePage('bad-name.md', validMeta);
+      expect(result.filenameValid).toBe(false);
+      expect(result.success).toBe(false);
+    });
+
+    test('returns metadataValid=false for incomplete metadata', () => {
+      const result = validationManager.validatePage(`${validUuid}.md`, { title: 'Only Title', uuid: validUuid });
+      expect(result.metadataValid).toBe(false);
+      expect(result.success).toBe(false);
+    });
+
+    test('returns error for UUID mismatch between filename and metadata', () => {
+      const otherUuid = uuidv4();
+      const result = validationManager.validatePage(`${otherUuid}.md`, validMeta);
+      expect(result.success).toBe(false);
+      expect(result.error).toContain('UUID mismatch');
+    });
+
+    test('returns success for valid filename and metadata', () => {
+      const result = validationManager.validatePage(`${validUuid}.md`, validMeta);
+      expect(result.success).toBe(true);
+      expect(result.filenameValid).toBe(true);
+      expect(result.metadataValid).toBe(true);
+    });
+
+    test('validates content when provided', () => {
+      const result = validationManager.validatePage(`${validUuid}.md`, validMeta, '# My Page\n\nContent here.');
+      expect(result.success).toBe(true);
+    });
+  });
+
+  describe('validateContent()', () => {
+    test('returns warning for empty content', () => {
+      const result = validationManager.validateContent('');
+      expect(result.warnings.length).toBeGreaterThan(0);
+    });
+
+    test('returns warning for non-string content', () => {
+      const result = validationManager.validateContent(null);
+      expect(result.warnings.length).toBeGreaterThan(0);
+    });
+
+    test('returns warning when no markdown headers', () => {
+      const result = validationManager.validateContent('Some text without headers here.');
+      expect(result.warnings.some(w => w.includes('headers'))).toBe(true);
+    });
+
+    test('returns warning for very short content', () => {
+      const result = validationManager.validateContent('Hi');
+      expect(result.warnings.some(w => w.includes('short'))).toBe(true);
+    });
+
+    test('returns no warnings for well-formed content', () => {
+      const result = validationManager.validateContent('# My Page\n\nThis is a well-formed wiki page with enough content to pass validation checks.');
+      expect(result.warnings.length).toBe(0);
+    });
+  });
 });

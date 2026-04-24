@@ -419,6 +419,18 @@ describe('RenderingManager', () => {
       // getUserName returns 'Anonymous' with capital A
       expect(username).toBe('Anonymous');
     });
+
+    test('returns Anonymous for username="anonymous"', () => {
+      expect(renderingManager.getUserName({ username: 'anonymous', roles: [] })).toBe('Anonymous');
+    });
+
+    test('returns displayName for username="asserted"', () => {
+      expect(renderingManager.getUserName({ username: 'asserted', displayName: 'Jane', roles: [] })).toBe('Jane');
+    });
+
+    test('returns "Asserted User" when asserted but no displayName', () => {
+      expect(renderingManager.getUserName({ username: 'asserted', roles: [] })).toBe('Asserted User');
+    });
   });
 
   describe('Configuration', () => {
@@ -498,6 +510,23 @@ describe('RenderingManager', () => {
     test('does not throw when MarkupParser is unavailable', () => {
       expect(() => renderingManager.invalidateHandlerCache()).not.toThrow();
     });
+
+    test('calls markupParser.invalidateHandlerCache when available', () => {
+      const mockMarkupParser = {
+        invalidateHandlerCache: vi.fn().mockResolvedValue(undefined)
+      };
+      const engineWithParser = {
+        ...mockEngine,
+        getManager: vi.fn((name: string) => {
+          if (name === 'MarkupParser') return mockMarkupParser;
+          if (name === 'ConfigurationManager') return mockConfigurationManager;
+          if (name === 'PageManager') return mockPageManager;
+          return null;
+        })
+      } as unknown as WikiEngine;
+      const mgr = new RenderingManager(engineWithParser);
+      expect(() => mgr.invalidateHandlerCache()).not.toThrow();
+    });
   });
 
   describe('parseTableParameters()', () => {
@@ -540,6 +569,130 @@ describe('RenderingManager', () => {
     test('handles empty preview content', async () => {
       const result = await renderingManager.renderPreview('', 'TestPage', null);
       expect(typeof result).toBe('string');
+    });
+  });
+
+  describe('getLoginStatus()', () => {
+    test('returns Anonymous for null context', () => {
+      expect(renderingManager.getLoginStatus(null)).toBe('Anonymous');
+    });
+
+    test('returns Anonymous for context with no username', () => {
+      expect(renderingManager.getLoginStatus({ username: '', roles: [] })).toBe('Anonymous');
+    });
+
+    test('returns Anonymous for anonymous username', () => {
+      expect(renderingManager.getLoginStatus({ username: 'anonymous', roles: [] })).toBe('Anonymous');
+    });
+
+    test('returns Asserted for asserted username', () => {
+      expect(renderingManager.getLoginStatus({ username: 'asserted', roles: [] })).toBe('Asserted');
+    });
+
+    test('returns Authenticated for regular username', () => {
+      expect(renderingManager.getLoginStatus({ username: 'alice', roles: ['user'] })).toBe('Authenticated');
+    });
+  });
+
+  describe('renderWikiLinks()', () => {
+    test('returns empty string for empty content', () => {
+      expect(renderingManager.renderWikiLinks('')).toBe('');
+    });
+
+    test('returns content unchanged when no wiki links present', () => {
+      const text = 'Plain text with no links.';
+      const result = renderingManager.renderWikiLinks(text);
+      expect(typeof result).toBe('string');
+    });
+
+    test('processes wiki link syntax without throwing', () => {
+      const result = renderingManager.renderWikiLinks('[TestPage]');
+      expect(typeof result).toBe('string');
+    });
+  });
+
+  describe('renderPlugins()', () => {
+    test('returns empty string for empty content', async () => {
+      expect(await renderingManager.renderPlugins('', 'TestPage')).toBe('');
+    });
+
+    test('returns content unchanged when no PluginManager available', async () => {
+      const text = 'No plugins here.';
+      expect(await renderingManager.renderPlugins(text, 'TestPage')).toBe(text);
+    });
+
+    test('executes plugin when PluginManager available and plugin exists', async () => {
+      const mockPluginManager = {
+        hasPlugin: vi.fn().mockReturnValue(true),
+        execute: vi.fn().mockResolvedValue('<span>Plugin Output</span>')
+      };
+      const engineWithPlugins = {
+        ...mockEngine,
+        getManager: vi.fn((name: string) => {
+          if (name === 'PluginManager') return mockPluginManager;
+          if (name === 'ConfigurationManager') return mockConfigurationManager;
+          if (name === 'PageManager') return mockPageManager;
+          return null;
+        })
+      } as unknown as WikiEngine;
+      const mgr = new RenderingManager(engineWithPlugins);
+      await mgr.initialize();
+      const result = await mgr.renderPlugins('[{SomePlugin key=value}]', 'TestPage');
+      expect(typeof result).toBe('string');
+      expect(mockPluginManager.execute).toHaveBeenCalled();
+    });
+
+    test('renders error span when plugin execution throws', async () => {
+      const mockPluginManager = {
+        hasPlugin: vi.fn().mockReturnValue(true),
+        execute: vi.fn().mockRejectedValue(new Error('plugin crashed'))
+      };
+      const engineWithPlugins = {
+        ...mockEngine,
+        getManager: vi.fn((name: string) => {
+          if (name === 'PluginManager') return mockPluginManager;
+          if (name === 'ConfigurationManager') return mockConfigurationManager;
+          if (name === 'PageManager') return mockPageManager;
+          return null;
+        })
+      } as unknown as WikiEngine;
+      const mgr = new RenderingManager(engineWithPlugins);
+      await mgr.initialize();
+      const result = await mgr.renderPlugins('[{CrashingPlugin}]', 'TestPage');
+      expect(result).toContain('error');
+    });
+  });
+
+  describe('renderWikiLinks() error fallback', () => {
+    test('returns original content when linkParser throws', async () => {
+      const originalLinkParser = (renderingManager as unknown as { linkParser: unknown }).linkParser;
+      (renderingManager as unknown as { linkParser: { parseLinks: () => never } }).linkParser = {
+        parseLinks: () => { throw new Error('parser crash'); }
+      };
+      const result = renderingManager.renderWikiLinks('[BrokenLink]');
+      expect(typeof result).toBe('string');
+      (renderingManager as unknown as { linkParser: unknown }).linkParser = originalLinkParser;
+    });
+  });
+
+  describe('textToHTML()', () => {
+    test('throws when context is missing', async () => {
+      await expect(renderingManager.textToHTML(null, 'content')).rejects.toThrow('valid WikiContext');
+    });
+
+    test('throws when context has no renderMarkdown function', async () => {
+      await expect(renderingManager.textToHTML({} as unknown as import('../../WikiContext').default, 'content')).rejects.toThrow('valid WikiContext');
+    });
+
+    test('delegates to context.renderMarkdown and returns HTML', async () => {
+      const mockContext = {
+        renderMarkdown: vi.fn().mockResolvedValue('<p>rendered</p>'),
+        pageName: 'TestPage',
+        getContext: vi.fn().mockReturnValue('VIEW')
+      } as unknown as import('../../WikiContext').default;
+      const result = await renderingManager.textToHTML(mockContext, '**bold**');
+      expect(result).toBe('<p>rendered</p>');
+      expect(mockContext.renderMarkdown).toHaveBeenCalledWith('**bold**');
     });
   });
 });

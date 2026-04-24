@@ -394,4 +394,100 @@ describe('UserManager', () => {
       await expect(uninitializedManager.getUser('test')).rejects.toThrow();
     });
   });
+
+  describe('Session methods', () => {
+    test('deleteSession() throws when no provider', async () => {
+      const mgr = new UserManager(mockEngine as unknown as WikiEngine);
+      await expect(mgr.deleteSession('sid')).rejects.toThrow('Provider not initialized');
+    });
+
+    test('deleteSession() calls provider.deleteSession', async () => {
+      userManager.provider.deleteSession = vi.fn().mockResolvedValue(undefined);
+      await userManager.deleteSession('session-abc');
+      expect(userManager.provider.deleteSession).toHaveBeenCalledWith('session-abc');
+    });
+
+    test('deleteUserSessions() throws when no provider', async () => {
+      const mgr = new UserManager(mockEngine as unknown as WikiEngine);
+      await expect(mgr.deleteUserSessions('bob')).rejects.toThrow('Provider not initialized');
+    });
+
+    test('deleteUserSessions() deletes matching sessions', async () => {
+      const sessions = new Map([
+        ['s1', { username: 'bob', expiresAt: '2099-01-01' }],
+        ['s2', { username: 'alice', expiresAt: '2099-01-01' }],
+        ['s3', { username: 'bob', expiresAt: '2099-01-01' }]
+      ]);
+      userManager.provider.getAllSessions = vi.fn().mockResolvedValue(sessions);
+      userManager.provider.deleteSession = vi.fn().mockResolvedValue(undefined);
+      await userManager.deleteUserSessions('bob');
+      expect(userManager.provider.deleteSession).toHaveBeenCalledWith('s1');
+      expect(userManager.provider.deleteSession).toHaveBeenCalledWith('s3');
+      expect(userManager.provider.deleteSession).not.toHaveBeenCalledWith('s2');
+    });
+  });
+
+  describe('backup() and restore()', () => {
+    test('backup() returns placeholder when no provider', async () => {
+      const mgr = new UserManager(mockEngine as unknown as WikiEngine);
+      const result = await mgr.backup();
+      expect(result.managerName).toBe('UserManager');
+      expect(result.data).toBeNull();
+    });
+
+    test('backup() calls provider.backup when available', async () => {
+      userManager.provider.backup = vi.fn().mockResolvedValue({ users: [] });
+      const result = await userManager.backup();
+      expect(userManager.provider.backup).toHaveBeenCalled();
+      expect(result.managerName).toBe('UserManager');
+    });
+
+    test('backup() succeeds when provider has no backup method', async () => {
+      userManager.provider.backup = undefined;
+      const result = await userManager.backup();
+      expect(result.managerName).toBe('UserManager');
+      expect(result.providerBackup).toBeNull();
+    });
+
+    test('backup() rethrows provider errors', async () => {
+      userManager.provider.backup = vi.fn().mockRejectedValue(new Error('disk full'));
+      await expect(userManager.backup()).rejects.toThrow('disk full');
+    });
+
+    test('restore() throws with no backup data', async () => {
+      await expect(userManager.restore(null as unknown as import('../UserManager').BackupData)).rejects.toThrow('No backup data');
+    });
+
+    test('restore() throws when no provider', async () => {
+      const mgr = new UserManager(mockEngine as unknown as WikiEngine);
+      await expect(mgr.restore({ managerName: 'UserManager', timestamp: '', providerClass: null, data: null })).rejects.toThrow('No provider');
+    });
+
+    test('restore() calls provider.restore with providerBackup', async () => {
+      userManager.provider.restore = vi.fn().mockResolvedValue(undefined);
+      await userManager.restore({ managerName: 'UserManager', timestamp: '', providerClass: 'FileUserProvider', providerBackup: { users: [] } });
+      expect(userManager.provider.restore).toHaveBeenCalledWith({ users: [] });
+    });
+
+    test('restore() logs warning on provider class mismatch', async () => {
+      userManager.provider.restore = vi.fn().mockResolvedValue(undefined);
+      // No throw expected — just a warning log
+      await expect(
+        userManager.restore({ managerName: 'UserManager', timestamp: '', providerClass: 'OtherProvider', providerBackup: { users: [] } })
+      ).resolves.not.toThrow();
+    });
+
+    test('restore() warns when no providerBackup present', async () => {
+      await expect(
+        userManager.restore({ managerName: 'UserManager', timestamp: '', providerClass: null, data: null })
+      ).resolves.not.toThrow();
+    });
+
+    test('restore() rethrows provider errors', async () => {
+      userManager.provider.restore = vi.fn().mockRejectedValue(new Error('corrupt data'));
+      await expect(
+        userManager.restore({ managerName: 'UserManager', timestamp: '', providerClass: null, providerBackup: { users: [] } })
+      ).rejects.toThrow('corrupt data');
+    });
+  });
 });

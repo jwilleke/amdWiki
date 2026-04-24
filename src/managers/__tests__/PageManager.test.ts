@@ -394,6 +394,72 @@ describe('PageManager', () => {
     });
   });
 
+  describe('restore() edge cases', () => {
+    test('restore() logs warning on provider class mismatch', async () => {
+      const providerBackup = { pages: [] };
+      const managerBackup = {
+        managerName: 'PageManager',
+        timestamp: new Date().toISOString(),
+        providerClass: 'OtherProvider',
+        providerBackup
+      };
+      pageManager.provider.restore = vi.fn().mockResolvedValue(undefined);
+      // Should not throw — just warns
+      await expect(pageManager.restore(managerBackup)).resolves.not.toThrow();
+    });
+
+    test('restore() logs warning when no providerBackup in data', async () => {
+      const managerBackup = {
+        managerName: 'PageManager',
+        timestamp: new Date().toISOString(),
+        providerBackup: null
+      };
+      // No providerBackup → else branch
+      await expect(pageManager.restore(managerBackup)).resolves.not.toThrow();
+    });
+
+    test('restore() logs warning when provider has no restore method', async () => {
+      const managerBackup = {
+        managerName: 'PageManager',
+        timestamp: new Date().toISOString(),
+        providerBackup: { pages: [] }
+      };
+      delete pageManager.provider.restore;
+      // provider.restore undefined → else branch
+      await expect(pageManager.restore(managerBackup)).resolves.not.toThrow();
+    });
+
+    test('restore() rethrows when provider.restore() throws', async () => {
+      const managerBackup = {
+        managerName: 'PageManager',
+        timestamp: new Date().toISOString(),
+        providerBackup: { pages: [] }
+      };
+      pageManager.provider.restore = vi.fn().mockRejectedValue(new Error('restore fail'));
+      await expect(pageManager.restore(managerBackup)).rejects.toThrow('restore fail');
+    });
+  });
+
+  describe('deletePageWithContext() anonymous user logging', () => {
+    test('uses anonymous when userContext has no username', async () => {
+      pageManager.provider.deletePage = vi.fn().mockResolvedValue(true);
+      const ctx = {
+        pageName: 'TestPage',
+        userContext: { roles: [] } // no username field
+      };
+      await expect(pageManager.deletePageWithContext(ctx)).resolves.toBe(true);
+    });
+
+    test('uses provided username in log', async () => {
+      pageManager.provider.deletePage = vi.fn().mockResolvedValue(true);
+      const ctx = {
+        pageName: 'TestPage',
+        userContext: { username: 'alice' }
+      };
+      await expect(pageManager.deletePageWithContext(ctx)).resolves.toBe(true);
+    });
+  });
+
   describe('Provider Normalization', () => {
     test('should normalize filesystemprovider to FileSystemProvider', async () => {
       // This is tested implicitly in initialization

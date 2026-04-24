@@ -426,3 +426,79 @@ describe('UndefinedPagesPlugin — format=count unaffected by sort/page', () => 
     expect(html).toBe('3');
   });
 });
+
+// ---------------------------------------------------------------------------
+// UndefinedPagesPlugin — exclude parameter
+// ---------------------------------------------------------------------------
+
+describe('UndefinedPagesPlugin — exclude parameter', () => {
+  const existingPages = [];
+  const linkGraph = {
+    'SystemPage': ['Ref1'],
+    'UserPage': ['Ref2'],
+    'SystemAdmin': ['Ref3']
+  };
+
+  test('exclude pattern filters out matching pages', async () => {
+    const ctx = makeContext(existingPages, linkGraph);
+    const html = await UndefinedPagesPlugin.execute(ctx, { exclude: 'System' });
+    expect(html).toContain('UserPage');
+    expect(html).not.toContain('SystemPage');
+    expect(html).not.toContain('SystemAdmin');
+  });
+
+  test('invalid exclude regex returns error message', async () => {
+    const ctx = makeContext(existingPages, linkGraph);
+    const html = await UndefinedPagesPlugin.execute(ctx, { exclude: '[invalid regex(' });
+    expect(html).toContain('error');
+    expect(html).toContain('Invalid exclude pattern');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// UndefinedPagesPlugin — showReferring in list format
+// ---------------------------------------------------------------------------
+
+describe('UndefinedPagesPlugin — showReferring in list format', () => {
+  const existingPages = [];
+  const linkGraph = {
+    'MissingPage': ['Alpha', 'Beta'],
+    'Orphan': []
+  };
+
+  test('showReferring=true shows referring pages as nested list', async () => {
+    const ctx = makeContext(existingPages, linkGraph);
+    const html = await UndefinedPagesPlugin.execute(ctx, { format: 'list', showReferring: 'true' });
+    expect(html).toContain('referring-pages');
+    expect(html).toContain('Alpha');
+    expect(html).toContain('Beta');
+  });
+
+  test('showReferring=true with page that has no referrers shows just anchor', async () => {
+    const ctx = makeContext(existingPages, { 'Orphan': [] });
+    const html = await UndefinedPagesPlugin.execute(ctx, { format: 'list', showReferring: 'true' });
+    expect(html).toContain('Orphan');
+    expect(html).not.toContain('referring-pages');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// UndefinedPagesPlugin — before/after params
+// ---------------------------------------------------------------------------
+
+describe('UndefinedPagesPlugin — before/after params', () => {
+  const existingPages = [];
+  const linkGraph = { 'PageA': ['X'] };
+
+  test('before param is included in list output', async () => {
+    const ctx = makeContext(existingPages, linkGraph);
+    const html = await UndefinedPagesPlugin.execute(ctx, { before: '>>> ', after: '' });
+    expect(html).toContain('>>> ');
+  });
+
+  test('after param is included in list output', async () => {
+    const ctx = makeContext(existingPages, linkGraph);
+    const html = await UndefinedPagesPlugin.execute(ctx, { before: '', after: ' <<<' });
+    expect(html).toContain(' <<<');
+  });
+});

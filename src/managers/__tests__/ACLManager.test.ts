@@ -626,4 +626,202 @@ describe('ACLManager', () => {
       expect(result.reason).toBe('no_config');
     });
   });
+
+  describe('checkMaintenanceMode()', () => {
+    test('returns allowed when maintenance is disabled', () => {
+      const result = aclManager.checkMaintenanceMode(
+        { username: 'user', roles: ['user'] },
+        { enabled: false }
+      );
+      expect(result.allowed).toBe(true);
+      expect(result.reason).toBe('maintenance_disabled');
+    });
+
+    test('returns allowed for admin user during maintenance', () => {
+      const result = aclManager.checkMaintenanceMode(
+        { username: 'admin', roles: ['admin'] },
+        { enabled: true, allowedRoles: ['admin'] }
+      );
+      expect(result.allowed).toBe(true);
+      expect(result.reason).toBe('maintenance_override');
+    });
+
+    test('returns denied for regular user during maintenance', () => {
+      const result = aclManager.checkMaintenanceMode(
+        { username: 'alice', roles: ['user'] },
+        { enabled: true, message: 'Under maintenance' }
+      );
+      expect(result.allowed).toBe(false);
+      expect(result.reason).toBe('maintenance_mode');
+      expect(result.message).toBe('Under maintenance');
+    });
+
+    test('uses default message when not provided', () => {
+      const result = aclManager.checkMaintenanceMode(
+        { username: 'alice', roles: ['user'] },
+        { enabled: true }
+      );
+      expect(result.allowed).toBe(false);
+      expect(result.message).toBeDefined();
+    });
+  });
+
+  describe('checkBusinessHours()', () => {
+    test('returns allowed when business hours disabled', () => {
+      const result = aclManager.checkBusinessHours({ enabled: false });
+      expect(result.allowed).toBe(true);
+      expect(result.reason).toBe('business_hours_disabled');
+    });
+
+    test('returns a permission result when enabled', () => {
+      const result = aclManager.checkBusinessHours({
+        enabled: true,
+        days: ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'],
+        start: '00:00',
+        end: '23:59'
+      });
+      expect(typeof result.allowed).toBe('boolean');
+      expect(typeof result.reason).toBe('string');
+    });
+
+    test('handles invalid timezone gracefully', () => {
+      const result = aclManager.checkBusinessHours(
+        { enabled: true },
+        'Invalid/Timezone'
+      );
+      // Should not throw — falls back to error path
+      expect(typeof result.allowed).toBe('boolean');
+    });
+  });
+
+  describe('checkEnhancedTimeRestrictions()', () => {
+    const user = { username: 'alice', roles: ['user'] };
+    const ctx = {};
+
+    test('returns error when ConfigurationManager not available at call time', async () => {
+      // Initialize with ConfigManager, then hide it for the method call
+      const tempEngine = {
+        getManager: vi.fn((name: string) => name === 'ConfigurationManager' ? mockConfigurationManager : null)
+      } as unknown as WikiEngine;
+      const mgr = new ACLManager(tempEngine);
+      await mgr.initialize();
+      (tempEngine as unknown as { getManager: ReturnType<typeof vi.fn> }).getManager.mockReturnValue(null);
+      const result = await mgr.checkEnhancedTimeRestrictions(user, ctx);
+      expect(result.allowed).toBe(false);
+    });
+
+    test('returns allowed when schedules disabled', async () => {
+      mockConfigurationManager.getProperty.mockImplementation((key: string, dv: unknown) => {
+        if (key === 'ngdpbase.schedules.enabled') return false;
+        return dv;
+      });
+      const result = await aclManager.checkEnhancedTimeRestrictions(user, ctx);
+      expect(result.allowed).toBe(true);
+      expect(result.reason).toBe('schedules_disabled');
+    });
+
+    test('throws (returns error) when schedules config missing', async () => {
+      mockConfigurationManager.getProperty.mockImplementation((key: string, dv: unknown) => {
+        if (key === 'ngdpbase.schedules.enabled') return true;
+        if (key === 'ngdpbase.schedules') return null;
+        return dv;
+      });
+      const result = await aclManager.checkEnhancedTimeRestrictions(user, ctx);
+      expect(result.allowed).toBe(false);
+      expect(result.reason).toBe('schedule_check_error');
+    });
+
+    test('falls through to checkBusinessHours with minimal schedules config', async () => {
+      mockConfigurationManager.getProperty.mockImplementation((key: string, dv: unknown) => {
+        if (key === 'ngdpbase.schedules.enabled') return true;
+        if (key === 'ngdpbase.schedules') return { businessHours: { enabled: false } };
+        if (key === 'ngdpbase.access.policies') return [];
+        if (key === 'ngdpbase.access.audit') return { enabled: false };
+        return dv;
+      });
+      const result = await aclManager.checkEnhancedTimeRestrictions(user, ctx);
+      expect(result.allowed).toBe(true);
+      expect(result.reason).toBe('business_hours_disabled');
+    });
+  });
+
+  describe('checkHolidayRestrictions()', () => {
+    test('returns error when ConfigurationManager not available at call time', async () => {
+      const tempEngine = {
+        getManager: vi.fn((name: string) => name === 'ConfigurationManager' ? mockConfigurationManager : null)
+      } as unknown as WikiEngine;
+      const mgr = new ACLManager(tempEngine);
+      await mgr.initialize();
+      (tempEngine as unknown as { getManager: ReturnType<typeof vi.fn> }).getManager.mockReturnValue(null);
+      const result = await mgr.checkHolidayRestrictions('2025-01-01', {});
+      expect(result.allowed).toBe(false);
+    });
+
+    test('returns allowed when holidays disabled', async () => {
+      mockConfigurationManager.getProperty.mockImplementation((key: string, dv: unknown) => {
+        if (key === 'ngdpbase.holidays.enabled') return false;
+        if (key === 'ngdpbase.access.policies') return [];
+        if (key === 'ngdpbase.access.audit') return { enabled: false };
+        return dv;
+      });
+      const result = await aclManager.checkHolidayRestrictions('2025-01-01', {});
+      expect(result.allowed).toBe(true);
+      expect(result.reason).toBe('holidays_disabled');
+    });
+
+    test('returns error when holiday dates config missing', async () => {
+      mockConfigurationManager.getProperty.mockImplementation((key: string, dv: unknown) => {
+        if (key === 'ngdpbase.holidays.enabled') return true;
+        if (key === 'ngdpbase.holidays.dates') return null;
+        if (key === 'ngdpbase.holidays.recurring') return null;
+        if (key === 'ngdpbase.access.policies') return [];
+        if (key === 'ngdpbase.access.audit') return { enabled: false };
+        return dv;
+      });
+      const result = await aclManager.checkHolidayRestrictions('2025-01-01', {});
+      expect(result.allowed).toBe(false);
+    });
+
+    test('denies on exact date holiday match', async () => {
+      mockConfigurationManager.getProperty.mockImplementation((key: string, dv: unknown) => {
+        if (key === 'ngdpbase.holidays.enabled') return true;
+        if (key === 'ngdpbase.holidays.dates') return { '2025-01-01': { name: 'New Year', message: 'Closed for New Year' } };
+        if (key === 'ngdpbase.holidays.recurring') return {};
+        if (key === 'ngdpbase.access.policies') return [];
+        if (key === 'ngdpbase.access.audit') return { enabled: false };
+        return dv;
+      });
+      const result = await aclManager.checkHolidayRestrictions('2025-01-01', {});
+      expect(result.allowed).toBe(false);
+      expect(result.message).toContain('New Year');
+    });
+
+    test('denies on recurring holiday match', async () => {
+      mockConfigurationManager.getProperty.mockImplementation((key: string, dv: unknown) => {
+        if (key === 'ngdpbase.holidays.enabled') return true;
+        if (key === 'ngdpbase.holidays.dates') return {};
+        if (key === 'ngdpbase.holidays.recurring') return { '*-12-25': { name: 'Christmas', message: 'Merry Christmas' } };
+        if (key === 'ngdpbase.access.policies') return [];
+        if (key === 'ngdpbase.access.audit') return { enabled: false };
+        return dv;
+      });
+      const result = await aclManager.checkHolidayRestrictions('2025-12-25', {});
+      expect(result.allowed).toBe(false);
+      expect(result.message).toContain('Christmas');
+    });
+
+    test('returns not_a_holiday when no matches', async () => {
+      mockConfigurationManager.getProperty.mockImplementation((key: string, dv: unknown) => {
+        if (key === 'ngdpbase.holidays.enabled') return true;
+        if (key === 'ngdpbase.holidays.dates') return {};
+        if (key === 'ngdpbase.holidays.recurring') return {};
+        if (key === 'ngdpbase.access.policies') return [];
+        if (key === 'ngdpbase.access.audit') return { enabled: false };
+        return dv;
+      });
+      const result = await aclManager.checkHolidayRestrictions('2025-07-04', {});
+      expect(result.allowed).toBe(true);
+      expect(result.reason).toBe('not_a_holiday');
+    });
+  });
 });

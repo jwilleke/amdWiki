@@ -1,0 +1,164 @@
+/**
+ * MediaManager tests
+ *
+ * @jest-environment node
+ */
+import MediaManager from '../MediaManager';
+import type { WikiEngine } from '../../types/WikiEngine';
+
+function makeConfigManager(overrides: Record<string, unknown> = {}) {
+  return {
+    getProperty: vi.fn((key: string, dv: unknown) => overrides[key] ?? dv),
+    getResolvedDataPath: vi.fn((_key: string, dv: string) => dv)
+  };
+}
+
+function makeEngine(configOverrides: Record<string, unknown> = {}): WikiEngine {
+  const cm = makeConfigManager(configOverrides);
+  return {
+    getManager: vi.fn((name: string) => {
+      if (name === 'ConfigurationManager') return cm;
+      return null;
+    })
+  } as unknown as WikiEngine;
+}
+
+async function makeInitializedManager(configOverrides: Record<string, unknown> = {}): Promise<MediaManager> {
+  const engine = makeEngine(configOverrides);
+  const mgr = new MediaManager(engine);
+  await mgr.initialize();
+  return mgr;
+}
+
+describe('MediaManager (uninitialized — null guard paths)', () => {
+  test('provider is null before initialize()', () => {
+    const mgr = new MediaManager(makeEngine());
+    expect(mgr.provider).toBeNull();
+  });
+
+  test('rebuildIndex() returns zero counts when no provider', async () => {
+    const mgr = new MediaManager(makeEngine());
+    const result = await mgr.rebuildIndex();
+    expect(result).toMatchObject({ scanned: 0, added: 0, updated: 0, errors: 0 });
+  });
+
+  test('scanFolders() returns zero counts when no provider', async () => {
+    const mgr = new MediaManager(makeEngine());
+    const result = await mgr.scanFolders();
+    expect(result).toMatchObject({ scanned: 0, added: 0, updated: 0, errors: 0 });
+  });
+
+  test('getItem() returns null when no provider', async () => {
+    const mgr = new MediaManager(makeEngine());
+    expect(await mgr.getItem('abc')).toBeNull();
+  });
+
+  test('listByYear() returns [] when no provider', async () => {
+    const mgr = new MediaManager(makeEngine());
+    expect(await mgr.listByYear(2025)).toEqual([]);
+  });
+
+  test('listByPage() returns [] when no provider', async () => {
+    const mgr = new MediaManager(makeEngine());
+    expect(await mgr.listByPage('TestPage')).toEqual([]);
+  });
+
+  test('listByKeyword() returns [] when no provider', async () => {
+    const mgr = new MediaManager(makeEngine());
+    expect(await mgr.listByKeyword('vacation')).toEqual([]);
+  });
+
+  test('search() returns [] when no provider', async () => {
+    const mgr = new MediaManager(makeEngine());
+    expect(await mgr.search('mountains')).toEqual([]);
+  });
+
+  test('findByFilename() returns null when no provider', async () => {
+    const mgr = new MediaManager(makeEngine());
+    expect(await mgr.findByFilename('photo.jpg')).toBeNull();
+  });
+
+  test('getThumbnailBuffer() returns null when no provider', async () => {
+    const mgr = new MediaManager(makeEngine());
+    expect(await mgr.getThumbnailBuffer('abc', '300x300')).toBeNull();
+  });
+
+  test('getTranscodedBuffer() returns null when no provider', async () => {
+    const mgr = new MediaManager(makeEngine());
+    expect(await mgr.getTranscodedBuffer('abc', 'jpeg')).toBeNull();
+  });
+
+  test('getYears() returns [] when no provider', async () => {
+    const mgr = new MediaManager(makeEngine());
+    expect(await mgr.getYears()).toEqual([]);
+  });
+
+  test('shutdown() does not throw when never initialized', async () => {
+    const mgr = new MediaManager(makeEngine());
+    await expect(mgr.shutdown()).resolves.not.toThrow();
+  });
+});
+
+describe('MediaManager initialize()', () => {
+  test('throws when ConfigurationManager unavailable', async () => {
+    const engine = { getManager: vi.fn(() => null) } as unknown as WikiEngine;
+    const mgr = new MediaManager(engine);
+    await expect(mgr.initialize()).rejects.toThrow('ConfigurationManager not available');
+  });
+
+  test('initializes with default config', async () => {
+    const mgr = await makeInitializedManager();
+    expect(mgr).toBeDefined();
+  });
+
+  test('provider is set after initialize()', async () => {
+    const mgr = await makeInitializedManager();
+    expect(mgr.provider).not.toBeNull();
+  });
+
+  test('initializes with scaninterval=0 (no timer)', async () => {
+    const mgr = await makeInitializedManager({ 'ngdpbase.media.scaninterval': 0 });
+    expect(mgr).toBeDefined();
+    await mgr.shutdown();
+  });
+
+  test('initializes with string-form folders', async () => {
+    const mgr = await makeInitializedManager({ 'ngdpbase.media.folders': '/photos,/videos' });
+    expect(mgr).toBeDefined();
+    await mgr.shutdown();
+  });
+
+  test('shutdown() clears timer and closes provider', async () => {
+    const mgr = await makeInitializedManager({ 'ngdpbase.media.scaninterval': 60000 });
+    await expect(mgr.shutdown()).resolves.not.toThrow();
+    expect(mgr.provider).toBeNull();
+  });
+
+  test('getYears() delegates to provider when initialized', async () => {
+    const mgr = await makeInitializedManager();
+    const years = await mgr.getYears();
+    expect(Array.isArray(years)).toBe(true);
+    await mgr.shutdown();
+  });
+
+  test('listByYear() delegates to provider when initialized', async () => {
+    const mgr = await makeInitializedManager();
+    const items = await mgr.listByYear(2024);
+    expect(Array.isArray(items)).toBe(true);
+    await mgr.shutdown();
+  });
+
+  test('getItem() returns null when item not found', async () => {
+    const mgr = await makeInitializedManager();
+    const item = await mgr.getItem('nonexistent-uuid');
+    expect(item).toBeNull();
+    await mgr.shutdown();
+  });
+
+  test('findByFilename() delegates to provider when initialized', async () => {
+    const mgr = await makeInitializedManager();
+    const item = await mgr.findByFilename('no-such-file.jpg');
+    expect(item).toBeNull();
+    await mgr.shutdown();
+  });
+});
