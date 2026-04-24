@@ -1319,7 +1319,8 @@ class WikiRoutes {
     const persist = (configManager as { getProperty?(k: string, d: unknown): unknown } | null)
       ?.getProperty?.('ngdpbase.tab.persist', true) as boolean ?? true;
 
-    const uid = Math.random().toString(36).slice(2, 8);
+    const uid = (wikiContext.pageName || 'page')
+      .toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 20) || 'pg';
     const navClass = style === 'pills' ? 'nav-pills' : style === 'underline' ? 'nav-underline' : 'nav-tabs';
 
     const renderedTabs = await Promise.all(tabs.map(async (tab, i) => ({
@@ -1345,6 +1346,8 @@ class WikiRoutes {
     const persistScript = persist ? `
 <script>
 (function(){
+  var restore=sessionStorage.getItem('ngdp-restore-tab');
+  if(restore){sessionStorage.removeItem('ngdp-restore-tab');var re=document.querySelector('[data-bs-target$="-'+restore+'"]');if(re){re.click();return;}}
   var key='ngdp-tab-${uid}';
   var saved=localStorage.getItem(key);
   if(saved){var el=document.getElementById('tab-${uid}-'+saved);if(el)el.click();}
@@ -4354,6 +4357,7 @@ ${panes}
 
       const displayName = (currentUser.displayName ?? currentUser.username) ?? 'Unknown';
       const comment = await commentManager.addComment(pageUuid, currentUser.username ?? '', displayName, content.trim());
+      await this.flushPluginCaches();
       return res.json({ success: true, comment });
     } catch (err: unknown) {
       logger.error('Error adding comment:', err);
@@ -4385,6 +4389,7 @@ ${panes}
       }
 
       await commentManager.deleteComment(pageUuid, commentId, currentUser.username ?? '');
+      await this.flushPluginCaches();
       return res.json({ success: true });
     } catch (err: unknown) {
       logger.error('Error deleting comment:', err);
@@ -4433,6 +4438,7 @@ ${panes}
         pageUuid, { display: display.trim(), url: url.trim(), note: (note ?? '').trim() },
         currentUser.username ?? 'anonymous'
       );
+      await this.flushPluginCaches();
       return res.json({ success: true, footnote });
     } catch (err: unknown) {
       logger.error('Error adding footnote:', err);
@@ -4466,11 +4472,21 @@ ${panes}
         pageUuid, footnoteId, { display: display.trim(), url: url.trim(), note: (note ?? '').trim() }
       );
       if (!footnote) return res.status(404).json({ success: false, error: 'Footnote not found' });
+      await this.flushPluginCaches();
       return res.json({ success: true, footnote });
     } catch (err: unknown) {
       logger.error('Error updating footnote:', err);
       return res.status(500).json({ success: false, error: 'Failed to update footnote' });
     }
+  }
+
+  private async flushPluginCaches(): Promise<void> {
+    const markupParser = this.engine.getManager<{ invalidateHandlerCache(): Promise<void> }>('MarkupParser');
+    const cacheManager = this.engine.getManager<{ clear(r: string | undefined, p?: string): Promise<void> }>('CacheManager');
+    const tasks: Promise<void>[] = [];
+    if (markupParser) tasks.push(markupParser.invalidateHandlerCache().catch(() => {}));
+    if (cacheManager) tasks.push(cacheManager.clear(undefined, 'rendered-pages:*').catch(() => {}));
+    await Promise.all(tasks);
   }
 
   async deleteFootnote(req: Request, res: Response) {
@@ -4497,6 +4513,7 @@ ${panes}
       }
 
       await footnoteManager.deleteFootnote(pageUuid, footnoteId);
+      await this.flushPluginCaches();
       return res.json({ success: true });
     } catch (err: unknown) {
       logger.error('Error deleting footnote:', err);

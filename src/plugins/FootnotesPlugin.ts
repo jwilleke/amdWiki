@@ -146,7 +146,7 @@ function renderCrudScript(pageUuid: string): string {
     fetch('/api/footnotes/' + _uuid, {
       method: 'POST', headers: {'Content-Type':'application/json'},
       body: JSON.stringify({ display, url, note })
-    }).then(r => r.json()).then(d => { if (d.success) location.reload(); else alert(d.error || 'Failed'); })
+    }).then(r => r.json()).then(d => { if (d.success) { sessionStorage.setItem('ngdp-restore-tab','footnotes'); location.reload(); } else alert(d.error || 'Failed'); })
       .catch(() => alert('Failed to add footnote.'));
   });
 
@@ -155,7 +155,7 @@ function renderCrudScript(pageUuid: string): string {
     btn.addEventListener('click', function() {
       if (!confirm('Delete footnote [' + this.dataset.id + ']?')) return;
       fetch('/api/footnotes/' + _uuid + '/' + this.dataset.id, { method: 'DELETE' })
-        .then(r => r.json()).then(d => { if (d.success) location.reload(); else alert(d.error || 'Failed'); })
+        .then(r => r.json()).then(d => { if (d.success) { sessionStorage.setItem('ngdp-restore-tab','footnotes'); location.reload(); } else alert(d.error || 'Failed'); })
         .catch(() => alert('Failed to delete footnote.'));
     });
   });
@@ -186,7 +186,7 @@ function renderCrudScript(pageUuid: string): string {
     fetch('/api/footnotes/' + _uuid + '/' + editId, {
       method: 'PUT', headers: {'Content-Type':'application/json'},
       body: JSON.stringify({ display, url, note })
-    }).then(r => r.json()).then(d => { if (d.success) location.reload(); else alert(d.error || 'Failed'); })
+    }).then(r => r.json()).then(d => { if (d.success) { sessionStorage.setItem('ngdp-restore-tab','footnotes'); location.reload(); } else alert(d.error || 'Failed'); })
       .catch(() => alert('Failed to update footnote.'));
   }, true);
 })();

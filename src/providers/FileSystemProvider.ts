@@ -487,18 +487,23 @@ class FileSystemProvider extends BasePageProvider {
   }
 
   invalidatePageCache(identifier: string): string | null {
-    // Resolve title from UUID, slug, or title lookup
+    // Resolve title from UUID, slug, or direct title lookup
     const byUuid  = this.uuidIndex.get(identifier);
     const bySlug  = this.slugIndex.get(identifier);
-    const title   = byUuid ?? bySlug ?? identifier;
+    // Fall back to identifier as title only if it exists in pageCache (i.e. it IS a title)
+    const resolvedTitle = byUuid ?? bySlug ?? (this.pageCache.has(identifier) ? identifier : null);
+
+    if (!resolvedTitle) return null;
 
     // Only evict contentCache — pageCache stores the file path and must NOT be
     // removed here. Deleting from pageCache makes resolvePageInfo() return null,
     // causing a 404 on the next request even though the file is still on disk.
-    const hadEntry = this.contentCache.has(title);
-    this.contentCache.delete(title);
-    if (hadEntry) logger.info(`[FileSystemProvider] Evicted page cache: ${title}`);
-    return hadEntry ? title : null;
+    const hadEntry = this.contentCache.has(resolvedTitle);
+    this.contentCache.delete(resolvedTitle);
+    if (hadEntry) logger.info(`[FileSystemProvider] Evicted page cache: ${resolvedTitle}`);
+    // Always return the resolved title so PageManager can clear the rendered HTML
+    // cache even when contentCache was already evicted (e.g. second mutation in a row).
+    return resolvedTitle;
   }
 
   async movePrivatePage(uuid: string, oldCreator: string, newCreator: string): Promise<void> {

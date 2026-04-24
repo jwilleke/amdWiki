@@ -94,7 +94,7 @@ function ngdpSubmitComment(e, pageUuid) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ content })
   }).then(r => r.json()).then(data => {
-    if (data.success) { location.reload(); }
+    if (data.success) { sessionStorage.setItem('ngdp-restore-tab','comments'); location.reload(); }
     else { alert(data.error || 'Failed to post comment.'); }
   }).catch(() => alert('Failed to post comment.'));
 }
@@ -103,7 +103,7 @@ function ngdpDeleteComment(pageUuid, commentId) {
   fetch('/api/comments/' + pageUuid + '/' + commentId, {
     method: 'DELETE'
   }).then(r => r.json()).then(data => {
-    if (data.success) { location.reload(); }
+    if (data.success) { sessionStorage.setItem('ngdp-restore-tab','comments'); location.reload(); }
     else { alert(data.error || 'Failed to delete comment.'); }
   }).catch(() => alert('Failed to delete comment.'));
 }
