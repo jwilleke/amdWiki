@@ -486,7 +486,7 @@ class FileSystemProvider extends BasePageProvider {
     return path.join(this.pagesDirectory || '', `${uuid}.md`);
   }
 
-  invalidatePageCache(identifier: string): boolean {
+  invalidatePageCache(identifier: string): string | null {
     // Resolve title from UUID, slug, or title lookup
     const byUuid  = this.uuidIndex.get(identifier);
     const bySlug  = this.slugIndex.get(identifier);
@@ -498,15 +498,7 @@ class FileSystemProvider extends BasePageProvider {
     const hadEntry = this.contentCache.has(title);
     this.contentCache.delete(title);
     if (hadEntry) logger.info(`[FileSystemProvider] Evicted page cache: ${title}`);
-
-    // Also clear the rendered HTML cache so footnote/comment changes are visible
-    // immediately without a server restart.
-    const cacheManager = this.engine.getManager<{ clear(region: string | undefined, pattern?: string): Promise<void> }>('CacheManager');
-    if (cacheManager && title) {
-      cacheManager.clear(undefined, `rendered-pages:${title}:*`).catch(() => {});
-    }
-
-    return hadEntry;
+    return hadEntry ? title : null;
   }
 
   async movePrivatePage(uuid: string, oldCreator: string, newCreator: string): Promise<void> {

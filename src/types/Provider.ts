@@ -125,9 +125,9 @@ export interface PageProvider extends BaseProvider {
   /**
    * Evict a single page from the provider's in-memory content/metadata cache.
    * @param identifier - UUID, slug, or title
-   * @returns true if an entry was found and removed
+   * @returns resolved page title if an entry was evicted, null otherwise
    */
-  invalidatePageCache(identifier: string): boolean;
+  invalidatePageCache(identifier: string): string | null;
 
   /**
    * Check if page exists

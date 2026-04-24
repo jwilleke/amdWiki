@@ -134,7 +134,7 @@ interface IVersioningProvider {
   restoreVersion?(name: string, version: number, options?: { author?: string; comment?: string }): Promise<number>;
   getPageVersion?(name: string, version: number): Promise<{ content: string; metadata: unknown }>;
   pageIndex?: { pages: Record<string, { location?: string; creator?: string }> } | null;
-  invalidatePageCache?(identifier: string): boolean;
+  invalidatePageCache?(identifier: string): string | null;
 }
 
 interface IPageManager {
@@ -8488,7 +8488,7 @@ ${panes}
 
       const pageManager = this.engine.getManager('PageManager');
       const provider = pageManager?.getCurrentPageProvider?.();
-      const evicted = provider?.invalidatePageCache?.(identifier) ?? false;
+      const evicted = provider?.invalidatePageCache?.(identifier) ?? null;
 
       // Also evict from the rendered-pages CacheManager region if available
       const cacheManager = this.engine.getManager('CacheManager');

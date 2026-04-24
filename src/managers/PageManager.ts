@@ -305,10 +305,16 @@ class PageManager extends BaseManager {
   }
 
   invalidatePageCache(identifier: string): void {
-    this.provider?.invalidatePageCache?.(identifier);
+    const resolvedTitle = this.provider?.invalidatePageCache?.(identifier) ?? null;
     const renderingManager = this.engine.getManager<{ invalidateHandlerCache(): void }>('RenderingManager');
     if (renderingManager) {
       renderingManager.invalidateHandlerCache();
+    }
+    if (resolvedTitle) {
+      const cacheManager = this.engine.getManager<{ clear(region: string | undefined, pattern?: string): Promise<void> }>('CacheManager');
+      if (cacheManager) {
+        cacheManager.clear(undefined, `rendered-pages:${resolvedTitle}:*`).catch(() => {});
+      }
     }
   }
 

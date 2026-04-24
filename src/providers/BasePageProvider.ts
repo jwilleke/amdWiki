@@ -156,8 +156,8 @@ abstract class BasePageProvider {
     // no-op default — override in file-based providers
   }
 
-  invalidatePageCache(_identifier: string): boolean {
-    return false; // no-op default — override in providers with in-memory caches
+  invalidatePageCache(_identifier: string): string | null {
+    return null; // no-op default — override in providers with in-memory caches
   }
 
   /**
