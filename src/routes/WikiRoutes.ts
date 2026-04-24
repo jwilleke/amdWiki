@@ -2027,9 +2027,9 @@ ${panes}
       const cacheManager = this.engine.getManager('CacheManager');
       if (cacheManager?.isInitialized?.()) {
         const referringPages = renderingManager.getReferringPages(pageName);
-        await cacheManager.clear(`rendered-pages:${pageName}:*`);
+        await cacheManager.clear(undefined, `rendered-pages:${pageName}:*`);
         for (const refPage of referringPages) {
-          await cacheManager.clear(`rendered-pages:${refPage}:*`);
+          await cacheManager.clear(undefined, `rendered-pages:${refPage}:*`);
         }
         logger.debug(`🗑️  Cleared rendered cache for ${pageName} and ${referringPages.length} referring pages`);
       }
@@ -2398,9 +2398,9 @@ ${panes}
       const cacheManager = this.engine.getManager('CacheManager');
       if (cacheManager?.isInitialized?.()) {
         const referringPages = renderingManager.getReferringPages(pageName);
-        await cacheManager.clear(`rendered-pages:${pageName}:*`);
+        await cacheManager.clear(undefined, `rendered-pages:${pageName}:*`);
         for (const refPage of referringPages) {
-          await cacheManager.clear(`rendered-pages:${refPage}:*`);
+          await cacheManager.clear(undefined, `rendered-pages:${refPage}:*`);
         }
         logger.debug(`🗑️  Cleared rendered cache for ${pageName} and ${referringPages.length} referring pages`);
       }
@@ -2703,15 +2703,15 @@ ${panes}
       const cacheManager = this.engine.getManager('CacheManager');
       if (cacheManager?.isInitialized?.()) {
         const referringPages = renderingManager.getReferringPages(finalTitle);
-        await cacheManager.clear(`rendered-pages:${finalTitle}:*`);
+        await cacheManager.clear(undefined, `rendered-pages:${finalTitle}:*`);
         for (const refPage of referringPages) {
-          await cacheManager.clear(`rendered-pages:${refPage}:*`);
+          await cacheManager.clear(undefined, `rendered-pages:${refPage}:*`);
         }
         // On rename: also invalidate old title so RED-LINKs resolve on referring pages
         if (isRename) {
-          await cacheManager.clear(`rendered-pages:${pageName}:*`);
+          await cacheManager.clear(undefined, `rendered-pages:${pageName}:*`);
           for (const refPage of oldReferringPages) {
-            await cacheManager.clear(`rendered-pages:${refPage}:*`);
+            await cacheManager.clear(undefined, `rendered-pages:${refPage}:*`);
           }
           logger.debug(`🗑️  Cleared rendered cache for old title '${pageName}' and ${oldReferringPages.length} referring pages`);
         }
@@ -2845,9 +2845,9 @@ ${panes}
         const cacheManager = this.engine.getManager('CacheManager');
         if (cacheManager?.isInitialized?.()) {
           const referringPages = renderingManager.getReferringPages(pageName);
-          await cacheManager.clear(`rendered-pages:${pageName}:*`);
+          await cacheManager.clear(undefined, `rendered-pages:${pageName}:*`);
           for (const refPage of referringPages) {
-            await cacheManager.clear(`rendered-pages:${refPage}:*`);
+            await cacheManager.clear(undefined, `rendered-pages:${refPage}:*`);
           }
         }
 
@@ -8493,7 +8493,7 @@ ${panes}
       // Also evict from the rendered-pages CacheManager region if available
       const cacheManager = this.engine.getManager('CacheManager');
       if (cacheManager?.isInitialized?.()) {
-        try { await cacheManager.clear(`rendered-pages:${identifier}:*`); } catch { /* non-fatal */ }
+        try { await cacheManager.clear(undefined, `rendered-pages:${identifier}:*`); } catch { /* non-fatal */ }
       }
 
       logger.info(`[AdminAPI] Page cache evicted for '${identifier}' by ${currentUser.username}`);
@@ -10698,7 +10698,7 @@ ${description}
         await searchManager.rebuildIndex();
         const searchStats = await searchManager.getStatistics();
         await renderingManager.rebuildLinkGraph();
-        await cacheManager.clear('rendered-pages');
+        await cacheManager.clear(undefined, 'rendered-pages:*');
 
         const docs = searchStats.totalDocuments || 0;
         return { success: true, summary: `${pageCount} pages, ${docs} search documents` };
