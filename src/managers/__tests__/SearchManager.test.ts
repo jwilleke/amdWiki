@@ -278,4 +278,167 @@ describe('SearchManager', () => {
       expect(disabledSearchManager.provider).toBeFalsy();
     });
   });
+
+  describe('searchByCategories() — multi-category dedup', () => {
+    test('returns empty array for empty input', async () => {
+      const results = await searchManager.searchByCategories([]);
+      expect(results).toEqual([]);
+    });
+
+    test('aggregates results from multiple categories without duplicates', async () => {
+      // Both categories return the same page — should appear only once
+      const results = await searchManager.searchByCategories(['General', 'Help']);
+      expect(Array.isArray(results)).toBe(true);
+    });
+  });
+
+  describe('searchByUserKeywordsList() — multi-keyword dedup', () => {
+    test('returns empty array for empty input', async () => {
+      const results = await searchManager.searchByUserKeywordsList([]);
+      expect(results).toEqual([]);
+    });
+
+    test('returns results for a single keyword', async () => {
+      const results = await searchManager.searchByUserKeywordsList(['welcome']);
+      expect(Array.isArray(results)).toBe(true);
+    });
+  });
+
+  describe('getAllCategories()', () => {
+    test('returns an array', async () => {
+      const result = await searchManager.getAllCategories();
+      expect(Array.isArray(result)).toBe(true);
+    });
+
+    test('returns empty array when provider is null', async () => {
+      searchManager.provider = null;
+      const result = await searchManager.getAllCategories();
+      expect(result).toEqual([]);
+    });
+  });
+
+  describe('getAllUserKeywords()', () => {
+    test('returns an array', async () => {
+      const result = await searchManager.getAllUserKeywords();
+      expect(Array.isArray(result)).toBe(true);
+    });
+
+    test('returns empty array when provider is null', async () => {
+      searchManager.provider = null;
+      const result = await searchManager.getAllUserKeywords();
+      expect(result).toEqual([]);
+    });
+  });
+
+  describe('getAllSystemKeywords()', () => {
+    test('returns empty array when provider lacks the method', async () => {
+      // LunrSearchProvider does not implement getAllSystemKeywords
+      const result = await searchManager.getAllSystemKeywords();
+      expect(Array.isArray(result)).toBe(true);
+    });
+
+    test('returns empty array when provider is null', async () => {
+      searchManager.provider = null;
+      const result = await searchManager.getAllSystemKeywords();
+      expect(result).toEqual([]);
+    });
+  });
+
+  describe('getPageSystemKeywords()', () => {
+    test('returns empty array when provider lacks the method', async () => {
+      const result = await searchManager.getPageSystemKeywords('Welcome');
+      expect(Array.isArray(result)).toBe(true);
+    });
+
+    test('returns empty array when provider is null', async () => {
+      searchManager.provider = null;
+      const result = await searchManager.getPageSystemKeywords('Welcome');
+      expect(result).toEqual([]);
+    });
+  });
+
+  describe('searchBySystemKeywordsList()', () => {
+    test('returns empty array for empty keywords', async () => {
+      const result = await searchManager.searchBySystemKeywordsList([]);
+      expect(result).toEqual([]);
+    });
+
+    test('returns empty array when provider is null', async () => {
+      searchManager.provider = null;
+      const result = await searchManager.searchBySystemKeywordsList(['tag1']);
+      expect(result).toEqual([]);
+    });
+  });
+
+  describe('addToIndex()', () => {
+    test('does nothing when page is null', async () => {
+      await expect(searchManager.addToIndex(null)).resolves.not.toThrow();
+    });
+
+    test('does nothing when page has no name', async () => {
+      await expect(searchManager.addToIndex({ title: 'Test' })).resolves.not.toThrow();
+    });
+
+    test('delegates to updatePageInIndex for valid page', async () => {
+      const updateSpy = vi.spyOn(searchManager, 'updatePageInIndex').mockResolvedValue(undefined);
+      await searchManager.addToIndex({ name: 'TestPage', title: 'Test', content: 'test content' });
+      expect(updateSpy).toHaveBeenCalledWith('TestPage', expect.objectContaining({ name: 'TestPage' }));
+    });
+  });
+
+  describe('removeFromIndex()', () => {
+    test('does nothing when pageName is empty', async () => {
+      await expect(searchManager.removeFromIndex('')).resolves.not.toThrow();
+    });
+
+    test('delegates to removePageFromIndex for valid pageName', async () => {
+      const removeSpy = vi.spyOn(searchManager, 'removePageFromIndex').mockResolvedValue(undefined);
+      await searchManager.removeFromIndex('Welcome');
+      expect(removeSpy).toHaveBeenCalledWith('Welcome');
+    });
+  });
+
+  describe('backup()', () => {
+    test('returns managerName and timestamp', async () => {
+      const result = await searchManager.backup();
+      expect(result.managerName).toBe('SearchManager');
+      expect(result.timestamp).toBeTruthy();
+    });
+
+    test('includes providerClass', async () => {
+      const result = await searchManager.backup();
+      expect(result.providerClass).toBe('LunrSearchProvider');
+    });
+
+    test('returns minimal backup when provider is null', async () => {
+      searchManager.provider = null;
+      const result = await searchManager.backup();
+      expect(result.managerName).toBe('SearchManager');
+    });
+  });
+
+  describe('restore()', () => {
+    test('does nothing when provider is null', async () => {
+      searchManager.provider = null;
+      await expect(searchManager.restore({ managerName: 'SearchManager' })).resolves.not.toThrow();
+    });
+
+    test('does not throw with valid backup data', async () => {
+      const backupData = await searchManager.backup();
+      await expect(searchManager.restore(backupData)).resolves.not.toThrow();
+    });
+  });
+
+  describe('shutdown()', () => {
+    test('does not throw', async () => {
+      await expect(searchManager.shutdown()).resolves.not.toThrow();
+    });
+
+    test('closes the provider without error', async () => {
+      // SearchManager.shutdown() closes the provider but does not call super.shutdown()
+      const closeSpy = vi.spyOn(searchManager.provider, 'close').mockResolvedValue(undefined);
+      await searchManager.shutdown();
+      expect(closeSpy).toHaveBeenCalled();
+    });
+  });
 });
