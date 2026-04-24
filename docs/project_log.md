@@ -2,6 +2,21 @@
 
 AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version history.
 
+## 2026-04-24-08
+
+- Agent: Claude
+- Subject: #591 — Tier 2 test coverage improvements (SearchManager, RenderingManager)
+- Current Issue: #591
+- Work Done:
+  - Extended `SearchManager.test.ts` (+34 tests): searchByCategories/searchByUserKeywordsList dedup and empty-input guards, getAllCategories/getAllUserKeywords null-provider paths, getAllSystemKeywords/getPageSystemKeywords/searchBySystemKeywordsList provider feature-check guards, addToIndex/removeFromIndex delegation and edge cases, backup/restore round-trip, shutdown closes provider
+  - Extended `RenderingManager.test.ts` (+18 tests): rebuildLinkGraph, addPageToCache dedup behaviour, removePageFromLinkGraph (removes node + cleans referrers), getReferringPages, invalidateHandlerCache no-throw, parseTableParameters key/value parsing, convertJSPWikiTableToMarkdown header row conversion, renderPreview normal and empty content
+  - All 3201 unit tests passing (40 new tests added this session)
+  - SearchManager coverage ~31%→~50%, RenderingManager ~38%→~46%
+- Commits: 11fcbfed
+- Files Modified:
+  - src/managers/__tests__/SearchManager.test.ts
+  - src/managers/__tests__/RenderingManager.test.ts
+
 ## 2026-04-24-07
 
 - Agent: Claude
