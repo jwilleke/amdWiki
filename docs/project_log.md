@@ -2,6 +2,22 @@
 
 AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version history.
 
+## 2026-04-24-04
+
+- Agent: Claude
+- Subject: Fix footnote/comment still not appearing — MarkupParser parseResults cache was root cause
+- Current Issue: #586, #590
+- Work Done:
+  - Diagnosed true root cause: `MarkupParser-ParseResults` cache stores full parsed HTML keyed by page markdown content; since markdown doesn't change on footnote/comment mutation, this cache bypassed PluginSyntaxHandler entirely and returned stale HTML on re-render
+  - Added `cacheManager.clear('MarkupParser-ParseResults')` to `flushPluginCaches()` so all three cache layers are cleared atomically: handlerResults + rendered-pages + parseResults
+  - Fixed Bootstrap timing issue for tab restore: deferred `re.click()` to `window.load` event so Bootstrap tab listeners are ready (commit 2744007f)
+  - Created GH issue #589 for tab restore feature tracking
+  - Created GH issue #590 for inline footnote/comment updates without page reload
+  - Verified fix: footnote and comment added — appeared immediately on reload, stayed on correct tab
+- Commits: d24b4d9e, 2744007f
+- Files Modified:
+  - src/routes/WikiRoutes.ts
+
 ## 2026-04-24-03
 
 - Agent: Claude
