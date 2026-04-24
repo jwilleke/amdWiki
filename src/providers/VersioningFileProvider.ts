@@ -362,6 +362,8 @@ class VersioningFileProvider extends FileSystemProvider {
 
     let loadedCount = 0;
     let skippedCount = 0;
+    const seenTitles = new Map<string, string>(); // titleLower → uuid
+    const staleUuids: string[] = [];
     for (const entry of entries) {
       const baseDir = entry.location === 'required-pages'
         ? this.requiredPagesDirectory
@@ -396,6 +398,31 @@ class VersioningFileProvider extends FileSystemProvider {
       }
       const title = entry.title;
 
+      // Duplicate-title detection (#587) — keep the newer entry
+      const titleLower = title.toLowerCase();
+      const priorUuid = seenTitles.get(titleLower);
+      if (priorUuid) {
+        const priorTime = new Date(this.pageIndex.pages[priorUuid]?.lastModified ?? 0).getTime();
+        const thisTime  = new Date(entry.lastModified ?? 0).getTime();
+        if (thisTime >= priorTime) {
+          logger.warn(`[VersioningFileProvider] Duplicate title "${title}": retiring UUID ${priorUuid} in favour of ${entry.uuid}`);
+          staleUuids.push(priorUuid);
+          const priorTitle = this.uuidIndex.get(priorUuid);
+          if (priorTitle) {
+            this.pageCache.delete(priorTitle);
+            this.titleIndex.delete(priorTitle.toLowerCase());
+          }
+          this.uuidIndex.delete(priorUuid);
+          seenTitles.set(titleLower, entry.uuid);
+        } else {
+          logger.warn(`[VersioningFileProvider] Duplicate title "${title}": skipping UUID ${entry.uuid} (${priorUuid} is newer)`);
+          staleUuids.push(entry.uuid);
+          continue;
+        }
+      } else {
+        seenTitles.set(titleLower, entry.uuid);
+      }
+
       const pageInfo: PageCacheInfo = {
         title,
         uuid: entry.uuid,
@@ -412,6 +439,16 @@ class VersioningFileProvider extends FileSystemProvider {
       }
 
       loadedCount++;
+    }
+
+    // Remove stale duplicate entries and self-heal the index file (#587)
+    if (staleUuids.length > 0) {
+      for (const stale of staleUuids) {
+        delete this.pageIndex.pages[stale];
+        this.pageIndex.pageCount = Math.max(0, (this.pageIndex.pageCount ?? 1) - 1);
+      }
+      await this.savePageIndex();
+      logger.warn(`[VersioningFileProvider] Removed ${staleUuids.length} duplicate index entr${staleUuids.length === 1 ? 'y' : 'ies'} and saved corrected index`);
     }
 
     // Also scan the local required-pages directory for any files not already indexed.
@@ -908,6 +945,21 @@ class VersioningFileProvider extends FileSystemProvider {
   private updatePageInIndex(uuid: string, data: PageIndexEntry): Promise<void> {
     if (!this.pageIndex) {
       throw new Error('Page index not initialized');
+    }
+
+    // Remove any existing entry with the same title but a different UUID (#587)
+    const incomingTitle = data.title?.toLowerCase();
+    if (incomingTitle) {
+      for (const [existingUuid, existingEntry] of Object.entries(this.pageIndex.pages)) {
+        if (existingUuid !== uuid && existingEntry.title?.toLowerCase() === incomingTitle) {
+          logger.warn(
+            `[VersioningFileProvider] Removing duplicate title "${data.title}" ` +
+            `(stale UUID: ${existingUuid}) — replaced by ${uuid}`
+          );
+          delete this.pageIndex.pages[existingUuid];
+          this.pageIndex.pageCount = Math.max(0, (this.pageIndex.pageCount ?? 1) - 1);
+        }
+      }
     }
 
     if (!this.pageIndex.pages[uuid]) {

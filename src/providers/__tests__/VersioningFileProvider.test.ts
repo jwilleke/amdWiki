@@ -1040,6 +1040,99 @@ describe('VersioningFileProvider', () => {
     });
   });
 
+  describe('Duplicate title handling (#587)', () => {
+    test('fast-init keeps newer entry and discards stale when index has duplicate titles', async () => {
+      const pagesDir = path.join(testDir, 'pages');
+      await fs.ensureDir(pagesDir);
+
+      // Write both page files so fast-init can resolve filePaths
+      const oldUuid = 'aaaaaaaa-0000-0000-0000-000000000001';
+      const newUuid = 'bbbbbbbb-0000-0000-0000-000000000002';
+      await fs.writeFile(path.join(pagesDir, `${oldUuid}.md`), `---\ntitle: Speed\nuuid: ${oldUuid}\n---\n# Speed old`);
+      await fs.writeFile(path.join(pagesDir, `${newUuid}.md`), `---\ntitle: Speed\nuuid: ${newUuid}\n---\n# Speed new`);
+
+      const indexPath = path.join(testDir, 'data', 'page-index.json');
+      await fs.ensureDir(path.dirname(indexPath));
+      await fs.writeJSON(indexPath, {
+        version: '1.0.0',
+        lastUpdated: new Date().toISOString(),
+        pageCount: 2,
+        pages: {
+          [oldUuid]: { title: 'Speed', uuid: oldUuid, lastModified: '2024-01-01T00:00:00.000Z', location: 'pages', filename: `${oldUuid}.md` },
+          [newUuid]: { title: 'Speed', uuid: newUuid, lastModified: '2024-06-01T00:00:00.000Z', location: 'pages', filename: `${newUuid}.md` }
+        }
+      });
+
+      await provider.initialize();
+
+      // Newer UUID should be in-memory; older should not
+      expect(provider.uuidIndex.has(newUuid)).toBe(true);
+      expect(provider.uuidIndex.has(oldUuid)).toBe(false);
+    });
+
+    test('stale duplicate UUID is removed from the saved index file after fast-init', async () => {
+      const pagesDir = path.join(testDir, 'pages');
+      await fs.ensureDir(pagesDir);
+
+      const oldUuid = 'cccccccc-0000-0000-0000-000000000003';
+      const newUuid = 'dddddddd-0000-0000-0000-000000000004';
+      await fs.writeFile(path.join(pagesDir, `${oldUuid}.md`), `---\ntitle: Speed\nuuid: ${oldUuid}\n---\n`);
+      await fs.writeFile(path.join(pagesDir, `${newUuid}.md`), `---\ntitle: Speed\nuuid: ${newUuid}\n---\n`);
+
+      const indexPath = path.join(testDir, 'data', 'page-index.json');
+      await fs.ensureDir(path.dirname(indexPath));
+      await fs.writeJSON(indexPath, {
+        version: '1.0.0',
+        lastUpdated: new Date().toISOString(),
+        pageCount: 2,
+        pages: {
+          [oldUuid]: { title: 'Speed', uuid: oldUuid, lastModified: '2024-01-01T00:00:00.000Z', location: 'pages', filename: `${oldUuid}.md` },
+          [newUuid]: { title: 'Speed', uuid: newUuid, lastModified: '2024-06-01T00:00:00.000Z', location: 'pages', filename: `${newUuid}.md` }
+        }
+      });
+
+      await provider.initialize();
+
+      // Re-read the index file — stale UUID should be gone
+      const savedIndex = await fs.readJSON(indexPath);
+      expect(savedIndex.pages[oldUuid]).toBeUndefined();
+      expect(savedIndex.pages[newUuid]).toBeDefined();
+      expect(savedIndex.pageCount).toBe(1);
+    });
+
+    test('updatePageInIndex removes old same-title entry before writing new one', async () => {
+      await provider.initialize();
+
+      // Save a page normally to seed the index
+      await provider.savePage('Speed', '# Speed', {
+        title: 'Speed',
+        uuid: 'eeeeeeee-0000-0000-0000-000000000005',
+        author: 'admin'
+      } as never);
+
+      // Inject a stale duplicate directly into the in-memory index
+      const staleUuid = 'ffffffff-0000-0000-0000-000000000006';
+      provider.pageIndex!.pages[staleUuid] = {
+        title: 'Speed',
+        uuid: staleUuid,
+        lastModified: '2024-01-01T00:00:00.000Z',
+        location: 'pages',
+        filename: `${staleUuid}.md`
+      } as never;
+      provider.pageIndex!.pageCount++;
+
+      // Save again — updatePageInIndex should remove the stale entry
+      await provider.savePage('Speed', '# Speed updated', {
+        title: 'Speed',
+        uuid: 'eeeeeeee-0000-0000-0000-000000000005',
+        author: 'admin'
+      } as never);
+
+      expect(provider.pageIndex!.pages[staleUuid]).toBeUndefined();
+      expect(provider.pageIndex!.pages['eeeeeeee-0000-0000-0000-000000000005']).toBeDefined();
+    });
+  });
+
   describe('Auto-migration — slug-named files', () => {
     const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
     const pagesDir = () => path.join(testDir, 'pages');

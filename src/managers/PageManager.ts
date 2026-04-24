@@ -524,6 +524,15 @@ class PageManager extends BaseManager {
     if (!this.provider) {
       throw new Error('PageManager: Provider not initialized');
     }
+    const validationManager = this.engine.getManager<ValidationManager>('ValidationManager');
+    if (validationManager) {
+      const uuid = (metadata as Record<string, unknown>).uuid as string ?? '';
+      const slug = (metadata as Record<string, unknown>).slug as string ?? '';
+      const conflict = await validationManager.checkConflicts(uuid, pageName, slug);
+      if (conflict.hasConflict) {
+        throw new Error(conflict.message ?? `Page conflict: ${conflict.conflictType}`);
+      }
+    }
     return this.provider.savePage(pageName, content, metadata);
   }
 

@@ -358,6 +358,42 @@ describe('PageManager', () => {
     });
   });
 
+  describe('savePage() duplicate guard (#587)', () => {
+    test('should call validationManager.checkConflicts() and throw on conflict', async () => {
+      const mockCheckConflicts = vi.fn().mockResolvedValue({
+        hasConflict: true,
+        conflictType: 'title-duplicate',
+        message: 'A page with title \'Speed\' already exists under UUID other-uuid'
+      });
+      mockEngine.getManager.mockImplementation((name) => {
+        if (name === 'ConfigurationManager') return mockConfigurationManager;
+        if (name === 'ValidationManager') return { checkConflicts: mockCheckConflicts };
+        return null;
+      });
+
+      await expect(
+        pageManager.savePage('Speed', '# Speed', { uuid: 'new-uuid' })
+      ).rejects.toThrow("A page with title 'Speed' already exists");
+
+      expect(mockCheckConflicts).toHaveBeenCalledWith('new-uuid', 'Speed', '');
+    });
+
+    test('should proceed normally when no conflict', async () => {
+      const mockCheckConflicts = vi.fn().mockResolvedValue({ hasConflict: false, conflictType: null });
+      pageManager.provider.savePage = vi.fn().mockResolvedValue(undefined);
+      mockEngine.getManager.mockImplementation((name) => {
+        if (name === 'ConfigurationManager') return mockConfigurationManager;
+        if (name === 'ValidationManager') return { checkConflicts: mockCheckConflicts };
+        return null;
+      });
+
+      await pageManager.savePage('New Page', '# Hello', { uuid: 'new-uuid' });
+
+      expect(mockCheckConflicts).toHaveBeenCalled();
+      expect(pageManager.provider.savePage).toHaveBeenCalledWith('New Page', '# Hello', { uuid: 'new-uuid' });
+    });
+  });
+
   describe('Provider Normalization', () => {
     test('should normalize filesystemprovider to FileSystemProvider', async () => {
       // This is tested implicitly in initialization
