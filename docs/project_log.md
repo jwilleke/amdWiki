@@ -2,6 +2,21 @@
 
 AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version history.
 
+## 2026-04-24-02
+
+- Agent: Claude
+- Subject: Fix invalidatePageCache destroying in-memory page index, causing permanent 404 after footnote/comment add
+- Current Issue: #586
+- Work Done:
+  - Diagnosed bug: `FileSystemProvider.invalidatePageCache()` deleted the page title from `pageCache` (title→filePath index) on every footnote/comment mutation
+  - `resolvePageInfo()` then returned null for that page, producing a permanent 404 until server restart even though the file was still on disk
+  - Fixed by removing `this.pageCache.delete(lowerTitle)` — only `contentCache` (the cached markdown) is evicted; `pageCache` holds the stable file-path mapping and must not be cleared by mutation-side invalidation
+  - Created GitHub issue #586 documenting root cause
+  - Created GitHub issue #587 for separate duplicate-page-entries bug (same title in multiple .md files and page-index.json)
+- Commits: 4da25c1d
+- Files Modified:
+  - src/providers/FileSystemProvider.ts
+
 ## 2026-04-24-01
 
 - Agent: Claude
