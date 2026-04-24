@@ -2,6 +2,25 @@
 
 AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version history.
 
+## 2026-04-24-07
+
+- Agent: Claude
+- Subject: #591 — Tier 1 test coverage improvements (FootnoteManager, CacheManager, BackupManager, ACLManager)
+- Current Issue: #591
+- Work Done:
+  - Created `FootnoteManager.test.ts` (23 tests): addFootnote sequential IDs, getFootnotes sorted retrieval, updateFootnote patching, deleteFootnote file removal on last entry, hasFootnotes, invalidateHandlerCache integration — coverage 16%→95%
+  - Created `CacheManager.test.ts` (31 tests): initialization/fallback to NullCacheProvider, normalizeProviderName for all known providers, get/set/del/clear/keys/stats/isHealthy proxy methods, region namespacing, flushAll, shutdown, getCacheForManager static helper — coverage 42%→88%
+  - Created `BackupManager.test.ts` (22 tests): createBackup produces valid compressed JSON, restoreFromFile decompresses and calls restore() on managers, manager filter, error-entry skip, listBackups sorting, getLatestBackup, getAutoBackupStatus — coverage 12%→65%
+  - Extended `ACLManager.test.ts` (+23 tests): checkDefaultPermission action-to-permission mapping, anonymous fallback, checkMaintenanceMode (allowed/denied/custom roles/messages), checkBusinessHours (disabled fast path), removeACLMarkup/stripACLMarkup alias, checkContextRestrictions (disabled, anonymous, no ConfigManager) — coverage 36%→49%
+  - All 3161 unit tests passing (99 new tests added)
+  - Overall coverage improved: 45.88%→47.02% statements
+- Commits: 0dd5280d
+- Files Modified:
+  - src/managers/__tests__/FootnoteManager.test.ts (new)
+  - src/managers/__tests__/CacheManager.test.ts (new)
+  - src/managers/__tests__/BackupManager.test.ts (new)
+  - src/managers/__tests__/ACLManager.test.ts
+
 ## 2026-04-24-06
 
 - Agent: Claude
