@@ -2,6 +2,22 @@
 
 AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version history.
 
+## 2026-04-24-01
+
+- Agent: Claude
+- Subject: Fix rendered HTML cache never invalidated on page save/create/delete
+- Current Issue: #584
+- Work Done:
+  - Diagnosed bug: all `cacheManager.clear(pattern)` calls in WikiRoutes were passing the glob string as `region` (first arg), routing to an empty RegionCache — effectively a no-op
+  - Root cause: `CacheManager.clear(region?, pattern?)` signature — when region is truthy it calls `this.region(region).clear()`, ignoring the global provider where rendered-pages entries actually live
+  - Fixed all 12 call sites to `cacheManager.clear(undefined, pattern)` so the global provider receives the glob and evicts matching keys
+  - Affected handlers: `editPageIndex`, `savePage` (edit + rename branches), `deletePage`, admin cache-evict API, admin rebuild
+  - Also fixed admin rebuild line to use `rendered-pages:*` pattern instead of `rendered-pages` region name
+  - Created GitHub issue #584 documenting root cause and all affected call sites
+- Commits: 9bb5b549
+- Files Modified:
+  - src/routes/WikiRoutes.ts
+
 ## 2026-04-23-19
 
 - Agent: Claude
