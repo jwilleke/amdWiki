@@ -1347,7 +1347,7 @@ class WikiRoutes {
 <script>
 (function(){
   var restore=sessionStorage.getItem('ngdp-restore-tab');
-  if(restore){sessionStorage.removeItem('ngdp-restore-tab');var re=document.querySelector('[data-bs-target$="-'+restore+'"]');if(re){re.click();return;}}
+  if(restore){sessionStorage.removeItem('ngdp-restore-tab');var _r=restore;function _act(){var re=document.querySelector('[data-bs-target$="-'+_r+'"]');if(re)re.click();}document.readyState==='complete'?_act():window.addEventListener('load',_act);return;}
   var key='ngdp-tab-${uid}';
   var saved=localStorage.getItem(key);
   if(saved){var el=document.getElementById('tab-${uid}-'+saved);if(el)el.click();}
