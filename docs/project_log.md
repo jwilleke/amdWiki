@@ -2,6 +2,21 @@
 
 AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version history.
 
+## 2026-04-24-09
+
+- Agent: Claude
+- Subject: Citations migration — convert bare-URL footnotes in wiki pages and commit script
+- Current Issue: #591
+- Work Done:
+  - Created `scripts/migrate-citations-to-footnotes.mjs`: converts `[^N] https://url` lines to `* [^N] - [Display|url]` with URL-derived display text (walks path segments backward, skips IDs and generic words, falls back to domain label)
+  - Ran migration on 96 wiki pages in `/Volumes/hd2A/jimstest-wiki/data/pages`
+  - Ran `migrate-footnotes-to-sidecar.mjs`: extracted 713 footnotes from 97 pages into sidecar JSON files
+  - Committed script `e13e0a12`, pushed to remote
+  - Restarted jimstest server to pick up updated page-index.json
+- Commits: e13e0a12
+- Files Modified:
+  - scripts/migrate-citations-to-footnotes.mjs (new)
+
 ## 2026-04-24-08
 
 - Agent: Claude
