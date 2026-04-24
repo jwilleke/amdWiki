@@ -491,10 +491,11 @@ class FileSystemProvider extends BasePageProvider {
     const byUuid  = this.uuidIndex.get(identifier);
     const bySlug  = this.slugIndex.get(identifier);
     const title   = byUuid ?? bySlug ?? identifier;
-    const lowerTitle = title.toLowerCase();
 
-    const hadEntry = this.pageCache.has(lowerTitle) || this.contentCache.has(title);
-    this.pageCache.delete(lowerTitle);
+    // Only evict contentCache — pageCache stores the file path and must NOT be
+    // removed here. Deleting from pageCache makes resolvePageInfo() return null,
+    // causing a 404 on the next request even though the file is still on disk.
+    const hadEntry = this.contentCache.has(title);
     this.contentCache.delete(title);
     if (hadEntry) logger.info(`[FileSystemProvider] Evicted page cache: ${title}`);
     return hadEntry;
