@@ -2,6 +2,24 @@
 
 AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version history.
 
+## 2026-04-24-10
+
+- Agent: Claude
+- Subject: Test coverage push — Tier 3 additions toward 60%/55% thresholds
+- Current Issue: #591
+- Work Done:
+  - Added SchemaGenerator.test.ts covering enhanceWebPage, generateSoftwareSchema, generateComprehensiveSchema, generateScriptTag, generateSiteSchema, generatePersonSchema, generateOrganizationSchema (44 tests)
+  - Added NodeCacheProvider.test.ts covering initialize, get/set/del/clear/keys/stats/isHealthy/close/backup, no-cache branches (25 tests)
+  - Extended PageManager.test.ts: restore() provider mismatch, no-providerBackup, no-restore-method branches, and deletePageWithContext anonymous user logging
+  - Fixed pre-commit lint error in BackgroundJobManager.test.ts (prefer-const)
+  - Current coverage after this session: ~59.65% statements / ~52.59% branches (up from 58.99%/51.89%)
+- Commits: 60b3a09b
+- Files Modified:
+  - src/utils/__tests__/SchemaGenerator.test.ts (new)
+  - src/providers/__tests__/NodeCacheProvider.test.ts (new)
+  - src/managers/__tests__/PageManager.test.ts
+  - src/managers/__tests__/BackgroundJobManager.test.ts
+
 ## 2026-04-24-09
 
 - Agent: Claude
