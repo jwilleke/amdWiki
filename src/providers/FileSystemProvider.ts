@@ -498,6 +498,14 @@ class FileSystemProvider extends BasePageProvider {
     const hadEntry = this.contentCache.has(title);
     this.contentCache.delete(title);
     if (hadEntry) logger.info(`[FileSystemProvider] Evicted page cache: ${title}`);
+
+    // Also clear the rendered HTML cache so footnote/comment changes are visible
+    // immediately without a server restart.
+    const cacheManager = this.engine.getManager<{ clear(region: string | undefined, pattern?: string): Promise<void> }>('CacheManager');
+    if (cacheManager && title) {
+      cacheManager.clear(undefined, `rendered-pages:${title}:*`).catch(() => {});
+    }
+
     return hadEntry;
   }
 
