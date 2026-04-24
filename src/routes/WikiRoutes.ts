@@ -4485,7 +4485,13 @@ ${panes}
     const cacheManager = this.engine.getManager<{ clear(r: string | undefined, p?: string): Promise<void> }>('CacheManager');
     const tasks: Promise<void>[] = [];
     if (markupParser) tasks.push(markupParser.invalidateHandlerCache().catch(() => {}));
-    if (cacheManager) tasks.push(cacheManager.clear(undefined, 'rendered-pages:*').catch(() => {}));
+    if (cacheManager) {
+      // Clear both the outer rendered-pages cache and the MarkupParser parseResults cache.
+      // parseResults is keyed by page markdown content — it doesn't know about footnote/comment
+      // sidecar data, so it returns stale HTML after a mutation unless explicitly cleared.
+      tasks.push(cacheManager.clear(undefined, 'rendered-pages:*').catch(() => {}));
+      tasks.push(cacheManager.clear('MarkupParser-ParseResults').catch(() => {}));
+    }
     await Promise.all(tasks);
   }
 
