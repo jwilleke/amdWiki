@@ -302,6 +302,62 @@ describe('PageManager', () => {
     });
   });
 
+  describe('getPageUUID()', () => {
+    test('should delegate to provider', () => {
+      pageManager.provider.getPageUUID = vi.fn().mockReturnValue('test-uuid-001');
+
+      const result = pageManager.getPageUUID('My Page');
+
+      expect(pageManager.provider.getPageUUID).toHaveBeenCalledWith('My Page');
+      expect(result).toBe('test-uuid-001');
+    });
+
+    test('should return null when provider returns null', () => {
+      pageManager.provider.getPageUUID = vi.fn().mockReturnValue(null);
+
+      expect(pageManager.getPageUUID('unknown')).toBeNull();
+    });
+  });
+
+  describe('invalidatePageCache() — UUID-based clear (#588)', () => {
+    test('should clear rendered-pages using UUID not title', () => {
+      const mockClear = vi.fn().mockResolvedValue(undefined);
+      const mockCacheManager = { clear: mockClear, isInitialized: () => true };
+
+      mockEngine.getManager.mockImplementation((name) => {
+        if (name === 'ConfigurationManager') return mockConfigurationManager;
+        if (name === 'CacheManager') return mockCacheManager;
+        return null;
+      });
+
+      pageManager.provider.invalidatePageCache = vi.fn().mockReturnValue('My Page');
+      pageManager.provider.getPageUUID = vi.fn().mockReturnValue('page-uuid-xyz');
+
+      pageManager.invalidatePageCache('My Page');
+
+      expect(pageManager.provider.getPageUUID).toHaveBeenCalledWith('My Page');
+      expect(mockClear).toHaveBeenCalledWith(undefined, 'rendered-pages:page-uuid-xyz:*');
+    });
+
+    test('should fall back to title when provider has no UUID', () => {
+      const mockClear = vi.fn().mockResolvedValue(undefined);
+      const mockCacheManager = { clear: mockClear, isInitialized: () => true };
+
+      mockEngine.getManager.mockImplementation((name) => {
+        if (name === 'ConfigurationManager') return mockConfigurationManager;
+        if (name === 'CacheManager') return mockCacheManager;
+        return null;
+      });
+
+      pageManager.provider.invalidatePageCache = vi.fn().mockReturnValue('My Page');
+      pageManager.provider.getPageUUID = vi.fn().mockReturnValue(null);
+
+      pageManager.invalidatePageCache('My Page');
+
+      expect(mockClear).toHaveBeenCalledWith(undefined, 'rendered-pages:My Page:*');
+    });
+  });
+
   describe('Provider Normalization', () => {
     test('should normalize filesystemprovider to FileSystemProvider', async () => {
       // This is tested implicitly in initialization

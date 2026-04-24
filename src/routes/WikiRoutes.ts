@@ -150,6 +150,7 @@ interface IPageManager {
   deletePage(name: string, options?: unknown): Promise<boolean>;
   deletePageWithContext(wikiContext: unknown): Promise<boolean>;
   getCurrentPageProvider(): IVersioningProvider | null;
+  getPageUUID?(identifier: string): string | null;
   /** Direct provider reference — prefer getCurrentPageProvider() for new code */
   provider?: IVersioningProvider | null;
   refreshPageList(): Promise<void>;
@@ -1564,11 +1565,12 @@ ${panes}
       // Check if user can edit this page
       const canEdit = await aclManager.checkPagePermissionWithContext(wikiContext, 'edit');
 
-      // Rendered-pages cache — keyed by pageName + sorted role set (#250)
+      // Rendered-pages cache — keyed by UUID + sorted role set (#588)
       const cacheManager = this.engine.getManager('CacheManager');
       const renderCacheEnabled = configManager?.getProperty('ngdpbase.cache.rendered-pages.enabled', true) as boolean;
       const roleKey = (userContext?.roles ?? []).slice().sort().join(',');
-      const renderCacheKey = `rendered-pages:${pageName}:${roleKey}`;
+      const pageUUID = (metadata as { uuid?: string } | null)?.uuid ?? pageName;
+      const renderCacheKey = `rendered-pages:${pageUUID}:${roleKey}`;
       type RenderCacheEntry = { html: string; tabSectionHtml: string };
 
       let html: string;
@@ -2030,9 +2032,11 @@ ${panes}
       const cacheManager = this.engine.getManager('CacheManager');
       if (cacheManager?.isInitialized?.()) {
         const referringPages = renderingManager.getReferringPages(pageName);
-        await cacheManager.clear(undefined, `rendered-pages:${pageName}:*`);
+        const _uuid1 = pageManager?.getPageUUID?.(pageName) ?? pageName;
+        await cacheManager.clear(undefined, `rendered-pages:${_uuid1}:*`);
         for (const refPage of referringPages) {
-          await cacheManager.clear(undefined, `rendered-pages:${refPage}:*`);
+          const refUUID = pageManager?.getPageUUID?.(refPage) ?? refPage;
+          await cacheManager.clear(undefined, `rendered-pages:${refUUID}:*`);
         }
         logger.debug(`🗑️  Cleared rendered cache for ${pageName} and ${referringPages.length} referring pages`);
       }
@@ -2401,9 +2405,11 @@ ${panes}
       const cacheManager = this.engine.getManager('CacheManager');
       if (cacheManager?.isInitialized?.()) {
         const referringPages = renderingManager.getReferringPages(pageName);
-        await cacheManager.clear(undefined, `rendered-pages:${pageName}:*`);
+        const _uuid2 = pageManager?.getPageUUID?.(pageName) ?? pageName;
+        await cacheManager.clear(undefined, `rendered-pages:${_uuid2}:*`);
         for (const refPage of referringPages) {
-          await cacheManager.clear(undefined, `rendered-pages:${refPage}:*`);
+          const refUUID = pageManager?.getPageUUID?.(refPage) ?? refPage;
+          await cacheManager.clear(undefined, `rendered-pages:${refUUID}:*`);
         }
         logger.debug(`🗑️  Cleared rendered cache for ${pageName} and ${referringPages.length} referring pages`);
       }
@@ -2706,15 +2712,17 @@ ${panes}
       const cacheManager = this.engine.getManager('CacheManager');
       if (cacheManager?.isInitialized?.()) {
         const referringPages = renderingManager.getReferringPages(finalTitle);
-        await cacheManager.clear(undefined, `rendered-pages:${finalTitle}:*`);
+        // UUID is stable across renames — one clear covers both old and new title
+        const _uuid3 = pageManager?.getPageUUID?.(finalTitle) ?? finalTitle;
+        await cacheManager.clear(undefined, `rendered-pages:${_uuid3}:*`);
         for (const refPage of referringPages) {
-          await cacheManager.clear(undefined, `rendered-pages:${refPage}:*`);
+          const refUUID = pageManager?.getPageUUID?.(refPage) ?? refPage;
+          await cacheManager.clear(undefined, `rendered-pages:${refUUID}:*`);
         }
-        // On rename: also invalidate old title so RED-LINKs resolve on referring pages
         if (isRename) {
-          await cacheManager.clear(undefined, `rendered-pages:${pageName}:*`);
           for (const refPage of oldReferringPages) {
-            await cacheManager.clear(undefined, `rendered-pages:${refPage}:*`);
+            const refUUID = pageManager?.getPageUUID?.(refPage) ?? refPage;
+            await cacheManager.clear(undefined, `rendered-pages:${refUUID}:*`);
           }
           logger.debug(`🗑️  Cleared rendered cache for old title '${pageName}' and ${oldReferringPages.length} referring pages`);
         }
@@ -2834,6 +2842,11 @@ ${panes}
 
       logger.debug(`✅ Page found, proceeding to delete: ${pageName}`);
 
+      // Capture UUID before deletion — pageCache entry is removed by deletePage
+      const _deleteUUID = (pageData.metadata as { uuid?: string } | undefined)?.uuid ?? pageName;
+      // Capture referring pages before deletion removes the link graph entry
+      const _deleteRefPages = renderingManager.getReferringPages(pageName);
+
       // Delete the page using WikiContext (includes audit logging with user info)
       const deleteResult = await pageManager.deletePageWithContext(wikiContext);
       logger.debug(`🗑️ Delete result: ${deleteResult}`);
@@ -2847,10 +2860,10 @@ ${panes}
         // Clear rendered cache for deleted page and any pages that linked to it
         const cacheManager = this.engine.getManager('CacheManager');
         if (cacheManager?.isInitialized?.()) {
-          const referringPages = renderingManager.getReferringPages(pageName);
-          await cacheManager.clear(undefined, `rendered-pages:${pageName}:*`);
-          for (const refPage of referringPages) {
-            await cacheManager.clear(undefined, `rendered-pages:${refPage}:*`);
+          await cacheManager.clear(undefined, `rendered-pages:${_deleteUUID}:*`);
+          for (const refPage of _deleteRefPages) {
+            const refUUID = pageManager?.getPageUUID?.(refPage) ?? refPage;
+            await cacheManager.clear(undefined, `rendered-pages:${refUUID}:*`);
           }
         }
 
@@ -8516,7 +8529,8 @@ ${panes}
       // Also evict from the rendered-pages CacheManager region if available
       const cacheManager = this.engine.getManager('CacheManager');
       if (cacheManager?.isInitialized?.()) {
-        try { await cacheManager.clear(undefined, `rendered-pages:${identifier}:*`); } catch { /* non-fatal */ }
+        const resolvedUUID = pageManager?.getPageUUID?.(identifier) ?? identifier;
+        try { await cacheManager.clear(undefined, `rendered-pages:${resolvedUUID}:*`); } catch { /* non-fatal */ }
       }
 
       logger.info(`[AdminAPI] Page cache evicted for '${identifier}' by ${currentUser.username}`);

@@ -160,6 +160,10 @@ abstract class BasePageProvider {
     return null; // no-op default — override in providers with in-memory caches
   }
 
+  getPageUUID(_identifier: string): string | null {
+    return null; // no-op default — override in providers with in-memory page caches
+  }
+
   /**
    * Check if page exists
    * @param {string} identifier - Page UUID or title

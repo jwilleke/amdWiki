@@ -130,6 +130,13 @@ export interface PageProvider extends BaseProvider {
   invalidatePageCache(identifier: string): string | null;
 
   /**
+   * Look up a page's UUID by any identifier (UUID, slug, or title).
+   * @param identifier - UUID, slug, or title
+   * @returns UUID string or null if not found
+   */
+  getPageUUID(identifier: string): string | null;
+
+  /**
    * Check if page exists
    * @param identifier - Page UUID or title
    * @returns True if page exists

@@ -304,6 +304,10 @@ class PageManager extends BaseManager {
     return this.provider;
   }
 
+  getPageUUID(identifier: string): string | null {
+    return this.provider?.getPageUUID?.(identifier) ?? null;
+  }
+
   invalidatePageCache(identifier: string): void {
     const resolvedTitle = this.provider?.invalidatePageCache?.(identifier) ?? null;
     const renderingManager = this.engine.getManager<{ invalidateHandlerCache(): void }>('RenderingManager');
@@ -311,9 +315,10 @@ class PageManager extends BaseManager {
       renderingManager.invalidateHandlerCache();
     }
     if (resolvedTitle) {
+      const uuid = this.provider?.getPageUUID?.(resolvedTitle) ?? resolvedTitle;
       const cacheManager = this.engine.getManager<{ clear(region: string | undefined, pattern?: string): Promise<void> }>('CacheManager');
       if (cacheManager) {
-        cacheManager.clear(undefined, `rendered-pages:${resolvedTitle}:*`).catch(() => {});
+        cacheManager.clear(undefined, `rendered-pages:${uuid}:*`).catch(() => {});
       }
     }
   }

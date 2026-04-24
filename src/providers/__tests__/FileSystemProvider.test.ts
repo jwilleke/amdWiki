@@ -399,6 +399,31 @@ describe('FileSystemProvider', () => {
       });
     });
 
+    describe('getPageUUID (#588)', () => {
+      test('should return UUID when resolving by title', async () => {
+        await createTestPage(TEST_PAGES_DIR, 'uuid-abc-123', 'My Page', '# Hello');
+        const provider = new FileSystemProvider(createMockEngine());
+        await provider.initialize();
+
+        expect(provider.getPageUUID('My Page')).toBe('uuid-abc-123');
+      });
+
+      test('should return UUID when identifier is already the UUID', async () => {
+        await createTestPage(TEST_PAGES_DIR, 'uuid-def-456', 'Another Page', '# Hi');
+        const provider = new FileSystemProvider(createMockEngine());
+        await provider.initialize();
+
+        expect(provider.getPageUUID('uuid-def-456')).toBe('uuid-def-456');
+      });
+
+      test('should return null for unknown identifier', async () => {
+        const provider = new FileSystemProvider(createMockEngine());
+        await provider.initialize();
+
+        expect(provider.getPageUUID('does-not-exist')).toBeNull();
+      });
+    });
+
     describe('refreshPageList duplicate detection', () => {
       test('should keep first entry on duplicate titles and log warning', async () => {
         // Create two pages with the same title but different UUIDs

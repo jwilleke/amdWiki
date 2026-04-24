@@ -506,6 +506,10 @@ class FileSystemProvider extends BasePageProvider {
     return resolvedTitle;
   }
 
+  getPageUUID(identifier: string): string | null {
+    return this.resolvePageInfo(identifier)?.uuid ?? null;
+  }
+
   async movePrivatePage(uuid: string, oldCreator: string, newCreator: string): Promise<void> {
     if (!this.pagesDirectory || oldCreator === newCreator) return;
     const fromPath = path.join(this.pagesDirectory, 'private', oldCreator, `${uuid}.md`);
