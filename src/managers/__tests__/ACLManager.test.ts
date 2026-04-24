@@ -432,4 +432,198 @@ describe('ACLManager', () => {
       expect(newAclManager.accessPolicies.has('test-policy-2')).toBe(true);
     });
   });
+
+  describe('checkDefaultPermission()', () => {
+    test('returns false when UserManager is unavailable', async () => {
+      const noUmEngine = {
+        getManager: vi.fn((name) => {
+          if (name === 'ConfigurationManager') return mockConfigurationManager;
+          return null; // no UserManager
+        })
+      };
+      const mgr = new ACLManager(noUmEngine as unknown as WikiEngine);
+      await mgr.initialize();
+
+      const result = await mgr.checkDefaultPermission('view', { username: 'user1', roles: [] });
+      expect(result).toBe(false);
+    });
+
+    test('maps "view" action to page:read permission', async () => {
+      mockUserManager.hasPermission.mockResolvedValue(true);
+      const result = await aclManager.checkDefaultPermission('view', { username: 'user1', roles: [] });
+      expect(mockUserManager.hasPermission).toHaveBeenCalledWith('user1', 'page:read');
+      expect(result).toBe(true);
+    });
+
+    test('maps "edit" action to page:edit permission', async () => {
+      mockUserManager.hasPermission.mockResolvedValue(false);
+      await aclManager.checkDefaultPermission('edit', { username: 'user1', roles: [] });
+      expect(mockUserManager.hasPermission).toHaveBeenCalledWith('user1', 'page:edit');
+    });
+
+    test('uses anonymous when user is null', async () => {
+      mockUserManager.hasPermission.mockResolvedValue(false);
+      await aclManager.checkDefaultPermission('view', null);
+      expect(mockUserManager.hasPermission).toHaveBeenCalledWith('anonymous', 'page:read');
+    });
+
+    test('falls back to page:<action> for unknown actions', async () => {
+      mockUserManager.hasPermission.mockResolvedValue(true);
+      await aclManager.checkDefaultPermission('upload', { username: 'user1', roles: [] });
+      expect(mockUserManager.hasPermission).toHaveBeenCalledWith('user1', 'page:upload');
+    });
+  });
+
+  describe('checkMaintenanceMode()', () => {
+    test('allows when maintenance is disabled', () => {
+      const result = aclManager.checkMaintenanceMode(
+        { username: 'user1', roles: ['editor'] },
+        { enabled: false }
+      );
+      expect(result.allowed).toBe(true);
+      expect(result.reason).toBe('maintenance_disabled');
+    });
+
+    test('allows admin during maintenance', () => {
+      const result = aclManager.checkMaintenanceMode(
+        { username: 'user1', roles: ['admin'] },
+        { enabled: true }
+      );
+      expect(result.allowed).toBe(true);
+      expect(result.reason).toBe('maintenance_override');
+    });
+
+    test('denies non-admin during maintenance', () => {
+      const result = aclManager.checkMaintenanceMode(
+        { username: 'user1', roles: ['editor'] },
+        { enabled: true }
+      );
+      expect(result.allowed).toBe(false);
+      expect(result.reason).toBe('maintenance_mode');
+    });
+
+    test('respects custom allowedRoles', () => {
+      const result = aclManager.checkMaintenanceMode(
+        { username: 'user1', roles: ['operator'] },
+        { enabled: true, allowedRoles: ['admin', 'operator'] }
+      );
+      expect(result.allowed).toBe(true);
+    });
+
+    test('uses default maintenance message when none configured', () => {
+      const result = aclManager.checkMaintenanceMode(
+        { username: 'user1', roles: ['editor'] },
+        { enabled: true }
+      );
+      expect(result.message).toBe('System is under maintenance');
+    });
+
+    test('uses custom message when configured', () => {
+      const result = aclManager.checkMaintenanceMode(
+        { username: 'user1', roles: [] },
+        { enabled: true, message: 'Down for upgrades' }
+      );
+      expect(result.message).toBe('Down for upgrades');
+    });
+  });
+
+  describe('checkBusinessHours()', () => {
+    test('allows when business hours disabled', () => {
+      const result = aclManager.checkBusinessHours({ enabled: false });
+      expect(result.allowed).toBe(true);
+      expect(result.reason).toBe('business_hours_disabled');
+    });
+
+    test('allows when no config provided (defaults to disabled)', () => {
+      const result = aclManager.checkBusinessHours();
+      expect(result.allowed).toBe(true);
+    });
+  });
+
+  describe('removeACLMarkup() / stripACLMarkup()', () => {
+    test('removes [{ALLOW ...}] plugin syntax', () => {
+      const input = 'Content [{ALLOW view admin,editor}] more content';
+      const result = aclManager.removeACLMarkup(input);
+      expect(result).not.toContain('[{ALLOW');
+      expect(result).toContain('Content');
+      expect(result).toContain('more content');
+    });
+
+    test('removes [{DENY ...}] plugin syntax', () => {
+      const input = '[{DENY edit anonymous}] page text';
+      const result = aclManager.removeACLMarkup(input);
+      expect(result).not.toContain('[{DENY');
+      expect(result).toContain('page text');
+    });
+
+    test('returns input unchanged when no ACL markup present', () => {
+      const input = 'Just a regular page with no ACL markup here.';
+      expect(aclManager.removeACLMarkup(input)).toBe(input);
+    });
+
+    test('handles empty string', () => {
+      expect(aclManager.removeACLMarkup('')).toBe('');
+    });
+
+    test('handles null/undefined gracefully', () => {
+      expect(aclManager.removeACLMarkup(null as unknown as string)).toBe(null);
+    });
+
+    test('removes multiple ACL blocks in one pass', () => {
+      const input = '[{ALLOW view admin}] text [{ALLOW edit admin}] more';
+      const result = aclManager.removeACLMarkup(input);
+      expect(result).not.toContain('[{ALLOW');
+      expect(result).toContain('text');
+      expect(result).toContain('more');
+    });
+
+    test('stripACLMarkup is an alias for removeACLMarkup', () => {
+      const input = '[{ALLOW view admin}] content';
+      expect(aclManager.stripACLMarkup(input)).toBe(aclManager.removeACLMarkup(input));
+    });
+  });
+
+  describe('checkContextRestrictions()', () => {
+    test('returns allowed when context-aware is disabled', async () => {
+      mockConfigurationManager.getProperty.mockImplementation((key, defaultValue) => {
+        if (key === 'ngdpbase.access-control.context-aware.enabled') return false;
+        return defaultValue;
+      });
+
+      const result = await aclManager.checkContextRestrictions(
+        { username: 'user1', roles: ['editor'] },
+        {}
+      );
+      expect(result.allowed).toBe(true);
+      expect(result.reason).toBe('context_disabled');
+    });
+
+    test('returns allowed for anonymous user without context checks', async () => {
+      mockConfigurationManager.getProperty.mockImplementation((key, defaultValue) => {
+        if (key === 'ngdpbase.access-control.context-aware.enabled') return true;
+        if (key === 'ngdpbase.features.maintenance.enabled') return false;
+        if (key === 'ngdpbase.schedules.enabled') return false;
+        return defaultValue;
+      });
+
+      const result = await aclManager.checkContextRestrictions(
+        { username: 'anonymous', roles: ['anonymous'] },
+        {}
+      );
+      expect(result.allowed).toBe(true);
+      expect(result.reason).toBe('anonymous_user');
+    });
+
+    test('returns allowed when context available, no ConfigurationManager', async () => {
+      const noConfigEngine = { getManager: vi.fn(() => null) };
+      const mgr = new ACLManager(noConfigEngine as unknown as WikiEngine);
+
+      const result = await mgr.checkContextRestrictions(
+        { username: 'user1', roles: ['editor'] },
+        {}
+      );
+      expect(result.allowed).toBe(true);
+      expect(result.reason).toBe('no_config');
+    });
+  });
 });
