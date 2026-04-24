@@ -2,6 +2,24 @@
 
 AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version history.
 
+## 2026-04-24-06
+
+- Agent: Claude
+- Subject: #587 — Prevent duplicate page titles in page-index.json and save paths
+- Current Issue: #587
+- Work Done:
+  - Added `ValidationManager.checkConflicts()` call to `PageManager.savePage()` (deprecated path) so all save paths enforce title uniqueness — previously only `savePageWithContext()` did this
+  - Added duplicate-title detection to `VersioningFileProvider.initializeFromIndex()`: tracks seen titles during index load, keeps the newer `lastModified` entry, collects stale UUIDs, removes them from `pageIndex.pages`, and calls `savePageIndex()` to self-heal the file on startup
+  - Added duplicate-title guard to `VersioningFileProvider.updatePageInIndex()`: scans for existing entries with same title but different UUID before writing, removes stale entry — prevents new duplicates accumulating in the index
+  - Added 5 new tests: 2 in `PageManager.test.ts` (savePage duplicate guard throws on conflict, proceeds on no conflict) and 3 in `VersioningFileProvider.test.ts` (fast-init keeps newer entry, stale UUID removed from saved index, updatePageInIndex removes stale duplicate)
+  - All 3062 unit tests passing
+- Commits: 3b83852c
+- Files Modified:
+  - src/managers/PageManager.ts
+  - src/managers/__tests__/PageManager.test.ts
+  - src/providers/VersioningFileProvider.ts
+  - src/providers/__tests__/VersioningFileProvider.test.ts
+
 ## 2026-04-24-05
 
 - Agent: Claude
