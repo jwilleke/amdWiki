@@ -2,6 +2,29 @@
 
 AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version history.
 
+## 2026-04-24-05
+
+- Agent: Claude
+- Subject: #588 — UUID-based rendered-pages cache keys
+- Current Issue: #588
+- Work Done:
+  - Added `getPageUUID(identifier)` to `PageProvider` interface, `BasePageProvider` (no-op default), `FileSystemProvider` (uses `resolvePageInfo` index lookup), and `PageManager` (proxy)
+  - Updated `PageManager.invalidatePageCache()` to clear `rendered-pages:${uuid}:*` instead of title-based key
+  - Updated `viewPage()` read key in `WikiRoutes.ts` from `rendered-pages:${pageName}:*` to `rendered-pages:${uuid}:*` (with title fallback)
+  - Updated all 5 rendered-pages clear blocks in `WikiRoutes.ts` (create-from-template, create-page, save/rename, delete, admin evict endpoint) to use UUID; delete path captures UUID before deletion since pageCache is cleaned by deletePage
+  - Rename path simplified: UUID is stable across renames so one clear covers both old and new title
+  - Added 7 new unit tests: 3 for `FileSystemProvider.getPageUUID` (resolve by title, by UUID, null for unknown) and 4 for `PageManager.invalidatePageCache` / `getPageUUID` (UUID used in clear, title fallback when UUID null)
+  - All 3057 unit tests and 72 E2E tests passing
+- Commits: 59ed7e9c
+- Files Modified:
+  - src/types/Provider.ts
+  - src/providers/BasePageProvider.ts
+  - src/providers/FileSystemProvider.ts
+  - src/providers/__tests__/FileSystemProvider.test.ts
+  - src/managers/PageManager.ts
+  - src/managers/__tests__/PageManager.test.ts
+  - src/routes/WikiRoutes.ts
+
 ## 2026-04-24-04
 
 - Agent: Claude
