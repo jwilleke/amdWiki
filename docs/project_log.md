@@ -2,6 +2,30 @@
 
 AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version history.
 
+## 2026-04-24-03
+
+- Agent: Claude
+- Subject: Fix footnote/comment not appearing after add, and wrong tab shown after reload
+- Current Issue: #586, #585
+- Work Done:
+  - Diagnosed cache race condition: `invalidateHandlerCache()` and `cacheManager.clear()` were fire-and-forget; `location.reload()` arrived before async clears resolved, serving stale MarkupParser handler-results cache
+  - Added `flushPluginCaches()` private async helper in WikiRoutes that awaits both MarkupParser handler-results clear and rendered-pages cache clear in parallel
+  - Wired `await this.flushPluginCaches()` to all 5 mutation handlers: `addFootnote`, `updateFootnote`, `deleteFootnote`, `addComment`, `deleteComment`
+  - Diagnosed tab restore bug: `buildPageTabsHtml()` used `Math.random()` for uid, making localStorage key change on every render — persistence never worked
+  - Changed uid to deterministic slug derived from pageName so localStorage tab state persists correctly across renders
+  - Added sessionStorage `ngdp-restore-tab` check at start of tab persist script so correct tab is activated after plugin-triggered reload
+  - Updated `FootnotesPlugin.renderCrudScript()`: all 3 `location.reload()` calls now set `sessionStorage ngdp-restore-tab=footnotes` first
+  - Updated `CommentsPlugin` script generation: both `location.reload()` calls now set `sessionStorage ngdp-restore-tab=comments` first
+  - Fixed `FileSystemProvider.invalidatePageCache()` to always return resolved title (previously returned null if contentCache was already empty), ensuring PageManager can clear rendered-pages cache on every mutation
+  - Fixed duplicate `speed` page: deleted stale `104c251b` .md file and page-index.json entry that was causing UUID→title resolution failure
+  - Created GitHub issue #588 for UUID-based rendered-pages cache key (separate larger refactor)
+- Commits: 26bc288b
+- Files Modified:
+  - src/plugins/CommentsPlugin.ts
+  - src/plugins/FootnotesPlugin.ts
+  - src/providers/FileSystemProvider.ts
+  - src/routes/WikiRoutes.ts
+
 ## 2026-04-24-02
 
 - Agent: Claude
