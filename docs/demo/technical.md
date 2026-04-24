@@ -337,3 +337,7 @@ highlight.js runs in Phase 7 (post-processing) — no client-side JS needed to a
 - Manager overview: `docs/architecture/MANAGERS-OVERVIEW.md`
 - API routes: `docs/api/`
 - Proper documentation pages standard: `docs/proper-documentation-pages.md`
+
+## Other stuff
+
+- <http://192.168.68.71:4090/#/?i=69e22067&i=69e814ef>
