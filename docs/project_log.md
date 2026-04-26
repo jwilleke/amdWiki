@@ -2,6 +2,26 @@
 
 AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version history.
 
+## 2026-04-26-01
+
+- Agent: Claude
+- Subject: GitGuardian false positive fix and stale doc corrections
+- Current Issue: none
+- Work Done:
+  - Investigated GitGuardian "Username Password" alert on commit 60b3a09b — traced to `src/types/__tests__/guards.test.ts:267` (`validUser` fixture with adjacent `username`/`password` fields)
+  - Replaced test fixture password values with `'hashed:test-fixture'` / `'test-plaintext-input'` across 3 test files (5 occurrences) to prevent scanner false positives; field name `password` unchanged (required by User type)
+  - All 4260 unit tests and 72 e2e tests confirmed passing
+  - Fixed stale facts in `ARCHITECTURE.md`: manager count 23+ → 30, Jest → Vitest, 376+ tests → 4260+ across 162 files, CommonJS references → TypeScript/ESM, PM2 process management → server.sh
+  - Fixed `README.md` project structure tree: removed stale root-level `plugins/`, `pages/`, `users/`, `backups/`, `logs/`, `jsdocs/`; moved instance-specific dirs into `data/` block; added `addons/`; expanded `src/` to show `plugins/`, `providers/`, `types/`
+  - Assessed `docs/demo/technical.md` — no changes needed (manager count 30 and 4 addons already correct)
+- Commits: 087ab7b3
+- Files Modified:
+  - src/types/__tests__/guards.test.ts
+  - src/managers/__tests__/UserManager.test.ts
+  - src/managers/__tests__/UserManager.searchUsers.test.ts
+  - ARCHITECTURE.md
+  - README.md
+
 ## 2026-04-24-10
 
 - Agent: Claude
