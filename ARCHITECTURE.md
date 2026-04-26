@@ -12,7 +12,7 @@ Related documents:
 
 ## High-Level Overview
 
-ngdpbase uses a **central WikiEngine** that orchestrates 23+ specialized managers, each responsible for specific domains.
+ngdpbase uses a **central WikiEngine** that orchestrates 30 specialized managers, each responsible for specific domains.
 
 ### Key Componets
 
@@ -65,9 +65,9 @@ Three-phase extraction for parsing JSPWiki syntax:
 
 ### Runtime
 
-- Node.js (CommonJS, progressive TypeScript migration)
+- Node.js with TypeScript/ESM
 - Express.js 5.x for routing and middleware
-- PM2 for process management and clustering
+- `server.sh` for process management (ecosystem.config.js for PM2 if used directly)
 - EJS templates with Bootstrap 5 UI
 
 ### Storage
@@ -86,15 +86,14 @@ Three-phase extraction for parsing JSPWiki syntax:
 
 ### Testing & Quality
 
-- **Jest** (376+ parser tests, >80% coverage target)
+- **Vitest** (4260+ tests across 162 files, >80% coverage target)
 - **Co-located** `__tests__/` pattern
 - **Mocked file operations** (no real I/O in tests)
 - **JSDoc** (95% coverage requirement)
 
 ### Development Standards
 
-- **TypeScript** (progressive migration, strict mode enabled)
-- **CommonJS** modules with TypeScript imports
+- **TypeScript** (strict mode, native ESM)
 - **Semantic Versioning** for releases
 - **markdownlint, .editorconfig, Prettier** for code formatting
 
@@ -104,9 +103,7 @@ Three-phase extraction for parsing JSPWiki syntax:
 - Use Playwright for E2E testing with Chromium browser, integrate into CI/CD
 - Schema.org-compliant front matter, PascalCase naming, TypeDoc for automation
 - Implement lint-staged to only lint staged files (not all files), allowing incremental improvement
-- Move from ES2020 to ES2022
-- ecosystem.config.js accepted as infrastructure-level (PM2 runs before app)
-- Consolidate all instance-specific data into `./data/` directory
+- All instance-specific data consolidated into `./data/` directory
 
 ```
 ngdpbase/

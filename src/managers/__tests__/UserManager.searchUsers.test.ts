@@ -10,7 +10,7 @@ const makeUser = (overrides = {}) => ({
   email: 'test@example.com',
   roles: ['reader'],
   isActive: true,
-  password: 'hashed',
+  password: 'hashed:test-fixture',
   isSystem: false,
   isExternal: false,
   createdAt: new Date().toISOString(),

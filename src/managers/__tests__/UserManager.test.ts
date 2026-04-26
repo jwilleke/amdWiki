@@ -103,7 +103,7 @@ describe('UserManager', () => {
 
   describe('User CRUD Operations', () => {
     test('getUser() should call provider and strip password', async () => {
-      const mockUser = { username: 'test', email: 'test@example.com', password: 'hashed' };
+      const mockUser = { username: 'test', email: 'test@example.com', password: 'hashed:test-fixture' };
       userManager.provider.getUser = vi.fn().mockResolvedValue(mockUser);
 
       const result = await userManager.getUser('test');
@@ -132,7 +132,7 @@ describe('UserManager', () => {
     });
 
     test('createUser() should check for existing user', async () => {
-      const userData = { username: 'test', password: 'pass123', email: 'test@example.com' };
+      const userData = { username: 'test', password: 'test-plaintext-input', email: 'test@example.com' };
 
       userManager.provider.userExists = vi.fn().mockResolvedValue(true);
       userManager.provider.getAllUsernames = vi.fn().mockResolvedValue(['test', 'admin']);
@@ -196,7 +196,7 @@ describe('UserManager', () => {
     test('authenticateUser() should return null for inactive user', async () => {
       const mockUser = {
         username: 'test',
-        password: 'hash',
+        password: 'hashed:test-fixture',
         isActive: false
       };
       userManager.provider.getUser = vi.fn().mockResolvedValue(mockUser);

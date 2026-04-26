@@ -161,13 +161,16 @@ ngdpbase uses a **hierarchical configuration system** with three layers (later o
 ngdpbase/
 ├── src/                    # Source code
 │   ├── core/              # Core engine components
-│   ├── managers/          # Business logic managers
+│   ├── managers/          # 30 domain-specific managers
+│   ├── plugins/           # Auto-discovered plugin modules
+│   ├── providers/         # Storage provider implementations
 │   ├── parsers/           # WikiDocument DOM parser
 │   │   ├── dom/          # DOM handlers and WikiDocument
 │   │   └── __tests__/    # Parser test suites
 │   ├── routes/            # HTTP route handlers
-│   │   └── __tests__/    # Route test suites
+│   ├── types/             # Shared TypeScript interfaces
 │   └── utils/             # Utility functions
+├── addons/                # Domain addon packages (calendar, forms, journal, elasticsearch)
 ├── config/                # Application configuration
 │   ├── app-default-config.json        # Base defaults (~1150 properties)
 │   ├── app-{env}-config.json          # Environment-specific
@@ -181,24 +184,22 @@ ngdpbase/
 │   ├── api/              # API documentation
 │   ├── migration/        # Migration guides
 │   ├── testing/          # Testing documentation
-│   ├── managers/         # Manager documentation
-│   └── issues/           # Issue tracking
+│   └── managers/         # Manager documentation
 ├── scripts/               # Utility scripts
 ├── templates/             # Wiki page templates
-├── plugins/               # Plugin system
 ├── themes/                # UI themes
-├── data/                  # Runtime application data
+├── required-pages/        # System pages seeded on first boot
+├── data/                  # All instance-specific runtime data
+│   ├── pages/            # User-created wiki pages
+│   ├── users/            # User accounts and profiles
 │   ├── attachments/      # Uploaded file storage
-│   └── sessions/         # Express session store
-├── pages/                 # User-generated wiki pages
-├── required-pages/        # System required pages
-├── users/                 # User account data (users, roles, sessions)
-├── backups/               # System backups (BackupManager)
+│   ├── backups/          # System backups (BackupManager)
+│   ├── logs/             # Application logs
+│   ├── sessions/         # Express session store
+│   └── search-index/     # Search index files
 ├── exports/               # Exported content
-├── logs/                  # Application logs
 ├── reports/               # Test coverage reports
-├── coverage/              # Istanbul coverage data
-└── jsdocs/                # JSDoc generated API docs
+└── coverage/              # Istanbul coverage data
 ```
 
 📖 **Detailed project structure documentation available in [docs/architecture/PROJECT-STRUCTURE.md](docs/architecture/PROJECT-STRUCTURE.md)**

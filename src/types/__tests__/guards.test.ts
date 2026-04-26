@@ -264,7 +264,7 @@ const validUser = {
   username: 'alice',
   email: 'alice@example.com',
   displayName: 'Alice',
-  password: 'hashed-pw',
+  password: 'hashed:test-fixture',
   roles: ['user'],
   isActive: true,
   isSystem: false,
