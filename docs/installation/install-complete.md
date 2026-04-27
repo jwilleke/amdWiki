@@ -7,7 +7,7 @@
 
 ## What It Is
 
-`data/.install-complete` (at `INSTANCE_DATA_FOLDER/.install-complete`) is a JSON marker file that signals the installation wizard has been completed for this instance. Its presence — not its content — gates access to the wiki.
+`data/.install-complete` (at `FAST_STORAGE/.install-complete`) is a JSON marker file that signals the installation wizard has been completed for this instance. Its presence — not its content — gates access to the wiki.
 
 ```json
 {
@@ -23,10 +23,12 @@ Headless installs add a `"headless": true` field.
 ## Location
 
 ```
-INSTANCE_DATA_FOLDER/.install-complete
+FAST_STORAGE/.install-complete
 ```
 
-`INSTANCE_DATA_FOLDER` defaults to `./data` and is overridden by the `INSTANCE_DATA_FOLDER` or `FAST_STORAGE` environment variables. The path is resolved by `InstallService.getInstallCompleteFilePath()`.
+`FAST_STORAGE` defaults to `./data`. Set it to a fast local volume path for multi-instance or Docker deployments. The path is resolved by `InstallService.getInstallCompleteFilePath()`.
+
+`SLOW_STORAGE` is a separate variable used for media, footnotes, and attachments — the `.install-complete` marker always lives in `FAST_STORAGE`, not `SLOW_STORAGE`.
 
 ---
 
@@ -68,7 +70,7 @@ Three separate places check for the marker:
 
 1. `.install-complete` file does not exist
 2. Admin user does not have the `admin` role
-3. No pages exist in `INSTANCE_DATA_FOLDER/pages/`
+3. No pages exist in `FAST_STORAGE/pages/`
 
 All three conditions must be satisfied for installation to be considered complete.
 

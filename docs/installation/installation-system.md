@@ -23,17 +23,20 @@ The installation system provides a professional first-run experience with:
 
 ### Instance Data Separation
 
-The installation system separates code from instance data using the `INSTANCE_DATA_FOLDER` environment variable:
+The installation system separates code from instance data. All data paths are defined in `config/app-default-config.json` using `${FAST_STORAGE}` and `${SLOW_STORAGE}` template variables:
 
-- **Code/Config defaults**: `./config/` - Base configuration shipped with code
-- **Instance data**: `INSTANCE_DATA_FOLDER` (default: `./data/`) - All runtime/instance-specific data
+- **Code/config defaults**: `./config/` — base configuration shipped with the codebase (read-only)
+- **Fast storage** (`FAST_STORAGE`, default `./data`): sessions, users, search index, page index, logs, backups — high I/O, should be local SSD
+- **Slow storage** (`SLOW_STORAGE`, default `./data`): pages, attachments, comments, footnotes — can be NAS/SMB
+
+Both default to `./data` in development. In production they can point to different volumes.
 
 This separation allows:
 
 - Docker containers to start fresh on each deployment
 - Multiple instances to share the same codebase
 - Kubernetes deployments with persistent volumes
-- Clean separation between code updates and user data
+- Large media/attachment storage on a separate NAS without affecting wiki performance
 
 ### Core Components
 
@@ -45,7 +48,7 @@ Core service handling:
 
 - Form data validation
 - Example config copying (`copyExampleConfigs()`)
-- Config file generation to `INSTANCE_DATA_FOLDER/config/app-custom-config.json`
+- Config file generation (path from `INSTANCE_CONFIG_FILE` env var, default: `./data/config/app-custom-config.json`)
 - Organization JSON creation (Schema.org compliant)
 - Admin user password update with secure hashing
 - Startup pages copying mechanism
@@ -57,15 +60,15 @@ Core service handling:
 Key Methods:
 
 - `isInstallRequired()` - Checks if installation needed
-- `isInstallComplete()` - Checks for `.install-complete` file in `INSTANCE_DATA_FOLDER`
+- `isInstallComplete()` - Checks for `.install-complete` file in `FAST_STORAGE`
 - `detectPartialInstallation()` - Detects incomplete setups
 - `#validateInstallData()` - Validates form submission (private)
 - `processInstallation()` - Main handler (supports retry)
 - `resetInstallation()` - Clears partial state
 - `createPagesFolder()` - Recovery: recreate pages folder
 - `detectMissingPagesOnly()` - Recovery: detect missing pages
-- `copyExampleConfigs()` - Copies `config/*.example` to `INSTANCE_DATA_FOLDER/config/*.json`
-- `getInstanceConfigDir()` - Returns `INSTANCE_DATA_FOLDER/config/`
+- `copyExampleConfigs()` - Copies `config/*.example` to `./data/config/*.json`
+- `getInstanceConfigDir()` - Returns resolved instance config directory
 - `getInstallCompleteFilePath()` - Returns path to `.install-complete` marker
 
 #### 2. Installation Routes
@@ -103,23 +106,24 @@ Success Page: `views/install-success.ejs` (100+ lines)
 
 **Configuration Files:**
 
-- `config/app-default-config.json` - Base defaults (in codebase, read-only)
-- `config/app-custom-config.example` - Template for custom config
-- `INSTANCE_DATA_FOLDER/config/{INSTANCE_CONFIG_FILE}` - Instance-specific overrides
+- `config/app-default-config.json` — base defaults shipped with the codebase (read-only)
+- `config/app-custom-config.example` — template copied to instance config dir during install
+- `./data/config/app-custom-config.json` — instance-specific overrides (path controlled by `INSTANCE_CONFIG_FILE`)
 
 **Configuration Load Order (ConfigurationManager):**
 
 ```text
-1. config/app-default-config.json (base defaults - required, read-only)
-2. INSTANCE_DATA_FOLDER/config/{INSTANCE_CONFIG_FILE} (instance overrides, default: app-custom-config.json)
+1. config/app-default-config.json      (base defaults — required, read-only)
+2. ./data/config/app-custom-config.json (instance overrides — optional, set by INSTANCE_CONFIG_FILE)
 ```
 
 Custom config overrides default. Environment variables can also override specific properties.
 
 **Environment Variables:**
 
-- `INSTANCE_DATA_FOLDER` - Base path for instance data (default: `./data`)
-- `INSTANCE_CONFIG_FILE` - Config filename to load (default: `app-custom-config.json`)
+- `FAST_STORAGE` — fast local storage path (default: `./data`); used for sessions, users, search index, logs, backups
+- `SLOW_STORAGE` — slow/NAS storage path (default: `./data`); used for pages, attachments, comments, footnotes
+- `INSTANCE_CONFIG_FILE` — config filename loaded from `./data/config/` (default: `app-custom-config.json`)
 
 ## Environment Variable Overrides
 
@@ -129,7 +133,7 @@ The ConfigurationManager supports environment variables that **override** values
 
 ```text
 1. Environment variables          (highest priority - always wins)
-2. Instance custom config         (INSTANCE_DATA_FOLDER/config/{INSTANCE_CONFIG_FILE})
+2. Instance custom config         (FAST_STORAGE/config/{INSTANCE_CONFIG_FILE})
 3. Default config                 (config/app-default-config.json - lowest priority)
 ```
 
@@ -156,8 +160,9 @@ These control which config files and data directories are used:
 
 | Environment Variable | Description | Default |
 | --- | --- | --- |
-| `INSTANCE_DATA_FOLDER` | Base path for all instance data (pages, users, config, logs, etc.) | `./data` |
-| `INSTANCE_CONFIG_FILE` | Filename of the custom config to load from `INSTANCE_DATA_FOLDER/config/` | `app-custom-config.json` |
+| `FAST_STORAGE` | Fast local storage path — sessions, users, search index, page index, logs, backups | `./data` |
+| `SLOW_STORAGE` | Slow/NAS storage path — pages, attachments, comments, footnotes | `./data` |
+| `INSTANCE_CONFIG_FILE` | Filename of the custom config to load from `./data/config/` | `app-custom-config.json` |
 | `NODE_ENV` | Application environment (`production`, `development`, `test`) | `development` |
 
 #### Installation Variables
@@ -239,7 +244,7 @@ The Docker image (`docker/Dockerfile`) is designed for instance data separation:
 
 **Runtime:**
 
-- Sets `INSTANCE_DATA_FOLDER=/app/data`
+- Sets `FAST_STORAGE=/app/data` and `SLOW_STORAGE=/app/data`
 - Volume mount: `/app/data` for persistent instance data
 - Installation wizard runs on first access (no `.install-complete` file)
 - `copyExampleConfigs()` copies template to `/app/data/config/app-custom-config.json`
@@ -249,7 +254,8 @@ The Docker image (`docker/Dockerfile`) is designed for instance data separation:
 ```yaml
 environment:
   - NODE_ENV=production
-  - INSTANCE_DATA_FOLDER=/app/data
+  - FAST_STORAGE=/app/data
+  - SLOW_STORAGE=/app/data
 volumes:
   - ./data:/app/data  # Persistent instance data
 ```
@@ -260,7 +266,7 @@ The Kubernetes manifests (`docker/k8s/`) provide:
 
 **deployment.yaml:**
 
-- Sets `INSTANCE_DATA_FOLDER=/app/data`
+- Sets `FAST_STORAGE=/app/data` and `SLOW_STORAGE=/app/data`
 - Mounts PersistentVolumeClaim at `/app/data`
 - Optionally mounts ConfigMap for pre-configured `app-custom-config.json`
 
@@ -297,7 +303,7 @@ Note: Even with ConfigMap, the `.install-complete` marker must exist and admin u
 User visits wiki (first time)
     ↓
 Middleware: Install required?
-  - Checks INSTANCE_DATA_FOLDER/.install-complete exists
+  - Checks FAST_STORAGE/.install-complete exists
   - Checks admin user exists
   - Checks pages exist
     ↓ YES (install required)
@@ -311,23 +317,26 @@ User fills form:
 Submit → InstallService.processInstallation()
     ↓
 Step 1: copyExampleConfigs()
-  - Copies config/*.example → INSTANCE_DATA_FOLDER/config/*.json
+  - Copies config/*.example → ./data/config/*.json
   - Example: app-custom-config.example → app-custom-config.json
     ↓
 Step 2: #writeCustomConfig()
-  - Writes to INSTANCE_DATA_FOLDER/config/app-custom-config.json
+  - Writes ./data/config/app-custom-config.json
     ↓
 Step 3: #writeOrganizationData()
-  - Writes to INSTANCE_DATA_FOLDER/users/organizations.json
+  - Writes ngdpbase.user.provider.storagedir/organizations.json
+    (default: FAST_STORAGE/users/organizations.json)
     ↓
 Step 4: #updateAdminPassword()
-  - Updates admin user in INSTANCE_DATA_FOLDER/users/users.json
+  - Updates ngdpbase.user.provider.storagedir/users.json
+    (default: FAST_STORAGE/users/users.json)
     ↓
 Step 5: #copyStartupPages() (if requested)
-  - Copies required-pages/*.md → INSTANCE_DATA_FOLDER/pages/
+  - Copies required-pages/*.md → ngdpbase.page.provider.filesystem.storagedir
+    (default: SLOW_STORAGE/pages)
     ↓
 Step 6: #markInstallationComplete()
-  - Creates INSTANCE_DATA_FOLDER/.install-complete marker file
+  - Creates FAST_STORAGE/.install-complete marker file
     ↓
 Success page → Login
     ↓
@@ -396,7 +405,7 @@ Scenarios Supported:
 
 ### Docker/Kubernetes Files
 
-- `docker/Dockerfile` - Multi-stage build with INSTANCE_DATA_FOLDER support
+- `docker/Dockerfile` - Multi-stage build with FAST_STORAGE/SLOW_STORAGE support
 - `docker/docker-compose.yml` - Development/production compose file
 - `docker/k8s/deployment.yaml` - Kubernetes deployment with volume mounts
 - `docker/k8s/configmap.yaml` - Optional pre-configuration
@@ -404,24 +413,30 @@ Scenarios Supported:
 - `docker/k8s/service.yaml` - Kubernetes service
 - `docker/k8s/ingress.yaml` - Ingress configuration
 
-### Instance Data Structure (INSTANCE_DATA_FOLDER)
+### Instance Data Structure
+
+Paths are defined as config properties in `config/app-default-config.json` using `${FAST_STORAGE}` and `${SLOW_STORAGE}` template variables. Both default to `./data`.
 
 ```text
-data/                          # INSTANCE_DATA_FOLDER (default: ./data)
-├── .install-complete          # Marker file indicating installation done
+FAST_STORAGE/                               (default: ./data)
+├── .install-complete                        # Marker — not a config property; hardcoded in InstallService
 ├── config/
-│   └── app-custom-config.json # Instance-specific configuration
-├── pages/                     # Wiki content
-├── users/
-│   ├── users.json             # User accounts
-│   ├── persons.json           # Person metadata
-│   └── organizations.json     # Organization data (Schema.org)
-├── attachments/               # File attachments
-├── versions/                  # Page version deltas
-├── logs/                      # Application logs
-├── search-index/              # Lunr search index
-├── backups/                   # Backup files
-└── sessions/                  # Session storage
+│   └── app-custom-config.json              # Instance config (INSTANCE_CONFIG_FILE)
+├── users/                                  # ngdpbase.user.provider.storagedir
+│   ├── users.json
+│   ├── persons.json
+│   └── organizations.json
+├── page-index.json                         # ngdpbase.page.provider.versioning.indexfile
+├── search-index/                           # ngdpbase.search.provider.lunr.indexdir
+├── sessions/                               # ngdpbase.session.storagedir
+├── logs/
+└── backups/
+
+SLOW_STORAGE/                               (default: ./data — can be NAS/SMB)
+├── pages/                                  # ngdpbase.page.provider.filesystem.storagedir
+├── attachments/                            # ngdpbase.attachment.provider.basic.storagedir
+├── comments/                               # ngdpbase.comments.storagedir
+└── footnotes/                              # ngdpbase.footnotes.storagedir
 ```
 
 ### Required Pages
@@ -543,18 +558,18 @@ Configuration Loading (ConfigurationManager):
 
 ```text
 1. config/app-default-config.json                         (in codebase - required, read-only)
-2. INSTANCE_DATA_FOLDER/config/{INSTANCE_CONFIG_FILE}     (instance overrides - optional)
+2. FAST_STORAGE/config/{INSTANCE_CONFIG_FILE}     (instance overrides - optional)
 ```
 
 Environment variables:
 
-- `INSTANCE_DATA_FOLDER` - Base path (default: `./data`)
+- `FAST_STORAGE` - Base path (default: `./data`)
 - `INSTANCE_CONFIG_FILE` - Config filename (default: `app-custom-config.json`)
 
 Startup Pages:
 
 - All pages in `required-pages/`
-- Copied to `INSTANCE_DATA_FOLDER/pages/` during installation
+- Copied to `ngdpbase.page.provider.filesystem.storagedir` during installation (default: `SLOW_STORAGE/pages`)
 
 ## Security Considerations
 
@@ -643,11 +658,11 @@ Startup Pages:
 - ✅ Security: Admin credentials protected, form validation
 - ✅ Documentation: Comprehensive guides and API docs
 - ✅ Server Stability: Issue #167 fixed - single instance guaranteed
-- ✅ Docker/K8s Support: INSTANCE_DATA_FOLDER separation implemented
+- ✅ Docker/K8s Support: FAST_STORAGE separation implemented
 
 ## Version History
 
-- v1.4.0 - Docker/K8s support, INSTANCE_DATA_FOLDER separation, TypeScript migration
+- v1.4.0 - Docker/K8s support, FAST_STORAGE separation, TypeScript migration
 - v1.3.3 - Previous stable
 - v1.3.0 - Installation system implementation
 - v1.0.0 - Original release
