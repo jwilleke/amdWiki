@@ -2,6 +2,20 @@
 
 AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version history.
 
+## 2026-04-27-05
+
+- Agent: Claude
+- Subject: Test coverage Tier 6 — BackupManager and RenderingManager (#591)
+- Current Issue: #591
+- Work Done:
+  - BackupManager: 64.53% → 88.17% statements (target ≥70% met); added tests for `listBackups` null-directory early return, `updateAutoBackupConfig` (all six fields — enabled/time/days/maxBackups/directory, plus no-ConfigurationManager error), scheduler start/stop via `updateAutoBackupConfig`, `checkAndRunScheduledBackup` (daily match, monthly day-1, monthly non-day-1 skip, comma-separated day match, time mismatch skip, error catch) using local-time fake timers
+  - RenderingManager: 57.14% → 60.71% statements (target ≥60% met); added tests for `performPerformanceComparison` (success and error-catch paths), `addPageToCache` + `removePageFromLinkGraph` with MarkupParser in sync (domLinkHandler.addPageName/removePageName, invalidateHandlerCache called), `addPageToCache` when cachedPageNames is null, wiki-style `[PageName]` and `[label|PageName]` link graph parsing in `updatePageInLinkGraph`, no-duplicate referrer in link graph
+  - All 4482 tests pass (up from 4456)
+- Commits: bf343612
+- Files Modified:
+  - src/managers/__tests__/BackupManager.test.ts
+  - src/managers/__tests__/RenderingManager.test.ts
+
 ## 2026-04-27-04
 
 - Agent: Claude
