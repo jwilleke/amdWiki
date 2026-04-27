@@ -1392,12 +1392,9 @@ class MarkupParser extends BaseManager {
       return `<span data-jspwiki-placeholder="${uuid}-${id - 1}"></span>`;
     });
 
-    // Step 0.55: Convert inline JSPWiki styles (%%sup, %%sub, %%strike)
-    // These are inline patterns not handled by block-level extractStyleBlocksWithStack
-    // Support both closing syntaxes: /% and %%
-    sanitized = sanitized.replace(/%%sup\s+([\s\S]*?)\s*(?:\/%|%%)/gi, '<sup>$1</sup>');
-    sanitized = sanitized.replace(/%%sub\s+([\s\S]*?)\s*(?:\/%|%%)/gi, '<sub>$1</sub>');
-    sanitized = sanitized.replace(/%%strike\s+([\s\S]*?)\s*(?:\/%|%%)/gi, '<del>$1</del>');
+    // Step 0.55 moved — see parseWithDOMExtraction() after Phase 2.5.
+    // Running it here (before JSPWikiPreprocessor) caused table cell content
+    // converted to <sup>/<sub> to be subsequently destroyed by escapeHtml().
 
     // Step 0.56: Convert JSPWiki status boxes to Bootstrap alerts
     // These are typically block-level but handled here for consistency
@@ -2147,6 +2144,14 @@ class MarkupParser extends BaseManager {
       }
     }
 
+    // Step 0.55 (moved from extractJSPWikiSyntax Phase 1): Convert inline JSPWiki styles.
+    // Must run AFTER JSPWikiPreprocessor so table cell content is already HTML — the %% chars
+    // are not HTML-special so they survive escapeHtml() intact and can be matched here.
+    // Support both closing syntaxes: /% and %%
+    preprocessed = preprocessed.replace(/%%sup\s+([\s\S]*?)\s*(?:\/%|%%)/gi, '<sup>$1</sup>');
+    preprocessed = preprocessed.replace(/%%sub\s+([\s\S]*?)\s*(?:\/%|%%)/gi, '<sub>$1</sub>');
+    preprocessed = preprocessed.replace(/%%strike\s+([\s\S]*?)\s*(?:\/%|%%)/gi, '<del>$1</del>');
+
     // Phase 2.6: Run all other registered handlers (custom/addon handlers) on preprocessed content.
     // JSPWiki syntax has already been extracted (UUID placeholders), so built-in handlers like
     // PluginSyntaxHandler are no-ops here. Custom handlers with their own patterns will run.
@@ -2160,6 +2165,16 @@ class MarkupParser extends BaseManager {
       } catch (error) {
         logger.warn(`⚠️  Handler ${(handler as BaseSyntaxHandler & { handlerId: string }).handlerId ?? 'unknown'} failed:`, getErrorMessage(error));
       }
+    }
+
+    // Warn on malformed compact inline style syntax (e.g. %%sup2%% — missing required space).
+    // Injected AFTER Phase 2.6 so wiki link handlers don't process the [markup-syntax] text.
+    // Proper syntax: %%sup 2 /% or %%sup 2%% (space between class name and content).
+    // TODO: move this into ValidationFilter.validateMarkupSyntax() once #596 wires filterChain.execute().
+    if (/%%(?:sup|sub|strike)\S+%%/i.test(preprocessed)) {
+      preprocessed = '<!-- VALIDATION WARNING [markup-syntax]: Malformed inline style detected. ' +
+        'Use %%sup content /% or %%sup content%% (space required between class name and content). -->\n' +
+        preprocessed;
     }
 
     // Phase 3: Let Showdown parse the sanitized markdown
