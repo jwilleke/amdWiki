@@ -2,6 +2,25 @@
 
 AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version history.
 
+## 2026-04-27-11
+
+- Agent: Claude
+- Subject: Delete archived architecture docs — #597 cleanup
+- Current Issue: #597
+- Work Done:
+  - Deleted DOM-Parser-Implementation-Summary.md (archived, superseded by Current-Rendering-Pipeline.md)
+  - Deleted FileSystemProvider-Design.md (archived design doc, implementation complete)
+  - Deleted FileSystemProvider-Implementation-Summary.md (archived implementation summary)
+  - Removed dangling links to FileSystemProvider-Design.md from Current-Save-Page-Pipeline.md, FileSystemProvider.md, FileSystemProvider-Complete-Guide.md
+- Commits: 296ba60e
+- Files Modified:
+  - docs/architecture/DOM-Parser-Implementation-Summary.md (deleted)
+  - docs/architecture/FileSystemProvider-Design.md (deleted)
+  - docs/architecture/FileSystemProvider-Implementation-Summary.md (deleted)
+  - docs/architecture/Current-Save-Page-Pipeline.md
+  - docs/providers/FileSystemProvider.md
+  - docs/providers/FileSystemProvider-Complete-Guide.md
+
 ## 2026-04-27-10
 
 - Agent: Claude
