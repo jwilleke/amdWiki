@@ -824,4 +824,31 @@ describe('ACLManager', () => {
       expect(result.reason).toBe('not_a_holiday');
     });
   });
+
+  describe('logAccessDecision()', () => {
+    test('logs allowed decision with positional args', () => {
+      const user = { username: 'alice', roles: ['authenticated'] } as unknown as import('../ACLManager').default extends { logAccessDecision: infer F } ? Parameters<F>[0] : never;
+      aclManager.logAccessDecision(user as never, 'TestPage', 'view', true, 'acl_allow');
+    });
+
+    test('logs denied decision with positional args', () => {
+      const user = { username: 'bob', roles: ['guest'] } as never;
+      aclManager.logAccessDecision(user, 'PrivatePage', 'edit', false, 'acl_deny');
+    });
+
+    test('logs decision from object form', () => {
+      aclManager.logAccessDecision({
+        user: { username: 'carol', roles: ['authenticated'] } as never,
+        pageName: 'TestPage',
+        action: 'view',
+        allowed: true,
+        reason: 'default_allow',
+        context: {}
+      } as never);
+    });
+
+    test('handles anonymous user', () => {
+      aclManager.logAccessDecision(null as never, 'TestPage', 'view', false, 'no_user');
+    });
+  });
 });

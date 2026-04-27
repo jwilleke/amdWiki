@@ -1,9 +1,22 @@
 /**
- * imageTransform — parseSize tests
+ * imageTransform — parseSize + transformImage tests
  *
  * @jest-environment node
  */
-import { parseSize } from '../imageTransform';
+import { parseSize, transformImage } from '../imageTransform';
+
+const mockPipeline = vi.hoisted(() => ({
+  rotate: vi.fn().mockReturnThis(),
+  resize: vi.fn().mockReturnThis(),
+  jpeg: vi.fn().mockReturnThis(),
+  webp: vi.fn().mockReturnThis(),
+  png: vi.fn().mockReturnThis(),
+  toBuffer: vi.fn().mockResolvedValue(Buffer.from('mock-image-data'))
+}));
+
+vi.mock('sharp', () => ({
+  default: vi.fn().mockReturnValue(mockPipeline)
+}));
 
 describe('parseSize', () => {
   test('parses "300x300"', () => {
@@ -48,5 +61,41 @@ describe('parseSize', () => {
 
   test('returns null for empty string', () => {
     expect(parseSize('')).toBeNull();
+  });
+});
+
+describe('transformImage', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockPipeline.rotate.mockReturnThis();
+    mockPipeline.resize.mockReturnThis();
+    mockPipeline.jpeg.mockReturnThis();
+    mockPipeline.webp.mockReturnThis();
+    mockPipeline.png.mockReturnThis();
+    mockPipeline.toBuffer.mockResolvedValue(Buffer.from('mock'));
+  });
+
+  test('transforms to jpeg with width and height', async () => {
+    const result = await transformImage(Buffer.from('input'), { width: 300, height: 200, format: 'jpeg' });
+
+    expect(result).toBeInstanceOf(Buffer);
+    expect(mockPipeline.resize).toHaveBeenCalledWith(300, 200, { fit: 'inside' });
+    expect(mockPipeline.jpeg).toHaveBeenCalled();
+  });
+
+  test('transforms to webp without resize', async () => {
+    const result = await transformImage(Buffer.from('input'), { format: 'webp', quality: 75 });
+
+    expect(result).toBeInstanceOf(Buffer);
+    expect(mockPipeline.resize).not.toHaveBeenCalled();
+    expect(mockPipeline.webp).toHaveBeenCalledWith({ quality: 75 });
+  });
+
+  test('transforms to png', async () => {
+    const result = await transformImage(Buffer.from('input'), { format: 'png' });
+
+    expect(result).toBeInstanceOf(Buffer);
+    expect(mockPipeline.png).toHaveBeenCalled();
+    expect(mockPipeline.jpeg).not.toHaveBeenCalled();
   });
 });
