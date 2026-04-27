@@ -2,6 +2,26 @@
 
 AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version history.
 
+## 2026-04-27-02
+
+- Agent: Claude
+- Subject: Test coverage push — Tier 4 WikiRoutes batches 2/3, imageTransform, ACLManager (#591)
+- Current Issue: #591
+- Work Done:
+  - Fixed 3 failing tests in `WikiRoutes.coverage2.test.ts`: added `mockAuthManager` to engine mock so processLogin uses authenticate() not authenticateUser(), fixed URL encoding regex for processRegister, corrected getPageMetadata response shape (`res.body.title` not `res.body.metadata.title`)
+  - Added `WikiRoutes.coverage2.test.ts` (38 tests): editPage auth/ACL/author-lock/new-page branches, processLogin success/failure via AuthManager, processRegister validation, updateProfile all branches, updatePreferences, addComment/deleteComment all branches, userInfo, getPageMetadata, getPageSuggestions
+  - Added `WikiRoutes.coverage3.test.ts` (59 tests): /api/test, getPageSource, getPageVersions/getPageVersion/comparePageVersions/restorePageVersion (provider null + success + error paths), adminCacheStats/adminClearCache/adminClearPageCache/adminClearCacheRegion, apiJobEnqueue/apiJobStatus/apiJobsActive, adminDismissNotification/adminClearAllNotifications, /wiki/:page redirect (with/without querystring), apiGetUserKeywords, updateDisplayTheme, addPinnedPage/removePinnedPage/reorderPinnedPages
+  - Added `transformImage` tests to `imageTransform.test.ts` with hoisted sharp mock: jpeg+resize, webp-no-resize, png branches (6 new branches)
+  - Added `logAccessDecision` tests to `ACLManager.test.ts`: positional allowed/denied, object form, anonymous user
+  - Overall branch coverage: 53.34% → 55.11% ✅ (target ≥55% met); statements 60.19% → 61.58%
+  - All 4403 tests pass
+- Commits: dd0696b3
+- Files Modified:
+  - src/routes/__tests__/WikiRoutes.coverage2.test.ts
+  - src/routes/__tests__/WikiRoutes.coverage3.test.ts
+  - src/utils/__tests__/imageTransform.test.ts
+  - src/managers/__tests__/ACLManager.test.ts
+
 ## 2026-04-27-01
 
 - Agent: Claude
