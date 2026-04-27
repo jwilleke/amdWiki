@@ -2,6 +2,20 @@
 
 AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version history.
 
+## 2026-04-27-03
+
+- Agent: Claude
+- Subject: Other-sites update — pull, rebuild, restart, and test all instances
+- Current Issue: none
+- Work Done:
+  - fairways-base (port 2121): git pull (7c3841c3 → 77a41e3a, 13 files), stop → build → start → 165 unit test files / 4403 tests pass, 72 E2E tests pass
+  - ngdpbase-veg (port 3333): git pull (same range), stop → build → start → 165 unit test files / 4403 tests pass, 72 E2E tests pass
+  - ngdp-temp-builds/ngdpbase (port 3001): git pull (same range), stop → build → start → 165 unit test files / 4403 tests pass
+  - Fixed ngdp-temp-builds E2E failure: installation wizard was blocking auth setup due to missing `.install-complete` marker file; admin user and password (admin123) were already correctly set up from prior session — created the marker to restore normal operation; 72 E2E tests pass
+- Commits: none (no source changes; marker file is outside git repo)
+- Files Modified:
+  - /Volumes/hd2/ngdp-temp-builds/ngdpbase/data/.install-complete (created)
+
 ## 2026-04-27-02
 
 - Agent: Claude
