@@ -2,6 +2,21 @@
 
 AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version history.
 
+## 2026-04-27-04
+
+- Agent: Claude
+- Subject: Test coverage Tier 5 — ACLManager and SearchManager (#591)
+- Current Issue: #591
+- Work Done:
+  - ACLManager: 67.93% → 95.87% statements (target ≥70% met); added 37 tests covering `performStandardACLCheck` (admin bypass, ACL matching, system page, default policy), `checkPagePermissionWithContext` Tier 2 (PolicyEvaluator grant/deny/error) and Tier 3 (role/username match, default deny), `notify` with NotificationManager (addNotification path and catch branch), `checkEnhancedTimeRestrictions` holiday and customSchedules branches, `checkBusinessHours` day/time deny paths with fake timers, `initializeAuditLogging` enabled path, `loadAccessPolicies` null/no-id filtering
+  - SearchManager: 57.64% → 78.03% statements (target ≥60% met); added 35 tests covering `searchWithContext`, `advancedSearchWithContext`, `suggestSimilarPages`, `getSuggestions`, `getAllDocuments`, `searchByKeywords` null/non-array early returns, `addToIndex`/`removeFromIndex`/`buildSearchIndex` error paths, `search`/`advancedSearch`/`getDocumentCount`/`getStatistics` error paths, `multiSearch` null criteria
+  - Overall project: statements 61.58% → 62.21%, branches 55.11% → 55.70%; all targets maintained
+  - All 4456 tests pass (up from 4403)
+- Commits: 3ad1854c
+- Files Modified:
+  - src/managers/__tests__/ACLManager.test.ts
+  - src/managers/__tests__/SearchManager.test.ts
+
 ## 2026-04-27-03
 
 - Agent: Claude
