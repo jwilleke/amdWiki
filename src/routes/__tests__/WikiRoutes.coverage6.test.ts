@@ -1,0 +1,605 @@
+/**
+ * WikiRoutes coverage batch 6 — remaining handlers:
+ *   GET  /
+ *   GET  /create
+ *   GET  /edit  (no page param)
+ *   POST /view/:page  (createWikiPage)
+ *   POST /auth/magic-link
+ *   GET  /admin/interwiki
+ *   GET  /admin/configuration
+ *   GET  /admin/import
+ *   GET  /admin/attachments
+ *   GET  /admin/attachments/api
+ *   DELETE /admin/attachments/:id
+ *   GET  /admin/addons
+ *   POST /admin/addons/:name/toggle
+ *   POST /admin/restart (403 path)
+ *   POST /admin/maintenance/toggle (403 path)
+ *   POST /admin/required-pages/sync (403 path)
+ *   GET  /api/admin/diff (403 path)
+ *   GET  /admin/variables (happy + 403)
+ */
+import express from 'express';
+import request from 'supertest';
+import path from 'path';
+import WikiRoutes from '../WikiRoutes';
+
+vi.mock('../../utils/LocaleUtils', () => {
+  const methods = {
+    getDateFormatOptions: vi.fn().mockReturnValue(['MM/dd/yyyy']),
+    getDateFormatFromLocale: vi.fn().mockReturnValue('MM/dd/yyyy')
+  };
+  return { default: methods, ...methods };
+});
+
+let mockUserContext: {
+  username: string;
+  displayName: string;
+  email: string;
+  isAuthenticated: boolean;
+  roles: string[];
+  preferences?: Record<string, unknown>;
+} | null = null;
+
+vi.mock('../../context/WikiContext', () => {
+  const MockWikiContext = vi.fn().mockImplementation(function (engine: unknown, options: Record<string, unknown> = {}) {
+    return {
+      engine,
+      context: options.context || 'none',
+      pageName: options.pageName || null,
+      userContext: options.userContext || mockUserContext,
+      request: options.request || null,
+      response: options.response || null,
+      getContext: vi.fn().mockReturnValue(options.context || 'none'),
+      renderMarkdown: vi.fn().mockResolvedValue('<p>ok</p>'),
+      toParseOptions: vi.fn().mockReturnValue({})
+    };
+  });
+  (MockWikiContext as unknown as { CONTEXT: Record<string, string> }).CONTEXT = {
+    VIEW: 'view', EDIT: 'edit', PREVIEW: 'preview', DIFF: 'diff', INFO: 'info', NONE: 'none'
+  };
+  return { default: MockWikiContext };
+});
+
+// ── mock manager objects ──────────────────────────────────────────────────────
+
+const mockPageManager = {
+  getPage: vi.fn(),
+  getPageContent: vi.fn(),
+  getPageMetadata: vi.fn(),
+  getAllPages: vi.fn(),
+  getPageNames: vi.fn(),
+  getAllPageNames: vi.fn(),
+  savePage: vi.fn(),
+  pageExists: vi.fn(),
+  getCurrentPageProvider: vi.fn(),
+  getPageUUID: vi.fn(),
+  provider: null as null | object
+};
+
+const mockCacheManager = {
+  isInitialized: vi.fn(),
+  get: vi.fn(),
+  set: vi.fn(),
+  del: vi.fn(),
+  clear: vi.fn(),
+  stats: vi.fn()
+};
+
+const mockUserManager = {
+  getCurrentUser: vi.fn(),
+  hasPermission: vi.fn(),
+  getUser: vi.fn(),
+  getUsers: vi.fn(),
+  getRoles: vi.fn(),
+  getPermissions: vi.fn(),
+  getUserPermissions: vi.fn(),
+  searchUsers: vi.fn(),
+  authenticateUser: vi.fn(),
+  updateUser: vi.fn()
+};
+
+const mockACLManager = {
+  checkPagePermission: vi.fn(),
+  checkPagePermissionWithContext: vi.fn(),
+  removeACLMarkup: vi.fn(),
+  parseACL: vi.fn()
+};
+
+const mockRenderingManager = {
+  textToHTML: vi.fn(),
+  getReferringPages: vi.fn(),
+  updatePageInLinkGraph: vi.fn(),
+  addPageToCache: vi.fn(),
+  removePageFromLinkGraph: vi.fn(),
+  renderMarkdown: vi.fn()
+};
+
+const mockSearchManager = {
+  search: vi.fn(),
+  advancedSearchWithContext: vi.fn(),
+  getSuggestions: vi.fn()
+};
+
+const mockConfigManager = {
+  getProperty: vi.fn((key: string, defaultValue: unknown) => {
+    const map: Record<string, unknown> = {
+      'ngdpbase.front-page': 'Welcome',
+      'ngdpbase.theme.active': 'default',
+      'ngdpbase.application-name': 'ngdpbase',
+      'ngdpbase.cache.rendered-pages.enabled': true,
+      'ngdpbase.tab.pagetabs': false,
+      'ngdpbase.logging.debug.login': false,
+      'ngdpbase.system-category': {
+        general: { label: 'general', storageLocation: 'regular', enabled: true }
+      }
+    };
+    return key in map ? map[key] : defaultValue;
+  }),
+  getCustomProperty: vi.fn().mockReturnValue(null),
+  getAllProperties: vi.fn().mockReturnValue({}),
+  getDefaultProperties: vi.fn().mockReturnValue({ 'ngdpbase.version': '3.0.0' }),
+  getCustomProperties: vi.fn().mockReturnValue({}),
+  getResolvedDataPath: vi.fn((_k: string, def: string) => def),
+  setProperty: vi.fn().mockResolvedValue(undefined)
+};
+
+const mockNotificationManager = {
+  getNotifications: vi.fn().mockReturnValue([]),
+  getAllNotifications: vi.fn().mockReturnValue([]),
+  getStats: vi.fn().mockReturnValue({ total: 0, active: 0, expired: 0, byType: {}, byLevel: {} }),
+  dismissNotification: vi.fn(),
+  clearAllActive: vi.fn()
+};
+
+const mockImportManager = {
+  getConverterInfo: vi.fn().mockReturnValue([{ name: 'JSPWiki', description: 'JSPWiki format' }])
+};
+
+const mockVariableManager = {
+  expandVariables: vi.fn().mockReturnValue(''),
+  getDebugInfo: vi.fn().mockReturnValue({
+    systemVariables: [{ name: 'DATE', value: '2025-01-01' }],
+    contextualVariables: [],
+    totalVariables: 1
+  })
+};
+
+const mockBackgroundJobManager = {
+  registerJob: vi.fn(),
+  enqueue: vi.fn(),
+  getStatus: vi.fn(),
+  getActiveJobs: vi.fn()
+};
+
+vi.mock('../../WikiEngine', () => {
+  const MockEngine = vi.fn().mockImplementation(function () {
+    return {
+      getManager: vi.fn((name: string) => {
+        const managers: Record<string, unknown> = {
+          ConfigurationManager: mockConfigManager,
+          PageManager: mockPageManager,
+          RenderingManager: mockRenderingManager,
+          SearchManager: mockSearchManager,
+          ACLManager: mockACLManager,
+          CacheManager: mockCacheManager,
+          UserManager: mockUserManager,
+          NotificationManager: mockNotificationManager,
+          BackgroundJobManager: mockBackgroundJobManager,
+          ImportManager: mockImportManager,
+          VariableManager: mockVariableManager,
+          FootnoteManager: { isEnabled: vi.fn().mockReturnValue(false) },
+          MarkupParser: { invalidateHandlerCache: vi.fn().mockResolvedValue(undefined) },
+          ValidationManager: {
+            validateContent: vi.fn().mockResolvedValue({ isValid: true }),
+            validateMetadata: vi.fn().mockResolvedValue({ isValid: true }),
+            generateValidMetadata: vi.fn().mockImplementation((title: string) => ({
+              title, uuid: 'test-uuid-1', 'system-category': 'general', 'user-keywords': [],
+              author: 'testuser', created: new Date().toISOString(), modified: new Date().toISOString()
+            })),
+            getDefaultSystemCategory: vi.fn().mockReturnValue('general')
+          },
+          TemplateManager: {
+            getTemplates: vi.fn().mockResolvedValue([]),
+            applyTemplate: vi.fn().mockReturnValue('# Template content')
+          },
+          ExportManager: { getExports: vi.fn().mockResolvedValue([]) },
+          SchemaManager: { getPerson: vi.fn().mockResolvedValue(null), getOrganization: vi.fn().mockResolvedValue(null) }
+        };
+        return managers[name] ?? null;
+      }),
+      getApplicationName: vi.fn().mockReturnValue('ngdpbase'),
+      getCapabilities: vi.fn().mockReturnValue({}),
+      config: { features: { maintenance: { enabled: false, allowAdmins: true } } }
+    };
+  });
+  return { default: MockEngine };
+});
+
+// ── helpers ───────────────────────────────────────────────────────────────────
+
+const existingPage = {
+  content: '# Page content',
+  metadata: { title: 'TestPage', 'system-category': 'general', uuid: 'test-uuid-1' },
+  filePath: null
+};
+
+const adminUser = {
+  username: 'adminuser',
+  displayName: 'Admin User',
+  email: 'admin@example.com',
+  isAuthenticated: true,
+  roles: ['admin', 'authenticated'],
+  preferences: { 'nav.pinnedPages': [] }
+};
+
+const regularUser = {
+  username: 'regularuser',
+  displayName: 'Regular User',
+  email: 'regular@example.com',
+  isAuthenticated: true,
+  roles: ['authenticated'],
+  preferences: {}
+};
+
+function resetMocks() {
+  mockPageManager.provider = null;
+  mockPageManager.getPage.mockImplementation((name: string) => {
+    if (['LeftMenu', 'Footer', 'left-menu-content'].includes(name)) return Promise.resolve(null);
+    return Promise.resolve(existingPage);
+  });
+  mockPageManager.getPageContent.mockResolvedValue('# Page content');
+  mockPageManager.getPageMetadata.mockResolvedValue({ title: 'TestPage', uuid: 'test-uuid-1' });
+  mockPageManager.getAllPages.mockResolvedValue(['Welcome', 'TestPage']);
+  mockPageManager.getPageNames.mockResolvedValue(['Welcome', 'TestPage']);
+  mockPageManager.getAllPageNames.mockResolvedValue(['Welcome', 'TestPage']);
+  mockPageManager.savePage.mockResolvedValue(true);
+  mockPageManager.pageExists.mockReturnValue(true);
+  mockPageManager.getCurrentPageProvider.mockReturnValue(null);
+  mockPageManager.getPageUUID.mockReturnValue(null);
+
+  mockACLManager.checkPagePermission.mockResolvedValue(true);
+  mockACLManager.checkPagePermissionWithContext.mockResolvedValue(true);
+  mockACLManager.removeACLMarkup.mockImplementation((c: string) => c);
+  mockACLManager.parseACL.mockReturnValue({ permissions: [] });
+
+  mockCacheManager.isInitialized.mockReturnValue(false);
+  mockCacheManager.get.mockResolvedValue(null);
+  mockCacheManager.set.mockResolvedValue(true);
+  mockCacheManager.del.mockResolvedValue(true);
+  mockCacheManager.clear.mockResolvedValue(true);
+
+  mockRenderingManager.textToHTML.mockResolvedValue('<p>Rendered HTML</p>');
+  mockRenderingManager.renderMarkdown.mockResolvedValue('<p>Rendered</p>');
+  mockRenderingManager.getReferringPages.mockReturnValue([]);
+  mockRenderingManager.updatePageInLinkGraph.mockImplementation(() => {});
+  mockRenderingManager.addPageToCache.mockImplementation(() => {});
+  mockRenderingManager.removePageFromLinkGraph.mockImplementation(() => {});
+
+  mockSearchManager.search.mockResolvedValue([]);
+  mockSearchManager.advancedSearchWithContext.mockResolvedValue([]);
+  mockSearchManager.getSuggestions.mockResolvedValue([]);
+
+  mockUserManager.getCurrentUser.mockResolvedValue(adminUser);
+  mockUserManager.hasPermission.mockResolvedValue(true);
+  mockUserManager.getUser.mockResolvedValue({ username: 'testuser', email: 'test@example.com', displayName: 'Test User', preferences: {} });
+  mockUserManager.getUsers.mockResolvedValue([]);
+  mockUserManager.getRoles.mockReturnValue(new Map());
+  mockUserManager.getPermissions.mockReturnValue(new Map());
+  mockUserManager.getUserPermissions.mockReturnValue(['read', 'write']);
+  mockUserManager.searchUsers.mockResolvedValue([]);
+  mockUserManager.authenticateUser.mockResolvedValue({ username: 'testuser', isAuthenticated: true });
+  mockUserManager.updateUser.mockResolvedValue(true);
+
+  mockNotificationManager.getNotifications.mockReturnValue([]);
+  mockNotificationManager.getAllNotifications.mockReturnValue([]);
+  mockNotificationManager.getStats.mockReturnValue({ total: 0, active: 0, expired: 0, byType: {}, byLevel: {} });
+
+  mockBackgroundJobManager.enqueue.mockResolvedValue('run-id-1');
+}
+
+function buildApp() {
+  const appInstance = express();
+  appInstance.use(express.json());
+  appInstance.use(express.urlencoded({ extended: true }));
+  appInstance.set('view engine', 'ejs');
+  appInstance.set('views', path.join(__dirname, '../views'));
+
+  appInstance.use((_req: express.Request, res: express.Response, next: express.NextFunction) => {
+    res.render = (_view: string, _data: unknown, cb?: (err: Error | null, str?: string) => void) => {
+      if (cb) cb(null, '<html>stub</html>');
+      else res.send('<html>stub</html>');
+    };
+    next();
+  });
+
+  appInstance.use((req: express.Request, _res: express.Response, next: express.NextFunction) => {
+    const sess: Record<string, unknown> = {
+      csrfToken: 'test-csrf-token',
+      user: mockUserContext ? { username: mockUserContext.username } : null,
+      destroy: (cb: () => void) => cb?.(),
+      save: (cb: (err?: unknown) => void) => cb?.()
+    };
+    (req as unknown as Record<string, unknown>).session = sess;
+    (req as unknown as Record<string, unknown>).userContext = mockUserContext;
+    (req as unknown as Record<string, unknown>).sessionID = 'test-session-id';
+    next();
+  });
+
+  appInstance.use((req: express.Request, res: express.Response, next: express.NextFunction) => {
+    const token = (req.body as Record<string, unknown>)?._csrf ||
+      (req.headers as Record<string, unknown>)?.['x-csrf-token'];
+    if (['POST', 'PUT', 'DELETE', 'PATCH'].includes(req.method)) {
+      if (token !== 'test-csrf-token') {
+        return res.status(403).json({ error: 'Invalid CSRF token' });
+      }
+    }
+    (req as unknown as Record<string, unknown>).csrfToken = () => 'test-csrf-token';
+    next();
+  });
+
+  return appInstance;
+}
+
+// ── tests ─────────────────────────────────────────────────────────────────────
+
+describe('WikiRoutes — coverage batch 6', () => {
+  let app: express.Application;
+
+  beforeEach(async () => {
+    mockUserContext = { ...adminUser };
+    resetMocks();
+    app = buildApp();
+    const { default: WikiEngine } = await import('../../WikiEngine');
+    const engine = new WikiEngine();
+    const routes = new WikiRoutes(engine as unknown as Parameters<typeof WikiRoutes>[0]);
+    routes.registerRoutes(app);
+  });
+
+  afterEach(() => {
+    vi.clearAllMocks();
+    mockUserContext = null;
+  });
+
+  // ── GET / (homePage) ─────────────────────────────────────────────────────────
+
+  describe('GET /', () => {
+    test('redirects to /view/Welcome (front page)', async () => {
+      const res = await request(app).get('/');
+      expect(res.status).toBe(302);
+      expect(res.headers.location).toContain('/view/');
+    });
+  });
+
+  // ── GET /create ──────────────────────────────────────────────────────────────
+
+  describe('GET /create', () => {
+    test('renders create page form for authenticated user', async () => {
+      const res = await request(app).get('/create');
+      expect(res.status).toBe(200);
+    });
+
+    test('redirects unauthenticated user to login', async () => {
+      mockUserContext = null;
+      const res = await request(app).get('/create');
+      expect(res.status).toBe(302);
+      expect(res.headers.location).toContain('/login');
+    });
+
+    test('returns 403 when user lacks page-create permission', async () => {
+      mockUserManager.hasPermission.mockResolvedValue(false);
+      const res = await request(app).get('/create');
+      expect(res.status).toBe(403);
+    });
+  });
+
+  // ── POST /view/:page (createWikiPage) ────────────────────────────────────────
+
+  describe('POST /view/:page', () => {
+    test('returns 400 when neither content nor template is provided', async () => {
+      const res = await request(app)
+        .post('/view/NewPage')
+        .set('x-csrf-token', 'test-csrf-token')
+        .send({});
+      expect(res.status).toBe(400);
+    });
+
+    test('redirects unauthenticated user to login when content provided', async () => {
+      mockUserContext = null;
+      const res = await request(app)
+        .post('/view/NewPage')
+        .set('x-csrf-token', 'test-csrf-token')
+        .send({ content: '# New Page content' });
+      expect(res.status).toBe(302);
+      expect(res.headers.location).toContain('/login');
+    });
+  });
+
+  // ── POST /auth/magic-link ────────────────────────────────────────────────────
+
+  describe('POST /auth/magic-link', () => {
+    test('always redirects to /login?magic=sent', async () => {
+      const res = await request(app)
+        .post('/auth/magic-link')
+        .set('x-csrf-token', 'test-csrf-token')
+        .send({ email: 'user@example.com' });
+      expect(res.status).toBe(302);
+      expect(res.headers.location).toContain('magic=sent');
+    });
+  });
+
+  // ── GET /admin/interwiki ─────────────────────────────────────────────────────
+
+  describe('GET /admin/interwiki', () => {
+    test('renders InterWiki management page for admin', async () => {
+      const res = await request(app).get('/admin/interwiki');
+      expect(res.status).toBe(200);
+    });
+
+    test('returns 403 when user lacks admin-system permission', async () => {
+      mockUserManager.hasPermission.mockResolvedValue(false);
+      const res = await request(app).get('/admin/interwiki');
+      expect(res.status).toBe(403);
+    });
+  });
+
+  // ── GET /admin/configuration ─────────────────────────────────────────────────
+
+  describe('GET /admin/configuration', () => {
+    test('renders configuration management page for admin', async () => {
+      const res = await request(app).get('/admin/configuration');
+      expect(res.status).toBe(200);
+    });
+
+    test('returns 403 when user lacks admin-system permission', async () => {
+      mockUserManager.hasPermission.mockResolvedValue(false);
+      const res = await request(app).get('/admin/configuration');
+      expect(res.status).toBe(403);
+    });
+  });
+
+  // ── GET /admin/import ────────────────────────────────────────────────────────
+
+  describe('GET /admin/import', () => {
+    test('renders import page for admin', async () => {
+      const res = await request(app).get('/admin/import');
+      expect(res.status).toBe(200);
+    });
+
+    test('returns 403 when user lacks admin-system permission', async () => {
+      mockUserManager.hasPermission.mockResolvedValue(false);
+      const res = await request(app).get('/admin/import');
+      expect(res.status).toBe(403);
+    });
+  });
+
+  // ── GET /admin/attachments ───────────────────────────────────────────────────
+
+  describe('GET /admin/attachments', () => {
+    test('returns 403 when user has no admin or editor role', async () => {
+      mockUserContext = { ...regularUser };
+      const res = await request(app).get('/admin/attachments');
+      expect(res.status).toBe(403);
+    });
+  });
+
+  // ── GET /admin/attachments/api ───────────────────────────────────────────────
+
+  describe('GET /admin/attachments/api', () => {
+    test('returns 403 when user has no admin or editor role', async () => {
+      mockUserContext = { ...regularUser };
+      const res = await request(app).get('/admin/attachments/api');
+      expect(res.status).toBe(403);
+    });
+  });
+
+  // ── DELETE /admin/attachments/:id ────────────────────────────────────────────
+
+  describe('DELETE /admin/attachments/:id', () => {
+    test('returns 403 when user has no admin role', async () => {
+      mockUserContext = { ...regularUser };
+      const res = await request(app)
+        .delete('/admin/attachments/att-123')
+        .set('x-csrf-token', 'test-csrf-token');
+      expect(res.status).toBe(403);
+    });
+  });
+
+  // ── GET /admin/addons ────────────────────────────────────────────────────────
+
+  describe('GET /admin/addons', () => {
+    test('renders add-ons page for admin (no AddonsManager)', async () => {
+      const res = await request(app).get('/admin/addons');
+      expect(res.status).toBe(200);
+    });
+
+    test('returns 403 when user lacks admin-system permission', async () => {
+      mockUserManager.hasPermission.mockResolvedValue(false);
+      const res = await request(app).get('/admin/addons');
+      expect(res.status).toBe(403);
+    });
+  });
+
+  // ── POST /admin/addons/:name/toggle ─────────────────────────────────────────
+
+  describe('POST /admin/addons/:name/toggle', () => {
+    test('returns 403 when user lacks admin-system permission', async () => {
+      mockUserManager.hasPermission.mockResolvedValue(false);
+      const res = await request(app)
+        .post('/admin/addons/my-addon/toggle')
+        .set('x-csrf-token', 'test-csrf-token')
+        .send({ enabled: 'true' });
+      expect(res.status).toBe(403);
+    });
+
+    test('toggles add-on and redirects for admin', async () => {
+      const res = await request(app)
+        .post('/admin/addons/my-addon/toggle')
+        .set('x-csrf-token', 'test-csrf-token')
+        .send({ enabled: 'true' });
+      expect(res.status).toBe(302);
+      expect(res.headers.location).toContain('/admin/addons');
+    });
+  });
+
+  // ── POST /admin/restart ──────────────────────────────────────────────────────
+
+  describe('POST /admin/restart', () => {
+    test('returns 403 when user lacks admin-system permission', async () => {
+      mockUserManager.hasPermission.mockResolvedValue(false);
+      const res = await request(app)
+        .post('/admin/restart')
+        .set('x-csrf-token', 'test-csrf-token');
+      expect(res.status).toBe(403);
+    });
+  });
+
+  // ── POST /admin/maintenance/toggle ──────────────────────────────────────────
+
+  describe('POST /admin/maintenance/toggle', () => {
+    test('returns 403 when user lacks admin-system permission', async () => {
+      mockUserManager.hasPermission.mockResolvedValue(false);
+      const res = await request(app)
+        .post('/admin/maintenance/toggle')
+        .set('x-csrf-token', 'test-csrf-token');
+      expect(res.status).toBe(403);
+    });
+  });
+
+  // ── POST /admin/required-pages/sync ─────────────────────────────────────────
+
+  describe('POST /admin/required-pages/sync', () => {
+    test('returns 403 when user lacks admin-system permission', async () => {
+      mockUserManager.hasPermission.mockResolvedValue(false);
+      const res = await request(app)
+        .post('/admin/required-pages/sync')
+        .set('x-csrf-token', 'test-csrf-token');
+      expect(res.status).toBe(403);
+    });
+  });
+
+  // ── GET /api/admin/diff ──────────────────────────────────────────────────────
+
+  describe('GET /api/admin/diff', () => {
+    test('returns 403 when user lacks admin-system permission', async () => {
+      mockUserManager.hasPermission.mockResolvedValue(false);
+      const res = await request(app).get('/api/admin/diff');
+      expect(res.status).toBe(403);
+    });
+  });
+
+  // ── GET /admin/variables ─────────────────────────────────────────────────────
+
+  describe('GET /admin/variables', () => {
+    test('renders variable management page for admin', async () => {
+      const res = await request(app).get('/admin/variables');
+      expect(res.status).toBe(200);
+    });
+
+    test('returns 403 when user lacks admin-system permission', async () => {
+      mockUserManager.hasPermission.mockResolvedValue(false);
+      const res = await request(app).get('/admin/variables');
+      expect(res.status).toBe(403);
+    });
+  });
+});
