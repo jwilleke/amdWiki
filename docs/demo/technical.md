@@ -41,7 +41,7 @@ Demo Sites
 
 ### What it is
 
-ngdpbase is a TypeScript/Node.js content platform built around a plugin-driven markup parser and a 30-manager engine. It is not a wrapper around an existing wiki engine — the JSPWiki-compatible markup parser is a clean-room implementation. The full codebase — core engine and all four domain addons — is TypeScript compiled to native ESM.
+ngdpbase is a TypeScript/Node.js content platform built around a plugin-driven markup parser and a more than 30-manager engine. It is not a wrapper around an existing wiki engine — the JSPWiki-compatible markup parser is a clean-room implementation. The full codebase — core engine and all four domain addons — is TypeScript compiled to native ESM.
 
 ### Core concepts to name-drop
 
@@ -69,7 +69,7 @@ required-pages/  — system UI pages as Markdown + frontmatter
 views/           — EJS templates (header, footer, page layouts)
 ```
 
-Point to `docs/architecture/MANAGERS-OVERVIEW.md` for deeper reading.
+Point to [docs/architecture/MANAGERS-OVERVIEW.md](../architecture/MANAGERS-OVERVIEW.md) for deeper reading.
 
 ---
 
@@ -113,11 +113,11 @@ Raw Markup
 
    > "Rendered HTML is cached in `CacheManager` under the key `rendered-pages:<pageName>:<sortedRoles>`. The role-set in the key ensures users with different access levels never see each other's cached output. On a cache hit the entire rendering pipeline — textToHTML, tab sections, all plugin execution — is skipped entirely. Cache is invalidated automatically on every save, rename, or delete."
 
-   Point to `src/routes/WikiRoutes.ts` → `viewPage()` for the read-through, and to `CacheManager` regions for the storage layer.
+   Point to [`src/routes/WikiRoutes.ts`](../../src/routes/WikiRoutes.ts) → `viewPage()` for the read-through, and to `CacheManager` regions for the storage layer.
 
 ### Plugin execution
 
-Show `src/plugins/UptimePlugin.ts` in the editor:
+Show [`src/plugins/UptimePlugin.ts`](../../src/plugins/UptimePlugin.ts) in the editor:
 
 - It's a plain TypeScript object implementing `SimplePlugin`
 - `execute(context, params)` returns a string — that string is spliced into the HTML stream at Phase 4
@@ -160,7 +160,7 @@ WikiEngine.initialize()
       registerNavItems()   — contribute sidebar links
 ```
 
-Point to `addons/` directory — each addon is its own TypeScript/ESM npm package with a `tsconfig.json`.
+Point to [`addons/`](../../addons/) directory — each addon is its own TypeScript/ESM npm package with a `tsconfig.json`.
 
 The four current addons and what each contributes:
 
@@ -331,13 +331,13 @@ highlight.js runs in Phase 7 (post-processing) — no client-side JS needed to a
 
 ## Reference Links
 
-- Architecture: `docs/architecture/`
-- Rendering pipeline: `docs/rendering-pipeline.md`
-- Plugin authoring: `docs/plugins/`
-- Manager overview: `docs/architecture/MANAGERS-OVERVIEW.md`
-- API routes: `docs/api/`
-- Proper documentation pages standard: `docs/proper-documentation-pages.md`
+- Architecture: [docs/architecture/](../architecture/)
+- Rendering pipeline: [docs/rendering-pipeline.md](../rendering-pipeline.md)
+- Plugin authoring: [docs/plugins/](../plugins/)
+- Manager overview: [docs/architecture/MANAGERS-OVERVIEW.md](../architecture/MANAGERS-OVERVIEW.md)
+- API routes: [docs/api/](../api/)
+- Proper documentation pages standard: [docs/proper-documentation-pages.md](../proper-documentation-pages.md)
 
 ## Other stuff
 
-- <http://192.168.68.71:4090/#/?i=69e22067&i=69e814ef>
+- [Elescticsearch](http://192.168.68.71:4090/#/?i=69e22067&i=69e814ef)

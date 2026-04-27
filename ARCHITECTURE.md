@@ -23,6 +23,8 @@ ngdpbase uses a **central WikiEngine** that orchestrates 30 specialized managers
 
 ### Manager-Based Architecture
 
+See [docs/architecture/MANAGERS-OVERVIEW.md](./docs/architecture/MANAGERS-OVERVIEW.md) for the full manager inventory, initialization order, and inter-manager flow diagrams.
+
 - Specialized managers extending BaseManager
 - Central WikiEngine orchestrator
 - Manager access via `engine.getManager('ManagerName')`
@@ -139,7 +141,7 @@ ngdpbase/
 
 See [docs/architecture/](./docs/architecture/) for comprehensive documentation on:
 
-- Manager patterns and responsibilities
+- [Manager patterns and responsibilities](./docs/architecture/MANAGERS-OVERVIEW.md)
 - Plugin architecture and hooks
 - WikiDocument DOM pipeline
 - Storage provider implementation

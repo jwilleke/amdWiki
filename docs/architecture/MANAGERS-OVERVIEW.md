@@ -1,135 +1,674 @@
-# ngdpbase System Managers Overview
+# ngdpbase Manager Architecture
 
-## Overview
+All application behaviour is implemented in managers. Each manager extends `BaseManager`, owns one concern, and is resolved through `WikiEngine.getManager('Name')`. The engine initialises managers in a fixed dependency order and exposes a `backup()` / `restore()` / `shutdown()` lifecycle on every manager.
 
-ngdpbase follows a modular manager pattern where each manager handles a specific aspect of the wiki's functionality. All managers extend the `BaseManager` class and are registered with the `WikiEngine` during initialization.
+---
 
-## Core Managers (18 total)
+## Initialization Order
 
-### Content & Page Management
+WikiEngine registers managers in this sequence. Later managers may call `engine.getManager()` on any manager that appears earlier in the list.
 
-- **PageManager** - Handles page storage, retrieval, and metadata management
-- **AttachmentManager** - Manages file attachments for pages
-- **ExportManager** - Handles page export functionality
+| # | Manager | Depends on |
+|---|---|---|
+| 1 | **ConfigurationManager** | _(none — reads config files directly)_ |
+| 2 | **CatalogManager** | ConfigurationManager |
+| 3 | **CacheManager** | ConfigurationManager |
+| 4 | **MetricsManager** | ConfigurationManager |
+| 5 | **UserManager** | ConfigurationManager, SchemaManager, PageManager, TemplateManager, ValidationManager, PolicyEvaluator |
+| 6 | **EmailManager** | ConfigurationManager |
+| 7 | **AuthManager** | ConfigurationManager |
+| 8 | **NotificationManager** | ConfigurationManager |
+| 9 | **PageManager** | ConfigurationManager |
+| 10 | **TemplateManager** | _(none)_ |
+| 11 | **PolicyManager** | ConfigurationManager |
+| 12 | **PolicyValidator** | PolicyManager |
+| 13 | **PolicyEvaluator** | PolicyManager, PolicyValidator |
+| 14 | **ACLManager** | PolicyEvaluator |
+| 15 | **PluginManager** | ConfigurationManager |
+| 16 | **MarkupParser** | ConfigurationManager, PluginManager |
+| 17 | **RenderingManager** | ConfigurationManager, PageManager, PluginManager, MarkupParser, NotificationManager |
+| 18 | **SearchManager** | ConfigurationManager, PageManager |
+| 19 | **ValidationManager** | ConfigurationManager, PageManager |
+| 20 | **VariableManager** | ConfigurationManager |
+| 21 | **SchemaManager** | ConfigurationManager |
+| 22 | **ExportManager** | PageManager, RenderingManager |
+| 23 | **AttachmentManager** | ConfigurationManager, PageManager, MediaManager |
+| 24 | **MediaManager** | ConfigurationManager, NotificationManager |
+| 25 | **AssetManager** | AttachmentManager, MediaManager, ConfigurationManager |
+| 26 | **BackupManager** | ConfigurationManager, all registered managers |
+| 27 | **AuditManager** | ConfigurationManager |
+| 28 | **AddonsManager** | ConfigurationManager |
+| 29 | **ImportManager** | ConfigurationManager |
+| 30 | **BackgroundJobManager** | ConfigurationManager |
+| 31 | **CommentManager** | ConfigurationManager |
+| 32 | **FootnoteManager** | ConfigurationManager |
+| 33 | **AssetService** | AssetManager _(legacy façade)_ |
+| 34 | **ThemeManager** | _(standalone — not a BaseManager)_ |
 
-### User & Authentication
+---
 
-- **UserManager** - Manages user authentication, sessions, and roles
-- **ACLManager** - Access Control List system for page permissions
+## Manager Reference
 
-### Content Processing
+### ConfigurationManager
 
-- **RenderingManager** - Processes Markdown and JSPWiki syntax
-- **PluginManager** - Manages and executes wiki plugins
-- **TemplateManager** - Handles EJS templates and theming
+Reads `config/*.properties` and env overrides. All other managers query it for their settings. Property names are lowercase dot-separated (`ngdpbase.cache.enabled`). No dependencies.
 
-### Search & Discovery
+---
 
-- **SearchManager** - Full-text search using Lunr.js
-- **SchemaManager** - Manages Schema.org structured data
+### CacheManager
 
-### Policy & Security
+Centralised cache with a pluggable provider (`NodeCacheProvider` default, Redis optional, Null fallback).
 
-- **PolicyManager** - Loads and manages access policies
-- **PolicyEvaluator** - Evaluates policy-based access control
-- **PolicyValidator** - Validates policy configurations
-- **AuditManager** - Logs access decisions and security events
+**Providers:** resolved by `ngdpbase.cache.provider`; falls back to `NullCacheProvider` if health check fails.
 
-### Configuration & Variables
+**Key API:**
 
-- **ConfigurationManager** - JSPWiki-compatible configuration management with property merging
-- **VariableManager** - System and contextual variable expansion similar to JSPWiki's DefaultVariableManager
+| Method | Description |
+|---|---|
+| `region(name)` | Returns a namespace-scoped `RegionCache` |
+| `get(key)` | Read from cache |
+| `set(key, value, options?)` | Write with optional TTL |
+| `del(keys)` | Invalidate one or more keys |
+| `clear(region?, pattern?)` | Flush region or matching keys |
+| `stats(region?)` | Hit/miss counts |
+| `static getCacheForManager(engine, region)` | Convenience for managers |
 
-### System & Validation
+**Flow — cache invalidation on page save:**
 
-- **ValidationManager** - Validates page metadata and content
-- **NotificationManager** - Handles system notifications
-
-## Manager Initialization Order
-
-Managers are initialized in dependency order to ensure proper system startup:
-
-1. **ValidationManager** - First, as other managers may need validation
-2. **PageManager** - Core content management
-3. **PluginManager** - Plugin system initialization
-4. **RenderingManager** - Content processing (depends on PageManager)
-5. **SearchManager** - Search indexing (depends on PageManager)
-6. **TemplateManager** - UI templates
-7. **AttachmentManager** - File attachments
-8. **ExportManager** - Export functionality
-9. **UserManager** - User authentication and sessions
-10. **ACLManager** - Access control (depends on UserManager)
-11. **PolicyManager** - Policy loading
-12. **PolicyEvaluator** - Policy evaluation
-13. **PolicyValidator** - Policy validation
-14. **AuditManager** - Security auditing
-15. **NotificationManager** - System notifications
-16. **SchemaManager** - Structured data management
-
-## Manager Architecture
-
-### BaseManager Pattern
-
-All managers extend `BaseManager.js` which provides:
-
-- Common initialization lifecycle
-- Engine reference management
-- Error handling patterns
-- Configuration access
-
-### Registration Pattern
-
-```javascript
-// In WikiEngine.js
-this.registerManager('ManagerName', new ManagerName(this));
-await manager.initialize(config);
+```
+PageManager.savePage()
+  → CacheManager.del('rendered-pages:<name>:*')
+  → CacheManager.del('page:<name>')
 ```
 
-### Dependency Injection
+---
 
-Managers access each other through the engine:
+### MetricsManager
 
-```javascript
-const userManager = this.engine.getManager('UserManager');
+OpenTelemetry metrics with Prometheus export (port 9464) and optional OTLP.
+
+Disabled by default (`ngdpbase.telemetry.enabled = false`). When enabled, instruments counters and histograms for page views, saves, deletes, search rebuilds, login attempts, HTTP requests, and engine init duration.
+
+**Key API:** `recordPageView(ms)`, `recordPageSave(ms)`, `recordHttpRequest(ms, attrs)`, `getMetricsHandler()` → Express handler for `/metrics`.
+
+---
+
+### UserManager
+
+Authentication, role assignment, session management, and user-page creation.
+
+**Provider:** `ngdpbase.user.provider` (default `FileUserProvider`). Creates a default admin on first boot.
+
+**Key API:**
+
+| Method | Description |
+|---|---|
+| `authenticateUser(username, password)` | Verify credentials → `User \| null` |
+| `createUser(data)` | Create user; syncs Schema.org Person |
+| `createOrUpdateExternalUser(data)` | OAuth / magic-link upsert |
+| `getUser(username)` | Fetch without password |
+| `searchUsers(query, options?)` | Filtered user list |
+| `hasPermission(username, action)` | Checks via PolicyEvaluator |
+| `getUserPermissions(username)` | Full permission list |
+| `hasRole(username, role)` | Role membership test |
+| `assignRole(username, role)` | Grant role |
+| `getCurrentUser(req)` | Extract `UserContext` from Express request |
+| `ensureAuthenticated(req, res, next)` | Express middleware |
+| `requirePermissions(perms)` | Express middleware |
+| `createSession(username, data)` | Return session ID |
+| `getSession(id)` | Return `UserSession \| null` |
+| `isAdminUsingDefaultPassword()` | Boot-time warning check |
+| `backup()` / `restore()` | Provider-delegated |
+
+**Inter-manager calls:**
+
+- `SchemaManager` → sync Person on create/update/delete
+- `PageManager` → detect display-name page conflict
+- `TemplateManager` → apply template when creating user page
+- `ValidationManager` → generate metadata for user page
+- `PolicyEvaluator` → permission resolution
+
+---
+
+### EmailManager
+
+Shared outbound mail transport. Provider is `console` (dev) or `smtp` (production), set by `ngdpbase.mail.provider`. Disabled by default.
+
+**Key API:** `send(message)`, `sendTo(to, subject, text, html?)`, `isEnabled()`.
+
+Used by AuthManager (magic-link), calendar addon (confirmations), and form addon (submissions).
+
+---
+
+### AuthManager
+
+Authentication provider orchestration (OAuth, magic-link, local). Initialised early (step 7) so session middleware is ready before routes register. Delegates to configured providers.
+
+---
+
+### NotificationManager
+
+System-level notification bus. Managers emit notifications (e.g., MediaManager emits a warning when a configured folder is missing). Routes and admin UI subscribe.
+
+---
+
+### PageManager
+
+Core page storage and retrieval. Provider-based (`FileSystemProvider` default).
+
+**Key API:**
+
+| Method | Description |
+|---|---|
+| `getPage(name)` | Fetch `WikiDocument` |
+| `savePage(doc)` | Write page; invalidates caches |
+| `deletePage(name)` | Delete; fires search/link-graph updates |
+| `renamePage(oldName, newName)` | Atomic rename |
+| `listPages()` | All page names |
+| `getAllPages()` | Full `WikiDocument[]` |
+| `pageExists(name)` | Existence check |
+| `searchPages(query)` | Simple text search |
+| `getPageHistory(name)` | Version list |
+| `getPageVersion(name, version)` | Historical content |
+| `backup()` / `restore()` | Delegated to provider |
+
+**Flow — page save cascade:**
+
+```
+savePage(doc)
+  → FileSystemProvider.write()
+  → CacheManager.del(rendered-pages + page keys)
+  → SearchManager.updatePageInIndex(name, doc)
+  → RenderingManager.updatePageInLinkGraph(name, content)
+  → AttachmentManager.syncPageMentions(name, content)
+  → AssetManager.syncPageAssets(name, content)
+  → MetricsManager.recordPageSave(ms)
 ```
 
-## File Structure
+---
 
-```bash
-src/managers/
-├── ACLManager.js
-├── AttachmentManager.js
-├── AuditManager.js
-├── BaseManager.js          # Abstract base class
-├── ExportManager.js
-├── NotificationManager.js
-├── PageManager.js
-├── PluginManager.js
-├── PolicyEvaluator.js
-├── PolicyManager.js
-├── PolicyValidator.js
-├── RenderingManager.js
-├── SchemaManager.js
-├── SearchManager.js
-├── TemplateManager.js
-├── UserManager.js
-└── ValidationManager.js
+### TemplateManager
+
+Page templates (Markdown files in `./templates/`) and themes (CSS in `./themes/`). Self-contained — no manager dependencies.
+
+**Key API:** `getTemplates()`, `getTemplate(name)`, `applyTemplate(name, vars)`, `createTemplate(name, content)`, `getThemes()`, `getTheme(name)`, `suggestTemplates(pageName, category)`.
+
+Variable substitution replaces `{{uuid}}`, `{{date}}`, `{{pageName}}`, `{{keywords}}` tokens in template content.
+
+---
+
+### PolicyManager
+
+Loads access-control policies from configuration (`ngdpbase.access.policies`). Disabled by default.
+
+Policies define `subject` (user/role/group), `resource` (page/category), `action` (view/edit/delete), `effect` (allow/deny), and numeric `priority`.
+
+**Key API:** `getPolicy(id)`, `getAllPolicies()` (sorted by priority descending).
+
+---
+
+### PolicyValidator
+
+Validates policy schemas (AJV + JSON Schema) and detects conflicts between overlapping policies.
+
+**Key API:** `validatePolicy(policy)`, `validateAllPolicies()`, `detectPolicyConflicts(policies)`, `validateAndSavePolicy(policy)`.
+
+Checks subject overlap, resource overlap (including glob patterns), and action overlap. Flags priority ties between conflicting policies.
+
+---
+
+### PolicyEvaluator
+
+Evaluates whether a `WikiContext` is permitted to perform an action on a resource.
+
+**Flow:**
+
+```
+evaluate(context, action, resource)
+  → PolicyManager.getAllPolicies()  (sorted by priority)
+  → for each matching policy: apply effect
+  → AuditManager.logAccessDecision(context, result, reason, policy)
+  → return Allow | Deny | NotApplicable
 ```
 
-## Key Design Principles
+---
 
-1. **Single Responsibility** - Each manager handles one specific aspect
-2. **Dependency Management** - Clear initialization order prevents circular dependencies
-3. **Extensibility** - Plugin system allows custom manager extensions
-4. **Testability** - Modular design enables isolated unit testing
-5. **Configuration-Driven** - Manager behavior controlled by Config.js
+### ACLManager
 
-## Integration Points
+Per-page `acl` frontmatter evaluation. Runs after PolicyEvaluator; provides the final allow/deny for `view` and `edit` actions on specific pages.
 
-- **WikiEngine** - Central orchestrator that manages all managers
-- **Config.js** - Provides configuration to all managers
-- **Routes** - HTTP endpoints access managers through WikiEngine
-- **Plugins** - Can extend or modify manager behavior
-- **Audit System** - Tracks manager operations for security and debugging
+```yaml
+acl:
+  view: [editor, admin]
+  edit: [admin]
+```
 
-This modular architecture ensures maintainability, testability, and extensibility of the ngdpbase system.
+Anonymous users are denied before the rendering pipeline runs.
+
+---
+
+### PluginManager
+
+Auto-discovers and executes wiki plugins.
+
+**Discovery:** enumerates `.js` / `.ts` files from `ngdpbase.managers.plugin-manager.search-paths`. Excludes test files and `.d.ts` declarations.
+
+**Key API:**
+
+| Method | Description |
+|---|---|
+| `registerPlugins()` | Load all from search paths |
+| `loadPlugin(path)` | Load a single plugin file |
+| `findPlugin(name)` | Case-insensitive lookup (also tries `${name}Plugin`) |
+| `execute(name, pageName, params, ctx)` | Run plugin → string |
+| `registerPlugin(name, plugin)` | Programmatic registration (bypasses file check) |
+| `getPluginNames()` | List registered names |
+
+Plugins implement `SimplePlugin { execute(context, params): string }`. Old-style function plugins are also supported.
+
+---
+
+### MarkupParser
+
+Seven-phase markup parsing pipeline (JSPWiki-compatible).
+
+```
+Phase 1 — Preprocessing   (normalise, encode protected blocks)
+Phase 2 — Syntax          (headings, lists, tables, links)
+Phase 3 — Context         (variables, page references)
+Phase 4 — Plugins         (PluginManager.execute per [{...}] token)
+Phase 5 — Filters         (ACL, content filters)
+Phase 6 — Markdown        (CommonMark via marked)
+Phase 7 — Post-processing (sanitise, highlight.js, heading IDs)
+```
+
+Not a BaseManager subclass — initialised by WikiEngine and accessed by RenderingManager via `engine.getManager('MarkupParser')`.
+
+---
+
+### RenderingManager
+
+Orchestrates content rendering. Supports the advanced MarkupParser pipeline and a legacy Showdown converter (configurable fallback).
+
+**Key API:**
+
+| Method | Description |
+|---|---|
+| `renderMarkdown(content, name, ctx, req)` | Main render entry point |
+| `renderWithAdvancedParser(...)` | MarkupParser pipeline |
+| `renderWithLegacyParser(...)` | Showdown fallback |
+| `expandMacros(content, name, ctx, req)` | Expand `[{Plugin}]` tokens |
+| `processWikiLinks(content)` | Convert `[[Page]]` to HTML anchors |
+| `buildLinkGraph()` | Full scan of all pages |
+| `updatePageInLinkGraph(name, content)` | Incremental update after save |
+| `getReferringPages(name)` | Backlinks |
+| `invalidateHandlerCache()` | Flush MarkupParser render cache |
+| `textToHTML(ctx, content)` | Render via `WikiContext.renderMarkdown` |
+| `renderPreview(content, name, ctx)` | Unsaved preview |
+
+**Flow — page view (cache miss):**
+
+```
+GET /view/:page
+  → CacheManager.get(rendered-pages:<name>:<roles>)  → miss
+  → ACLManager.check(view, page, userContext)
+  → RenderingManager.textToHTML(wikiContext, content)
+      → MarkupParser phases 1-7
+          → PluginManager.execute() per plugin token
+          → VariableManager.expand() per variable
+  → CacheManager.set(rendered-pages:<name>:<roles>, html)
+  → respond with HTML
+```
+
+**Flow — page view (cache hit):**
+
+```
+GET /view/:page
+  → CacheManager.get(rendered-pages:<name>:<roles>)  → hit
+  → respond with cached HTML  (pipeline skipped entirely)
+```
+
+---
+
+### SearchManager
+
+Full-text search with pluggable providers (Lunr.js default, Elasticsearch optional).
+
+Index is built at startup in the background (non-blocking). Supports categories, user-keywords, and system-keywords facets. Results are filtered by `WikiContext` for private-page access.
+
+**Key API:**
+
+| Method | Description |
+|---|---|
+| `searchWithContext(ctx, query, opts)` | Primary search entry point |
+| `advancedSearchWithContext(ctx, opts)` | Multi-facet search |
+| `buildSearchIndex()` | Full rebuild from all pages |
+| `updatePageInIndex(name, data)` | Incremental update |
+| `removePageFromIndex(name)` | Remove on delete |
+| `suggestSimilarPages(name, limit)` | Related page suggestions |
+| `getSuggestions(partial)` | Autocomplete stubs |
+| `getAllCategories()` | Facet values |
+| `getAllUserKeywords()` | Facet values |
+| `getStatistics()` | Index stats |
+| `backup()` / `restore()` | Provider-delegated |
+
+---
+
+### ValidationManager
+
+Validates and sanitizes page metadata (UUID, title, slug, system-category, user-keywords).
+
+**Key API:**
+
+| Method | Description |
+|---|---|
+| `validatePage(filename, metadata, content?)` | Full page validation |
+| `validateMetadata(metadata)` | Metadata-only check |
+| `sanitizeMetadata(metadata)` | Return sanitized copy |
+| `generateValidMetadata(title, options)` | Generate fresh metadata |
+| `generateSlug(title)` | URL-safe slug (Unicode transliteration) |
+| `checkConflicts(uuid, title, slug)` | Check uniqueness via PageManager |
+| `isValidSlug(slug)` | Pattern check |
+| `getAllSystemCategories()` | From config |
+| `getCategoryStorageLocation(category)` | Regular vs special storage |
+
+---
+
+### VariableManager
+
+JSPWiki-compatible variable expansion. Resolves `[{$variableName}]` tokens in markup using page metadata, user context, and engine state.
+
+---
+
+### SchemaManager
+
+Manages Schema.org JSON-LD objects (Person, Article, etc.). Used by UserManager to sync user profiles to structured data. Provides `createPerson`, `updatePerson`, `deletePerson`.
+
+---
+
+### ExportManager
+
+Exports pages to styled HTML or Markdown.
+
+**Key API:** `exportPageToHtml(name, user?)`, `exportPagesToHtml(names, user?)`, `exportToMarkdown(names, user?)`, `saveExport(content, filename, format)`, `getExports()`.
+
+Timestamp formatting is locale-aware via `LocaleUtils`.
+
+**Inter-manager calls:** `PageManager.getPage()`, `RenderingManager.renderMarkdown()`.
+
+---
+
+### AttachmentManager
+
+File attachments for wiki pages. Provider-based (`BasicAttachmentProvider` default).
+
+**Key API:**
+
+| Method | Description |
+|---|---|
+| `uploadAttachment(buf, info, opts)` | Store file; checks page privacy |
+| `attachToPage(id, pageName)` | Create page→attachment link |
+| `getAttachment(id)` | `{ buffer, metadata }` |
+| `getAttachmentsForPage(name)` | All attachments for a page |
+| `deleteAttachment(id, ctx?)` | Remove; audited |
+| `resolveAttachmentSrc(src, pageName)` | Resolve `media://`, page-local, global references |
+| `syncPageMentions(name, content)` | Update mention index after save |
+| `getThumbnail(id, size)` | Resize via provider |
+| `backup()` / `restore()` | Provider-delegated |
+
+**Inter-manager calls:** `PageManager` for private-page detection; `MediaManager` for `media://` URI resolution.
+
+---
+
+### MediaManager
+
+Read-only media library browser. Scans configured external folders for photos and videos. Manages thumbnails, HEIC→JPEG transcoding, year-based filtering, and keyword indexing.
+
+**Key API:** `rebuildIndex(onProgress?)`, `scanFolders(force?)`, `getItem(id, ctx?)`, `listByYear(year, ctx?)`, `listByPage(name, ctx?)`, `search(query, ctx?)`, `getThumbnailBuffer(id, size)`, `getTranscodedBuffer(id, format)`.
+
+Private-page access control is enforced via `PageManager.checkPrivatePageAccess()`.
+
+---
+
+### AssetManager
+
+Unified DAM provider registry. Fans out search across `AttachmentManager` and `MediaManager`. Maintains a reverse index (`page → assets`) in `data/page-assets-index.json`.
+
+**Key API:** `registerProvider(p)`, `search(query)`, `getById(id, providerId?)`, `getThumbnail(id, providerId, size)`, `syncPageAssets(name, content)`, `getAssetsForPage(slug)`.
+
+---
+
+### BackupManager
+
+Orchestrates system-wide backup and restore. Calls `backup()` on every registered manager, gzips the result into a single archive, and retains the N most recent files (configurable).
+
+Supports scheduled auto-backup (`ngdpbase.backup.auto-backup-time`, `ngdpbase.backup.auto-backup-days`).
+
+**Key API:** `createBackup(opts?)`, `restoreFromFile(path, opts?)`, `listBackups()`, `getLatestBackup()`, `updateAutoBackupConfig(partial)`.
+
+---
+
+### AuditManager
+
+Comprehensive audit trail for access decisions, authentication events, and security events. Provider-based (`FileAuditProvider` default, Null if disabled).
+
+**Key API:**
+
+| Method | Description |
+|---|---|
+| `logAuditEvent(event)` | Raw event |
+| `logAccessDecision(ctx, result, reason, policy)` | ACL/policy decision |
+| `logPolicyEvaluation(ctx, policies, result, ms)` | Policy eval trace |
+| `logAuthentication(ctx, result, reason)` | Login/logout |
+| `logSecurityEvent(ctx, type, severity, desc)` | Security incident |
+| `searchAuditLogs(filters, opts)` | Query log store |
+| `getAuditStats(filters)` | Aggregate counts |
+| `exportAuditLogs(filters, format)` | JSON or CSV export |
+| `cleanupOldLogs()` | Apply retention policy |
+
+---
+
+### AddonsManager
+
+Discovers and loads domain addon packages from the `addons/` directory. Each addon is an ESM npm package that registers its own pages, routes, nav items, and themes.
+
+**Flow:**
+
+```
+WikiEngine.initialize()
+  → AddonsManager.loadAddons()
+  → for each addon directory:
+      seedAddonPages()     — inject addon content pages
+      registerRoutes()     — attach Express routes
+      registerNavItems()   — contribute sidebar links
+```
+
+---
+
+### BackgroundJobManager
+
+Async job queue for long-running operations (index rebuilds, media scans, backup). Jobs are enqueued, run sequentially or in configurable concurrency, and their status is queryable.
+
+---
+
+### ImportManager
+
+Data import (pages, users, attachments) from external sources or backup archives.
+
+---
+
+### CatalogManager
+
+Addon/plugin catalog and registry. Tracks which addons are installed, their versions, and metadata.
+
+---
+
+### CommentManager
+
+Page comments (stub implementation). Stores comments as JSON files keyed by page UUID.
+
+---
+
+### FootnoteManager
+
+Stores per-page footnotes (display text, URL, note). JSON files keyed by page UUID. Auto-increments numeric IDs within each page.
+
+**Key API:** `getFootnotes(uuid)`, `addFootnote(uuid, data, createdBy)`, `updateFootnote(uuid, id, data)`, `deleteFootnote(uuid, id)`.
+
+---
+
+### AssetService
+
+Legacy façade over `AssetManager`. Maintains backwards compatibility for routes that were written before `AssetManager` was introduced. Delegates all calls to `AssetManager`.
+
+---
+
+### ThemeManager
+
+Resolves active theme paths (CSS, logo, favicon) and loads `theme.json` metadata (fonts, description). Not a `BaseManager` subclass — used directly by Express static-serving middleware.
+
+**Key API:** `paths` getter → `ThemePaths`, `static listAvailable(themesDir)` → theme name list.
+
+---
+
+## Key Inter-Manager Flows
+
+### Page Render (cache miss)
+
+```
+GET /view/:page
+  ↓
+WikiRoutes.viewPage()
+  → ACLManager.isAllowed(view, page, userContext)
+  → PageManager.getPage(name)           → WikiDocument
+  → CacheManager.get(rendered-pages:<name>:<roleSet>)   → miss
+  → RenderingManager.textToHTML(ctx, content)
+      → MarkupParser phases 1–7
+          → Phase 4: PluginManager.execute() per [{token}]
+          → Phase 3: VariableManager.expand() per [{$var}]
+  → CacheManager.set(rendered-pages:<name>:<roleSet>, html, ttl)
+  → MetricsManager.recordPageView(ms)
+  → render EJS template with html
+```
+
+### Page Save
+
+```
+POST /save/:page
+  ↓
+WikiRoutes.savePage()
+  → UserManager.ensureAuthenticated()
+  → ACLManager.isAllowed(edit, page, userContext)
+  → ValidationManager.validatePage(name, metadata, content)
+  → PageManager.savePage(doc)
+      → FileSystemProvider.write()
+      → CacheManager.del(rendered-pages:<name>:*, page:<name>)
+      → SearchManager.updatePageInIndex(name, doc)
+      → RenderingManager.updatePageInLinkGraph(name, content)
+      → AttachmentManager.syncPageMentions(name, content)
+      → AssetManager.syncPageAssets(name, content)
+  → AuditManager.logAuditEvent({ action: edit, page })
+  → MetricsManager.recordPageSave(ms)
+```
+
+### User Authentication
+
+```
+POST /login
+  ↓
+AuthManager.handleLocalLogin()
+  → UserManager.authenticateUser(username, password)
+      → FileUserProvider.findUser(username)
+      → UserManager.verifyPassword(pwd, hash)
+  → UserManager.createSession(username, data)   → sessionId
+  → AuditManager.logAuthentication(ctx, success)
+  → MetricsManager.recordLoginAttempt()
+  → redirect to /view/home
+```
+
+### Access Control Evaluation
+
+```
+isAllowed(action, resource, userContext)
+  ↓
+PolicyEvaluator.evaluate(ctx, action, resource)
+  → PolicyManager.getAllPolicies()              (sorted by priority)
+  → match subject / resource / action per policy
+  → apply first matching effect (allow/deny)
+  → AuditManager.logAccessDecision(ctx, result, reason, policy)
+  ↓
+ACLManager.evaluate(page.acl, action, userContext.roles)
+  → return final Allow | Deny
+```
+
+### Search Request
+
+```
+GET /api/search?q=...
+  ↓
+SearchManager.searchWithContext(wikiContext, query, opts)
+  → provider.search(query, opts)               (Lunr or Elasticsearch)
+  → filter results: ACLManager.isAllowed(view, page, ctx) per result
+  → return SearchResult[]
+```
+
+### Plugin Execution (Phase 4)
+
+```
+MarkupParser Phase 4
+  ↓
+for each [{PluginName key=value}] token:
+  → PluginManager.findPlugin(name)
+  → plugin.execute(wikiContext, params)         → string
+  → splice result into HTML stream
+```
+
+### Backup
+
+```
+BackupManager.createBackup()
+  ↓
+  → engine.getRegisteredManagers()
+  → for each manager: manager.backup()          → BackupData
+  → merge all BackupData into single object
+  → gzip JSON → ./data/backups/backup-<timestamp>.json.gz
+  → BackupManager.cleanupOldBackups()           (retain max N)
+```
+
+---
+
+## Architectural Patterns
+
+### Provider pattern
+
+`CacheManager`, `SearchManager`, `AttachmentManager`, `UserManager`, `AuditManager`, `MediaManager` each delegate to a pluggable provider loaded by name (e.g., `ngdpbase.cache.provider = nodecacheprovider`). The engine resolves provider names case-insensitively and falls back to a safe Null/default provider on load or health-check failure.
+
+### Dependency injection via engine
+
+```typescript
+// inside any manager method:
+const pageManager = this.engine.getManager('PageManager') as PageManager;
+```
+
+Managers never import each other directly; all coupling goes through `WikiEngine.getManager()`.
+
+### Cache key conventions
+
+| Key pattern | Owner | Invalidated by |
+|---|---|---|
+| `rendered-pages:<name>:<roleSet>` | RenderingManager | page save, rename, delete |
+| `page:<name>` | PageManager | page save, rename, delete |
+| `search-index` | SearchManager | full rebuild |
+| `link-graph` | RenderingManager | page save, delete |
+
+### Backup / restore lifecycle
+
+Every `BaseManager` subclass implements:
+
+```typescript
+backup(): Promise<BackupData>
+restore(data: BackupData): Promise<RestoreResult>
+shutdown(): Promise<void>
+```
+
+`BackupManager.createBackup()` calls `backup()` on all managers; `restoreFromFile()` calls `restore()` in the same initialization order.
