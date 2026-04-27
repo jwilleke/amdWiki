@@ -2,6 +2,34 @@
 
 AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version history.
 
+## 2026-04-27-06
+
+- Agent: Claude
+- Subject: WikiRoutes coverage batches 13–16 — push statement coverage to 64.97% (#591)
+- Current Issue: #591
+- Work Done:
+  - Fixed 2 failing tests in WikiRoutes.coverage13 (adminDeleteKeyword returning 500 instead of 404/200): root cause was `req.body` undefined for DELETE requests with no body, fix was adding `.send({})` to ensure express.json() sets req.body; 34/34 tests pass
+  - Created WikiRoutes.coverage14 (51 tests): loginPage, adminLoginPage, processLogin, requestMagicLink, verifyMagicLink, registerPage, processRegister, profilePage, updateProfile, updatePreferences, previewPage, exportPage/Html/Markdown, getPageVersions/Version/compareVersions/restoreVersion, pageHistory, pageDiff
+  - Created WikiRoutes.coverage15 (31 tests): createPage, editPage, savePage, deletePage, createWikiPage, adminRequiredPages
+  - Created WikiRoutes.coverage16 (54 tests): getPageSource, browseAttachmentsApi, adminDeleteAttachmentFromBrowser, apiUsersSearch, adminNotifications, adminCacheStats/Clear/ClearPage/ClearRegion, checkForUpdates, userKeywordCreate/Submit/Page, adminConsolidateKeywords
+  - WikiRoutes.ts statement coverage: 55.06% → 64.97% (branches 60%, functions 68.76%); all 4 batches 170/170 tests pass
+  - Also committed previously untracked batches 4–12 (created in prior sessions)
+- Commits: 5b7eb9b6
+- Files Modified:
+  - src/routes/__tests__/WikiRoutes.coverage4.test.ts
+  - src/routes/__tests__/WikiRoutes.coverage5.test.ts
+  - src/routes/__tests__/WikiRoutes.coverage6.test.ts
+  - src/routes/__tests__/WikiRoutes.coverage7.test.ts
+  - src/routes/__tests__/WikiRoutes.coverage8.test.ts
+  - src/routes/__tests__/WikiRoutes.coverage9.test.ts
+  - src/routes/__tests__/WikiRoutes.coverage10.test.ts
+  - src/routes/__tests__/WikiRoutes.coverage11.test.ts
+  - src/routes/__tests__/WikiRoutes.coverage12.test.ts
+  - src/routes/__tests__/WikiRoutes.coverage13.test.ts
+  - src/routes/__tests__/WikiRoutes.coverage14.test.ts
+  - src/routes/__tests__/WikiRoutes.coverage15.test.ts
+  - src/routes/__tests__/WikiRoutes.coverage16.test.ts
+
 ## 2026-04-27-05
 
 - Agent: Claude
