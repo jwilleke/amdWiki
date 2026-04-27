@@ -2,6 +2,21 @@
 
 AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version history.
 
+## 2026-04-27-08
+
+- Agent: Claude
+- Subject: Other-sites update — pull, rebuild, restart, and test all instances
+- Current Issue: none
+- Work Done:
+  - fairways-base (port 2121): git pull (77a41e3a → 43c0574d, 18 files), stop → build → start → 4981 unit tests pass, 72 E2E tests pass
+  - ngdpbase-veg (port 3333): git pull (77a41e3a → 43c0574d, 18 files), stop → build → start → 4981 unit tests pass, 72 E2E tests pass
+  - ngdpbase (port 3000): already up to date, stop → build → start → 4981 unit tests pass, 72 E2E tests pass
+  - ngdp-temp-builds/ngdpbase (port 3001): git pull (77a41e3a → 43c0574d), stop → build → start → 4981 unit tests pass, 72 E2E tests pass
+  - No failures or new bugs found across all sites
+- Commits: none (no code changes)
+- Files Modified:
+  - docs/project_log.md
+
 ## 2026-04-27-07
 
 - Agent: Claude
