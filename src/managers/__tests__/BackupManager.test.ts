@@ -338,4 +338,161 @@ describe('BackupManager', () => {
       expect(status.lastBackup).toBeInstanceOf(Date);
     });
   });
+
+  describe('listBackups() — null directory', () => {
+    test('returns [] when backupDirectory is null', async () => {
+      (bm as unknown as { backupDirectory: null }).backupDirectory = null;
+      const list = await bm.listBackups();
+      expect(list).toEqual([]);
+    });
+  });
+
+  describe('updateAutoBackupConfig()', () => {
+    test('throws when ConfigurationManager is not available', async () => {
+      const noConfigEngine = { getManager: vi.fn(() => null), getRegisteredManagers: vi.fn(() => []) };
+      const manager = new BackupManager(noConfigEngine as unknown as WikiEngine);
+      // Initialize would throw, so call updateAutoBackupConfig directly on uninitialized instance
+      // by monkey-patching engine after construction using the underlying engine field
+      (manager as unknown as { engine: typeof noConfigEngine }).engine = noConfigEngine;
+
+      await expect(manager.updateAutoBackupConfig({ enabled: true })).rejects.toThrow('ConfigurationManager not available');
+    });
+
+    test('updates enabled flag and persists via setProperty', async () => {
+      await bm.updateAutoBackupConfig({ enabled: false });
+
+      expect(mockConfigManager.setProperty).toHaveBeenCalledWith('ngdpbase.backup.auto-backup', false);
+      expect((bm as unknown as { autoBackupEnabled: boolean }).autoBackupEnabled).toBe(false);
+    });
+
+    test('updates time and persists via setProperty', async () => {
+      await bm.updateAutoBackupConfig({ time: '03:30' });
+
+      expect(mockConfigManager.setProperty).toHaveBeenCalledWith('ngdpbase.backup.auto-backup-time', '03:30');
+      expect((bm as unknown as { autoBackupTime: string }).autoBackupTime).toBe('03:30');
+    });
+
+    test('updates days and persists via setProperty', async () => {
+      await bm.updateAutoBackupConfig({ days: 'Mon,Wed,Fri' });
+
+      expect(mockConfigManager.setProperty).toHaveBeenCalledWith('ngdpbase.backup.auto-backup-days', 'Mon,Wed,Fri');
+      expect((bm as unknown as { autoBackupDays: string }).autoBackupDays).toBe('Mon,Wed,Fri');
+    });
+
+    test('updates maxBackups and persists via setProperty', async () => {
+      await bm.updateAutoBackupConfig({ maxBackups: 5 });
+
+      expect(mockConfigManager.setProperty).toHaveBeenCalledWith('ngdpbase.backup.max-backups', 5);
+      expect((bm as unknown as { maxBackups: number }).maxBackups).toBe(5);
+    });
+
+    test('updates directory, ensures dir exists, and persists via setProperty', async () => {
+      const newDir = path.join(tmpDir, 'new-backups');
+      await bm.updateAutoBackupConfig({ directory: newDir });
+
+      expect(mockConfigManager.setProperty).toHaveBeenCalledWith('ngdpbase.backup.directory', newDir);
+      expect((bm as unknown as { backupDirectory: string }).backupDirectory).toBe(newDir);
+      expect(await fs.pathExists(newDir)).toBe(true);
+    });
+
+    test('enables auto-backup and starts scheduler', async () => {
+      await bm.updateAutoBackupConfig({ enabled: true });
+
+      const timer = (bm as unknown as { schedulerTimer: unknown }).schedulerTimer;
+      expect(timer).not.toBeNull();
+      // Clean up: disable to stop the interval
+      await bm.updateAutoBackupConfig({ enabled: false });
+    });
+
+    test('disables auto-backup and stops scheduler', async () => {
+      // First enable so there is a timer to stop
+      await bm.updateAutoBackupConfig({ enabled: true });
+      await bm.updateAutoBackupConfig({ enabled: false });
+
+      const timer = (bm as unknown as { schedulerTimer: unknown }).schedulerTimer;
+      expect(timer).toBeNull();
+    });
+  });
+
+  describe('checkAndRunScheduledBackup() — via fake timers', () => {
+    beforeEach(() => {
+      vi.useFakeTimers();
+    });
+
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
+    async function callScheduledBackup(manager: BackupManager) {
+      return (manager as unknown as { checkAndRunScheduledBackup(): Promise<void> }).checkAndRunScheduledBackup();
+    }
+
+    test('runs backup when time matches and days=daily', async () => {
+      // Wednesday 02:00 local time
+      vi.setSystemTime(new Date(2025, 0, 8, 2, 0, 0));
+      (bm as unknown as { autoBackupTime: string }).autoBackupTime = '02:00';
+      (bm as unknown as { autoBackupDays: string }).autoBackupDays = 'daily';
+
+      const spy = vi.spyOn(bm, 'createBackup').mockResolvedValue(undefined as unknown as Awaited<ReturnType<typeof bm.createBackup>>);
+      await callScheduledBackup(bm);
+
+      expect(spy).toHaveBeenCalled();
+    });
+
+    test('runs backup on day-1 of month when days=monthly', async () => {
+      // First of the month 02:00 local time
+      vi.setSystemTime(new Date(2025, 0, 1, 2, 0, 0));
+      (bm as unknown as { autoBackupTime: string }).autoBackupTime = '02:00';
+      (bm as unknown as { autoBackupDays: string }).autoBackupDays = 'monthly';
+
+      const spy = vi.spyOn(bm, 'createBackup').mockResolvedValue(undefined as unknown as Awaited<ReturnType<typeof bm.createBackup>>);
+      await callScheduledBackup(bm);
+
+      expect(spy).toHaveBeenCalled();
+    });
+
+    test('skips backup on non-first day of month when days=monthly', async () => {
+      vi.setSystemTime(new Date(2025, 0, 8, 2, 0, 0)); // 8th — not day 1
+      (bm as unknown as { autoBackupTime: string }).autoBackupTime = '02:00';
+      (bm as unknown as { autoBackupDays: string }).autoBackupDays = 'monthly';
+
+      const spy = vi.spyOn(bm, 'createBackup').mockResolvedValue(undefined as unknown as Awaited<ReturnType<typeof bm.createBackup>>);
+      await callScheduledBackup(bm);
+
+      expect(spy).not.toHaveBeenCalled();
+    });
+
+    test('runs backup when current day matches comma-separated days list', async () => {
+      // new Date(2025, 0, 8) is a Wednesday
+      vi.setSystemTime(new Date(2025, 0, 8, 2, 0, 0));
+      (bm as unknown as { autoBackupTime: string }).autoBackupTime = '02:00';
+      (bm as unknown as { autoBackupDays: string }).autoBackupDays = 'Mon,Wed,Fri';
+
+      const spy = vi.spyOn(bm, 'createBackup').mockResolvedValue(undefined as unknown as Awaited<ReturnType<typeof bm.createBackup>>);
+      await callScheduledBackup(bm);
+
+      expect(spy).toHaveBeenCalled();
+    });
+
+    test('skips backup when time does not match', async () => {
+      vi.setSystemTime(new Date(2025, 0, 8, 3, 0, 0)); // 03:00, config says 02:00
+      (bm as unknown as { autoBackupTime: string }).autoBackupTime = '02:00';
+      (bm as unknown as { autoBackupDays: string }).autoBackupDays = 'daily';
+
+      const spy = vi.spyOn(bm, 'createBackup').mockResolvedValue(undefined as unknown as Awaited<ReturnType<typeof bm.createBackup>>);
+      await callScheduledBackup(bm);
+
+      expect(spy).not.toHaveBeenCalled();
+    });
+
+    test('catches and logs error when createBackup throws', async () => {
+      vi.setSystemTime(new Date(2025, 0, 8, 2, 0, 0));
+      (bm as unknown as { autoBackupTime: string }).autoBackupTime = '02:00';
+      (bm as unknown as { autoBackupDays: string }).autoBackupDays = 'daily';
+
+      vi.spyOn(bm, 'createBackup').mockRejectedValue(new Error('disk full'));
+      // Should not throw — error is caught internally
+      await expect(callScheduledBackup(bm)).resolves.toBeUndefined();
+    });
+  });
 });

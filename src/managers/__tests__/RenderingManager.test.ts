@@ -695,4 +695,128 @@ describe('RenderingManager', () => {
       expect(mockContext.renderMarkdown).toHaveBeenCalledWith('**bold**');
     });
   });
+
+  describe('performPerformanceComparison()', () => {
+    test('completes without throwing when legacy parser succeeds', async () => {
+      vi.spyOn(renderingManager, 'renderWithLegacyParser').mockResolvedValue('<p>legacy</p>');
+
+      await expect(
+        renderingManager.performPerformanceComparison('# Hello', 'TestPage', null, null, 10)
+      ).resolves.toBeUndefined();
+    });
+
+    test('catches error without throwing when legacy parser throws', async () => {
+      vi.spyOn(renderingManager, 'renderWithLegacyParser').mockRejectedValue(new Error('legacy failed'));
+
+      await expect(
+        renderingManager.performPerformanceComparison('# Hello', 'TestPage', null, null, 10)
+      ).resolves.toBeUndefined();
+    });
+  });
+
+  describe('addPageToCache() and removePageFromLinkGraph() — with MarkupParser', () => {
+    let mgrWithMP: RenderingManager;
+    let mockMarkupParser: {
+      domLinkHandler: { addPageName: ReturnType<typeof vi.fn>; removePageName: ReturnType<typeof vi.fn> };
+      invalidateHandlerCache: ReturnType<typeof vi.fn>;
+    };
+
+    beforeEach(async () => {
+      mockMarkupParser = {
+        domLinkHandler: {
+          addPageName: vi.fn(),
+          removePageName: vi.fn()
+        },
+        invalidateHandlerCache: vi.fn().mockResolvedValue(undefined)
+      };
+
+      const engineWithMP = {
+        ...mockEngine,
+        getManager: vi.fn((name: string) => {
+          if (name === 'ConfigurationManager') return mockConfigurationManager;
+          if (name === 'PageManager') return mockPageManager;
+          if (name === 'MarkupParser') return mockMarkupParser;
+          return null;
+        })
+      };
+
+      mgrWithMP = new RenderingManager(engineWithMP as unknown as WikiEngine);
+      await mgrWithMP.initialize();
+    });
+
+    test('addPageToCache() calls domLinkHandler.addPageName and invalidateHandlerCache', () => {
+      mgrWithMP.addPageToCache('NewPage');
+
+      expect(mockMarkupParser.domLinkHandler.addPageName).toHaveBeenCalledWith('NewPage');
+      expect(mockMarkupParser.invalidateHandlerCache).toHaveBeenCalled();
+    });
+
+    test('addPageToCache() does not duplicate existing page names', () => {
+      mgrWithMP.addPageToCache('NewPage');
+      mgrWithMP.addPageToCache('NewPage');
+
+      const cached = (mgrWithMP as unknown as { cachedPageNames: string[] }).cachedPageNames;
+      expect(cached.filter((n: string) => n === 'NewPage').length).toBe(1);
+    });
+
+    test('removePageFromLinkGraph() calls domLinkHandler.removePageName and invalidateHandlerCache', () => {
+      // Add the page first so it is in cachedPageNames
+      mgrWithMP.addPageToCache('OldPage');
+      mockMarkupParser.domLinkHandler.removePageName.mockClear();
+      mockMarkupParser.invalidateHandlerCache.mockClear();
+
+      mgrWithMP.removePageFromLinkGraph('OldPage');
+
+      expect(mockMarkupParser.domLinkHandler.removePageName).toHaveBeenCalledWith('OldPage');
+      expect(mockMarkupParser.invalidateHandlerCache).toHaveBeenCalled();
+    });
+
+    test('removePageFromLinkGraph() removes page from cachedPageNames', () => {
+      mgrWithMP.addPageToCache('ToRemove');
+      mgrWithMP.removePageFromLinkGraph('ToRemove');
+
+      const cached = (mgrWithMP as unknown as { cachedPageNames: string[] }).cachedPageNames;
+      expect(cached).not.toContain('ToRemove');
+    });
+
+    test('addPageToCache() initialises cachedPageNames when null', () => {
+      (mgrWithMP as unknown as { cachedPageNames: string[] | null }).cachedPageNames = null;
+      mgrWithMP.addPageToCache('FreshPage');
+
+      const cached = (mgrWithMP as unknown as { cachedPageNames: string[] }).cachedPageNames;
+      expect(cached).toContain('FreshPage');
+    });
+  });
+
+  describe('updatePageInLinkGraph() — wiki-style links', () => {
+    test('adds wiki-style [PageName] link to link graph', () => {
+      renderingManager.linkGraph = {};
+      renderingManager.updatePageInLinkGraph('AuthorPage', 'See [TargetPage] for more info.');
+
+      expect(renderingManager.linkGraph['TargetPage']).toBeDefined();
+      expect(renderingManager.linkGraph['TargetPage']).toContain('AuthorPage');
+    });
+
+    test('adds wiki-style [Label|PageName] link to link graph', () => {
+      renderingManager.linkGraph = {};
+      renderingManager.updatePageInLinkGraph('AuthorPage', 'See [label|LinkedPage] here.');
+
+      expect(renderingManager.linkGraph['LinkedPage']).toBeDefined();
+      expect(renderingManager.linkGraph['LinkedPage']).toContain('AuthorPage');
+    });
+
+    test('skips wiki-style links with URL targets', () => {
+      renderingManager.linkGraph = {};
+      renderingManager.updatePageInLinkGraph('AuthorPage', '[http://example.com]');
+
+      expect(renderingManager.linkGraph['http://example.com']).toBeUndefined();
+    });
+
+    test('does not duplicate referrer in link graph', () => {
+      renderingManager.linkGraph = {};
+      renderingManager.updatePageInLinkGraph('AuthorPage', '[TargetPage] and [TargetPage] again');
+
+      expect(renderingManager.linkGraph['TargetPage'].filter((r: string) => r === 'AuthorPage').length).toBe(1);
+    });
+  });
 });
