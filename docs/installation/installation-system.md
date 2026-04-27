@@ -594,10 +594,10 @@ Startup Pages:
 
 ## Related Documentation
 
-- `docs/developer/INSTALL-INTEGRATION.md` - Integration guide
-- `docs/developer/INSTALL-TESTING.md` - Detailed testing procedures (385 lines)
-- `required-pages/README.md` - Startup pages explanation
-- `INSTALLATION-FLOW.md` - Root cause analysis of looping issue and fix
+- [install-complete.md](./install-complete.md) — `.install-complete` marker lifecycle
+- [startup-process.md](./startup-process.md) — Startup sequence documentation
+- [install-testing.md](./install-testing.md) — Detailed testing procedures
+- `required-pages/README.md` — Startup pages explanation
 
 ## Next Steps
 

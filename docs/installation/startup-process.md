@@ -2,7 +2,7 @@
 
 How ngdpbase starts, loads configuration, and begins serving requests.
 
-Related: [INSTALLATION-SYSTEM.md](./INSTALLATION-SYSTEM.md) | [Issue #253](https://github.com/jwilleke/ngdpbase/issues/253)
+Related: [installation-system.md](./installation-system.md) | [install-complete.md](./install-complete.md) | [Issue #253](https://github.com/jwilleke/ngdpbase/issues/253)
 
 ## Startup Sequence Overview
 

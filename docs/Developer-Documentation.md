@@ -215,8 +215,10 @@ npm run docs:html   # Generate HTML
 
 ### Installation & Setup
 
-- [INSTALLATION-SYSTEM](INSTALLATION-SYSTEM.md) - Installation wizard details
-- [INSTALLATION-TESTING-RESULTS](INSTALLATION-TESTING-RESULTS.md) - Installation testing
+- [installation-system](installation/installation-system.md) - Installation wizard details
+- [install-complete marker](installation/install-complete.md) - `.install-complete` marker lifecycle
+- [startup-process](installation/startup-process.md) - Startup sequence documentation
+- [installation-testing-results](installation/installation-testing-results.md) - Installation testing results
 
 ### Development Workflow
 
