@@ -2,6 +2,30 @@
 
 AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version history.
 
+## 2026-04-27-10
+
+- Agent: Claude
+- Subject: Update and consolidate docs/architecture — #597
+- Current Issue: #597
+- Work Done:
+  - Rewrote Current-Rendering-Pipeline.md: accurate parseWithDOMExtraction() phases, FilterChain dead-code warning, Step 0.55 ordering note
+  - Created Current-Save-Page-Pipeline.md: full request-to-disk flow, 7 save steps, post-write actions, validation table
+  - Rewrote JSPWikiPreprocessor.md: replaced 7-phase references with accurate Phase 2.5 description, updated code examples to TypeScript, removed outdated future-plans
+  - Updated MANAGERS-OVERVIEW.md: fixed MarkupParser section (was "Seven-phase pipeline"), fixed Page Render and Page Save inter-manager flows, fixed Plugin Execution phase label
+  - Added ARCHIVED header to DOM-Parser-Implementation-Summary.md (describes superseded Phase 0 → 7 architecture)
+  - Added ARCHIVED headers to FileSystemProvider-Design.md and FileSystemProvider-Implementation-Summary.md (implementation complete)
+  - Updated Developer-Documentation.md: added Current-Rendering-Pipeline and Current-Save-Page-Pipeline to Architecture table; added JSPWikiPreprocessor entry
+- Commits: 8b6f5aba
+- Files Modified:
+  - docs/Developer-Documentation.md
+  - docs/architecture/Current-Rendering-Pipeline.md
+  - docs/architecture/Current-Save-Page-Pipeline.md (new)
+  - docs/architecture/DOM-Parser-Implementation-Summary.md
+  - docs/architecture/FileSystemProvider-Design.md
+  - docs/architecture/FileSystemProvider-Implementation-Summary.md
+  - docs/architecture/JSPWikiPreprocessor.md
+  - docs/architecture/MANAGERS-OVERVIEW.md
+
 ## 2026-04-27-09
 
 - Agent: Claude
