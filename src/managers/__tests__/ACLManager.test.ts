@@ -851,4 +851,259 @@ describe('ACLManager', () => {
       aclManager.logAccessDecision(null as never, 'TestPage', 'view', false, 'no_user');
     });
   });
+
+  describe('checkPagePermissionWithContext() — additional branches', () => {
+    test('throws when wikiContext is null', async () => {
+      await expect(aclManager.checkPagePermissionWithContext(null as never, 'view')).rejects.toThrow();
+    });
+
+    test('Tier 3 — role match in page ACL', async () => {
+      const ctx = makeWikiContext({ content: '[{ALLOW view editor}]', userContext: { username: 'bob', roles: ['editor'], isAuthenticated: true } });
+      expect(await aclManager.checkPagePermissionWithContext(ctx, 'view')).toBe(true);
+    });
+
+    test('Tier 3 — username match in page ACL', async () => {
+      const ctx = makeWikiContext({ content: '[{ALLOW edit alice}]', userContext: { username: 'alice', roles: ['reader'], isAuthenticated: true } });
+      expect(await aclManager.checkPagePermissionWithContext(ctx, 'edit')).toBe(true);
+    });
+
+    test('default deny when ACL has no match', async () => {
+      const ctx = makeWikiContext({ content: '[{ALLOW view admin}]', userContext: { username: 'bob', roles: ['reader'], isAuthenticated: true } });
+      expect(await aclManager.checkPagePermissionWithContext(ctx, 'view')).toBe(false);
+    });
+
+    test('Tier 2 — PolicyEvaluator grants access', async () => {
+      aclManager.policyEvaluator = { evaluateAccess: vi.fn().mockResolvedValue({ hasDecision: true, allowed: true, policyName: 'allow-policy' }) };
+      const ctx = makeWikiContext({ userContext: { username: 'bob', roles: ['reader'] } });
+      expect(await aclManager.checkPagePermissionWithContext(ctx, 'view')).toBe(true);
+      aclManager.policyEvaluator = null;
+    });
+
+    test('Tier 2 — PolicyEvaluator denies access', async () => {
+      aclManager.policyEvaluator = { evaluateAccess: vi.fn().mockResolvedValue({ hasDecision: true, allowed: false, policyName: 'deny-policy' }) };
+      const ctx = makeWikiContext({ userContext: { username: 'bob', roles: ['reader'] } });
+      expect(await aclManager.checkPagePermissionWithContext(ctx, 'view')).toBe(false);
+      aclManager.policyEvaluator = null;
+    });
+
+    test('Tier 2 — PolicyEvaluator throws, falls through to Tier 3', async () => {
+      aclManager.policyEvaluator = { evaluateAccess: vi.fn().mockRejectedValue(new Error('PE error')) };
+      const ctx = makeWikiContext({ content: '[{ALLOW view All}]', userContext: { username: 'bob', roles: ['reader'] } });
+      expect(await aclManager.checkPagePermissionWithContext(ctx, 'view')).toBe(true);
+      aclManager.policyEvaluator = null;
+    });
+  });
+
+  describe('performStandardACLCheck()', () => {
+    test('throws when UserManager is not available', async () => {
+      const noUmEngine = { getManager: vi.fn((name: string) => name === 'ConfigurationManager' ? mockConfigurationManager : null) };
+      const mgr = new ACLManager(noUmEngine as unknown as WikiEngine);
+      await mgr.initialize();
+      await expect(mgr.performStandardACLCheck('TestPage', 'view', { username: 'u', roles: [] }, '')).rejects.toThrow('UserManager not available');
+    });
+
+    test('returns true immediately for admin:system user', async () => {
+      mockUserManager.hasPermission.mockResolvedValue(true);
+      const result = await aclManager.performStandardACLCheck('TestPage', 'view', { username: 'user1', roles: [] }, '');
+      expect(result).toBe(true);
+      expect(mockUserManager.hasPermission).toHaveBeenCalledWith('user1', 'admin:system');
+    });
+
+    test('allows when ACL has All principal', async () => {
+      mockUserManager.hasPermission.mockResolvedValue(false);
+      const result = await aclManager.performStandardACLCheck('TestPage', 'view', { username: 'u', roles: [] }, '[{ALLOW view All}]');
+      expect(result).toBe(true);
+    });
+
+    test('allows when ACL matches user role', async () => {
+      mockUserManager.hasPermission.mockResolvedValue(false);
+      const result = await aclManager.performStandardACLCheck('TestPage', 'view', { username: 'u', roles: ['editor'] }, '[{ALLOW view editor}]');
+      expect(result).toBe(true);
+    });
+
+    test('returns false when ACL denies (no role match)', async () => {
+      mockUserManager.hasPermission.mockResolvedValue(false);
+      const result = await aclManager.performStandardACLCheck('TestPage', 'view', { username: 'u', roles: ['reader'] }, '[{ALLOW view admin}]');
+      expect(result).toBe(false);
+    });
+
+    test('allows view on a regular page with no ACL', async () => {
+      mockUserManager.hasPermission.mockResolvedValue(false);
+      const result = await aclManager.performStandardACLCheck('TestPage', 'view', { username: 'u', roles: [] }, '');
+      expect(result).toBe(true);
+    });
+
+    test('calls checkDefaultPermission for view on a system page', async () => {
+      mockUserManager.hasPermission
+        .mockResolvedValueOnce(false)  // admin:system check
+        .mockResolvedValueOnce(true);  // page:read check
+      const result = await aclManager.performStandardACLCheck('admin-settings', 'view', { username: 'u', roles: [] }, '');
+      expect(result).toBe(true);
+      expect(mockUserManager.hasPermission).toHaveBeenCalledWith('u', 'page:read');
+    });
+
+    test('calls checkDefaultPermission for non-view actions with no ACL', async () => {
+      mockUserManager.hasPermission
+        .mockResolvedValueOnce(false)  // admin:system
+        .mockResolvedValueOnce(true);  // page:edit
+      const result = await aclManager.performStandardACLCheck('TestPage', 'edit', { username: 'u', roles: [] }, '');
+      expect(result).toBe(true);
+      expect(mockUserManager.hasPermission).toHaveBeenCalledWith('u', 'page:edit');
+    });
+  });
+
+  describe('notify() — with NotificationManager available', () => {
+    const mockNM = { addNotification: vi.fn().mockResolvedValue(undefined) };
+    let mgrWithNM: ACLManager;
+
+    beforeEach(async () => {
+      vi.clearAllMocks();
+      mockNM.addNotification.mockResolvedValue(undefined);
+      const engineWithNM = {
+        getManager: vi.fn((name: string) => {
+          if (name === 'ConfigurationManager') return mockConfigurationManager;
+          if (name === 'NotificationManager') return mockNM;
+          return null;
+        })
+      };
+      mgrWithNM = new ACLManager(engineWithNM as unknown as WikiEngine);
+      await mgrWithNM.initialize();
+      // Set up config so checkHolidayRestrictions triggers notify (missing dates config)
+      mockConfigurationManager.getProperty.mockImplementation((key: string, dv: unknown) => {
+        if (key === 'ngdpbase.access.policies') return [];
+        if (key === 'ngdpbase.holidays.enabled') return true;
+        if (key === 'ngdpbase.holidays.dates') return null;
+        if (key === 'ngdpbase.holidays.recurring') return null;
+        return dv;
+      });
+    });
+
+    test('calls NotificationManager.addNotification when available', async () => {
+      await mgrWithNM.checkHolidayRestrictions('2025-01-01', {});
+      expect(mockNM.addNotification).toHaveBeenCalledWith(
+        expect.objectContaining({ level: 'error', title: 'ACLManager' })
+      );
+    });
+
+    test('catch branch fires when addNotification throws', async () => {
+      mockNM.addNotification.mockRejectedValue(new Error('NM unavailable'));
+      const result = await mgrWithNM.checkHolidayRestrictions('2025-01-01', {});
+      expect(result.allowed).toBe(false);
+    });
+  });
+
+  describe('checkEnhancedTimeRestrictions() — holidays and custom schedules branches', () => {
+    const user = { username: 'alice', roles: ['user'] };
+
+    test('returns holiday deny when today is a configured holiday', async () => {
+      vi.useFakeTimers();
+      vi.setSystemTime(new Date('2025-01-01T12:00:00Z'));
+      mockConfigurationManager.getProperty.mockImplementation((key: string, dv: unknown) => {
+        if (key === 'ngdpbase.access.policies') return [];
+        if (key === 'ngdpbase.schedules.enabled') return true;
+        if (key === 'ngdpbase.schedules') return { holidays: { enabled: true }, businessHours: { enabled: false } };
+        if (key === 'ngdpbase.time-zone') return 'UTC';
+        if (key === 'ngdpbase.holidays.enabled') return true;
+        if (key === 'ngdpbase.holidays.dates') return { '2025-01-01': { name: 'New Year', message: 'Closed' } };
+        if (key === 'ngdpbase.holidays.recurring') return {};
+        return dv;
+      });
+      const result = await aclManager.checkEnhancedTimeRestrictions(user, {});
+      expect(result.allowed).toBe(false);
+      expect(result.reason).toBe('holiday_restriction');
+      vi.useRealTimers();
+    });
+
+    test('enters customSchedules branch and falls through when allowed is undefined', async () => {
+      mockConfigurationManager.getProperty.mockImplementation((key: string, dv: unknown) => {
+        if (key === 'ngdpbase.access.policies') return [];
+        if (key === 'ngdpbase.schedules.enabled') return true;
+        if (key === 'ngdpbase.schedules') return { customSchedules: { enabled: true }, businessHours: { enabled: false } };
+        if (key === 'ngdpbase.time-zone') return 'UTC';
+        return dv;
+      });
+      const result = await aclManager.checkEnhancedTimeRestrictions(user, {});
+      // checkCustomSchedule returns {} (allowed: undefined) → falls through to checkBusinessHours(disabled)
+      expect(result.allowed).toBe(true);
+      expect(result.reason).toBe('business_hours_disabled');
+    });
+  });
+
+  describe('checkBusinessHours() — time-based deny paths', () => {
+    test('denies when current day is not a business day', () => {
+      vi.useFakeTimers();
+      vi.setSystemTime(new Date('2025-01-05T12:00:00Z')); // Sunday
+      const result = aclManager.checkBusinessHours(
+        { enabled: true, days: ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'], start: '09:00', end: '17:00' },
+        'UTC'
+      );
+      expect(result.allowed).toBe(false);
+      expect(result.reason).toBe('outside_business_days');
+      vi.useRealTimers();
+    });
+
+    test('denies when current time is before business hours start', () => {
+      vi.useFakeTimers();
+      vi.setSystemTime(new Date('2025-01-08T07:00:00Z')); // Wednesday 07:00 UTC
+      const result = aclManager.checkBusinessHours(
+        { enabled: true, days: ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'], start: '09:00', end: '17:00' },
+        'UTC'
+      );
+      expect(result.allowed).toBe(false);
+      expect(result.reason).toBe('outside_business_hours');
+      vi.useRealTimers();
+    });
+
+    test('allows when within business hours on a business day', () => {
+      vi.useFakeTimers();
+      vi.setSystemTime(new Date('2025-01-08T13:00:00Z')); // Wednesday 13:00 UTC
+      const result = aclManager.checkBusinessHours(
+        { enabled: true, days: ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'], start: '09:00', end: '17:00' },
+        'UTC'
+      );
+      expect(result.allowed).toBe(true);
+      expect(result.reason).toBe('within_business_hours');
+      vi.useRealTimers();
+    });
+  });
+
+  describe('initializeAuditLogging()', () => {
+    test('returns early when ConfigurationManager is not available', async () => {
+      const noConfigEngine = { getManager: vi.fn(() => null) };
+      const mgr = new ACLManager(noConfigEngine as unknown as WikiEngine);
+      await expect(mgr.initializeAuditLogging()).resolves.not.toThrow();
+    });
+
+    test('creates audit log directory when audit is enabled', async () => {
+      mockConfigurationManager.getProperty.mockImplementation((key: string, dv: unknown) => {
+        if (key === 'ngdpbase.audit.enabled') return true;
+        return dv;
+      });
+      (mockConfigurationManager as Record<string, unknown>).getResolvedDataPath = vi.fn().mockReturnValue('/tmp/test-acl-audit-logs');
+      await expect(aclManager.initializeAuditLogging()).resolves.not.toThrow();
+      delete (mockConfigurationManager as Record<string, unknown>).getResolvedDataPath;
+    });
+  });
+
+  describe('loadAccessPolicies()', () => {
+    test('returns early when ConfigurationManager is not available', async () => {
+      const noConfigEngine = { getManager: vi.fn(() => null) };
+      const mgr = new ACLManager(noConfigEngine as unknown as WikiEngine);
+      await expect(mgr.loadAccessPolicies()).resolves.not.toThrow();
+    });
+
+    test('skips null entries and entries without id', async () => {
+      mockConfigurationManager.getProperty.mockImplementation((key: string, dv: unknown) => {
+        if (key === 'ngdpbase.access.policies') return [
+          null,
+          { id: 'valid-policy', name: 'Valid' },
+          { name: 'no-id-policy' }
+        ];
+        return dv;
+      });
+      await aclManager.loadAccessPolicies();
+      expect(aclManager.accessPolicies.has('valid-policy')).toBe(true);
+      expect(aclManager.accessPolicies.size).toBe(1);
+    });
+  });
 });

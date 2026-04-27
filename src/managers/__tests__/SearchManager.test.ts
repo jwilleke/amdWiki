@@ -467,5 +467,191 @@ describe('SearchManager', () => {
       const result = await searchManager.multiSearch({ query: 'test' });
       expect(result).toEqual([]);
     });
+
+    test('returns [] for null criteria', async () => {
+      expect(await searchManager.multiSearch(null as never)).toEqual([]);
+    });
+  });
+
+  // Helper: minimal mock provider (overrides applied per-test)
+  function makeMockProvider(overrides: Record<string, unknown> = {}) {
+    return {
+      search: vi.fn().mockResolvedValue([]),
+      advancedSearch: vi.fn().mockResolvedValue([]),
+      suggestSimilarPages: vi.fn().mockResolvedValue([]),
+      getSuggestions: vi.fn().mockResolvedValue([]),
+      getAllDocuments: vi.fn().mockResolvedValue([]),
+      getDocumentCount: vi.fn().mockResolvedValue(0),
+      getStatistics: vi.fn().mockResolvedValue({ totalDocuments: 0, indexSize: 0, averageDocumentLength: 0, totalCategories: 0, totalUserKeywords: 0 }),
+      backup: vi.fn().mockResolvedValue({}),
+      restore: vi.fn().mockResolvedValue(undefined),
+      close: vi.fn().mockResolvedValue(undefined),
+      buildIndex: vi.fn().mockResolvedValue(undefined),
+      updatePageInIndex: vi.fn().mockResolvedValue(undefined),
+      removePageFromIndex: vi.fn().mockResolvedValue(undefined),
+      isHealthy: vi.fn().mockResolvedValue(true),
+      getProviderInfo: vi.fn().mockReturnValue({ name: 'MockProvider', features: [] }),
+      ...overrides
+    };
+  }
+
+  describe('searchWithContext()', () => {
+    const wikiCtx = { pageName: 'Test', content: '', userContext: { username: 'alice', roles: ['user'] } };
+
+    test('throws when wikiContext is null', async () => {
+      await expect(searchManager.searchWithContext(null as never, 'query')).rejects.toThrow('requires a WikiContext');
+    });
+
+    test('returns [] when provider is null', async () => {
+      searchManager.provider = null;
+      expect(await searchManager.searchWithContext(wikiCtx, 'query')).toEqual([]);
+    });
+
+    test('returns results from provider', async () => {
+      searchManager.provider = makeMockProvider({ search: vi.fn().mockResolvedValue([{ pageName: 'Test', title: 'Test' }]) });
+      const result = await searchManager.searchWithContext(wikiCtx, 'test');
+      expect(result).toHaveLength(1);
+    });
+
+    test('returns [] when provider.search throws', async () => {
+      searchManager.provider = makeMockProvider({ search: vi.fn().mockRejectedValue(new Error('fail')) });
+      expect(await searchManager.searchWithContext(wikiCtx, 'test')).toEqual([]);
+    });
+  });
+
+  describe('advancedSearchWithContext()', () => {
+    const wikiCtx = { pageName: 'Test', content: '', userContext: { username: 'alice', roles: ['user'] } };
+
+    test('throws when wikiContext is null', async () => {
+      await expect(searchManager.advancedSearchWithContext(null as never, {})).rejects.toThrow('requires a WikiContext');
+    });
+
+    test('returns [] when provider is null', async () => {
+      searchManager.provider = null;
+      expect(await searchManager.advancedSearchWithContext(wikiCtx, {})).toEqual([]);
+    });
+
+    test('returns results from provider', async () => {
+      searchManager.provider = makeMockProvider({ advancedSearch: vi.fn().mockResolvedValue([{ pageName: 'Test', title: 'Test' }]) });
+      const result = await searchManager.advancedSearchWithContext(wikiCtx, { query: 'test' });
+      expect(result).toHaveLength(1);
+    });
+
+    test('returns [] when provider.advancedSearch throws', async () => {
+      searchManager.provider = makeMockProvider({ advancedSearch: vi.fn().mockRejectedValue(new Error('fail')) });
+      expect(await searchManager.advancedSearchWithContext(wikiCtx, {})).toEqual([]);
+    });
+  });
+
+  describe('suggestSimilarPages()', () => {
+    test('returns [] when provider is null', async () => {
+      searchManager.provider = null;
+      expect(await searchManager.suggestSimilarPages('TestPage')).toEqual([]);
+    });
+
+    test('returns suggestions from provider', async () => {
+      searchManager.provider = makeMockProvider({ suggestSimilarPages: vi.fn().mockResolvedValue([{ pageName: 'Similar', title: 'Similar' }]) });
+      expect(await searchManager.suggestSimilarPages('TestPage', 3)).toHaveLength(1);
+    });
+
+    test('returns [] when provider.suggestSimilarPages throws', async () => {
+      searchManager.provider = makeMockProvider({ suggestSimilarPages: vi.fn().mockRejectedValue(new Error('fail')) });
+      expect(await searchManager.suggestSimilarPages('TestPage')).toEqual([]);
+    });
+  });
+
+  describe('getSuggestions()', () => {
+    test('returns [] when provider is null', async () => {
+      searchManager.provider = null;
+      expect(await searchManager.getSuggestions('test')).toEqual([]);
+    });
+
+    test('returns suggestions from provider', async () => {
+      searchManager.provider = makeMockProvider({ getSuggestions: vi.fn().mockResolvedValue(['test page', 'testing']) });
+      expect(await searchManager.getSuggestions('test')).toEqual(['test page', 'testing']);
+    });
+
+    test('returns [] when provider.getSuggestions throws', async () => {
+      searchManager.provider = makeMockProvider({ getSuggestions: vi.fn().mockRejectedValue(new Error('fail')) });
+      expect(await searchManager.getSuggestions('test')).toEqual([]);
+    });
+  });
+
+  describe('getAllDocuments()', () => {
+    test('returns documents from provider', async () => {
+      searchManager.provider = makeMockProvider({ getAllDocuments: vi.fn().mockResolvedValue([{ pageName: 'A' }]) });
+      expect(await searchManager.getAllDocuments()).toHaveLength(1);
+    });
+
+    test('returns [] when provider.getAllDocuments throws', async () => {
+      searchManager.provider = makeMockProvider({ getAllDocuments: vi.fn().mockRejectedValue(new Error('fail')) });
+      expect(await searchManager.getAllDocuments()).toEqual([]);
+    });
+  });
+
+  describe('searchByKeywords()', () => {
+    test('returns [] for null input', async () => {
+      expect(await searchManager.searchByKeywords(null as never)).toEqual([]);
+    });
+
+    test('returns [] for non-array input', async () => {
+      expect(await searchManager.searchByKeywords('not-an-array' as never)).toEqual([]);
+    });
+
+    test('calls search with joined keywords', async () => {
+      searchManager.provider = makeMockProvider({ search: vi.fn().mockResolvedValue([{ pageName: 'Result', title: 'Result' }]) });
+      const result = await searchManager.searchByKeywords(['hello', 'world']);
+      expect(result).toHaveLength(1);
+    });
+  });
+
+  describe('addToIndex() — error path', () => {
+    test('logs error and does not rethrow when updatePageInIndex throws', async () => {
+      searchManager.provider = makeMockProvider({ updatePageInIndex: vi.fn().mockRejectedValue(new Error('fail')) });
+      await expect(searchManager.addToIndex({ name: 'TestPage', title: 'Test', content: '' })).resolves.not.toThrow();
+    });
+  });
+
+  describe('removeFromIndex() — error path', () => {
+    test('logs error and does not rethrow when removePageFromIndex throws', async () => {
+      searchManager.provider = makeMockProvider({ removePageFromIndex: vi.fn().mockRejectedValue(new Error('fail')) });
+      await expect(searchManager.removeFromIndex('TestPage')).resolves.not.toThrow();
+    });
+  });
+
+  describe('buildSearchIndex() — error path', () => {
+    test('rethrows when provider.buildIndex fails', async () => {
+      searchManager.provider = makeMockProvider({ buildIndex: vi.fn().mockRejectedValue(new Error('index error')) });
+      await expect(searchManager.buildSearchIndex()).rejects.toThrow('index error');
+    });
+  });
+
+  describe('search() — error path', () => {
+    test('returns [] when provider.search throws', async () => {
+      searchManager.provider = makeMockProvider({ search: vi.fn().mockRejectedValue(new Error('search error')) });
+      expect(await searchManager.search('test')).toEqual([]);
+    });
+  });
+
+  describe('advancedSearch() — error path', () => {
+    test('returns [] when provider.advancedSearch throws', async () => {
+      searchManager.provider = makeMockProvider({ advancedSearch: vi.fn().mockRejectedValue(new Error('fail')) });
+      expect(await searchManager.advancedSearch({ query: 'test' })).toEqual([]);
+    });
+  });
+
+  describe('getDocumentCount() — error path', () => {
+    test('returns 0 when provider.getDocumentCount throws', async () => {
+      searchManager.provider = makeMockProvider({ getDocumentCount: vi.fn().mockRejectedValue(new Error('fail')) });
+      expect(await searchManager.getDocumentCount()).toBe(0);
+    });
+  });
+
+  describe('getStatistics() — error path', () => {
+    test('returns empty stats when provider.getStatistics throws', async () => {
+      searchManager.provider = makeMockProvider({ getStatistics: vi.fn().mockRejectedValue(new Error('fail')) });
+      const result = await searchManager.getStatistics();
+      expect(result.totalDocuments).toBe(0);
+    });
   });
 });
