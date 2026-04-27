@@ -2,6 +2,26 @@
 
 AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version history.
 
+## 2026-04-27-01
+
+- Agent: Claude
+- Subject: Architecture docs rewrite, demo doc link fixes, WikiRoutes test coverage (#591)
+- Current Issue: #591
+- Work Done:
+  - Converted backtick code spans to real Markdown links in `docs/demo/technical.md` (WikiRoutes.ts, UptimePlugin.ts, addons/ dir, full Reference Links section)
+  - Rewrote `docs/architecture/MANAGERS-OVERVIEW.md`: 34-manager inventory, correct initialization order table, per-manager API reference, and inter-manager flow diagrams (page render, save cascade, auth, ACL, search, plugin execution, backup)
+  - Fixed 8 MD031/MD032 markdownlint warnings in MANAGERS-OVERVIEW.md
+  - Added MANAGERS-OVERVIEW.md links in `ARCHITECTURE.md` (Manager-Based Architecture section + For More Details list)
+  - Added `WikiRoutes.coverage.test.ts` (39 tests) covering: viewPage cache HIT/MISS and ACL guards, savePage validation (invalid title chars, missing/invalid system-category, section edit), deletePage page-not-found and ACL-denied paths, all four footnote API handlers (every auth/permission/validation/ownership branch), six searchPages routing branches, previewPage happy/error paths
+  - Overall coverage: statements 59.67% → 60.19% ✅ (target met), branches 52.61% → 53.34%
+  - WikiRoutes.ts coverage: 29% → 32%
+- Commits: e737d4be
+- Files Modified:
+  - ARCHITECTURE.md
+  - docs/architecture/MANAGERS-OVERVIEW.md
+  - docs/demo/technical.md
+  - src/routes/__tests__/WikiRoutes.coverage.test.ts
+
 ## 2026-04-26-01
 
 - Agent: Claude
