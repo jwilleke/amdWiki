@@ -2,6 +2,27 @@
 
 AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version history.
 
+## 2026-04-27-12
+
+- Agent: Claude
+- Subject: Install docs — #595 (rename, install-complete doc, FAST_STORAGE/SLOW_STORAGE corrections)
+- Current Issue: #595
+- Work Done:
+  - Renamed docs/INSTALLATION/ → docs/installation/ (lowercase per naming convention)
+  - Renamed all files inside to lowercase: installation-system.md, install-testing.md, installation-testing-results.md, startup-process.md
+  - Created docs/installation/install-complete.md — documents .install-complete marker lifecycle, location (FAST_STORAGE), when created (interactive vs headless), three check sites, isInstallRequired() logic, manual recovery, Docker/K8s usage
+  - Updated installation-system.md: replaced all INSTANCE_DATA_FOLDER with FAST_STORAGE/SLOW_STORAGE; documented FAST_STORAGE vs SLOW_STORAGE split; rewrote Instance Data Structure section to show config property names from config/app-default-config.json alongside paths; updated Docker and K8s sections
+  - Fixed broken links in Developer-Documentation.md (were pointing to wrong path without INSTALLATION/ prefix)
+  - Updated cross-references inside startup-process.md and installation-system.md
+- Commits: 050bacf9, 7fbbb9cc
+- Files Modified:
+  - docs/Developer-Documentation.md
+  - docs/installation/install-complete.md (new)
+  - docs/installation/install-testing.md (renamed from INSTALL-TESTING.md)
+  - docs/installation/installation-system.md (renamed from INSTALLATION-SYSTEM.md)
+  - docs/installation/installation-testing-results.md (renamed from INSTALLATION-TESTING-RESULTS.md)
+  - docs/installation/startup-process.md (renamed from Startup-Process.md)
+
 ## 2026-04-27-11
 
 - Agent: Claude
