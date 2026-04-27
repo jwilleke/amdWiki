@@ -2,6 +2,32 @@
 
 AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version history.
 
+## 2026-04-27-13
+
+- Agent: Claude
+- Subject: Clean up docs/developer — UUID-named pages #598
+- Current Issue: #598
+- Work Done:
+  - Renamed 14 UUID-named files in docs/developer/ to slug-based names using each page's frontmatter slug field; verified no duplicate slugs and no external file references broken
+  - Deleted all 14 files: 10 were test/temp pages (acl-test-page, pipe-link-test, pipe-test-simple, target-blank-test, plugin-escaping-test, test-no-template, test-99, test-actions, extended-link-test, metadata-cleanup-progress), 2 were duplicates of docs/plugins/ (counterplugin, searchplugin), 1 superseded by docs/managers/PluginManager.md (plugin-system-documentation), 1 stale early vision doc superseded by docs/planning/ROADMAP.md (project-overview-and-vision)
+  - docs/developer/ directory is now empty and removed
+- Commits: b509a6fb, 65d2907c
+- Files Modified:
+  - docs/developer/acl-test-page.md (deleted)
+  - docs/developer/counterplugin.md (deleted)
+  - docs/developer/extended-link-test.md (deleted)
+  - docs/developer/metadata-cleanup-progress.md (deleted)
+  - docs/developer/pipe-link-test.md (deleted)
+  - docs/developer/pipe-test-simple.md (deleted)
+  - docs/developer/plugin-escaping-test.md (deleted)
+  - docs/developer/plugin-system-documentation.md (deleted)
+  - docs/developer/project-overview-and-vision.md (deleted)
+  - docs/developer/searchplugin.md (deleted)
+  - docs/developer/target-blank-test.md (deleted)
+  - docs/developer/test-99.md (deleted)
+  - docs/developer/test-actions.md (deleted)
+  - docs/developer/test-no-template.md (deleted)
+
 ## 2026-04-27-12
 
 - Agent: Claude
