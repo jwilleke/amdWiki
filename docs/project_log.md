@@ -2,6 +2,24 @@
 
 AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version history.
 
+## 2026-04-27-09
+
+- Agent: Claude
+- Subject: Fix #592 — table header cells ignore inline styles (%%sup/sub/strike%%)
+- Current Issue: #592
+- Work Done:
+  - Investigated rendering pipeline: confirmed WikiDocument DOM extraction is the active path (docs/architecture/Current-Rendering-Pipeline.md was outdated on this point)
+  - Root cause: Step 0.55 (%%sup/sub/strike%% → HTML tags) ran in extractJSPWikiSyntax() Phase 1, before JSPWikiPreprocessor Phase 2.5; escapeHtml() in parseTable() then destroyed the generated tags
+  - Fix: removed Step 0.55 from extractJSPWikiSyntax(); re-added after Phase 2.5 in parseWithDOMExtraction() where %% text survives escapeHtml() unchanged
+  - Validation warning: injected <!-- VALIDATION WARNING [markup-syntax] --> comment (after Phase 2.6 to avoid wiki-link handler processing it) for malformed %%sup2%% syntax (missing required space)
+  - Added 11 new tests in MarkupParser-InlineStyles.test.ts covering table headers, table body cells, non-table inline, both closing syntaxes, and malformed-syntax warning
+  - Discovered filterChain.execute() is never called — ValidationFilter/SecurityFilter/SpamFilter are dead code; created #596 to track
+  - All 713 parser tests pass; no regressions
+- Commits: 699b30f8
+- Files Modified:
+  - src/parsers/MarkupParser.ts
+  - src/parsers/__tests__/MarkupParser-InlineStyles.test.ts
+
 ## 2026-04-27-08
 
 - Agent: Claude
