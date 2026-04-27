@@ -91,7 +91,6 @@ FileSystemProvider uses a multi-index cache:
 - **Complete Guide:** [FileSystemProvider-Complete-Guide.md](FileSystemProvider-Complete-Guide.md)
 - **Parent Class:** [BasePageProvider.md](BasePageProvider.md)
 - **Manager:** [PageManager.md](../managers/PageManager.md)
-- **Architecture:** [FileSystemProvider-Design.md](../architecture/FileSystemProvider-Design.md)
 
 ---
 

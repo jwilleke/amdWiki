@@ -1080,7 +1080,6 @@ To migrate to database provider:
 - **Quick Reference:** [FileSystemProvider.md](FileSystemProvider.md)
 - **Base Class:** [BasePageProvider.md](BasePageProvider.md)
 - **Manager:** [PageManager.md](../managers/PageManager.md)
-- **Architecture:** [FileSystemProvider-Design.md](../architecture/FileSystemProvider-Design.md)
 - **Extended Version:** [VersioningFileProvider.md](VersioningFileProvider.md)
 
 ---

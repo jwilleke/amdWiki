@@ -194,6 +194,5 @@ The `FilterChain` (ValidationFilter, SecurityFilter, SpamFilter) is initialized 
 ## See Also
 
 - [Current-Rendering-Pipeline.md](./Current-Rendering-Pipeline.md) — How saved pages are rendered for viewing
-- [FileSystemProvider Design](./FileSystemProvider-Design.md) — Provider storage details
 - [MANAGERS-OVERVIEW.md](./MANAGERS-OVERVIEW.md) — Manager architecture overview
 - [Issue #596](https://github.com/jwilleke/ngdpbase/issues/596) — FilterChain not wired (affects both save and render paths)
