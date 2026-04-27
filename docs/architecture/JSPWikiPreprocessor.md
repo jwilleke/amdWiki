@@ -1,69 +1,56 @@
 # JSPWikiPreprocessor Architecture
 
-> NOTE: part of [WikiDocument-DOM-Architecture](../../docs/architecture/WikiDocument-DOM-Architecture.md)
+**Status**: Production Architecture (as of 2026-04-27)
+**Related**: [Current-Rendering-Pipeline.md](./Current-Rendering-Pipeline.md) | [MANAGERS-OVERVIEW.md](./MANAGERS-OVERVIEW.md)
 
 ## Overview
 
-`JSPWikiPreprocessor` is a Phase 1 handler in the ngdpbase rendering pipeline that processes JSPWiki-specific syntax **before** markdown conversion. This ensures JSPWiki markup is properly converted to HTML before any other transformations occur.
+`JSPWikiPreprocessor` is a registered markup handler that converts JSPWiki-specific table syntax and `%%class%%` style blocks to HTML **before** Showdown markdown conversion. It runs as **Phase 2.5** in the `parseWithDOMExtraction()` pipeline with registration priority 95 (highest among handlers).
 
 ## Position in the Rendering Pipeline
 
-### The 7-Phase Processing Pipeline
+`JSPWikiPreprocessor` runs inside `MarkupParser.parseWithDOMExtraction()`:
 
 ```text
-User Request → RenderingManager → MarkupParser → 7 Phases → HTML Response
+HTTP GET /wiki/PageName
+    │
+    ▼
+MarkupParser.parseWithDOMExtraction()
+    │
+    ├─ Phase 1: extractJSPWikiSyntax()
+    │    (code blocks, fenced code, style block extraction,
+    │     emoji, status boxes — extracts to UUID placeholders)
+    │
+    ├─ Phase 2: WikiDocument DOM node creation
+    │    (extracted elements → DOM nodes for placeholder restoration)
+    │
+    ├─ Phase 2.5: JSPWikiPreprocessor  ← RUNS HERE
+    │    (bare table syntax || / |, %%class%% style blocks → HTML)
+    │    Priority: 95 — executes first among all registered handlers
+    │
+    ├─ Step 0.55: Inline style conversion
+    │    (%%sup/sub/strike%% → <sup>/<sub>/<del>)
+    │    Runs AFTER Phase 2.5 so %% patterns survive escapeHtml()
+    │
+    ├─ Phase 2.6: Other registered handlers
+    │
+    ├─ Phase 3: Showdown markdown → HTML
+    │
+    └─ Phase 4: DOM placeholder restoration
+         (UUID spans → plugin/code/style block HTML)
 ```
 
-#### Complete Phase Breakdown
+### Why Phase 2.5 (After Phase 1)?
 
-1. **Phase 1: Preprocessing** ← **JSPWikiPreprocessor runs here**
-   - Escape handling (EscapedSyntaxHandler - priority 100)
-   - JSPWiki syntax processing (JSPWikiPreprocessor - priority 95)
-   - Code block protection
-   - Line ending normalization
+JSPWikiPreprocessor runs after `extractJSPWikiSyntax()` for a critical reason: Phase 1 extracts style blocks wrapped in `%%class … /%` into UUID placeholder spans. JSPWikiPreprocessor handles the **bare table rows** (`|| header ||` / `| cell |`) and any remaining `%%class%%` blocks that were not captured as style blocks in Phase 1.
 
-2. **Phase 2: Syntax Recognition**
-   - Pattern detection
-   - Token creation
+**Why table syntax must run before Showdown (Phase 3):**
 
-3. **Phase 3: Context Resolution**
-   - Variable expansion (VariableManager)
-   - Parameter resolution
+Without Phase 2.5, Showdown wraps `|| header ||` in `<p>` tags during Phase 3, which prevents the table from being parsed. Producing the `<table>` HTML in Phase 2.5 leaves it unchanged by Showdown. ✅
 
-4. **Phase 4: Content Transformation**
-   - PluginSyntaxHandler
-   - WikiTagHandler
-   - WikiFormHandler
-   - LinkParserHandler
-   - AttachmentHandler
+**Why Step 0.55 (inline %%sup/sub/strike%%) runs after Phase 2.5:**
 
-5. **Phase 5: Filter Pipeline**
-   - ValidationFilter
-   - Content filtering
-
-6. **Phase 6: Markdown Conversion**
-   - Showdown processing
-   - Markdown → HTML
-
-7. **Phase 7: Post-processing**
-   - HTML cleanup
-   - Final validation
-
-### Why Phase 1?
-
-**Critical Design Decision:** JSPWikiPreprocessor runs in Phase 1 (before markdown) to solve a fundamental problem:
-
-PROBLEM (Old Architecture):
-Phase 4: WikiStyleHandler sees: %%table-striped
-Phase 6: Markdown wraps header: || Product || → ```<p>```|| Product ||</p>
-Phase 4: WikiTableHandler can't find headers (they're in ```<p>``` tags!)
-Result: Headers appear OUTSIDE tables ❌
-
-SOLUTION (New Architecture):
-Phase 1: JSPWikiPreprocessor sees: %%table-striped\n|| Product ||\n| Data |
-Phase 1: Converts to: ```<table class="table table-striped"><thead>...```
-Phase 6: Markdown leaves ```<table>``` HTML unchanged ✅
-Result: Headers are INSIDE tables ✓
+`JSPWikiPreprocessor.parseTable()` calls `escapeHtml()` on each cell value, which converts `<sup>` → `&lt;sup&gt;`. Since `%` is not an HTML-special character, `%%sup 2%%` text *survives* `escapeHtml()` unchanged. Step 0.55 converts those patterns to HTML *after* the table is already built. ([#592](https://github.com/jwilleke/ngdpbase/issues/592))
 
 ## How JSPWikiPreprocessor Works
 
@@ -166,29 +153,26 @@ extractCustomStyles(['zebra-ffe0e0'])
 
 ### With MarkupParser
 
-**Registration:**
+**Registration** (`src/parsers/MarkupParser.ts` — `registerDefaultHandlers()`):
 
-```javascript
-// MarkupParser.js - registerDefaultHandlers()
-const JSPWikiPreprocessor = require('./handlers/JSPWikiPreprocessor');
+```typescript
 const jspwikiPreprocessor = new JSPWikiPreprocessor(this.engine);
 await this.registerHandler(jspwikiPreprocessor);
 ```
 
-**Phase Execution:**
+The handler sets `this.priority = 95` in its constructor, making it the first handler to run in Phase 2.5 / Phase 2.6.
 
-```javascript
-// MarkupParser.js - phasePreprocessing()
-async phasePreprocessing(content, context) {
-  const phase1Handlers = this.handlerRegistry.resolveExecutionOrder()
-    .filter(handler => handler.phase === 1);
+**Phase Execution** (`src/parsers/MarkupParser.ts` — `parseWithDOMExtraction()`):
 
-  for (const handler of phase1Handlers) {
-    processedContent = await handler.execute(processedContent, context);
-  }
-  // ... code block protection, normalization
+```typescript
+// Phase 2.5 / 2.6 — registered handlers in priority order
+const allHandlers = this.handlerRegistry.resolveExecutionOrder();
+for (const handler of allHandlers) {
+  preprocessed = await handler.process(preprocessed, context) ?? preprocessed;
 }
 ```
+
+**Source:** `src/parsers/handlers/JSPWikiPreprocessor.ts`
 
 ### With Client-Side JavaScript
 
@@ -285,66 +269,17 @@ getContrastColor(hexColor) {
 
 ## Deprecated Components
 
-### WikiStyleHandler (Phase 4)
+### WikiStyleHandler / WikiTableHandler
 
-**Replaced by:** JSPWikiPreprocessor (Phase 1)
+Both were replaced by JSPWikiPreprocessor. They ran too late in the old 7-phase pipeline (after Showdown wrapped `||` rows in `<p>` tags), causing table headers to appear outside the table. JSPWikiPreprocessor solves this by running before Showdown in Phase 2.5.
 
-**Why deprecated:**
+## Known Limitations
 
-- Ran too late (after markdown preprocessing)
-- Used marker system (%%TABLE_CLASSES{...}%%)
-- Headers separated from tables
+- No column alignment support (`||align=right Header||`)
+- No colspan / rowspan support
+- Cell-level styling not supported
 
-### WikiTableHandler (Phase 4)
-
-**Replaced by:** JSPWikiPreprocessor (Phase 1)
-
-**Why deprecated:**
-
-- Couldn't find headers (wrapped in `<p>` tags)
-- State-based approach incomplete
-- Timing issues with WikiStyleHandler
-
-## Future Plans
-
-### Near-Term Enhancements
-
-1. **Additional JSPWiki Syntax**
-   - Definition lists
-   - Quote blocks
-   - Inline styles (%%style="..." text /%)
-
-2. **Extended Table Features**
-   - Column alignment (left/center/right)
-   - Column span (`||colspan=2 Header||`)
-   - Row span support
-   - Cell-level styling
-
-3. **Performance Optimization**
-   - Caching parsed tables
-   - Incremental parsing for large documents
-
-### Long-Term Architecture
-
-1. **Unified Preprocessor**
-
-   ```text
-   JSPWikiPreprocessor (current)
-     ├─ Table Parsing ✓
-     ├─ Style Blocks ✓
-     ├─ Custom Colors ✓
-     └─ Future: All JSPWiki syntax
-   ```
-
-2. **Plugin System Integration**
-   - Allow plugins to extend table styles
-   - Custom renderers for special tables
-   - Dynamic table generation
-
-3. **Progressive Enhancement**
-   - Server-side: Basic HTML tables
-   - Client-side: Enhanced interactivity
-   - Graceful degradation without JavaScript
+These are tracked as potential enhancements, not bugs.
 
 ## Testing
 
@@ -455,12 +390,11 @@ if (this.debug) {
 
 ## Related Documentation
 
-- [MarkupParser Architecture](./MarkupParser.md)
-- [Handler Priority System](./HandlerRegistry.md)
-- [Table Styles Guide](../features/TableStyles.md)
-- [Phase Processing Pipeline](./ProcessingPipeline.md)
+- [Current-Rendering-Pipeline.md](./Current-Rendering-Pipeline.md) — Full pipeline overview including Phase 2.5 context
+- [MANAGERS-OVERVIEW.md](./MANAGERS-OVERVIEW.md) — Manager and rendering flow
+- [Issue #592](https://github.com/jwilleke/ngdpbase/issues/592) — Inline style ordering fix (Step 0.55 moved after Phase 2.5)
+- [Issue #596](https://github.com/jwilleke/ngdpbase/issues/596) — FilterChain not wired (affects validation at save/render time)
 
 ---
 
-**Last Updated:** 2025-10-07
-**Maintainer:** ngdpbase Development Team
+**Last Updated:** 2026-04-27

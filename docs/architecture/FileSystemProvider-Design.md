@@ -6,6 +6,12 @@ user-keywords: [architecture, provider-pattern, refactoring]
 lastModified: 2025-10-08
 ---
 
+> **ARCHIVED**: Design document — implementation complete. See
+> [FileSystemProvider-Implementation-Summary.md](./FileSystemProvider-Implementation-Summary.md)
+> and [Current-Save-Page-Pipeline.md](./Current-Save-Page-Pipeline.md) for current state.
+
+---
+
 # FileSystemProvider Architecture Design
 
 ## Overview

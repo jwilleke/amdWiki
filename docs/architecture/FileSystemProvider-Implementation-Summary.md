@@ -6,6 +6,12 @@ user-keywords: [architecture, implementation, provider-pattern]
 lastModified: 2025-10-08
 ---
 
+> **ARCHIVED**: Implementation summary as of 2025-10-08. The provider pattern is in production.
+> For the current save-path flow (including `VersioningFileProvider`) see
+> **[Current-Save-Page-Pipeline.md](./Current-Save-Page-Pipeline.md)**.
+
+---
+
 # FileSystemProvider Implementation Summary
 
 ## Implementation Complete ✅

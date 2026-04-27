@@ -161,9 +161,11 @@ System design and architectural patterns:
 
 | Document | Description |
 | ---------- | ------------- |
+| [Current-Rendering-Pipeline](architecture/Current-Rendering-Pipeline.md) | Production rendering pipeline (request → HTML) |
+| [Current-Save-Page-Pipeline](architecture/Current-Save-Page-Pipeline.md) | Production save pipeline (request → disk) |
 | [MANAGERS-OVERVIEW](architecture/MANAGERS-OVERVIEW.md) | Manager-based architecture |
 | [PROJECT-STRUCTURE](architecture/PROJECT-STRUCTURE.md) | Directory structure and organization |
-| [WikiDocument-DOM-Architecture](architecture/WikiDocument-DOM-Architecture.md) | DOM-based parsing pipeline |
+| [JSPWikiPreprocessor](architecture/JSPWikiPreprocessor.md) | Table and style-block handler (Phase 2.5) |
 | [Policies-Roles-Permissions](architecture/Policies-Roles-Permissions.md) | Access control architecture |
 | [Cache-System](architecture/Cache-System.md) | Caching strategy |
 | [Page-Metadata](architecture/Page-Metadata.md) | Page frontmatter structure |

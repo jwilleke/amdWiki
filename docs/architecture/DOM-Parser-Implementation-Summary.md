@@ -2,10 +2,17 @@
 title: DOM Parser Implementation Summary
 uuid: dom-parser-implementation-summary
 category: architecture
-status: completed
+status: archived
 date: 2025-10-12
 related: [WikiDocument-DOM-Architecture.md, WikiDocument-Migration-TODO.md]
 issue: #93
+---
+
+> **ARCHIVED**: This document records the implementation state as of 2025-10-12 (issue #93).
+> The rendering architecture has since evolved significantly. For the current production pipeline
+> see **[Current-Rendering-Pipeline.md](./Current-Rendering-Pipeline.md)**.
+> The pipeline described here (Phase 0 → Phases 1–7) was superseded by `parseWithDOMExtraction()`.
+
 ---
 
 # DOM Parser Implementation Summary

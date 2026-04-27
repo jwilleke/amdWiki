@@ -270,19 +270,27 @@ Plugins implement `SimplePlugin { execute(context, params): string }`. Old-style
 
 ### MarkupParser
 
-Seven-phase markup parsing pipeline (JSPWiki-compatible).
+JSPWiki-compatible markup parser. The production path is `parseWithDOMExtraction()`:
 
 ```
-Phase 1 — Preprocessing   (normalise, encode protected blocks)
-Phase 2 — Syntax          (headings, lists, tables, links)
-Phase 3 — Context         (variables, page references)
-Phase 4 — Plugins         (PluginManager.execute per [{...}] token)
-Phase 5 — Filters         (ACL, content filters)
-Phase 6 — Markdown        (CommonMark via marked)
-Phase 7 — Post-processing (sanitise, highlight.js, heading IDs)
+Phase 1    — extractJSPWikiSyntax()
+             (fenced code, style blocks, emoji, status boxes → UUID placeholder spans)
+Phase 2    — WikiDocument DOM node creation
+             (extracted elements become DOM nodes for restoration in Phase 4)
+Phase 2.5  — JSPWikiPreprocessor (priority 95)
+             (bare table syntax || / |, %%class%% style blocks → HTML)
+Step 0.55  — Inline style conversion
+             (%%sup/sub/strike%% → <sup>/<sub>/<del>)
+Phase 2.6  — Other registered handlers (plugins, wiki links, etc.)
+Phase 3    — Showdown markdown → HTML
+Phase 4    — DOM placeholder restoration
+             (UUID spans replaced with rendered plugin/code/style HTML)
+FilterChain — ⚠️ Initialized but never called — see #596
 ```
 
 Not a BaseManager subclass — initialised by WikiEngine and accessed by RenderingManager via `engine.getManager('MarkupParser')`.
+
+**See also:** [Current-Rendering-Pipeline.md](./Current-Rendering-Pipeline.md)
 
 ---
 
@@ -540,16 +548,23 @@ GET /view/:page
   ↓
 WikiRoutes.viewPage()
   → ACLManager.isAllowed(view, page, userContext)
-  → PageManager.getPage(name)           → WikiDocument
+  → PageManager.getPage(name)
   → CacheManager.get(rendered-pages:<name>:<roleSet>)   → miss
   → RenderingManager.textToHTML(ctx, content)
-      → MarkupParser phases 1–7
-          → Phase 4: PluginManager.execute() per [{token}]
-          → Phase 3: VariableManager.expand() per [{$var}]
+      → MarkupParser.parseWithDOMExtraction()
+          → Phase 1: extractJSPWikiSyntax()
+          → Phase 2: WikiDocument DOM node creation
+          → Phase 2.5: JSPWikiPreprocessor (tables, style blocks)
+          → Step 0.55: inline style conversion (%%sup/sub/strike%%)
+          → Phase 2.6: handlers (plugins, wiki links, variables)
+          → Phase 3: Showdown markdown → HTML
+          → Phase 4: DOM placeholder restoration
   → CacheManager.set(rendered-pages:<name>:<roleSet>, html, ttl)
   → MetricsManager.recordPageView(ms)
   → render EJS template with html
 ```
+
+**See also:** [Current-Rendering-Pipeline.md](./Current-Rendering-Pipeline.md)
 
 ### Page Save
 
@@ -557,19 +572,22 @@ WikiRoutes.viewPage()
 POST /save/:page
   ↓
 WikiRoutes.savePage()
-  → UserManager.ensureAuthenticated()
-  → ACLManager.isAllowed(edit, page, userContext)
-  → ValidationManager.validatePage(name, metadata, content)
-  → PageManager.savePage(doc)
-      → FileSystemProvider.write()
-      → CacheManager.del(rendered-pages:<name>:*, page:<name>)
-      → SearchManager.updatePageInIndex(name, doc)
-      → RenderingManager.updatePageInLinkGraph(name, content)
-      → AttachmentManager.syncPageMentions(name, content)
-      → AssetManager.syncPageAssets(name, content)
-  → AuditManager.logAuditEvent({ action: edit, page })
-  → MetricsManager.recordPageSave(ms)
+  → ACLManager.checkPermission(edit, page, userContext)
+  → PageManager.savePageWithContext(wikiContext, metadata)
+      → [1] Reject deprecated inline ACL markup [{ALLOW}/{DENY}]
+      → [2] Preserve original author (immutable — never overwritten)
+      → [3] Resolve storage location (private keyword → private dir)
+      → [4] ValidationManager.sanitizeMetadata()
+      → [5] ValidationManager.checkConflicts() (UUID/slug/title)
+      → [6] Move private page file if author changed (edge case)
+      → [7] provider.savePage()  →  disk write
+  → RenderingManager.updatePageInLinkGraph(name, content)
+  → SearchManager.updatePageInIndex(name, data)
+  → CacheManager  (cache invalidation)
+  → redirect → view page
 ```
+
+**See also:** [Current-Save-Page-Pipeline.md](./Current-Save-Page-Pipeline.md)
 
 ### User Authentication
 
@@ -612,15 +630,17 @@ SearchManager.searchWithContext(wikiContext, query, opts)
   → return SearchResult[]
 ```
 
-### Plugin Execution (Phase 4)
+### Plugin Execution (Phase 2.6)
 
 ```
-MarkupParser Phase 4
+MarkupParser.parseWithDOMExtraction() — Phase 2.6 (registered handlers)
   ↓
-for each [{PluginName key=value}] token:
-  → PluginManager.findPlugin(name)
-  → plugin.execute(wikiContext, params)         → string
-  → splice result into HTML stream
+PluginSyntaxHandler (or similar):
+  → for each [{PluginName key=value}] token extracted in Phase 1:
+      → PluginManager.findPlugin(name)
+      → plugin.execute(wikiContext, params)     → string
+      → result stored in WikiDocument DOM node
+      → DOM placeholder restored in Phase 4
 ```
 
 ### Backup
