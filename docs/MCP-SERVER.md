@@ -4,9 +4,10 @@ The ngdpbase MCP (Model Context Protocol) Server provides AI assistants like Cla
 
 ## Overview
 
-The MCP server exposes 14 specialized tools that allow AI assistants to:
+The MCP server exposes 17 specialized tools that allow AI assistants to:
 
 - Query and search wiki pages
+- **Create, update, and delete wiki pages**
 - Access metadata and categories
 - Validate and generate page metadata
 - Find similar pages and attachments
@@ -476,6 +477,109 @@ Upload a single file as an attachment, optionally linking it to a page.
 }
 ```
 
+### 15. ngdpbase_create_page
+
+Create a new wiki page. Fails if a page with that title already exists.
+
+**Parameters:**
+
+- `title` (string, required): Page title (must be unique)
+- `content` (string, required): Page content in wiki markup / Markdown
+- `category` (string, optional): System category (default: `"general"`)
+- `keywords` (array, optional): User keywords (max 5)
+
+**Example:**
+
+```json
+{
+  "title": "Deployment Guide",
+  "content": "# Deployment Guide\n\nThis guide covers...",
+  "category": "documentation",
+  "keywords": ["deployment", "guide"]
+}
+```
+
+**Returns:**
+
+```json
+{
+  "success": true,
+  "title": "Deployment Guide",
+  "uuid": "550e8400-...",
+  "slug": "deployment-guide",
+  "category": "documentation",
+  "keywords": ["deployment", "guide"],
+  "message": "Page \"Deployment Guide\" created successfully"
+}
+```
+
+### 16. ngdpbase_update_page
+
+Update an existing wiki page. Supply any combination of `content`, `category`, or `keywords` — only provided fields are changed; the rest are preserved.
+
+**Parameters:**
+
+- `identifier` (string, required): Page identifier: title, UUID, or slug
+- `content` (string, optional): New content (replaces existing content)
+- `category` (string, optional): New system category
+- `keywords` (array, optional): New user keywords (replaces existing keywords)
+
+At least one of `content`, `category`, or `keywords` must be provided.
+
+**Example:**
+
+```json
+{
+  "identifier": "Deployment Guide",
+  "content": "# Deployment Guide\n\nUpdated content...",
+  "keywords": ["deployment", "guide", "production"]
+}
+```
+
+**Returns:**
+
+```json
+{
+  "success": true,
+  "title": "Deployment Guide",
+  "uuid": "550e8400-...",
+  "slug": "deployment-guide",
+  "category": "documentation",
+  "keywords": ["deployment", "guide", "production"],
+  "lastModified": "2026-04-28T09:23:00.000Z",
+  "message": "Page \"Deployment Guide\" updated successfully"
+}
+```
+
+### 17. ngdpbase_delete_page
+
+Permanently delete a wiki page. Requires `confirm: true` to prevent accidental deletion.
+
+**Parameters:**
+
+- `identifier` (string, required): Page identifier: title, UUID, or slug
+- `confirm` (boolean, required): Must be `true` to confirm deletion
+
+**Example:**
+
+```json
+{
+  "identifier": "Old Draft",
+  "confirm": true
+}
+```
+
+**Returns:**
+
+```json
+{
+  "success": true,
+  "identifier": "Old Draft",
+  "title": "Old Draft",
+  "message": "Page \"Old Draft\" deleted successfully"
+}
+```
+
 ### 14. ngdpbase_bulk_upload_attachments
 
 Upload multiple files from a directory as attachments. Supports glob patterns and recursive directory scanning.
@@ -569,7 +673,7 @@ AI: Uses ngdpbase_bulk_upload_attachments with pattern and page_name
 
 ```text
 mcp-server.ts           # TypeScript source (root directory)
-├── Tool Definitions    # 14 tool schemas
+├── Tool Definitions    # 17 tool schemas
 ├── Request Handlers    # ListTools, CallTool
 └── WikiEngine Init     # Lazy initialization
 
@@ -754,7 +858,6 @@ npm run build
 
 Planned improvements:
 
-- [ ] Page creation/editing tools
 - [ ] User authentication integration
 - [ ] Rate limiting
 - [ ] Streaming responses for large content
@@ -766,6 +869,7 @@ Planned improvements:
 Completed:
 
 - [x] Attachment upload tools (v1.5.8)
+- [x] Page CRUD — create, update, delete (#594)
 
 ## References
 

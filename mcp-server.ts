@@ -95,6 +95,25 @@ interface BulkUploadAttachmentsArgs {
   recursive?: boolean;
 }
 
+interface CreatePageArgs {
+  title: string;
+  content: string;
+  category?: string;
+  keywords?: string[];
+}
+
+interface UpdatePageArgs {
+  identifier: string;
+  content?: string;
+  category?: string;
+  keywords?: string[];
+}
+
+interface DeletePageArgs {
+  identifier: string;
+  confirm: boolean;
+}
+
 /**
  * MIME type lookup by file extension
  */
@@ -198,6 +217,8 @@ interface SearchManagerType {
   generateValidMetadata(title: string, options?: Record<string, unknown>): Promise<Record<string, unknown>>;
   suggestSimilarPages(pageName: string, limit?: number): Promise<unknown[]>;
   getStatistics(): Promise<Record<string, unknown>>;
+  updatePageInIndex(pageName: string, pageData: Record<string, unknown>): Promise<void>;
+  removeFromIndex(pageName: string): Promise<void>;
 }
 
 interface ValidationManagerType {
@@ -227,6 +248,8 @@ interface PageManagerType {
   getPage(identifier: string): Promise<WikiPage>;
   getPageMetadata(identifier: string): Promise<PageMetadata>;
   getAllPages(): Promise<string[]>;
+  savePage(pageName: string, content: string, metadata: Record<string, unknown>): Promise<void>;
+  deletePage(identifier: string): Promise<boolean>;
 }
 
 /**
@@ -513,6 +536,78 @@ class NgdpbaseMCPServer {
             },
             required: ['directory']
           }
+        },
+        {
+          name: 'ngdpbase_create_page',
+          description: 'Create a new wiki page with content and metadata. Fails if a page with that title already exists.',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              title: {
+                type: 'string',
+                description: 'Page title (must be unique)'
+              },
+              content: {
+                type: 'string',
+                description: 'Page content in wiki markup / Markdown'
+              },
+              category: {
+                type: 'string',
+                description: 'System category (default: "general")'
+              },
+              keywords: {
+                type: 'array',
+                items: { type: 'string' },
+                description: 'User keywords (max 5)'
+              }
+            },
+            required: ['title', 'content']
+          }
+        },
+        {
+          name: 'ngdpbase_update_page',
+          description: 'Update an existing wiki page. Supply any combination of content, category, or keywords — only provided fields are changed.',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              identifier: {
+                type: 'string',
+                description: 'Page identifier: title, UUID, or slug'
+              },
+              content: {
+                type: 'string',
+                description: 'New page content (replaces existing content)'
+              },
+              category: {
+                type: 'string',
+                description: 'New system category'
+              },
+              keywords: {
+                type: 'array',
+                items: { type: 'string' },
+                description: 'New user keywords (replaces existing keywords)'
+              }
+            },
+            required: ['identifier']
+          }
+        },
+        {
+          name: 'ngdpbase_delete_page',
+          description: 'Permanently delete a wiki page. Requires confirm:true to prevent accidental deletion.',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              identifier: {
+                type: 'string',
+                description: 'Page identifier: title, UUID, or slug'
+              },
+              confirm: {
+                type: 'boolean',
+                description: 'Must be true to confirm deletion'
+              }
+            },
+            required: ['identifier', 'confirm']
+          }
         }
       ];
 
@@ -571,6 +666,15 @@ class NgdpbaseMCPServer {
 
         case 'ngdpbase_bulk_upload_attachments':
           return await this.bulkUploadAttachments(args as unknown as BulkUploadAttachmentsArgs);
+
+        case 'ngdpbase_create_page':
+          return await this.createPage(args as unknown as CreatePageArgs);
+
+        case 'ngdpbase_update_page':
+          return await this.updatePage(args as unknown as UpdatePageArgs);
+
+        case 'ngdpbase_delete_page':
+          return await this.deletePage(args as unknown as DeletePageArgs);
 
         default:
           throw new Error(`Unknown tool: ${name}`);
@@ -1111,6 +1215,157 @@ class NgdpbaseMCPServer {
             pageName: page_name || null,
             message: `Uploaded ${uploaded} of ${results.length} files${page_name ? ` to page "${page_name}"` : ''}${failed > 0 ? ` (${failed} failed)` : ''}`,
             files: results
+          }, null, 2)
+        }
+      ]
+    };
+  }
+
+  /**
+   * Tool Implementation: Create Page
+   */
+  private async createPage(args: CreatePageArgs) {
+    const { title, content, category, keywords } = args;
+    const pageManager = this.wikiEngine!.getPageManager() as PageManagerType;
+    const validationManager = this.wikiEngine!.getManager('ValidationManager') as ValidationManagerType;
+    const searchManager = this.wikiEngine!.getManager('SearchManager') as SearchManagerType;
+
+    if (pageManager.pageExists(title)) {
+      throw new Error(`Page already exists: ${title}`);
+    }
+
+    const metadataOptions: Record<string, unknown> = {};
+    if (category) metadataOptions['system-category'] = category;
+    if (keywords) metadataOptions['user-keywords'] = keywords;
+
+    const metadata = validationManager.generateValidMetadata(title, metadataOptions);
+    metadata.author = 'mcp-server';
+    metadata.editor = 'mcp-server';
+
+    await pageManager.savePage(title, content, metadata);
+
+    const savedPage = await pageManager.getPage(title);
+    await searchManager.updatePageInIndex(title, {
+      name: title,
+      title: savedPage.metadata.title,
+      content: savedPage.content,
+      metadata: savedPage.metadata as unknown as Record<string, unknown>,
+      category: savedPage.metadata['system-category'],
+      userKeywords: savedPage.metadata['user-keywords'] || []
+    });
+
+    return {
+      content: [
+        {
+          type: 'text',
+          text: JSON.stringify({
+            success: true,
+            title: savedPage.metadata.title,
+            uuid: savedPage.metadata.uuid,
+            slug: savedPage.metadata.slug,
+            category: savedPage.metadata['system-category'],
+            keywords: savedPage.metadata['user-keywords'] || [],
+            message: `Page "${title}" created successfully`
+          }, null, 2)
+        }
+      ]
+    };
+  }
+
+  /**
+   * Tool Implementation: Update Page
+   */
+  private async updatePage(args: UpdatePageArgs) {
+    const { identifier, content, category, keywords } = args;
+    const pageManager = this.wikiEngine!.getPageManager() as PageManagerType;
+    const searchManager = this.wikiEngine!.getManager('SearchManager') as SearchManagerType;
+
+    if (!pageManager.pageExists(identifier)) {
+      throw new Error(`Page not found: ${identifier}`);
+    }
+
+    if (content === undefined && category === undefined && keywords === undefined) {
+      throw new Error('At least one of content, category, or keywords must be provided');
+    }
+
+    const existing = await pageManager.getPage(identifier);
+    const pageName = existing.metadata.title;
+
+    const updatedMetadata: Record<string, unknown> = {
+      ...(existing.metadata as unknown as Record<string, unknown>),
+      editor: 'mcp-server',
+      lastModified: new Date().toISOString()
+    };
+    if (category !== undefined) updatedMetadata['system-category'] = category;
+    if (keywords !== undefined) updatedMetadata['user-keywords'] = keywords;
+
+    const updatedContent = content !== undefined ? content : existing.content;
+
+    await pageManager.savePage(pageName, updatedContent, updatedMetadata);
+
+    const savedPage = await pageManager.getPage(pageName);
+    await searchManager.updatePageInIndex(pageName, {
+      name: pageName,
+      title: savedPage.metadata.title,
+      content: savedPage.content,
+      metadata: savedPage.metadata as unknown as Record<string, unknown>,
+      category: savedPage.metadata['system-category'],
+      userKeywords: savedPage.metadata['user-keywords'] || []
+    });
+
+    return {
+      content: [
+        {
+          type: 'text',
+          text: JSON.stringify({
+            success: true,
+            title: savedPage.metadata.title,
+            uuid: savedPage.metadata.uuid,
+            slug: savedPage.metadata.slug,
+            category: savedPage.metadata['system-category'],
+            keywords: savedPage.metadata['user-keywords'] || [],
+            lastModified: savedPage.metadata.lastModified,
+            message: `Page "${pageName}" updated successfully`
+          }, null, 2)
+        }
+      ]
+    };
+  }
+
+  /**
+   * Tool Implementation: Delete Page
+   */
+  private async deletePage(args: DeletePageArgs) {
+    const { identifier, confirm } = args;
+    const pageManager = this.wikiEngine!.getPageManager() as PageManagerType;
+    const searchManager = this.wikiEngine!.getManager('SearchManager') as SearchManagerType;
+
+    if (!confirm) {
+      throw new Error('confirm must be true to delete a page');
+    }
+
+    if (!pageManager.pageExists(identifier)) {
+      throw new Error(`Page not found: ${identifier}`);
+    }
+
+    const metadata = await pageManager.getPageMetadata(identifier);
+    const pageName = metadata.title;
+
+    const deleted = await pageManager.deletePage(identifier);
+
+    if (deleted) {
+      await searchManager.removeFromIndex(pageName);
+    }
+
+    return {
+      content: [
+        {
+          type: 'text',
+          text: JSON.stringify({
+            success: deleted,
+            identifier,
+            title: pageName,
+            message: deleted ? `Page "${pageName}" deleted successfully` : `Page "${pageName}" could not be deleted`
           }, null, 2)
         }
       ]
