@@ -2,6 +2,23 @@
 
 AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version history.
 
+## 2026-04-28-01
+
+- Agent: Claude
+- Subject: showdown CVE-2024-1899 tracking + MCP page CRUD tools (#594, #599)
+- Current Issue: #594, #599
+- Work Done:
+  - Created GH issue #599 tracking showdown ReDoS vulnerability (CVE-2024-1899 / GHSA-rmmh-p597-ppvv, medium, no upstream patch); documented attack surface (Phase 3 of rendering pipeline, all wiki content), four mitigation options with worker-thread timeout as recommended short-term fix
+  - Added .github/workflows/showdown-patch-check.yml — GitHub Actions workflow that runs every Tuesday at 09:23 UTC, checks npm and GHSA advisory, posts a comment on #599 when a patched version is released
+  - Ran manual patch check — showdown@2.1.0 is still latest, advisory patched_versions still null as of 2026-04-28
+  - Added three page CRUD tools to mcp-server.ts (14 → 17 tools total): ngdpbase_create_page (generates metadata via ValidationManager, saves via PageManager, syncs search index), ngdpbase_update_page (merges into existing metadata, requires at least one changed field, syncs search index), ngdpbase_delete_page (requires confirm:true, removes from search index)
+  - Updated docs/MCP-SERVER.md: tool count 14→17, added tool documentation for the three new tools, updated Future Enhancements checklist
+- Commits: 08bee618, 39b716eb
+- Files Modified:
+  - .github/workflows/showdown-patch-check.yml (new)
+  - docs/MCP-SERVER.md
+  - mcp-server.ts
+
 ## 2026-04-27-13
 
 - Agent: Claude
