@@ -19,6 +19,22 @@ import logger from '../../utils/logger.js';
 import type { ParseContext } from '../context/ParseContext.js';
 
 /**
+ * Structured error returned by FilterChain.collectErrors() (#596).
+ * Filters that opt in implement their own collectErrors() returning rule
+ * violations of `severity: 'error'`. The chain accumulates them across all
+ * enabled filters; the save path (WikiRoutes.savePage) uses the array to
+ * decide whether to block the save and what to surface to the editor.
+ */
+export interface FilterValidationError {
+  filterId: string;
+  rule: string;
+  severity: 'error';
+  message: string;
+  line?: number;
+  column?: number;
+}
+
+/**
  * Filter chain configuration
  */
 export interface FilterChainConfig {
@@ -423,6 +439,47 @@ class FilterChain {
       logger.error('❌ FilterChain execution error (continuing with original content):', (error as Error).message);
       return content; // Return original content on error
     }
+  }
+
+  /**
+   * Collect error-severity rule violations across all enabled filters without
+   * mutating content. Used by the save path to decide whether to block a save
+   * and what structured errors to surface to the editor (#596).
+   *
+   * Each filter that opts in exposes its own async `collectErrors(content,
+   * context)` returning a `FilterValidationError[]`. Filters without that
+   * method are skipped silently — they participate in render-time `process()`
+   * only.
+   *
+   * @param content - Content to validate
+   * @param context - Parse context
+   * @returns Aggregated error-severity violations from all enabled filters
+   */
+  async collectErrors(content: string, context: ParseContext): Promise<FilterValidationError[]> {
+    if (!this.config.enabled || !content) return [];
+
+    const allErrors: FilterValidationError[] = [];
+
+    for (const filter of this.filtersByPriority) {
+      if (!filter.isEnabled()) continue;
+
+      const collector = filter as BaseFilter & {
+        collectErrors?: (c: string, ctx: ParseContext) => Promise<FilterValidationError[]>;
+      };
+      if (typeof collector.collectErrors !== 'function') continue;
+
+      try {
+        const errors = await collector.collectErrors(content, context);
+        if (errors && errors.length > 0) allErrors.push(...errors);
+      } catch (err) {
+        logger.error(
+          `❌ Filter ${filter.filterId} collectErrors failed:`,
+          (err as Error).message
+        );
+      }
+    }
+
+    return allErrors;
   }
 
   /**

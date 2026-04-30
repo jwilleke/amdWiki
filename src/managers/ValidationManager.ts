@@ -621,6 +621,62 @@ class ValidationManager extends BaseManager {
   }
 
   /**
+   * Collect blocking validation errors for save-time enforcement (#596).
+   *
+   * Delegates to MarkupParser's FilterChain, which runs each enabled filter's
+   * own collectErrors() method. Only `severity: 'error'` rule violations are
+   * returned — warnings are surfaced through the render-time annotation path
+   * inside MarkupParser, not here.
+   *
+   * Public surface for the save path: WikiRoutes.savePage calls this and
+   * returns 400 with the structured error array if non-empty. Frontend uses
+   * each error's `rule`, `message`, and optional `line`/`column` to surface
+   * the problem to the editor.
+   *
+   * Returns an empty array when:
+   *   - content is empty or not a string
+   *   - MarkupParser is not available (shouldn't happen at runtime)
+   *   - FilterChain has no filters that implement collectErrors
+   *   - FilterChain itself is disabled in config
+   *
+   * @param content - The page content to validate
+   * @param context - Optional context (pageName, userName) passed through to filters
+   * @returns Array of blocking validation errors; empty array when content passes
+   */
+  async collectContentErrors(
+    content: string,
+    context: { pageName?: string; userName?: string } = {}
+  ): Promise<Array<{ filterId: string; rule: string; severity: 'error'; message: string; line?: number; column?: number }>> {
+    if (!content || typeof content !== 'string') return [];
+
+    type FilterChainLike = {
+      collectErrors: (
+        c: string,
+        ctx: { pageName?: string; userName?: string; engine?: unknown }
+      ) => Promise<Array<{ filterId: string; rule: string; severity: 'error'; message: string; line?: number; column?: number }>>;
+    };
+    type MarkupParserLike = { getFilterChain?: () => FilterChainLike | null };
+
+    const markupParser = this.engine.getManager('MarkupParser') as MarkupParserLike | null;
+    const filterChain = markupParser?.getFilterChain?.();
+    if (!filterChain || typeof filterChain.collectErrors !== 'function') return [];
+
+    try {
+      return await filterChain.collectErrors(content, {
+        ...context,
+        engine: this.engine
+      });
+    } catch (err) {
+      // Validation must never crash a save. Log and degrade to "no errors".
+      logger.warn(
+        '⚠️  ValidationManager.collectContentErrors failed:',
+        err instanceof Error ? err.message : String(err)
+      );
+      return [];
+    }
+  }
+
+  /**
    * Generate properly formatted metadata for a new page
    * @param {string} title - Page title
    * @param {GenerateMetadataOptions} options - Additional metadata options

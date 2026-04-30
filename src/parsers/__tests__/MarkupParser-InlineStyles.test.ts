@@ -23,10 +23,12 @@ class MockEngine {
             'ngdpbase.markup.handlers.interwiki.enabled': false,
             'ngdpbase.markup.handlers.attachment.enabled': false,
             'ngdpbase.markup.handlers.linkparser.enabled': false,
-            'ngdpbase.markup.filters.enabled': false,
+            'ngdpbase.markup.filters.enabled': true,
             'ngdpbase.markup.filters.security.enabled': false,
             'ngdpbase.markup.filters.spam.enabled': false,
-            'ngdpbase.markup.filters.validation.enabled': false
+            'ngdpbase.markup.filters.validation.enabled': true,
+            'ngdpbase.markup.filters.validation.validate-markup': true,
+            'ngdpbase.markup.filters.validation.report-errors': true
           };
           return cfg[key] ?? defaultValue;
         },
@@ -109,12 +111,13 @@ describe('MarkupParser inline styles (#592)', () => {
 
   test('%%sup2%% (no space) emits VALIDATION WARNING comment', async () => {
     const result = await parser.parse('%%sup2%%');
-    expect(result).toContain('<!-- VALIDATION WARNING [markup-syntax]');
+    // Migrated from inline check to ValidationFilter rule (#596).
+    expect(result).toContain('<!-- VALIDATION WARNING [malformedInlineStyle]');
   });
 
   test('%%sub3%% (no space) emits VALIDATION WARNING comment', async () => {
     const result = await parser.parse('some text %%sub3%%');
-    expect(result).toContain('<!-- VALIDATION WARNING [markup-syntax]');
+    expect(result).toContain('<!-- VALIDATION WARNING [malformedInlineStyle]');
   });
 
   test('%%sup 2%% (correct syntax) does NOT emit VALIDATION WARNING', async () => {

@@ -153,20 +153,24 @@ class ValidationFilter extends BaseFilter {
   loadModularValidationConfiguration(context: InitContext): void {
     const configManager = context.engine?.getManager('ConfigurationManager') as ConfigManager | undefined;
 
-    // Default validation configuration
+    // Default validation configuration. Quality thresholds (minWordCount,
+    // maxLineLength) default to 0 — i.e. those rules don't register unless
+    // an operator explicitly opts in via config. This keeps the default
+    // ValidationFilter focused on real defects (markup syntax, malformed
+    // inline styles) rather than spamming warnings on legitimate short pages.
     this.validationConfig = {
       validateMarkup: true,
       validateLinks: true,
       validateImages: true,
       validateMetadata: true,
-      maxContentLength: 1048576, // 1MB
-      maxLineLength: 10000,
+      maxContentLength: 1048576, // 1MB — real safety net
+      maxLineLength: 0,          // 0 = rule disabled by default
       reportErrors: true,
       failOnValidationError: false,
       logValidationErrors: true,
 
-      // Content quality thresholds
-      minWordCount: 5,
+      // Content quality thresholds — default 0 (rule disabled).
+      minWordCount: 0,
       maxDuplicateLines: 10,
       requireTitle: false
     };
@@ -240,6 +244,16 @@ class ValidationFilter extends BaseFilter {
         errorMessage: 'Invalid markup syntax detected',
         severity: 'error'
       });
+
+      // Malformed compact inline-style syntax — e.g. %%sup2%% missing the
+      // required space between class name and content. Migrated from an
+      // inline check in MarkupParser as part of #596.
+      this.validationRules.set('malformedInlineStyle', {
+        validate: (content: string) => !/%%(?:sup|sub|strike)\S+%%/i.test(content),
+        errorMessage: 'Malformed inline style detected. Use %%sup content /% or ' +
+          '%%sup content%% (space required between class name and content).',
+        severity: 'warning'
+      });
     }
 
     // Link validation (configurable)
@@ -310,6 +324,46 @@ class ValidationFilter extends BaseFilter {
     }
 
     return content;
+  }
+
+  /**
+   * Collect error-severity rule violations without mutating content.
+   *
+   * Used by FilterChain.collectErrors() during the save-time validation pass
+   * (#596). Only `severity: 'error'` rules are returned — warnings are
+   * surfaced through render-time injection in process() instead.
+   *
+   * @param content - Content to validate
+   * @param context - Parse context (pageName, userName, engine)
+   * @returns Array of error-severity violations, empty if all rules pass
+   */
+  async collectErrors(
+    content: string,
+    context: ParseContext = {}
+  ): Promise<Array<{ filterId: string; rule: string; severity: 'error'; message: string }>> {
+    if (!content) return [];
+
+    const errors: Array<{ filterId: string; rule: string; severity: 'error'; message: string }> = [];
+
+    for (const [ruleName, rule] of this.validationRules) {
+      if (rule.severity !== 'error') continue;
+      try {
+        const isValid = await rule.validate(content, context);
+        if (!isValid) {
+          errors.push({
+            filterId: this.filterId,
+            rule: ruleName,
+            severity: 'error',
+            message: rule.errorMessage
+          });
+        }
+      } catch (ruleError) {
+        const err = ruleError as Error;
+        logger.error(`❌ ValidationFilter rule ${ruleName} failed in collectErrors:`, err.message);
+      }
+    }
+
+    return errors;
   }
 
   /**

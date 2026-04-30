@@ -691,10 +691,13 @@ class MarkupParser extends BaseManager {
         search: { enabled: true, priority: 65 },
         rss: { enabled: true, priority: 60 }
       },
+      // Filter defaults must match app-default-config.json so tests without
+      // explicit filter mocks behave the same as production. SpamFilter and
+      // SecurityFilter are opt-in (#596 ships ValidationFilter only).
       filters: {
         enabled: true,
-        spam: { enabled: true },
-        security: { enabled: true },
+        spam: { enabled: false },
+        security: { enabled: false },
         validation: { enabled: true }
       },
       cache: {
@@ -1117,6 +1120,20 @@ class MarkupParser extends BaseManager {
    */
   getHandlers(enabledOnly = true): unknown[] {
     return this.handlerRegistry.getHandlersByPriority(enabledOnly);
+  }
+
+  /**
+   * Get the configured FilterChain (#596).
+   *
+   * Used by the save path (`WikiRoutes.savePage`) to call
+   * `filterChain.collectErrors()` for save-time validation. Returns null
+   * when MarkupParser hasn't been fully initialized — callers should treat
+   * a null chain as "validation skipped, proceed".
+   *
+   * @returns The FilterChain instance, or null if not initialized
+   */
+  getFilterChain(): FilterChain | null {
+    return this.filterChain;
   }
 
   /**
@@ -2167,14 +2184,22 @@ class MarkupParser extends BaseManager {
       }
     }
 
-    // Warn on malformed compact inline style syntax (e.g. %%sup2%% — missing required space).
-    // Injected AFTER Phase 2.6 so wiki link handlers don't process the [markup-syntax] text.
-    // Proper syntax: %%sup 2 /% or %%sup 2%% (space between class name and content).
-    // TODO: move this into ValidationFilter.validateMarkupSyntax() once #596 wires filterChain.execute().
-    if (/%%(?:sup|sub|strike)\S+%%/i.test(preprocessed)) {
-      preprocessed = '<!-- VALIDATION WARNING [markup-syntax]: Malformed inline style detected. ' +
-        'Use %%sup content /% or %%sup content%% (space required between class name and content). -->\n' +
-        preprocessed;
+    // Phase 2.7: Run the configured FilterChain (#596). Each enabled filter
+    // (currently only ValidationFilter ships enabled by default) gets a chance
+    // to inspect or annotate the preprocessed content. ValidationFilter prepends
+    // `<!-- VALIDATION WARNING ... -->` HTML comments for rules it tripped —
+    // including the malformed-inline-style check that previously lived inline
+    // here. SecurityFilter and SpamFilter are wired but inert until enabled in
+    // config; SecurityFilter additionally needs a post-Showdown call site to
+    // be effective (tracked as a follow-up).
+    if (this.filterChain) {
+      try {
+        preprocessed = await this.filterChain.process(preprocessed, parseContext);
+      } catch (error) {
+        logger.warn('⚠️  FilterChain.process failed at render:', getErrorMessage(error));
+        // FilterChain.process already swallows individual filter errors when
+        // failOnError=false (the default); this catch is defense-in-depth.
+      }
     }
 
     // Phase 3: Let Showdown parse the sanitized markdown

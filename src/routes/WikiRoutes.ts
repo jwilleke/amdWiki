@@ -2639,6 +2639,29 @@ ${panes}
         }
       }
 
+      // Save-time validation (#596). Delegates to ValidationManager which
+      // delegates to MarkupParser's FilterChain. Only severity:'error' rule
+      // violations block the save; warnings are surfaced at render time as
+      // HTML comments. Editor uses the structured array to surface the rule,
+      // message, and optional line/column to the user.
+      const validationManager = this.engine.getManager('ValidationManager');
+      if (validationManager?.collectContentErrors) {
+        const validationErrors = await validationManager.collectContentErrors(content ?? '', {
+          pageName,
+          userName: currentUser?.username
+        });
+        if (validationErrors.length > 0) {
+          logger.info(
+            `🛑 savePage(${pageName}) blocked: ${validationErrors.length} validation error(s)`
+          );
+          return res.status(400).json({
+            ok: false,
+            error: 'Validation failed',
+            validationErrors
+          });
+        }
+      }
+
       // Save the page using WikiContext (author is automatically extracted from context)
       await pageManager.savePageWithContext(wikiContext, metadata);
 

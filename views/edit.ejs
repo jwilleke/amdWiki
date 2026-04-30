@@ -16,6 +16,12 @@
         <div class="col-md-12">
             <h1>Edit <%= pageName %></h1>
 
+            <!-- Save-time validation errors land here (#596). Hidden until populated by the submit handler. -->
+            <div id="validation-errors-banner" class="alert alert-danger d-none" role="alert">
+                <h5 class="alert-heading"><i class="fas fa-exclamation-triangle me-2"></i>Save blocked — validation errors</h5>
+                <ul id="validation-errors-list" class="mb-0"></ul>
+            </div>
+
             <form id="editForm" action="/save/<%= pageName %>" method="POST">
                 <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                 <% if (typeof sectionIndex !== 'undefined' && sectionIndex !== null) { %>
@@ -274,47 +280,95 @@
     // Update preview on input
     document.getElementById('content').addEventListener('input', updatePreview);
     updatePreview();
-    // Form submission validation for system-category and user-keywords
-    document.querySelector('form').addEventListener('submit', function(e) {
+    // Form submission validation for system-category and user-keywords.
+    // Intercepts the submit, runs client-side checks, then POSTs via fetch
+    // so we can handle the structured 400 response from save-time validation
+    // (#596) without losing the user's unsaved content.
+    document.querySelector('form').addEventListener('submit', async function(e) {
+        e.preventDefault();
         console.log('Form submit triggered');
 
-        // Validate system-category (only if field exists - admin users only)
+        // ── Client-side checks ────────────────────────────────────────────
         const systemCategoryElement = document.getElementById('systemCategory');
         if (systemCategoryElement) {
             const systemCategory = systemCategoryElement.value;
             if (!systemCategory) {
-                console.log('Validation failed: no system category');
-                e.preventDefault();
                 alert('System category is required');
-                return false;
+                return;
             }
-            console.log('System category:', systemCategory);
-        } else {
-            console.log('System category field not found (non-admin user)');
         }
 
-        // Validate title — reject special characters that break URLs
         const titleField = document.getElementById('title');
         if (titleField) {
             const titleVal = titleField.value;
             if (/[\/\\#?%"'<>|*]/.test(titleVal)) {
-                e.preventDefault();
                 alert('Page title contains invalid characters.\nThe following are not allowed: / \\ # ? % " \' < > | *');
                 titleField.focus();
-                return false;
+                return;
             }
         }
 
-        // Validate user-keywords (max <%= maxUserKeywords %>, optional)
         const checkedKeywords = document.querySelectorAll('.user-keyword-checkbox:checked').length;
         if (checkedKeywords > <%= maxUserKeywords %>) {
-            console.log('Validation failed: too many keywords');
-            e.preventDefault();
             alert('Maximum <%= maxUserKeywords %> user keywords allowed');
-            return false;
+            return;
         }
 
-        console.log('Form validation passed, submitting...');
+        // ── Submit via fetch so structured 400 errors can be surfaced ─────
+        const banner = document.getElementById('validation-errors-banner');
+        const list = document.getElementById('validation-errors-list');
+        banner.classList.add('d-none');
+        list.innerHTML = '';
+
+        const form = e.target;
+        const formData = new FormData(form);
+        let response;
+        try {
+            response = await fetch(form.action, {
+                method: 'POST',
+                body: formData,
+                redirect: 'manual', // we want to inspect 302s instead of auto-following
+                headers: { 'Accept': 'application/json, text/html' }
+            });
+        } catch (err) {
+            alert('Network error while saving: ' + (err.message || err));
+            return;
+        }
+
+        // 200 OK or 302 redirect (fetch reports 0/opaque-redirect on manual): success path.
+        if (response.ok || response.status === 0 || response.type === 'opaqueredirect') {
+            // Server normally redirects to /view/<page>; navigate there.
+            window.location.href = '/view/<%= encodeURIComponent(pageName) %>';
+            return;
+        }
+
+        // 400 with structured validation errors — show banner and keep content.
+        if (response.status === 400) {
+            const ct = response.headers.get('content-type') || '';
+            if (ct.includes('application/json')) {
+                let body;
+                try { body = await response.json(); } catch { body = null; }
+                if (body && Array.isArray(body.validationErrors) && body.validationErrors.length > 0) {
+                    body.validationErrors.forEach(function(err) {
+                        const li = document.createElement('li');
+                        const where = (err.line) ? ' (line ' + err.line + ')' : '';
+                        li.textContent = '[' + (err.rule || 'unknown') + '] ' + (err.message || 'Validation failed') + where;
+                        list.appendChild(li);
+                    });
+                    banner.classList.remove('d-none');
+                    banner.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    return;
+                }
+            }
+            // Fall through if 400 without structured errors — show plain text.
+            const text = await response.text();
+            alert('Save failed: ' + text);
+            return;
+        }
+
+        // Other status codes — show whatever the server returned.
+        const text = await response.text();
+        alert('Save failed (HTTP ' + response.status + '): ' + text);
     });
     function updateSelectedUserKeywordsText() {
         const checkedKeywords = Array.from(document.querySelectorAll('.user-keyword-checkbox:checked')).map(cb => cb.dataset.label || cb.value);
