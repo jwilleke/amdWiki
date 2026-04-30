@@ -2,6 +2,33 @@
 
 AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version history.
 
+## 2026-04-30-01
+
+- Agent: Claude
+- Subject: #149 microdata closeout, path preflight against missing mounts, #486 accounting plan, broad issue review
+- Current Issue: #149, #486, #604
+- Work Done:
+  - #486 design plan captured in /Users/jim/.claude/plans/snappy-nibbling-galaxy.md after extended chat — generic GAAP chart of accounts, MVP = Ledger + AR/AP, hand-roll on better-sqlite3 (rejected Medici/MongoDB on memory grounds), Manager+Provider seam (BaseLedgerProvider + SqliteLedgerProvider), pluggable BaseAssessmentAllocator for condo billing methods (pure %, rounded, tiered, equal share, hybrid, manual override), identity foundation split into separate person-contacts addon (Person + Organization + OrganizationRole)
+  - Filed #602 (person-contacts addon — blocks #486) and #603 (baseline performance/memory profile)
+  - Commented on #486 with full plan summary and "blocked by #602"; commented on #570 with condo-accounting accommodations (Association-owned property as GAAP Assets vs unit-owner property; per-unit AR subledger; percentageInterest)
+  - Filed #604 — applying path preflight to TemplateManager, ExportManager, NotificationManager, ACLManager, FootnoteManager, CommentManager (follow-up to BackupManager work)
+  - Issue review sweep across 35 open issues: marked #178, #507, #536, #594 as "in review"; status comments on #149 and #250 to capture partial progress; cross-linked es-enrichment-pipeline on #507 (ML Phase 4 path) and #550 (vector/hybrid ES search) — pipeline confirmed live on deby host (saved as reference memory)
+  - #149 Phase 2 closeout: WikiRoutes.ts search handler pre-resolves keywordUris from union of all results' systemKeywords/userKeywords/category via CatalogManager.resolveUri; search-results.ejs result anchors carry itemscope itemtype="<https://schema.org/Article>" with itemprop name/url/articleSection/abstract/keywords + conditional itemid; media-item.ejs container is itemscope with type chosen by MIME (ImageObject/VideoObject/MediaObject) plus itemprop identifier/url/encodingFormat/dateCreated/name/contentUrl/thumbnail/description/keywords and contentLocation as Place > geo > GeoCoordinates(latitude, longitude) for GPS
+  - Path preflight: jimstest crash-looped today after macOS unmounted /Volumes/jims (configured backup volume). Added src/utils/PathPreflight.ts with checkConfiguredPath() — detects /Volumes/<X>/... where <X> is not currently mounted, returns reason + clear message. BackupManager.initialize() now preflights its backup directory; on missing-mount it logs the bad config key, disables backups for the session, returns cleanly instead of crashing engine init with opaque EACCES
+- Testing:
+  - typecheck: clean
+  - PathPreflight.test.ts: 4/4 pass
+  - BackupManager tests: 37/37 pass
+  - Route handler tests: 859/859 pass
+- Commits: f197872a, 47e83b43
+- Files Modified:
+  - src/managers/BackupManager.ts
+  - src/routes/WikiRoutes.ts
+  - src/utils/PathPreflight.ts (new)
+  - src/utils/__tests__/PathPreflight.test.ts (new)
+  - views/media-item.ejs
+  - views/search-results.ejs
+
 ## 2026-04-28-01
 
 - Agent: Claude
