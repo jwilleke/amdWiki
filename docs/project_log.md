@@ -2,6 +2,43 @@
 
 AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version history.
 
+## 2026-04-30-04
+
+- Agent: Claude
+- Subject: Wire FilterChain — render-time warnings + save-time blocking via ValidationManager (#596)
+- Current Issue: #596, #614, #615, #616
+- Work Done:
+  - Added Phase 2.7 to MarkupParser.parseWithDOMExtraction — calls filterChain.process() between handler loop and Showdown render
+  - Added MarkupParser.getFilterChain() public accessor
+  - Migrated inline %%sup2%%/%%sub3%%/%%strike3%% malformed-style check from MarkupParser to ValidationFilter as a new severity:'warning' rule (malformedInlineStyle); deleted the inline block + retired the TODO at MarkupParser.ts:2173
+  - Added ValidationFilter.collectErrors(content, context) — returns severity:'error' violations only, no content mutation
+  - Added FilterChain.collectErrors(content, context) — duck-types to filter.collectErrors, aggregates across enabled filters, swallows individual filter throws
+  - Exported FilterValidationError type from FilterChain
+  - Added ValidationManager.collectContentErrors() as the public save-time entry point (manager-provider pattern: ValidationManager owns API, FilterChain is the rule engine)
+  - Wired WikiRoutes.savePage to call validationManager.collectContentErrors() before pageManager.savePageWithContext; returns 400 { ok:false, validationErrors:[...] } on errors
+  - Editor frontend (views/edit.ejs): converted submit handler from standard form POST to fetch; renders structured 400 errors in a new #validation-errors-banner; preserves user content on error
+  - Aligned MarkupParser hardcoded filter defaults with app-default-config.json — Security and Spam now default false (was true) so tests behave like production
+  - Lowered ValidationFilter hardcoded defaults: minWordCount 5→0, maxLineLength 10000→0 — those rules don't register without explicit operator opt-in
+  - New tests: src/parsers/__tests__/MarkupParser.filterChain.test.ts (4 tests — process called once per parse, malformed style produces warning, clean content doesn't, getFilterChain stable); src/parsers/filters/__tests__/FilterChain.collectErrors.test.ts (7 tests — empty content, no filters, opt-in/opt-out, multi-filter aggregation, disabled filters, throw-resilience)
+  - Updated tests: MarkupParser-InlineStyles.test.ts now enables filters in mock and asserts new rule name [malformedInlineStyle]; MarkupParser-EndToEnd.test.ts mock disables Security/Spam to match production defaults and the filter-count assertion adjusted from >=3 to >=1
+  - Closed #596; filed #614 (SecurityFilter needs post-Showdown call site), #615 (FilterChain stats admin endpoint), #616 (first concrete severity:'error' save-blocking rule)
+- Testing:
+  - typecheck: clean
+  - npm test: 183/183 files, 5010/5010 tests pass (+11 new vs 4999 baseline)
+  - npm run test:e2e: 72/72 pass
+- Commits: 4cbc3653
+- Files Modified:
+  - src/parsers/MarkupParser.ts
+  - src/parsers/filters/FilterChain.ts
+  - src/parsers/filters/ValidationFilter.ts
+  - src/managers/ValidationManager.ts
+  - src/routes/WikiRoutes.ts
+  - src/parsers/__tests__/MarkupParser-EndToEnd.test.ts
+  - src/parsers/__tests__/MarkupParser-InlineStyles.test.ts
+  - src/parsers/__tests__/MarkupParser.filterChain.test.ts (new)
+  - src/parsers/filters/__tests__/FilterChain.collectErrors.test.ts (new)
+  - views/edit.ejs
+
 ## 2026-04-30-03
 
 - Agent: Claude
