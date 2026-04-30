@@ -367,8 +367,9 @@ function main(): void {
   }
 }
 
-// Run main if executed directly (CommonJS compatible)
- 
-if (require.main === module) {
+// Run main only when executed directly (ESM-safe).
+// `require.main === module` would crash under "type": "module".
+const argvPath = process.argv[1] ? path.resolve(process.argv[1]) : '';
+if (argvPath === __filename) {
   main();
 }
