@@ -8296,6 +8296,12 @@ ${panes}
       this.adminNotifications(req, res)
     );
 
+    // FilterChain stats (#615) — admin-only visibility into filter execution
+    // counts and per-filter timing.
+    app.get('/api/admin/filter-chain/stats', (req: Request, res: Response) =>
+      this.adminFilterChainStats(req, res)
+    );
+
     // Cache management routes
     app.get('/api/admin/cache/stats', (req: Request, res: Response) =>
       this.adminCacheStats(req, res)
@@ -8488,6 +8494,81 @@ ${panes}
   // ============================================================================
   // Admin Cache Route Handlers
   // ============================================================================
+
+  /**
+   * Admin FilterChain statistics API endpoint (#615).
+   *
+   * Surfaces per-instance FilterChain execution metrics: total runs,
+   * per-filter execution counts and timings, plus the registered filter
+   * roster (enabled flag, priority). Useful to confirm filters are
+   * actually running and to spot a slow filter that's pulling render
+   * time up.
+   *
+   * GET /api/admin/filter-chain/stats — admin-system permission required.
+   */
+  async adminFilterChainStats(req: Request, res: Response) {
+    try {
+      const userManager = this.engine.getManager('UserManager');
+      const currentUser = req.userContext;
+
+      if (
+        !currentUser ||
+        !(await userManager.hasPermission(currentUser.username, 'admin-system'))
+      ) {
+        return res.status(403).json({ error: 'Access denied' });
+      }
+
+      type FilterLike = {
+        filterId: string;
+        isEnabled: () => boolean;
+        priority?: number;
+      };
+      type FilterChainLike = {
+        getFilters: (enabledOnly: boolean) => FilterLike[];
+        getStats: () => Record<string, unknown>;
+      };
+      type MarkupParserLike = { getFilterChain?: () => FilterChainLike | null };
+
+      const markupParser = this.engine.getManager('MarkupParser') as MarkupParserLike | null;
+      const filterChain = markupParser?.getFilterChain?.();
+      if (!filterChain) {
+        return res.status(503).json({ error: 'FilterChain not available' });
+      }
+
+      const stats = filterChain.getStats() as {
+        chain: Record<string, unknown>;
+        filters: Record<string, { executionCount: number; totalTime: number; averageTime: number; errorCount: number; lastExecuted: Date | null }>;
+        configuration: Record<string, unknown>;
+      };
+
+      // Merge runtime stats with filter metadata (priority, enabled).
+      const allFilters = filterChain.getFilters(false); // includes disabled
+      const filtersWithMetadata = allFilters.map(f => {
+        const runtime = stats.filters[f.filterId] ?? {
+          executionCount: 0,
+          totalTime: 0,
+          averageTime: 0,
+          errorCount: 0,
+          lastExecuted: null
+        };
+        return {
+          filterId: f.filterId,
+          enabled: f.isEnabled(),
+          priority: f.priority ?? null,
+          ...runtime
+        };
+      });
+
+      return res.json({
+        chain: stats.chain,
+        configuration: stats.configuration,
+        filters: filtersWithMetadata
+      });
+    } catch (err: unknown) {
+      logger.error('Error getting FilterChain stats:', err);
+      return res.status(500).json({ error: 'Failed to get FilterChain statistics' });
+    }
+  }
 
   /**
    * Admin cache statistics API endpoint

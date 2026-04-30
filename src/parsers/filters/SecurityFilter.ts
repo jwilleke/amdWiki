@@ -95,7 +95,10 @@ class SecurityFilter extends BaseFilter {
         version: '1.0.0',
         category: 'security',
         cacheResults: true,
-        cacheTTL: 300 // Security results cache shorter
+        cacheTTL: 300, // Security results cache shorter
+        // Operates on rendered HTML, not on raw markdown — XSS / dangerous-tag
+        // stripping needs the actual HTML constructs to exist (#614).
+        phase: 'html'
       }
     );
     this.filterId = 'SecurityFilter';

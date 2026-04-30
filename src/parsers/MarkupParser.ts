@@ -2184,21 +2184,15 @@ class MarkupParser extends BaseManager {
       }
     }
 
-    // Phase 2.7: Run the configured FilterChain (#596). Each enabled filter
-    // (currently only ValidationFilter ships enabled by default) gets a chance
-    // to inspect or annotate the preprocessed content. ValidationFilter prepends
-    // `<!-- VALIDATION WARNING ... -->` HTML comments for rules it tripped —
-    // including the malformed-inline-style check that previously lived inline
-    // here. SecurityFilter and SpamFilter are wired but inert until enabled in
-    // config; SecurityFilter additionally needs a post-Showdown call site to
-    // be effective (tracked as a follow-up).
+    // Phase 2.7: Run markup-stage filters (#596 / #614). ValidationFilter and
+    // SpamFilter operate on raw markdown/JSPWiki content (their rules look
+    // for malformed plugin syntax, blacklisted words, etc.). SecurityFilter
+    // is phase:'html' and is skipped here; it runs at Phase 4.5 below.
     if (this.filterChain) {
       try {
-        preprocessed = await this.filterChain.process(preprocessed, parseContext);
+        preprocessed = await this.filterChain.process(preprocessed, parseContext, 'markup');
       } catch (error) {
-        logger.warn('⚠️  FilterChain.process failed at render:', getErrorMessage(error));
-        // FilterChain.process already swallows individual filter errors when
-        // failOnError=false (the default); this catch is defense-in-depth.
+        logger.warn('⚠️  FilterChain.process(markup) failed:', getErrorMessage(error));
       }
     }
 
@@ -2224,6 +2218,19 @@ class MarkupParser extends BaseManager {
     // Phase 4: Merge DOM nodes back into the HTML
     const finalHtml = this.mergeDOMNodes(showdownHtml, nodes, uuid);
     logger.debug('✅ Merge complete');
+
+    // Phase 4.5: Run html-stage filters (#614). SecurityFilter (XSS prevention,
+    // dangerous-tag stripping, attribute allow-listing) operates on rendered
+    // HTML. Markup-stage filters (ValidationFilter, SpamFilter) already ran at
+    // Phase 2.7 and don't run here.
+    if (this.filterChain) {
+      try {
+        return await this.filterChain.process(finalHtml, parseContext, 'html');
+      } catch (error) {
+        logger.warn('⚠️  FilterChain.process(html) failed:', getErrorMessage(error));
+        return finalHtml;
+      }
+    }
 
     return finalHtml;
   }

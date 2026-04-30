@@ -65,14 +65,17 @@ describe('MarkupParser FilterChain integration (#596)', () => {
     await parser.shutdown();
   });
 
-  test('filterChain.process is invoked once per parse', async () => {
+  test('filterChain.process is invoked twice per parse — once per phase', async () => {
     const filterChain = parser.getFilterChain();
     expect(filterChain).not.toBeNull();
     if (!filterChain) return; // narrow
 
     const spy = vi.spyOn(filterChain, 'process');
     await parser.parse('hello world');
-    expect(spy).toHaveBeenCalledTimes(1);
+    // #614: one call per pipeline phase (markup before Showdown, html after).
+    expect(spy).toHaveBeenCalledTimes(2);
+    const phases = spy.mock.calls.map(call => call[2]);
+    expect(phases).toEqual(['markup', 'html']);
   });
 
   test('malformed inline style produces a VALIDATION WARNING comment', async () => {

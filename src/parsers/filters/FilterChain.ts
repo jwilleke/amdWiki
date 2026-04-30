@@ -15,6 +15,7 @@
  */
 
 import BaseFilter from './BaseFilter.js';
+import type { FilterPhase } from './BaseFilter.js';
 import logger from '../../utils/logger.js';
 import type { ParseContext } from '../context/ParseContext.js';
 
@@ -395,7 +396,7 @@ class FilterChain {
    * @param context - Parse context
    * @returns Filtered content
    */
-  async process(content: string, context: ParseContext): Promise<string> {
+  async process(content: string, context: ParseContext, phase?: FilterPhase): Promise<string> {
     if (!this.config.enabled || !content) {
       return content;
     }
@@ -406,11 +407,14 @@ class FilterChain {
     try {
       let processedContent = content;
 
-      // Execute filters based on configuration
+      // Execute filters based on configuration. When `phase` is supplied,
+      // only filters whose `phase` matches participate (#614 — markup-stage
+      // vs html-stage). Without a phase, all enabled filters run for
+      // backwards-compat with ad-hoc callers.
       if (this.config.enableParallelExecution) {
-        processedContent = await this.executeFiltersParallel(processedContent, context);
+        processedContent = await this.executeFiltersParallel(processedContent, context, phase);
       } else {
-        processedContent = await this.executeFiltersSequential(processedContent, context);
+        processedContent = await this.executeFiltersSequential(processedContent, context, phase);
       }
 
       // Update performance stats
@@ -455,13 +459,14 @@ class FilterChain {
    * @param context - Parse context
    * @returns Aggregated error-severity violations from all enabled filters
    */
-  async collectErrors(content: string, context: ParseContext): Promise<FilterValidationError[]> {
+  async collectErrors(content: string, context: ParseContext, phase?: FilterPhase): Promise<FilterValidationError[]> {
     if (!this.config.enabled || !content) return [];
 
     const allErrors: FilterValidationError[] = [];
 
     for (const filter of this.filtersByPriority) {
       if (!filter.isEnabled()) continue;
+      if (phase !== undefined && filter.phase !== phase) continue;
 
       const collector = filter as BaseFilter & {
         collectErrors?: (c: string, ctx: ParseContext) => Promise<FilterValidationError[]>;
@@ -488,10 +493,14 @@ class FilterChain {
    * @param context - Parse context
    * @returns Processed content
    */
-  private async executeFiltersSequential(content: string, context: ParseContext): Promise<string> {
+  private async executeFiltersSequential(content: string, context: ParseContext, phase?: FilterPhase): Promise<string> {
     let processedContent = content;
 
     for (const filter of this.filtersByPriority) {
+      // Skip filters that don't match the requested phase (#614).
+      if (phase !== undefined && filter.phase !== phase) {
+        continue;
+      }
       const filterStartTime = Date.now();
 
       try {
@@ -537,11 +546,13 @@ class FilterChain {
    * @param context - Parse context
    * @returns Processed content
    */
-  private async executeFiltersParallel(content: string, context: ParseContext): Promise<string> {
-    // Group filters by priority for parallel execution within groups
+  private async executeFiltersParallel(content: string, context: ParseContext, phase?: FilterPhase): Promise<string> {
+    // Group filters by priority for parallel execution within groups.
+    // Skip filters that don't match the requested phase (#614).
     const priorityGroups = new Map<number, BaseFilter[]>();
 
     for (const filter of this.filtersByPriority) {
+      if (phase !== undefined && filter.phase !== phase) continue;
       if (!priorityGroups.has(filter.priority)) {
         priorityGroups.set(filter.priority, []);
       }

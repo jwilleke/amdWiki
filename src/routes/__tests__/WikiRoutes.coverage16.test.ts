@@ -148,6 +148,11 @@ const mockNotificationManager = {
   createNotification: vi.fn().mockResolvedValue(undefined)
 };
 
+// FilterChain mock for #615 adminFilterChainStats. The .current pointer is
+// mutated per test so each can install its own shape (or null to simulate
+// "FilterChain not available").
+const mockFilterChain: { current: unknown } = { current: null };
+
 const mockCacheManager = {
   isInitialized: vi.fn().mockReturnValue(false),
   get: vi.fn().mockResolvedValue(null),
@@ -210,7 +215,11 @@ vi.mock('../../WikiEngine', () => {
           NotificationManager: mockNotificationManager,
           AttachmentManager: mockAttachmentManager,
           FootnoteManager: { isEnabled: vi.fn().mockReturnValue(false) },
-          MarkupParser: { invalidateHandlerCache: vi.fn().mockResolvedValue(undefined) },
+          MarkupParser: {
+            invalidateHandlerCache: vi.fn().mockResolvedValue(undefined),
+            // #615 — getFilterChain returns the mock chain when set, null otherwise.
+            getFilterChain: vi.fn(() => mockFilterChain.current)
+          },
           ValidationManager: {
             validateContent: vi.fn().mockResolvedValue({ isValid: true }),
             validateMetadata: vi.fn().mockResolvedValue({ isValid: true }),
@@ -351,6 +360,8 @@ function resetMocks() {
   mockCacheManager.isInitialized.mockReturnValue(false);
   mockCacheManager.stats.mockResolvedValue({ hits: 0, misses: 0, size: 0 });
   mockCacheManager.clear.mockResolvedValue(true);
+
+  mockFilterChain.current = null;
 
   mockAttachmentManager.getAllAttachments.mockResolvedValue([]);
   mockAttachmentManager.getAttachmentsForPage.mockResolvedValue([]);
@@ -629,6 +640,63 @@ describe('WikiRoutes — coverage batch 16', () => {
       const res = await request(app).get('/api/admin/cache/stats');
       expect(res.status).toBe(200);
       expect(res.body.hits).toBe(42);
+    });
+  });
+
+  // ── adminFilterChainStats (#615) ─────────────────────────────────────────────
+
+  describe('GET /api/admin/filter-chain/stats (adminFilterChainStats)', () => {
+    test('returns 403 when user lacks admin-system permission', async () => {
+      mockUserManager.hasPermission.mockResolvedValue(false);
+      const res = await request(app).get('/api/admin/filter-chain/stats');
+      expect(res.status).toBe(403);
+    });
+
+    test('returns 503 when FilterChain is not available', async () => {
+      mockFilterChain.current = null;
+      const res = await request(app).get('/api/admin/filter-chain/stats');
+      expect(res.status).toBe(503);
+    });
+
+    test('returns 200 with chain + filters when available', async () => {
+      mockFilterChain.current = {
+        getFilters: vi.fn(() => ([
+          { filterId: 'ValidationFilter', isEnabled: () => true, priority: 90 },
+          { filterId: 'SecurityFilter',   isEnabled: () => false, priority: 110 }
+        ])),
+        getStats: vi.fn(() => ({
+          chain: { executionCount: 7, totalTime: 21, averageTime: 3, errorCount: 0,
+            lastExecution: null, filterCount: 2, enabledFilterCount: 1 },
+          filters: {
+            ValidationFilter: { executionCount: 7, totalTime: 21, averageTime: 3,
+              errorCount: 0, lastExecuted: null }
+          },
+          configuration: { enabled: true, maxFilters: 50, timeout: 10000,
+            enableProfiling: true, failOnError: false }
+        }))
+      };
+      const res = await request(app).get('/api/admin/filter-chain/stats');
+      expect(res.status).toBe(200);
+      expect(res.body.chain.executionCount).toBe(7);
+      expect(res.body.configuration.enabled).toBe(true);
+      expect(Array.isArray(res.body.filters)).toBe(true);
+      expect(res.body.filters).toHaveLength(2);
+
+      // Each filter row carries metadata + runtime stats merged.
+      const validation = res.body.filters.find(
+        (f: { filterId: string }) => f.filterId === 'ValidationFilter'
+      );
+      expect(validation.enabled).toBe(true);
+      expect(validation.priority).toBe(90);
+      expect(validation.executionCount).toBe(7);
+
+      // Filters with no runtime stats (e.g. SecurityFilter never ran) still appear with zeros.
+      const security = res.body.filters.find(
+        (f: { filterId: string }) => f.filterId === 'SecurityFilter'
+      );
+      expect(security.enabled).toBe(false);
+      expect(security.priority).toBe(110);
+      expect(security.executionCount).toBe(0);
     });
   });
 

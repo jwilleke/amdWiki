@@ -18,6 +18,18 @@ import logger from '../../utils/logger.js';
  */
 
 /**
+ * Pipeline phase a filter operates in (#614).
+ *
+ * - `'markup'` (default) — runs on raw markdown/JSPWiki content before
+ *   Showdown rendering. ValidationFilter, SpamFilter operate here.
+ * - `'html'` — runs on rendered HTML after Showdown. SecurityFilter
+ *   (XSS prevention, dangerous-tag stripping, attribute allow-listing)
+ *   operates here, since its rules target HTML constructs that don't
+ *   exist in raw markdown.
+ */
+export type FilterPhase = 'markup' | 'html';
+
+/**
  * Filter configuration options
  */
 export interface FilterOptions {
@@ -28,6 +40,7 @@ export interface FilterOptions {
   version?: string;
   description?: string;
   category?: string;
+  phase?: FilterPhase;
 }
 
 /**
@@ -138,6 +151,7 @@ abstract class BaseFilter {
   readonly version: string;
   readonly description: string;
   readonly category: string;
+  readonly phase: FilterPhase;
 
   protected options: Required<FilterOptions>;
   protected stats: FilterStats;
@@ -170,6 +184,7 @@ abstract class BaseFilter {
       version: '1.0.0',
       description: '',
       category: 'general',
+      phase: 'markup',
       ...options
     };
 
@@ -178,6 +193,7 @@ abstract class BaseFilter {
     this.version = this.options.version;
     this.description = this.options.description;
     this.category = this.options.category;
+    this.phase = this.options.phase;
 
     // Performance tracking
     this.stats = {
