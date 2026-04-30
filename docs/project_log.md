@@ -2,6 +2,33 @@
 
 AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version history.
 
+## 2026-04-30-03
+
+- Agent: Claude
+- Subject: BaseManager.preflightConfiguredPath helper + rollout to all six remaining managers (#604)
+- Current Issue: #604
+- Work Done:
+  - Added BaseManager.preflightConfiguredPath(configKey, path) — protected helper that wraps checkConfiguredPath() with a standardized warning log naming the manager class (this.constructor.name) and originating config key. Caller still owns the "what to do on failure" decision (degrade, fall back, fatal)
+  - Refactored BackupManager to use the helper; behavior unchanged
+  - New BaseManager.preflight.test.ts — 3 unit tests covering ok-path, empty-path, and missing-mount + log-format assertions
+  - Applied helper to all six managers from #604: FootnoteManager (footnotes disabled on missing-mount), CommentManager (comments disabled), ExportManager (exports disabled), TemplateManager (skip template/theme load — built-ins still work), NotificationManager (skip mkdir; loadNotifications() no-ops cleanly), ACLManager (skip audit-log directory creation; warning logged)
+  - Critical: FootnoteManager, CommentManager, and ExportManager previously had unwrapped mkdir calls that would crash engine init the same way BackupManager did before today's work — all three are now safe
+  - Closed #604
+- Testing:
+  - typecheck: clean
+  - Full suite: 181/181 files, 4999/4999 tests pass
+- Commits: 79889ba7, 743c235f
+- Files Modified:
+  - src/managers/BaseManager.ts
+  - src/managers/BackupManager.ts
+  - src/managers/TemplateManager.ts
+  - src/managers/ExportManager.ts
+  - src/managers/NotificationManager.ts
+  - src/managers/ACLManager.ts
+  - src/managers/FootnoteManager.ts
+  - src/managers/CommentManager.ts
+  - src/managers/__tests__/BaseManager.preflight.test.ts (new)
+
 ## 2026-04-30-02
 
 - Agent: Claude
