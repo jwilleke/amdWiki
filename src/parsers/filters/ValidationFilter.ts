@@ -2,6 +2,26 @@ import BaseFilter from './BaseFilter.js';
 import logger from '../../utils/logger.js';
 
 /**
+ * Match a regex against content and return a ValidatorResult that flips
+ * `valid` when the pattern matches (i.e. the content is *invalid*). Locates
+ * the 1-indexed line/column of the match so the editor can pin the cursor.
+ *
+ * Used by #616 markup-syntax rules to surface "unclosed plugin", "unclosed
+ * code block" etc. with the offending position rather than just a yes/no.
+ */
+function locateRegexMatch(content: string, pattern: RegExp): { valid: boolean; line?: number; column?: number } {
+  if (!content) return { valid: true };
+  const match = pattern.exec(content);
+  if (!match) return { valid: true };
+  const before = content.slice(0, match.index);
+  const newlinesBefore = before.match(/\n/g);
+  const line = (newlinesBefore?.length ?? 0) + 1;
+  const lastNewline = before.lastIndexOf('\n');
+  const column = match.index - (lastNewline === -1 ? 0 : lastNewline + 1) + 1;
+  return { valid: false, line, column };
+}
+
+/**
  * Validation configuration interface
  */
 interface ValidationConfig {
@@ -20,10 +40,22 @@ interface ValidationConfig {
 }
 
 /**
+ * Rich validator result. Rules that can locate the offending position
+ * return `{ valid, line, column }` so the editor can pin the cursor to it
+ * (#596 / #616). Rules that only need pass/fail return a plain boolean.
+ */
+export interface ValidatorResult {
+  valid: boolean;
+  line?: number;
+  column?: number;
+}
+
+/**
  * Validation rule interface
  */
 interface ValidationRule {
-  validate: (content: string, context?: ParseContext) => boolean | Promise<boolean>;
+  validate: (content: string, context?: ParseContext) =>
+    boolean | ValidatorResult | Promise<boolean | ValidatorResult>;
   errorMessage: string;
   severity: 'error' | 'warning';
 }
@@ -35,6 +67,8 @@ interface ValidationError {
   rule: string;
   message: string;
   severity: 'error' | 'warning';
+  line?: number;
+  column?: number;
 }
 
 /**
@@ -237,19 +271,47 @@ class ValidationFilter extends BaseFilter {
       });
     }
 
-    // Markup syntax validation (configurable)
+    // Markup syntax validation (configurable). #616 split the original
+    // omnibus markupSyntax rule into per-pattern rules so each violation has
+    // a distinct, actionable message and an appropriate severity. Three of
+    // these are save-blockers (severity:'error'); the fourth (unclosed code
+    // block) is a warning because edits-in-progress legitimately produce
+    // partial content.
     if (this.validationConfig?.validateMarkup) {
-      this.validationRules.set('markupSyntax', {
-        validate: (content: string) => this.validateMarkupSyntax(content),
-        errorMessage: 'Invalid markup syntax detected',
+      this.validationRules.set('unclosedPlugin', {
+        validate: (content: string) => locateRegexMatch(content, /\[\{[^}]*$/m),
+        errorMessage: 'Unclosed plugin syntax — `[{...}]` is missing its closing `}]`.',
         severity: 'error'
+      });
+
+      this.validationRules.set('unclosedWikiTag', {
+        // Match `<wiki:foo...` extending to end-of-line with no `>` on that
+        // line — i.e. unclosed. A correctly-closed `<wiki:Include />` or
+        // `<wiki:Include>` doesn't match because `>` interrupts `[^>]*`
+        // before `$`. The previous regex used a buggy negative lookahead
+        // that backtracked into matches on properly-formed tags.
+        validate: (content: string) => locateRegexMatch(content, /<wiki:\w+[^>]*$/m),
+        errorMessage: 'Unclosed JSPWiki tag — `<wiki:...>` is missing closing `>` or self-close `/>`.',
+        severity: 'error'
+      });
+
+      this.validationRules.set('unclosedMarkdownLink', {
+        validate: (content: string) => locateRegexMatch(content, /\]\([^)]*$/m),
+        errorMessage: 'Unclosed Markdown link — `[text](...)` is missing its closing `)`.',
+        severity: 'error'
+      });
+
+      this.validationRules.set('unclosedCodeBlock', {
+        validate: (content: string) => locateRegexMatch(content, /```[^`]*$/m),
+        errorMessage: 'Unclosed fenced code block — opening ``` has no matching close.',
+        severity: 'warning'
       });
 
       // Malformed compact inline-style syntax — e.g. %%sup2%% missing the
       // required space between class name and content. Migrated from an
       // inline check in MarkupParser as part of #596.
       this.validationRules.set('malformedInlineStyle', {
-        validate: (content: string) => !/%%(?:sup|sub|strike)\S+%%/i.test(content),
+        validate: (content: string) => locateRegexMatch(content, /%%(?:sup|sub|strike)\S+%%/i),
         errorMessage: 'Malformed inline style detected. Use %%sup content /% or ' +
           '%%sup content%% (space required between class name and content).',
         severity: 'warning'
@@ -292,13 +354,16 @@ class ValidationFilter extends BaseFilter {
     // Run all configured validation rules
     for (const [ruleName, rule] of this.validationRules) {
       try {
-        const isValid = await rule.validate(content, context);
+        const raw = await rule.validate(content, context);
+        const result: ValidatorResult = typeof raw === 'boolean' ? { valid: raw } : raw;
 
-        if (!isValid) {
+        if (!result.valid) {
           const error: ValidationError = {
             rule: ruleName,
             message: rule.errorMessage,
-            severity: rule.severity
+            severity: rule.severity,
+            ...(result.line !== undefined ? { line: result.line } : {}),
+            ...(result.column !== undefined ? { column: result.column } : {})
           };
 
           if (rule.severity === 'error') {
@@ -340,21 +405,24 @@ class ValidationFilter extends BaseFilter {
   async collectErrors(
     content: string,
     context: ParseContext = {}
-  ): Promise<Array<{ filterId: string; rule: string; severity: 'error'; message: string }>> {
+  ): Promise<Array<{ filterId: string; rule: string; severity: 'error'; message: string; line?: number; column?: number }>> {
     if (!content) return [];
 
-    const errors: Array<{ filterId: string; rule: string; severity: 'error'; message: string }> = [];
+    const errors: Array<{ filterId: string; rule: string; severity: 'error'; message: string; line?: number; column?: number }> = [];
 
     for (const [ruleName, rule] of this.validationRules) {
       if (rule.severity !== 'error') continue;
       try {
-        const isValid = await rule.validate(content, context);
-        if (!isValid) {
+        const raw = await rule.validate(content, context);
+        const result: ValidatorResult = typeof raw === 'boolean' ? { valid: raw } : raw;
+        if (!result.valid) {
           errors.push({
             filterId: this.filterId,
             rule: ruleName,
             severity: 'error',
-            message: rule.errorMessage
+            message: rule.errorMessage,
+            ...(result.line !== undefined ? { line: result.line } : {}),
+            ...(result.column !== undefined ? { column: result.column } : {})
           });
         }
       } catch (ruleError) {
@@ -584,10 +652,17 @@ class ValidationFilter extends BaseFilter {
   addValidationComments(content: string, errors: ValidationError[], warnings: ValidationError[]): string {
     let annotatedContent = content;
 
+    const formatLocation = (e: ValidationError): string => {
+      if (e.line === undefined) return '';
+      return e.column !== undefined
+        ? ` (line ${e.line}, col ${e.column})`
+        : ` (line ${e.line})`;
+    };
+
     // Add error comments at the top
     if (errors.length > 0) {
       const errorComments = errors.map(error =>
-        `<!-- VALIDATION ERROR [${error.rule}]: ${error.message} -->`
+        `<!-- VALIDATION ERROR [${error.rule}]: ${error.message}${formatLocation(error)} -->`
       ).join('\n');
       annotatedContent = errorComments + '\n\n' + annotatedContent;
     }
@@ -595,7 +670,7 @@ class ValidationFilter extends BaseFilter {
     // Add warning comments at the top (after errors)
     if (warnings.length > 0) {
       const warningComments = warnings.map(warning =>
-        `<!-- VALIDATION WARNING [${warning.rule}]: ${warning.message} -->`
+        `<!-- VALIDATION WARNING [${warning.rule}]: ${warning.message}${formatLocation(warning)} -->`
       ).join('\n');
       annotatedContent = warningComments + '\n\n' + annotatedContent;
     }
