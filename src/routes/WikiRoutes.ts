@@ -28,6 +28,8 @@ import logger from '../utils/logger.js';
 import LocaleUtils from '../utils/LocaleUtils.js';
 import { extractSection, spliceSection } from '../utils/SectionUtils.js';
 import { shuffleArray } from '../utils/pluginFormatters.js';
+import { renderFootnoteListHtml } from '../plugins/FootnotesPlugin.js';
+import { renderCommentListHtml } from '../plugins/CommentsPlugin.js';
 import WikiContext from '../context/WikiContext.js';
 import { ThemeManager } from '../managers/ThemeManager.js';
 import type { ReportProgress } from '../managers/BackgroundJobManager.js';
@@ -4472,6 +4474,61 @@ ${panes}
     }
   }
 
+  /**
+   * #590 partial-render: returns just the inner footnote-list HTML the
+   * FootnotesPlugin would render for this page + caller. The plugin's
+   * client-side script swaps this into `#footnote-list-host` after a
+   * successful add/edit/delete, replacing the old `location.reload()` flow.
+   *
+   * GET /api/footnotes/:pageUuid/html — text/html. No auth required to
+   * read; the underlying buttons enforce per-row permissions.
+   */
+  async getFootnoteListHtml(req: Request, res: Response) {
+    try {
+      const { pageUuid } = req.params;
+      const footnoteManager = this.engine.getManager('FootnoteManager');
+      if (!footnoteManager || !footnoteManager.isEnabled?.()) {
+        return res.status(404).type('text/html').send('<p class="no-footnotes"><em>Footnotes are not enabled.</em></p>');
+      }
+      const html = await renderFootnoteListHtml(footnoteManager, pageUuid, req.userContext);
+      return res.type('text/html').send(html);
+    } catch (err: unknown) {
+      logger.error('Error rendering footnote list HTML:', err);
+      return res.status(500).type('text/html').send('<p class="text-danger">Failed to render footnote list.</p>');
+    }
+  }
+
+  /**
+   * #590 partial-render: returns just the inner comment-list HTML the
+   * CommentsPlugin would render for this page + caller. The plugin's
+   * client-side script swaps this into `#comment-list-host` after a
+   * successful add/delete.
+   *
+   * GET /api/comments/:pageUuid/html — text/html.
+   */
+  async getCommentListHtml(req: Request, res: Response) {
+    try {
+      const { pageUuid } = req.params;
+      const commentManager = this.engine.getManager('CommentManager');
+      if (!commentManager || !commentManager.isEnabled?.()) {
+        return res.status(404).type('text/html').send('<p class="no-comments"><em>Comments are not enabled.</em></p>');
+      }
+      const comments = await commentManager.getComments(pageUuid);
+      const u = req.userContext;
+      const html = renderCommentListHtml(
+        comments,
+        u?.isAuthenticated === true,
+        u?.username ?? '',
+        (u?.roles ?? []).includes('admin'),
+        pageUuid
+      );
+      return res.type('text/html').send(html);
+    } catch (err: unknown) {
+      logger.error('Error rendering comment list HTML:', err);
+      return res.status(500).type('text/html').send('<p class="text-danger">Failed to render comment list.</p>');
+    }
+  }
+
   async addFootnote(req: Request, res: Response) {
     try {
       const currentUser = req.userContext;
@@ -8082,10 +8139,16 @@ ${panes}
     app.post('/preferences', (req: Request, res: Response) => this.updatePreferences(req, res));
     app.post('/api/comments/:pageUuid', (req: Request, res: Response) => void this.addComment(req, res));
     app.delete('/api/comments/:pageUuid/:commentId', (req: Request, res: Response) => void this.deleteComment(req, res));
+    // #590 partial-render: returns just the inner comment-list HTML so the
+    // CommentsPlugin script can swap it in place after add/delete.
+    app.get('/api/comments/:pageUuid/html', (req: Request, res: Response) => void this.getCommentListHtml(req, res));
     app.get('/api/footnotes/:pageUuid', (req: Request, res: Response) => void this.getFootnotes(req, res));
     app.post('/api/footnotes/:pageUuid', (req: Request, res: Response) => void this.addFootnote(req, res));
     app.put('/api/footnotes/:pageUuid/:footnoteId', (req: Request, res: Response) => void this.updateFootnote(req, res));
     app.delete('/api/footnotes/:pageUuid/:footnoteId', (req: Request, res: Response) => void this.deleteFootnote(req, res));
+    // #590 partial-render: returns just the inner footnote-list HTML so the
+    // FootnotesPlugin script can swap it in place after add/edit/delete.
+    app.get('/api/footnotes/:pageUuid/html', (req: Request, res: Response) => void this.getFootnoteListHtml(req, res));
     app.post('/api/user/display-theme', (req: Request, res: Response) => this.updateDisplayTheme(req, res));
     app.post('/api/user/pinned-pages', (req: Request, res: Response) => void this.addPinnedPage(req, res));
     app.delete('/api/user/pinned-pages/:pageName', (req: Request, res: Response) => void this.removePinnedPage(req, res));

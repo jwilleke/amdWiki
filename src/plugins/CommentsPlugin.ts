@@ -19,6 +19,41 @@ function formatDate(iso: string): string {
   }
 }
 
+/**
+ * Render just the inner comment-list HTML for a page. Shared between the
+ * plugin output and the `GET /api/comments/:uuid/html` endpoint added in #590.
+ *
+ * Returns either a `<div class="comment-list">…</div>` or a "no comments yet"
+ * paragraph — never wraps in the outer `<section>` or container.
+ */
+export function renderCommentListHtml(
+  comments: PageComment[],
+  isAuthenticated: boolean,
+  username: string,
+  isAdmin: boolean,
+  pageUuid: string
+): string {
+  if (comments.length === 0) {
+    return '<p class="no-comments"><em>No comments yet.</em></p>';
+  }
+  const parts: string[] = ['<div class="comment-list">'];
+  for (const c of comments) {
+    const canDelete = isAdmin || (isAuthenticated && c.author === username);
+    parts.push(`<div class="comment" id="comment-${escapeHtml(c.id)}">`);
+    parts.push('  <div class="comment-meta">');
+    parts.push(`    <span class="comment-author">${escapeHtml(c.authorDisplayName)}</span>`);
+    parts.push(`    <span class="comment-date">${formatDate(c.createdAt)}</span>`);
+    if (canDelete) {
+      parts.push(`    <button class="comment-delete-btn btn btn-sm btn-outline-danger ms-2" onclick="ngdpDeleteComment('${escapeHtml(pageUuid)}','${escapeHtml(c.id)}')">Delete</button>`);
+    }
+    parts.push('  </div>');
+    parts.push(`  <div class="comment-body">${escapeHtml(c.content).replace(/\n/g, '<br>')}</div>`);
+    parts.push('</div>');
+  }
+  parts.push('</div>');
+  return parts.join('\n');
+}
+
 const CommentsPlugin: SimplePlugin = {
   name: 'CommentsPlugin',
   description: 'Displays page comments and a submission form for authenticated users',
@@ -56,25 +91,11 @@ const CommentsPlugin: SimplePlugin = {
     const parts: string[] = ['<section class="page-comments">'];
     if (!noheader) parts.push('<h2>Comments</h2>');
 
-    if (comments.length === 0) {
-      parts.push('<p class="no-comments"><em>No comments yet.</em></p>');
-    } else {
-      parts.push('<div class="comment-list">');
-      for (const c of comments) {
-        const canDelete = isAdmin || (isAuthenticated && c.author === username);
-        parts.push(`<div class="comment" id="comment-${escapeHtml(c.id)}">`);
-        parts.push('  <div class="comment-meta">');
-        parts.push(`    <span class="comment-author">${escapeHtml(c.authorDisplayName)}</span>`);
-        parts.push(`    <span class="comment-date">${formatDate(c.createdAt)}</span>`);
-        if (canDelete) {
-          parts.push(`    <button class="comment-delete-btn btn btn-sm btn-outline-danger ms-2" onclick="ngdpDeleteComment('${escapeHtml(pageUuid)}','${escapeHtml(c.id)}')">Delete</button>`);
-        }
-        parts.push('  </div>');
-        parts.push(`  <div class="comment-body">${escapeHtml(c.content).replace(/\n/g, '<br>')}</div>`);
-        parts.push('</div>');
-      }
-      parts.push('</div>');
-    }
+    // Wrap the list in a stable container so #590 can swap its innerHTML
+    // after add/delete instead of doing a full page reload.
+    parts.push(`<div id="comment-list-host" data-page-uuid="${escapeHtml(pageUuid)}">`);
+    parts.push(renderCommentListHtml(comments, isAuthenticated, username, isAdmin, pageUuid));
+    parts.push('</div>');
 
     if (isAuthenticated) {
       parts.push(`<form class="comment-form mt-3" onsubmit="ngdpSubmitComment(event,'${escapeHtml(pageUuid)}')">`);
@@ -84,18 +105,31 @@ const CommentsPlugin: SimplePlugin = {
       parts.push('  </div>');
       parts.push('  <button type="submit" class="btn btn-sm btn-primary">Post Comment</button>');
       parts.push('</form>');
+      // #590: replace location.reload() with a fetch-and-swap of the
+      // #comment-list-host container. Inline onclick/onsubmit handlers in the
+      // rendered HTML continue to work after replacement because they call
+      // global functions defined here.
       parts.push(`<script>
+function ngdpRefreshCommentList(pageUuid) {
+  const host = document.getElementById('comment-list-host');
+  if (!host) return Promise.resolve();
+  return fetch('/api/comments/' + pageUuid + '/html')
+    .then(r => r.text())
+    .then(html => { host.innerHTML = html; })
+    .catch(() => { /* leave stale until next view */ });
+}
 function ngdpSubmitComment(e, pageUuid) {
   e.preventDefault();
-  const content = e.target.querySelector('.comment-input').value.trim();
+  const input = e.target.querySelector('.comment-input');
+  const content = input.value.trim();
   if (!content) return;
   fetch('/api/comments/' + pageUuid, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ content })
   }).then(r => r.json()).then(data => {
-    if (data.success) { sessionStorage.setItem('ngdp-restore-tab','comments'); location.reload(); }
-    else { alert(data.error || 'Failed to post comment.'); }
+    if (data.success) { input.value = ''; return ngdpRefreshCommentList(pageUuid); }
+    alert(data.error || 'Failed to post comment.');
   }).catch(() => alert('Failed to post comment.'));
 }
 function ngdpDeleteComment(pageUuid, commentId) {
@@ -103,8 +137,8 @@ function ngdpDeleteComment(pageUuid, commentId) {
   fetch('/api/comments/' + pageUuid + '/' + commentId, {
     method: 'DELETE'
   }).then(r => r.json()).then(data => {
-    if (data.success) { sessionStorage.setItem('ngdp-restore-tab','comments'); location.reload(); }
-    else { alert(data.error || 'Failed to delete comment.'); }
+    if (data.success) return ngdpRefreshCommentList(pageUuid);
+    alert(data.error || 'Failed to delete comment.');
   }).catch(() => alert('Failed to delete comment.'));
 }
 </script>`);

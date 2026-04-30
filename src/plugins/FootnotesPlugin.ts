@@ -132,63 +132,116 @@ function renderFootnoteRow(fn: PageFootnote, canEdit: boolean, canDelete: boolea
   );
 }
 
+/**
+ * Render the inner footnote-list HTML for a page given its UUID and the
+ * caller's identity. Shared between the plugin output and the
+ * `GET /api/footnotes/:uuid/html` endpoint added in #590.
+ *
+ * Returns either an `<ol class="footnote-list">…</ol>` or a "no footnotes"
+ * paragraph — never wraps in the outer `<section>` or container.
+ */
+export async function renderFootnoteListHtml(
+  footnoteManager: FootnoteManager,
+  pageUuid: string,
+  userContext: { isAuthenticated?: boolean; username?: string; roles?: string[] } | undefined
+): Promise<string> {
+  const isAuthenticated = userContext?.isAuthenticated === true;
+  const isEditor = isAuthenticated && (
+    (userContext?.roles ?? []).some(r => ['editor', 'contributor', 'admin'].includes(r))
+  );
+  const isAdmin = (userContext?.roles ?? []).includes('admin');
+
+  const footnotes: PageFootnote[] = await footnoteManager.getFootnotes(pageUuid);
+
+  if (footnotes.length === 0) {
+    return '<p class="no-footnotes"><em>No footnotes on this page.</em></p>';
+  }
+
+  const rows: string[] = ['<ol class="footnote-list">'];
+  for (const fn of footnotes) {
+    const canDelete = isAdmin || (isAuthenticated && fn.createdBy === userContext?.username);
+    rows.push(renderFootnoteRow(fn, isEditor, canDelete, pageUuid));
+  }
+  rows.push('</ol>');
+  return rows.join('\n');
+}
+
 function renderCrudScript(pageUuid: string): string {
+  // #590: replace location.reload() with a fetch-and-swap of the
+  // #footnote-list-host container. Event delegation on the host lets newly
+  // rendered Edit/Delete buttons keep working without re-binding listeners.
   return `<script>
 (function() {
   const _uuid = ${JSON.stringify(pageUuid)};
+  const host = document.getElementById('footnote-list-host');
+  const form = document.getElementById('footnote-add-form');
 
-  // Add
-  document.getElementById('footnote-add-form')?.addEventListener('submit', function(e) {
+  function refreshList() {
+    return fetch('/api/footnotes/' + _uuid + '/html')
+      .then(r => r.text())
+      .then(html => { if (host) host.innerHTML = html; })
+      .catch(() => { /* swallow; user will see stale list until next view */ });
+  }
+
+  function resetForm() {
+    if (!form) return;
+    form.reset();
+    form.dataset.editId = '';
+    const submitBtn = form.querySelector('button[type=submit]');
+    if (submitBtn) submitBtn.textContent = 'Add Footnote';
+  }
+
+  // Single submit handler — POST to add, PUT when editing.
+  form?.addEventListener('submit', function(e) {
     e.preventDefault();
-    const display = this.querySelector('[name=display]').value.trim();
-    const url = this.querySelector('[name=url]').value.trim();
-    const note = this.querySelector('[name=note]').value.trim();
-    fetch('/api/footnotes/' + _uuid, {
-      method: 'POST', headers: {'Content-Type':'application/json'},
+    const editId = form.dataset.editId;
+    const display = form.querySelector('[name=display]').value.trim();
+    const url = form.querySelector('[name=url]').value.trim();
+    const note = form.querySelector('[name=note]').value.trim();
+    const isEdit = !!editId;
+    const target = isEdit ? '/api/footnotes/' + _uuid + '/' + editId : '/api/footnotes/' + _uuid;
+    fetch(target, {
+      method: isEdit ? 'PUT' : 'POST',
+      headers: {'Content-Type':'application/json'},
       body: JSON.stringify({ display, url, note })
-    }).then(r => r.json()).then(d => { if (d.success) { sessionStorage.setItem('ngdp-restore-tab','footnotes'); location.reload(); } else alert(d.error || 'Failed'); })
-      .catch(() => alert('Failed to add footnote.'));
+    }).then(r => r.json()).then(d => {
+      if (d.success) {
+        resetForm();
+        return refreshList();
+      }
+      alert(d.error || 'Failed');
+    }).catch(() => alert(isEdit ? 'Failed to update footnote.' : 'Failed to add footnote.'));
   });
 
-  // Delete
-  document.querySelectorAll('.footnote-delete-btn').forEach(btn => {
-    btn.addEventListener('click', function() {
-      if (!confirm('Delete footnote [' + this.dataset.id + ']?')) return;
-      fetch('/api/footnotes/' + _uuid + '/' + this.dataset.id, { method: 'DELETE' })
-        .then(r => r.json()).then(d => { if (d.success) { sessionStorage.setItem('ngdp-restore-tab','footnotes'); location.reload(); } else alert(d.error || 'Failed'); })
+  // Delegated click handlers — survive DOM swaps.
+  host?.addEventListener('click', function(e) {
+    const target = e.target;
+    if (!(target instanceof Element)) return;
+
+    const delBtn = target.closest('.footnote-delete-btn');
+    if (delBtn) {
+      const id = delBtn.dataset.id;
+      if (!confirm('Delete footnote [' + id + ']?')) return;
+      fetch('/api/footnotes/' + _uuid + '/' + id, { method: 'DELETE' })
+        .then(r => r.json()).then(d => {
+          if (d.success) return refreshList();
+          alert(d.error || 'Failed');
+        })
         .catch(() => alert('Failed to delete footnote.'));
-    });
-  });
+      return;
+    }
 
-  // Edit — populate the add form as an edit form
-  document.querySelectorAll('.footnote-edit-btn').forEach(btn => {
-    btn.addEventListener('click', function() {
-      const form = document.getElementById('footnote-add-form');
-      if (!form) return;
-      form.querySelector('[name=display]').value = this.dataset.display || '';
-      form.querySelector('[name=url]').value = this.dataset.url || '';
-      form.querySelector('[name=note]').value = this.dataset.note || '';
-      form.dataset.editId = this.dataset.id;
-      form.querySelector('button[type=submit]').textContent = 'Save Changes';
+    const editBtn = target.closest('.footnote-edit-btn');
+    if (editBtn && form) {
+      form.querySelector('[name=display]').value = editBtn.dataset.display || '';
+      form.querySelector('[name=url]').value = editBtn.dataset.url || '';
+      form.querySelector('[name=note]').value = editBtn.dataset.note || '';
+      form.dataset.editId = editBtn.dataset.id;
+      const submitBtn = form.querySelector('button[type=submit]');
+      if (submitBtn) submitBtn.textContent = 'Save Changes';
       form.scrollIntoView({ behavior: 'smooth' });
-    });
+    }
   });
-
-  // Override submit to PUT when editing
-  document.getElementById('footnote-add-form')?.addEventListener('submit', function(e) {
-    const editId = this.dataset.editId;
-    if (!editId) return; // handled by add listener above
-    e.preventDefault();
-    e.stopImmediatePropagation();
-    const display = this.querySelector('[name=display]').value.trim();
-    const url = this.querySelector('[name=url]').value.trim();
-    const note = this.querySelector('[name=note]').value.trim();
-    fetch('/api/footnotes/' + _uuid + '/' + editId, {
-      method: 'PUT', headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({ display, url, note })
-    }).then(r => r.json()).then(d => { if (d.success) { sessionStorage.setItem('ngdp-restore-tab','footnotes'); location.reload(); } else alert(d.error || 'Failed'); })
-      .catch(() => alert('Failed to update footnote.'));
-  }, true);
 })();
 </script>`;
 }
@@ -220,7 +273,7 @@ const FootnotesPlugin: SimplePlugin = {
     const isEditor = isAuthenticated && (
       (userContext?.roles ?? []).some(r => ['editor', 'contributor', 'admin'].includes(r))
     );
-    const isAdmin = (userContext?.roles ?? []).includes('admin');
+    // isAdmin is computed inside renderFootnoteListHtml() per row; not needed here.
 
     const parts: string[] = ['<section class="page-footnotes">'];
     if (!noheader) parts.push('<h2>Footnotes</h2>');
@@ -229,18 +282,12 @@ const FootnotesPlugin: SimplePlugin = {
     const footnoteManager = engine.getManager('FootnoteManager') as FootnoteManager | undefined;
 
     if (footnoteManager?.isEnabled() && pageUuid) {
-      const footnotes: PageFootnote[] = await footnoteManager.getFootnotes(pageUuid);
-
-      if (footnotes.length === 0) {
-        parts.push('<p class="no-footnotes"><em>No footnotes on this page.</em></p>');
-      } else {
-        parts.push('<ol class="footnote-list">');
-        for (const fn of footnotes) {
-          const canDelete = isAdmin || (isAuthenticated && fn.createdBy === userContext?.username);
-          parts.push(renderFootnoteRow(fn, isEditor, canDelete, pageUuid));
-        }
-        parts.push('</ol>');
-      }
+      // List wrapped in a stable container so #590 can swap its innerHTML
+      // after add/edit/delete instead of doing a full page reload.
+      const listHtml = await renderFootnoteListHtml(footnoteManager, pageUuid, userContext);
+      parts.push(`<div id="footnote-list-host" data-page-uuid="${escapeHtml(pageUuid)}">`);
+      parts.push(listHtml);
+      parts.push('</div>');
 
       if (isEditor) {
         parts.push(`
