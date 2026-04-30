@@ -3109,10 +3109,34 @@ ${panes}
         }
       }
 
+      // #149 Phase 2: pre-resolve keyword URIs for microdata itemid attributes
+      // on search-results.ejs. Mirrors the page-view handler pattern above.
+      const searchKeywordUris: Record<string, string> = {};
+      const searchCatalogManager = this.engine.getManager('CatalogManager');
+      if (searchCatalogManager && typeof searchCatalogManager.resolveUri === 'function') {
+        const seen = new Set<string>();
+        for (const r of results) {
+          const md = (r as { metadata?: Record<string, unknown> }).metadata ?? {};
+          const allKws: string[] = [
+            ...((md.userKeywords as string[] | undefined) ?? []),
+            ...((md.systemKeywords as string[] | undefined) ?? []),
+            ...(typeof md.category === 'string' && md.category ? [md.category] : [])
+          ];
+          for (const kw of allKws) {
+            if (kw && !seen.has(kw)) {
+              seen.add(kw);
+              const uri = await searchCatalogManager.resolveUri(kw);
+              if (uri) searchKeywordUris[kw] = uri;
+            }
+          }
+        }
+      }
+
       res.render('search-results', {
         ...commonData,
         title: 'Search Results',
         results: results,
+        keywordUris: searchKeywordUris,
         count: results.length,
         totalCount: totalCount,
         currentPage: currentPage,
