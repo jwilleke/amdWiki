@@ -2,6 +2,38 @@
 
 AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version history.
 
+## 2026-04-30-05
+
+- Agent: Claude
+- Subject: #596 follow-ups (#614 #615 #616), in-review close-out (#149 #178 #250 #507 #536 #594), and #590 footnote/comment DOM-patch
+- Current Issue: #590, #614, #615, #616, plus closures of #149, #178, #250, #507, #536, #594
+- Work Done:
+  - #616 — Split ValidationFilter's omnibus markupSyntax rule into five per-pattern rules (unclosedPlugin, unclosedWikiTag, unclosedMarkdownLink, unclosedCodeBlock, malformedInlineStyle) each with distinct severity and message. Three are severity:'error' (block save); two are severity:'warning' (annotate only). Added ValidatorResult interface so rules can report 1-indexed line/column; locateRegexMatch() helper computes positions. Fixed buggy negative-lookahead in unclosedWikiTag regex that was matching properly-formed self-closing tags. Editor banner now shows "[rule] message (line N)" end-to-end
+  - #614 — Added phase: 'markup' | 'html' to BaseFilter (default 'markup'). SecurityFilter declares phase: 'html'. FilterChain.process and collectErrors accept an optional phase argument and skip filters that don't match. MarkupParser now has two call sites — Phase 2.7 (markup) before Showdown and Phase 4.5 (html) after DOM merge. SecurityFilter is now positioned to actually see the rendered HTML constructs it needs to sanitize
+  - #615 — Added GET /api/admin/filter-chain/stats (admin-system gated) returning chain stats + per-filter metadata (enabled, priority) merged with runtime stats. Filters that have never executed still appear with zero counters
+  - #590 — Replaced location.reload() in FootnotesPlugin and CommentsPlugin with DOM-patch flow. New endpoints GET /api/footnotes/:pageUuid/html and GET /api/comments/:pageUuid/html return inner list HTML. Each plugin wraps its list in a stable container (#footnote-list-host, #comment-list-host) and swaps innerHTML on success. FootnotesPlugin per-element addEventListener handlers rebuilt as event delegation on the host so newly-rendered Edit/Delete buttons keep working. List rendering extracted into renderFootnoteListHtml and renderCommentListHtml so plugin output and partial-render endpoint share one code path
+  - Reviewed and closed #149 (microdata Phase 1+2), #178 (Documentation Explosion), #250 (perf bottlenecks — 5s engine init for 36K link-graph entries vs original 30+s baseline), #507 (auto-tagging Phases 1-3), #536 (minimum server deployment), #594 (MCP CRUD tools) — all six verified against current code
+  - Closed #596, #614, #615, #616 with status comments; commented on #590 with implementation summary
+- Testing:
+  - typecheck: clean
+  - npm test: 186/186 files, 5035/5035 tests pass
+  - npm run test:e2e: 72/72 pass
+- Commits: f631959f, 5c634d8b, a10c8f12
+- Files Modified:
+  - src/parsers/filters/ValidationFilter.ts
+  - src/parsers/filters/__tests__/ValidationFilter.markupRules.test.ts (new)
+  - src/parsers/filters/BaseFilter.ts
+  - src/parsers/filters/SecurityFilter.ts
+  - src/parsers/filters/FilterChain.ts
+  - src/parsers/filters/__tests__/FilterChain.phase.test.ts (new)
+  - src/parsers/MarkupParser.ts
+  - src/parsers/__tests__/MarkupParser.filterChain.test.ts
+  - src/routes/WikiRoutes.ts
+  - src/routes/__tests__/WikiRoutes.coverage16.test.ts
+  - src/plugins/FootnotesPlugin.ts
+  - src/plugins/CommentsPlugin.ts
+  - src/plugins/__tests__/CommentsPlugin.renderListHtml.test.ts (new)
+
 ## 2026-04-30-04
 
 - Agent: Claude
