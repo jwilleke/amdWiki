@@ -55,6 +55,15 @@ Run sequentially:
 - Stage the three updated files: `git add package.json config/app-default-config.json CHANGELOG.md`.
   - Stage `package-lock.json` too only if it actually changed (rare for version-only edits).
 
+### Step 5a: Capture a performance baseline
+
+After the version bump (so the new `<VERSION>` is reflected in the filename) and before the release commit, capture a baseline snapshot:
+
+- `npm run test:baseline` — runs `scripts/baseline-profile.sh`, which writes `docs/performance/baseline-v<VERSION>-<DATE>.md` (memory + response times for `/`, `/view/Welcome`, `/search?q=test`, `/login`).
+- Stage the new file: `git add docs/performance/baseline-v<VERSION>-*.md`.
+
+This gives every release a baseline file that's diffable against the previous one for regression detection. If you want a cold-start measurement included, use `npm run test:baseline:cold` instead — it stops and starts the server first (slower; only do this when the server is already going to be restarted anyway).
+
 ### Step 6: Commit, tag, and push
 
 Run sequentially:

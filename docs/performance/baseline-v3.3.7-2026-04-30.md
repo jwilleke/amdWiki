@@ -8,16 +8,16 @@ Captured 2026-04-30 on instance `jimstest` (port 3000).
 | --- | --- |
 | Version | v3.3.7 |
 | Pages on disk | 104 |
-| Resident memory (idle) | 1851.8 MB |
+| Resident memory (idle) | 1542.8 MB |
 
 ## Response times (mean across 10 samples)
 
 | Route | Time |
 | --- | --- |
-| `/` | 19 ms |
-| `/view/Welcome` | 16 ms |
-| `/search?q=test` | 128 ms |
-| `/login` | 15 ms |
+| `/` | 142 ms |
+| `/view/Welcome` | 17 ms |
+| `/search?q=test` | 255 ms |
+| `/login` | 16 ms |
 
 ## Methodology
 

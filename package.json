@@ -24,6 +24,8 @@
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:headed": "playwright test --headed",
+    "test:baseline": "./scripts/baseline-profile.sh",
+    "test:baseline:cold": "./scripts/baseline-profile.sh --cold-start",
     "smoke": "./scripts/smoke-test.sh",
     "prepare": "husky install || echo 'Husky not installed'",
     "version": "echo $npm_package_version",
