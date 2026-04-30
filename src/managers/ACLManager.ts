@@ -201,11 +201,17 @@ class ACLManager extends BaseManager {
 
     if (auditEnabled) {
       const logDir = configManager.getResolvedDataPath('ngdpbase.audit.provider.file.logdirectory', './data/logs');
-      try {
-        await fs.mkdir(logDir, { recursive: true });
-        logger.info('📋 Audit logging initialized');
-      } catch (error) {
-        logger.warn('Warning: Could not create audit log directory:', { error: error instanceof Error ? error.message : String(error) });
+      const preflight = this.preflightConfiguredPath(
+        'ngdpbase.audit.provider.file.logdirectory',
+        logDir
+      );
+      if (preflight.ok) {
+        try {
+          await fs.mkdir(logDir, { recursive: true });
+          logger.info('📋 Audit logging initialized');
+        } catch (error) {
+          logger.warn('Warning: Could not create audit log directory:', { error: error instanceof Error ? error.message : String(error) });
+        }
       }
     }
   }

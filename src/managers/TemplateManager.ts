@@ -144,6 +144,14 @@ class TemplateManager extends BaseManager {
    * @returns {Promise<void>}
    */
   async loadTemplates(): Promise<void> {
+    const preflight = this.preflightConfiguredPath(
+      'templatesDirectory',
+      this.templatesDirectory
+    );
+    if (!preflight.ok) {
+      logger.info('TemplateManager: skipping template load (path unreachable)');
+      return;
+    }
     try {
       // Create templates directory if it doesn't exist
       await fs.mkdir(this.templatesDirectory, { recursive: true });
@@ -179,6 +187,14 @@ class TemplateManager extends BaseManager {
    * @returns {Promise<void>}
    */
   async loadThemes(): Promise<void> {
+    const preflight = this.preflightConfiguredPath(
+      'themesDirectory',
+      this.themesDirectory
+    );
+    if (!preflight.ok) {
+      logger.info('TemplateManager: skipping theme load (path unreachable)');
+      return;
+    }
     try {
       // Create themes directory if it doesn't exist
       await fs.mkdir(this.themesDirectory, { recursive: true });

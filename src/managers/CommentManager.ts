@@ -25,6 +25,15 @@ export default class CommentManager extends BaseManager {
       );
     }
     if (this.enabled) {
+      const preflight = this.preflightConfiguredPath(
+        'ngdpbase.comments.storagedir',
+        this.commentsDir
+      );
+      if (!preflight.ok) {
+        this.enabled = false;
+        logger.info('CommentManager initialized (degraded — comments disabled)');
+        return;
+      }
       fs.mkdirSync(this.commentsDir, { recursive: true });
       logger.debug('CommentManager initialized');
     }

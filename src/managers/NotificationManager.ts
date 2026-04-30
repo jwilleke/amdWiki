@@ -130,11 +130,19 @@ class NotificationManager extends BaseManager {
 
     // Ensure data directory exists
     const dataDirPath = path.dirname(this.storagePath);
-    try {
-      await fs.mkdir(dataDirPath, { recursive: true });
-    } catch (error) {
-      this.logger.warn('Failed to create data directory:', (error as Error).message);
+    const preflight = this.preflightConfiguredPath(
+      'ngdpbase.notifications.directory',
+      dataDirPath
+    );
+    if (preflight.ok) {
+      try {
+        await fs.mkdir(dataDirPath, { recursive: true });
+      } catch (error) {
+        this.logger.warn('Failed to create data directory:', (error as Error).message);
+      }
     }
+    // If preflight failed, the warning was already logged. loadNotifications()
+    // below will gracefully no-op since the file doesn't exist.
 
     // Load existing notifications
     await this.loadNotifications();

@@ -34,6 +34,15 @@ export default class FootnoteManager extends BaseManager {
       );
     }
     if (this.enabled) {
+      const preflight = this.preflightConfiguredPath(
+        'ngdpbase.footnotes.storagedir',
+        this.storageDir
+      );
+      if (!preflight.ok) {
+        this.enabled = false;
+        logger.info('FootnoteManager initialized (degraded — footnotes disabled)');
+        return;
+      }
       fs.mkdirSync(this.storageDir, { recursive: true });
       logger.debug('FootnoteManager initialized');
     }

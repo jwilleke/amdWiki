@@ -95,6 +95,16 @@ class ExportManager extends BaseManager {
 
     this.exportDirectory = config.exportDirectory || './exports';
 
+    const preflight = this.preflightConfiguredPath(
+      'exportDirectory',
+      this.exportDirectory
+    );
+    if (!preflight.ok) {
+      this.exportDirectory = '';
+      logger.info('ExportManager initialized (degraded — exports disabled)');
+      return;
+    }
+
     // Create exports directory
     await fs.mkdir(this.exportDirectory, { recursive: true });
 
