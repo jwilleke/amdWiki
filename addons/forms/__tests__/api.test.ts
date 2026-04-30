@@ -10,6 +10,14 @@ import express from 'express';
 import request from 'supertest';
 import apiRoutes from '../routes/api';
 
+// Stub ApiContext.from so it doesn't need a real session in tests.
+// Must be at the top level — Vitest hoists vi.mock() but warns (and will
+// eventually error) if the call is nested inside a function. The mocked path
+// lives in dist/ which may not exist when tests run from source, hence virtual.
+vi.mock('../../../dist/src/context/ApiContext', () => ({
+  ApiContext: { from: () => ({ username: 'testuser' }) }
+}), { virtual: true });
+
 // ── Minimal mocks ─────────────────────────────────────────────────────────────
 
 const testForm = {
@@ -44,10 +52,6 @@ const noopAddon = {
 function makeContext(engine: ReturnType<typeof makeEngine>) {
   const app = express();
   app.use(express.json());
-  // Stub ApiContext.from so it doesn't need a real session
-  vi.mock('../../../dist/src/context/ApiContext', () => ({
-    ApiContext: { from: () => ({ username: 'testuser' }) }
-  }), { virtual: true });
   app.use('/api/forms', apiRoutes(engine as never, noopAddon));
   return app;
 }
