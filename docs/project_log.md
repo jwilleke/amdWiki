@@ -2,6 +2,28 @@
 
 AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version history.
 
+## 2026-04-30-06
+
+- Agent: Claude
+- Subject: Consolidated Person/Organization design plan + #617 prerequisite, #602 update, #154 closure
+- Current Issue: #154, #602, #617
+- Work Done:
+  - Extended planning session reconciling three tangled sources covering Person↔Organization identity work: #154 (Schema.org with RBAC, conflated permission-role and OrganizationRole concerns), #602 (person-contacts addon — filed earlier today), and the pre-existing March exploration `docs/planning/Persons and relationships.md`
+  - Established the role-vs-OrganizationRole distinction explicitly: User.roles[] (permission collection, drives ACL) is one concept; OrganizationRole (Person↔Organization relationship) is a separate concept; the two are orthogonal
+  - Walked through schema.org-correct modeling decisions: customer/vendor are transaction-derived (Invoice.customer, Order.seller — accounting #486), NOT role-records; physical-thing ownership uses OwnershipInfo records on the units module (not person-contacts); HOA "unit-owner" membership is derived from active OwnershipInfo at JSON-LD emit time, not persisted as a separate role-record
+  - Locked the storage shape: one unified collection of role-records, discriminated by schema.org @type ∈ {EmployeeRole, ProgramMembership, OrganizationRole} — no invented relationshipType field
+  - Locked the layered architecture: core ngdpbase owns canonical Person + Organization records (refactor tracked in new prerequisite issue); person-contacts addon owns role-records on top; addon disable removes role-records but leaves Person/Organization untouched, with AddonsManager dependency-cascade rule blocking disable when a dependent addon is still enabled
+  - Wrote consolidated plan to docs/planning/OrganizationRole-plannig.md (227 lines) with linked schema.org references throughout
+  - Filed #617 — [FEATURE] Core Person/Organization refactor (the prerequisite that #602 is now blocked-by). This is the next concrete piece of work
+  - Updated #602's body — full rewrite reflecting the layered design, three role-record families, schema.org-aligned modeling decisions, bootstrap behavior at install time, and the addon-disable cascade. Plan-doc link prominent at top and bottom
+  - Closed #154 as superseded by #617 + #602; close comment explains the role-vs-OrganizationRole distinction
+  - Deleted superseded `docs/planning/Persons and relationships.md` (March exploration); content folded into the new plan
+- Testing: none (planning + docs only this session)
+- Commits: 5e554e08
+- Files Modified:
+  - docs/planning/OrganizationRole-plannig.md (new)
+  - docs/planning/Persons and relationships.md (deleted)
+
 ## 2026-04-30-05
 
 - Agent: Claude
