@@ -2,6 +2,22 @@
 
 AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version history.
 
+## 2026-04-30-02
+
+- Agent: Claude
+- Subject: Hoist vi.mock to top level in forms api.test.ts (#607)
+- Current Issue: #607
+- Work Done:
+  - Filed #607 — vi.mock() inside makeContext() is not at top level; emits a warning today, will become a hard error in a future Vitest release
+  - Moved vi.mock('../../../dist/src/context/ApiContext', ...) call from inside makeContext() (line 48) to top of file immediately after imports; preserved { virtual: true } since the mocked path lives in dist/ which may not exist when tests run from source
+  - Removed the now-redundant nested call from makeContext()
+- Testing:
+  - addons/forms/__tests__/api.test.ts: 11/11 pass
+  - Full suite: 180/180 files, 4996/4996 tests pass; vi.mock hoist warning no longer printed
+- Commits: c4412933
+- Files Modified:
+  - addons/forms/__tests__/api.test.ts
+
 ## 2026-04-30-01
 
 - Agent: Claude
