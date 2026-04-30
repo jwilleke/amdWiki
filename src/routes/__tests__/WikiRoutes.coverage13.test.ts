@@ -149,7 +149,15 @@ const mockAttachmentManager = {
   getAttachmentsByPage: vi.fn().mockResolvedValue([])
 };
 
-let mockUserKeywordsConfig: Record<string, Record<string, unknown>> = {};
+// Stable object — mutated in place via setUserKeywords() / resetMocks() so the
+// closure inside mockConfigManager.getProperty always sees the latest contents.
+// Reassigning this binding caused order-dependent test pollution (#609).
+const mockUserKeywordsConfig: Record<string, Record<string, unknown>> = {};
+
+function setUserKeywords(next: Record<string, Record<string, unknown>>) {
+  for (const k of Object.keys(mockUserKeywordsConfig)) delete mockUserKeywordsConfig[k];
+  Object.assign(mockUserKeywordsConfig, next);
+}
 
 const mockConfigManager = {
   getProperty: vi.fn((key: string, defaultValue: unknown) => {
@@ -228,7 +236,7 @@ const adminUser = {
 };
 
 function resetMocks() {
-  mockUserKeywordsConfig = {};
+  setUserKeywords({});
 
   mockConfigManager.getProperty.mockImplementation((key: string, defaultValue: unknown) => {
     if (key === 'ngdpbase.user-keywords') return mockUserKeywordsConfig;
@@ -390,9 +398,9 @@ describe('WikiRoutes — coverage batch 13', () => {
     });
 
     test('renders 200 with existing keywords', async () => {
-      mockUserKeywordsConfig = {
+      setUserKeywords({
         'tech': { label: 'Technology', description: 'Tech pages', category: 'Content', enabled: true }
-      };
+      });
       const res = await request(app).get('/admin/keywords');
       expect(res.status).toBe(200);
     });
@@ -434,7 +442,7 @@ describe('WikiRoutes — coverage batch 13', () => {
     });
 
     test('returns 400 when keyword ID already exists', async () => {
-      mockUserKeywordsConfig = { 'existing-kw': { label: 'Existing', enabled: true } };
+      setUserKeywords({ 'existing-kw': { label: 'Existing', enabled: true } });
       const res = await request(app)
         .post('/admin/keywords')
         .set('x-csrf-token', 'test-csrf-token')
@@ -476,7 +484,7 @@ describe('WikiRoutes — coverage batch 13', () => {
     });
 
     test('returns 200 when keyword updated', async () => {
-      mockUserKeywordsConfig = { 'tech': { label: 'Technology', enabled: true } };
+      setUserKeywords({ 'tech': { label: 'Technology', enabled: true } });
       const res = await request(app)
         .put('/admin/keywords/tech')
         .set('x-csrf-token', 'test-csrf-token')
@@ -504,7 +512,7 @@ describe('WikiRoutes — coverage batch 13', () => {
     });
 
     test('returns 200 when keyword deleted', async () => {
-      mockUserKeywordsConfig = { 'tech': { label: 'Technology', enabled: true } };
+      setUserKeywords({ 'tech': { label: 'Technology', enabled: true } });
       const res = await request(app)
         .delete('/admin/keywords/tech')
         .set('x-csrf-token', 'test-csrf-token')
