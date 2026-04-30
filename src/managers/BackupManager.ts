@@ -4,7 +4,6 @@ import path from 'path';
 import zlib from 'zlib';
 import { promisify } from 'util';
 import logger from '../utils/logger.js';
-import { checkConfiguredPath } from '../utils/PathPreflight.js';
 import type { WikiEngine } from '../types/WikiEngine.js';
 import type ConfigurationManager from './ConfigurationManager.js';
 
@@ -155,12 +154,12 @@ class BackupManager extends BaseManager {
     // Preflight: if the configured path lives on a volume that is not mounted,
     // log a clear warning and disable backups for this session rather than
     // letting fs.ensureDir() crash engine init with an opaque EACCES.
-    const preflight = checkConfiguredPath(this.backupDirectory);
+    const preflight = this.preflightConfiguredPath(
+      'ngdpbase.backup.directory',
+      this.backupDirectory
+    );
     if (!preflight.ok) {
-      logger.warn(
-        `⚠️  BackupManager: ${preflight.message} ` +
-        '(config key: ngdpbase.backup.directory). Backups are DISABLED for this session.'
-      );
+      logger.warn('   Backups are DISABLED for this session.');
       this.autoBackupEnabled = false;
       this.backupDirectory = '';
       logger.info('✅ BackupManager initialized (degraded — backups disabled)');

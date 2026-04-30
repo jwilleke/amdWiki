@@ -15,6 +15,8 @@
  * @see {@link WikiEngine} for the main engine
  */
 
+import logger from '../utils/logger.js';
+import { checkConfiguredPath, type PathPreflightResult } from '../utils/PathPreflight.js';
 import type { WikiEngine } from '../types/WikiEngine.js';
 import type { ManagerFetchOptions } from '../utils/managerUtils.js';
 
@@ -137,6 +139,48 @@ abstract class BaseManager {
     if (pm) {
       pm.invalidatePageCache(pageUuid);
     }
+  }
+
+  /**
+   * Preflight a configured filesystem path before any mkdir/write happens.
+   *
+   * Wraps `checkConfiguredPath()` with a standardized warning log that names
+   * the manager (`this.constructor.name`) and the originating config key.
+   * Useful for paths that may live on volumes the OS has unmounted (notably
+   * macOS `/Volumes/<X>/...`), where `fs.ensureDir` would otherwise crash
+   * the engine with an opaque `EACCES`.
+   *
+   * The caller decides what to do on failure (degrade, fall back to a
+   * default, or treat as fatal).
+   *
+   * @param configKey  The config key that supplied this path — included in
+   *                   the warning so operators know what to fix.
+   * @param path       The resolved path to check.
+   * @returns          The preflight result. `result.ok === true` means safe
+   *                   to proceed.
+   *
+   * @example
+   * const preflight = this.preflightConfiguredPath(
+   *   'ngdpbase.backup.directory',
+   *   this.backupDirectory
+   * );
+   * if (!preflight.ok) {
+   *   // degrade — disable feature, fall back to default, etc.
+   *   return;
+   * }
+   */
+  protected preflightConfiguredPath(
+    configKey: string,
+    path: string | null | undefined
+  ): PathPreflightResult {
+    const result = checkConfiguredPath(path);
+    if (!result.ok) {
+      logger.warn(
+        `⚠️  ${this.constructor.name}: ${result.message} ` +
+        `(config key: ${configKey}).`
+      );
+    }
+    return result;
   }
 
   /**
