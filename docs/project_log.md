@@ -2,6 +2,27 @@
 
 AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version history.
 
+## 2026-05-01-05
+
+- Agent: Claude
+- Subject: #617 follow-up — backfill Person.memberOf for legacy records, deploy to jimstest
+- Current Issue: #617 (follow-up)
+- Work Done:
+  - Discovered jimstest had 3 paired Person files (admin, jim, molly) but all were orgless — they pre-date the UserManager sync wiring (f0bc149a). User noticed on opening jim's record in the IDE
+  - Initially misread `config/app-default-config.json` as having an empty `application.organization.file`, but the per-install custom config at `${FAST_STORAGE}/config/app-custom-config.json` (loaded by ConfigurationManager second) does set it to `jimstest-nerdsbythehour-com.json`. Wiring forward was always correct on jimstest; only existing data needed backfill
+  - Wrote `scripts/backfill-person-memberof.ts` — idempotent backfill that resolves the anchor org via the same custom-config key the running app uses, reads its `@id`, and patches `memberOf: { '@id': <anchor-id> }` onto every Person file that lacks it. Atomic writes, skips already-linked records
+  - Ran on jimstest: 3 patched on first run, 0 patched / 3 skipped on rerun (idempotency verified). All three Person files now reference `https://jimstest.nerdsbythehour.com/`
+  - Built (`npm run build`) and restarted jimstest via `./server.sh restart` (per server-restart memory rule). Health check 302 → /view/Welcome; logs confirm `🏢 OrganizationManager initialized (1 orgs)` and `👤 PersonManager initialized (3 persons)`. UserManager person-sync wiring is now live on jimstest
+  - Design discussion with user re: schema.org inverse properties. Decided to keep `Person.memberOf` as canonical and NOT materialize `Organization.member` — single source of truth, no drift risk, org file stays bounded. Inverse lookup (e.g., "list members of org X") can be a 3-line scan on demand
+  - Three sister installs (fairways-base, ve-geology, ngdpbase temp build) still on f0bc149a-prior code; backfill not yet propagated. Out of scope this session per "small iterations" preference
+- Testing:
+  - Backfill: 3 patched / 0 skipped on first run; 0 patched / 3 skipped on rerun (idempotent)
+  - jimstest restart: HTTP 302 healthy; manager init logs as expected; running version 3.4.0 on commit e7359256
+  - Verified jim's Person file now has `memberOf: { "@id": "https://jimstest.nerdsbythehour.com/" }`
+- Commits: e7359256 (feat(#617): backfill Person.memberOf for legacy Person records)
+- Files Modified:
+  - scripts/backfill-person-memberof.ts (new — idempotent memberOf backfill for legacy installs)
+
 ## 2026-05-01-04
 
 - Agent: Claude
