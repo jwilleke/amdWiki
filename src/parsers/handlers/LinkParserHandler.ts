@@ -1,7 +1,7 @@
 import BaseSyntaxHandler, { InitializationContext, ParseContext } from './BaseSyntaxHandler.js';
 import { LinkParser, type InterWikiSiteConfig, type ParserStats } from '../LinkParser.js';
-import * as fs from 'fs-extra';
-import * as path from 'path';
+import fs from 'fs-extra';
+import path from 'path';
 import logger from '../../utils/logger.js';
 
 /**

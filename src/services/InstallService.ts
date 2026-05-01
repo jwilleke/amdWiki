@@ -1,6 +1,6 @@
-import * as fs from 'fs-extra';
-import * as path from 'path';
-import * as crypto from 'crypto';
+import fs from 'fs-extra';
+import path from 'path';
+import crypto from 'crypto';
 import { fileURLToPath } from 'url';
 import logger from '../utils/logger.js';
 

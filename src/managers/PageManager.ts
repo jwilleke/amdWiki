@@ -1,5 +1,5 @@
-import * as path from 'path';
-import * as fse from 'fs-extra';
+import path from 'path';
+import fse from 'fs-extra';
 import matter from 'gray-matter';
 import BaseManager, { BackupData } from './BaseManager.js';
 import logger from '../utils/logger.js';

@@ -1,8 +1,8 @@
 import BaseAuditProvider, { AuditFilters, AuditSearchResults, AuditStats, AuditBackupData } from './BaseAuditProvider.js';
 import type { WikiEngine } from '../types/WikiEngine.js';
 import type ConfigurationManager from '../managers/ConfigurationManager.js';
-import * as path from 'path';
-import * as fs from 'fs-extra';
+import path from 'path';
+import fs from 'fs-extra';
 import { v4 as uuidv4 } from 'uuid';
 import logger from '../utils/logger.js';
 import { AuditEvent } from '../types/index.js';
