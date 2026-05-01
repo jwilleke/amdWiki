@@ -2,6 +2,39 @@
 
 AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version history.
 
+## 2026-05-01-02
+
+- Agent: Claude
+- Subject: #617 release v3.4.0, propagate to all sister installs, fix #618 docker fs-extra interop, file #619
+- Current Issue: #617 (released as v3.4.0), #618 (filed + fixed + closed), #619 (filed)
+- Work Done:
+  - Cut v3.4.0 release via /semver minor — bumped package.json + app-default-config.json + CHANGELOG.md, captured baseline (`docs/performance/baseline-v3.4.0-2026-05-01.md`), tagged + pushed, created GitHub release with auto-generated notes (`https://github.com/jwilleke/ngdpbase/releases/tag/v3.4.0`)
+  - Propagated v3.4.0 to all sister installs: pulled, rebuilt, restarted, ran full test suite + Playwright E2E on each. All four sites now on v3.4.0 with all tests passing — jimstest (port 3000), The Fairways (2121), ve-geology (3333), ngdpbase temp build (3001). Cumulative: 20,192 unit tests + 288 E2E across the four sites
+  - Triaged the failing v3.4.0 docker-build CI run [25212877450](https://github.com/jwilleke/ngdpbase/actions/runs/25212877450). Root cause was a long-standing fs-extra ESM interop bug (also failed on v3.3.7 [25161934940](https://github.com/jwilleke/ngdpbase/actions/runs/25161934940), unrelated to #617). `import * as fs from 'fs-extra'` returns undefined for `readdir`/`writeJson`/etc. on plain Node ESM (proved with one-liner `node --input-type=module -e "import * as fs from 'fs-extra'; console.log(typeof fs.readdir)"` → undefined; default import → function). Vitest's `stripCjsShims` plugin and pm2's loader both smoothed the interop in dev/local-server, hiding the bug
+  - Filed #618 [BUG] Docker headless install fails: fs-extra namespace import returns undefined methods in Node ESM
+  - Fixed #618 by switching `import * as fs from 'fs-extra'` → `import fs from 'fs-extra'` in the four affected files (InstallService, PageManager, LinkParserHandler, FileAuditProvider). Verified by manually triggering the docker-build workflow on master HEAD: [run 25213285532](https://github.com/jwilleke/ngdpbase/actions/runs/25213285532) — all steps green including container start, health check, HTTP smoke checks, Trivy scan
+  - Synced the fs-extra fix to all four sister installs (pull + rebuild + restart) — all four serve healthy 302 on root after restart
+  - Filed #619 [BUG] ci.yml smoke + E2E jobs broken: missing config key + wrong app entry path. Two distinct failure modes (smoke job reads non-existent `ngdpbase.applicationName`; E2E webServer points at non-existent `app.js` instead of `dist/src/app.js`). Pre-existing for ~3 weeks. Not fixed in this session — separate scope
+- Testing:
+  - jimstest (port 3000): 5048 unit + 72 E2E pass; restarted on patched build, healthy
+  - fairways-base (port 2121): 5048 unit + 72 E2E pass; restarted on patched build, healthy
+  - ngdpbase-veg (port 3333): 5048 unit + 72 E2E pass; restarted on patched build, healthy
+  - ngdpbase temp build (port 3001): 5048 unit + 72 E2E pass; restarted on patched build, healthy
+  - docker-build CI on master HEAD: green (smoke test + Trivy scan)
+- Commits: 49a791fd (#617 docker headless seed), 59972e52 (release v3.4.0), 6550b0f0 (#618 fs-extra fix)
+- Files Modified:
+  - .gitignore-equivalent files: none
+  - CHANGELOG.md (release entry)
+  - config/app-default-config.json (version bump)
+  - config/app-custom-config.example (org config example for headless installs)
+  - docs/performance/baseline-v3.4.0-2026-05-01.md (new baseline)
+  - package.json (version bump)
+  - src/managers/PageManager.ts (fs-extra default import)
+  - src/managers/__tests__/OrganizationManager.test.ts (round-trip test)
+  - src/parsers/handlers/LinkParserHandler.ts (fs-extra default import)
+  - src/providers/FileAuditProvider.ts (fs-extra default import)
+  - src/services/InstallService.ts (#seedOrganizationFromConfigIfNamed + fs-extra default import)
+
 ## 2026-05-01-01
 
 - Agent: Claude
