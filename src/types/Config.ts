@@ -231,12 +231,12 @@ export interface SearchProviderConfig {
 }
 
 /**
- * Application organization configuration (#617)
+ * Application organization / persons configuration (#617)
  *
- * Identifies the organization that owns this install. Seeded at install
- * time from the install form; read by OrganizationManager to load the
- * anchor org record. Person records storage is included here as a sibling
- * concern of the same identity layer.
+ * Identifies WHERE the install's anchor Organization record lives. The org
+ * JSON-LD file at `<storagedir>/<file>` is the single source of truth for
+ * name, url, address, etc. — those fields live IN THE FILE, NOT in config.
+ * `OrganizationManager` reads the file directly.
  */
 export interface ApplicationOrganizationConfig {
   /** Storage directory for organization JSON files (one file per org) */
@@ -245,32 +245,11 @@ export interface ApplicationOrganizationConfig {
   /** Filename of the install anchor org file (e.g. "acme-corporation.json") */
   'ngdpbase.application.organization.file': string;
 
-  /** Canonical URL of the install anchor org — becomes the @id in JSON-LD */
-  'ngdpbase.application.organization.url': string;
+  /** Default Organization provider class (lowercased) */
+  'ngdpbase.application.organization.provider.default': string;
 
-  /** Organization name */
-  'ngdpbase.application.organization.name': string;
-
-  /** Organization legal name */
-  'ngdpbase.application.organization.legal-name': string;
-
-  /** Organization description */
-  'ngdpbase.application.organization.description': string;
-
-  /** Founding date */
-  'ngdpbase.application.organization.founding-date': string;
-
-  /** Contact email */
-  'ngdpbase.application.organization.contact-email': string;
-
-  /** Address locality (city) */
-  'ngdpbase.application.organization.address-locality': string;
-
-  /** Address region (state/province) */
-  'ngdpbase.application.organization.address-region': string;
-
-  /** Address country */
-  'ngdpbase.application.organization.address-country': string;
+  /** Active Organization provider class (lowercased; falls back to .default) */
+  'ngdpbase.application.organization.provider': string;
 
   /** Storage directory for person JSON files (one file per person) */
   'ngdpbase.application.persons.storagedir': string;
@@ -280,12 +259,6 @@ export interface ApplicationOrganizationConfig {
 
   /** Active Person provider class (lowercased; falls back to .default) */
   'ngdpbase.application.persons.provider': string;
-
-  /** Default Organization provider class (lowercased) */
-  'ngdpbase.application.organization.provider.default': string;
-
-  /** Active Organization provider class (lowercased; falls back to .default) */
-  'ngdpbase.application.organization.provider': string;
 }
 
 /**

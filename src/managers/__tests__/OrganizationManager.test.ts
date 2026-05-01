@@ -149,23 +149,26 @@ describe('OrganizationManager (#617)', () => {
     expect(all.map((o: any) => o['@id']).sort()).toEqual(['https://one.test/', 'https://two.test/']);
   });
 
-  test('docker round-trip — seedFromConfig satisfies the startup invariant on next boot', async () => {
+  test('install round-trip — seedFromConfig satisfies the startup invariant on next boot', async () => {
     const orgsDir = path.join(tmpDir, 'organizations');
     const configManager = makeConfigManager({
       'ngdpbase.application.organization.storagedir': orgsDir,
-      'ngdpbase.application.organization.file': 'fairways.json',
-      'ngdpbase.application.organization.name': 'The Fairways',
-      'ngdpbase.application.organization.url': 'https://fairways.example.com/'
+      'ngdpbase.application.organization.file': 'fairways.json'
     });
     const engine = makeEngine(configManager);
 
-    // First boot — fresh install, no .install-complete yet.
+    // First boot — fresh install, no .install-complete yet. Form data drives
+    // the seed; org metadata lives in the JSON-LD file, not config.
     const first = new OrganizationManager(engine);
     await first.initialize();
-    await first.seedFromConfig(); // simulates headless install seeding from config
+    await first.seedFromConfig({
+      orgName: 'The Fairways',
+      orgUrl: 'https://fairways.example.com/',
+      filename: 'fairways.json'
+    });
     expect(await fs.pathExists(path.join(orgsDir, 'fairways.json'))).toBe(true);
 
-    // Headless install marks completion.
+    // Install completion marker.
     await fs.writeJson(path.join(tmpDir, '.install-complete'), { headless: true });
 
     // Second boot — install-complete + .file set + file present → no throw.
@@ -173,6 +176,78 @@ describe('OrganizationManager (#617)', () => {
     await expect(second.initialize()).resolves.toBeUndefined();
     const anchor = await second.getInstallOrg();
     expect(anchor!['@id']).toBe('https://fairways.example.com/');
+  });
+
+  test('create rejects duplicate filename (#617, locked decision #10)', async () => {
+    const configManager = makeConfigManager({
+      'ngdpbase.application.organization.storagedir': path.join(tmpDir, 'organizations')
+    });
+    const engine = makeEngine(configManager);
+
+    const manager = new OrganizationManager(engine);
+    await manager.initialize();
+
+    await manager.create({
+      '@context': 'https://schema.org',
+      '@type': 'Organization',
+      '@id': 'https://one.test/',
+      name: 'One'
+    }, 'shared.json');
+
+    await expect(manager.create({
+      '@context': 'https://schema.org',
+      '@type': 'Organization',
+      '@id': 'https://two.test/',
+      name: 'Two'
+    }, 'shared.json')).rejects.toThrow(/file already exists at shared\.json/);
+  });
+
+  test('create rejects duplicate @id even with a different filename (#617, locked decision #10)', async () => {
+    const configManager = makeConfigManager({
+      'ngdpbase.application.organization.storagedir': path.join(tmpDir, 'organizations')
+    });
+    const engine = makeEngine(configManager);
+
+    const manager = new OrganizationManager(engine);
+    await manager.initialize();
+
+    await manager.create({
+      '@context': 'https://schema.org',
+      '@type': 'Organization',
+      '@id': 'https://shared-id.test/',
+      name: 'First'
+    }, 'first.json');
+
+    await expect(manager.create({
+      '@context': 'https://schema.org',
+      '@type': 'Organization',
+      '@id': 'https://shared-id.test/',
+      name: 'Second'
+    }, 'second.json')).rejects.toThrow(/already uses that @id/);
+  });
+
+  test('seedFromConfig stays idempotent under uniqueness checks (rerun on existing file does not throw)', async () => {
+    const configManager = makeConfigManager({
+      'ngdpbase.application.organization.storagedir': path.join(tmpDir, 'organizations')
+    });
+    const engine = makeEngine(configManager);
+
+    const manager = new OrganizationManager(engine);
+    await manager.initialize();
+
+    const first = await manager.seedFromConfig({
+      orgName: 'Acme',
+      orgUrl: 'https://acme.test/',
+      filename: 'acme.json'
+    });
+
+    const second = await manager.seedFromConfig({
+      orgName: 'Acme',
+      orgUrl: 'https://acme.test/',
+      filename: 'acme.json'
+    });
+
+    expect((second)['@id']).toBe(first!['@id']);
   });
 
   test('startup invariant — install-complete + missing anchor file → throws', async () => {

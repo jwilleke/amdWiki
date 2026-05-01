@@ -2,6 +2,7 @@ import path from 'path';
 import { promises as fs } from 'fs';
 import BaseManager from './BaseManager.js';
 import logger from '../utils/logger.js';
+import { filenameFromOrg } from '../utils/orgFilename.js';
 import type { WikiEngine } from '../types/WikiEngine.js';
 import type ConfigurationManager from './ConfigurationManager.js';
 import type { Organization, OrganizationUpdate, PostalAddress, ContactPoint } from '../types/Organization.js';
@@ -147,23 +148,23 @@ class OrganizationManager extends BaseManager {
   }
 
   /**
-   * Seed the install's anchor org from the install form (or, if `data` is
-   * omitted, from `ngdpbase.application.organization.*` config). Idempotent:
-   * if an org file with the configured filename already exists, this is a
-   * no-op.
+   * Seed the install's anchor org from install-form data. Idempotent: if an
+   * org file with the configured filename already exists, this is a no-op
+   * (returns the existing record). The org JSON-LD file at
+   * `<storagedir>/<file>` is the single source of truth for `name`, `url`,
+   * `address`, etc. — those fields live IN THE FILE, not in config. Config
+   * holds only the pointer (`ngdpbase.application.organization.file`).
    */
-  async seedFromConfig(data?: OrganizationSeedData): Promise<Organization | null> {
+  async seedFromConfig(data: OrganizationSeedData): Promise<Organization | null> {
     const provider = this.requireProvider();
     const configManager = this.engine.getManager<ConfigurationManager>('ConfigurationManager');
     if (!configManager) {
       throw new Error('OrganizationManager.seedFromConfig requires ConfigurationManager');
     }
 
-    const seed: OrganizationSeedData = data ?? this.readSeedFromConfig(configManager);
-
-    const filename = seed.filename
+    const filename = data.filename
       || (configManager.getProperty('ngdpbase.application.organization.file', '') as string)
-      || `${slugify(seed.orgName)}.json`;
+      || filenameFromOrg({ url: data.orgUrl, name: data.orgName });
 
     const existing = await provider.getByFile(filename);
     if (existing) {
@@ -171,22 +172,21 @@ class OrganizationManager extends BaseManager {
       return existing;
     }
 
-    const id = seed.orgUrl
-      || (configManager.getProperty('ngdpbase.application.organization.url', '') as string)
+    const id = data.orgUrl
       || (configManager.getProperty('ngdpbase.base-url', '') as string)
-      || `urn:ngdpbase:org:${slugify(seed.orgName)}`;
+      || `urn:ngdpbase:org:${slugify(data.orgName)}`;
 
     const org: Organization = {
       '@context': 'https://schema.org',
       '@type': 'Organization',
       '@id': id,
-      name: seed.orgName,
-      url: seed.orgUrl || id,
-      ...(seed.orgLegalName ? { legalName: seed.orgLegalName } : {}),
-      ...(seed.orgDescription ? { description: seed.orgDescription } : {}),
-      ...(seed.orgFoundingDate ? { foundingDate: seed.orgFoundingDate } : {}),
-      address: buildAddress(seed),
-      contactPoint: buildContactPoints(seed)
+      name: data.orgName,
+      url: data.orgUrl || id,
+      ...(data.orgLegalName ? { legalName: data.orgLegalName } : {}),
+      ...(data.orgDescription ? { description: data.orgDescription } : {}),
+      ...(data.orgFoundingDate ? { foundingDate: data.orgFoundingDate } : {}),
+      address: buildAddress(data),
+      contactPoint: buildContactPoints(data)
     };
 
     return provider.create(org, filename);
@@ -202,22 +202,6 @@ class OrganizationManager extends BaseManager {
       ? instanceDataFolder
       : path.join(process.cwd(), instanceDataFolder);
     return fileExists(path.join(resolved, '.install-complete'));
-  }
-
-  private readSeedFromConfig(configManager: ConfigurationManager): OrganizationSeedData {
-    const get = (key: string): string => (configManager.getProperty(key, '') as string) || '';
-    return {
-      orgName: get('ngdpbase.application.organization.name'),
-      orgLegalName: get('ngdpbase.application.organization.legal-name'),
-      orgDescription: get('ngdpbase.application.organization.description'),
-      orgFoundingDate: get('ngdpbase.application.organization.founding-date'),
-      orgUrl: get('ngdpbase.application.organization.url'),
-      orgAddressLocality: get('ngdpbase.application.organization.address-locality'),
-      orgAddressRegion: get('ngdpbase.application.organization.address-region'),
-      orgAddressCountry: get('ngdpbase.application.organization.address-country'),
-      adminEmail: get('ngdpbase.application.organization.contact-email'),
-      filename: get('ngdpbase.application.organization.file')
-    };
   }
 
   private requireProvider(): OrganizationProvider {

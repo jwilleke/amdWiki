@@ -1,6 +1,7 @@
 import { promises as fs } from 'fs';
 import path from 'path';
 import logger from '../utils/logger.js';
+import { filenameFromOrg } from '../utils/orgFilename.js';
 import type { WikiEngine } from '../types/WikiEngine.js';
 import type ConfigurationManager from '../managers/ConfigurationManager.js';
 import type { OrganizationProvider } from '../types/OrganizationProvider.js';
@@ -9,20 +10,6 @@ import type { ProviderInfo } from '../types/Provider.js';
 
 interface NodeError extends Error {
   code?: string;
-}
-
-/**
- * Slugify a name into a filesystem-safe filename stem.
- *   "The Acme Corporation, Inc." → "the-acme-corporation-inc"
- */
-function slugify(name: string): string {
-  return name
-    .toLowerCase()
-    .normalize('NFKD')
-    .replace(/[̀-ͯ]/g, '')
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '')
-    .slice(0, 80) || 'organization';
 }
 
 /**
@@ -100,7 +87,25 @@ class FileOrganizationProvider implements OrganizationProvider {
 
   async create(org: Organization, filename?: string): Promise<Organization> {
     const dir = this.requireDir();
-    const target = path.join(dir, filename || `${slugify(org.name)}.json`);
+    const resolvedFilename = filename || filenameFromOrg({ url: org.url, name: org.name });
+    const target = path.join(dir, resolvedFilename);
+
+    if (await this.fileExists(target)) {
+      throw new Error(
+        `[FileOrganizationProvider] Cannot create organization: a file already exists at ${resolvedFilename}. ` +
+        `Filenames must be unique within ${dir}. Use update() to modify the existing record.`
+      );
+    }
+
+    const conflict = await this.findFileWithId(org['@id']);
+    if (conflict) {
+      throw new Error(
+        `[FileOrganizationProvider] Cannot create organization with @id="${org['@id']}": ` +
+        `another organization (${conflict}) already uses that @id. ` +
+        `@id values must be unique within ${dir}.`
+      );
+    }
+
     await this.writeAtomic(target, org);
     return org;
   }
@@ -166,6 +171,35 @@ class FileOrganizationProvider implements OrganizationProvider {
     await fs.mkdir(path.dirname(target), { recursive: true });
     await fs.writeFile(tmp, JSON.stringify(value, null, 2), 'utf8');
     await fs.rename(tmp, target);
+  }
+
+  private async fileExists(p: string): Promise<boolean> {
+    try {
+      await fs.access(p);
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  private async findFileWithId(id: string): Promise<string | null> {
+    const dir = this.requireDir();
+    let entries: string[];
+    try {
+      entries = await fs.readdir(dir);
+    } catch (err) {
+      const e = err as NodeError;
+      if (e.code === 'ENOENT') return null;
+      throw err;
+    }
+    for (const entry of entries) {
+      if (!entry.endsWith('.json')) continue;
+      const existing = await this.readFile(path.join(dir, entry));
+      if (existing && existing['@id'] === id) {
+        return entry;
+      }
+    }
+    return null;
   }
 }
 

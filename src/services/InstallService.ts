@@ -3,6 +3,7 @@ import path from 'path';
 import crypto from 'crypto';
 import { fileURLToPath } from 'url';
 import logger from '../utils/logger.js';
+import { filenameFromOrg } from '../utils/orgFilename.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -59,8 +60,8 @@ interface InstallData {
 }
 
 interface OrganizationManagerLike {
-  /** With explicit data: seed from install form. Omit data to read from config. */
-  seedFromConfig(data?: {
+  /** Seed the anchor org from install-form data. Idempotent on filename. */
+  seedFromConfig(data: {
     orgName: string;
     orgLegalName?: string;
     orgDescription?: string;
@@ -162,17 +163,6 @@ interface HeadlessInstallResult {
  *
  * @class InstallService
  */
-function filenameFromOrgName(name: string): string {
-  const slug = (name || '')
-    .toLowerCase()
-    .normalize('NFKD')
-    .replace(/[̀-ͯ]/g, '')
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '')
-    .slice(0, 80) || 'organization';
-  return `${slug}.json`;
-}
-
 class InstallService {
   private engine: WikiEngine;
   private configManager: ConfigManager;
@@ -645,13 +635,14 @@ class InstallService {
         logger.warn(`[InstallService] Pages copy note: ${pagesResult.error || pagesResult.message}`);
       }
 
-      // Step 3 (#617): Seed the install's anchor Organization from config.
-      // Only runs when the operator has named an org in their custom config —
-      // otherwise this install simply has no anchor org (fine for vanilla
-      // docker boots; getInstallOrg() returns null).
-      await this.#seedOrganizationFromConfigIfNamed();
+      // Headless installs do NOT seed the anchor org from config (#617):
+      // org metadata lives in the JSON-LD file at <storagedir>/<file>, not
+      // in config keys. Operators wanting a pre-seeded anchor org pre-supply
+      // the JSON-LD file alongside their custom config; the startup invariant
+      // in OrganizationManager.initialize() validates it. Form-driven seeding
+      // happens in #seedOrganization(data) on the /install path instead.
 
-      // Step 4: Mark installation as complete
+      // Step 3: Mark installation as complete
       await this.markHeadlessInstallationComplete();
       steps.markerCreated = true;
       logger.info('[InstallService] Created .install-complete marker');
@@ -677,41 +668,6 @@ class InstallService {
         steps
       };
     }
-  }
-
-  /**
-   * Seed the install's anchor Organization from
-   * `ngdpbase.application.organization.*` config (#617). No-op if neither
-   * `.name` nor `.file` is set — vanilla docker boots have no anchor org.
-   *
-   * Called from `processHeadlessInstallation()` so that on the *next* boot
-   * the invariant in `OrganizationManager.initialize()` finds the file it's
-   * told to expect via `.file`.
-   *
-   * @private
-   */
-  async #seedOrganizationFromConfigIfNamed(): Promise<void> {
-    const orgName = this.configManager.getProperty(
-      'ngdpbase.application.organization.name',
-      ''
-    ) as string;
-    const orgFile = this.configManager.getProperty(
-      'ngdpbase.application.organization.file',
-      ''
-    ) as string;
-    if (!orgName && !orgFile) {
-      logger.debug('[InstallService] No anchor org named in config; skipping org seed');
-      return;
-    }
-
-    const orgManager = this.engine.getManager('OrganizationManager') as OrganizationManagerLike | null;
-    if (!orgManager) {
-      throw new Error('OrganizationManager not registered — cannot seed install organization');
-    }
-    // seedFromConfig() with no args reads the ngdpbase.application.organization.*
-    // keys directly. Idempotent: existing file is returned without rewrite.
-    await orgManager.seedFromConfig();
-    logger.info('[InstallService] Seeded install anchor organization from config');
   }
 
   /**
@@ -864,21 +820,15 @@ class InstallService {
       }
     }
 
-    // Merge installation data using ConfigurationManager's merge strategy
+    // Merge installation data using ConfigurationManager's merge strategy.
+    // Org name/url/address/etc. are NOT persisted to config — they live in
+    // the org JSON-LD file written by OrganizationManager. Config only holds
+    // the pointer to that file.
     const installationProperties: Record<string, unknown> = {
       'ngdpbase.application-name': data.applicationName,
       'ngdpbase.base-url': data.baseURL,
       'ngdpbase.session.secret': data.sessionSecret || crypto.randomBytes(32).toString('hex'),
-      'ngdpbase.application.organization.name': data.orgName,
-      'ngdpbase.application.organization.legal-name': data.orgLegalName || '',
-      'ngdpbase.application.organization.description': data.orgDescription,
-      'ngdpbase.application.organization.founding-date': data.orgFoundingDate || '',
-      'ngdpbase.application.organization.contact-email': data.adminEmail,
-      'ngdpbase.application.organization.url': data.orgUrl || data.baseURL || '',
-      'ngdpbase.application.organization.file': filenameFromOrgName(data.orgName),
-      'ngdpbase.application.organization.address-locality': data.orgAddressLocality || '',
-      'ngdpbase.application.organization.address-region': data.orgAddressRegion || '',
-      'ngdpbase.application.organization.address-country': data.orgAddressCountry || ''
+      'ngdpbase.application.organization.file': filenameFromOrg({ url: data.orgUrl, name: data.orgName })
     };
 
     // Merge with existing config
@@ -916,7 +866,7 @@ class InstallService {
       orgAddressRegion: data.orgAddressRegion,
       orgAddressCountry: data.orgAddressCountry,
       adminEmail: data.adminEmail,
-      filename: filenameFromOrgName(data.orgName)
+      filename: filenameFromOrg({ url: data.orgUrl, name: data.orgName })
     });
   }
 
