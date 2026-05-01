@@ -2,6 +2,32 @@
 
 AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version history.
 
+## 2026-05-01-04
+
+- Agent: Claude
+- Subject: #617 follow-up — wire UserManager person sync to PersonManager + OrganizationManager (no-op SchemaManager calls replaced)
+- Current Issue: #617 (follow-up); enables #602
+- Work Done:
+  - Investigated state of person/org migration. Found PersonManager + FilePersonProvider and OrganizationManager + FileOrganizationProvider all exist and are registered ahead of UserManager in WikiEngine init order. Untracked `scripts/migrate-users-to-persons.ts` was a stop-gap one-shot
+  - Critical finding: UserManager's four person-sync sites (createDefaultAdmin, createUser, updateUser, deleteUser) called `schemaManager.createPerson?./updatePerson?./deletePerson?` — methods that never existed on SchemaManager. The entire sync path was a silent no-op. Persons only landed on disk via the migration script. Replacing with PersonManager calls is purely additive
+  - User scoped this iteration to orgs+persons; roles deferred per "small iterations, humans have limitations" preference (saved as feedback memory)
+  - Rewrote the four sync sites in UserManager as three private helpers: `syncPersonOnCreate(user)`, `syncPersonOnUpdate(username, updates)`, `syncPersonOnDelete(username)`. Resolves `Person.memberOf` via `OrganizationManager.getInstallOrg()`, replacing the hardcoded `'ngdpbase-platform'` literal at six call sites
+  - Dropped the rich credential/jobTitle/authentication payload — `hasCredential`, `worksFor`, `memberOfStartDate`, `dateCreated`, `authentication.passwordHash` etc. all belong in #602 person-contacts, not the core Person record
+  - Removed now-dead `getRoleCompetencies` and `getJobTitleFromRoles` (only fed the deleted SchemaManager payload). Removed `SchemaManager` import + `SchemaManagerWithPerson` interface from UserManager — no other refs
+  - Updated PersonManager + OrganizationManager docstrings — both previously said "UserManager untouched in this iteration"; that caveat is now obsolete
+  - Tracked `scripts/migrate-users-to-persons.ts` (was untracked but complete; needed for legacy installs)
+  - Behavior change flagged: every `createUser`/`updateUser`/`deleteUser` now writes/patches/deletes a JSON file under `${FAST_STORAGE}/persons/`
+- Testing:
+  - typecheck: clean
+  - vitest: 5064/5064 pass across 190 files (full suite)
+  - PersonManager.test + OrganizationManager.test + UserManager.test (57 tests) targeted run: green
+- Commits: f0bc149a (feat(#617): wire UserManager person sync to PersonManager + OrganizationManager)
+- Files Modified:
+  - scripts/migrate-users-to-persons.ts (now tracked)
+  - src/managers/UserManager.ts (4 sync sites → 3 helpers; SchemaManager + dead helpers removed; OrganizationManager wired in for memberOf)
+  - src/managers/PersonManager.ts (docstring)
+  - src/managers/OrganizationManager.ts (docstring)
+
 ## 2026-05-01-03
 
 - Agent: Claude
