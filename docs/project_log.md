@@ -2,6 +2,36 @@
 
 AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version history.
 
+## 2026-05-01-03
+
+- Agent: Claude
+- Subject: #617 cleanup arc — planning-doc review, JSON-LD-as-source-of-truth, URL-first filenames, uniqueness guards
+- Current Issue: #617
+- Work Done:
+  - Reviewed `docs/planning/OrganizationRole-plannig.md` against current state. Found drift: doc framed #617 as "next work" while it had already landed (2bea3db0, 49a791fd); cited stale `AddonsManager.ts` line numbers; listed wrong permission-role catalog; pointed at config keys that the in-flight metadata strip removes
+  - Fact-checked the planning doc with three parallel Explore agents covering PersonManager/OrganizationManager state, AddonsManager dependency cascade, and existing role/User models. Confirmed the architectural decisions are sound; only specifics had drifted
+  - Captured two new locked decisions during review: (#9) anchor-org filename is URL-derived with name fallback — domain names are guaranteed unique by registry, so URL-derived slugs give the strongest uniqueness anchor; (#10) filename and `@id` MUST be unique within an install, with `FileOrganizationProvider.create()` as the enforcement seam
+  - Surfaced a regression in the user's in-flight diff: it stripped 9 org-metadata keys from config and the InstallService write side, but `OrganizationManager.readSeedFromConfig()` and the no-args `seedFromConfig()` branch still read those keys, and `InstallService.#seedOrganizationFromConfigIfNamed()` calls that no-args path on every headless boot — would silently produce a near-empty org file when only `.file` is set in config
+  - Fix #1 (regression): made `seedFromConfig(data)` require `data`; removed `readSeedFromConfig()`, dead `application.organization.url` config-key fallback, and `InstallService.#seedOrganizationFromConfigIfNamed()` entirely. Renamed the docker-round-trip test to `install round-trip` and rewrote it to pass explicit form data
+  - Fix #2 (URL-first filename rule, locked decision #9): created `src/utils/orgFilename.ts` exporting `filenameFromOrg({url, name})` — slug priority URL host+port+path → name → `"organization"` last-ditch. Strips scheme, query, fragment; lowercases; replaces non-alphanumerics with dashes; caps 80 chars. Wired into InstallService, OrganizationManager, FileOrganizationProvider — three duplicate slugify implementations collapsed to one. 13 unit tests in `src/utils/__tests__/orgFilename.test.ts`
+  - Fix #3 (uniqueness invariant, locked decision #10): `FileOrganizationProvider.create()` now refuses to overwrite an existing file at the target path and refuses to create a new file whose `@id` collides with another file in the storage dir. Both paths throw with messages naming the conflicting file. `seedFromConfig` stays idempotent — its existing `getByFile()` pre-check short-circuits on rerun-with-same-filename, so the uniqueness guard only fires on real `create()` calls (e.g., adding a second org for multi-org installs). 3 new tests for both throw paths and the still-idempotent rerun
+  - Committed in two focused chunks: doc-review (`f9085444`) separate from code-cleanup (`26db65f7`) per user preference
+- Testing:
+  - typecheck: clean
+  - vitest: 5064 tests pass across 190 files (5048 base + 13 orgFilename helper + 3 uniqueness)
+  - No regressions in the broader suite
+- Commits: f9085444 (docs(#617): correct planning doc to match current state), 26db65f7 (feat(#617): JSON-LD as source of truth, URL-first filenames, uniqueness guards)
+- Files Modified:
+  - config/app-default-config.json (in-flight strip of 9 org-metadata keys)
+  - docs/planning/OrganizationRole-plannig.md (10 corrections)
+  - src/managers/OrganizationManager.ts (data required, readSeedFromConfig removed, dead URL fallback removed, filenameFromOrg helper)
+  - src/managers/__tests__/OrganizationManager.test.ts (round-trip test rewritten, 3 new uniqueness tests)
+  - src/providers/FileOrganizationProvider.ts (uniqueness guards, filenameFromOrg helper, local slugify removed)
+  - src/services/InstallService.ts (in-flight metadata strip + #seedOrganizationFromConfigIfNamed removed + filenameFromOrg helper + tightened type)
+  - src/types/Config.ts (in-flight strip of 9 typed entries)
+  - src/utils/orgFilename.ts (new — shared URL-first filename helper)
+  - src/utils/__tests__/orgFilename.test.ts (new — 13 unit tests)
+
 ## 2026-05-01-02
 
 - Agent: Claude
