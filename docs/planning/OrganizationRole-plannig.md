@@ -4,7 +4,7 @@
 
 ngdpbase has two concepts that share the word "role" and have been conflated:
 
-- **Permission-role** — already exists, working. Defined in `config/app-default-config.json` (`admin`, `editor`, `reader`, `occupant`, etc.); driven by `User.roles: string[]`; consumed by `ACLManager` for permission checks. **Out of scope for this plan.**
+- **Permission-role** — already exists, working. Defined in `config/app-default-config.json` under `ngdpbase.roles.definitions` (`admin`, `user-admin`, `editor`, `contributor`, `reader`, `member`, `anonymous`); driven by `User.roles: string[]`; consumed by `ACLManager` for permission checks. **Out of scope for this plan.**
 - **Person↔Organization role-records** — do not exist yet. Model the *enduring* relationships between a [Person](https://schema.org/Person) and an [Organization](https://schema.org/Organization): employment, membership, board position, unit-ownership, etc. Membership/relationship semantics, not permission semantics.
 
 A user can simultaneously be an `admin` (permission-role) AND a `Treasurer` (role-record on a board) AND a `Unit Owner` (role-record on a condo association). None of these constrain the others.
@@ -44,7 +44,7 @@ These are real entities with `identifier`, `startDate`, `endDate`, `status`. The
 
 ## Decisions (locked)
 
-1. **Layered architecture.** Core ngdpbase owns canonical [Person](https://schema.org/Person) and [Organization](https://schema.org/Organization) records (delivered by #617 — `PersonManager` + `OrganizationManager`, file-per-record under `ngdpbase.application.{persons,organization}.storagedir`). Person-contacts addon owns the role-records on top. Disabling the addon removes addon-created records but leaves Person/Organization untouched. The disable cascade in `AddonsManager.canDisable()` (#617) blocks disabling person-contacts while accounting (or any other dependent) is enabled.
+1. **Layered architecture.** Core ngdpbase owns canonical [Person](https://schema.org/Person) and [Organization](https://schema.org/Organization) records (delivered by #617 — `PersonManager` + `OrganizationManager`, file-per-record under `ngdpbase.application.{persons,organization}.storagedir`). Person-contacts addon owns the role-records on top. Disabling the addon removes addon-created records but leaves Person/Organization untouched. The disable cascade is already implemented at `AddonsManager.canDisable()` (`src/managers/AddonsManager.ts`, returns `{ ok: false, blockedBy: [...] }` for any enabled dependent) — person-contacts will be blocked from disable while accounting (or any other dependent) is enabled. No new code needed there.
 2. **Three role-record families, named for their schema.org `@type`:** [EmployeeRole](https://schema.org/EmployeeRole), [ProgramMembership](https://schema.org/ProgramMembership), [OrganizationRole](https://schema.org/OrganizationRole). The storage `@type` IS the schema.org type — no invented discriminator.
 3. **Customer and vendor are not role-records.** They emerge from accounting (#486) transactions ([Invoice.customer](https://schema.org/customer), [Order.seller](https://schema.org/seller), bill suppliers). Person-contacts has nothing to say about them.
 4. **Physical-thing ownership uses [OwnershipInfo](https://schema.org/OwnershipInfo).** Lives in the units module (e.g., `data/fairways/units.json`), NOT in person-contacts. Carries [owner](https://schema.org/owner) → Person, [typeOfGood](https://schema.org/typeOfGood) → Unit, [ownedFrom](https://schema.org/ownedFrom)/[ownedThrough](https://schema.org/ownedThrough), and [additionalProperty](https://schema.org/additionalProperty) → [PropertyValue](https://schema.org/PropertyValue) for ownership percentage.
@@ -52,12 +52,14 @@ These are real entities with `identifier`, `startDate`, `endDate`, `status`. The
 6. **One unified collection, discriminated by `@type`.** All role-records live in a single store; each row's `@type` ∈ {`EmployeeRole`, `ProgramMembership`, `OrganizationRole`} drives both query branches and JSON-LD emission. Storage shape = JSON-LD shape (no mapping table).
 7. **Close #154** as superseded; #602 is the entry point.
 8. **Permission-roles unchanged.** `User.roles[]` stays. ACLManager stays. Org-scoped permission checks are a **follow-up** issue, not this work.
+9. **Anchor-org filename is URL-derived, name as fallback.** The on-disk filename for the anchor org JSON-LD file at `${FAST_STORAGE}/organizations/<file>` is derived from the install form's `orgUrl` (host + non-default port/path), not the `orgName`. Domain names are guaranteed unique by registry, so URL-derived filenames give a strong uniqueness anchor when one is provided. Algorithm: strip scheme, lowercase, replace dots and other non-`[a-z0-9]` chars with `-`, trim, cap 80 chars, append `.json`. Examples: `https://fairwayscondos.org/` → `fairwayscondos-org.json`; `www.fairwayscondos.org` → `www-fairwayscondos-org.json`. If `orgUrl` is absent or slugifies to empty, fall back to slug of `orgName`; if both fail, fall back to literal `organization.json`. The org's `@id` continues to use the full URL (with scheme), with the existing fallback chain `orgUrl` → `ngdpbase.base-url` → `urn:ngdpbase:org:<slug>`.
+10. **Filename and `@id` MUST be unique within an install.** The provider seam (`FileOrganizationProvider.create`) is responsible for enforcing this: it MUST refuse and throw when (a) a file already exists at the target path, OR (b) any existing file in the storage dir has the same `@id`. The seed path (`OrganizationManager.seedFromConfig`) is exempt from the file-existence check — it remains idempotent (returns the existing file unchanged) so re-running install doesn't error. The uniqueness invariant fires on real `create` calls (e.g., adding a second org for multi-org installs).
 
 ### Bootstrap at install time (when the addon is enabled)
 
 The addon seeds exactly one record:
 
-- One [OrganizationRole](https://schema.org/OrganizationRole) record tying the admin Person ↔ the base Organization (`roleName: "Administrator"`). The base Organization is sourced from `ngdpbase.application.organization.*` config (#617 renamed these from `ngdpbase.install.organization.*`; written at install time and now read by `OrganizationManager`). The admin Person is sourced from the core Person record managed by `PersonManager` (#617).
+- One [OrganizationRole](https://schema.org/OrganizationRole) record tying the admin Person ↔ the base Organization (`roleName: "Administrator"`). The base Organization is the anchor org JSON-LD file written by `OrganizationManager` at install time (located via `ngdpbase.application.organization.file` under `…storagedir`). The admin Person is sourced from the core Person record managed by `PersonManager` (#617).
 
 When the addon is disabled, that record is removed under the cascade rule below.
 
@@ -66,7 +68,7 @@ When the addon is disabled, that record is removed under the cascade rule below.
 person-contacts records are owned by the addon and removed when the addon is disabled — with two safeguards:
 
 - **Operator confirmation.** Disable shows a count of records that will be removed and requires explicit confirmation.
-- **Dependency check via AddonsManager.** AddonsManager already supports `dependencies: string[]` with topological-sort load order (`src/managers/AddonsManager.ts:41,554-565`). Extend its disable path: if any *enabled* addon (e.g., accounting #486) declares `dependencies: ['person-contacts']`, disable is blocked with a clear error naming the dependent addon. Disable that one first.
+- **Dependency check via AddonsManager (already implemented).** AddonsManager supports `dependencies: string[]` on the `AddonModule` interface, with topological-sort load order in `resolveLoadOrder()` and a disable-time invariant check in `canDisable()` (`src/managers/AddonsManager.ts`). If any *enabled* addon (e.g., accounting #486) declares `dependencies: ['person-contacts']`, `canDisable()` returns `{ ok: false, blockedBy: ['accounting', ...] }` and the operator is required to disable the dependent first. The addon's disable handler reuses this check — no new code needed.
 
 ### Concrete shape of the unified collection
 
@@ -111,7 +113,7 @@ Stored in `addons/person-contacts/` (provider-controlled location). Canonical fi
 }
 ```
 
-`@id` is the organization's canonical URL (Schema.org-native), not a synthetic urn. The install's anchor org is identified via the existing `ngdpbase.application.organization.*` config keys (renamed from `ngdpbase.install.organization.*` in #617) plus the new key `ngdpbase.application.organization.file` — the filename under `ngdpbase.application.organization.storagedir` that holds the anchor org. `OrganizationManager` (core) owns reads/writes; multi-org is supported by additional files in the same directory.
+`@id` is the organization's canonical URL (Schema.org-native), not a synthetic urn. The install's anchor org is identified by `ngdpbase.application.organization.file` — the filename under `ngdpbase.application.organization.storagedir` that holds the anchor org. The org's metadata (`name`, `url`, `address`, etc.) lives in the JSON-LD file itself, NOT in config. `OrganizationManager` (core) owns reads/writes; multi-org is supported by additional files in the same directory. Filename derivation rule: see locked decision #9. Uniqueness invariant: see locked decision #10.
 
 ### EmployeeRole record
 
@@ -193,11 +195,11 @@ No mapping table needed. No invented discriminator.
 - `addons/person-contacts/utils/jsonLdExport.ts` — assembles a Person's JSON-LD by folding in their role-records.
 - `addons/person-contacts/routes.js` — read endpoints (e.g., `GET /api/persons/:identifier`, `GET /api/organizations/:identifier/members`, JSON-LD export).
 - `addons/person-contacts/__tests__/*.test.ts` — unit + integration coverage for storage, queries, and export.
-- `addons/person-contacts/seed/install-org-membership.json` — bootstraps a [ProgramMembership](https://schema.org/ProgramMembership) for the install user (so the install isn't empty).
+- `addons/person-contacts/seed/install-admin-org-role.json` — bootstraps the [OrganizationRole](https://schema.org/OrganizationRole) tying the admin Person ↔ the base Organization (`roleName: "Administrator"`), per the Bootstrap section above.
 
 **Modified:**
 
-- `config/app-default-config.json` — install-anchor keys `ngdpbase.install.organization.path`, `ngdpbase.install.organization.identifier`. Plus the addon's own config block (`ngdpbase.addons.person-contacts.*`).
+- `config/app-default-config.json` — adds the addon's own config block (`ngdpbase.addons.person-contacts.*`). The core-side `ngdpbase.application.organization.*` and `ngdpbase.application.persons.*` keys (`storagedir`, `file`, `provider*`) already exist as of #617 and are NOT changed by this addon. Note: org metadata (`name`, `url`, `address-*`, etc.) lives in the JSON-LD file at `<storagedir>/<file>`, NOT in config.
 - `addons/README.md` — register `person-contacts` in the addon roster.
 
 **Explicitly NOT modified in this plan:**
@@ -212,16 +214,19 @@ No mapping table needed. No invented discriminator.
 1. **Typecheck:** `npm run typecheck` clean.
 2. **Unit:** Each storage method per role-record family; the JSON-LD export per family; the `endDate`/`status` lifecycle.
 3. **Integration:** Enable the addon. Seed an admin Person + the install Organization + a [ProgramMembership](https://schema.org/ProgramMembership) for that admin. Query the Person, assert the JSON-LD output contains the membership under [memberOf](https://schema.org/memberOf) with `@type: ProgramMembership`. Query the Organization's members, assert it returns the Person.
-4. **Manual:** Boot a Fairways instance with `ngdpbase.install.organization.identifier: fairways-condos`. Create a unit-owner [OrganizationRole](https://schema.org/OrganizationRole) for an existing user. Confirm the Person's JSON-LD output and the org's member-list both reflect it.
+4. **Manual:** Boot a Fairways instance whose anchor org is configured via `ngdpbase.application.organization.file: fairwayscondos-org.json` (the JSON-LD file under `${FAST_STORAGE}/organizations/` holds `name`, `url`, etc.). Create a unit-owner [OrganizationRole](https://schema.org/OrganizationRole) for an existing user. Confirm the Person's JSON-LD output and the org's member-list both reflect it.
 5. **Permission-role regression:** Existing ACL tests pass unchanged — proof that this work is orthogonal to the permission system.
 
 ## Follow-up actions (post-plan-mode)
 
-These run after exit, in order. **The first item is the next thing to start work on** — #602 implementation waits for it.
-
-1. **File new `[FEATURE] Core Person/Organization refactor`** ⬅ **NEXT WORK**. Refactors `users.json` to align with the [Person](https://schema.org/Person) model. Creates the base [Organization](https://schema.org/Organization) record at install time from `ngdpbase.install.organization.*` config (currently written but never read). Extends AddonsManager's disable path with the dependency-aware cascade rule. Mark #602 as `blocked-by` this issue. **This is the prerequisite for everything else below.**
-2. **Update #602's body** to reflect this plan: layered architecture (this addon sits on top of the core Person/Organization layer), three role-record families typed for their schema.org `@type`, no invented discriminator, customer/vendor handled by accounting, [OwnershipInfo](https://schema.org/OwnershipInfo) handled by the units module, HOA-membership derived at emit time. Mark #602 as `blocked-by` the new sub-issue.
+1. **Finish #617 (Core Person/Organization refactor) and close it.** Core work has landed (commits `2bea3db0` "feat(#617): core Person/Organization refactor" and `49a791fd` "fix(#617): seed install org during headless install for docker/k8s"): `PersonManager`, `OrganizationManager`, `FilePersonProvider`, `FileOrganizationProvider`, the `application.organization.*` / `application.persons.*` config namespace, and the `AddonsManager.canDisable()` disable-cascade. Remaining work before #617 closes:
+   - Land the in-flight diff that strips org metadata (`name`, `url`, `legal-name`, `description`, `founding-date`, `contact-email`, `address-*`) from config and makes the JSON-LD file the single source of truth (`config/app-default-config.json`, `src/services/InstallService.ts`, `src/types/Config.ts`).
+   - Alongside the strip, remove `OrganizationManager.readSeedFromConfig()` and the no-args fallback branch of `seedFromConfig()`; rework `InstallService.#seedOrganizationFromConfigIfNamed()` (it was the headless seed path that read those keys) so it either requires explicit form data or is removed.
+   - Switch the anchor-org filename rule to URL-first per locked decision #9 (`filenameFromOrgName` in `src/services/InstallService.ts`; the slugify fallback in `FileOrganizationProvider.create`).
+   - Add the uniqueness guards in `FileOrganizationProvider.create()` per locked decision #10 (file-existence + `@id`-duplicate, with tests).
+   - Close #617 once the above is in.
+2. **Update #602's body** to reflect this plan: layered architecture (this addon sits on top of the core Person/Organization layer), three role-record families typed for their schema.org `@type`, no invented discriminator, customer/vendor handled by accounting, [OwnershipInfo](https://schema.org/OwnershipInfo) handled by the units module, HOA-membership derived at emit time. Mark #602 as `blocked-by` #617.
 3. **Close #154** with a comment explaining the role-vs-OrganizationRole distinction, pointing at #602 as the OrganizationRole tracker, and noting the permission-role catalog (including the `occupant` rename) is a separate concern.
-4. **File new `[FEATURE] UserManager → Person link at user sync`** — replaces today's hardcoded `'ngdpbase-platform'` Organization. Depends on the core refactor.
+4. **File new `[FEATURE] UserManager → Person link at user sync`** — replaces today's hardcoded `'ngdpbase-platform'` Organization. Depends on #617.
 5. **File new `[FEATURE] ACLManager org-scoped permission checks`** — extend permission evaluation to ask "does this user hold an [OrganizationRole](https://schema.org/OrganizationRole) of `roleName='Treasurer'` in the install's anchor org?"; depends on person-contacts; unblocks #486's admin views.
 6. **Optional: file `[CHORE] Rename`occupant`permission-role`** — the user's noted nit. Permission-role concern, not OrganizationRole.
