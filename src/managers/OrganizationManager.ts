@@ -38,9 +38,8 @@ export interface OrganizationSeedData {
  * Owns the on-disk Organization records end-to-end. The install's anchor
  * org is identified by `ngdpbase.application.organization.file`; the rest
  * of the org files in `storagedir` are additional orgs in a multi-org
- * install. UserManager's hardcoded `'ngdpbase-platform'` literal is
- * untouched in this iteration — that follow-up wires JSON-LD sync into
- * `getInstallOrg()`.
+ * install. UserManager resolves `Person.memberOf` via `getInstallOrg()`,
+ * so the anchor org is the implicit parent for every user-paired Person.
  */
 class OrganizationManager extends BaseManager {
   readonly description = 'Canonical Organization records (#617)';

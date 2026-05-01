@@ -7,12 +7,14 @@ import { WikiEngine } from '../types/WikiEngine.js';
 import { UserProvider, ProviderInfo } from '../types/Provider.js';
 import { User, Role, UserPreferences, UserSession } from '../types/User.js';
 import type ConfigurationManager from './ConfigurationManager.js';
-import type SchemaManager from './SchemaManager.js';
+import type PersonManager from './PersonManager.js';
+import type OrganizationManager from './OrganizationManager.js';
 import type PolicyEvaluator from './PolicyEvaluator.js';
 import type PolicyManager from './PolicyManager.js';
 import type PageManager from './PageManager.js';
 import type TemplateManager from './TemplateManager.js';
 import type ValidationManager from './ValidationManager.js';
+import type { Person, PersonUpdate } from '../types/Person.js';
 import type { Request, Response, NextFunction } from 'express';
 
 /**
@@ -20,16 +22,6 @@ import type { Request, Response, NextFunction } from 'express';
  */
 interface UserProviderConstructor {
   new (engine: WikiEngine): UserProvider;
-}
-
-/**
- * Extended SchemaManager with Person-related methods
- * These methods are dynamically added and may not exist in base SchemaManager
- */
-interface SchemaManagerWithPerson extends SchemaManager {
-  createPerson?(personData: Record<string, unknown>): Promise<void>;
-  updatePerson?(identifier: string, updateData: Record<string, unknown>): Promise<void>;
-  deletePerson?(identifier: string): Promise<void>;
 }
 
 /**
@@ -411,61 +403,7 @@ class UserManager extends BaseManager {
 
     await this.provider.createUser(adminUser);
 
-    // Sync default admin to Schema.org data
-    try {
-      const schemaManager = this.engine.getManager<SchemaManager>('SchemaManager') as SchemaManagerWithPerson | null;
-
-      if (schemaManager && schemaManager.isInitialized()) {
-        const personData: Record<string, unknown> = {
-          '@context': 'https://schema.org',
-          '@type': 'Person',
-          identifier: 'admin',
-          name: 'Administrator',
-          alternateName: ['admin'],
-          email: 'admin@localhost',
-          memberOf: {
-            '@type': 'Organization',
-            identifier: 'ngdpbase-platform',
-            name: 'ngdpbase Platform'
-          },
-          worksFor: {
-            '@type': 'Organization',
-            identifier: 'ngdpbase-platform',
-            name: 'ngdpbase Platform'
-          },
-          hasCredential: [
-            {
-              '@type': 'EducationalOccupationalCredential',
-              credentialCategory: 'admin',
-              competencyRequired: ['System Administration', 'User Management', 'Configuration Management'],
-              issuedBy: {
-                '@type': 'Organization',
-                identifier: 'ngdpbase-platform'
-              }
-            }
-          ],
-          jobTitle: 'Administrator',
-          memberOfStartDate: adminUser.createdAt,
-          dateCreated: adminUser.createdAt,
-          authentication: {
-            passwordHash: adminUser.password,
-            isSystem: true,
-            preferences: adminUser.preferences
-          },
-          contactPoint: {
-            '@type': 'ContactPoint',
-            contactType: 'Account',
-            availableLanguage: ['English'],
-            email: 'admin@localhost'
-          }
-        };
-
-        await schemaManager.createPerson?.(personData);
-        logger.info('📋 Synced default admin to Schema.org data');
-      }
-    } catch (error) {
-      logger.error('❌ Failed to sync default admin to Schema.org data:', error instanceof Error ? error.message : String(error));
-    }
+    await this.syncPersonOnCreate(adminUser);
 
     logger.info(`👤 Created default admin user (username: admin, password: ${defaultPassword})`);
   }
@@ -831,39 +769,7 @@ class UserManager extends BaseManager {
 
     await this.provider.createUser(user);
 
-    // Schema.org sync
-    try {
-      const schemaManager = this.engine.getManager<SchemaManager>('SchemaManager') as SchemaManagerWithPerson | null;
-
-      if (schemaManager && schemaManager.isInitialized()) {
-        const personData: Record<string, unknown> = {
-          '@context': 'https://schema.org',
-          '@type': 'Person',
-          identifier: username,
-          name: user.displayName,
-          alternateName: [username],
-          email: user.email,
-          memberOf: { '@type': 'Organization', identifier: 'ngdpbase-platform', name: 'ngdpbase Platform' },
-          worksFor: { '@type': 'Organization', identifier: 'ngdpbase-platform', name: 'ngdpbase Platform' },
-          hasCredential: roles.map((role) => ({
-            '@type': 'EducationalOccupationalCredential',
-            credentialCategory: role,
-            competencyRequired: this.getRoleCompetencies(role),
-            issuedBy: { '@type': 'Organization', identifier: 'ngdpbase-platform' }
-          })),
-          jobTitle: this.getJobTitleFromRoles(roles),
-          memberOfStartDate: user.createdAt,
-          dateCreated: user.createdAt,
-          authentication: { passwordHash: user.password, isSystem: user.isSystem, preferences: user.preferences },
-          contactPoint: { '@type': 'ContactPoint', contactType: 'Account', availableLanguage: ['English'], email: user.email }
-        };
-
-        await schemaManager.createPerson?.(personData);
-        logger.info(`📋 Synced user ${username} to Schema.org data`);
-      }
-    } catch (error) {
-      logger.error(`❌ Failed to sync user ${username} to Schema.org data:`, error instanceof Error ? error.message : String(error));
-    }
+    await this.syncPersonOnCreate(user);
 
     logger.info(`👤 Created user: ${username} (${isExternal ? 'External' : 'Local'})`);
 
@@ -906,37 +812,7 @@ class UserManager extends BaseManager {
     Object.assign(user, updates);
     await this.provider.updateUser(username, user);
 
-    // Schema.org sync
-    try {
-      const schemaManager = this.engine.getManager<SchemaManager>('SchemaManager') as SchemaManagerWithPerson | null;
-
-      if (schemaManager && schemaManager.isInitialized()) {
-        const updateData: Record<string, unknown> = {};
-        if (updates.displayName) updateData.name = updates.displayName;
-        if (updates.email) {
-          updateData.email = updates.email;
-          updateData.contactPoint = { email: updates.email };
-        }
-        if (updates.roles) {
-          updateData.hasCredential = updates.roles.map((role) => ({
-            '@type': 'EducationalOccupationalCredential',
-            credentialCategory: role,
-            competencyRequired: this.getRoleCompetencies(role),
-            issuedBy: { '@type': 'Organization', identifier: 'ngdpbase-platform' }
-          }));
-          updateData.jobTitle = this.getJobTitleFromRoles(updates.roles);
-        }
-        if (updates.preferences) {
-          updateData.authentication = { preferences: updates.preferences };
-        }
-        if (Object.keys(updateData).length > 0) {
-          updateData.lastReviewed = new Date().toISOString();
-          await schemaManager.updatePerson?.(username, updateData);
-        }
-      }
-    } catch (error) {
-      logger.error('❌ Failed to sync user updates:', error instanceof Error ? error.message : String(error));
-    }
+    await this.syncPersonOnUpdate(username, updates);
 
     logger.info(`👤 Updated user: ${username}`);
     return user;
@@ -960,15 +836,7 @@ class UserManager extends BaseManager {
 
     await this.provider.deleteUser(username);
 
-    try {
-      const schemaManager = this.engine.getManager<SchemaManager>('SchemaManager') as SchemaManagerWithPerson | null;
-
-      if (schemaManager && schemaManager.isInitialized() && schemaManager.deletePerson) {
-        await schemaManager.deletePerson(username);
-      }
-    } catch (error) {
-      logger.error('❌ Failed to remove user from Schema.org:', error instanceof Error ? error.message : String(error));
-    }
+    await this.syncPersonOnDelete(username);
 
     logger.info(`👤 Deleted user: ${username}`);
     return true;
@@ -1197,20 +1065,61 @@ class UserManager extends BaseManager {
     return true;
   }
 
-  getRoleCompetencies(role: string): string[] {
-    const competencies: Record<string, string[]> = {
-      admin: ['System Administration', 'User Management', 'Configuration Management'],
-      editor: ['Content Creation', 'Content Editing', 'Wiki Markup'],
-      reader: ['Content Consumption', 'Basic Navigation']
-    };
-    return competencies[role] || ['Basic Platform Usage'];
+  /**
+   * Persist a Person record paired with a newly-created User. The install's
+   * anchor org (when configured) is referenced via `memberOf`; without it
+   * the Person is written without an org link. Failures are logged, not
+   * thrown — auth must still succeed if Person storage is degraded.
+   */
+  private async syncPersonOnCreate(user: User): Promise<void> {
+    const personManager = this.engine.getManager<PersonManager>('PersonManager');
+    if (!personManager) return;
+    try {
+      const installOrg = await this.engine
+        .getManager<OrganizationManager>('OrganizationManager')
+        ?.getInstallOrg();
+      const person: Person = {
+        '@context': 'https://schema.org',
+        '@type': 'Person',
+        '@id': `urn:uuid:${crypto.randomUUID()}`,
+        identifier: user.username,
+        ...(user.displayName ? { name: user.displayName } : {}),
+        ...(user.email ? { email: user.email } : {}),
+        ...(installOrg ? { memberOf: { '@id': installOrg['@id'] } } : {})
+      };
+      await personManager.create(person);
+      logger.info(`📋 Created Person record for ${user.username}`);
+    } catch (error) {
+      logger.error(`❌ Failed to create Person record for ${user.username}: ${error instanceof Error ? error.message : String(error)}`);
+    }
   }
 
-  getJobTitleFromRoles(roles: string[]): string {
-    if (roles.includes('admin')) return 'Administrator';
-    if (roles.includes('editor')) return 'Content Editor';
-    if (roles.includes('reader')) return 'Reader';
-    return 'User';
+  private async syncPersonOnUpdate(username: string, updates: UserUpdateInput): Promise<void> {
+    const personManager = this.engine.getManager<PersonManager>('PersonManager');
+    if (!personManager) return;
+    try {
+      const person = await personManager.getByIdentifier(username);
+      if (!person) return;
+      const patch: PersonUpdate = {};
+      if (updates.displayName !== undefined) patch.name = updates.displayName;
+      if (updates.email !== undefined) patch.email = updates.email;
+      if (Object.keys(patch).length === 0) return;
+      await personManager.update(person['@id'], patch);
+    } catch (error) {
+      logger.error(`❌ Failed to update Person record for ${username}: ${error instanceof Error ? error.message : String(error)}`);
+    }
+  }
+
+  private async syncPersonOnDelete(username: string): Promise<void> {
+    const personManager = this.engine.getManager<PersonManager>('PersonManager');
+    if (!personManager) return;
+    try {
+      const person = await personManager.getByIdentifier(username);
+      if (!person) return;
+      await personManager.delete(person['@id']);
+    } catch (error) {
+      logger.error(`❌ Failed to delete Person record for ${username}: ${error instanceof Error ? error.message : String(error)}`);
+    }
   }
 
   async createSession(username: string, additionalData: Record<string, unknown> = {}): Promise<string> {

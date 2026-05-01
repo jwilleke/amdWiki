@@ -18,12 +18,10 @@ interface UserManagerLike {
 /**
  * PersonManager — canonical core record for persons (#617).
  *
- * Each User has at most one paired Person record. Migration is lazy:
- * the first time `getByUserIdentifier(username)` is called for a user
- * without a paired Person, one is created from the User's email/displayName.
- *
- * UserManager is NOT modified — it does not auto-sync changes into Person
- * records. That linkage is intentionally deferred to a follow-up issue.
+ * Each User has at most one paired Person record. UserManager calls
+ * `create`/`update`/`delete` here on the matching user lifecycle events.
+ * `getByUserIdentifier(username)` remains as a lazy-migration entry point
+ * for legacy users that pre-date the sync wiring.
  */
 class PersonManager extends BaseManager {
   readonly description = 'Canonical Person records (#617)';
