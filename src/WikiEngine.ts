@@ -38,6 +38,7 @@ import CommentManager from './managers/CommentManager.js';
 import FootnoteManager from './managers/FootnoteManager.js';
 import OrganizationManager from './managers/OrganizationManager.js';
 import PersonManager from './managers/PersonManager.js';
+import RoleManager from './managers/RoleManager.js';
 
 // Parsers
 import MarkupParser from './parsers/MarkupParser.js';
@@ -195,6 +196,10 @@ class WikiEngine extends Engine {
     const personManager = new PersonManager(this);
     this.registerManager('PersonManager', personManager);
     await personManager.initialize();
+
+    const roleManager = new RoleManager(this);
+    this.registerManager('RoleManager', roleManager);
+    await roleManager.initialize();
 
     // 3. Initialize UserManager early as it's critical for security and context
     const userManager = new UserManager(this);

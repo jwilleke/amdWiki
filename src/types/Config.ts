@@ -259,6 +259,15 @@ export interface ApplicationOrganizationConfig {
 
   /** Active Person provider class (lowercased; falls back to .default) */
   'ngdpbase.application.persons.provider': string;
+
+  /** Storage directory for OrganizationRole JSON files (one per (org, namedPosition) pair) */
+  'ngdpbase.application.roles.storagedir': string;
+
+  /** Default Role provider class (lowercased) */
+  'ngdpbase.application.roles.provider.default': string;
+
+  /** Active Role provider class (lowercased; falls back to .default) */
+  'ngdpbase.application.roles.provider': string;
 }
 
 /**
