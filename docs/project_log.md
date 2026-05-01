@@ -2,6 +2,54 @@
 
 AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version history.
 
+## 2026-05-01-01
+
+- Agent: Claude
+- Subject: #617 implementation — core Person/Organization refactor + AddonsManager disable cascade + config namespace rename
+- Current Issue: #617
+- Work Done:
+  - Added canonical core PersonManager + OrganizationManager (extend BaseManager, dynamic provider load mirroring UserManager). Registered in WikiEngine after MetricsManager and before UserManager
+  - Added FileOrganizationProvider and FilePersonProvider — one JSON file per record under the configured storagedir, atomic writes via temp+rename
+  - Added schema.org-aligned types (Person, Organization, PostalAddress, ContactPoint) plus matching Provider interfaces (OrganizationProvider, PersonProvider). `@id` is the canonical URL (e.g. `https://example.com/`), not a urn:org:slug — Schema.org-native and supersedes the earlier urn form in the planning doc
+  - Renamed config namespace ngdpbase.install.organization.* → ngdpbase.application.organization.*. Added .storagedir, .file (filename of install anchor org), .url (becomes JSON-LD @id), and persons.* keys. Deleted the three dead workflow flags (require-setup, copy-startup-pages, create-admin-user) — none were read by any source file in src/. Renamed the typed Config dictionary InstallConfig → ApplicationOrganizationConfig
+  - Refactored InstallService — deleted #writeOrganizationData() (~75 lines, including the prior data/users/organizations.json write); new #seedOrganization() delegates to OrganizationManager.seedFromConfig(). Reset path uses OrganizationManager.delete() with a legacy-cleanup fallback for pre-#617 installs
+  - Added optional orgUrl form field to InstallRoutes + views/install.ejs; becomes the Organization @id, defaults to baseURL if blank
+  - AddonsManager.canDisable(name) — mirrors enable-time topological dep check on the disable path. Returns { ok: true } or { ok: false, blockedBy: [...] }. WikiRoutes.adminAddonToggle calls it before disabling and surfaces blockers via redirect-with-error
+  - Startup invariant in OrganizationManager.initialize(): if .install-complete exists and the configured anchor org file is missing, fail fast with an actionable error message naming the file. Docker/k8s pre-provisioned-data path stays clean (no .install-complete = InstallService runs and creates the file; .install-complete present = file MUST exist)
+  - Updated planning doc (docs/planning/OrganizationRole-plannig.md) with URL-based @id, renamed config namespace, and reference to the new disable-cascade
+  - Updated config-properties documentation page (required-pages/928a1050-...) with the new `ngdpbase.application.organization.*` and `persons.*` keys and storage layout
+- Out of scope (per planning doc): UserManager's hardcoded 'ngdpbase-platform' JSON-LD sync (5 sites) and WikiRoutes.ts:7769 fallback — explicitly deferred to follow-up issue. The new managers ship usable for downstream addons but the existing JSON-LD sync stays untouched
+- Testing:
+  - typecheck: clean
+  - lint: clean on all changed code (only pre-existing markdownlint warnings on unrelated content pages)
+  - vitest: 12 new tests pass (OrganizationManager seed/idempotency/install-anchor/list/startup-invariant; PersonManager CRUD + lazy migration via getByUserIdentifier; AddonsManager.canDisable for the 4 cascade cases — no deps, blocked-by-enabled, permitted-with-only-disabled-deps, multiple blockers)
+  - Full suite: 5047 tests pass (189 files), no regressions
+- Commits: 2bea3db0
+- Files Modified:
+  - config/app-default-config.json
+  - docs/planning/OrganizationRole-plannig.md
+  - package-lock.json
+  - required-pages/928a1050-3542-4140-9cd4-515bac154c84.md
+  - src/WikiEngine.ts
+  - src/managers/AddonsManager.ts
+  - src/managers/OrganizationManager.ts (new)
+  - src/managers/PersonManager.ts (new)
+  - src/managers/__tests__/AddonsManager.disableCascade.test.ts (new)
+  - src/managers/__tests__/OrganizationManager.test.ts (new)
+  - src/managers/__tests__/PersonManager.test.ts (new)
+  - src/providers/FileOrganizationProvider.ts (new)
+  - src/providers/FilePersonProvider.ts (new)
+  - src/routes/InstallRoutes.ts
+  - src/routes/WikiRoutes.ts
+  - src/services/InstallService.ts
+  - src/types/Config.ts
+  - src/types/Organization.ts (new)
+  - src/types/OrganizationProvider.ts (new)
+  - src/types/Person.ts (new)
+  - src/types/PersonProvider.ts (new)
+  - src/types/index.ts
+  - views/install.ejs
+
 ## 2026-04-30-06
 
 - Agent: Claude
