@@ -2,6 +2,28 @@
 
 AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version history.
 
+## 2026-05-01-06
+
+- Agent: Claude
+- Subject: #617 follow-up — propagate person-sync code + full data migration to all four sister installs
+- Current Issue: #617 (follow-up)
+- Work Done:
+  - Verified data state across all four sister installs before propagation. Found jimstest already migrated (3 persons, 1 anchor org); the other three (fairways-base, ngdpbase-veg, ngdp-temp-builds) had ZERO persons and ZERO orgs — only `users.json` legacy data. fairways-base had 154 users and no Person records
+  - Code propagation phase: ran `git pull && ./server.sh stop && npm run build && ./server.sh start` for fairways-base, ngdpbase-veg, ngdp-temp-builds. All restarted clean on the new code at v3.4.0; HTTP health 302 on all; manager init logs as expected
+  - Code-only test sweep: 5064 unit + 72 E2E green on all four sites (jimstest E2E added since previous propagations skipped it). Cumulative this session: 20,256 unit + 288 E2E. No regressions, no [BUG] needed
+  - Data migration phase, per sister install: (a) wrote minimal anchor org JSON (`@context`, `@type`, `@id`, `name`, `url`) at `${FAST_STORAGE}/organizations/<slug>.json` using URL-first slug rule (matches jimstest pattern: `localhost-2121.json`, `localhost-3333.json`, `localhost-3001.json`); (b) patched `${FAST_STORAGE}/config/app-custom-config.json` to add `ngdpbase.application.organization.file` + `.storagedir`; (c) ran `scripts/migrate-users-to-persons.ts` to create Person records from each `users.json`; (d) ran `scripts/backfill-person-memberof.ts` to link `Person.memberOf` to the anchor org `@id`; (e) restarted via `./server.sh restart` so `OrganizationManager.getInstallOrg()` picks up the new config
+  - Migration totals across the three sister installs: 156 Person records created (154 fairways + 1 ve-geology + 1 temp-build), 156 memberOf links written, 3 anchor orgs seeded
+  - Anchor org seeds were minimal (`name` + `url` + `@id` only). Operator can edit those JSON files directly to add `legalName`, `address`, `contactPoint`, `foundingDate`, etc. — `getInstallOrg()` re-reads from disk each call, no restart required
+  - Final state — all four installs: 1 anchor org, persons paired 1:1 with users, all Person.memberOf linked. jimstest 3/3, The Fairways 154/154, ve-geology 1/1, ngdpbase temp build 1/1
+- Testing:
+  - jimstest (3000): 5064 unit + 72 E2E pass; manager init `🏢 OrganizationManager initialized (1 orgs)` + `👤 PersonManager initialized (3 persons)`
+  - fairways-base (2121): 5064 unit + 72 E2E pass; post-migration `(1 orgs)` + `(154 persons)`
+  - ngdpbase-veg (3333): 5064 unit + 72 E2E pass; post-migration `(1 orgs)` + `(1 persons)`
+  - ngdp-temp-builds (3001): 5064 unit + 72 E2E pass; post-migration `(1 orgs)` + `(1 persons)`
+- Commits: none (operational propagation; no source changes)
+- Files Modified:
+  - none in repo (per-install data and per-install custom config bootstrapped on each sister install's `${FAST_STORAGE}` — not tracked in this repo)
+
 ## 2026-05-01-05
 
 - Agent: Claude
