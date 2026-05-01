@@ -190,6 +190,13 @@
         </div>
 
         <div class="mb-3">
+          <label for="orgUrl" class="form-label">Organization URL (Optional)</label>
+          <input type="url" class="form-control" id="orgUrl" name="orgUrl"
+                 value="<%= formData?.orgUrl || '' %>" placeholder="https://example.com/">
+          <div class="help-text">Canonical URL of your organization. Becomes the JSON-LD <code>@id</code>. Defaults to Base URL if blank.</div>
+        </div>
+
+        <div class="mb-3">
           <label for="orgDescription" class="form-label required-field">Description</label>
           <textarea class="form-control" id="orgDescription" name="orgDescription"
                     rows="3" required><%= formData?.orgDescription || '' %></textarea>

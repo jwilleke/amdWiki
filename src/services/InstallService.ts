@@ -49,11 +49,30 @@ interface InstallData {
   orgLegalName?: string;
   orgDescription: string;
   orgFoundingDate?: string;
+  /** Canonical URL of the organization (becomes Organization.@id). #617 */
+  orgUrl?: string;
   orgAddressLocality?: string;
   orgAddressRegion?: string;
   orgAddressCountry?: string;
   sessionSecret?: string;
   copyStartupPages?: boolean;
+}
+
+interface OrganizationManagerLike {
+  seedFromConfig(data: {
+    orgName: string;
+    orgLegalName?: string;
+    orgDescription?: string;
+    orgFoundingDate?: string;
+    orgUrl?: string;
+    orgAddressLocality?: string;
+    orgAddressRegion?: string;
+    orgAddressCountry?: string;
+    adminEmail?: string;
+    filename?: string;
+  }): Promise<unknown>;
+  delete(id: string): Promise<boolean>;
+  getInstallOrg(): Promise<{ '@id': string } | null>;
 }
 
 /**
@@ -142,6 +161,17 @@ interface HeadlessInstallResult {
  *
  * @class InstallService
  */
+function filenameFromOrgName(name: string): string {
+  const slug = (name || '')
+    .toLowerCase()
+    .normalize('NFKD')
+    .replace(/[̀-ͯ]/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, 80) || 'organization';
+  return `${slug}.json`;
+}
+
 class InstallService {
   private engine: WikiEngine;
   private configManager: ConfigManager;
@@ -402,10 +432,11 @@ class InstallService {
         await this.#writeCustomConfig(installData);
       }
 
-      // 2. Write users/organizations.json (skip if already done)
+      // 2. Seed the install's anchor Organization via OrganizationManager (#617).
+      // Replaces the prior direct write to data/users/organizations.json.
       if (!partialState.steps.organizationCreated) {
         installSteps.push('writeOrganization');
-        await this.#writeOrganizationData(installData);
+        await this.#seedOrganization(installData);
       }
 
       // 3. Update admin password (always do this, user may want to change password)
@@ -480,14 +511,30 @@ class InstallService {
         resetSteps.push('Removed custom config (backup created)');
       }
 
-      // 2. Remove organizations.json
+      // 2. Remove the install's anchor Organization (#617). Stored under
+      //    ngdpbase.application.organization.storagedir as one file per org.
+      const orgManager = this.engine.getManager('OrganizationManager') as OrganizationManagerLike | null;
+      if (orgManager) {
+        try {
+          const installOrg = await orgManager.getInstallOrg();
+          if (installOrg && installOrg['@id']) {
+            const removed = await orgManager.delete(installOrg['@id']);
+            if (removed) {
+              resetSteps.push('Removed install organization');
+            }
+          }
+        } catch (err) {
+          logger.warn('Failed to remove install organization during reset:', (err as Error).message);
+        }
+      }
+      // Best-effort legacy cleanup: pre-#617 installs wrote data/users/organizations.json.
       const usersDir = this.configManager.getResolvedDataPath('ngdpbase.user.provider.storagedir', './data/users');
-      const organizationsPath = path.join(usersDir, 'organizations.json');
-      if (await fs.pathExists(organizationsPath)) {
-        const backupPath = organizationsPath + '.backup-' + Date.now();
-        await fs.copy(organizationsPath, backupPath);
-        await fs.remove(organizationsPath);
-        resetSteps.push('Removed organizations (backup created)');
+      const legacyOrgPath = path.join(usersDir, 'organizations.json');
+      if (await fs.pathExists(legacyOrgPath)) {
+        const backupPath = legacyOrgPath + '.backup-' + Date.now();
+        await fs.copy(legacyOrgPath, backupPath);
+        await fs.remove(legacyOrgPath);
+        resetSteps.push('Removed legacy organizations.json (backup created)');
       }
 
       // 3. Remove admin user
@@ -776,14 +823,16 @@ class InstallService {
       'ngdpbase.application-name': data.applicationName,
       'ngdpbase.base-url': data.baseURL,
       'ngdpbase.session.secret': data.sessionSecret || crypto.randomBytes(32).toString('hex'),
-      'ngdpbase.install.organization.name': data.orgName,
-      'ngdpbase.install.organization.legal-name': data.orgLegalName || '',
-      'ngdpbase.install.organization.description': data.orgDescription,
-      'ngdpbase.install.organization.founding-date': data.orgFoundingDate || '',
-      'ngdpbase.install.organization.contact-email': data.adminEmail,
-      'ngdpbase.install.organization.address-locality': data.orgAddressLocality || '',
-      'ngdpbase.install.organization.address-region': data.orgAddressRegion || '',
-      'ngdpbase.install.organization.address-country': data.orgAddressCountry || ''
+      'ngdpbase.application.organization.name': data.orgName,
+      'ngdpbase.application.organization.legal-name': data.orgLegalName || '',
+      'ngdpbase.application.organization.description': data.orgDescription,
+      'ngdpbase.application.organization.founding-date': data.orgFoundingDate || '',
+      'ngdpbase.application.organization.contact-email': data.adminEmail,
+      'ngdpbase.application.organization.url': data.orgUrl || data.baseURL || '',
+      'ngdpbase.application.organization.file': filenameFromOrgName(data.orgName),
+      'ngdpbase.application.organization.address-locality': data.orgAddressLocality || '',
+      'ngdpbase.application.organization.address-region': data.orgAddressRegion || '',
+      'ngdpbase.application.organization.address-country': data.orgAddressCountry || ''
     };
 
     // Merge with existing config
@@ -797,86 +846,32 @@ class InstallService {
   }
 
   /**
-   * Write organization data to users/organizations.json
+   * Seed the install's anchor Organization via OrganizationManager (#617).
+   *
+   * Replaces the prior direct write to data/users/organizations.json.
+   * OrganizationManager writes the org file under
+   * `ngdpbase.application.organization.storagedir`, named by
+   * `ngdpbase.application.organization.file`.
    *
    * @private
-   * @param data - Installation data
    */
-  async #writeOrganizationData(data: InstallData): Promise<void> {
-    const usersDir = this.configManager.getResolvedDataPath('ngdpbase.user.provider.storagedir', './data/users');
-    const organizationsPath = path.join(usersDir, 'organizations.json');
-
-    const organization = {
-      '@context': 'https://schema.org',
-      '@type': 'Organization',
-      'identifier': 'ngdpbase-platform',
-      'name': data.orgName,
-      'legalName': data.orgLegalName || null,
-      'alternateName': [data.orgName],
-      'url': data.baseURL,
-      'description': data.orgDescription,
-      'foundingDate': data.orgFoundingDate || new Date().getFullYear().toString(),
-      'applicationCategory': 'Wiki Software',
-      'sameAs': [],
-      'address': {
-        '@type': 'PostalAddress',
-        'streetAddress': null,
-        'addressLocality': data.orgAddressLocality || null,
-        'addressRegion': data.orgAddressRegion || null,
-        'postalCode': null,
-        'addressCountry': data.orgAddressCountry || null
-      },
-      'contactPoint': [
-        {
-          '@type': 'ContactPoint',
-          'contactType': 'Technical Support',
-          'email': data.adminEmail,
-          'availableLanguage': ['English'],
-          'url': data.baseURL
-        }
-      ],
-      'makesOffer': {
-        '@type': 'Offer',
-        'itemOffered': {
-          '@type': 'SoftwareApplication',
-          'name': data.applicationName,
-          'applicationCategory': 'Wiki Software',
-          'operatingSystem': 'Cross-platform'
-        }
-      },
-      'hasOfferCatalog': {
-        '@type': 'OfferCatalog',
-        'name': 'Knowledge Management Services',
-        'itemListElement': [
-          {
-            '@type': 'Offer',
-            'itemOffered': {
-              '@type': 'Service',
-              'name': 'Document Management',
-              'description': 'Collaborative document creation and management'
-            }
-          },
-          {
-            '@type': 'Offer',
-            'itemOffered': {
-              '@type': 'Service',
-              'name': 'Knowledge Base',
-              'description': 'Structured knowledge repository with search capabilities'
-            }
-          }
-        ]
-      },
-      'knowsAbout': [
-        'Document Management',
-        'Knowledge Management',
-        'Wiki Software',
-        'Collaborative Editing',
-        'Information Architecture'
-      ]
-    };
-
-    await fs.ensureDir(path.dirname(organizationsPath));
-    await fs.writeJson(organizationsPath, [organization], { spaces: 2 });
+  async #seedOrganization(data: InstallData): Promise<void> {
+    const orgManager = this.engine.getManager('OrganizationManager') as OrganizationManagerLike | null;
+    if (!orgManager) {
+      throw new Error('OrganizationManager not registered — cannot seed install organization');
+    }
+    await orgManager.seedFromConfig({
+      orgName: data.orgName,
+      orgLegalName: data.orgLegalName,
+      orgDescription: data.orgDescription,
+      orgFoundingDate: data.orgFoundingDate || new Date().getFullYear().toString(),
+      orgUrl: data.orgUrl || data.baseURL,
+      orgAddressLocality: data.orgAddressLocality,
+      orgAddressRegion: data.orgAddressRegion,
+      orgAddressCountry: data.orgAddressCountry,
+      adminEmail: data.adminEmail,
+      filename: filenameFromOrgName(data.orgName)
+    });
   }
 
   /**

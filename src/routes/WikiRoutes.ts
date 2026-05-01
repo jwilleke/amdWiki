@@ -7694,9 +7694,23 @@ ${panes}
       }
       const addonName = req.params.name;
       const { enabled } = req.body as { enabled: string };
+      const willEnable = enabled === 'true';
+
+      // #617: refuse to disable an addon that other enabled addons depend on.
+      if (!willEnable) {
+        const addonsManager = this.engine.getManager('AddonsManager');
+        const check = addonsManager?.canDisable?.(addonName);
+        if (check && !check.ok) {
+          const blockerList = check.blockedBy.join(', ');
+          return res.redirect(`/admin/addons?error=${encodeURIComponent(
+            `Cannot disable "${addonName}" — required by enabled add-on(s): ${blockerList}. Disable those first.`
+          )}`);
+        }
+      }
+
       const configManager = this.engine.getManager('ConfigurationManager');
-      await configManager.setProperty(`ngdpbase.addons.${addonName}.enabled`, enabled === 'true');
-      const state = enabled === 'true' ? 'enabled' : 'disabled';
+      await configManager.setProperty(`ngdpbase.addons.${addonName}.enabled`, willEnable);
+      const state = willEnable ? 'enabled' : 'disabled';
       return res.redirect(`/admin/addons?success=${encodeURIComponent(`Add-on "${addonName}" ${state}. Restart required for changes to take effect.`)}`);
     } catch (err: unknown) {
       logger.error('Error toggling add-on:', err);

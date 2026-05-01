@@ -231,43 +231,61 @@ export interface SearchProviderConfig {
 }
 
 /**
- * Installation configuration
+ * Application organization configuration (#617)
  *
- * Configuration for first-run installation wizard.
+ * Identifies the organization that owns this install. Seeded at install
+ * time from the install form; read by OrganizationManager to load the
+ * anchor org record. Person records storage is included here as a sibling
+ * concern of the same identity layer.
  */
-export interface InstallConfig {
-  /** Require setup on first run */
-  'ngdpbase.install.require-setup': boolean;
+export interface ApplicationOrganizationConfig {
+  /** Storage directory for organization JSON files (one file per org) */
+  'ngdpbase.application.organization.storagedir': string;
 
-  /** Copy startup pages */
-  'ngdpbase.install.copy-startup-pages': boolean;
+  /** Filename of the install anchor org file (e.g. "acme-corporation.json") */
+  'ngdpbase.application.organization.file': string;
 
-  /** Create admin user */
-  'ngdpbase.install.create-admin-user': boolean;
+  /** Canonical URL of the install anchor org — becomes the @id in JSON-LD */
+  'ngdpbase.application.organization.url': string;
 
   /** Organization name */
-  'ngdpbase.install.organization.name': string;
+  'ngdpbase.application.organization.name': string;
 
   /** Organization legal name */
-  'ngdpbase.install.organization.legal-name': string;
+  'ngdpbase.application.organization.legal-name': string;
 
   /** Organization description */
-  'ngdpbase.install.organization.description': string;
+  'ngdpbase.application.organization.description': string;
 
   /** Founding date */
-  'ngdpbase.install.organization.founding-date': string;
+  'ngdpbase.application.organization.founding-date': string;
 
   /** Contact email */
-  'ngdpbase.install.organization.contact-email': string;
+  'ngdpbase.application.organization.contact-email': string;
 
   /** Address locality (city) */
-  'ngdpbase.install.organization.address-locality': string;
+  'ngdpbase.application.organization.address-locality': string;
 
   /** Address region (state/province) */
-  'ngdpbase.install.organization.address-region': string;
+  'ngdpbase.application.organization.address-region': string;
 
   /** Address country */
-  'ngdpbase.install.organization.address-country': string;
+  'ngdpbase.application.organization.address-country': string;
+
+  /** Storage directory for person JSON files (one file per person) */
+  'ngdpbase.application.persons.storagedir': string;
+
+  /** Default Person provider class (lowercased) */
+  'ngdpbase.application.persons.provider.default': string;
+
+  /** Active Person provider class (lowercased; falls back to .default) */
+  'ngdpbase.application.persons.provider': string;
+
+  /** Default Organization provider class (lowercased) */
+  'ngdpbase.application.organization.provider.default': string;
+
+  /** Active Organization provider class (lowercased; falls back to .default) */
+  'ngdpbase.application.organization.provider': string;
 }
 
 /**

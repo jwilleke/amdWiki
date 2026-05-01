@@ -50,7 +50,7 @@ export {
   WikiConfig,
   VersioningConfig,
   SearchProviderConfig,
-  InstallConfig,
+  ApplicationOrganizationConfig,
   ConfigPropertyDescriptor,
   ConfigChangeEvent,
   ConfigValidationResult

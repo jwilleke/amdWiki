@@ -372,6 +372,35 @@ class AddonsManager extends BaseManager {
   }
 
   /**
+   * Validate that an add-on can be safely disabled (#617).
+   *
+   * Mirrors the enable-time topological-sort dep check at `resolveLoadOrder()`:
+   * if any *enabled* add-on declares `dependencies: ['<addonName>']`, the
+   * disable is blocked and the dependent's name is returned. Callers should
+   * surface the blocker to the operator and refuse the disable.
+   *
+   * @param addonName  The add-on the operator wants to disable.
+   * @returns          `{ ok: true }` if safe to disable. Otherwise
+   *                   `{ ok: false, blockedBy: ['dep1', 'dep2', ...] }` with
+   *                   the names of every enabled addon that depends on it.
+   */
+  canDisable(addonName: string): { ok: true } | { ok: false; blockedBy: string[] } {
+    const blockers: string[] = [];
+    for (const [otherName, otherEntry] of this.addons) {
+      if (otherName === addonName) continue;
+      if (!otherEntry.enabled) continue;
+      const deps = otherEntry.module?.dependencies ?? [];
+      if (deps.includes(addonName)) {
+        blockers.push(otherName);
+      }
+    }
+    if (blockers.length === 0) {
+      return { ok: true };
+    }
+    return { ok: false, blockedBy: blockers };
+  }
+
+  /**
    * Get add-on specific configuration
    */
   getAddonConfig(addonName: string): Record<string, unknown> {

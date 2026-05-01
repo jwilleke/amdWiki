@@ -36,6 +36,8 @@ import BackgroundJobManager from './managers/BackgroundJobManager.js';
 import CatalogManager from './managers/CatalogManager.js';
 import CommentManager from './managers/CommentManager.js';
 import FootnoteManager from './managers/FootnoteManager.js';
+import OrganizationManager from './managers/OrganizationManager.js';
+import PersonManager from './managers/PersonManager.js';
 
 // Parsers
 import MarkupParser from './parsers/MarkupParser.js';
@@ -182,6 +184,17 @@ class WikiEngine extends Engine {
     this.registerManager('MetricsManager', metricsManager);
     await metricsManager.initialize();
     this.setCapability('metrics', metricsManager.isEnabled());
+
+    // 2c. OrganizationManager + PersonManager — canonical core identity
+    // records (#617). Loaded before UserManager so downstream managers can
+    // resolve the install's anchor org / paired Person from the start.
+    const organizationManager = new OrganizationManager(this);
+    this.registerManager('OrganizationManager', organizationManager);
+    await organizationManager.initialize();
+
+    const personManager = new PersonManager(this);
+    this.registerManager('PersonManager', personManager);
+    await personManager.initialize();
 
     // 3. Initialize UserManager early as it's critical for security and context
     const userManager = new UserManager(this);

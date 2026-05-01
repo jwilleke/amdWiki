@@ -24,6 +24,8 @@ interface InstallFormData {
   orgLegalName: string;
   orgDescription: string;
   orgFoundingDate: string;
+  /** Canonical URL of the organization (becomes Organization.@id). #617 */
+  orgUrl: string;
   orgAddressLocality: string;
   orgAddressRegion: string;
   orgAddressCountry: string;
@@ -179,6 +181,7 @@ class InstallRoutes {
           orgLegalName: req.body.orgLegalName || '',
           orgDescription: req.body.orgDescription || '',
           orgFoundingDate: req.body.orgFoundingDate || '',
+          orgUrl: req.body.orgUrl || req.body.baseURL || '',
           orgAddressLocality: req.body.orgAddressLocality || '',
           orgAddressRegion: req.body.orgAddressRegion || '',
           orgAddressCountry: req.body.orgAddressCountry || '',

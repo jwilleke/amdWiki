@@ -44,7 +44,7 @@ These are real entities with `identifier`, `startDate`, `endDate`, `status`. The
 
 ## Decisions (locked)
 
-1. **Layered architecture.** Core ngdpbase owns canonical [Person](https://schema.org/Person) and [Organization](https://schema.org/Organization) records (refactored out of `users.json`); person-contacts addon owns the role-records on top. Disabling the addon removes addon-created records but leaves Person/Organization untouched. **The base Person/Organization refactor is a separate sub-issue this plan depends on** — see Follow-up actions.
+1. **Layered architecture.** Core ngdpbase owns canonical [Person](https://schema.org/Person) and [Organization](https://schema.org/Organization) records (delivered by #617 — `PersonManager` + `OrganizationManager`, file-per-record under `ngdpbase.application.{persons,organization}.storagedir`). Person-contacts addon owns the role-records on top. Disabling the addon removes addon-created records but leaves Person/Organization untouched. The disable cascade in `AddonsManager.canDisable()` (#617) blocks disabling person-contacts while accounting (or any other dependent) is enabled.
 2. **Three role-record families, named for their schema.org `@type`:** [EmployeeRole](https://schema.org/EmployeeRole), [ProgramMembership](https://schema.org/ProgramMembership), [OrganizationRole](https://schema.org/OrganizationRole). The storage `@type` IS the schema.org type — no invented discriminator.
 3. **Customer and vendor are not role-records.** They emerge from accounting (#486) transactions ([Invoice.customer](https://schema.org/customer), [Order.seller](https://schema.org/seller), bill suppliers). Person-contacts has nothing to say about them.
 4. **Physical-thing ownership uses [OwnershipInfo](https://schema.org/OwnershipInfo).** Lives in the units module (e.g., `data/fairways/units.json`), NOT in person-contacts. Carries [owner](https://schema.org/owner) → Person, [typeOfGood](https://schema.org/typeOfGood) → Unit, [ownedFrom](https://schema.org/ownedFrom)/[ownedThrough](https://schema.org/ownedThrough), and [additionalProperty](https://schema.org/additionalProperty) → [PropertyValue](https://schema.org/PropertyValue) for ownership percentage.
@@ -57,7 +57,7 @@ These are real entities with `identifier`, `startDate`, `endDate`, `status`. The
 
 The addon seeds exactly one record:
 
-- One [OrganizationRole](https://schema.org/OrganizationRole) record tying the admin Person ↔ the base Organization (`roleName: "Administrator"`). The base Organization is sourced from `ngdpbase.install.organization.*` config (already in use). The admin Person is sourced from the core Person record (provided by the prerequisite sub-issue).
+- One [OrganizationRole](https://schema.org/OrganizationRole) record tying the admin Person ↔ the base Organization (`roleName: "Administrator"`). The base Organization is sourced from `ngdpbase.application.organization.*` config (#617 renamed these from `ngdpbase.install.organization.*`; written at install time and now read by `OrganizationManager`). The admin Person is sourced from the core Person record managed by `PersonManager` (#617).
 
 When the addon is disabled, that record is removed under the cascade rule below.
 
@@ -102,16 +102,16 @@ Stored in `addons/person-contacts/` (provider-controlled location). Canonical fi
 {
   "@context": "https://schema.org",
   "@type": "Organization",
-  "@id": "urn:org:<identifier>",
-  "identifier": "fairways-condos",
+  "@id": "https://fairways.example.com/",
   "name": "The Fairways",
   "legalName": "The Fairways Condominium Association",
+  "url": "https://fairways.example.com/",
   "address": { "@type": "PostalAddress", ... },
   "contactPoint": [...]
 }
 ```
 
-The install's anchor org is identified via the existing `ngdpbase.install.organization.*` config keys plus new keys `ngdpbase.install.organization.path` and `ngdpbase.install.organization.identifier`.
+`@id` is the organization's canonical URL (Schema.org-native), not a synthetic urn. The install's anchor org is identified via the existing `ngdpbase.application.organization.*` config keys (renamed from `ngdpbase.install.organization.*` in #617) plus the new key `ngdpbase.application.organization.file` — the filename under `ngdpbase.application.organization.storagedir` that holds the anchor org. `OrganizationManager` (core) owns reads/writes; multi-org is supported by additional files in the same directory.
 
 ### EmployeeRole record
 
@@ -161,7 +161,7 @@ Native [EmployeeRole](https://schema.org/EmployeeRole) carries `baseSalary`, `sa
   "endDate":   "2026-12-31",
   "status":    "active",
   "person":   { "@id": "urn:uuid:<person-uuid>" },
-  "memberOf": { "@id": "urn:org:fairways-condos" },
+  "memberOf": { "@id": "https://fairways.example.com/" },
   "additionalProperty": [
     { "@type": "PropertyValue", "name": "unitId", "value": "4B" },
     { "@type": "PropertyValue", "name": "percentageInterest", "value": 1.85 }
