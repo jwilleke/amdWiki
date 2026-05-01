@@ -2,6 +2,33 @@
 
 AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version history.
 
+## 2026-05-01-07
+
+- Agent: Claude
+- Subject: #617 follow-up — OrganizationRole iteration 1 (plumbing only, no callers)
+- Current Issue: #617 (follow-up); enables #602
+- Work Done:
+  - Design discussion with user covering OrganizationRole storage and identity. Locked in: standalone entity (own file), member as array of Person `@id` references (one file per (org, namedPosition) pair instead of per-assignment), URL-form `@id` (`<org-url>/roles/<namedPosition>#role`), filename `<namedPosition>.json`, snapshot semantics from the role catalog at `ngdpbase.roles.definitions` at create time, per-record permission overrides via `additionalProperty[]`
+  - Discussed unifying File*Provider trio into one shared base. Decided Path B (ship Role as duplicate #3, extract base later when pattern is stable across three concrete uses) over Path A (refactor Person/Org/Role into a shared base now). Reason: just deployed Person+Org sync to all four installs and pre-emptively touching that working code is the kind of refactor that breaks something subtle
+  - Iteration plan locked: (1) plumbing only — types, manager, provider, tests; (2) UserManager write-side mirror for User.roles[] + migration script; (3) PolicyManager/ACLManager read-side swap. Each iteration ~size of f0bc149a
+  - Implemented iteration 1: created `src/types/Role.ts` (Role type with snapshot fields, RoleUpdate patch, IdRef helpers), `src/types/RoleProvider.ts` (interface), `src/providers/FileRoleProvider.ts` (CRUD with uniqueness guards on filename + @id, atomic writes, getByOrgAndPosition, listByMember), `src/managers/RoleManager.ts` (manager wrapper modeled on OrganizationManager). 11 tests in `src/managers/__tests__/RoleManager.test.ts` covering init, create/update/delete, uniqueness guards, lookup methods
+  - Wired into config: 3 new keys (`ngdpbase.application.roles.storagedir/.provider/.provider.default`) in `app-default-config.json` + corresponding typed entries in `Config.ts`. Registered `RoleManager` in `WikiEngine.ts` immediately after `PersonManager`, before `UserManager`
+  - No UserManager/PolicyManager/ACLManager touched. No migration script. No callers exercise the new manager yet — by design for iteration 1
+- Testing:
+  - typecheck: clean
+  - vitest: 5075/5075 pass across 191 files (was 5064/190 before; added 11 RoleManager tests)
+  - RoleManager targeted run: 11/11 in 134ms
+- Commits: e01c431a (feat(#617): RoleManager + FileRoleProvider plumbing (iteration 1, no callers))
+- Files Modified:
+  - config/app-default-config.json (3 new role config keys)
+  - src/WikiEngine.ts (RoleManager import + registration)
+  - src/types/Config.ts (3 typed role config entries)
+  - src/types/Role.ts (new — Role + RoleUpdate types + IdRef helpers)
+  - src/types/RoleProvider.ts (new — provider interface)
+  - src/providers/FileRoleProvider.ts (new — JSON-file-per-(org,role) storage)
+  - src/managers/RoleManager.ts (new — CRUD wrapper)
+  - src/managers/__tests__/RoleManager.test.ts (new — 11 tests)
+
 ## 2026-05-01-06
 
 - Agent: Claude
