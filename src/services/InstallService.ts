@@ -59,7 +59,8 @@ interface InstallData {
 }
 
 interface OrganizationManagerLike {
-  seedFromConfig(data: {
+  /** With explicit data: seed from install form. Omit data to read from config. */
+  seedFromConfig(data?: {
     orgName: string;
     orgLegalName?: string;
     orgDescription?: string;
@@ -607,6 +608,10 @@ class InstallService {
    * When HEADLESS_INSTALL=true environment variable is set:
    * - Copies example configs to data/config/ if not present
    * - Copies required pages to data/pages/ if empty
+   * - Seeds the install's anchor Organization from
+   *   `ngdpbase.application.organization.*` config (#617) when one is named
+   *   — required so the startup invariant in OrganizationManager.initialize()
+   *   doesn't fail on next boot
    * - Creates .install-complete marker
    * - Skips wizard entirely
    *
@@ -640,7 +645,13 @@ class InstallService {
         logger.warn(`[InstallService] Pages copy note: ${pagesResult.error || pagesResult.message}`);
       }
 
-      // Step 3: Mark installation as complete
+      // Step 3 (#617): Seed the install's anchor Organization from config.
+      // Only runs when the operator has named an org in their custom config —
+      // otherwise this install simply has no anchor org (fine for vanilla
+      // docker boots; getInstallOrg() returns null).
+      await this.#seedOrganizationFromConfigIfNamed();
+
+      // Step 4: Mark installation as complete
       await this.markHeadlessInstallationComplete();
       steps.markerCreated = true;
       logger.info('[InstallService] Created .install-complete marker');
@@ -666,6 +677,41 @@ class InstallService {
         steps
       };
     }
+  }
+
+  /**
+   * Seed the install's anchor Organization from
+   * `ngdpbase.application.organization.*` config (#617). No-op if neither
+   * `.name` nor `.file` is set — vanilla docker boots have no anchor org.
+   *
+   * Called from `processHeadlessInstallation()` so that on the *next* boot
+   * the invariant in `OrganizationManager.initialize()` finds the file it's
+   * told to expect via `.file`.
+   *
+   * @private
+   */
+  async #seedOrganizationFromConfigIfNamed(): Promise<void> {
+    const orgName = this.configManager.getProperty(
+      'ngdpbase.application.organization.name',
+      ''
+    ) as string;
+    const orgFile = this.configManager.getProperty(
+      'ngdpbase.application.organization.file',
+      ''
+    ) as string;
+    if (!orgName && !orgFile) {
+      logger.debug('[InstallService] No anchor org named in config; skipping org seed');
+      return;
+    }
+
+    const orgManager = this.engine.getManager('OrganizationManager') as OrganizationManagerLike | null;
+    if (!orgManager) {
+      throw new Error('OrganizationManager not registered — cannot seed install organization');
+    }
+    // seedFromConfig() with no args reads the ngdpbase.application.organization.*
+    // keys directly. Idempotent: existing file is returned without rewrite.
+    await orgManager.seedFromConfig();
+    logger.info('[InstallService] Seeded install anchor organization from config');
   }
 
   /**

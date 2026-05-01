@@ -149,6 +149,32 @@ describe('OrganizationManager (#617)', () => {
     expect(all.map((o: any) => o['@id']).sort()).toEqual(['https://one.test/', 'https://two.test/']);
   });
 
+  test('docker round-trip — seedFromConfig satisfies the startup invariant on next boot', async () => {
+    const orgsDir = path.join(tmpDir, 'organizations');
+    const configManager = makeConfigManager({
+      'ngdpbase.application.organization.storagedir': orgsDir,
+      'ngdpbase.application.organization.file': 'fairways.json',
+      'ngdpbase.application.organization.name': 'The Fairways',
+      'ngdpbase.application.organization.url': 'https://fairways.example.com/'
+    });
+    const engine = makeEngine(configManager);
+
+    // First boot — fresh install, no .install-complete yet.
+    const first = new OrganizationManager(engine);
+    await first.initialize();
+    await first.seedFromConfig(); // simulates headless install seeding from config
+    expect(await fs.pathExists(path.join(orgsDir, 'fairways.json'))).toBe(true);
+
+    // Headless install marks completion.
+    await fs.writeJson(path.join(tmpDir, '.install-complete'), { headless: true });
+
+    // Second boot — install-complete + .file set + file present → no throw.
+    const second = new OrganizationManager(engine);
+    await expect(second.initialize()).resolves.toBeUndefined();
+    const anchor = await second.getInstallOrg();
+    expect(anchor!['@id']).toBe('https://fairways.example.com/');
+  });
+
   test('startup invariant — install-complete + missing anchor file → throws', async () => {
     const orgsDir = path.join(tmpDir, 'organizations');
     await fs.ensureDir(orgsDir);
