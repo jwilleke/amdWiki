@@ -19,8 +19,12 @@
         </a>
       </div>
 
-      <!-- Hidden: full user JSON for merge on save (no password — already stripped server-side) -->
-      <input type="hidden" id="currentUserJson" value="<%- JSON.stringify(editUser) %>">
+      <!-- Hidden: full user JSON for merge on save (no password — already stripped server-side).
+           Note: this MUST use the HTML-escaped output operator (`<` plus `%=`), NOT raw output,
+           so quotes inside the JSON become `&quot;` and don't prematurely close the value
+           attribute. The browser decodes the entities back when reading `.value`, so JSON.parse
+           on the client sees the original string. -->
+      <input type="hidden" id="currentUserJson" value="<%= JSON.stringify(editUser) %>">
 
       <!-- ── Section 1: Core Fields ── -->
       <div class="card mb-4">
