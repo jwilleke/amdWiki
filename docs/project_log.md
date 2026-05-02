@@ -2,6 +2,24 @@
 
 AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version history.
 
+## 2026-05-02-09
+
+- Agent: Claude
+- Subject: Fix #609 — `adminCreateOrganization` 403-path test made deterministic + Step 7 catch-up. Suite now reliably green (5153/5153). Unblocks v3.6.0 release
+- Current Issue: #609 (open, fix landed); also closes the v3.6.0 gate
+- Work Done:
+  - **Root cause analysis.** Test `WikiRoutes.coverage10.test.ts > POST /admin/organizations (adminCreateOrganization) > "returns 403 when user is not admin"` sets `mockUserContext.isAdmin = false` but the handler doesn't read `.isAdmin` (that field is broken — the original #625 trigger). Handler gates on `userManager.hasPermission(...)` which defaults to `true` from `beforeEach`. Without explicit override, the test could only pass via mock-state leakage from a prior test that set `hasPermission.mockResolvedValue(false)`. Order-dependent: passes in isolation only when nothing pollutes; fails in full-suite runs after a polluting test runs first
+  - **Test fix** — added the missing `mockUserManager.hasPermission.mockResolvedValue(false)` to the failing test. Now deterministically exercises the 403 path. Mirrors the pattern used by every other "returns 403 when user lacks X permission" test in the same file (lines 571, 598, 616, 631, 675, 701, 715)
+  - **Handler migration (Step 7 catch-up)** — `adminCreateOrganization` was missed by #625's Category C sweep because its variable was named `userContext` not `currentUser` (my Step 7 regex was `userManager.hasPermission(currentUser.username, ...)`). Migrated to `wikiContext.hasPermission('admin-system')` for consistency with the rest of WikiRoutes
+  - **Determinism verification.** Ran the full vitest suite 5 times consecutively. Result: 5/5 deterministic green at 5153/5153. First time the full suite has been reliably clean in this session — every other passing run had the 1 #609 flake firing
+- Testing:
+  - typecheck: clean
+  - vitest: **5153/5153 pass, 5/5 consecutive runs deterministic green**
+- Commits: 2d1460a6 (`fix(#609): make adminCreateOrganization 403-test deterministic + Step 7 catch-up`)
+- Files Modified:
+  - src/routes/WikiRoutes.ts (adminCreateOrganization migrated to wikiContext.hasPermission)
+  - src/routes/**tests**/WikiRoutes.coverage10.test.ts (explicit hasPermission mock in the 403-path test)
+
 ## 2026-05-02-08
 
 - Agent: Claude
