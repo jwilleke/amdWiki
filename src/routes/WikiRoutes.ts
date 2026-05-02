@@ -7845,7 +7845,11 @@ ${panes}
   async adminCreateOrganization(req: Request, res: Response) {
     try {
       const userContext = req.userContext;
-      if (!userContext?.isAuthenticated || !userContext?.isAdmin) {
+      const userManager = this.engine.getManager('UserManager');
+      if (
+        !userContext?.isAuthenticated ||
+        !(await userManager.hasPermission(userContext.username, 'admin-system'))
+      ) {
         return res.status(403).json({ error: 'Admin access required' });
       }
 
@@ -7894,7 +7898,11 @@ ${panes}
   async adminUpdateOrganization(req: Request, res: Response) {
     try {
       const userContext = req.userContext;
-      if (!userContext?.isAuthenticated || !userContext?.isAdmin) {
+      const userManager = this.engine.getManager('UserManager');
+      if (
+        !userContext?.isAuthenticated ||
+        !(await userManager.hasPermission(userContext.username, 'admin-system'))
+      ) {
         return res.status(403).json({ error: 'Admin access required' });
       }
 
@@ -7941,7 +7949,11 @@ ${panes}
   async adminDeleteOrganization(req: Request, res: Response) {
     try {
       const userContext = req.userContext;
-      if (!userContext?.isAuthenticated || !userContext?.isAdmin) {
+      const userManager = this.engine.getManager('UserManager');
+      if (
+        !userContext?.isAuthenticated ||
+        !(await userManager.hasPermission(userContext.username, 'admin-system'))
+      ) {
         return res.status(403).json({ error: 'Admin access required' });
       }
 
@@ -7983,7 +7995,11 @@ ${panes}
   async adminGetOrganization(req: Request, res: Response) {
     try {
       const userContext = req.userContext;
-      if (!userContext?.isAuthenticated || !userContext?.isAdmin) {
+      const userManager = this.engine.getManager('UserManager');
+      if (
+        !userContext?.isAuthenticated ||
+        !(await userManager.hasPermission(userContext.username, 'admin-system'))
+      ) {
         return res.status(403).json({ error: 'Admin access required' });
       }
 
@@ -8024,7 +8040,10 @@ ${panes}
       const userManager = this.engine.getManager('UserManager');
       const userContext = await userManager.getCurrentUser(req);
 
-      if (!userContext?.isAuthenticated || !userContext?.isAdmin) {
+      if (
+        !userContext?.isAuthenticated ||
+        !(await userManager.hasPermission(userContext.username, 'admin-system'))
+      ) {
         return await this.renderError(
           req,
           res,
@@ -8061,7 +8080,10 @@ ${panes}
       const userManager = this.engine.getManager('UserManager');
       const userContext = await userManager.getCurrentUser(req);
 
-      if (!userContext?.isAuthenticated || !userContext?.isAdmin) {
+      if (
+        !userContext?.isAuthenticated ||
+        !(await userManager.hasPermission(userContext.username, 'admin-system'))
+      ) {
         return res.status(403).json({ error: 'Admin access required' });
       }
 
