@@ -641,6 +641,11 @@ describe('WikiRoutes — coverage batch 10', () => {
 
   describe('POST /admin/organizations (adminCreateOrganization)', () => {
     test('returns 403 when user is not admin', async () => {
+      // #609: explicitly deny the permission. Without this the handler's
+      // userManager.hasPermission gate (default-true via beforeEach) lets
+      // the request through, so the test was relying on mock-state leakage
+      // from a prior test — flaky in full-suite runs, broken in isolation.
+      mockUserManager.hasPermission.mockResolvedValue(false);
       mockUserContext = { ...adminUser, isAuthenticated: true, isAdmin: false } as typeof adminUser;
       const res = await request(app)
         .post('/admin/organizations')

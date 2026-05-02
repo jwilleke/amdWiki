@@ -7843,11 +7843,11 @@ ${panes}
    */
   async adminCreateOrganization(req: Request, res: Response) {
     try {
-      const userContext = req.userContext;
-      const userManager = this.engine.getManager('UserManager');
+      const wikiContext = this.createWikiContext(req);
+      const userContext = wikiContext.userContext;
       if (
         !userContext?.isAuthenticated ||
-        !(await userManager.hasPermission(userContext.username, 'admin-system'))
+        !(await wikiContext.hasPermission('admin-system'))
       ) {
         return res.status(403).json({ error: 'Admin access required' });
       }
