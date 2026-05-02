@@ -2,6 +2,50 @@
 
 AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version history.
 
+## 2026-05-02-06
+
+- Agent: Claude
+- Subject: #625 phase 1 — `WikiContext.hasRole/hasPermission/canAccess/getPrincipals` + sweep Categories A, B, D + `ThemeManager` lazy cache. 6 of 8 planned steps done
+- Current Issue: #625 (open, ~75% complete); siblings filed during planning: #626, #627, #628, #629, #630, #631, #632, #633
+- Work Done:
+  - **Planning** — categorised the ~15 inline `userContext.roles.includes('admin')` consumer sites listed in #625 into A (have WikiContext), B (need to build one), C (~26 `userManager.hasPermission(currentUser.username, ...)` sites that also migrate), D (parser-pipeline sites). Discovered `ParseContext` has a live engine reference at `:142` — what looked like an architectural fork is a one-line API mirror. Surfaced six sibling issues that don't belong in #625's scope but came out of the audit
+  - **Step 1 — Lazy theme resolution.** Added a single-entry cached factory `getThemeManager(activeTheme, themesDir)` to `src/managers/ThemeManager.ts`. Three call sites in `WikiRoutes.ts` (`createWikiContext`, `getCommonTemplateData`, `adminSettings`) migrated from `new ThemeManager(...)` to `getThemeManager(...)`. Cache key includes `themesDir` so multi-instance setups don't collide; theme-name normalisation moved up so empty/falsy input doesn't create a separate cache entry. `ThemeManager.cache.test.ts` covers cache hit, cache miss on theme/dir change, explicit clear, normalisation
+  - **Step 2 — WikiContext methods.** Added `hasRole(...names)`, `hasPermission(action)`, `canAccess(action)`, `getPrincipals()` instance methods to `src/context/WikiContext.ts` plus a static `WikiContext.userHasRole(userContext, ...names)` helper for hot-path callers (maintenance middleware, `/metrics`, parser-pipeline plugins) that don't carry a full WikiContext. The static helper is the canonical migration target wherever the lint rule (Step 8) flags `userContext.roles.includes(...)` and constructing a WikiContext is wrong (per-request middleware) or impossible (PluginContext duck-types). Instance `hasRole` delegates to the static. Tests cover 22 assertions across the four methods
+  - **Step 3 — ParseContext mirror.** Extended `hasRole(role)` to `hasRole(...names)` (backward-compatible — single-arg form still works); added `getPrincipals()`. Skipped `canAccess` (no Category D consumer needs it; ACLManager's strict local WikiContext shape would require synthesising a fake context) and left existing `hasPermission(permission, resource)` alone — its config-direct evaluation path diverges from the canonical `UserManager.hasPermission` → `PolicyEvaluator` route, sibling to #630 (ApiContext) and now tracked as **#633**. New `ParseContext.test.ts` covers 12 assertions
+  - **Step 4 — Category A sweep (5 sites).** `WikiRoutes.ts:2153` (editPage author-lock), `WikiRoutes.ts:2564` (savePage author-lock), `WikiRoutes.ts:7249-50` (asset search redundant role/username unpack), `MediaManager.ts:421-424` (`checkPrivatePageAccess`), `LunrSearchProvider.ts:399-402` and `ElasticsearchSearchProvider.ts:677-687` (search-time privacy filters) — all swapped onto `wikiContext.hasRole(...)` / `wikiContext.getPrincipals()`. `SearchWikiContext` duck-type in `BaseSearchProvider.ts` extended with optional `hasRole?` / `getPrincipals?` so providers can call the methods without casting. Provider test fixtures (`LunrSearchProvider.privateFilter.test.ts` admin/non-creator/etc. WikiContext literals + `ElasticsearchSearchProvider.test.ts` audience filter) updated to expose the methods. `ElasticsearchSearchProvider._buildPrivacyFilter` collapsed from 6 lines to 1
+  - **Step 5 — Category B sweep (6 sites).** `app.ts:378/:387/:409` (maintenance middleware admin gate, maintenance template `isAdmin` field, `/metrics` admin check) — all use `WikiContext.userHasRole(req.userContext, 'admin')` so the per-request middleware path doesn't pay for a full WikiContext construction. `WikiRoutes.ts:4476/:4661/:7144` (deleteComment, deleteFootnote, browseAttachments) — all use `this.createWikiContext(req)` + `wikiContext.hasRole(...)`. `browseAttachments` multi-role check collapsed from a 4-line chained `.includes()` boolean to `wikiContext.hasRole('admin', 'editor', 'contributor')`. Pre-empted by the Step 1 lazy theme refactor — without it the maintenance middleware would have paid the fs-I/O cost on every request
+  - **Step 6 — Category D sweep (4 plugin/variable sites).** `CommentsPlugin.ts:85`, `FootnotesPlugin.ts:150-152` (renderFootnoteListHtml — both `isEditor` multi-role and `isAdmin`), `FootnotesPlugin.ts:273-274` (plugin execute), `ConfigAccessorPlugin.ts:1714` (authmethods admin gate) — all use `WikiContext.userHasRole(...)`. `VariableManager.ts:138` (`${userroles}` variable) deliberately left alone — it exposes role names as display data, not a permission check; the planned ESLint rule (Step 8) should match `.includes(...)` patterns, not bare `.roles` reads
+  - **Test fixture migration.** 17 `WikiRoutes.coverage*.test.ts` + `WikiRoutes.authorLock.test.ts` + `WikiRoutes.coverage.test.ts` + `routes.test.ts` mocks extended with `hasRole`/`hasPermission`/`canAccess`/`getPrincipals` that derive from the closured `userContext` (so admin-path tests still flip on roles correctly). Without this, the Step 4/5/6 swaps would crash route tests with `wikiContext.hasRole is not a function` against the minimal duck-type mocks the suite already had
+  - **Sibling issues filed during planning** (out of #625's scope, all linked from the issue body):
+    - **#626** — LunrSearchProvider ignores frontmatter `audience` (drift from ES; concrete bug)
+    - **#627** — Lunr does not evaluate `AuthorLocked` (open design question A vs B captured)
+    - **#628** — ES does not evaluate `AuthorLocked` (matched pair to #627; design call should be made jointly)
+    - **#629** — Collapse ParseContext's user/page-data redundancy by holding a WikiContext reference instead of duplicating fields
+    - **#630** — ApiContext.hasPermission diverges from UserManager.hasPermission (reads `ngdpbase.roles.definitions` directly; bypasses anonymous/authenticated role expansion, deny policies, resource patterns). Over-grants in the deny-policy case
+    - **#631** — Service / non-request principal model (`WikiContext.system()` + `WikiContext.forUser(username)` factories for background jobs / schedulers / async writers)
+    - **#632** — Migrate the 3 remaining callers off the deprecated 4-arg `aclManager.checkPagePermission` (LeftMenu / Footer / adminDashboard) to `checkPagePermissionWithContext` so the deprecated method can be deleted
+    - **#633** — ParseContext.hasPermission divergence (parallel to #630; uses `PolicyManager.checkPermission` then falls back to `userContext.permissions?.includes(...)`)
+- Testing:
+  - typecheck: clean
+  - vitest: 5152/5153 pass (196 files). The 1 remaining failure is pre-existing on master (`coverage10.test.ts > adminCreateOrganization > returns 403 when user is not admin` — flaky in full-suite runs only; passes when run in isolation)
+- Commits: 8509e222 (`feat(#625): add WikiContext.hasRole/hasPermission/canAccess/getPrincipals + 3-category sweep`)
+- Files Modified:
+  - src/context/WikiContext.ts (4 instance methods + 1 static + UserManager type import)
+  - src/parsers/context/ParseContext.ts (hasRole rest-args + getPrincipals)
+  - src/managers/ThemeManager.ts (cached factory + clearThemeManagerCache test helper + cacheKey field on instances)
+  - src/managers/MediaManager.ts (checkPrivatePageAccess uses wikiContext.hasRole)
+  - src/providers/BaseSearchProvider.ts (SearchWikiContext gains optional hasRole/getPrincipals)
+  - src/providers/LunrSearchProvider.ts (admin check via wikiContext.hasRole)
+  - src/providers/ElasticsearchSearchProvider.ts (_buildPrivacyFilter delegates to getPrincipals)
+  - src/routes/WikiRoutes.ts (Step 1 ThemeManager imports + Step 4 + Step 5 sweeps)
+  - src/app.ts (maintenance middleware + /metrics use WikiContext.userHasRole)
+  - src/plugins/CommentsPlugin.ts, src/plugins/FootnotesPlugin.ts, src/plugins/ConfigAccessorPlugin.ts (Category D)
+  - src/context/**tests**/WikiContext.test.ts (22 new assertions across 4 methods + static)
+  - src/parsers/context/**tests**/ParseContext.test.ts (new file, 12 tests)
+  - src/managers/**tests**/ThemeManager.cache.test.ts (new file, 6 tests)
+  - src/providers/**tests**/LunrSearchProvider.privateFilter.test.ts, src/providers/**tests**/ElasticsearchSearchProvider.test.ts (fixture extension)
+  - src/routes/**tests**/WikiRoutes.coverage{2-16}.test.ts (15 files), src/routes/**tests**/WikiRoutes.authorLock.test.ts, src/routes/**tests**/WikiRoutes.coverage.test.ts, src/routes/**tests**/routes.test.ts (mock WikiContext extension)
+
 ## 2026-05-02-05
 
 - Agent: Claude
@@ -138,7 +182,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - Design discussion with user covering OrganizationRole storage and identity. Locked in: standalone entity (own file), member as array of Person `@id` references (one file per (org, namedPosition) pair instead of per-assignment), URL-form `@id` (`<org-url>/roles/<namedPosition>#role`), filename `<namedPosition>.json`, snapshot semantics from the role catalog at `ngdpbase.roles.definitions` at create time, per-record permission overrides via `additionalProperty[]`
   - Discussed unifying File*Provider trio into one shared base. Decided Path B (ship Role as duplicate #3, extract base later when pattern is stable across three concrete uses) over Path A (refactor Person/Org/Role into a shared base now). Reason: just deployed Person+Org sync to all four installs and pre-emptively touching that working code is the kind of refactor that breaks something subtle
   - Iteration plan locked: (1) plumbing only — types, manager, provider, tests; (2) UserManager write-side mirror for User.roles[] + migration script; (3) PolicyManager/ACLManager read-side swap. Each iteration ~size of f0bc149a
-  - Implemented iteration 1: created `src/types/Role.ts` (Role type with snapshot fields, RoleUpdate patch, IdRef helpers), `src/types/RoleProvider.ts` (interface), `src/providers/FileRoleProvider.ts` (CRUD with uniqueness guards on filename + @id, atomic writes, getByOrgAndPosition, listByMember), `src/managers/RoleManager.ts` (manager wrapper modeled on OrganizationManager). 11 tests in `src/managers/__tests__/RoleManager.test.ts` covering init, create/update/delete, uniqueness guards, lookup methods
+  - Implemented iteration 1: created `src/types/Role.ts` (Role type with snapshot fields, RoleUpdate patch, IdRef helpers), `src/types/RoleProvider.ts` (interface), `src/providers/FileRoleProvider.ts` (CRUD with uniqueness guards on filename + @id, atomic writes, getByOrgAndPosition, listByMember), `src/managers/RoleManager.ts` (manager wrapper modeled on OrganizationManager). 11 tests in `src/managers/**tests**/RoleManager.test.ts` covering init, create/update/delete, uniqueness guards, lookup methods
   - Wired into config: 3 new keys (`ngdpbase.application.roles.storagedir/.provider/.provider.default`) in `app-default-config.json` + corresponding typed entries in `Config.ts`. Registered `RoleManager` in `WikiEngine.ts` immediately after `PersonManager`, before `UserManager`
   - No UserManager/PolicyManager/ACLManager touched. No migration script. No callers exercise the new manager yet — by design for iteration 1
 - Testing:
@@ -236,7 +280,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - Captured two new locked decisions during review: (#9) anchor-org filename is URL-derived with name fallback — domain names are guaranteed unique by registry, so URL-derived slugs give the strongest uniqueness anchor; (#10) filename and `@id` MUST be unique within an install, with `FileOrganizationProvider.create()` as the enforcement seam
   - Surfaced a regression in the user's in-flight diff: it stripped 9 org-metadata keys from config and the InstallService write side, but `OrganizationManager.readSeedFromConfig()` and the no-args `seedFromConfig()` branch still read those keys, and `InstallService.#seedOrganizationFromConfigIfNamed()` calls that no-args path on every headless boot — would silently produce a near-empty org file when only `.file` is set in config
   - Fix #1 (regression): made `seedFromConfig(data)` require `data`; removed `readSeedFromConfig()`, dead `application.organization.url` config-key fallback, and `InstallService.#seedOrganizationFromConfigIfNamed()` entirely. Renamed the docker-round-trip test to `install round-trip` and rewrote it to pass explicit form data
-  - Fix #2 (URL-first filename rule, locked decision #9): created `src/utils/orgFilename.ts` exporting `filenameFromOrg({url, name})` — slug priority URL host+port+path → name → `"organization"` last-ditch. Strips scheme, query, fragment; lowercases; replaces non-alphanumerics with dashes; caps 80 chars. Wired into InstallService, OrganizationManager, FileOrganizationProvider — three duplicate slugify implementations collapsed to one. 13 unit tests in `src/utils/__tests__/orgFilename.test.ts`
+  - Fix #2 (URL-first filename rule, locked decision #9): created `src/utils/orgFilename.ts` exporting `filenameFromOrg({url, name})` — slug priority URL host+port+path → name → `"organization"` last-ditch. Strips scheme, query, fragment; lowercases; replaces non-alphanumerics with dashes; caps 80 chars. Wired into InstallService, OrganizationManager, FileOrganizationProvider — three duplicate slugify implementations collapsed to one. 13 unit tests in `src/utils/**tests**/orgFilename.test.ts`
   - Fix #3 (uniqueness invariant, locked decision #10): `FileOrganizationProvider.create()` now refuses to overwrite an existing file at the target path and refuses to create a new file whose `@id` collides with another file in the storage dir. Both paths throw with messages naming the conflicting file. `seedFromConfig` stays idempotent — its existing `getByFile()` pre-check short-circuits on rerun-with-same-filename, so the uniqueness guard only fires on real `create()` calls (e.g., adding a second org for multi-org installs). 3 new tests for both throw paths and the still-idempotent rerun
   - Committed in two focused chunks: doc-review (`f9085444`) separate from code-cleanup (`26db65f7`) per user preference
 - Testing:
@@ -768,7 +812,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 - Subject: GitGuardian false positive fix and stale doc corrections
 - Current Issue: none
 - Work Done:
-  - Investigated GitGuardian "Username Password" alert on commit 60b3a09b — traced to `src/types/__tests__/guards.test.ts:267` (`validUser` fixture with adjacent `username`/`password` fields)
+  - Investigated GitGuardian "Username Password" alert on commit 60b3a09b — traced to `src/types/**tests**/guards.test.ts:267` (`validUser` fixture with adjacent `username`/`password` fields)
   - Replaced test fixture password values with `'hashed:test-fixture'` / `'test-plaintext-input'` across 3 test files (5 occurrences) to prevent scanner false positives; field name `password` unchanged (required by User type)
   - All 4260 unit tests and 72 e2e tests confirmed passing
   - Fixed stale facts in `ARCHITECTURE.md`: manager count 23+ → 30, Jest → Vitest, 376+ tests → 4260+ across 162 files, CommonJS references → TypeScript/ESM, PM2 process management → server.sh
@@ -1245,7 +1289,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - Updated `addons/forms/views/forms-admin.ejs`: New Form button, Edit/Delete per card, flash message support
   - `admin.ts` + `.js`: pass `req.query` to view for flash message rendering
   - `index.ts` + `.js`: mount builder routes at `/admin/forms/builder` before admin routes
-  - 12 new tests in `addons/forms/__tests__/builder.test.ts` covering saveDefinition, deleteDefinition, reloadDefinition, and getSubmissionCount delete guard; 69 total forms tests passing
+  - 12 new tests in `addons/forms/**tests**/builder.test.ts` covering saveDefinition, deleteDefinition, reloadDefinition, and getSubmissionCount delete guard; 69 total forms tests passing
   - `src/managers/AddonsManager.ts`: added `AddonDashboardCard` interface + `registerDashboardCard()` / `getDashboardCards()` methods
   - `src/routes/WikiRoutes.ts`: extended `adminDashboard()` to fetch registered cards and enrich with live `AddonStatusDetails`
   - `views/admin-dashboard.ejs`: new addon cards row rendered between Add-ons summary and Page Management rows
@@ -1281,9 +1325,9 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - FormsPlugin.js patched to mirror `.ts` changes (forms addon has no tsconfig/build step)
   - FormsDataManager: fixed `buildSubmissionValidator` — required text/textarea/date/time fields now use `z.string().min(1)` to reject empty submissions (was incorrectly using `z.string()`)
   - FormsDataManager.js patched to mirror validator fix
-  - New test suite: `addons/forms/__tests__/FormsDataManager.test.ts` — field schema, form definition schema, submission validator (57 assertions, catches the `z.string()` empty-string bug)
-  - New test suite: `addons/forms/__tests__/FormsPlugin.test.ts` — prefill injection, unit address lookup, XSS escaping, section fieldsets, proxy block, dropdown selected, anonymous users
-  - New test suite: `addons/forms/__tests__/api.test.ts` — 503/404 guards, onBehalfOf server validation, time-range check
+  - New test suite: `addons/forms/**tests**/FormsDataManager.test.ts` — field schema, form definition schema, submission validator (57 assertions, catches the `z.string()` empty-string bug)
+  - New test suite: `addons/forms/**tests**/FormsPlugin.test.ts` — prefill injection, unit address lookup, XSS escaping, section fieldsets, proxy block, dropdown selected, anonymous users
+  - New test suite: `addons/forms/**tests**/api.test.ts` — 503/404 guards, onBehalfOf server validation, time-range check
   - Documentation: created `required-pages/bb03859d-eb3f-449e-b78b-7fef30082098.md` ("Form Definition Reference") — full admin JSON schema reference
   - Documentation: updated `required-pages/a4f9c2e1-7b3d-4a85-9e6f-1c2d3b4a5e6f.md` (FormPlugin page) — added link to Form Definition Reference, expanded Notes
   - Documentation: created `addons/forms/pages/af15d030-3676-4a67-8b21-0d844dacb51a.md` ("Using FormPlugin") end-user guide; deleted old `using-forms-addon.md`
@@ -3110,7 +3154,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - Created `views/_emoji-picker.ejs` — Bootstrap nav-tabs (Smileys/Gestures/Objects/Nature/All) + lazy emoji grid populated on modal open
   - Modified `views/edit.ejs`: emoji button in card header, extended `input` listener to handle `:` trigger alongside `[` trigger, extended `keydown` listener for both autocompletes, added `#emojiPickerModal` and `openEmojiPicker`/`insertEmoji`/`initEmojiPicker` scripts
   - Modified `views/footer.ejs`: added `emoji-autocomplete.js` script tag alongside `page-autocomplete.js`
-  - Added `src/parsers/__tests__/MarkupParser-Emoji.test.js` (unit + e2e tests) and `src/parsers/__tests__/emoji-map.test.js` (pure function tests); moved test from `data/` to `__tests__/` to survive build clean
+  - Added `src/parsers/**tests**/MarkupParser-Emoji.test.js` (unit + e2e tests) and `src/parsers/**tests**/emoji-map.test.js` (pure function tests); moved test from `data/` to `**tests**/` to survive build clean
 - Commits: 50768cf8
 - Files Modified:
   - src/parsers/data/emoji-map.ts
@@ -3417,7 +3461,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 - Commits: `90dcb52e`
 - Files Modified:
   - `src/providers/ElasticsearchSearchProvider.ts` (new)
-  - `src/providers/__tests__/ElasticsearchSearchProvider.test.js` (new)
+  - `src/providers/**tests**/ElasticsearchSearchProvider.test.js` (new)
   - `package.json`, `package-lock.json`
   - `config/app-default-config.json`
   - `addons/elasticsearch/index.ts`
@@ -3496,7 +3540,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 - Commits: `f7030222`
 - Files Modified:
   - `src/managers/AddonsManager.ts`
-  - `src/managers/__tests__/AddonsManager.test.js`
+  - `src/managers/**tests**/AddonsManager.test.js`
 
 ## 2026-04-13-03
 
@@ -3514,7 +3558,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 - Commits: `5cb080cd` (path-access), `3f8f2255` (seedAddonPages fix)
 - Files Modified:
   - `src/managers/AddonsManager.ts`
-  - `src/managers/__tests__/AddonsManager.test.js`
+  - `src/managers/**tests**/AddonsManager.test.js`
   - `/Volumes/hd2/jimstest-wiki/data/config/app-custom-config.json`
 
 ## 2026-04-13-02
@@ -3585,8 +3629,8 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - `src/parsers/LinkParser.ts`
   - `src/parsers/dom/handlers/DOMLinkHandler.ts`
   - `src/utils/SectionUtils.ts`
-  - `src/utils/__tests__/SectionUtils.test.js`
-  - `src/parsers/__tests__/LinkParser.test.js`
+  - `src/utils/**tests**/SectionUtils.test.js`
+  - `src/parsers/**tests**/LinkParser.test.js`
   - `src/types/Asset.ts`
   - `src/managers/AssetService.ts`
   - `src/routes/WikiRoutes.ts`
@@ -3614,7 +3658,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 - Commits: `8962661f` (#498 addon), `8956a8e6` (#497), `cbc0ef14` (#503), `51879bbd` (#493), `69617d98` (v3.3.1)
 - Files Modified:
   - `addons/elasticsearch/` (new — index.ts, src/Sist2AssetProvider.ts, src/types.ts, package.json, tsconfig.json)
-  - `addons/elasticsearch/__tests__/Sist2AssetProvider.test.js` (new)
+  - `addons/elasticsearch/**tests**/Sist2AssetProvider.test.js` (new)
   - `src/utils/pluginFormatters.ts`
   - `plugins/SearchPlugin.ts`
   - `src/parsers/MarkupParser.ts`
@@ -3829,7 +3873,7 @@ New `ApiContext` class — lightweight typed request context for API route handl
 
 - Files Added:
   - `src/context/ApiContext.ts` — `ApiContext` class + `ApiError`
-  - `src/context/__tests__/ApiContext.test.js` — 24 tests, all passing
+  - `src/context/**tests**/ApiContext.test.js` — 24 tests, all passing
 
 - Files Modified:
   - `src/types/express.d.ts` — added `isAuthenticated`/`authenticated` to `req.userContext` type
@@ -4131,9 +4175,9 @@ New `ApiContext` class — lightweight typed request context for API route handl
   - `src/routes/WikiRoutes.ts`: loginPage passes `passwordAuthEnabled: authManager.isEnabled('password')` to template
   - `views/login.ejs`: changed if/else to independent blocks — Google OIDC and password form can both be shown
   - `data/config/app-custom-config.json`: set `ngdpbase.auth.password.enabled: true` for fairways-base (temporary, alongside OIDC)
-  - `src/routes/__tests__/WikiRoutes.authorLock.test.js`: new — tests author-lock 403 for non-author/non-admin, pass for author and admin
-  - `src/routes/__tests__/WikiRoutes.titleValidation.test.js`: new — tests savePage/createPageFromTemplate reject invalid chars in title/name
-  - `src/managers/__tests__/UserManager.createUserPage.test.js`: new — tests profile page title format, author-lock flag, system-category
+  - `src/routes/**tests**/WikiRoutes.authorLock.test.js`: new — tests author-lock 403 for non-author/non-admin, pass for author and admin
+  - `src/routes/**tests**/WikiRoutes.titleValidation.test.js`: new — tests savePage/createPageFromTemplate reject invalid chars in title/name
+  - `src/managers/**tests**/UserManager.createUserPage.test.js`: new — tests profile page title format, author-lock flag, system-category
 - Commits: 127e0c9d, 9b72cdb4
 - Files Modified:
   - src/managers/AuthManager.ts
@@ -4298,7 +4342,7 @@ New `ApiContext` class — lightweight typed request context for API route handl
   - `plugins/types.ts`: `fetch?` added to `SimplePlugin`
   - `src/managers/PluginManager.ts`: `fetch?` added to `PluginObject`; called before `execute()`
   - `plugins/MarqueePlugin.ts`: `fetch='Manager.method(k=v,...)'` param; `execute()` now async; awaits manager method
-  - `plugins/__tests__/MarqueePlugin.test.js`: all tests updated to async/await; 3 new fetch= tests (not-found, text result, args passing)
+  - `plugins/**tests**/MarqueePlugin.test.js`: all tests updated to async/await; 3 new fetch= tests (not-found, text result, args passing)
   - `src/utils/managerUtils.ts`: new file — `ManagerFetchOptions` interface + `parseManagerFetchOptions()` for managers to import
   - `src/managers/BaseManager.ts`: `toMarqueeText()` now async, accepts `ManagerFetchOptions`
   - `ve-geology/HansDataManager.js`: `toMarqueeText(options)` accepts limit, alertLevel, colorCode, observatory
@@ -4428,7 +4472,7 @@ New `ApiContext` class — lightweight typed request context for API route handl
   - Fixed EmailManager to only register when `mail.enabled: true`
   - Closed #456 (EmailManager), #442 (seed pages), #447 (Google OIDC), #451 (developer page seeding), #446 (media DRY)
   - Labeled #422 on-hold (generic OAuth framework — future work)
-  - Added 23 unit tests for GoogleOIDCProvider (`src/providers/__tests__/GoogleOIDCProvider.test.js`)
+  - Added 23 unit tests for GoogleOIDCProvider (`src/providers/**tests**/GoogleOIDCProvider.test.js`)
   - Fixed `seedRequiredPages()` to skip github-only pages (#451) — config-driven
   - Added NotificationManager notification when github-only pages are skipped
   - Extracted `views/_media-card.ejs` shared partial (#446)
@@ -4457,8 +4501,8 @@ New `ApiContext` class — lightweight typed request context for API route handl
   - Updated `config/app-default-config.json` — replaced `auth.magic-link.smtp.*` with `ngdpbase.mail.*`
   - Updated `src/managers/AuthManager.ts` — use EmailManager instead of inline mail factory
   - Updated `src/WikiEngine.ts` — register EmailManager before AuthManager
-  - Created `src/managers/__tests__/EmailManager.test.js` — 13 unit tests
-  - Updated `src/managers/__tests__/AuthManager.test.js` — mock EmailManager
+  - Created `src/managers/**tests**/EmailManager.test.js` — 13 unit tests
+  - Updated `src/managers/**tests**/AuthManager.test.js` — mock EmailManager
   - Created `docs/admin/email-setup.md` — provider-agnostic SMTP setup guide
   - Created `docs/planning/email-manager-plan.md` — two-phase design doc
 - Commits: bb707ae9
@@ -4572,7 +4616,7 @@ New `ApiContext` class — lightweight typed request context for API route handl
 - Commits: 21e0b90a (feature), version bump commit
 - Files Modified:
   - `src/managers/AssetManager.ts`
-  - `src/managers/__tests__/AssetManager.test.js`
+  - `src/managers/**tests**/AssetManager.test.js`
   - `src/routes/WikiRoutes.ts`
   - `package.json`, `config/app-default-config.json`, `CHANGELOG.md`
 
@@ -4607,7 +4651,7 @@ New `ApiContext` class — lightweight typed request context for API route handl
 - Work Done:
   - Created `docs/planning/AssetManager-DAM-Summary.md` — completed phases, operational status, work defined in #423, 5 suggestions with GH issues
   - Created GH issues #434–#438 from suggestions using feature_request template
-  - #435: `src/managers/__tests__/AssetManager.test.js` — 46 tests covering provider registry, search fan-out, getById, getThumbnail, initialize, plugin registration pattern
+  - #435: `src/managers/**tests**/AssetManager.test.js` — 46 tests covering provider registry, search fan-out, getById, getThumbnail, initialize, plugin registration pattern
   - #437: Added `ProviderHealthStatus`, `ProviderHealthReport`, `healthCheck?()` to `AssetProvider` interface (`src/types/Asset.ts`)
   - #437: `BasicAttachmentProvider.healthCheck()` — `fs.access(storageDirectory)` detects unmounted NAS/SLOW_STORAGE
   - #437: `FileSystemMediaProvider.healthCheck()` — probes all configured folders; false only when all unreachable
@@ -4619,8 +4663,8 @@ New `ApiContext` class — lightweight typed request context for API route handl
   - `src/types/Asset.ts`
   - `src/managers/AssetManager.ts`
   - `src/managers/AssetService.ts`
-  - `src/managers/__tests__/AssetManager.test.js` (new)
-  - `src/managers/__tests__/AssetService.test.js`
+  - `src/managers/**tests**/AssetManager.test.js` (new)
+  - `src/managers/**tests**/AssetService.test.js`
   - `src/providers/BasicAttachmentProvider.ts`
   - `src/providers/FileSystemMediaProvider.ts`
   - `docs/planning/AssetManager-DAM-Summary.md` (new)
@@ -4739,8 +4783,8 @@ New `ApiContext` class — lightweight typed request context for API route handl
   - `config/app-default-config.json`
   - `src/routes/WikiRoutes.ts`
   - `src/managers/ValidationManager.ts`
-  - `src/routes/__tests__/WikiRoutes-isRequiredPage.test.js`
-  - `src/routes/__tests__/routes.test.js`
+  - `src/routes/**tests**/WikiRoutes-isRequiredPage.test.js`
+  - `src/routes/**tests**/routes.test.js`
   - `docs/project_log.md`
 
 ## 2026-03-30-01
@@ -4752,7 +4796,7 @@ New `ApiContext` class — lightweight typed request context for API route handl
 
 #### Critical bug: test teardown destroying live `./data/` directory
 
-- Found SECOND data-destruction bug in `src/__tests__/WikiEngine.test.js` — `afterEach` called `fs.remove(path.join(process.cwd(), 'data'))` after every test
+- Found SECOND data-destruction bug in `src/**tests**/WikiEngine.test.js` — `afterEach` called `fs.remove(path.join(process.cwd(), 'data'))` after every test
 - Fixed to only remove safe test-created subdirs (`sessions`, `logs`, `search-index`)
 - (The first instance in `policy-system.test.js` was fixed in the prior session)
 - Restored `data/config/app-custom-config.json` and `data/.install-complete` after both destructive runs
@@ -4780,10 +4824,10 @@ New `ApiContext` class — lightweight typed request context for API route handl
 
 ### Files Modified
 
-- `src/__tests__/WikiEngine.test.js` — fixed data-destroying `afterEach`
-- `src/providers/__tests__/VersioningFileProvider-Maintenance.test.js` — added `.install-complete`, fixed assertions
+- `src/**tests**/WikiEngine.test.js` — fixed data-destroying `afterEach`
+- `src/providers/**tests**/VersioningFileProvider-Maintenance.test.js` — added `.install-complete`, fixed assertions
 - `src/providers/VersioningFileProvider.ts` — added `_getVersionDirectory()` and `_resolveIdentifier()` public aliases
-- `src/parsers/__tests__/MarkupParser-EndToEnd.test.js` — comprehensive test fixes (template literals, mock API, assertions)
+- `src/parsers/**tests**/MarkupParser-EndToEnd.test.js` — comprehensive test fixes (template literals, mock API, assertions)
 - `package.json` — version 3.0.10
 
 ### Testing Results
@@ -4909,7 +4953,7 @@ New `ApiContext` class — lightweight typed request context for API route handl
   - Fixed `browse-attachments.ejs` clipboard copy to fall back to `execCommand` on non-HTTPS hosts
 - Files Modified:
   - `src/managers/AssetService.ts`
-  - `src/managers/__tests__/AssetService.test.js`
+  - `src/managers/**tests**/AssetService.test.js`
   - `views/browse-attachments.ejs`
 
 ---
@@ -4951,7 +4995,7 @@ New `ApiContext` class — lightweight typed request context for API route handl
 - Testing:
   - npm test: 91 suites passed, 2358 tests passed
 - Work Done:
-  - Created `src/utils/__tests__/pluginFormatters.test.js` — 63 tests for all pluginFormatters exports
+  - Created `src/utils/**tests**/pluginFormatters.test.js` — 63 tests for all pluginFormatters exports
   - Fixed `plugins/MediaGallery.ts` and `plugins/MediaSearch.ts` stub comments: `output=` → `format=`
   - Closed #238
 - Commits: 2347f76
@@ -6613,7 +6657,7 @@ New `ApiContext` class — lightweight typed request context for API route handl
 - Commits: TBD
 - Files Modified:
   - `src/providers/FileSystemMediaProvider.ts`
-  - `src/providers/__tests__/FileSystemMediaProvider.extractYear.test.js` (new)
+  - `src/providers/**tests**/FileSystemMediaProvider.extractYear.test.js` (new)
 - Commits: 9ae5dfd
 
 ---
@@ -7241,7 +7285,7 @@ New `ApiContext` class — lightweight typed request context for API route handl
 - Work Done:
   - `LocaleUtils.ts`: added `formatDateWithPattern(date, pattern, timezone?)` and `formatTimeWithPrefs(date, timeFormat, locale, timezone?)`
   - `VariableManager.ts`: fixed `getUserLocale` to check `preferences.locale`; added `getUserDateFormat`, `getUserTimeFormat`, `getUserTimezone` helpers; updated `date`, `time`, `timestamp` handlers to apply all three preferences
-  - 9 new tests in `src/utils/__tests__/LocaleUtils.test.js`
+  - 9 new tests in `src/utils/**tests**/LocaleUtils.test.js`
 - Commits: b02e25a
 - Files Modified:
   - src/utils/LocaleUtils.ts
@@ -7907,7 +7951,7 @@ New `ApiContext` class — lightweight typed request context for API route handl
   - `src/utils/pluginFormatters.ts` — add `parseSortParam`, `parsePageParam`, `parsePageSizeParam`, `applyPagination`, `formatPaginationLinks`, `TableOptions.cellDataSort`/`defaultSortColumn`/`defaultSortOrder`
   - `src/context/WikiContext.ts` — add `query` field to `RequestInfo`; populate from `request.query`
   - `src/managers/RenderingManager.ts` — pass `requestInfo.query` into plugin context via `expandMacros`
-  - `plugins/__tests__/UndefinedPagesPlugin.test.js` — 53 unit tests (sort, pagination, count independence, table data-sort)
+  - `plugins/**tests**/UndefinedPagesPlugin.test.js` — 53 unit tests (sort, pagination, count independence, table data-sort)
   - `docs/plugins/UndefinedPagesPlugin.md` — 14 examples updated with fully-rendered HTML output (realistic page names, redlink/wikipage anchors, table/pagination HTML)
 - Commits: d20e7ae
 - Files Modified:
@@ -15234,9 +15278,9 @@ New `ApiContext` class — lightweight typed request context for API route handl
     - Requires Jest project configuration to properly test
   - Test results: WikiRoutes and RenderingManager tests all pass
 - Files Modified:
-  - `src/routes/__tests__/WikiRoutes-isRequiredPage.test.js` - New (14 tests)
-  - `src/managers/__tests__/RenderingManager.test.js` - Updated (added Issue #172 test)
-  - `src/providers/__tests__/FileSystemProvider.test.js` - New (blocked by mock issue)
+  - `src/routes/**tests**/WikiRoutes-isRequiredPage.test.js` - New (14 tests)
+  - `src/managers/**tests**/RenderingManager.test.js` - Updated (added Issue #172 test)
+  - `src/providers/**tests**/FileSystemProvider.test.js` - New (blocked by mock issue)
 - Known Issue:
   - FileSystemProvider.test.js needs Jest projects config to bypass global mock
   - Tests are written but fail due to module resolution with mocked dependencies
@@ -15288,7 +15332,7 @@ New `ApiContext` class — lightweight typed request context for API route handl
   - Tests: 277 failed, 1409 passed, 6 skipped (1692 total)
   - Pass Rate: 83.3% (improved from 80.6%)
 - Files Modified:
-  - `src/__tests__/UserManager.test.js` - Complete rewrite
+  - `src/**tests**/UserManager.test.js` - Complete rewrite
   - `docs/testing/Testing-Summary.md` - New
   - `docs/testing/Complete-Testing-Guide.md` - New
   - `docs/testing/PREVENTING-REGRESSIONS.md` - Updated
@@ -16868,10 +16912,10 @@ Subject: AGENTS.md implementation and project_log.md creation
   - `config/app-default-config.json`
   - `jest.setup.js`
   - `app.js`
-  - `src/__tests__/WikiEngine.test.js`
-  - `src/managers/__tests__/AuthManager.test.js`
-  - `src/managers/__tests__/ConfigurationManager.test.js`
-  - `src/managers/__tests__/policy-system.test.js`
+  - `src/**tests**/WikiEngine.test.js`
+  - `src/managers/**tests**/AuthManager.test.js`
+  - `src/managers/**tests**/ConfigurationManager.test.js`
+  - `src/managers/**tests**/policy-system.test.js`
   - `tests/e2e/auth.setup.js`
   - `tests/e2e/auth.spec.js`
   - `tests/e2e/admin-maintenance.spec.js`
