@@ -27,6 +27,13 @@ class RoleManager extends BaseManager {
   private provider: RoleProvider | null = null;
   private providerClass?: string;
 
+  // #620: in-memory caches for the two read paths UserManager hits per
+  // request (resolveUserRoles → listByMember; the role-mirror writes use
+  // getByOrgAndPosition). Lazily populated; cleared on any write. Single-
+  // process scope — multi-process scaling needs a cache bus (see #620).
+  private memberCache = new Map<string, Role[]>();
+  private byOrgPositionCache = new Map<string, Role | null>();
+
   constructor(engine: WikiEngine) {
     super(engine);
   }
@@ -80,11 +87,21 @@ class RoleManager extends BaseManager {
   }
 
   async getByOrgAndPosition(organizationId: string, namedPosition: string): Promise<Role | null> {
-    return this.requireProvider().getByOrgAndPosition(organizationId, namedPosition);
+    const key = `${organizationId}\0${namedPosition}`;
+    if (this.byOrgPositionCache.has(key)) {
+      return this.byOrgPositionCache.get(key) ?? null;
+    }
+    const role = await this.requireProvider().getByOrgAndPosition(organizationId, namedPosition);
+    this.byOrgPositionCache.set(key, role);
+    return role;
   }
 
   async listByMember(personId: string): Promise<Role[]> {
-    return this.requireProvider().listByMember(personId);
+    const cached = this.memberCache.get(personId);
+    if (cached) return cached;
+    const fresh = await this.requireProvider().listByMember(personId);
+    this.memberCache.set(personId, fresh);
+    return fresh;
   }
 
   async list(): Promise<Role[]> {
@@ -92,15 +109,32 @@ class RoleManager extends BaseManager {
   }
 
   async create(role: Role): Promise<Role> {
-    return this.requireProvider().create(role);
+    const result = await this.requireProvider().create(role);
+    this.invalidateCache();
+    return result;
   }
 
   async update(id: string, patch: RoleUpdate): Promise<Role | null> {
-    return this.requireProvider().update(id, patch);
+    const result = await this.requireProvider().update(id, patch);
+    this.invalidateCache();
+    return result;
   }
 
   async delete(id: string): Promise<boolean> {
-    return this.requireProvider().delete(id);
+    const result = await this.requireProvider().delete(id);
+    this.invalidateCache();
+    return result;
+  }
+
+  /**
+   * Clear all caches. Called on every write (create/update/delete) — the
+   * simplest correct invalidation strategy. Per-key invalidation is an
+   * optimization that can come later if measurement shows it matters.
+   * Public so callers (e.g., admin "rebuild" tools) can force a cache miss.
+   */
+  invalidateCache(): void {
+    this.memberCache.clear();
+    this.byOrgPositionCache.clear();
   }
 
   private requireProvider(): RoleProvider {

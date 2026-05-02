@@ -47,6 +47,14 @@ class OrganizationManager extends BaseManager {
   private provider: OrganizationProvider | null = null;
   private providerClass?: string;
 
+  // #620: cache the install-anchor lookup and by-id/by-file lookups. Read
+  // hot path: UserManager.syncPersonOnCreate / applyRoleDiff hit
+  // getInstallOrg() per write event; the admin org-CRUD UI hits getByFile.
+  // Cleared on any write.
+  private installOrgCache: { value: Organization | null; valid: boolean } = { value: null, valid: false };
+  private byIdCache = new Map<string, Organization | null>();
+  private byFileCache = new Map<string, Organization | null>();
+
   constructor(engine: WikiEngine) {
     super(engine);
   }
@@ -115,19 +123,31 @@ class OrganizationManager extends BaseManager {
 
   /** Return the install's anchor org, or null if no `.file` is configured. */
   async getInstallOrg(): Promise<Organization | null> {
+    if (this.installOrgCache.valid) return this.installOrgCache.value;
     const provider = this.requireProvider();
     const configManager = this.engine.getManager<ConfigurationManager>('ConfigurationManager');
     const filename = configManager?.getProperty('ngdpbase.application.organization.file', '') as string;
-    if (!filename) return null;
-    return provider.getByFile(filename);
+    const value = filename ? await provider.getByFile(filename) : null;
+    this.installOrgCache = { value, valid: true };
+    return value;
   }
 
   async getById(id: string): Promise<Organization | null> {
-    return this.requireProvider().getById(id);
+    if (this.byIdCache.has(id)) {
+      return this.byIdCache.get(id) ?? null;
+    }
+    const org = await this.requireProvider().getById(id);
+    this.byIdCache.set(id, org);
+    return org;
   }
 
   async getByFile(filename: string): Promise<Organization | null> {
-    return this.requireProvider().getByFile(filename);
+    if (this.byFileCache.has(filename)) {
+      return this.byFileCache.get(filename) ?? null;
+    }
+    const org = await this.requireProvider().getByFile(filename);
+    this.byFileCache.set(filename, org);
+    return org;
   }
 
   async list(): Promise<Organization[]> {
@@ -135,15 +155,32 @@ class OrganizationManager extends BaseManager {
   }
 
   async create(org: Organization, filename?: string): Promise<Organization> {
-    return this.requireProvider().create(org, filename);
+    const result = await this.requireProvider().create(org, filename);
+    this.invalidateCache();
+    return result;
   }
 
   async update(id: string, patch: OrganizationUpdate): Promise<Organization | null> {
-    return this.requireProvider().update(id, patch);
+    const result = await this.requireProvider().update(id, patch);
+    this.invalidateCache();
+    return result;
   }
 
   async delete(id: string): Promise<boolean> {
-    return this.requireProvider().delete(id);
+    const result = await this.requireProvider().delete(id);
+    this.invalidateCache();
+    return result;
+  }
+
+  /**
+   * Clear all caches. Called on every write — the simplest correct
+   * invalidation. Per-key invalidation can come later if needed.
+   * Public so callers (e.g., admin "rebuild" tools) can force a cache miss.
+   */
+  invalidateCache(): void {
+    this.installOrgCache = { value: null, valid: false };
+    this.byIdCache.clear();
+    this.byFileCache.clear();
   }
 
   /**

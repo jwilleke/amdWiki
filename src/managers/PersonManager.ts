@@ -29,6 +29,12 @@ class PersonManager extends BaseManager {
   private provider: PersonProvider | null = null;
   private providerClass?: string;
 
+  // #620: cache the two by-key lookups (used per request in
+  // UserManager.resolveUserRoles → getByIdentifier and indirectly in
+  // getById callers). Lazily populated; cleared on any write.
+  private byIdentifierCache = new Map<string, Person | null>();
+  private byIdCache = new Map<string, Person | null>();
+
   constructor(engine: WikiEngine) {
     super(engine);
   }
@@ -77,11 +83,21 @@ class PersonManager extends BaseManager {
   }
 
   async getById(id: string): Promise<Person | null> {
-    return this.requireProvider().getById(id);
+    if (this.byIdCache.has(id)) {
+      return this.byIdCache.get(id) ?? null;
+    }
+    const person = await this.requireProvider().getById(id);
+    this.byIdCache.set(id, person);
+    return person;
   }
 
   async getByIdentifier(identifier: string): Promise<Person | null> {
-    return this.requireProvider().getByIdentifier(identifier);
+    if (this.byIdentifierCache.has(identifier)) {
+      return this.byIdentifierCache.get(identifier) ?? null;
+    }
+    const person = await this.requireProvider().getByIdentifier(identifier);
+    this.byIdentifierCache.set(identifier, person);
+    return person;
   }
 
   async list(): Promise<Person[]> {
@@ -89,15 +105,30 @@ class PersonManager extends BaseManager {
   }
 
   async create(person: Person): Promise<Person> {
-    return this.requireProvider().create(person);
+    const result = await this.requireProvider().create(person);
+    this.invalidateCache();
+    return result;
   }
 
   async update(id: string, patch: PersonUpdate): Promise<Person | null> {
-    return this.requireProvider().update(id, patch);
+    const result = await this.requireProvider().update(id, patch);
+    this.invalidateCache();
+    return result;
   }
 
   async delete(id: string): Promise<boolean> {
-    return this.requireProvider().delete(id);
+    const result = await this.requireProvider().delete(id);
+    this.invalidateCache();
+    return result;
+  }
+
+  /**
+   * Clear all caches. Called on every write — the simplest correct
+   * invalidation. Per-key invalidation can come later if needed.
+   */
+  invalidateCache(): void {
+    this.byIdentifierCache.clear();
+    this.byIdCache.clear();
   }
 
   /**
