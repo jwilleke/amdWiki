@@ -129,6 +129,7 @@ export class ApiContext {
    * if (ctx.hasRole('admin', 'clubhouse-manager')) { ... }
    */
   hasRole(...roles: string[]): boolean {
+    // eslint-disable-next-line no-restricted-syntax -- canonical role-check implementation
     return roles.some(r => this.roles.includes(r));
   }
 

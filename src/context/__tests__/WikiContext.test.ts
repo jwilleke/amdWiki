@@ -150,7 +150,9 @@ describe('WikiContext', () => {
           },
           themeContext: {
             activeTheme: 'default',
-            themeInfo: null,
+            // #625: themeInfo is now lazily resolved (was eagerly null when not passed);
+            // resolves to DEFAULT_THEME_INFO when the themes dir / theme.json don't exist.
+            themeInfo: expect.any(Object),
             displayTheme: 'system'
           },
           pageMetadata: null

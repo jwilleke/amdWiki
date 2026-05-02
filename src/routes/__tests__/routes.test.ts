@@ -20,6 +20,7 @@ let mockUserContext = null;
 
 vi.mock('../../context/WikiContext', () => {
   const MockWikiContext = vi.fn().mockImplementation(function (engine, options = {}) {
+    const userContext = (options.userContext as { roles?: string[]; username?: string } | null | undefined) || mockUserContext;
     return {
       engine: engine,
       context: options.context || 'none',
@@ -47,7 +48,7 @@ vi.mock('../../context/WikiContext', () => {
         const roles = ((options.userContext as { roles?: string[] } | null | undefined)?.roles) ?? mockUserContext?.roles ?? [];
         return names.some(n => roles.includes(n));
       }),
-      hasPermission: vi.fn().mockResolvedValue(true),
+      hasPermission: vi.fn(async (action: string) => { try { return await mockUserManager.hasPermission(userContext?.username ?? '', action); } catch { return true; } }),
       canAccess: vi.fn().mockResolvedValue(true),
       getPrincipals: vi.fn(() => {
         const uc = (options.userContext as { roles?: string[]; username?: string } | null | undefined) || mockUserContext;

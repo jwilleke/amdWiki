@@ -67,6 +67,31 @@ export default tseslint.config(
           "named": "never",
           "asyncArrow": "always"
         }
+      ],
+      // #625 — block reintroduction of the role/permission boilerplate this
+      // issue's sweep removed. Migrations:
+      //   - .isAdmin is broken (was never set by session middleware).
+      //     Use wikiContext.hasRole('admin') or WikiContext.userHasRole(userContext, 'admin').
+      //   - .roles.includes('admin') style checks should go through a context
+      //     method so the call shape is uniform across routes/middleware/plugins.
+      //     Use wikiContext.hasRole(...names) for handlers that have a WikiContext,
+      //     parseContext.hasRole(...names) for parser-pipeline plugins,
+      //     or WikiContext.userHasRole(userContext, ...names) for hot-path callers
+      //     (per-request middleware) that don't need a full WikiContext.
+      "no-restricted-syntax": [
+        "error",
+        {
+          "selector": "MemberExpression[property.name='isAdmin']",
+          "message": "Reading `.isAdmin` is broken — the field was never set by session middleware. Use `wikiContext.hasRole('admin')`, `parseContext.hasRole('admin')`, or `WikiContext.userHasRole(userContext, 'admin')` (#625)."
+        },
+        {
+          "selector": "CallExpression[callee.type='MemberExpression'][callee.property.name='includes'][callee.object.type='MemberExpression'][callee.object.property.name='roles']",
+          "message": "Inline `.roles.includes(...)` permission check — replace with `wikiContext.hasRole(...names)` / `parseContext.hasRole(...names)` / `WikiContext.userHasRole(userContext, ...names)` (#625)."
+        },
+        {
+          "selector": "CallExpression[callee.type='MemberExpression'][callee.property.name='includes'][callee.object.type='ChainExpression'][callee.object.expression.property.name='roles']",
+          "message": "Inline `.roles?.includes(...)` permission check — replace with `wikiContext.hasRole(...names)` / `parseContext.hasRole(...names)` / `WikiContext.userHasRole(userContext, ...names)` (#625)."
+        }
       ]
     }
   },
@@ -92,7 +117,11 @@ export default tseslint.config(
       "@typescript-eslint/no-misused-promises": "off",
       "@typescript-eslint/no-unused-vars": ["warn", { "argsIgnorePattern": "^_", "varsIgnorePattern": "^_" }],
       "no-console": "off",
-      "@typescript-eslint/no-unsafe-enum-comparison": "off"
+      "@typescript-eslint/no-unsafe-enum-comparison": "off",
+      // #625 — test fixtures legitimately read `.isAdmin` and `.roles.includes(...)`
+      // when simulating the auth check (e.g. `mockRoles.includes('admin')`).
+      // Production code must still go through the canonical context methods.
+      "no-restricted-syntax": "off"
     }
   },
 

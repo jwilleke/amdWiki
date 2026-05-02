@@ -51,10 +51,21 @@ function makeRes() {
 }
 
 // WikiRoutes.createWikiContext is called in assetSearch — stub it
+// #625: stub forwards userContext from the request so role checks see it
 function makeRoutes(assetService) {
   const engine = makeEngine(assetService);
   const routes = new WikiRoutes(engine);
-  routes.createWikiContext = vi.fn().mockReturnValue({ userContext: {} });
+  routes.createWikiContext = vi.fn((req: Request) => {
+    const userContext = (req as { userContext?: { roles?: string[]; username?: string } }).userContext;
+    const roles = userContext?.roles ?? [];
+    return {
+      userContext,
+      hasRole: (...names: string[]) => names.some(n => roles.includes(n)),
+      hasPermission: async () => true,
+      canAccess: async () => true,
+      getPrincipals: () => userContext?.username ? [...roles, userContext.username] : [...roles]
+    };
+  });
   return routes;
 }
 
@@ -101,7 +112,17 @@ describe('WikiRoutes.assetSearch — GET /api/assets/search', () => {
     it('returns 503 when AssetService is not registered', async () => {
       const engine = { getManager: vi.fn().mockReturnValue(null) };
       const routes = new WikiRoutes(engine);
-      routes.createWikiContext = vi.fn().mockReturnValue({});
+      routes.createWikiContext = vi.fn((req: Request) => {
+        const userContext = (req as { userContext?: { roles?: string[] } }).userContext;
+        const roles = userContext?.roles ?? [];
+        return {
+          userContext,
+          hasRole: (...names: string[]) => names.some(n => roles.includes(n)),
+          hasPermission: async () => true,
+          canAccess: async () => true,
+          getPrincipals: () => [...roles]
+        };
+      });
       const req = makeReq({ query: {} });
       const res = makeRes();
 

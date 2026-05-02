@@ -52,7 +52,7 @@ vi.mock('../../context/WikiContext', () => {
       // #625 — mirror the four methods on the real WikiContext so route handlers
       // that call them on a mocked context don't throw "X is not a function".
       hasRole: vi.fn((...names: string[]) => names.some(n => (userContext?.roles ?? []).includes(n))),
-      hasPermission: vi.fn().mockResolvedValue(true),
+      hasPermission: vi.fn(async (action: string) => { try { return await mockUserManager.hasPermission(userContext?.username ?? '', action); } catch { return true; } }),
       canAccess: vi.fn().mockResolvedValue(true),
       getPrincipals: vi.fn(() => {
         const roles = userContext?.roles ?? [];

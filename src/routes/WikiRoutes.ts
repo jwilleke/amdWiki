@@ -400,10 +400,10 @@ class WikiRoutes {
       if (!entry || entry.location !== 'private') return true; // Not a private page
 
       // Page is private — apply access rules
-      const userContext = wikiContext.userContext as UserContext | null | undefined;
-      if (!userContext?.username) return false; // Not authenticated
-      if (Array.isArray(userContext.roles) && userContext.roles.includes('admin')) return true; // Admin
-      if (userContext.username === entry.creator) return true; // Creator
+      const username = wikiContext.userContext?.username;
+      if (!username) return false; // Not authenticated
+      if (wikiContext.hasRole('admin')) return true; // Admin
+      if (username === entry.creator) return true; // Creator
       return false; // Deny
     } catch {
       // If check fails for any reason, allow (conservative — will fail elsewhere if truly missing)
@@ -419,21 +419,17 @@ class WikiRoutes {
    * @returns {WikiContext} WikiContext instance
    */
   createWikiContext(req: Request, options: WikiContextOptions = {}): WikiContext {
-    // Resolve active theme for this request
-    const configManager = this.engine.getManager('ConfigurationManager');
-    const activeTheme = (configManager?.getProperty('ngdpbase.theme.active', 'default')) || 'default';
-    const themesDir = path.join(__dirname, '../../../themes');
-    const themeManager = getThemeManager(activeTheme, themesDir);
-
+    // #625 Step 1 — theme is resolved lazily by WikiContext.activeTheme/themeInfo
+    // getters on first access. Permission-only callers (route handlers that just
+    // call hasRole / hasPermission) don't pay for ConfigurationManager.getProperty
+    // and ThemeManager construction.
     return new WikiContext(this.engine as unknown as import('../types/WikiEngine.js').WikiEngine, {
       context: options.context || WikiContext.CONTEXT.NONE,
       pageName: options.pageName ?? undefined,
       content: options.content ?? undefined,
       userContext: req.userContext,
       request: req,
-      response: options.response ?? undefined,
-      activeTheme: themeManager.paths.activeTheme,
-      themeInfo: themeManager.paths.themeInfo
+      response: options.response ?? undefined
     });
   }
 
@@ -1177,7 +1173,8 @@ class WikiRoutes {
       const pageUrl = `${baseUrl}${req.originalUrl}`;
 
       // Get current user for permission context
-      const currentUser = req.userContext;
+      const wikiContext = this.createWikiContext(req);
+      const currentUser = wikiContext.userContext;
 
       const schema = SchemaGenerator.generatePageSchema(pageData, {
         baseUrl: baseUrl,
@@ -1842,8 +1839,8 @@ ${panes}
    */
   async editPageIndex(req: Request, res: Response) {
     try {
-      const userManager = this.engine.getManager('UserManager');
-      const currentUser = req.userContext;
+      const wikiContext = this.createWikiContext(req);
+      const currentUser = wikiContext.userContext;
 
       // Check if user is authenticated
       if (!currentUser || !currentUser.isAuthenticated) {
@@ -1852,7 +1849,7 @@ ${panes}
 
       // Check if user has permission to edit pages
       if (
-        !(await userManager.hasPermission(currentUser.username, 'page-edit'))
+        !(await wikiContext.hasPermission('page-edit'))
       ) {
         return await this.renderError(
           req,
@@ -1956,7 +1953,6 @@ ${panes}
 
       // Extract user from WikiContext (single source of truth)
       const currentUser = wikiContext.userContext;
-      const userManager = this.engine.getManager('UserManager');
       const pageManager = this.engine.getManager('PageManager');
 
       // Check if user is authenticated
@@ -1966,7 +1962,7 @@ ${panes}
 
       // Check if user has permission to create pages
       if (
-        !(await userManager.hasPermission(currentUser.username, 'page-create'))
+        !(await wikiContext.hasPermission('page-create'))
       ) {
         return await this.renderError(
           req,
@@ -2338,7 +2334,6 @@ ${panes}
 
       // Extract user from WikiContext (single source of truth)
       const currentUser = wikiContext.userContext;
-      const userManager = this.engine.getManager('UserManager');
       const pageManager = this.engine.getManager('PageManager');
 
       // Check if user is authenticated
@@ -2350,7 +2345,7 @@ ${panes}
 
       // Check if user has permission to create pages
       if (
-        !(await userManager.hasPermission(currentUser.username, 'page-create'))
+        !(await wikiContext.hasPermission('page-create'))
       ) {
         return await this.renderError(
           req,
@@ -3309,7 +3304,8 @@ ${panes}
       const attachmentManager = this.engine.getManager('AttachmentManager');
 
       // 🔒 SECURITY: Check authentication
-      const currentUser = req.userContext;
+      const wikiContext = this.createWikiContext(req);
+      const currentUser = wikiContext.userContext;
       if (!currentUser || !currentUser.isAuthenticated) {
         return res.status(401).json({
           success: false,
@@ -3477,7 +3473,8 @@ ${panes}
       const attachmentManager = this.engine.getManager('AttachmentManager');
 
       // 🔒 SECURITY: Check authentication
-      const currentUser = req.userContext;
+      const wikiContext = this.createWikiContext(req);
+      const currentUser = wikiContext.userContext;
       if (!currentUser || !currentUser.isAuthenticated) {
         return res.status(401).json({
           success: false,
@@ -3647,7 +3644,8 @@ ${panes}
    */
   async loginPage(req: Request, res: Response) {
     try {
-      const currentUser = req.userContext;
+      const wikiContext = this.createWikiContext(req);
+      const currentUser = wikiContext.userContext;
 
       // Redirect if already logged in
       if (currentUser && currentUser.isAuthenticated) {
@@ -3682,7 +3680,8 @@ ${panes}
    */
   async adminLoginPage(req: Request, res: Response) {
     try {
-      const currentUser = req.userContext;
+      const wikiContext = this.createWikiContext(req);
+      const currentUser = wikiContext.userContext;
       if (currentUser && currentUser.isAuthenticated) {
         return res.redirect('/admin');
       }
@@ -3927,7 +3926,8 @@ ${panes}
   async userInfo(req: Request, res: Response) {
     try {
       const userManager = this.engine.getManager('UserManager');
-      const currentUser = req.userContext;
+      const wikiContext = this.createWikiContext(req);
+      const currentUser = wikiContext.userContext;
       const sessionId = req.cookies?.sessionId;
       const session = sessionId ? await userManager.getSession(sessionId) : null;
 
@@ -4065,7 +4065,8 @@ ${panes}
     logger.debug('DEBUG: profilePage accessed');
     try {
       const userManager = this.engine.getManager('UserManager');
-      const currentUser = req.userContext;
+      const wikiContext = this.createWikiContext(req);
+      const currentUser = wikiContext.userContext;
 
       logger.debug(
         'DEBUG: currentUser from req.userContext:',
@@ -4126,7 +4127,8 @@ ${panes}
   async updateProfile(req: Request, res: Response) {
     try {
       const userManager = this.engine.getManager('UserManager');
-      const currentUser = req.userContext;
+      const wikiContext = this.createWikiContext(req);
+      const currentUser = wikiContext.userContext;
 
       if (!currentUser || !currentUser.isAuthenticated) {
         return res.redirect('/login');
@@ -4222,7 +4224,8 @@ ${panes}
     try {
       logger.debug('DEBUG: Request body:', req.body);
       const userManager = this.engine.getManager('UserManager');
-      const currentUser = req.userContext;
+      const wikiContext = this.createWikiContext(req);
+      const currentUser = wikiContext.userContext;
 
       logger.debug(
         'DEBUG: Current user:',
@@ -4338,7 +4341,8 @@ ${panes}
    */
   async updateDisplayTheme(req: Request, res: Response) {
     try {
-      const currentUser = req.userContext;
+      const wikiContext = this.createWikiContext(req);
+      const currentUser = wikiContext.userContext;
       if (!currentUser || !currentUser.isAuthenticated) {
         return res.status(401).json({ error: 'Not authenticated' });
       }
@@ -4361,7 +4365,8 @@ ${panes}
   /** POST /api/user/pinned-pages — add current page to My Links */
   async addPinnedPage(req: Request, res: Response) {
     try {
-      const currentUser = req.userContext;
+      const wikiContext = this.createWikiContext(req);
+      const currentUser = wikiContext.userContext;
       if (!currentUser?.isAuthenticated) return res.status(401).json({ error: 'Not authenticated' });
       const pageName = typeof req.body?.pageName === 'string' ? req.body.pageName.trim() : '';
       const title = typeof req.body?.title === 'string' ? req.body.title.trim() : pageName;
@@ -4386,7 +4391,8 @@ ${panes}
   /** DELETE /api/user/pinned-pages/:pageName — remove a page from My Links */
   async removePinnedPage(req: Request, res: Response) {
     try {
-      const currentUser = req.userContext;
+      const wikiContext = this.createWikiContext(req);
+      const currentUser = wikiContext.userContext;
       if (!currentUser?.isAuthenticated) return res.status(401).json({ error: 'Not authenticated' });
       const pageName = decodeURIComponent(req.params.pageName ?? '');
       const userManager = this.engine.getManager('UserManager');
@@ -4405,7 +4411,8 @@ ${panes}
   /** PUT /api/user/pinned-pages/order — reorder My Links */
   async reorderPinnedPages(req: Request, res: Response) {
     try {
-      const currentUser = req.userContext;
+      const wikiContext = this.createWikiContext(req);
+      const currentUser = wikiContext.userContext;
       if (!currentUser?.isAuthenticated) return res.status(401).json({ error: 'Not authenticated' });
       const order: string[] = Array.isArray(req.body?.order) ? req.body.order : [];
       const userManager = this.engine.getManager('UserManager');
@@ -4426,7 +4433,8 @@ ${panes}
 
   async addComment(req: Request, res: Response) {
     try {
-      const currentUser = req.userContext;
+      const wikiContext = this.createWikiContext(req);
+      const currentUser = wikiContext.userContext;
       if (!currentUser || !currentUser.isAuthenticated) {
         return res.status(401).json({ success: false, error: 'Authentication required to post comments' });
       }
@@ -4457,7 +4465,8 @@ ${panes}
 
   async deleteComment(req: Request, res: Response) {
     try {
-      const currentUser = req.userContext;
+      const wikiContext = this.createWikiContext(req);
+      const currentUser = wikiContext.userContext;
       if (!currentUser || !currentUser.isAuthenticated) {
         return res.status(401).json({ success: false, error: 'Authentication required' });
       }
@@ -4473,7 +4482,6 @@ ${panes}
         return res.status(404).json({ success: false, error: 'Comment not found' });
       }
 
-      const wikiContext = this.createWikiContext(req);
       const isAdmin = wikiContext.hasRole('admin');
       if (!isAdmin && comment.author !== currentUser.username) {
         return res.status(403).json({ success: false, error: 'Not authorised to delete this comment' });
@@ -4560,12 +4568,12 @@ ${panes}
 
   async addFootnote(req: Request, res: Response) {
     try {
-      const currentUser = req.userContext;
+      const wikiContext = this.createWikiContext(req);
+      const currentUser = wikiContext.userContext;
       if (!currentUser || !currentUser.isAuthenticated) {
         return res.status(401).json({ success: false, error: 'Authentication required' });
       }
-      const userManager = this.engine.getManager('UserManager');
-      if (!(await userManager.hasPermission(currentUser.username, 'page-edit'))) {
+      if (!(await wikiContext.hasPermission('page-edit'))) {
         return res.status(403).json({ success: false, error: 'Editor role required to add footnotes' });
       }
 
@@ -4594,12 +4602,12 @@ ${panes}
 
   async updateFootnote(req: Request, res: Response) {
     try {
-      const currentUser = req.userContext;
+      const wikiContext = this.createWikiContext(req);
+      const currentUser = wikiContext.userContext;
       if (!currentUser || !currentUser.isAuthenticated) {
         return res.status(401).json({ success: false, error: 'Authentication required' });
       }
-      const userManager = this.engine.getManager('UserManager');
-      if (!(await userManager.hasPermission(currentUser.username, 'page-edit'))) {
+      if (!(await wikiContext.hasPermission('page-edit'))) {
         return res.status(403).json({ success: false, error: 'Editor role required to edit footnotes' });
       }
 
@@ -4643,7 +4651,8 @@ ${panes}
 
   async deleteFootnote(req: Request, res: Response) {
     try {
-      const currentUser = req.userContext;
+      const wikiContext = this.createWikiContext(req);
+      const currentUser = wikiContext.userContext;
       if (!currentUser || !currentUser.isAuthenticated) {
         return res.status(401).json({ success: false, error: 'Authentication required' });
       }
@@ -4659,7 +4668,6 @@ ${panes}
       const target = footnotes.find((f: { id: string }) => f.id === footnoteId);
       if (!target) return res.status(404).json({ success: false, error: 'Footnote not found' });
 
-      const wikiContext = this.createWikiContext(req);
       const isAdmin = wikiContext.hasRole('admin');
       if (!isAdmin && target.createdBy !== currentUser.username) {
         return res.status(403).json({ success: false, error: 'Not authorised to delete this footnote' });
@@ -4679,7 +4687,8 @@ ${panes}
    */
   async adminDashboard(req: Request, res: Response) {
     try {
-      const currentUser = req.userContext;
+      const wikiContext = this.createWikiContext(req);
+      const currentUser = wikiContext.userContext;
       const aclManager = this.engine.getManager('ACLManager');
 
       // Check admin access using PolicyEvaluator
@@ -4857,12 +4866,12 @@ ${panes}
    */
   async adminToggleMaintenance(req: Request, res: Response) {
     try {
-      const userManager = this.engine.getManager('UserManager');
-      const currentUser = req.userContext;
+      const wikiContext = this.createWikiContext(req);
+      const currentUser = wikiContext.userContext;
 
       if (
         !currentUser ||
-        !(await userManager.hasPermission(currentUser.username, 'admin-system'))
+        !(await wikiContext.hasPermission('admin-system'))
       ) {
         return res.status(403).send('Access denied');
       }
@@ -4949,12 +4958,12 @@ ${panes}
    */
   async adminPolicies(req: Request, res: Response) {
     try {
-      const userManager = this.engine.getManager('UserManager');
-      const currentUser = req.userContext;
+      const wikiContext = this.createWikiContext(req);
+      const currentUser = wikiContext.userContext;
 
       if (
         !currentUser ||
-        !(await userManager.hasPermission(currentUser.username, 'admin-system'))
+        !(await wikiContext.hasPermission('admin-system'))
       ) {
         return await this.renderError(
           req,
@@ -5000,12 +5009,12 @@ ${panes}
    */
   async adminCreatePolicy(req: Request, res: Response) {
     try {
-      const userManager = this.engine.getManager('UserManager');
-      const currentUser = req.userContext;
+      const wikiContext = this.createWikiContext(req);
+      const currentUser = wikiContext.userContext;
 
       if (
         !currentUser ||
-        !(await userManager.hasPermission(currentUser.username, 'admin-system'))
+        !(await wikiContext.hasPermission('admin-system'))
       ) {
         return res.status(403).json({ error: 'Access denied' });
       }
@@ -5041,12 +5050,12 @@ ${panes}
    */
   async adminGetPolicy(req: Request, res: Response) {
     try {
-      const userManager = this.engine.getManager('UserManager');
-      const currentUser = req.userContext;
+      const wikiContext = this.createWikiContext(req);
+      const currentUser = wikiContext.userContext;
 
       if (
         !currentUser ||
-        !(await userManager.hasPermission(currentUser.username, 'admin-system'))
+        !(await wikiContext.hasPermission('admin-system'))
       ) {
         return res.status(403).json({ error: 'Access denied' });
       }
@@ -5079,12 +5088,12 @@ ${panes}
    */
   async adminUpdatePolicy(req: Request, res: Response) {
     try {
-      const userManager = this.engine.getManager('UserManager');
-      const currentUser = req.userContext;
+      const wikiContext = this.createWikiContext(req);
+      const currentUser = wikiContext.userContext;
 
       if (
         !currentUser ||
-        !(await userManager.hasPermission(currentUser.username, 'admin-system'))
+        !(await wikiContext.hasPermission('admin-system'))
       ) {
         return res.status(403).json({ error: 'Access denied' });
       }
@@ -5120,12 +5129,12 @@ ${panes}
    */
   async adminDeletePolicy(req: Request, res: Response) {
     try {
-      const userManager = this.engine.getManager('UserManager');
-      const currentUser = req.userContext;
+      const wikiContext = this.createWikiContext(req);
+      const currentUser = wikiContext.userContext;
 
       if (
         !currentUser ||
-        !(await userManager.hasPermission(currentUser.username, 'admin-system'))
+        !(await wikiContext.hasPermission('admin-system'))
       ) {
         return res.status(403).json({ error: 'Access denied' });
       }
@@ -5162,11 +5171,12 @@ ${panes}
   async adminUsers(req: Request, res: Response) {
     try {
       const userManager = this.engine.getManager('UserManager');
-      const currentUser = req.userContext;
+      const wikiContext = this.createWikiContext(req);
+      const currentUser = wikiContext.userContext;
 
       if (
         !currentUser ||
-        !(await userManager.hasPermission(currentUser.username, 'user-read'))
+        !(await wikiContext.hasPermission('user-read'))
       ) {
         return await this.renderError(
           req,
@@ -5212,11 +5222,12 @@ ${panes}
   async userEdit(req: Request, res: Response) {
     try {
       const userManager = this.engine.getManager('UserManager');
-      const currentUser = req.userContext;
+      const wikiContext = this.createWikiContext(req);
+      const currentUser = wikiContext.userContext;
 
       if (
         !currentUser ||
-        !(await userManager.hasPermission(currentUser.username, 'user-read'))
+        !(await wikiContext.hasPermission('user-read'))
       ) {
         return await this.renderError(
           req,
@@ -5277,11 +5288,12 @@ ${panes}
   async adminCreateUser(req: Request, res: Response) {
     try {
       const userManager = this.engine.getManager('UserManager');
-      const currentUser = req.userContext;
+      const wikiContext = this.createWikiContext(req);
+      const currentUser = wikiContext.userContext;
 
       if (
         !currentUser ||
-        !(await userManager.hasPermission(currentUser.username, 'user-create'))
+        !(await wikiContext.hasPermission('user-create'))
       ) {
         return res.status(403).send('Access denied');
       }
@@ -5317,11 +5329,12 @@ ${panes}
   async adminUpdateUser(req: Request, res: Response) {
     try {
       const userManager = this.engine.getManager('UserManager');
-      const currentUser = req.userContext;
+      const wikiContext = this.createWikiContext(req);
+      const currentUser = wikiContext.userContext;
 
       if (
         !currentUser ||
-        !(await userManager.hasPermission(currentUser.username, 'user-edit'))
+        !(await wikiContext.hasPermission('user-edit'))
       ) {
         return res
           .status(403)
@@ -5336,7 +5349,9 @@ ${panes}
         updates.isExternal = updates.isExternal === true || updates.isExternal === 'true';
       }
 
-      // Admin-role users must always be local accounts
+      // Admin-role users must always be local accounts.
+      // (Data validation on submitted form input, not a permission check on the caller.)
+      // eslint-disable-next-line no-restricted-syntax -- form-data validation, not auth
       if (updates.isExternal === true && Array.isArray(updates.roles) && updates.roles.includes('admin')) {
         return res.status(400).json({ success: false, message: 'Admin users cannot be marked as external OAuth accounts.' });
       }
@@ -5362,11 +5377,12 @@ ${panes}
   async adminDeleteUser(req: Request, res: Response) {
     try {
       const userManager = this.engine.getManager('UserManager');
-      const currentUser = req.userContext;
+      const wikiContext = this.createWikiContext(req);
+      const currentUser = wikiContext.userContext;
 
       if (
         !currentUser ||
-        !(await userManager.hasPermission(currentUser.username, 'user-delete'))
+        !(await wikiContext.hasPermission('user-delete'))
       ) {
         return res.status(403).send('Access denied');
       }
@@ -5393,11 +5409,12 @@ ${panes}
   async adminRoles(req: Request, res: Response) {
     try {
       const userManager = this.engine.getManager('UserManager');
-      const currentUser = req.userContext;
+      const wikiContext = this.createWikiContext(req);
+      const currentUser = wikiContext.userContext;
 
       if (
         !currentUser ||
-        !(await userManager.hasPermission(currentUser.username, 'admin-roles'))
+        !(await wikiContext.hasPermission('admin-roles'))
       ) {
         return await this.renderError(
           req,
@@ -5433,11 +5450,12 @@ ${panes}
   async adminUpdateRole(req: Request, res: Response) {
     try {
       const userManager = this.engine.getManager('UserManager');
-      const currentUser = req.userContext;
+      const wikiContext = this.createWikiContext(req);
+      const currentUser = wikiContext.userContext;
 
       if (
         !currentUser ||
-        !(await userManager.hasPermission(currentUser.username, 'admin-roles'))
+        !(await wikiContext.hasPermission('admin-roles'))
       ) {
         return res
           .status(403)
@@ -5477,11 +5495,12 @@ ${panes}
   async adminCreateRole(req: Request, res: Response) {
     try {
       const userManager = this.engine.getManager('UserManager');
-      const currentUser = req.userContext;
+      const wikiContext = this.createWikiContext(req);
+      const currentUser = wikiContext.userContext;
 
       if (
         !currentUser ||
-        !(await userManager.hasPermission(currentUser.username, 'admin-roles'))
+        !(await wikiContext.hasPermission('admin-roles'))
       ) {
         return res
           .status(403)
@@ -5532,11 +5551,12 @@ ${panes}
   async adminDeleteRole(req: Request, res: Response) {
     try {
       const userManager = this.engine.getManager('UserManager');
-      const currentUser = req.userContext;
+      const wikiContext = this.createWikiContext(req);
+      const currentUser = wikiContext.userContext;
 
       if (
         !currentUser ||
-        !(await userManager.hasPermission(currentUser.username, 'admin-roles'))
+        !(await wikiContext.hasPermission('admin-roles'))
       ) {
         return res
           .status(403)
@@ -5578,9 +5598,9 @@ ${panes}
    */
   async adminBackupPage(req: Request, res: Response) {
     try {
-      const userManager = this.engine.getManager('UserManager');
-      const currentUser = req.userContext;
-      if (!currentUser || !(await userManager.hasPermission(currentUser.username, 'admin-system'))) {
+      const wikiContext = this.createWikiContext(req);
+      const currentUser = wikiContext.userContext;
+      if (!currentUser || !(await wikiContext.hasPermission('admin-system'))) {
         return await this.renderError(req, res, 403, 'Access Denied', 'You do not have permission to manage backups');
       }
       const backupManager = this.engine.getManager('BackupManager');
@@ -5609,9 +5629,9 @@ ${panes}
    */
   async adminBackupConfig(req: Request, res: Response) {
     try {
-      const userManager = this.engine.getManager('UserManager');
-      const currentUser = req.userContext;
-      if (!currentUser || !(await userManager.hasPermission(currentUser.username, 'admin-system'))) {
+      const wikiContext = this.createWikiContext(req);
+      const currentUser = wikiContext.userContext;
+      if (!currentUser || !(await wikiContext.hasPermission('admin-system'))) {
         return await this.renderError(req, res, 403, 'Access Denied', 'You do not have permission to manage backups');
       }
       const backupManager = this.engine.getManager('BackupManager');
@@ -5646,13 +5666,13 @@ ${panes}
    */
   async adminBackup(req: Request, res: Response) {
     try {
-      const userManager = this.engine.getManager('UserManager');
-      const currentUser = req.userContext;
+      const wikiContext = this.createWikiContext(req);
+      const currentUser = wikiContext.userContext;
 
       // Check admin permission for system operations
       if (
         !currentUser ||
-        !(await userManager.hasPermission(currentUser.username, 'admin-system'))
+        !(await wikiContext.hasPermission('admin-system'))
       ) {
         return await this.renderError(
           req,
@@ -5704,12 +5724,12 @@ ${panes}
    */
   async adminConfiguration(req: Request, res: Response) {
     try {
-      const userManager = this.engine.getManager('UserManager');
-      const currentUser = req.userContext;
+      const wikiContext = this.createWikiContext(req);
+      const currentUser = wikiContext.userContext;
 
       if (
         !currentUser ||
-        !(await userManager.hasPermission(currentUser.username, 'admin-system'))
+        !(await wikiContext.hasPermission('admin-system'))
       ) {
         return await this.renderError(
           req,
@@ -5750,12 +5770,12 @@ ${panes}
    */
   async adminUpdateConfiguration(req: Request, res: Response) {
     try {
-      const userManager = this.engine.getManager('UserManager');
-      const currentUser = req.userContext;
+      const wikiContext = this.createWikiContext(req);
+      const currentUser = wikiContext.userContext;
 
       if (
         !currentUser ||
-        !(await userManager.hasPermission(currentUser.username, 'admin-system'))
+        !(await wikiContext.hasPermission('admin-system'))
       ) {
         return res.status(403).json({ error: 'Admin access required' });
       }
@@ -5805,12 +5825,12 @@ ${panes}
    */
   async adminResetConfiguration(req: Request, res: Response) {
     try {
-      const userManager = this.engine.getManager('UserManager');
-      const currentUser = req.userContext;
+      const wikiContext = this.createWikiContext(req);
+      const currentUser = wikiContext.userContext;
 
       if (
         !currentUser ||
-        !(await userManager.hasPermission(currentUser.username, 'admin-system'))
+        !(await wikiContext.hasPermission('admin-system'))
       ) {
         return res.status(403).json({ error: 'Admin access required' });
       }
@@ -5831,12 +5851,12 @@ ${panes}
    */
   async adminInterwiki(req: Request, res: Response) {
     try {
-      const userManager = this.engine.getManager('UserManager');
-      const currentUser = req.userContext;
+      const wikiContext = this.createWikiContext(req);
+      const currentUser = wikiContext.userContext;
 
       if (
         !currentUser ||
-        !(await userManager.hasPermission(currentUser.username, 'admin-system'))
+        !(await wikiContext.hasPermission('admin-system'))
       ) {
         return await this.renderError(
           req,
@@ -5877,12 +5897,12 @@ ${panes}
    */
   async adminInterwikiSaveSite(req: Request, res: Response) {
     try {
-      const userManager = this.engine.getManager('UserManager');
-      const currentUser = req.userContext;
+      const wikiContext = this.createWikiContext(req);
+      const currentUser = wikiContext.userContext;
 
       if (
         !currentUser ||
-        !(await userManager.hasPermission(currentUser.username, 'admin-system'))
+        !(await wikiContext.hasPermission('admin-system'))
       ) {
         return res.redirect('/admin/interwiki?error=Access denied');
       }
@@ -5929,12 +5949,12 @@ ${panes}
    */
   async adminInterwikiDeleteSite(req: Request, res: Response) {
     try {
-      const userManager = this.engine.getManager('UserManager');
-      const currentUser = req.userContext;
+      const wikiContext = this.createWikiContext(req);
+      const currentUser = wikiContext.userContext;
 
       if (
         !currentUser ||
-        !(await userManager.hasPermission(currentUser.username, 'admin-system'))
+        !(await wikiContext.hasPermission('admin-system'))
       ) {
         return res.redirect('/admin/interwiki?error=Access denied');
       }
@@ -5961,12 +5981,12 @@ ${panes}
    */
   async adminInterwikiSaveOptions(req: Request, res: Response) {
     try {
-      const userManager = this.engine.getManager('UserManager');
-      const currentUser = req.userContext;
+      const wikiContext = this.createWikiContext(req);
+      const currentUser = wikiContext.userContext;
 
       if (
         !currentUser ||
-        !(await userManager.hasPermission(currentUser.username, 'admin-system'))
+        !(await wikiContext.hasPermission('admin-system'))
       ) {
         return res.redirect('/admin/interwiki?error=Access denied');
       }
@@ -6000,12 +6020,12 @@ ${panes}
    */
   async adminVariables(req: Request, res: Response) {
     try {
-      const userManager = this.engine.getManager('UserManager');
-      const currentUser = req.userContext;
+      const wikiContext = this.createWikiContext(req);
+      const currentUser = wikiContext.userContext;
 
       if (
         !currentUser ||
-        !(await userManager.hasPermission(currentUser.username, 'admin-system'))
+        !(await wikiContext.hasPermission('admin-system'))
       ) {
         return await this.renderError(
           req,
@@ -6060,12 +6080,12 @@ ${panes}
    */
   async adminTestVariables(req: Request, res: Response) {
     try {
-      const userManager = this.engine.getManager('UserManager');
-      const currentUser = req.userContext;
+      const wikiContext = this.createWikiContext(req);
+      const currentUser = wikiContext.userContext;
 
       if (
         !currentUser ||
-        !(await userManager.hasPermission(currentUser.username, 'admin-system'))
+        !(await wikiContext.hasPermission('admin-system'))
       ) {
         return res.status(403).json({ error: 'Admin access required' });
       }
@@ -6114,12 +6134,12 @@ ${panes}
    */
   async adminSettings(req: Request, res: Response) {
     try {
-      const userManager = this.engine.getManager('UserManager');
-      const currentUser = req.userContext;
+      const wikiContext = this.createWikiContext(req);
+      const currentUser = wikiContext.userContext;
 
       if (
         !currentUser ||
-        !(await userManager.hasPermission(currentUser.username, 'admin-system'))
+        !(await wikiContext.hasPermission('admin-system'))
       ) {
         return await this.renderError(
           req,
@@ -6168,10 +6188,10 @@ ${panes}
 
   async adminUpdateTheme(req: Request, res: Response) {
     try {
-      const userManager = this.engine.getManager('UserManager');
-      const currentUser = req.userContext;
+      const wikiContext = this.createWikiContext(req);
+      const currentUser = wikiContext.userContext;
 
-      if (!currentUser || !(await userManager.hasPermission(currentUser.username, 'admin-system'))) {
+      if (!currentUser || !(await wikiContext.hasPermission('admin-system'))) {
         return res.status(403).redirect('/admin/settings?error=Access+denied');
       }
 
@@ -6199,10 +6219,10 @@ ${panes}
 
   async adminUpdateGeneralSettings(req: Request, res: Response) {
     try {
-      const userManager = this.engine.getManager('UserManager');
-      const currentUser = req.userContext;
+      const wikiContext = this.createWikiContext(req);
+      const currentUser = wikiContext.userContext;
 
-      if (!currentUser || !(await userManager.hasPermission(currentUser.username, 'admin-system'))) {
+      if (!currentUser || !(await wikiContext.hasPermission('admin-system'))) {
         return res.redirect('/admin/settings?error=Access+denied');
       }
 
@@ -6235,12 +6255,12 @@ ${panes}
    */
   async adminRestart(req: Request, res: Response) {
     try {
-      const userManager = this.engine.getManager('UserManager');
-      const currentUser = req.userContext;
+      const wikiContext = this.createWikiContext(req);
+      const currentUser = wikiContext.userContext;
 
       if (
         !currentUser ||
-        !(await userManager.hasPermission(currentUser.username, 'admin-system'))
+        !(await wikiContext.hasPermission('admin-system'))
       ) {
         return res.status(403).json({
           success: false,
@@ -6310,12 +6330,12 @@ ${panes}
    */
   async adminReindex(req: Request, res: Response) {
     try {
-      const userManager = this.engine.getManager('UserManager');
-      const currentUser = req.userContext;
+      const wikiContext = this.createWikiContext(req);
+      const currentUser = wikiContext.userContext;
 
       if (
         !currentUser ||
-        !(await userManager.hasPermission(currentUser.username, 'admin-system'))
+        !(await wikiContext.hasPermission('admin-system'))
       ) {
         return res.status(403).json({
           success: false,
@@ -6343,12 +6363,12 @@ ${panes}
    * Only accessible to authenticated admins.
    */
   adminEvents(req: Request, res: Response): void {
-    const currentUser = req.userContext;
-    const userManager = this.engine.getManager('UserManager');
+    const wikiContext = this.createWikiContext(req);
+    const currentUser = wikiContext.userContext;
 
     // Auth check — must be a logged-in admin. Fire-and-forget async check then stream.
     void (async () => {
-      if (!currentUser || !(await userManager.hasPermission(currentUser.username, 'admin-system'))) {
+      if (!currentUser || !(await wikiContext.hasPermission('admin-system'))) {
         res.status(403).end();
         return;
       }
@@ -6380,12 +6400,12 @@ ${panes}
    */
   async adminRequiredPages(req: Request, res: Response) {
     try {
-      const userManager = this.engine.getManager('UserManager');
-      const currentUser = req.userContext;
+      const wikiContext = this.createWikiContext(req);
+      const currentUser = wikiContext.userContext;
 
       if (
         !currentUser ||
-        !(await userManager.hasPermission(currentUser.username, 'admin-system'))
+        !(await wikiContext.hasPermission('admin-system'))
       ) {
         return res.status(403).send('Access denied');
       }
@@ -6626,12 +6646,12 @@ ${panes}
    */
   async adminSyncRequiredPages(req: Request, res: Response) {
     try {
-      const userManager = this.engine.getManager('UserManager');
-      const currentUser = req.userContext;
+      const wikiContext = this.createWikiContext(req);
+      const currentUser = wikiContext.userContext;
 
       if (
         !currentUser ||
-        !(await userManager.hasPermission(currentUser.username, 'admin-system'))
+        !(await wikiContext.hasPermission('admin-system'))
       ) {
         return res.status(403).json({ success: false, error: 'Access denied' });
       }
@@ -6947,12 +6967,12 @@ ${panes}
    */
   async adminDiff(req: Request, res: Response) {
     try {
-      const userManager = this.engine.getManager('UserManager');
-      const currentUser = req.userContext;
+      const wikiContext = this.createWikiContext(req);
+      const currentUser = wikiContext.userContext;
 
       if (
         !currentUser ||
-        !(await userManager.hasPermission(currentUser.username, 'admin-system'))
+        !(await wikiContext.hasPermission('admin-system'))
       ) {
         return res.status(403).send('Access denied');
       }
@@ -6995,12 +7015,12 @@ ${panes}
    */
   async adminDiffApi(req: Request, res: Response) {
     try {
-      const userManager = this.engine.getManager('UserManager');
-      const currentUser = req.userContext;
+      const wikiContext = this.createWikiContext(req);
+      const currentUser = wikiContext.userContext;
 
       if (
         !currentUser ||
-        !(await userManager.hasPermission(currentUser.username, 'admin-system'))
+        !(await wikiContext.hasPermission('admin-system'))
       ) {
         return res.status(403).json({ error: 'Access denied' });
       }
@@ -7038,12 +7058,12 @@ ${panes}
    */
   async adminImport(req: Request, res: Response) {
     try {
-      const userManager = this.engine.getManager('UserManager');
-      const currentUser = req.userContext;
+      const wikiContext = this.createWikiContext(req);
+      const currentUser = wikiContext.userContext;
 
       if (
         !currentUser ||
-        !(await userManager.hasPermission(currentUser.username, 'admin-system'))
+        !(await wikiContext.hasPermission('admin-system'))
       ) {
         return await this.renderError(
           req,
@@ -7077,13 +7097,9 @@ ${panes}
    */
   async adminAttachments(req: Request, res: Response) {
     try {
-      const currentUser = req.userContext;
+      const wikiContext = this.createWikiContext(req);
 
-      if (
-        !currentUser ||
-        !currentUser.roles ||
-        !(currentUser.roles.includes('admin') || currentUser.roles.includes('editor'))
-      ) {
+      if (!wikiContext.hasRole('admin', 'editor')) {
         return await this.renderError(
           req,
           res,
@@ -7113,13 +7129,9 @@ ${panes}
    */
   async adminAttachmentsApi(req: Request, res: Response) {
     try {
-      const currentUser = req.userContext;
+      const wikiContext = this.createWikiContext(req);
 
-      if (
-        !currentUser ||
-        !currentUser.roles ||
-        !(currentUser.roles.includes('admin') || currentUser.roles.includes('editor'))
-      ) {
+      if (!wikiContext.hasRole('admin', 'editor')) {
         return res.status(403).json({ success: false, error: 'Access denied' });
       }
 
@@ -7182,15 +7194,8 @@ ${panes}
    */
   async assetSearch(req: Request, res: Response) {
     try {
-      const currentUser = req.userContext;
-      if (
-        !currentUser?.roles ||
-        !(
-          currentUser.roles.includes('admin') ||
-          currentUser.roles.includes('editor') ||
-          currentUser.roles.includes('contributor')
-        )
-      ) {
+      const wikiContext = this.createWikiContext(req);
+      if (!wikiContext.hasRole('admin', 'editor', 'contributor')) {
         return res.status(403).json({ success: false, error: 'Access denied' });
       }
 
@@ -7243,7 +7248,6 @@ ${panes}
       const mimeCategoryRaw = req.query.mimeCategory as string;
       const mimeCategory = (['image', 'document', 'other'] as const).find(c => c === mimeCategoryRaw);
 
-      const wikiContext = this.createWikiContext(req);
       const userRoles = wikiContext.userContext?.roles ?? [];
       const username = wikiContext.userContext?.username ?? '';
 
@@ -7273,13 +7277,9 @@ ${panes}
    */
   async browseAttachmentsApi(req: Request, res: Response) {
     try {
-      const currentUser = req.userContext;
+      const wikiContext = this.createWikiContext(req);
 
-      if (
-        !currentUser ||
-        !currentUser.roles ||
-        !(currentUser.roles.includes('admin') || currentUser.roles.includes('editor') || currentUser.roles.includes('contributor'))
-      ) {
+      if (!wikiContext.hasRole('admin', 'editor', 'contributor')) {
         return res.status(403).json({ success: false, error: 'Access denied' });
       }
 
@@ -7298,16 +7298,17 @@ ${panes}
    */
   async adminDeleteAttachmentFromBrowser(req: Request, res: Response) {
     try {
-      const currentUser = req.userContext;
+      const wikiContext = this.createWikiContext(req);
+      const currentUser = wikiContext.userContext;
 
-      if (!currentUser || !currentUser.roles || !currentUser.roles.includes('admin')) {
+      if (!wikiContext.hasRole('admin')) {
         return res.status(403).json({ success: false, error: 'Admin role required to delete attachments' });
       }
 
       const { attachmentId } = req.params;
       const attachmentManager = this.engine.getManager('AttachmentManager');
 
-      const deleted = await attachmentManager.deleteAttachment(attachmentId, currentUser);
+      const deleted = await attachmentManager.deleteAttachment(attachmentId, currentUser ?? undefined);
 
       if (!deleted) {
         return res.status(404).json({ success: false, error: 'Attachment not found' });
@@ -7326,12 +7327,12 @@ ${panes}
    */
   async adminImportPreview(req: Request, res: Response) {
     try {
-      const userManager = this.engine.getManager('UserManager');
-      const currentUser = req.userContext;
+      const wikiContext = this.createWikiContext(req);
+      const currentUser = wikiContext.userContext;
 
       if (
         !currentUser ||
-        !(await userManager.hasPermission(currentUser.username, 'admin-system'))
+        !(await wikiContext.hasPermission('admin-system'))
       ) {
         return res.status(403).json({
           success: false,
@@ -7378,12 +7379,12 @@ ${panes}
    */
   async adminImportExecute(req: Request, res: Response) {
     try {
-      const userManager = this.engine.getManager('UserManager');
-      const currentUser = req.userContext;
+      const wikiContext = this.createWikiContext(req);
+      const currentUser = wikiContext.userContext;
 
       if (
         !currentUser ||
-        !(await userManager.hasPermission(currentUser.username, 'admin-system'))
+        !(await wikiContext.hasPermission('admin-system'))
       ) {
         return res.status(403).json({
           success: false,
@@ -7432,12 +7433,12 @@ ${panes}
    */
   async adminImportExecuteStream(req: Request, res: Response): Promise<void> {
     try {
-      const userManager = this.engine.getManager('UserManager');
-      const currentUser = req.userContext;
+      const wikiContext = this.createWikiContext(req);
+      const currentUser = wikiContext.userContext;
 
       if (
         !currentUser ||
-        !(await userManager.hasPermission(currentUser.username, 'admin-system'))
+        !(await wikiContext.hasPermission('admin-system'))
       ) {
         res.status(403).json({
           success: false,
@@ -7518,12 +7519,12 @@ ${panes}
    */
   async adminImportUrlPreview(req: Request, res: Response) {
     try {
-      const userManager = this.engine.getManager('UserManager');
-      const currentUser = req.userContext;
+      const wikiContext = this.createWikiContext(req);
+      const currentUser = wikiContext.userContext;
 
       if (
         !currentUser ||
-        !(await userManager.hasPermission(currentUser.username, 'admin-system'))
+        !(await wikiContext.hasPermission('admin-system'))
       ) {
         return res.status(403).json({
           success: false,
@@ -7565,12 +7566,12 @@ ${panes}
    */
   async adminImportUrlExecute(req: Request, res: Response) {
     try {
-      const userManager = this.engine.getManager('UserManager');
-      const currentUser = req.userContext;
+      const wikiContext = this.createWikiContext(req);
+      const currentUser = wikiContext.userContext;
 
       if (
         !currentUser ||
-        !(await userManager.hasPermission(currentUser.username, 'admin-system'))
+        !(await wikiContext.hasPermission('admin-system'))
       ) {
         return res.status(403).json({
           success: false,
@@ -7612,12 +7613,12 @@ ${panes}
    */
   async adminLogs(req: Request, res: Response) {
     try {
-      const userManager = this.engine.getManager('UserManager');
-      const currentUser = req.userContext;
+      const wikiContext = this.createWikiContext(req);
+      const currentUser = wikiContext.userContext;
 
       if (
         !currentUser ||
-        !(await userManager.hasPermission(currentUser.username, 'admin-system'))
+        !(await wikiContext.hasPermission('admin-system'))
       ) {
         return await this.renderError(
           req,
@@ -7692,11 +7693,11 @@ ${panes}
    */
   async adminAddons(req: Request, res: Response) {
     try {
-      const userManager = this.engine.getManager('UserManager');
-      const currentUser = req.userContext;
+      const wikiContext = this.createWikiContext(req);
+      const currentUser = wikiContext.userContext;
       if (
         !currentUser ||
-        !(await userManager.hasPermission(currentUser.username, 'admin-system'))
+        !(await wikiContext.hasPermission('admin-system'))
       ) {
         return await this.renderError(req, res, 403, 'Access Denied', 'You do not have permission to manage add-ons');
       }
@@ -7722,11 +7723,11 @@ ${panes}
    */
   async adminAddonToggle(req: Request, res: Response) {
     try {
-      const userManager = this.engine.getManager('UserManager');
-      const currentUser = req.userContext;
+      const wikiContext = this.createWikiContext(req);
+      const currentUser = wikiContext.userContext;
       if (
         !currentUser ||
-        !(await userManager.hasPermission(currentUser.username, 'admin-system'))
+        !(await wikiContext.hasPermission('admin-system'))
       ) {
         return res.status(403).json({ error: 'Access denied' });
       }
@@ -7787,12 +7788,12 @@ ${panes}
    */
   async adminOrganizations(req: Request, res: Response) {
     try {
-      const userManager = this.engine.getManager('UserManager');
-      const currentUser = req.userContext;
+      const wikiContext = this.createWikiContext(req);
+      const currentUser = wikiContext.userContext;
 
       if (
         !currentUser ||
-        !(await userManager.hasPermission(currentUser.username, 'admin-system'))
+        !(await wikiContext.hasPermission('admin-system'))
       ) {
         return await this.renderError(
           req,
@@ -8111,11 +8112,11 @@ ${panes}
    */
   async adminGetOrganizationSchema(req: Request, res: Response) {
     try {
-      const userManager = this.engine.getManager('UserManager');
-      const currentUser = req.userContext;
+      const wikiContext = this.createWikiContext(req);
+      const currentUser = wikiContext.userContext;
       if (
         !currentUser ||
-        !(await userManager.hasPermission(currentUser.username, 'admin-system'))
+        !(await wikiContext.hasPermission('admin-system'))
       ) {
         return res.status(403).json({ error: 'Admin access required' });
       }
@@ -8145,11 +8146,11 @@ ${panes}
    */
   async adminGetPersonSchema(req: Request, res: Response) {
     try {
-      const userManager = this.engine.getManager('UserManager');
-      const currentUser = req.userContext;
+      const wikiContext = this.createWikiContext(req);
+      const currentUser = wikiContext.userContext;
       if (
         !currentUser ||
-        !(await userManager.hasPermission(currentUser.username, 'admin-system'))
+        !(await wikiContext.hasPermission('admin-system'))
       ) {
         return res.status(403).json({ error: 'Admin access required' });
       }
@@ -8550,12 +8551,12 @@ ${panes}
    */
   async adminDismissNotification(req: Request, res: Response) {
     try {
-      const userManager = this.engine.getManager('UserManager');
-      const currentUser = req.userContext;
+      const wikiContext = this.createWikiContext(req);
+      const currentUser = wikiContext.userContext;
 
       if (
         !currentUser ||
-        !(await userManager.hasPermission(currentUser.username, 'admin-system'))
+        !(await wikiContext.hasPermission('admin-system'))
       ) {
         return res.status(403).send('Access denied');
       }
@@ -8586,12 +8587,12 @@ ${panes}
    */
   async adminClearAllNotifications(req: Request, res: Response) {
     try {
-      const userManager = this.engine.getManager('UserManager');
-      const currentUser = req.userContext;
+      const wikiContext = this.createWikiContext(req);
+      const currentUser = wikiContext.userContext;
 
       if (
         !currentUser ||
-        !(await userManager.hasPermission(currentUser.username, 'admin-system'))
+        !(await wikiContext.hasPermission('admin-system'))
       ) {
         return res.status(403).send('Access denied');
       }
@@ -8615,12 +8616,12 @@ ${panes}
    */
   async adminNotifications(req: Request, res: Response) {
     try {
-      const userManager = this.engine.getManager('UserManager');
-      const currentUser = req.userContext;
+      const wikiContext = this.createWikiContext(req);
+      const currentUser = wikiContext.userContext;
 
       if (
         !currentUser ||
-        !(await userManager.hasPermission(currentUser.username, 'admin-system'))
+        !(await wikiContext.hasPermission('admin-system'))
       ) {
         return await this.renderError(
           req,
@@ -8679,12 +8680,12 @@ ${panes}
    */
   async adminFilterChainStats(req: Request, res: Response) {
     try {
-      const userManager = this.engine.getManager('UserManager');
-      const currentUser = req.userContext;
+      const wikiContext = this.createWikiContext(req);
+      const currentUser = wikiContext.userContext;
 
       if (
         !currentUser ||
-        !(await userManager.hasPermission(currentUser.username, 'admin-system'))
+        !(await wikiContext.hasPermission('admin-system'))
       ) {
         return res.status(403).json({ error: 'Access denied' });
       }
@@ -8746,12 +8747,12 @@ ${panes}
    */
   async adminCacheStats(req: Request, res: Response) {
     try {
-      const userManager = this.engine.getManager('UserManager');
-      const currentUser = req.userContext;
+      const wikiContext = this.createWikiContext(req);
+      const currentUser = wikiContext.userContext;
 
       if (
         !currentUser ||
-        !(await userManager.hasPermission(currentUser.username, 'admin-system'))
+        !(await wikiContext.hasPermission('admin-system'))
       ) {
         return res.status(403).json({ error: 'Access denied' });
       }
@@ -8774,12 +8775,12 @@ ${panes}
    */
   async adminClearCache(req: Request, res: Response) {
     try {
-      const userManager = this.engine.getManager('UserManager');
-      const currentUser = req.userContext;
+      const wikiContext = this.createWikiContext(req);
+      const currentUser = wikiContext.userContext;
 
       if (
         !currentUser ||
-        !(await userManager.hasPermission(currentUser.username, 'admin-system'))
+        !(await wikiContext.hasPermission('admin-system'))
       ) {
         return res.status(403).json({ error: 'Access denied' });
       }
@@ -8812,9 +8813,9 @@ ${panes}
    */
   async adminClearPageCache(req: Request, res: Response) {
     try {
-      const userManager = this.engine.getManager('UserManager');
-      const currentUser = req.userContext;
-      if (!currentUser || !(await userManager.hasPermission(currentUser.username, 'admin-system'))) {
+      const wikiContext = this.createWikiContext(req);
+      const currentUser = wikiContext.userContext;
+      if (!currentUser || !(await wikiContext.hasPermission('admin-system'))) {
         return res.status(403).json({ error: 'Access denied' });
       }
 
@@ -8845,12 +8846,12 @@ ${panes}
    */
   async adminClearCacheRegion(req: Request, res: Response) {
     try {
-      const userManager = this.engine.getManager('UserManager');
-      const currentUser = req.userContext;
+      const wikiContext = this.createWikiContext(req);
+      const currentUser = wikiContext.userContext;
 
       if (
         !currentUser ||
-        !(await userManager.hasPermission(currentUser.username, 'admin-system'))
+        !(await wikiContext.hasPermission('admin-system'))
       ) {
         return res.status(403).json({ error: 'Access denied' });
       }
@@ -8893,11 +8894,12 @@ ${panes}
   async adminAuditLogs(req: Request, res: Response) {
     try {
       const userManager = this.engine.getManager('UserManager');
+      const wikiContext = this.createWikiContext(req);
       const currentUser = await userManager.getCurrentUser(req);
 
       if (
         !currentUser ||
-        !(await userManager.hasPermission(currentUser.username, 'admin-system'))
+        !(await wikiContext.hasPermission('admin-system'))
       ) {
         return await this.renderError(
           req,
@@ -8930,11 +8932,12 @@ ${panes}
   async adminAuditLogsApi(req: Request, res: Response) {
     try {
       const userManager = this.engine.getManager('UserManager');
+      const wikiContext = this.createWikiContext(req);
       const currentUser = await userManager.getCurrentUser(req);
 
       if (
         !currentUser ||
-        !(await userManager.hasPermission(currentUser.username, 'admin-system'))
+        !(await wikiContext.hasPermission('admin-system'))
       ) {
         return res.status(403).json({ error: 'Access denied' });
       }
@@ -8978,11 +8981,12 @@ ${panes}
   async adminAuditLogDetails(req: Request, res: Response) {
     try {
       const userManager = this.engine.getManager('UserManager');
+      const wikiContext = this.createWikiContext(req);
       const currentUser = await userManager.getCurrentUser(req);
 
       if (
         !currentUser ||
-        !(await userManager.hasPermission(currentUser.username, 'admin-system'))
+        !(await wikiContext.hasPermission('admin-system'))
       ) {
         return res.status(403).json({ error: 'Access denied' });
       }
@@ -9011,11 +9015,12 @@ ${panes}
   async adminAuditExport(req: Request, res: Response) {
     try {
       const userManager = this.engine.getManager('UserManager');
+      const wikiContext = this.createWikiContext(req);
       const currentUser = await userManager.getCurrentUser(req);
 
       if (
         !currentUser ||
-        !(await userManager.hasPermission(currentUser.username, 'admin-system'))
+        !(await wikiContext.hasPermission('admin-system'))
       ) {
         return res.status(403).send('Access denied');
       }
@@ -9793,11 +9798,11 @@ ${panes}
    */
   async userKeywordCreate(req: Request, res: Response) {
     try {
-      const userManager = this.engine.getManager('UserManager');
-      const currentUser = req.userContext;
+      const wikiContext = this.createWikiContext(req);
+      const currentUser = wikiContext.userContext;
 
       // Check if user can edit (editor role or above)
-      if (!currentUser || !(await userManager.hasPermission(currentUser.username, 'page-edit'))) {
+      if (!currentUser || !(await wikiContext.hasPermission('page-edit'))) {
         return await this.renderError(
           req,
           res,
@@ -9828,11 +9833,11 @@ ${panes}
    */
   async userKeywordCreateSubmit(req: Request, res: Response) {
     try {
-      const userManager = this.engine.getManager('UserManager');
-      const currentUser = req.userContext;
+      const wikiContext = this.createWikiContext(req);
+      const currentUser = wikiContext.userContext;
 
       // Check if user can edit
-      if (!currentUser || !(await userManager.hasPermission(currentUser.username, 'page-edit'))) {
+      if (!currentUser || !(await wikiContext.hasPermission('page-edit'))) {
         return res.status(403).json({ success: false, error: 'Access denied' });
       }
 
@@ -9951,11 +9956,11 @@ ${trimmedDescription}
    */
   async userKeywordCreatePage(req: Request, res: Response) {
     try {
-      const userManager = this.engine.getManager('UserManager');
-      const currentUser = req.userContext;
+      const wikiContext = this.createWikiContext(req);
+      const currentUser = wikiContext.userContext;
 
       // Check if user can edit
-      if (!currentUser || !(await userManager.hasPermission(currentUser.username, 'page-edit'))) {
+      if (!currentUser || !(await wikiContext.hasPermission('page-edit'))) {
         return res.status(403).json({ success: false, error: 'Access denied' });
       }
 
@@ -10068,12 +10073,12 @@ ${description}
    */
   async adminKeywords(req: Request, res: Response): Promise<void> {
     try {
-      const userManager = this.engine.getManager('UserManager');
-      const currentUser = req.userContext;
+      const wikiContext = this.createWikiContext(req);
+      const currentUser = wikiContext.userContext;
 
       if (
         !currentUser ||
-        !(await userManager.hasPermission(currentUser.username, 'admin-system'))
+        !(await wikiContext.hasPermission('admin-system'))
       ) {
         res.status(403).send('Access denied');
         return;
@@ -10154,12 +10159,12 @@ ${description}
    */
   async adminCreateKeyword(req: Request, res: Response): Promise<void> {
     try {
-      const userManager = this.engine.getManager('UserManager');
-      const currentUser = req.userContext;
+      const wikiContext = this.createWikiContext(req);
+      const currentUser = wikiContext.userContext;
 
       if (
         !currentUser ||
-        !(await userManager.hasPermission(currentUser.username, 'admin-system'))
+        !(await wikiContext.hasPermission('admin-system'))
       ) {
         res.status(403).json({ error: 'Access denied' });
         return;
@@ -10217,12 +10222,12 @@ ${description}
    */
   async adminKeywordUsage(req: Request, res: Response): Promise<void> {
     try {
-      const userManager = this.engine.getManager('UserManager');
-      const currentUser = req.userContext;
+      const wikiContext = this.createWikiContext(req);
+      const currentUser = wikiContext.userContext;
 
       if (
         !currentUser ||
-        !(await userManager.hasPermission(currentUser.username, 'admin-system'))
+        !(await wikiContext.hasPermission('admin-system'))
       ) {
         res.status(403).json({ error: 'Access denied' });
         return;
@@ -10259,12 +10264,12 @@ ${description}
    */
   async adminUpdateKeyword(req: Request, res: Response): Promise<void> {
     try {
-      const userManager = this.engine.getManager('UserManager');
-      const currentUser = req.userContext;
+      const wikiContext = this.createWikiContext(req);
+      const currentUser = wikiContext.userContext;
 
       if (
         !currentUser ||
-        !(await userManager.hasPermission(currentUser.username, 'admin-system'))
+        !(await wikiContext.hasPermission('admin-system'))
       ) {
         res.status(403).json({ error: 'Access denied' });
         return;
@@ -10312,12 +10317,12 @@ ${description}
    */
   async adminDeleteKeyword(req: Request, res: Response): Promise<void> {
     try {
-      const userManager = this.engine.getManager('UserManager');
-      const currentUser = req.userContext;
+      const wikiContext = this.createWikiContext(req);
+      const currentUser = wikiContext.userContext;
 
       if (
         !currentUser ||
-        !(await userManager.hasPermission(currentUser.username, 'admin-system'))
+        !(await wikiContext.hasPermission('admin-system'))
       ) {
         res.status(403).json({ error: 'Access denied' });
         return;
@@ -10392,12 +10397,12 @@ ${description}
    */
   async adminConsolidateKeywords(req: Request, res: Response): Promise<void> {
     try {
-      const userManager = this.engine.getManager('UserManager');
-      const currentUser = req.userContext;
+      const wikiContext = this.createWikiContext(req);
+      const currentUser = wikiContext.userContext;
 
       if (
         !currentUser ||
-        !(await userManager.hasPermission(currentUser.username, 'admin-system'))
+        !(await wikiContext.hasPermission('admin-system'))
       ) {
         res.status(403).json({ error: 'Access denied' });
         return;
@@ -10877,9 +10882,9 @@ ${description}
    */
   async adminMedia(req: Request, res: Response) {
     try {
-      const userManager = this.engine.getManager('UserManager');
-      const currentUser = req.userContext;
-      if (!currentUser || !(await userManager.hasPermission(currentUser.username, 'admin-system'))) {
+      const wikiContext = this.createWikiContext(req);
+      const currentUser = wikiContext.userContext;
+      if (!currentUser || !(await wikiContext.hasPermission('admin-system'))) {
         return res.status(403).send('Access denied');
       }
       const mediaManager = this.engine.getManager('MediaManager');
@@ -10903,9 +10908,9 @@ ${description}
    */
   async adminMediaRescan(req: Request, res: Response) {
     try {
-      const userManager = this.engine.getManager('UserManager');
-      const currentUser = req.userContext;
-      if (!currentUser || !(await userManager.hasPermission(currentUser.username, 'admin-system'))) {
+      const wikiContext = this.createWikiContext(req);
+      const currentUser = wikiContext.userContext;
+      if (!currentUser || !(await wikiContext.hasPermission('admin-system'))) {
         return res.status(403).json({ error: 'Access denied' });
       }
       const mediaManager = this.engine.getManager('MediaManager');
@@ -10927,9 +10932,9 @@ ${description}
    */
   async adminMediaRebuild(req: Request, res: Response) {
     try {
-      const userManager = this.engine.getManager('UserManager');
-      const currentUser = req.userContext;
-      if (!currentUser || !(await userManager.hasPermission(currentUser.username, 'admin-system'))) {
+      const wikiContext = this.createWikiContext(req);
+      const currentUser = wikiContext.userContext;
+      if (!currentUser || !(await wikiContext.hasPermission('admin-system'))) {
         return res.status(403).json({ error: 'Access denied' });
       }
       const mediaManager = this.engine.getManager('MediaManager');
@@ -10951,9 +10956,9 @@ ${description}
    */
   async apiJobEnqueue(req: Request, res: Response) {
     try {
-      const userManager = this.engine.getManager('UserManager');
-      const currentUser = req.userContext;
-      if (!currentUser || !(await userManager.hasPermission(currentUser.username, 'admin-system'))) {
+      const wikiContext = this.createWikiContext(req);
+      const currentUser = wikiContext.userContext;
+      if (!currentUser || !(await wikiContext.hasPermission('admin-system'))) {
         return res.status(403).json({ error: 'Access denied' });
       }
       const { jobId } = req.params;
@@ -10974,9 +10979,9 @@ ${description}
    */
   async apiJobStatus(req: Request, res: Response) {
     try {
-      const userManager = this.engine.getManager('UserManager');
-      const currentUser = req.userContext;
-      if (!currentUser || !(await userManager.hasPermission(currentUser.username, 'admin-system'))) {
+      const wikiContext = this.createWikiContext(req);
+      const currentUser = wikiContext.userContext;
+      if (!currentUser || !(await wikiContext.hasPermission('admin-system'))) {
         return res.status(403).json({ error: 'Access denied' });
       }
       const { runId } = req.params;
@@ -10996,9 +11001,9 @@ ${description}
    */
   async apiJobsActive(req: Request, res: Response) {
     try {
-      const userManager = this.engine.getManager('UserManager');
-      const currentUser = req.userContext;
-      if (!currentUser || !(await userManager.hasPermission(currentUser.username, 'admin-system'))) {
+      const wikiContext = this.createWikiContext(req);
+      const currentUser = wikiContext.userContext;
+      if (!currentUser || !(await wikiContext.hasPermission('admin-system'))) {
         return res.status(403).json({ error: 'Access denied' });
       }
       const jobManager = this.engine.getManager('BackgroundJobManager');

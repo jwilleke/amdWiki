@@ -6,6 +6,8 @@
  * request/response objects.
  */
 
+import path from 'path';
+import { fileURLToPath } from 'url';
 import type { Request, Response } from 'express';
 import Showdown from 'showdown';
 import logger from '../utils/logger.js';
@@ -18,8 +20,11 @@ import type ACLManager from '../managers/ACLManager.js';
 import type UserManager from '../managers/UserManager.js';
 import type MarkupParser from '../parsers/MarkupParser.js';
 import type { VariableContext } from '../managers/VariableManager.js';
-import type { ThemeInfo } from '../managers/ThemeManager.js';
+import { getThemeManager as getThemeManagerFor, type ThemeInfo } from '../managers/ThemeManager.js';
 import type { PageFrontmatter } from '../types/Page.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 /**
  * Request information extracted from Express request
@@ -239,11 +244,18 @@ class WikiContext {
   /** Reference to ACLManager */
   public readonly aclManager: ACLManager;
 
-  /** Active theme folder name (e.g. 'default', 'flatly') */
-  public readonly activeTheme: string;
-
-  /** Metadata from the active theme's theme.json */
-  public readonly themeInfo: ThemeInfo | null;
+  // Theme is resolved lazily — first read of `activeTheme` or `themeInfo` triggers
+  // ConfigurationManager.getProperty('ngdpbase.theme.active') and ThemeManager
+  // construction (cached engine-wide via getThemeManager). Permission-only callers
+  // never trigger the resolution.
+  /** Override passed via WikiContextOptions; bypasses the lazy resolver */
+  private readonly _activeThemeOverride?: string;
+  /** Override passed via WikiContextOptions; bypasses the lazy resolver */
+  private readonly _themeInfoOverride?: ThemeInfo | null;
+  /** Cached resolved activeTheme — populated on first read of `activeTheme` */
+  private _resolvedActiveTheme?: string;
+  /** Cached resolved themeInfo — populated on first read of `themeInfo` */
+  private _resolvedThemeInfo?: ThemeInfo | null;
 
   /** Page front matter metadata — carries audience/access/user-keywords for ACL evaluation */
   public readonly pageMetadata: PageFrontmatter | null;
@@ -280,8 +292,8 @@ class WikiContext {
     this.userContext = options.userContext || null;
     this.request = options.request || null;
     this.response = options.response || null;
-    this.activeTheme = options.activeTheme || 'default';
-    this.themeInfo = options.themeInfo ?? null;
+    this._activeThemeOverride = options.activeTheme;
+    this._themeInfoOverride = options.themeInfo;
     this.pageMetadata = options.pageMetadata ?? null;
 
     // Ensure essential managers are available on the context
@@ -417,6 +429,40 @@ class WikiContext {
       roles.push(username);
     }
     return roles;
+  }
+
+  /**
+   * Active theme folder name (e.g. 'default', 'flatly').
+   *
+   * Lazy: resolves from ConfigurationManager on first access and caches the
+   * result. Permission-only callers (route handlers that just call hasRole /
+   * hasPermission) never trigger the lookup.
+   */
+  get activeTheme(): string {
+    if (this._activeThemeOverride !== undefined) return this._activeThemeOverride;
+    if (this._resolvedActiveTheme === undefined) {
+      const cm = this.engine.getManager<{ getProperty(k: string, d?: unknown): unknown }>('ConfigurationManager');
+      this._resolvedActiveTheme = (cm?.getProperty('ngdpbase.theme.active', 'default') as string) || 'default';
+    }
+    return this._resolvedActiveTheme;
+  }
+
+  /**
+   * Metadata from the active theme's theme.json.
+   *
+   * Lazy: triggers theme resolution on first access (uses the engine-wide
+   * `getThemeManager` cache). Returns the override if one was passed via
+   * WikiContextOptions.
+   */
+  get themeInfo(): ThemeInfo | null {
+    if (this._themeInfoOverride !== undefined) return this._themeInfoOverride;
+    if (this._resolvedThemeInfo === undefined) {
+      // Reading activeTheme triggers its own lazy resolution
+      const themesDir = path.join(__dirname, '../../../themes');
+      const tm = getThemeManagerFor(this.activeTheme, themesDir);
+      this._resolvedThemeInfo = tm.paths.themeInfo;
+    }
+    return this._resolvedThemeInfo;
   }
 
   /**
