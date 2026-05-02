@@ -9,13 +9,30 @@ import { User, Role, UserPreferences, UserSession } from '../types/User.js';
 import type ConfigurationManager from './ConfigurationManager.js';
 import type PersonManager from './PersonManager.js';
 import type OrganizationManager from './OrganizationManager.js';
+import type RoleManager from './RoleManager.js';
 import type PolicyEvaluator from './PolicyEvaluator.js';
 import type PolicyManager from './PolicyManager.js';
 import type PageManager from './PageManager.js';
 import type TemplateManager from './TemplateManager.js';
 import type ValidationManager from './ValidationManager.js';
 import type { Person, PersonUpdate } from '../types/Person.js';
+import type { Organization } from '../types/Organization.js';
+import type { Role as OrganizationRoleRecord } from '../types/Role.js';
 import type { Request, Response, NextFunction } from 'express';
+
+/**
+ * Catalog entry shape under `ngdpbase.roles.definitions[<name>]`. Snapshot
+ * source for OrganizationRole records (#617 follow-up, iteration 2).
+ */
+interface RoleCatalogEntry {
+  name?: string;
+  displayname?: string;
+  description?: string;
+  issystem?: boolean;
+  icon?: string;
+  color?: string;
+  permissions?: string[];
+}
 
 /**
  * Provider constructor type for dynamic loading
@@ -404,6 +421,7 @@ class UserManager extends BaseManager {
     await this.provider.createUser(adminUser);
 
     await this.syncPersonOnCreate(adminUser);
+    await this.syncRolesDiff(adminUser.username, [], adminUser.roles);
 
     logger.info(`👤 Created default admin user (username: admin, password: ${defaultPassword})`);
   }
@@ -770,6 +788,7 @@ class UserManager extends BaseManager {
     await this.provider.createUser(user);
 
     await this.syncPersonOnCreate(user);
+    await this.syncRolesDiff(username, [], user.roles);
 
     logger.info(`👤 Created user: ${username} (${isExternal ? 'External' : 'Local'})`);
 
@@ -809,10 +828,14 @@ class UserManager extends BaseManager {
       updates.password = this.hashPassword(updates.password);
     }
 
+    const oldRoles = [...(user.roles || [])];
     Object.assign(user, updates);
     await this.provider.updateUser(username, user);
 
     await this.syncPersonOnUpdate(username, updates);
+    if (updates.roles) {
+      await this.syncRolesDiff(username, oldRoles, updates.roles);
+    }
 
     logger.info(`👤 Updated user: ${username}`);
     return user;
@@ -836,6 +859,9 @@ class UserManager extends BaseManager {
 
     await this.provider.deleteUser(username);
 
+    // Order matters: clear role memberships while the Person record still
+    // exists, then delete the Person.
+    await this.syncRolesAllRemovedOnDelete(username);
     await this.syncPersonOnDelete(username);
 
     logger.info(`👤 Deleted user: ${username}`);
@@ -1043,6 +1069,7 @@ class UserManager extends BaseManager {
     if (!user.roles.includes(roleName)) {
       user.roles.push(roleName);
       await this.provider.updateUser(username, user);
+      await this.syncRoleAdd(username, roleName);
       logger.info(`👤 Assigned role '${roleName}' to user '${username}'`);
     }
     return true;
@@ -1060,6 +1087,7 @@ class UserManager extends BaseManager {
     if (roleIndex > -1) {
       user.roles.splice(roleIndex, 1);
       await this.provider.updateUser(username, user);
+      await this.syncRoleRemove(username, roleName);
       logger.info(`👤 Removed role '${roleName}' from user '${username}'`);
     }
     return true;
@@ -1120,6 +1148,140 @@ class UserManager extends BaseManager {
     } catch (error) {
       logger.error(`❌ Failed to delete Person record for ${username}: ${error instanceof Error ? error.message : String(error)}`);
     }
+  }
+
+  /**
+   * Mirror a single role-add into the OrganizationRole record for
+   * (installOrg, roleName). Best-effort: skips silently when PersonManager,
+   * RoleManager, or OrganizationManager are unavailable, when no Person
+   * record exists for `username`, or when the install has no anchor org.
+   * Failures are logged, not thrown — the User write must succeed even if
+   * the Role mirror is degraded. User.roles[] remains the source of truth
+   * until iteration 3 swaps PolicyManager/ACLManager onto RoleManager.
+   */
+  private async syncRoleAdd(username: string, roleName: string): Promise<void> {
+    const roleManager = this.engine.getManager<RoleManager>('RoleManager');
+    const personManager = this.engine.getManager<PersonManager>('PersonManager');
+    if (!roleManager || !personManager) return;
+    try {
+      const person = await personManager.getByIdentifier(username);
+      if (!person) return;
+      const installOrg = await this.engine
+        .getManager<OrganizationManager>('OrganizationManager')
+        ?.getInstallOrg();
+      if (!installOrg) return;
+      const role = await this.getOrCreateRoleRecord(roleManager, installOrg, roleName);
+      if (!role) return;
+      const memberIds = new Set((role.member ?? []).map((m) => m['@id']));
+      if (memberIds.has(person['@id'])) return;
+      const newMembers = [...(role.member ?? []), { '@id': person['@id'] }];
+      await roleManager.update(role['@id'], { member: newMembers });
+      logger.info(`🔑 Mirrored role-add: ${username} → ${roleName}`);
+    } catch (error) {
+      logger.error(`❌ Failed to mirror role-add (${username}, ${roleName}): ${error instanceof Error ? error.message : String(error)}`);
+    }
+  }
+
+  private async syncRoleRemove(username: string, roleName: string): Promise<void> {
+    const roleManager = this.engine.getManager<RoleManager>('RoleManager');
+    const personManager = this.engine.getManager<PersonManager>('PersonManager');
+    if (!roleManager || !personManager) return;
+    try {
+      const person = await personManager.getByIdentifier(username);
+      if (!person) return;
+      const installOrg = await this.engine
+        .getManager<OrganizationManager>('OrganizationManager')
+        ?.getInstallOrg();
+      if (!installOrg) return;
+      const role = await roleManager.getByOrgAndPosition(installOrg['@id'], roleName);
+      if (!role) return;
+      const before = role.member ?? [];
+      const after = before.filter((m) => m['@id'] !== person['@id']);
+      if (after.length === before.length) return;
+      await roleManager.update(role['@id'], { member: after });
+      logger.info(`🔑 Mirrored role-remove: ${username} → ${roleName}`);
+    } catch (error) {
+      logger.error(`❌ Failed to mirror role-remove (${username}, ${roleName}): ${error instanceof Error ? error.message : String(error)}`);
+    }
+  }
+
+  private async syncRolesDiff(username: string, oldRoles: string[], newRoles: string[]): Promise<void> {
+    const oldSet = new Set(oldRoles);
+    const newSet = new Set(newRoles);
+    for (const r of newRoles) {
+      if (!oldSet.has(r)) await this.syncRoleAdd(username, r);
+    }
+    for (const r of oldRoles) {
+      if (!newSet.has(r)) await this.syncRoleRemove(username, r);
+    }
+  }
+
+  private async syncRolesAllRemovedOnDelete(username: string): Promise<void> {
+    const roleManager = this.engine.getManager<RoleManager>('RoleManager');
+    const personManager = this.engine.getManager<PersonManager>('PersonManager');
+    if (!roleManager || !personManager) return;
+    try {
+      const person = await personManager.getByIdentifier(username);
+      if (!person) return;
+      const memberOf = await roleManager.listByMember(person['@id']);
+      for (const role of memberOf) {
+        const after = (role.member ?? []).filter((m) => m['@id'] !== person['@id']);
+        await roleManager.update(role['@id'], { member: after });
+      }
+    } catch (error) {
+      logger.error(`❌ Failed to clean up role memberships for deleted user ${username}: ${error instanceof Error ? error.message : String(error)}`);
+    }
+  }
+
+  /**
+   * Look up the OrganizationRole record for (installOrg, namedPosition); if
+   * absent, create a fresh record snapshotted from the role catalog at
+   * `ngdpbase.roles.definitions[namedPosition]`. The catalog snapshot is a
+   * best-effort copy at create time — later catalog edits do not retroactively
+   * rewrite existing role files (per Role.ts docstring).
+   */
+  private async getOrCreateRoleRecord(
+    roleManager: RoleManager,
+    installOrg: Organization,
+    namedPosition: string
+  ): Promise<OrganizationRoleRecord | null> {
+    const existing = await roleManager.getByOrgAndPosition(installOrg['@id'], namedPosition);
+    if (existing) return existing;
+
+    const orgUrl = installOrg.url || installOrg['@id'];
+    const base = orgUrl.endsWith('/') ? orgUrl : `${orgUrl}/`;
+    const id = `${base}roles/${namedPosition}#role`;
+
+    const configManager = this.engine.getManager<ConfigurationManager>('ConfigurationManager');
+    const definitions = (configManager?.getProperty(
+      'ngdpbase.roles.definitions',
+      {}
+    ) ?? {}) as Record<string, RoleCatalogEntry>;
+    const def = definitions[namedPosition] ?? {};
+
+    const snapshot: Partial<OrganizationRoleRecord> = {};
+    const label = def.displayname ?? def.name;
+    if (label) snapshot.roleName = label;
+    if (def.description) snapshot.description = def.description;
+    if (def.issystem !== undefined) snapshot.issystem = def.issystem;
+    if (def.icon) snapshot.icon = def.icon;
+    if (def.color) snapshot.color = def.color;
+    if (def.permissions) {
+      snapshot.additionalProperty = [
+        { '@type': 'PropertyValue', name: 'permissions', value: def.permissions }
+      ];
+    }
+
+    const role: OrganizationRoleRecord = {
+      '@context': 'https://schema.org',
+      '@type': 'OrganizationRole',
+      '@id': id,
+      namedPosition,
+      organization: { '@id': installOrg['@id'] },
+      member: [],
+      ...snapshot
+    };
+    return roleManager.create(role);
   }
 
   async createSession(username: string, additionalData: Record<string, unknown> = {}): Promise<string> {
