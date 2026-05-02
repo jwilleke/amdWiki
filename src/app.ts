@@ -281,9 +281,10 @@ void (async (): Promise<void> => {
   const debugRequests = configManager.getProperty('ngdpbase.logging.debug.requests', false);
 
   const userManager = engine.getManager('UserManager') as {
-    getUser(username: string): Promise<{ isActive?: boolean; roles?: string[]; [key: string]: unknown } | null>;
+    getUser(username: string): Promise<{ isActive?: boolean; roles?: string[]; username?: string; [key: string]: unknown } | null>;
     getAnonymousUser(): NonNullable<Request['userContext']>;
     isAdminUsingDefaultPassword(): Promise<boolean>;
+    resolveUserRoles(username: string): Promise<string[]>;
   };
 
   app.use((req: Request, _res: Response, next: NextFunction): void => {
@@ -301,7 +302,11 @@ void (async (): Promise<void> => {
       if (req.session?.username && req.session.isAuthenticated) {
         const user = await userManager.getUser(req.session.username);
         if (user?.isActive) {
-          const roles = new Set(user.roles ?? []);
+          // #617 iteration 3a: source base roles from RoleManager (canonical
+          // OrganizationRole records). Falls back to User.roles[] when no
+          // RoleManager records exist. See UserManager.resolveUserRoles.
+          const baseRoles = await userManager.resolveUserRoles(req.session.username);
+          const roles = new Set(baseRoles);
           roles.add('Authenticated');
           roles.add('All');
 

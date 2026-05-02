@@ -547,9 +547,10 @@ class UserManager extends BaseManager {
       if (!user || !user.isActive) {
         return false;
       }
+      const baseRoles = await this.resolveUserRoles(username);
       userContext = {
         username: user.username,
-        roles: [...(user.roles || []), 'Authenticated', 'All'],
+        roles: [...baseRoles, 'Authenticated', 'All'],
         isAuthenticated: true
       };
     }
@@ -598,8 +599,9 @@ class UserManager extends BaseManager {
       return [];
     }
 
-    // Get all user's roles (including Authenticated, All)
-    const userRoles = [...(user.roles || []), 'Authenticated', 'All'];
+    // Get all user's roles (including Authenticated, All) via RoleManager
+    const baseRoles = await this.resolveUserRoles(username);
+    const userRoles = [...baseRoles, 'Authenticated', 'All'];
     return this.getPermissionsFromPolicies(policyManager, userRoles);
   }
 
@@ -1148,6 +1150,57 @@ class UserManager extends BaseManager {
     } catch (error) {
       logger.error(`❌ Failed to delete Person record for ${username}: ${error instanceof Error ? error.message : String(error)}`);
     }
+  }
+
+  /**
+   * Resolve a user's effective base role names from the canonical
+   * OrganizationRole records owned by RoleManager (#617 follow-up,
+   * iteration 3a — read-side swap).
+   *
+   * Returns the array of `namedPosition` strings for every role whose
+   * `member[]` contains the user's Person `@id`. The pseudo-roles
+   * `'Authenticated'` and `'All'` are NOT added here — the caller adds
+   * those when constructing `userContext.roles` (matches the existing
+   * convention in `src/app.ts` and `hasPermission`/`getUserPermissions`).
+   *
+   * Falls back to `user.roles[]` from the User record when:
+   *   - PersonManager / RoleManager are unavailable (degraded init), or
+   *   - the user has no paired Person record yet (legacy / external user
+   *     pre-dating the iteration-1 sync wiring), or
+   *   - RoleManager.listByMember returns no roles even though the user
+   *     has roles on their User record (mirror drift from iteration 2's
+   *     soft-fail semantics).
+   *
+   * The fallback keeps auth working during the soak period; iteration 3b
+   * removes both the fallback and `user.roles[]` when RoleManager is the
+   * only store.
+   */
+  async resolveUserRoles(username: string): Promise<string[]> {
+    if (!this.provider) return [];
+    const personManager = this.engine.getManager<PersonManager>('PersonManager');
+    const roleManager = this.engine.getManager<RoleManager>('RoleManager');
+
+    const userPromise = this.provider.getUser(username);
+
+    if (personManager && roleManager) {
+      try {
+        const person = await personManager.getByIdentifier(username);
+        if (person) {
+          const roles = await roleManager.listByMember(person['@id']);
+          if (roles.length > 0) {
+            return roles.map((r) => r.namedPosition);
+          }
+        }
+      } catch (error) {
+        logger.warn(
+          `[UserManager.resolveUserRoles] RoleManager lookup failed for ${username}; ` +
+          `falling back to User.roles[]: ${error instanceof Error ? error.message : String(error)}`
+        );
+      }
+    }
+
+    const user = await userPromise;
+    return [...(user?.roles ?? [])];
   }
 
   /**
