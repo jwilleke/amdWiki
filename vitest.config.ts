@@ -54,16 +54,21 @@ export default defineConfig({
       '**/dist/**',
       'tests/e2e/**'
     ],
-    // Bumped from 20000 → 30000 to absorb cold-start parallel-pool
-    // contention (#622). On the first vitest run after a quiet period,
-    // 193 test files spinning up workers in parallel can delay individual
-    // supertest requests past 20s — observed deterministically on the
-    // first run, never on warm re-runs. The underlying cause is module-
-    // load + worker-startup overhead, not a real per-test slowdown
-    // (every affected test passes in <10ms when run in isolation).
-    // Track #622 for the deeper investigation; this is the band-aid that
-    // restores deterministic CI signal in the meantime.
+    // #622: 30s ceiling absorbs cold-start parallel-pool variance. The
+    // flake is a real cold-start race — experiments with `pool: 'threads'`
+    // and `maxWorkers: 2/4/6` all still reproduced it occasionally. Pool
+    // config doesn't deterministically fix it; only this timeout does.
     testTimeout: 30000,
+    // #622 perf tuning: on a 14-core machine vitest's default of 7 workers
+    // (half-cpus) over-provisions and inflates per-component overhead
+    // (transform / import / setup). Capping at 4 cuts those phases by ~3x
+    // (transform 6s → 2s, import 14s → 6s) at the cost of slightly slower
+    // total wallclock when fully warm. Auto-clamps on smaller CI runners.
+    // See docs/performance/issue-622-vitest-pool-tuning.md for the full
+    // experiment data.
+    pool: 'forks',
+    maxWorkers: 4,
+    minWorkers: 1,
     coverage: {
       provider: 'v8',
       include: ['src/**/*.ts'],
