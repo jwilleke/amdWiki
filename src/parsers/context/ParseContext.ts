@@ -260,12 +260,34 @@ class ParseContext {
   }
 
   /**
-   * Check if user has specific role
-   * @param role - Role to check
-   * @returns True if user has role
+   * Check if user carries any of the given roles.
+   *
+   * Pure roles-array check. Backward-compatible with the single-arg form
+   * (`hasRole('admin')`) and supports rest-args for multi-role checks
+   * (`hasRole('admin', 'editor')`) — matches the shape of `WikiContext.hasRole`.
+   *
+   * @param names - Role names (matches if user has at least one)
+   * @returns True if user has any of the given roles
    */
-  hasRole(role: string): boolean {
-    return this.getUserRoles().includes(role);
+  hasRole(...names: string[]): boolean {
+    if (names.length === 0) return false;
+    const have = new Set(this.getUserRoles());
+    return names.some((n) => have.has(n));
+  }
+
+  /**
+   * Returns the user's principals — the set of identifiers that match
+   * audience-style filters. Mirrors `WikiContext.getPrincipals()`.
+   *
+   * @returns Principals: [...roles, username] (username appended only if set)
+   */
+  getPrincipals(): string[] {
+    const roles = [...this.getUserRoles()];
+    const username = this.userContext?.username ?? this.userContext?.userName;
+    if (typeof username === 'string' && username.length > 0 && username !== 'anonymous') {
+      roles.push(username);
+    }
+    return roles;
   }
 
   /**

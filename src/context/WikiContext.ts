@@ -15,6 +15,7 @@ import type RenderingManager from '../managers/RenderingManager.js';
 import type PluginManager from '../managers/PluginManager.js';
 import type VariableManager from '../managers/VariableManager.js';
 import type ACLManager from '../managers/ACLManager.js';
+import type UserManager from '../managers/UserManager.js';
 import type MarkupParser from '../parsers/MarkupParser.js';
 import type { VariableContext } from '../managers/VariableManager.js';
 import type { ThemeInfo } from '../managers/ThemeManager.js';
@@ -305,6 +306,117 @@ class WikiContext {
    */
   getContext(): string {
     return this.context;
+  }
+
+  /**
+   * Returns true if the current user carries any of the given roles.
+   *
+   * Pure roles-array check; does not consult PolicyEvaluator. For policy-backed
+   * permission checks, use {@link hasPermission} or {@link canAccess}.
+   *
+   * @param {...string} names - Role names to check (matches if user has at least one)
+   * @returns {boolean} true if userContext.roles contains any of the given names
+   *
+   * @example
+   * if (wikiContext.hasRole('admin', 'editor')) { ... }
+   */
+  hasRole(...names: string[]): boolean {
+    return WikiContext.userHasRole(this.userContext, ...names);
+  }
+
+  /**
+   * Static role check for callers that don't have a full WikiContext.
+   *
+   * Useful for hot-path middleware (maintenance gate, /metrics) that runs on
+   * every request and shouldn't pay the cost of constructing a WikiContext just
+   * to ask "is this user an admin?". Same semantics as the instance `hasRole`.
+   *
+   * @param userContext - userContext-like object (or null/undefined)
+   * @param names - Role names (matches if user has at least one)
+   * @returns true if userContext.roles contains any of the given names
+   *
+   * @example
+   * if (WikiContext.userHasRole(req.userContext, 'admin')) { ... }
+   */
+  static userHasRole(
+    userContext: { roles?: string[] } | null | undefined,
+    ...names: string[]
+  ): boolean {
+    const roles = userContext?.roles;
+    if (!Array.isArray(roles) || roles.length === 0 || names.length === 0) {
+      return false;
+    }
+    const have = new Set(roles);
+    return names.some((n) => have.has(n));
+  }
+
+  /**
+   * Returns true if the current user is globally allowed to perform the given action.
+   *
+   * Delegates to {@link UserManager.hasPermission}, which evaluates through
+   * PolicyEvaluator with role expansion (anonymous → 'All'; authenticated →
+   * 'Authenticated' + 'All'). This is the canonical action-permission path.
+   *
+   * For page-resource-aware checks, use {@link canAccess} instead.
+   *
+   * @param {string} action - Permission action (e.g., 'admin-system', 'user-edit')
+   * @returns {Promise<boolean>} true if the user has the permission
+   *
+   * @example
+   * if (await wikiContext.hasPermission('admin-system')) { ... }
+   */
+  async hasPermission(action: string): Promise<boolean> {
+    const userManager = this.engine.getManager<UserManager>('UserManager');
+    if (!userManager) return false;
+    return userManager.hasPermission(this.userContext?.username ?? '', action);
+  }
+
+  /**
+   * Returns true if the current user is allowed to perform the given action
+   * on the current page.
+   *
+   * Delegates to {@link ACLManager.checkPagePermissionWithContext}, which runs
+   * the three-tier evaluator (private user-keyword → frontmatter audience →
+   * global policies).
+   *
+   * Returns false if the WikiContext has no pageName or no ACLManager.
+   *
+   * @param {string} action - Page action (e.g., 'view', 'edit', 'delete')
+   * @returns {Promise<boolean>} true if access is allowed for this user on this page
+   *
+   * @example
+   * if (await wikiContext.canAccess('edit')) { ... }
+   */
+  async canAccess(action: string): Promise<boolean> {
+    if (!this.aclManager || !this.pageName) return false;
+    // ACLManager has a local minimal WikiContext interface that types pageName
+    // as `string`; the runtime guard above ensures pageName is non-null here.
+    return this.aclManager.checkPagePermissionWithContext(
+      this as unknown as Parameters<ACLManager['checkPagePermissionWithContext']>[0],
+      action
+    );
+  }
+
+  /**
+   * Returns the user's principals — the set of identifiers that match
+   * audience-style filters (e.g., search-index private-page filters).
+   *
+   * Includes all roles, plus the username if present. Used by search providers
+   * to filter results without invoking the full ACL evaluator per-result.
+   *
+   * @returns {string[]} Principals: [...roles, username] (username appended only if set)
+   *
+   * @example
+   * const principals = wikiContext.getPrincipals();
+   * if (principals.some((p) => audience.includes(p))) { ... }
+   */
+  getPrincipals(): string[] {
+    const roles = Array.isArray(this.userContext?.roles) ? [...this.userContext.roles] : [];
+    const username = this.userContext?.username;
+    if (typeof username === 'string' && username.length > 0) {
+      roles.push(username);
+    }
+    return roles;
   }
 
   /**

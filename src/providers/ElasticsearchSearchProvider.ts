@@ -678,11 +678,7 @@ class ElasticsearchSearchProvider extends BaseSearchProvider {
     isPrivate: boolean;
     audience: string[];
   } {
-    const userRoles = wikiContext?.userContext?.roles;
-    const username = wikiContext?.userContext?.username;
-    const principals: string[] = [];
-    if (Array.isArray(userRoles)) principals.push(...userRoles);
-    if (typeof username === 'string' && username) principals.push(username);
+    const principals = wikiContext?.getPrincipals?.() ?? [];
     return { isPrivate: principals.length > 0, audience: principals };
   }
 

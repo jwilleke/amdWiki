@@ -16,6 +16,7 @@
  */
 
 import type { SimplePlugin, PluginContext, PluginParams } from './types.js';
+import WikiContext from '../context/WikiContext.js';
 import type FootnoteManager from '../managers/FootnoteManager.js';
 import type { PageFootnote } from '../managers/FootnoteManager.js';
 import { parseBoolParam, escapeHtml } from '../utils/pluginFormatters.js';
@@ -146,10 +147,8 @@ export async function renderFootnoteListHtml(
   userContext: { isAuthenticated?: boolean; username?: string; roles?: string[] } | undefined
 ): Promise<string> {
   const isAuthenticated = userContext?.isAuthenticated === true;
-  const isEditor = isAuthenticated && (
-    (userContext?.roles ?? []).some(r => ['editor', 'contributor', 'admin'].includes(r))
-  );
-  const isAdmin = (userContext?.roles ?? []).includes('admin');
+  const isEditor = isAuthenticated && WikiContext.userHasRole(userContext, 'editor', 'contributor', 'admin');
+  const isAdmin = WikiContext.userHasRole(userContext, 'admin');
 
   const footnotes: PageFootnote[] = await footnoteManager.getFootnotes(pageUuid);
 
@@ -270,9 +269,7 @@ const FootnotesPlugin: SimplePlugin = {
       roles?: string[];
     } | undefined;
     const isAuthenticated = userContext?.isAuthenticated === true;
-    const isEditor = isAuthenticated && (
-      (userContext?.roles ?? []).some(r => ['editor', 'contributor', 'admin'].includes(r))
-    );
+    const isEditor = isAuthenticated && WikiContext.userHasRole(userContext, 'editor', 'contributor', 'admin');
     // isAdmin is computed inside renderFootnoteListHtml() per row; not needed here.
 
     const parts: string[] = ['<section class="page-footnotes">'];

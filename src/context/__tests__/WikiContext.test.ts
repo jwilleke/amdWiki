@@ -186,4 +186,221 @@ describe('WikiContext', () => {
       expect(WikiContext.CONTEXT.NONE).toBe('none');
     });
   });
+
+  describe('userHasRole (static)', () => {
+    test('returns true when userContext has the role', () => {
+      expect(WikiContext.userHasRole({ roles: ['admin'] }, 'admin')).toBe(true);
+    });
+
+    test('multi-arg form matches if user has any role', () => {
+      expect(WikiContext.userHasRole({ roles: ['editor'] }, 'admin', 'editor')).toBe(true);
+    });
+
+    test('returns false when userContext is null/undefined', () => {
+      expect(WikiContext.userHasRole(null, 'admin')).toBe(false);
+      expect(WikiContext.userHasRole(undefined, 'admin')).toBe(false);
+    });
+
+    test('returns false when roles array is missing or empty', () => {
+      expect(WikiContext.userHasRole({}, 'admin')).toBe(false);
+      expect(WikiContext.userHasRole({ roles: [] }, 'admin')).toBe(false);
+    });
+
+    test('returns false when called with no role names', () => {
+      expect(WikiContext.userHasRole({ roles: ['admin'] })).toBe(false);
+    });
+
+    test('instance hasRole delegates to static implementation', () => {
+      const ctx = new WikiContext(mockEngine as unknown as WikiEngine, {
+        userContext: { roles: ['editor'] }
+      });
+      expect(ctx.hasRole('editor')).toBe(WikiContext.userHasRole(ctx.userContext, 'editor'));
+    });
+  });
+
+  describe('hasRole', () => {
+    test('returns true when user carries one of the given roles', () => {
+      const ctx = new WikiContext(mockEngine as unknown as WikiEngine, {
+        userContext: { roles: ['editor', 'reader'] }
+      });
+      expect(ctx.hasRole('admin', 'editor')).toBe(true);
+    });
+
+    test('returns true for single-arg role match', () => {
+      const ctx = new WikiContext(mockEngine as unknown as WikiEngine, {
+        userContext: { roles: ['admin'] }
+      });
+      expect(ctx.hasRole('admin')).toBe(true);
+    });
+
+    test('returns false when user has none of the given roles', () => {
+      const ctx = new WikiContext(mockEngine as unknown as WikiEngine, {
+        userContext: { roles: ['reader'] }
+      });
+      expect(ctx.hasRole('admin', 'editor')).toBe(false);
+    });
+
+    test('returns false when userContext is null', () => {
+      const ctx = new WikiContext(mockEngine as unknown as WikiEngine);
+      expect(ctx.hasRole('admin')).toBe(false);
+    });
+
+    test('returns false when roles is missing or empty', () => {
+      const noRoles = new WikiContext(mockEngine as unknown as WikiEngine, {
+        userContext: { username: 'alice' }
+      });
+      const emptyRoles = new WikiContext(mockEngine as unknown as WikiEngine, {
+        userContext: { roles: [] }
+      });
+      expect(noRoles.hasRole('admin')).toBe(false);
+      expect(emptyRoles.hasRole('admin')).toBe(false);
+    });
+
+    test('returns false when called with no role names', () => {
+      const ctx = new WikiContext(mockEngine as unknown as WikiEngine, {
+        userContext: { roles: ['admin'] }
+      });
+      expect(ctx.hasRole()).toBe(false);
+    });
+  });
+
+  describe('hasPermission', () => {
+    test('delegates to UserManager.hasPermission with the user\'s username', async () => {
+      const userManagerMock = {
+        hasPermission: vi.fn().mockResolvedValue(true)
+      };
+      const engineWithUser = {
+        getManager: vi.fn((name) => {
+          if (name === 'UserManager') return userManagerMock;
+          return mockEngine.getManager(name);
+        })
+      };
+      const ctx = new WikiContext(engineWithUser as unknown as WikiEngine, {
+        userContext: { username: 'alice', roles: ['editor'] }
+      });
+
+      const result = await ctx.hasPermission('admin-system');
+
+      expect(userManagerMock.hasPermission).toHaveBeenCalledWith('alice', 'admin-system');
+      expect(result).toBe(true);
+    });
+
+    test('passes empty string username when userContext is null', async () => {
+      const userManagerMock = {
+        hasPermission: vi.fn().mockResolvedValue(false)
+      };
+      const engineWithUser = {
+        getManager: vi.fn((name) => {
+          if (name === 'UserManager') return userManagerMock;
+          return mockEngine.getManager(name);
+        })
+      };
+      const ctx = new WikiContext(engineWithUser as unknown as WikiEngine);
+
+      const result = await ctx.hasPermission('admin-system');
+
+      expect(userManagerMock.hasPermission).toHaveBeenCalledWith('', 'admin-system');
+      expect(result).toBe(false);
+    });
+
+    test('returns false when UserManager is not available', async () => {
+      const ctx = new WikiContext(mockEngine as unknown as WikiEngine, {
+        userContext: { username: 'alice', roles: ['admin'] }
+      });
+      // mockEngine returns null for UserManager
+      const result = await ctx.hasPermission('admin-system');
+      expect(result).toBe(false);
+    });
+  });
+
+  describe('canAccess', () => {
+    test('delegates to ACLManager.checkPagePermissionWithContext', async () => {
+      const aclManagerMock = {
+        checkPagePermissionWithContext: vi.fn().mockResolvedValue(true)
+      };
+      const engineWithAcl = {
+        getManager: vi.fn((name) => {
+          if (name === 'ACLManager') return aclManagerMock;
+          return mockEngine.getManager(name);
+        })
+      };
+      const ctx = new WikiContext(engineWithAcl as unknown as WikiEngine, {
+        pageName: 'Main',
+        userContext: { username: 'alice', roles: ['editor'] }
+      });
+
+      const result = await ctx.canAccess('edit');
+
+      expect(aclManagerMock.checkPagePermissionWithContext).toHaveBeenCalledWith(ctx, 'edit');
+      expect(result).toBe(true);
+    });
+
+    test('returns false when pageName is null', async () => {
+      const aclManagerMock = {
+        checkPagePermissionWithContext: vi.fn().mockResolvedValue(true)
+      };
+      const engineWithAcl = {
+        getManager: vi.fn((name) => {
+          if (name === 'ACLManager') return aclManagerMock;
+          return mockEngine.getManager(name);
+        })
+      };
+      const ctx = new WikiContext(engineWithAcl as unknown as WikiEngine, {
+        userContext: { username: 'alice', roles: ['admin'] }
+      });
+
+      const result = await ctx.canAccess('edit');
+
+      expect(aclManagerMock.checkPagePermissionWithContext).not.toHaveBeenCalled();
+      expect(result).toBe(false);
+    });
+
+    test('returns false when ACLManager is not available', async () => {
+      // mockEngine returns null for ACLManager
+      const ctx = new WikiContext(mockEngine as unknown as WikiEngine, {
+        pageName: 'Main',
+        userContext: { username: 'alice', roles: ['admin'] }
+      });
+      const result = await ctx.canAccess('edit');
+      expect(result).toBe(false);
+    });
+  });
+
+  describe('getPrincipals', () => {
+    test('returns roles plus username for authenticated user', () => {
+      const ctx = new WikiContext(mockEngine as unknown as WikiEngine, {
+        userContext: { username: 'alice', roles: ['editor', 'reader'] }
+      });
+      expect(ctx.getPrincipals()).toEqual(['editor', 'reader', 'alice']);
+    });
+
+    test('returns roles only when no username present', () => {
+      const ctx = new WikiContext(mockEngine as unknown as WikiEngine, {
+        userContext: { roles: ['anonymous'] }
+      });
+      expect(ctx.getPrincipals()).toEqual(['anonymous']);
+    });
+
+    test('returns empty array when userContext is null', () => {
+      const ctx = new WikiContext(mockEngine as unknown as WikiEngine);
+      expect(ctx.getPrincipals()).toEqual([]);
+    });
+
+    test('returns just username when roles is missing', () => {
+      const ctx = new WikiContext(mockEngine as unknown as WikiEngine, {
+        userContext: { username: 'alice' }
+      });
+      expect(ctx.getPrincipals()).toEqual(['alice']);
+    });
+
+    test('returned array is a copy — does not alias userContext.roles', () => {
+      const roles = ['editor'];
+      const ctx = new WikiContext(mockEngine as unknown as WikiEngine, {
+        userContext: { username: 'alice', roles }
+      });
+      const principals = ctx.getPrincipals();
+      principals.push('mutated');
+      expect(roles).toEqual(['editor']);
+    });
+  });
 });

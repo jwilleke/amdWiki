@@ -33,6 +33,7 @@
  */
 
 import type { PluginContext, PluginParams, SimplePlugin } from './types.js';
+import WikiContext from '../context/WikiContext.js';
 import {
   escapeHtml,
   parsePageSizeParam,
@@ -1711,7 +1712,7 @@ const ConfigAccessorPlugin: SimplePlugin = {
         return displayPolicies(configManager);
 
       case 'authmethods': {
-        const isAdmin = ((context as ExtendedPluginContext).userContext?.roles ?? []).includes('admin');
+        const isAdmin = WikiContext.userHasRole((context as ExtendedPluginContext).userContext, 'admin');
         return displayAuthMethods(configManager, isAdmin);
       }
 

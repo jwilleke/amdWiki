@@ -126,7 +126,15 @@ function createRes() {
  * - renderError → calls res.status(code).render('error', { code }) directly
  */
 function installSpies(wikiRoutes, userContext) {
-  vi.spyOn(wikiRoutes, 'createWikiContext').mockReturnValue({ userContext });
+  // #625 — the stub must mirror the four methods route handlers now call.
+  const roles = userContext?.roles ?? [];
+  vi.spyOn(wikiRoutes, 'createWikiContext').mockReturnValue({
+    userContext,
+    hasRole: (...names: string[]) => names.some(n => roles.includes(n)),
+    hasPermission: async () => true,
+    canAccess: async () => true,
+    getPrincipals: () => (userContext?.username ? [...roles, userContext.username] : [...roles])
+  });
   vi.spyOn(wikiRoutes, 'checkPrivatePageAccess').mockResolvedValue(true);
   vi.spyOn(wikiRoutes, 'isRequiredPage').mockResolvedValue(false);
   vi.spyOn(wikiRoutes, 'renderError').mockImplementation(

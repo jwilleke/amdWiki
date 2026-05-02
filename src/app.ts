@@ -18,6 +18,7 @@ import logger from './utils/logger.js';
 import WikiEngine from './WikiEngine.js';
 import type { WikiEngine as IWikiEngine } from './types/WikiEngine.js';
 import WikiRoutes from './routes/WikiRoutes.js';
+import WikiContext from './context/WikiContext.js';
 import InstallRoutes from './routes/InstallRoutes.js';
 import InstallService from './services/InstallService.js';
 import { ThemeManager } from './managers/ThemeManager.js';
@@ -375,7 +376,8 @@ void (async (): Promise<void> => {
     }
 
     const allowAdmins = maintenanceCfg.allowAdmins !== false;
-    if (allowAdmins && req.userContext?.roles?.includes('admin')) {
+    const isAdmin = WikiContext.userHasRole(req.userContext, 'admin');
+    if (allowAdmins && isAdmin) {
       next(); return;
     }
 
@@ -384,7 +386,7 @@ void (async (): Promise<void> => {
       estimatedDuration: maintenanceCfg.estimatedDuration ?? null,
       notifications: [],
       allowAdmins,
-      isAdmin: req.userContext?.roles?.includes('admin') ?? false
+      isAdmin
     });
   });
 
@@ -406,7 +408,7 @@ void (async (): Promise<void> => {
   // Distinction: `/metrics` is always the Prometheus endpoint.
   //              The wiki Metrics page lives at `/view/Metrics` — a completely separate URL.
   app.get('/metrics', async (req: Request, res: Response): Promise<void> => {
-    const isAdmin = req.userContext?.roles?.includes('admin');
+    const isAdmin = WikiContext.userHasRole(req.userContext, 'admin');
     const ip = req.ip ?? '';
     const isLocalhost = ip === '127.0.0.1' || ip === '::1' || ip === '::ffff:127.0.0.1';
     // Prometheus sends Accept headers that don't include text/html

@@ -52,7 +52,11 @@ export interface SearchResult {
 
 /**
  * Minimal WikiContext shape needed by search providers to filter private results.
- * The full WikiContext lives in src/context/WikiContext.ts (JavaScript).
+ * The full WikiContext lives in src/context/WikiContext.ts.
+ *
+ * Optional method declarations match the real WikiContext API (#625) so providers
+ * can call `wikiContext.hasRole(...)` / `getPrincipals()` directly. Optional so
+ * non-WikiContext duck-typed callers (older tests, fixtures) still satisfy the type.
  */
 export interface SearchWikiContext {
   userContext?: {
@@ -61,6 +65,8 @@ export interface SearchWikiContext {
     authenticated?: boolean;
     [key: string]: unknown;
   };
+  hasRole?(...names: string[]): boolean;
+  getPrincipals?(): string[];
   [key: string]: unknown;
 }
 

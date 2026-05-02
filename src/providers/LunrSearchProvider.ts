@@ -387,7 +387,7 @@ class LunrSearchProvider extends BaseSearchProvider {
 
       // Extract user context for private-page filtering
       const wikiContext = options.wikiContext;
-      const userRoles = wikiContext?.userContext?.roles;
+      const isAdmin = wikiContext?.hasRole?.('admin') ?? false;
       const username = wikiContext?.userContext?.username;
 
       const searchResults = results
@@ -397,7 +397,6 @@ class LunrSearchProvider extends BaseSearchProvider {
 
           // Filter out private pages the current user cannot access
           if (doc.isPrivate) {
-            const isAdmin = Array.isArray(userRoles) && userRoles.includes('admin');
             const isCreator = username !== undefined && username === doc.creator;
             if (!isAdmin && !isCreator) return null;
           }

@@ -37,14 +37,49 @@ const DEFAULT_THEME_INFO: ThemeInfo = {
   author: 'ngdpbase'
 };
 
+// Single-entry cache for ThemeManager instances. The active theme is a
+// config-derived value that almost never changes; the constructor does fs I/O
+// (reads theme.json, checks asset paths) on every call. Caching by name avoids
+// repeating that work on every request. Invalidates implicitly: a different
+// activeTheme name produces a cache miss and rebuilds.
+let cachedThemeManager: ThemeManager | null = null;
+
+/**
+ * Returns a cached ThemeManager for the given active theme + themes directory.
+ *
+ * Use this everywhere instead of `new ThemeManager(...)` unless you specifically
+ * need a fresh instance (e.g. tests). The cache is keyed by `${themesDir}::${activeTheme}`
+ * so cache hits only when both match. Misses produce a new instance and replace
+ * the cached one.
+ */
+export function getThemeManager(activeTheme: string, themesDir: string): ThemeManager {
+  // Normalise here so callers using empty/non-string activeTheme don't produce
+  // a separate cache entry from callers passing 'default' explicitly.
+  const normalised = (typeof activeTheme === 'string' && activeTheme) ? activeTheme : 'default';
+  const key = `${themesDir}::${normalised}`;
+  if (cachedThemeManager && cachedThemeManager.cacheKey === key) {
+    return cachedThemeManager;
+  }
+  cachedThemeManager = new ThemeManager(normalised, themesDir);
+  return cachedThemeManager;
+}
+
+/** Test/admin helper — drop the cache so the next getThemeManager() rebuilds. */
+export function clearThemeManagerCache(): void {
+  cachedThemeManager = null;
+}
+
 export class ThemeManager {
   private themesDir: string;
   private activeTheme: string;
   private _paths: ThemePaths;
+  /** Cache key — `${themesDir}::${activeTheme}` — used by getThemeManager. */
+  readonly cacheKey: string;
 
   constructor(activeTheme: string, themesDir: string) {
     this.themesDir = themesDir;
     this.activeTheme = (typeof activeTheme === 'string' && activeTheme) ? activeTheme : 'default';
+    this.cacheKey = `${this.themesDir}::${this.activeTheme}`;
     this._paths = this.buildPaths();
   }
 

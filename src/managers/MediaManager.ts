@@ -418,11 +418,10 @@ class MediaManager extends BaseManager {
       const entry = pageIndex.pages[pageMetadata.uuid];
       if (!entry || entry.location !== 'private') return true;
 
-      const userContext = wikiContext.userContext as { username?: string; roles?: string[] } | null | undefined;
-      if (!userContext?.username) return false;
-      if (Array.isArray(userContext.roles) && userContext.roles.includes('admin')) return true;
-      if (userContext.username === entry.creator) return true;
-      return false;
+      const username = wikiContext.userContext?.username;
+      if (!username) return false;
+      if (wikiContext.hasRole('admin')) return true;
+      return username === entry.creator;
     } catch {
       return true; // conservative: allow if check fails
     }

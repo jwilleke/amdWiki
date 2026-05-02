@@ -37,17 +37,27 @@ let mockUserContext: {
 
 vi.mock('../../context/WikiContext', () => {
   const MockWikiContext = vi.fn().mockImplementation(function (engine: unknown, options: Record<string, unknown> = {}) {
+    const userContext = (options.userContext as { roles?: string[]; username?: string } | null | undefined) || mockUserContext;
     return {
       engine,
       context: options.context || 'none',
       pageName: options.pageName || null,
       content: options.content || null,
-      userContext: options.userContext || mockUserContext,
+      userContext,
       request: options.request || null,
       response: options.response || null,
       getContext: vi.fn().mockReturnValue(options.context || 'none'),
       renderMarkdown: vi.fn().mockResolvedValue('<p>Rendered</p>'),
-      toParseOptions: vi.fn().mockReturnValue({ pageContext: { pageName: options.pageName, userContext: options.userContext || mockUserContext }, engine })
+      toParseOptions: vi.fn().mockReturnValue({ pageContext: { pageName: options.pageName, userContext: userContext }, engine }),
+      // #625 — mirror the four methods on the real WikiContext so route handlers
+      // that call them on a mocked context don't throw "X is not a function".
+      hasRole: vi.fn((...names: string[]) => names.some(n => (userContext?.roles ?? []).includes(n))),
+      hasPermission: vi.fn().mockResolvedValue(true),
+      canAccess: vi.fn().mockResolvedValue(true),
+      getPrincipals: vi.fn(() => {
+        const roles = userContext?.roles ?? [];
+        return userContext?.username ? [...roles, userContext.username] : [...roles];
+      })
     };
   });
   (MockWikiContext as unknown as { CONTEXT: Record<string, string> }).CONTEXT = {

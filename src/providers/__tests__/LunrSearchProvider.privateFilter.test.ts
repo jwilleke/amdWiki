@@ -132,11 +132,17 @@ describe('LunrSearchProvider.search — private filtering — no wikiContext', (
 // Non-creator, non-admin user
 // ---------------------------------------------------------------------------
 
-describe('LunrSearchProvider.search — private filtering — non-creator user', () => {
-  function makeWikiContext(username, roles = ['user']) {
-    return { userContext: { username, roles } };
-  }
+// Build a WikiContext-shaped fixture that satisfies SearchWikiContext
+// (#625 — exposes hasRole / getPrincipals as the real WikiContext does)
+function makeWikiContext(username, roles = ['user']) {
+  return {
+    userContext: { username, roles },
+    hasRole: (...names: string[]) => names.some((n) => roles.includes(n)),
+    getPrincipals: () => (username ? [...roles, username] : [...roles])
+  };
+}
 
+describe('LunrSearchProvider.search — private filtering — non-creator user', () => {
   test('excludes private pages not owned by the current user', async () => {
     const wikiContext = makeWikiContext('carol');
     const results = await provider.search('content', { wikiContext });
@@ -171,7 +177,7 @@ describe('LunrSearchProvider.search — private filtering — non-creator user',
 
 describe('LunrSearchProvider.search — private filtering — admin user', () => {
   test('admin sees all private pages from all creators', async () => {
-    const wikiContext = { userContext: { username: 'admin', roles: ['admin'] } };
+    const wikiContext = makeWikiContext('admin', ['admin']);
     const results = await provider.search('content', { wikiContext });
     const names = results.map(r => r.name);
     expect(names).toContain('AlicePrivatePage');
@@ -180,7 +186,7 @@ describe('LunrSearchProvider.search — private filtering — admin user', () =>
   });
 
   test('user with both user and admin roles is treated as admin', async () => {
-    const wikiContext = { userContext: { username: 'jim', roles: ['user', 'admin'] } };
+    const wikiContext = makeWikiContext('jim', ['user', 'admin']);
     const results = await provider.search('content', { wikiContext });
     const names = results.map(r => r.name);
     expect(names).toContain('AlicePrivatePage');
@@ -199,7 +205,7 @@ describe('LunrSearchProvider.search — private filtering — public pages', () 
   });
 
   test('public pages are visible to authenticated non-admin users', async () => {
-    const wikiContext = { userContext: { username: 'carol', roles: ['user'] } };
+    const wikiContext = makeWikiContext('carol', ['user']);
     const results = await provider.search('content', { wikiContext });
     expect(results.map(r => r.name)).toContain('PublicPage');
   });

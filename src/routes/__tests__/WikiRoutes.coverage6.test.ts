@@ -52,7 +52,19 @@ vi.mock('../../context/WikiContext', () => {
       response: options.response || null,
       getContext: vi.fn().mockReturnValue(options.context || 'none'),
       renderMarkdown: vi.fn().mockResolvedValue('<p>ok</p>'),
-      toParseOptions: vi.fn().mockReturnValue({})
+      toParseOptions: vi.fn().mockReturnValue({}),
+      // #625 — mirror the four methods on the real WikiContext.
+      hasRole: vi.fn((...names: string[]) => {
+        const roles = ((options.userContext as { roles?: string[] } | null | undefined)?.roles) ?? mockUserContext?.roles ?? [];
+        return names.some(n => roles.includes(n));
+      }),
+      hasPermission: vi.fn().mockResolvedValue(true),
+      canAccess: vi.fn().mockResolvedValue(true),
+      getPrincipals: vi.fn(() => {
+        const uc = (options.userContext as { roles?: string[]; username?: string } | null | undefined) || mockUserContext;
+        const roles = uc?.roles ?? [];
+        return uc?.username ? [...roles, uc.username] : [...roles];
+      })
     };
   });
   (MockWikiContext as unknown as { CONTEXT: Record<string, string> }).CONTEXT = {

@@ -31,7 +31,7 @@ import { shuffleArray } from '../utils/pluginFormatters.js';
 import { renderFootnoteListHtml } from '../plugins/FootnotesPlugin.js';
 import { renderCommentListHtml } from '../plugins/CommentsPlugin.js';
 import WikiContext from '../context/WikiContext.js';
-import { ThemeManager } from '../managers/ThemeManager.js';
+import { ThemeManager, getThemeManager } from '../managers/ThemeManager.js';
 import type { ReportProgress } from '../managers/BackgroundJobManager.js';
 import type { WikiPage, PageFrontmatter } from '../types/Page.js';
 import type AddonsManager from '../managers/AddonsManager.js';
@@ -423,7 +423,7 @@ class WikiRoutes {
     const configManager = this.engine.getManager('ConfigurationManager');
     const activeTheme = (configManager?.getProperty('ngdpbase.theme.active', 'default')) || 'default';
     const themesDir = path.join(__dirname, '../../../themes');
-    const themeManager = new ThemeManager(activeTheme, themesDir);
+    const themeManager = getThemeManager(activeTheme, themesDir);
 
     return new WikiContext(this.engine as unknown as import('../types/WikiEngine.js').WikiEngine, {
       context: options.context || WikiContext.CONTEXT.NONE,
@@ -523,7 +523,7 @@ class WikiRoutes {
     // Resolve active theme paths
     const activeTheme = (configManager?.getProperty('ngdpbase.theme.active', 'default')) || 'default';
     const themesDir = path.join(__dirname, '../../../themes');
-    const themeManager = new ThemeManager(activeTheme, themesDir);
+    const themeManager = getThemeManager(activeTheme, themesDir);
     const themePaths = themeManager.paths;
 
     // Collect addon stylesheets registered via AddonsManager.registerStylesheet()
@@ -2150,7 +2150,7 @@ ${panes}
 
           // Author-lock check: if set, only the page author and admins may edit
           if (pageData.metadata?.['author-lock']) {
-            const isAdmin = currentUser.roles?.includes('admin');
+            const isAdmin = wikiContext.hasRole('admin');
             const isAuthor = pageData.metadata?.author === currentUser.username;
             if (!isAdmin && !isAuthor) {
               return await this.renderError(
@@ -2561,7 +2561,7 @@ ${panes}
           : [];
 
       // Resolve author-lock: admins and the page author may set or clear it
-      const isAdmin = currentUser?.roles?.includes('admin');
+      const isAdmin = wikiContext.hasRole('admin');
       const existingCreator = existingPage?.metadata?.author;
       const isPageAuthor = currentUser?.username === existingCreator;
       let authorLock: boolean;
@@ -4473,7 +4473,8 @@ ${panes}
         return res.status(404).json({ success: false, error: 'Comment not found' });
       }
 
-      const isAdmin = (currentUser.roles ?? []).includes('admin');
+      const wikiContext = this.createWikiContext(req);
+      const isAdmin = wikiContext.hasRole('admin');
       if (!isAdmin && comment.author !== currentUser.username) {
         return res.status(403).json({ success: false, error: 'Not authorised to delete this comment' });
       }
@@ -4658,7 +4659,8 @@ ${panes}
       const target = footnotes.find((f: { id: string }) => f.id === footnoteId);
       if (!target) return res.status(404).json({ success: false, error: 'Footnote not found' });
 
-      const isAdmin = (currentUser.roles ?? []).includes('admin');
+      const wikiContext = this.createWikiContext(req);
+      const isAdmin = wikiContext.hasRole('admin');
       if (!isAdmin && target.createdBy !== currentUser.username) {
         return res.status(403).json({ success: false, error: 'Not authorised to delete this footnote' });
       }
@@ -6134,7 +6136,7 @@ ${panes}
       const activeTheme = configManager?.getProperty('ngdpbase.theme.active', 'default');
       const themesDir = path.join(__dirname, '../../../themes');
       const availableThemes = ThemeManager.listAvailable(themesDir);
-      const themeManager = new ThemeManager(activeTheme, themesDir);
+      const themeManager = getThemeManager(activeTheme, themesDir);
 
       const maxFileSizeBytes = Number(configManager?.getProperty('ngdpbase.attachment.maxsize', 10485760)) || 10485760;
       const sessionMaxAgeMs = Number(configManager?.getProperty('ngdpbase.session.max-age', 86400000)) || 86400000;
@@ -7136,13 +7138,9 @@ ${panes}
    */
   async browseAttachments(req: Request, res: Response) {
     try {
-      const currentUser = req.userContext;
+      const wikiContext = this.createWikiContext(req);
 
-      if (
-        !currentUser ||
-        !currentUser.roles ||
-        !(currentUser.roles.includes('admin') || currentUser.roles.includes('editor') || currentUser.roles.includes('contributor'))
-      ) {
+      if (!wikiContext.hasRole('admin', 'editor', 'contributor')) {
         return await this.renderError(
           req,
           res,
@@ -7246,8 +7244,8 @@ ${panes}
       const mimeCategory = (['image', 'document', 'other'] as const).find(c => c === mimeCategoryRaw);
 
       const wikiContext = this.createWikiContext(req);
-      const userRoles = currentUser.roles ?? [];
-      const username = currentUser.username ?? '';
+      const userRoles = wikiContext.userContext?.roles ?? [];
+      const username = wikiContext.userContext?.username ?? '';
 
       const dateFrom = typeof req.query.dateFrom === 'string' && req.query.dateFrom ? req.query.dateFrom : undefined;
       const dateTo = typeof req.query.dateTo === 'string' && req.query.dateTo ? req.query.dateTo : undefined;

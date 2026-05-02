@@ -1,4 +1,5 @@
 import type { SimplePlugin, PluginContext, PluginParams } from './types.js';
+import WikiContext from '../context/WikiContext.js';
 import type CommentManager from '../managers/CommentManager.js';
 import type { PageComment } from '../types/Comment.js';
 import { parseBoolParam } from '../utils/pluginFormatters.js';
@@ -82,7 +83,7 @@ const CommentsPlugin: SimplePlugin = {
     const isAuthenticated = userContext?.isAuthenticated === true;
     const username = userContext?.username ?? '';
     const displayName = userContext?.displayName ?? userContext?.name ?? username;
-    const isAdmin = (userContext?.roles ?? []).includes('admin');
+    const isAdmin = WikiContext.userHasRole(userContext, 'admin');
 
     const noheader = parseBoolParam(params?.['noheader'], false);
 

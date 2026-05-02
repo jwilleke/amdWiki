@@ -325,7 +325,10 @@ describe('advancedSearch()', () => {
     await provider.initialize();
 
     await provider.advancedSearch({
-      wikiContext: { userContext: { roles: ['editor'], username: 'jim' } }
+      wikiContext: {
+        userContext: { roles: ['editor'], username: 'jim' },
+        getPrincipals: () => ['editor', 'jim']
+      }
     });
 
     const { query } = mockClientInstance.search.mock.calls[0][0];
