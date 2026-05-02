@@ -32,10 +32,36 @@ describe('UserManager#searchUsers()', () => {
     makeUser({ username: 'erin',    displayName: 'Erin Alice',    email: 'erin@example.com',    roles: ['reader'],      isActive: true  })
   ];
 
-  const makeEngine = () => ({
-    getManager: vi.fn().mockReturnValue(null),
-    logger: { info: vi.fn(), warn: vi.fn(), error: vi.fn(), debug: vi.fn() }
-  });
+  // #617 iteration 3b: searchUsers' role filter resolves via RoleManager.
+  // The mocks below translate the legacy `roles: [...]` test fixture data
+  // into RoleManager.listByMember responses, keyed by Person @id of the
+  // form `urn:uuid:test:<username>`.
+  const personIdFor = (username) => `urn:uuid:test:${username}`;
+
+  const makeEngine = (allUsers) => {
+    const personManager = {
+      getByIdentifier: vi.fn(async (username) => {
+        const u = allUsers.find((x) => x.username === username);
+        return u ? { '@id': personIdFor(username), identifier: username } : null;
+      })
+    };
+    const roleManager = {
+      listByMember: vi.fn(async (personId) => {
+        const username = personId.replace('urn:uuid:test:', '');
+        const u = allUsers.find((x) => x.username === username);
+        if (!u || !Array.isArray(u.roles)) return [];
+        return u.roles.map((r) => ({ '@id': `r-${r}`, namedPosition: r, organization: { '@id': 'o' } }));
+      })
+    };
+    return {
+      getManager: vi.fn((name) => {
+        if (name === 'PersonManager') return personManager;
+        if (name === 'RoleManager') return roleManager;
+        return null;
+      }),
+      logger: { info: vi.fn(), warn: vi.fn(), error: vi.fn(), debug: vi.fn() }
+    };
+  };
 
   beforeEach(async () => {
     vi.resetModules();
@@ -44,12 +70,12 @@ describe('UserManager#searchUsers()', () => {
 
     mockProvider = {
       getAllUsers: vi.fn().mockResolvedValue(new Map(users.map(u => [u.username, u]))),
-      getUser: vi.fn(),
+      getUser: vi.fn(async (username) => users.find(u => u.username === username) ?? null),
       saveUser: vi.fn(),
       deleteUser: vi.fn()
     };
 
-    manager = new UserManager(makeEngine());
+    manager = new UserManager(makeEngine(users));
     manager.provider = mockProvider;
   });
 

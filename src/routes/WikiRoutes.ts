@@ -105,6 +105,7 @@ interface IUserManager {
   updateUser(username: string, data: unknown): Promise<unknown>;
   deleteUser(username: string): Promise<unknown>;
   hasPermission(username: string | undefined, permission: string): Promise<boolean>;
+  hasRole(username: string, roleName: string): Promise<boolean>;
   getUserPermissions(username: string): Promise<string[]>;
   getPermissions(): Map<string, string>;
   getRoles(): unknown[];
@@ -1210,15 +1211,18 @@ class WikiRoutes {
         };
 
         // Load user data (admins only for privacy)
+        // #617 iteration 3b: admin status resolved via RoleManager via
+        // userManager.hasRole, not the deprecated User.roles[] field.
         const userManager = this.engine.getManager('UserManager');
         const allUsersArray = await userManager.getUsers(); // This returns array without passwords
         const publicUsers: Record<string, unknown> = {};
 
-        allUsersArray.forEach((userData: { username?: string; roles?: string[]; isSystem?: boolean; [key: string]: unknown }) => {
-          if (userData.roles?.includes('admin') && !userData.isSystem && userData.username) {
+        for (const userData of allUsersArray as Array<{ username?: string; isSystem?: boolean; [key: string]: unknown }>) {
+          if (!userData.username || userData.isSystem) continue;
+          if (await userManager.hasRole(userData.username, 'admin')) {
             publicUsers[userData.username] = userData;
           }
-        });
+        }
 
         siteData = {
           config: configData,

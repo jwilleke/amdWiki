@@ -408,7 +408,6 @@ class UserManager extends BaseManager {
       email: 'admin@localhost',
       displayName: 'Administrator',
       password: this.hashPassword(defaultPassword),
-      roles: ['admin'],
       isActive: true,
       isSystem: true,
       isExternal: false, // Local account
@@ -421,7 +420,7 @@ class UserManager extends BaseManager {
     await this.provider.createUser(adminUser);
 
     await this.syncPersonOnCreate(adminUser);
-    await this.syncRolesDiff(adminUser.username, [], adminUser.roles);
+    await this.applyRoleDiff(adminUser.username, [], ['admin']);
 
     logger.info(`👤 Created default admin user (username: admin, password: ${defaultPassword})`);
   }
@@ -439,6 +438,8 @@ class UserManager extends BaseManager {
     const { username, email, displayName, roles = ['reader'], provider } = externalUserData;
 
     let user = await this.provider.getUser(username);
+    const existedBefore = !!user;
+    const oldRoles = existedBefore ? await this.resolveUserRoles(username) : [];
 
     if (!user) {
       // Create new external user
@@ -447,7 +448,6 @@ class UserManager extends BaseManager {
         email,
         displayName: displayName || username,
         password: '', // No password for external users
-        roles,
         isActive: true,
         isSystem: false,
         isExternal: true,
@@ -463,13 +463,23 @@ class UserManager extends BaseManager {
       // Update existing external user
       user.email = email;
       user.displayName = displayName || user.displayName;
-      user.roles = roles;
       user.lastLogin = new Date().toISOString();
       user.loginCount = (user.loginCount || 0) + 1;
 
       await this.provider.updateUser(username, user);
       logger.info(`👤 Updated external user: ${username} (${provider})`);
     }
+
+    // #617 iteration 3b: external users now go through Person + Role sync,
+    // closing the gap left in iterations 1+2. Person record is created on
+    // first sight; role memberships diffed against the current state in
+    // RoleManager (= [] for new users).
+    if (!existedBefore) {
+      await this.syncPersonOnCreate(user);
+    } else {
+      await this.syncPersonOnUpdate(username, { displayName: user.displayName, email: user.email });
+    }
+    await this.applyRoleDiff(username, oldRoles, roles);
 
     // Return user without password
     const { password: _pwd, ...userWithoutPassword } = user;
@@ -772,7 +782,6 @@ class UserManager extends BaseManager {
       email,
       displayName: displayName || username,
       password: hashedPassword,
-      roles,
       isActive: isActive,
       isSystem: false,
       isExternal: isExternal,
@@ -790,7 +799,7 @@ class UserManager extends BaseManager {
     await this.provider.createUser(user);
 
     await this.syncPersonOnCreate(user);
-    await this.syncRolesDiff(username, [], user.roles);
+    await this.applyRoleDiff(username, [], roles);
 
     logger.info(`👤 Created user: ${username} (${isExternal ? 'External' : 'Local'})`);
 
@@ -830,13 +839,18 @@ class UserManager extends BaseManager {
       updates.password = this.hashPassword(updates.password);
     }
 
-    const oldRoles = [...(user.roles || [])];
-    Object.assign(user, updates);
+    // #617 iteration 3b: the `roles` field on User is deprecated; role
+    // membership is owned by RoleManager. Strip it from the update before
+    // it lands on the User record, diff against the current RoleManager
+    // state, and apply the changes through the canonical write path.
+    const { roles: incomingRoles, ...userFieldUpdates } = updates;
+    const oldRoles = incomingRoles ? await this.resolveUserRoles(username) : [];
+    Object.assign(user, userFieldUpdates);
     await this.provider.updateUser(username, user);
 
     await this.syncPersonOnUpdate(username, updates);
-    if (updates.roles) {
-      await this.syncRolesDiff(username, oldRoles, updates.roles);
+    if (incomingRoles) {
+      await this.applyRoleDiff(username, oldRoles, incomingRoles);
     }
 
     logger.info(`👤 Updated user: ${username}`);
@@ -922,18 +936,24 @@ class UserManager extends BaseManager {
     const q = query.trim().toLowerCase();
     const { role, limit = 50, activeOnly = true } = options;
 
-    let results = all.filter(u => {
-      if (activeOnly && u.isActive === false) return false;
-      if (role && !u.roles.includes(role)) return false;
-      if (!q) return true;
-      return (
-        u.username.toLowerCase().includes(q) ||
-        (u.displayName ?? '').toLowerCase().includes(q) ||
-        (u.email ?? '').toLowerCase().includes(q)
-      );
-    });
-
-    if (limit > 0) results = results.slice(0, limit);
+    // #617 iteration 3b: role filter resolved via RoleManager
+    // (User.roles[] is deprecated). Sync filters run first; the async
+    // hasRole call only fires for candidates that already pass them.
+    const results: Omit<User, 'password'>[] = [];
+    for (const u of all) {
+      if (activeOnly && u.isActive === false) continue;
+      if (q) {
+        const matchesQuery = (
+          u.username.toLowerCase().includes(q) ||
+          (u.displayName ?? '').toLowerCase().includes(q) ||
+          (u.email ?? '').toLowerCase().includes(q)
+        );
+        if (!matchesQuery) continue;
+      }
+      if (role && !(await this.hasRole(u.username, role))) continue;
+      results.push(u);
+      if (limit > 0 && results.length >= limit) break;
+    }
     return results;
   }
 
@@ -1050,11 +1070,8 @@ class UserManager extends BaseManager {
     if (!this.provider) {
       return false;
     }
-    const user = await this.provider.getUser(username);
-    if (!user || !user.roles) {
-      return false;
-    }
-    return user.roles.includes(roleName);
+    const roles = await this.resolveUserRoles(username);
+    return roles.includes(roleName);
   }
 
   async assignRole(username: string, roleName: string): Promise<boolean> {
@@ -1068,12 +1085,10 @@ class UserManager extends BaseManager {
     if (!this.roles.has(roleName)) {
       throw new Error('Role not found');
     }
-    if (!user.roles.includes(roleName)) {
-      user.roles.push(roleName);
-      await this.provider.updateUser(username, user);
-      await this.syncRoleAdd(username, roleName);
-      logger.info(`👤 Assigned role '${roleName}' to user '${username}'`);
-    }
+    // syncRoleAdd is idempotent (no-op when the Person is already a member),
+    // so we can call unconditionally.
+    await this.syncRoleAdd(username, roleName);
+    logger.info(`👤 Assigned role '${roleName}' to user '${username}'`);
     return true;
   }
 
@@ -1085,13 +1100,8 @@ class UserManager extends BaseManager {
     if (!user) {
       throw new Error('User not found');
     }
-    const roleIndex = user.roles.indexOf(roleName);
-    if (roleIndex > -1) {
-      user.roles.splice(roleIndex, 1);
-      await this.provider.updateUser(username, user);
-      await this.syncRoleRemove(username, roleName);
-      logger.info(`👤 Removed role '${roleName}' from user '${username}'`);
-    }
+    await this.syncRoleRemove(username, roleName);
+    logger.info(`👤 Removed role '${roleName}' from user '${username}'`);
     return true;
   }
 
@@ -1154,63 +1164,57 @@ class UserManager extends BaseManager {
 
   /**
    * Resolve a user's effective base role names from the canonical
-   * OrganizationRole records owned by RoleManager (#617 follow-up,
-   * iteration 3a — read-side swap).
+   * OrganizationRole records owned by RoleManager (#617).
    *
    * Returns the array of `namedPosition` strings for every role whose
    * `member[]` contains the user's Person `@id`. The pseudo-roles
    * `'Authenticated'` and `'All'` are NOT added here — the caller adds
-   * those when constructing `userContext.roles` (matches the existing
-   * convention in `src/app.ts` and `hasPermission`/`getUserPermissions`).
+   * those when constructing `userContext.roles` (matches the convention
+   * in `src/app.ts` and `hasPermission` / `getUserPermissions`).
    *
-   * Falls back to `user.roles[]` from the User record when:
+   * Returns `[]` when:
+   *   - the User provider is unavailable, or
    *   - PersonManager / RoleManager are unavailable (degraded init), or
-   *   - the user has no paired Person record yet (legacy / external user
-   *     pre-dating the iteration-1 sync wiring), or
-   *   - RoleManager.listByMember returns no roles even though the user
-   *     has roles on their User record (mirror drift from iteration 2's
-   *     soft-fail semantics).
+   *   - the user has no paired Person record, or
+   *   - RoleManager.listByMember returns no records, or
+   *   - the underlying lookup throws.
    *
-   * The fallback keeps auth working during the soak period; iteration 3b
-   * removes both the fallback and `user.roles[]` when RoleManager is the
-   * only store.
+   * The legacy `User.roles[]` fallback that bridged iterations 2 and 3a
+   * was removed in iteration 3b — RoleManager is the single source of
+   * truth. Run `scripts/strip-user-roles.ts` to clear the deprecated
+   * field from existing `users.json` files.
    */
   async resolveUserRoles(username: string): Promise<string[]> {
     if (!this.provider) return [];
     const personManager = this.engine.getManager<PersonManager>('PersonManager');
     const roleManager = this.engine.getManager<RoleManager>('RoleManager');
+    if (!personManager || !roleManager) return [];
 
-    const userPromise = this.provider.getUser(username);
-
-    if (personManager && roleManager) {
-      try {
-        const person = await personManager.getByIdentifier(username);
-        if (person) {
-          const roles = await roleManager.listByMember(person['@id']);
-          if (roles.length > 0) {
-            return roles.map((r) => r.namedPosition);
-          }
-        }
-      } catch (error) {
-        logger.warn(
-          `[UserManager.resolveUserRoles] RoleManager lookup failed for ${username}; ` +
-          `falling back to User.roles[]: ${error instanceof Error ? error.message : String(error)}`
-        );
-      }
+    try {
+      const person = await personManager.getByIdentifier(username);
+      if (!person) return [];
+      const roles = await roleManager.listByMember(person['@id']);
+      return roles.map((r) => r.namedPosition);
+    } catch (error) {
+      logger.warn(
+        `[UserManager.resolveUserRoles] lookup failed for ${username}: ` +
+        (error instanceof Error ? error.message : String(error))
+      );
+      return [];
     }
-
-    const user = await userPromise;
-    return [...(user?.roles ?? [])];
   }
 
   /**
-   * Mirror a single role-add into the OrganizationRole record for
-   * (installOrg, roleName). Best-effort: skips silently when PersonManager,
+   * Add the user's Person `@id` to the OrganizationRole record for
+   * (installOrg, roleName). #617 iteration 3b: this is now the canonical
+   * role-membership write — RoleManager is the single store. Idempotent:
+   * a no-op when the Person is already a member.
+   *
+   * Best-effort under degraded init: skips silently when PersonManager,
    * RoleManager, or OrganizationManager are unavailable, when no Person
    * record exists for `username`, or when the install has no anchor org.
-   * Failures are logged, not thrown — the User write must succeed even if
-   * the Role mirror is degraded. User.roles[] remains the source of truth
-   * until iteration 3 swaps PolicyManager/ACLManager onto RoleManager.
+   * Failures are logged, not thrown — User-record writes must succeed even
+   * when role storage is degraded.
    */
   private async syncRoleAdd(username: string, roleName: string): Promise<void> {
     const roleManager = this.engine.getManager<RoleManager>('RoleManager');
@@ -1229,9 +1233,9 @@ class UserManager extends BaseManager {
       if (memberIds.has(person['@id'])) return;
       const newMembers = [...(role.member ?? []), { '@id': person['@id'] }];
       await roleManager.update(role['@id'], { member: newMembers });
-      logger.info(`🔑 Mirrored role-add: ${username} → ${roleName}`);
+      logger.info(`🔑 Role added: ${username} → ${roleName}`);
     } catch (error) {
-      logger.error(`❌ Failed to mirror role-add (${username}, ${roleName}): ${error instanceof Error ? error.message : String(error)}`);
+      logger.error(`❌ Failed to add role (${username}, ${roleName}): ${error instanceof Error ? error.message : String(error)}`);
     }
   }
 
@@ -1252,13 +1256,13 @@ class UserManager extends BaseManager {
       const after = before.filter((m) => m['@id'] !== person['@id']);
       if (after.length === before.length) return;
       await roleManager.update(role['@id'], { member: after });
-      logger.info(`🔑 Mirrored role-remove: ${username} → ${roleName}`);
+      logger.info(`🔑 Role removed: ${username} → ${roleName}`);
     } catch (error) {
-      logger.error(`❌ Failed to mirror role-remove (${username}, ${roleName}): ${error instanceof Error ? error.message : String(error)}`);
+      logger.error(`❌ Failed to remove role (${username}, ${roleName}): ${error instanceof Error ? error.message : String(error)}`);
     }
   }
 
-  private async syncRolesDiff(username: string, oldRoles: string[], newRoles: string[]): Promise<void> {
+  private async applyRoleDiff(username: string, oldRoles: string[], newRoles: string[]): Promise<void> {
     const oldSet = new Set(oldRoles);
     const newSet = new Set(newRoles);
     for (const r of newRoles) {

@@ -231,7 +231,10 @@ export function isUser(value: unknown): value is User {
     return false;
   }
 
-  if (!Array.isArray(obj.roles)) {
+  // `roles` is deprecated since #617 iteration 3b — RoleManager owns
+  // OrganizationRole records canonically. Accept users without the field;
+  // when present, accept any array shape (legacy files).
+  if (obj.roles !== undefined && !Array.isArray(obj.roles)) {
     return false;
   }
 

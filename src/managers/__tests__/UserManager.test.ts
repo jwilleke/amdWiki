@@ -233,9 +233,21 @@ describe('UserManager', () => {
       expect(roles.length).toBe(2);
     });
 
-    test('hasRole() should check user roles', async () => {
-      const mockUser = { username: 'test', roles: ['admin', 'user'] };
-      userManager.provider.getUser = vi.fn().mockResolvedValue(mockUser);
+    test('hasRole() should check user roles via RoleManager', async () => {
+      // #617 iteration 3b: hasRole consults RoleManager (canonical
+      // OrganizationRole records), not the deprecated User.roles[] field.
+      const personManager = { getByIdentifier: vi.fn().mockResolvedValue({ '@id': 'urn:uuid:test', identifier: 'test' }) };
+      const roleManager = { listByMember: vi.fn().mockResolvedValue([
+        { '@id': 'r1', namedPosition: 'admin', organization: { '@id': 'o' } },
+        { '@id': 'r2', namedPosition: 'user', organization: { '@id': 'o' } }
+      ]) };
+      userManager.engine.getManager = vi.fn((name) => {
+        if (name === 'ConfigurationManager') return mockConfigurationManager;
+        if (name === 'PersonManager') return personManager;
+        if (name === 'RoleManager') return roleManager;
+        return null;
+      });
+      userManager.provider.getUser = vi.fn().mockResolvedValue({ username: 'test' });
 
       const result = await userManager.hasRole('test', 'admin');
 
@@ -243,8 +255,17 @@ describe('UserManager', () => {
     });
 
     test('hasRole() should return false for role not assigned', async () => {
-      const mockUser = { username: 'test', roles: ['user'] };
-      userManager.provider.getUser = vi.fn().mockResolvedValue(mockUser);
+      const personManager = { getByIdentifier: vi.fn().mockResolvedValue({ '@id': 'urn:uuid:test', identifier: 'test' }) };
+      const roleManager = { listByMember: vi.fn().mockResolvedValue([
+        { '@id': 'r2', namedPosition: 'user', organization: { '@id': 'o' } }
+      ]) };
+      userManager.engine.getManager = vi.fn((name) => {
+        if (name === 'ConfigurationManager') return mockConfigurationManager;
+        if (name === 'PersonManager') return personManager;
+        if (name === 'RoleManager') return roleManager;
+        return null;
+      });
+      userManager.provider.getUser = vi.fn().mockResolvedValue({ username: 'test' });
 
       const result = await userManager.hasRole('test', 'admin');
 

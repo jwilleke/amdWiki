@@ -1,10 +1,11 @@
 /**
- * UserManager.resolveUserRoles tests (#617 follow-up, iteration 3a — read swap).
+ * UserManager.resolveUserRoles tests (#617).
  *
- * Verifies that base role names are sourced from RoleManager records when
- * present, with a fallback to User.roles[] when RoleManager / PersonManager
- * are unavailable, when the user has no paired Person record, or when
- * RoleManager has zero records for the Person (mirror drift).
+ * Iteration 3b: RoleManager is the single source of truth. resolveUserRoles
+ * returns the role-name array sourced from OrganizationRole records, or
+ * `[]` when RoleManager / PersonManager are unavailable, when the user has
+ * no paired Person record, or when the lookup fails. The legacy fallback
+ * to `User.roles[]` was removed in 3b.
  */
 import UserManager from '../UserManager';
 import type { WikiEngine } from '../../types/WikiEngine';
@@ -96,94 +97,71 @@ describe('UserManager.resolveUserRoles (#617 iteration 3a)', () => {
     expect(mocks.roleManager.listByMember).toHaveBeenCalledWith(PERSON_ID);
   });
 
-  test('falls back to User.roles[] when RoleManager has no records for the Person', async () => {
+  test('returns [] when RoleManager has no records for the Person', async () => {
     const mocks = makeMocks({
       person: { '@id': PERSON_ID, identifier: 'alice' },
       roles: []
     });
     const userManager = await newUserManager(mocks);
-    userManager.provider.getUser = vi.fn().mockResolvedValue({
-      username: 'alice',
-      roles: ['admin', 'editor']
-    });
 
     const result = await userManager.resolveUserRoles('alice');
 
-    expect(result).toEqual(['admin', 'editor']);
+    expect(result).toEqual([]);
   });
 
-  test('falls back to User.roles[] when the user has no paired Person record', async () => {
+  test('returns [] when the user has no paired Person record', async () => {
     const mocks = makeMocks({
       person: null,
       roles: [{ '@id': 'r', namedPosition: 'admin', organization: { '@id': 'o' } }]
     });
     const userManager = await newUserManager(mocks);
-    userManager.provider.getUser = vi.fn().mockResolvedValue({
-      username: 'alice',
-      roles: ['reader']
-    });
 
     const result = await userManager.resolveUserRoles('alice');
 
-    expect(result).toEqual(['reader']);
+    expect(result).toEqual([]);
     expect(mocks.roleManager.listByMember).not.toHaveBeenCalled();
   });
 
-  test('falls back to User.roles[] when RoleManager is unavailable', async () => {
+  test('returns [] when RoleManager is unavailable', async () => {
     const mocks = makeMocks({
       person: { '@id': PERSON_ID, identifier: 'alice' },
       registerRoleManager: false
     });
     const userManager = await newUserManager(mocks);
-    userManager.provider.getUser = vi.fn().mockResolvedValue({
-      username: 'alice',
-      roles: ['reader']
-    });
 
     const result = await userManager.resolveUserRoles('alice');
 
-    expect(result).toEqual(['reader']);
+    expect(result).toEqual([]);
   });
 
-  test('falls back to User.roles[] when PersonManager is unavailable', async () => {
+  test('returns [] when PersonManager is unavailable', async () => {
     const mocks = makeMocks({
       registerPersonManager: false,
       roles: [{ '@id': 'r', namedPosition: 'admin', organization: { '@id': 'o' } }]
     });
     const userManager = await newUserManager(mocks);
-    userManager.provider.getUser = vi.fn().mockResolvedValue({
-      username: 'alice',
-      roles: ['reader']
-    });
 
     const result = await userManager.resolveUserRoles('alice');
 
-    expect(result).toEqual(['reader']);
+    expect(result).toEqual([]);
   });
 
-  test('falls back to User.roles[] when RoleManager.listByMember throws', async () => {
+  test('returns [] when RoleManager.listByMember throws', async () => {
     const mocks = makeMocks({
       person: { '@id': PERSON_ID, identifier: 'alice' },
       roles: []
     });
     mocks.roleManager.listByMember = vi.fn().mockRejectedValue(new Error('disk corrupt'));
     const userManager = await newUserManager(mocks);
-    userManager.provider.getUser = vi.fn().mockResolvedValue({
-      username: 'alice',
-      roles: ['reader']
-    });
 
     const result = await userManager.resolveUserRoles('alice');
 
-    expect(result).toEqual(['reader']);
+    expect(result).toEqual([]);
   });
 
-  test('returns empty array when nothing is available (no Person, no User.roles)', async () => {
+  test('returns [] when nothing is available (no Person, no records)', async () => {
     const mocks = makeMocks({ person: null });
     const userManager = await newUserManager(mocks);
-    userManager.provider.getUser = vi.fn().mockResolvedValue({
-      username: 'alice'
-    });
 
     const result = await userManager.resolveUserRoles('alice');
 
