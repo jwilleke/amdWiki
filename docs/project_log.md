@@ -2,6 +2,25 @@
 
 AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version history.
 
+## 2026-05-02-08
+
+- Agent: Claude
+- Subject: #625 wrap-up — push to origin, propagate to all 4 installs, E2E on jimstest, `/semver minor` attempted (deferred — gated on the pre-existing #609 flake)
+- Current Issue: #625 (open, all 8 steps complete and on master); #609 (open, post-#625 status confirmed)
+- Work Done:
+  - Pushed master (commits 37c4c6e6 + e4aa9ff3 from session 07) to origin
+  - Propagated to all 3 sister installs via `/othersites`: `git pull && server.sh stop && npm run build && server.sh start` on fairways-base (port 2121), ngdpbase-veg (port 3333), ngdp-temp-builds/ngdpbase (port 3001). All 4 installs (jimstest 3000 + the three sisters) responding HTTP 302 (login redirect, expected unauth behavior). vitest 5152/5153 pass on every install — same identical result, same single failure (#609's `coverage10 > adminCreateOrganization` flake). Determinism across installs confirms it's order-dependent within a vitest run, not environment-specific
+  - Playwright E2E: 72/72 pass on jimstest (chromium-maintenance suite end-to-end exercises admin auth, asset search, location plugin, footnotes, comments, navigation)
+  - **Attempted `/semver minor` (3.5.4 → 3.6.0).** Stopped at Step 4 (test gate) because of the same #609 flake. The flake is pre-existing on master (verified via `git stash` against the previous tag), tracked, and not a regression — but the semver skill's "must pass" rule is strict. v3.6.0 release deferred pending decision on whether to release with the flake noted (similar to #622's band-aided release pattern) or wait for #609 to be properly fixed
+  - Confirmed #609 status post-#625: same single test fails deterministically in full-suite runs across all 4 installs at master tip; passes in isolation. #625's WikiContext consolidation didn't introduce or fix it. Detailed comment on #609 with the suggested `mockUserManager.hasPermission` reset in `beforeEach` for the `POST /admin/organizations` describe block
+- Testing:
+  - typecheck: clean
+  - vitest: 5152/5153 pass on every install (1 #609 flake)
+  - playwright E2E: 72/72 pass on jimstest
+  - eslint: 0 errors, 139 warnings (all pre-existing)
+- Commits: none in this session — 37c4c6e6 + e4aa9ff3 from session 07 pushed to origin
+- Files Modified: none in this session
+
 ## 2026-05-02-07
 
 - Agent: Claude
