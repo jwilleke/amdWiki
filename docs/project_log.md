@@ -2,6 +2,37 @@
 
 AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version history.
 
+## 2026-05-02-07
+
+- Agent: Claude
+- Subject: #625 phase 2 (final) — Category C sweep (~80 sites) + ESLint guard + true lazy theme resolution. **All 8 planned steps complete.** Reopened #609 (sibling test-isolation flake in coverage10).
+- Current Issue: #625 (open, all 8 steps landed); reopened #609
+- Work Done:
+  - **Step 7 — Category C sweep (~80 sites in `WikiRoutes.ts`).** Migrated `userManager.hasPermission(currentUser.username, 'X')` to `wikiContext.hasPermission('X')`. Where handlers needed a wikiContext built, replaced `const currentUser = req.userContext;` with `const wikiContext = this.createWikiContext(req); const currentUser = wikiContext.userContext;`. Unused `userManager` declarations removed where the swap left them dead. Audit handlers (`adminAuditLogs`, `adminAuditLogsApi`, `adminAuditLogDetails`, `adminAuditExport`) given a wikiContext alongside their existing `userManager.getCurrentUser` calls. `adminEvents` (sync handler) migrated.
+  - **Residual multi-role checks (7 sites).** Picked up multi-role chained `.includes(...)` boolean expressions missed in prior sweeps: `checkPrivatePageAccess`, `adminAttachments`, `adminAttachmentsApi`, `assetSearch`, `browseAttachmentsApi`, `adminDeleteAttachmentFromBrowser`. All collapsed to `wikiContext.hasRole('admin', 'editor', 'contributor')` style calls
+  - **True lazy theme resolution.** Step 1's `getThemeManager` cache wasn't enough on its own — `createWikiContext` still called `configManager.getProperty('ngdpbase.theme.active')` per request. After Category C made `createWikiContext` ubiquitous (called in nearly every handler), tests using `mockConfigManager.getProperty.mockImplementationOnce` queued for keyword/consolidation checks broke because `createWikiContext` consumed the queued value for theme lookup. Fix: `WikiContext.activeTheme` and `WikiContext.themeInfo` are now lazy getters that resolve on first access and cache on the instance. Permission-only callers (most callers post-#625) never trigger `ConfigurationManager.getProperty` or `ThemeManager` construction. `createWikiContext` simplified to just `new WikiContext(engine, {req fields})`
+  - **Step 8 — ESLint rule (`no-restricted-syntax`) preventing reintroduction.** Added three AST selectors in `eslint.config.mjs`:
+    - `MemberExpression[property.name='isAdmin']` — catches `.isAdmin` reads (the original broken pattern)
+    - `CallExpression` matching `*.roles.includes(...)` — catches role-name permission patterns
+    - Same for `.roles?.includes(...)` (optional-chaining variant)
+    Each violation's message points to the canonical migration: `wikiContext.hasRole(...)` / `parseContext.hasRole(...)` / `WikiContext.userHasRole(userContext, ...)`. Rule disabled in test files (legitimate fixture mocks). Two `eslint-disable-next-line` annotations: `ApiContext.ts:hasRole` (canonical implementation) and `WikiRoutes.ts:adminUpdateUser` (form-data validation, not a permission check on the caller)
+  - **Test fixture migration.** 17 `WikiRoutes` test files: WikiContext mock factories now declare `const userContext = ...` (was missing — closure references in mocked `hasPermission` were undefined) and the mocked `hasPermission` delegates to `mockUserManager.hasPermission` so existing test setups (`mockUserManager.hasPermission.mockResolvedValue(false)`) continue to work without per-test refactors. `WikiRoutes.assetSearch.test.ts` — `createWikiContext` stub forwards userContext from request. `WikiContext.test.ts` — `toParseOptions` test updated for lazy `themeInfo`
+  - **Reopened #609.** Pre-existing test-isolation flake `coverage10.test.ts > adminCreateOrganization > "returns 403 when user is not admin"` (passes in isolation, fails in full suite). Same class as #609's original `coverage13` flake (mock-state leakage between tests) but in a different file with a different mock (`mockUserManager.hasPermission` not properly reset). Detailed comment explains the symptom and the suggested `beforeEach` reset
+- Testing:
+  - typecheck: clean
+  - eslint: 0 errors, 139 warnings (all pre-existing)
+  - vitest: 5152/5153 pass (196 files). The 1 remaining failure is the #609 flake
+- Commits: 37c4c6e6 (`feat(#625): Category C sweep + ESLint guard + true lazy theme resolution`)
+- Files Modified:
+  - eslint.config.mjs (no-restricted-syntax rule + test-file exemption)
+  - src/context/ApiContext.ts (eslint-disable on canonical hasRole)
+  - src/context/WikiContext.ts (lazy activeTheme/themeInfo getters)
+  - src/context/**tests**/WikiContext.test.ts (toParseOptions expectation update)
+  - src/routes/WikiRoutes.ts (~80 hasPermission migrations + 7 multi-role sweeps + createWikiContext simplification)
+  - src/routes/**tests**/WikiRoutes.assetSearch.test.ts (createWikiContext stub forwards userContext)
+  - src/routes/**tests**/WikiRoutes.coverage{,2-16}.test.ts (17 files: mock factory declares userContext + hasPermission delegates to mockUserManager)
+  - src/routes/**tests**/routes.test.ts (same mock factory update)
+
 ## 2026-05-02-06
 
 - Agent: Claude
