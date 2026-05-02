@@ -2,6 +2,105 @@
 
 AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version history.
 
+## 2026-05-02-04
+
+- Agent: Claude
+- Subject: v3.5.1 hotfix — `/admin/users` EJS render crashed after iteration 3b stripped `User.roles[]`
+- Current Issue: #617 (follow-up); related #624 filed
+- Work Done:
+  - User reported `/admin/users` 500 with `TypeError: Cannot read properties of undefined (reading 'includes')` at `views/admin-users.ejs:84` — `users.filter(u => u.roles.includes('admin'))`. Root cause: iteration 3b stripped `User.roles[]` from `users.json` but the EJS audit only covered `.ts` files, missing three templates that read `.roles` directly off fetched User records (not `userContext`)
+  - Affected templates: `admin-users.ejs` (4 reads), `admin-user-edit.ejs:76` (`editUser.roles`), `profile.ejs:45` (`user.roles.forEach`)
+  - Fix at the route layer (templates untouched): each render site now enriches the User record with `roles` resolved from `RoleManager` via `userManager.resolveUserRoles(username)` before passing to EJS. `admin-users` uses `Promise.all` over `getUsers()`; admin-user-edit and profile single-user enrich
+  - `IUserManager` interface in WikiRoutes gained `resolveUserRoles` so the new call typechecks. Five mock UserManager fixtures updated (`coverage4/5/11/14`, `routes`) to include `resolveUserRoles` and `hasRole` — without them the affected route handlers returned 500 in tests
+  - Cut v3.5.1 (patch). Performance baseline captured at `docs/performance/baseline-v3.5.1-2026-05-02.md`. Propagated to all four installs via `git pull && server.sh stop && npm run build && server.sh start`. `/admin/users` returns HTTP 403 (auth required) on every install instead of 500 EJS error
+  - Filed [BUG] #624 — `/admin/organizations` Edit/Create/Delete are non-functional. Three layered failures: (a) `editOrganization()` JS handler is a console.log stub; (b) every admin org CRUD handler calls `schemaManager.<method>()` but `SchemaManager` has no organization methods (typed phantom methods on `ISchemaManager`); (c) the list view masks failure via try/catch that swallows the error and shows a hardcoded `ngdpbase-platform` placeholder. Real fix: rewire admin handlers from `SchemaManager` to `OrganizationManager` (which is fully wired and works) and build out the Edit modal mirroring the Create form. Pre-existing gap that should have been part of #617 wrap-up
+- Testing:
+  - typecheck: clean
+  - vitest: 5095/5095 pass (193 files)
+  - playwright E2E: 72/72 pass on jimstest after restart
+  - Per-install propagation verified `/admin/users` returns HTTP 403 (was 500) on all four ports (3000/2121/3333/3001)
+- Commits: 322c4270 (`fix(#617): attach RoleManager-resolved roles to User records on render`), 476085d2 (`chore: release v3.5.1`)
+- Files Modified:
+  - src/routes/WikiRoutes.ts (3 render sites enriched, IUserManager gained resolveUserRoles)
+  - src/routes/__tests__/WikiRoutes.coverage4/5/11/14.test.ts (mock UserManager updated)
+  - src/routes/__tests__/routes.test.ts (mock UserManager updated)
+  - package.json, config/app-default-config.json, CHANGELOG.md (v3.5.1 bump)
+  - docs/performance/baseline-v3.5.1-2026-05-02.md (new)
+
+## 2026-05-02-03
+
+- Agent: Claude
+- Subject: #617 iteration 3b + v3.5.0 release — drop `User.roles[]`, RoleManager is single source of truth
+- Current Issue: #617 (follow-up); enables #602
+- Work Done:
+  - Iteration 3b — closed the duplication: `User.roles[]` is no longer read or written anywhere in `UserManager` or `WikiRoutes`. Five sites in UserManager rewired: `createDefaultAdmin` / `createUser` / `createOrUpdateExternalUser` no longer set `roles` on the User record (write directly via `applyRoleDiff` → RoleManager); `updateUser` strips `updates.roles` before `Object.assign` and applies the diff against `resolveUserRoles`-derived old state; `assignRole` / `removeRole` no longer push/splice `user.roles` — they call the iteration-2 helpers directly (idempotent, safe to call unconditionally); `hasRole` consults `resolveUserRoles` instead of `user.roles.includes`; `searchUsers` role filter resolves via `hasRole` (sync filters first, async role check only fires for candidates that pass cheaper filters)
+  - Closed the external-user gap left in iterations 1+2: `createOrUpdateExternalUser` now does Person sync (create on first sight, update on subsequent calls) + role membership writes via RoleManager. OAuth users are finally first-class participants in the canonical identity model
+  - Renamed iteration-2 mirror helper `syncRolesDiff` → `applyRoleDiff` (it was never a mirror — that was the iteration-2 framing while two stores coexisted). `syncRoleAdd` / `syncRoleRemove` docstrings updated to reflect direct-write semantics
+  - Type cleanup: `User.roles?: string[]` (optional with `@deprecated` JSDoc); `guards.ts` accepts users without the field. WikiRoutes:1218 direct-User-record `.roles` read swapped to `userManager.hasRole`. IUserManager interface gained `hasRole` so the swap typechecks
+  - Wrote `scripts/strip-user-roles.ts` — idempotent migration removing the deprecated field from each entry in `users.json`. Safe to run after `backfill-roles-from-users.ts`
+  - Dropped the `User.roles[]` fallback in `resolveUserRoles` — RoleManager is the single source of truth. Returns `[]` on degraded init / missing Person / no records / lookup failure
+  - Cut v3.5.0 (minor — new feature surface: RoleManager as canonical identity store, `User.roles[]` deprecated). Performance baseline captured. Propagated to all four sister installs (`git pull && server.sh stop && npm run build && server.sh start`); strip-user-roles script run on each (159 user records cleaned: jimstest 3, fairways-base 154, ngdpbase-veg 1, ngdp-temp-builds 1). Idempotency confirmed on re-run
+  - Filed [BUG] #622 — recurring vitest flake on `WikiRoutes.coverage3.test.ts > returns 401 when user is not authenticated`. 20s timeout in the full suite; passes in ~290ms in isolation. Reproduced across all four installs. Three hypotheses included in the issue
+- Testing:
+  - typecheck: clean
+  - vitest: 5095/5095 pass (76 UserManager tests across 4 files; iteration-2 roleMirror tests passed unchanged because they assert RoleManager calls, not internal mechanism)
+  - playwright E2E: 72/72 pass on every install (chromium-maintenance suite logs in as admin and exercises admin-only routes — strongest signal that `resolveUserRoles` is transparent end-to-end)
+  - 8 `resolveUserRoles` tests rewritten — fallback tests became "returns [] when …"
+- Commits: 5fe6263e (`feat(#617): drop User.roles[]; RoleManager is single source of truth (iteration 3b)`), 8ed606eb (`chore: release v3.5.0`)
+- Files Modified:
+  - src/managers/UserManager.ts (mirror→direct writes, external-user gap closed, fallback dropped)
+  - src/managers/__tests__/UserManager.{test,searchUsers,roleMirror,resolveUserRoles}.test.ts
+  - src/routes/WikiRoutes.ts (line 1218 swap + IUserManager.hasRole)
+  - src/types/User.ts, src/types/guards.ts (User.roles optional, guard relaxed)
+  - scripts/strip-user-roles.ts (new)
+  - package.json, config/app-default-config.json, CHANGELOG.md (v3.5.0 bump)
+  - docs/performance/baseline-v3.5.0-2026-05-02.md (new)
+
+## 2026-05-02-02
+
+- Agent: Claude
+- Subject: #617 iteration 3a — swap permission read-side onto RoleManager (with `User.roles[]` fallback)
+- Current Issue: #617 (follow-up); related #620 filed
+- Work Done:
+  - Design discussion with user about the read-side swap. User pushed back on "indefinite duplication" of `User.roles[]` + OrganizationRole records — agreed to split iteration 3 into 3a (low-risk swap with fallback) and 3b (full removal). Recognized that the architecture already amortizes cost via per-request resolution in session middleware (`src/app.ts:289-313`), so the perf concern of "3 disk touches per request" is overblown — it happens once per request, not per permission check
+  - Added `UserManager.resolveUserRoles(username)` — does Person → RoleManager.listByMember → maps to `r.namedPosition[]`. Falls back to `user.roles[]` when PersonManager / RoleManager unavailable, no Person, zero records, or listByMember throws
+  - Three read sites swapped: `src/app.ts:303-311` (session middleware — the per-request resolution point that PolicyEvaluator/ACLManager/parser hasRole transitively read from via `req.userContext.roles`), `UserManager.hasPermission` line 552, `UserManager.getUserPermissions` line 602. Downstream consumers untouched — they keep reading the in-memory `userContext.roles` array, which is now backed by RoleManager records
+  - Caller adds `'Authenticated'` and `'All'` pseudo-roles when constructing userContext — `resolveUserRoles` returns base names only. Matches the convention in pre-swap code
+  - 8 new tests cover RoleManager-sourced lookup, all four fallback paths (no Person, no records, manager unavailable, listByMember throws), and the no-pseudo-roles invariant
+  - Filed [FEATURE] #620 — WikiContext + identity-data caching with cross-cutting invalidation. Two options laid out: (A) cache on Express session (cross-process invalidation problem), (B) cache inside managers with bust-on-write (recommended starting point). User contributed the cross-cutting invalidation hook idea: every mutation of User/Role/Organization fans out via WikiEngine event bus. Becomes more relevant after iteration 3b lands and there's no fallback
+  - Propagated 3a to all four installs (jimstest first to verify; then fairways-base / ngdpbase-veg / ngdp-temp-builds via `git pull && server.sh stop && npm run build && server.sh start`). HTTP 302 healthy on all; admin-maintenance E2E exercises end-to-end admin auth via the swap
+- Testing:
+  - typecheck: clean
+  - vitest: 5095/5095 pass (8 new UserManager.resolveUserRoles tests)
+  - playwright E2E: 72/72 pass per install
+- Commits: 0c929d9d (`feat(#617): swap permission read-side onto RoleManager (iteration 3a)`)
+- Files Modified:
+  - src/managers/UserManager.ts (resolveUserRoles helper + 2 swap sites)
+  - src/app.ts (session middleware swap + userManager type widening)
+  - src/managers/__tests__/UserManager.resolveUserRoles.test.ts (new — 8 tests)
+
+## 2026-05-02-01
+
+- Agent: Claude
+- Subject: #617 iteration 2 — wire UserManager role mirror to RoleManager
+- Current Issue: #617 (follow-up)
+- Work Done:
+  - Survey of UserManager write paths: 6 sites mutate `User.roles[]` (createDefaultAdmin, createUser, updateUser, assignRole, removeRole, deleteUser). `createOrUpdateExternalUser` deferred to match iteration 1's coverage boundary (will close in 3b)
+  - Implemented mirror: `syncRoleAdd` / `syncRoleRemove` / `syncRolesDiff` / `syncRolesAllRemovedOnDelete` private helpers on UserManager. Each consults RoleManager via Person `@id` and writes to the OrganizationRole record's `member[]`. On first-add, records are snapshotted from the catalog at `ngdpbase.roles.definitions[<namedPosition>]` (roleName, description, issystem, icon, color, permissions via additionalProperty). Roles missing from the catalog still produce minimal records
+  - Mirror is best-effort: skips silently when PersonManager/RoleManager/OrganizationManager unavailable, when no Person, when no anchor org, or on storage failure (logged not thrown). User.roles[] remains source of truth for permission checks until iteration 3 swaps
+  - `deleteUser` order reworked: `provider.deleteUser` → `syncRolesAllRemovedOnDelete` (clears membership while Person still exists) → `syncPersonOnDelete`
+  - Wrote `scripts/backfill-roles-from-users.ts` — idempotent migration that groups `User.roles[]` by role and upserts `<storagedir>/roles/<namedPosition>.json` files. Merges into existing files without dropping unrelated members; skips users with no paired Person record. Reads role catalog from default + custom configs (custom overrides default)
+  - 12 new mirror tests cover createUser / assignRole / removeRole / updateUser / deleteUser, the catalog snapshot, idempotency, no-Person / no-anchor-org / mirror-failure paths
+  - Propagated to jimstest only (server stop / build / start / backfill). Fairways-base / ngdpbase-veg / ngdp-temp-builds left for the next propagation. jimstest backfill: 3 users paired, 4 OrganizationRole records created (admin/contributor/editor/reader) under `${FAST_STORAGE}/roles/`. Catalog snapshot fields populated correctly (e.g. admin.json carries the 17-permission list via additionalProperty)
+- Testing:
+  - typecheck: clean
+  - vitest: 5095/5095 pass (12 new mirror tests + 5083 baseline)
+- Commits: fd90ec2d (`feat(#617): wire UserManager role mirror to RoleManager (iteration 2)`)
+- Files Modified:
+  - src/managers/UserManager.ts (4 mirror helpers + 6 wire sites + RoleCatalogEntry type)
+  - src/managers/__tests__/UserManager.roleMirror.test.ts (new — 12 tests)
+  - scripts/backfill-roles-from-users.ts (new)
+
 ## 2026-05-01-07
 
 - Agent: Claude
