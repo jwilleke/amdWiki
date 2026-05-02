@@ -71,6 +71,8 @@ vi.mock('../../WikiEngine', () => {
       roles: ['authenticated']
     }),
     hasPermission: vi.fn().mockReturnValue(true),
+    hasRole: vi.fn().mockResolvedValue(false),
+    resolveUserRoles: vi.fn().mockResolvedValue([]),
     destroySession: vi.fn().mockResolvedValue(true),
     getUsers: vi.fn().mockResolvedValue([
       { 

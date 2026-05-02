@@ -84,6 +84,8 @@ const mockUserManager = {
   hasPermission: vi.fn(),
   getUser: vi.fn(),
   getUsers: vi.fn(),
+  resolveUserRoles: vi.fn().mockResolvedValue([]),
+  hasRole: vi.fn().mockResolvedValue(false),
   getRoles: vi.fn(),
   getPermissions: vi.fn(),
   getUserPermissions: vi.fn(),

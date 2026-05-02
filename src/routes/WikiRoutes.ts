@@ -106,6 +106,7 @@ interface IUserManager {
   deleteUser(username: string): Promise<unknown>;
   hasPermission(username: string | undefined, permission: string): Promise<boolean>;
   hasRole(username: string, roleName: string): Promise<boolean>;
+  resolveUserRoles(username: string): Promise<string[]>;
   getUserPermissions(username: string): Promise<string[]>;
   getPermissions(): Map<string, string>;
   getRoles(): unknown[];
@@ -4060,6 +4061,11 @@ ${panes}
 
       // Get fresh user data from database to ensure we have latest preferences
       const freshUser = await userManager.getUser(currentUser.username ?? '');
+      // #617 iteration 3b: attach RoleManager-resolved roles so profile.ejs
+      // can render the role badges.
+      if (freshUser && currentUser.username) {
+        (freshUser as { roles?: string[] }).roles = await userManager.resolveUserRoles(currentUser.username);
+      }
       logger.debug(
         'DEBUG: profilePage - fresh user preferences:',
         freshUser ? freshUser.preferences : 'no fresh user'
@@ -5152,7 +5158,14 @@ ${panes}
       }
 
       const commonData = await this.getCommonTemplateData(req);
-      const users = await userManager.getUsers();
+      const usersRaw = await userManager.getUsers();
+      // #617 iteration 3b: User.roles[] is no longer persisted; resolve
+      // each user's roles from RoleManager so admin-users.ejs can keep
+      // reading `u.roles` directly (templates unchanged).
+      const users = await Promise.all(usersRaw.map(async (u: { username?: string; [key: string]: unknown }) => ({
+        ...u,
+        roles: u.username ? await userManager.resolveUserRoles(u.username) : []
+      })));
       const roles = userManager.getRoles();
 
       return res.render('admin-users', {
@@ -5200,6 +5213,11 @@ ${panes}
       if (!user) {
         return await this.renderError(req, res, 404, 'Not Found', `User "${username}" not found`);
       }
+
+      // #617 iteration 3b: attach RoleManager-resolved roles so the
+      // role-checkbox UI in admin-user-edit.ejs can pre-tick the user's
+      // current memberships.
+      (user as { roles?: string[] }).roles = await userManager.resolveUserRoles(username);
 
       const configManager = this.engine.getManager('ConfigurationManager');
       const coreFields: string[] = configManager.getProperty('ngdpbase.user.coreFields', [
