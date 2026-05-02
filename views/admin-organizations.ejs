@@ -236,11 +236,10 @@
     </div>
 </div>
 
-<!-- Edit Organization Modal -->
+<!-- Edit Organization Modal (#624) -->
 <div class="modal fade" id="editOrganizationModal" tabindex="-1">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
-            <!-- Similar form structure as create, but populated with existing data -->
             <form id="editOrganizationForm">
                 <div class="modal-header">
                     <h5 class="modal-title">
@@ -249,10 +248,88 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <input type="hidden" id="editOrgId" name="identifier">
-                    <!-- Same form fields as create modal -->
-                    <!-- Implementation abbreviated for brevity -->
-                    <p class="text-info">Edit form implementation would mirror the create form with pre-populated values.</p>
+                    <!-- Hidden identifier (the org's `name`, URL-encoded server-side); used for the PUT route -->
+                    <input type="hidden" id="editOrgIdentifier" name="identifier">
+
+                    <!-- Basic Information -->
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="editOrgName" class="form-label">Name <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="editOrgName" name="name" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="editOrgLegalName" class="form-label">Legal Name <span class="text-muted">(optional)</span></label>
+                            <input type="text" class="form-control" id="editOrgLegalName" name="legalName">
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="editOrgAlternateName" class="form-label">Alternate Name</label>
+                            <input type="text" class="form-control" id="editOrgAlternateName" name="alternateName">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="editOrgFoundingDate" class="form-label">Founding Date</label>
+                            <input type="text" class="form-control" id="editOrgFoundingDate" name="foundingDate" placeholder="YYYY">
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="editOrgDescription" class="form-label">Description</label>
+                        <textarea class="form-control" id="editOrgDescription" name="description" rows="3"></textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="editOrgUrl" class="form-label">Website URL</label>
+                        <input type="url" class="form-control" id="editOrgUrl" name="url">
+                    </div>
+
+                    <!-- Postal Address -->
+                    <h6><i class="fas fa-map-marker-alt"></i> Postal Address <span class="text-muted">(optional)</span></h6>
+                    <div class="border rounded p-3 mb-3 bg-body-secondary">
+                        <div class="row mb-2">
+                            <div class="col-12">
+                                <label for="editOrgStreetAddress" class="form-label">Street Address</label>
+                                <input type="text" class="form-control" id="editOrgStreetAddress" name="address.streetAddress">
+                            </div>
+                        </div>
+                        <div class="row mb-2">
+                            <div class="col-md-6">
+                                <label for="editOrgLocality" class="form-label">City/Locality</label>
+                                <input type="text" class="form-control" id="editOrgLocality" name="address.addressLocality">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="editOrgRegion" class="form-label">State/Region</label>
+                                <input type="text" class="form-control" id="editOrgRegion" name="address.addressRegion">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label for="editOrgPostalCode" class="form-label">Postal Code</label>
+                                <input type="text" class="form-control" id="editOrgPostalCode" name="address.postalCode">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="editOrgCountry" class="form-label">Country</label>
+                                <input type="text" class="form-control" id="editOrgCountry" name="address.addressCountry">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Contact Points -->
+                    <h6><i class="fas fa-phone"></i> Contact Points</h6>
+                    <div id="editContactPointsContainer">
+                        <!-- Rows are cloned from the create modal's template at populate time -->
+                    </div>
+                    <button type="button" class="btn btn-sm btn-outline-secondary" onclick="addEditContactPoint()">
+                        <i class="fas fa-plus"></i> Add Contact Point
+                    </button>
+
+                    <!-- Knowledge Areas -->
+                    <div class="mt-4">
+                        <label for="editOrgKnowsAbout" class="form-label">Knowledge Areas</label>
+                        <input type="text" class="form-control" id="editOrgKnowsAbout" name="knowsAbout"
+                               placeholder="Comma-separated areas of expertise">
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
@@ -309,10 +386,83 @@ function removeContactPoint(button) {
     }
 }
 
+// #624: edit/delete now talk to OrganizationManager via the rewired admin
+// routes. The button passes the org's `name` (lowercased) as the identifier
+// and embeds the full Organization JSON-LD record on `data-org` for the
+// modal's pre-population.
 function editOrganization(identifier) {
-    // Implementation for editing organizations
-    console.log('Edit organization:', identifier);
-    // Would populate edit modal with existing data
+    const button = event.target.closest('button');
+    const org = JSON.parse(button.dataset.org);
+
+    document.getElementById('editOrgIdentifier').value = identifier;
+    document.getElementById('editOrgName').value = org.name ?? '';
+    document.getElementById('editOrgLegalName').value = org.legalName ?? '';
+    document.getElementById('editOrgAlternateName').value = org.alternateName ?? '';
+    document.getElementById('editOrgFoundingDate').value = org.foundingDate ?? '';
+    document.getElementById('editOrgDescription').value = org.description ?? '';
+    document.getElementById('editOrgUrl').value = org.url ?? '';
+
+    const addr = org.address ?? {};
+    document.getElementById('editOrgStreetAddress').value = addr.streetAddress ?? '';
+    document.getElementById('editOrgLocality').value = addr.addressLocality ?? '';
+    document.getElementById('editOrgRegion').value = addr.addressRegion ?? '';
+    document.getElementById('editOrgPostalCode').value = addr.postalCode ?? '';
+    document.getElementById('editOrgCountry').value = addr.addressCountry ?? '';
+
+    document.getElementById('editOrgKnowsAbout').value = Array.isArray(org.knowsAbout)
+        ? org.knowsAbout.join(', ')
+        : (org.knowsAbout ?? '');
+
+    // Rebuild contact-points list from the current record (or one empty row if absent)
+    const container = document.getElementById('editContactPointsContainer');
+    container.innerHTML = '';
+    const cps = Array.isArray(org.contactPoint) ? org.contactPoint : (org.contactPoint ? [org.contactPoint] : []);
+    if (cps.length === 0) cps.push({});
+    for (const cp of cps) {
+        container.appendChild(buildContactPointRow(cp));
+    }
+
+    new bootstrap.Modal(document.getElementById('editOrganizationModal')).show();
+}
+
+function buildContactPointRow(cp = {}) {
+    const wrapper = document.createElement('div');
+    wrapper.className = 'contact-point-item border rounded p-3 mb-3';
+    wrapper.innerHTML = `
+        <div class="row">
+            <div class="col-md-4">
+                <label class="form-label">Contact Type</label>
+                <select class="form-select" name="contactType">
+                    <option value="">Select Type</option>
+                    <option value="administrative">Administrative</option>
+                    <option value="customer support">Customer Support</option>
+                    <option value="technical support">Technical Support</option>
+                    <option value="sales">Sales</option>
+                    <option value="general">General</option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Email</label>
+                <input type="email" class="form-control" name="contactEmail">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Phone</label>
+                <input type="tel" class="form-control" name="contactPhone">
+            </div>
+            <div class="col-md-1 d-flex align-items-end">
+                <button type="button" class="btn btn-sm btn-outline-danger" onclick="this.closest('.contact-point-item').remove()">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </div>
+        </div>`;
+    if (cp.contactType) wrapper.querySelector('[name="contactType"]').value = cp.contactType;
+    if (cp.email) wrapper.querySelector('[name="contactEmail"]').value = cp.email;
+    if (cp.telephone) wrapper.querySelector('[name="contactPhone"]').value = cp.telephone;
+    return wrapper;
+}
+
+function addEditContactPoint() {
+    document.getElementById('editContactPointsContainer').appendChild(buildContactPointRow());
 }
 
 function viewOrganizationSchema(identifier) {
@@ -323,10 +473,21 @@ function viewOrganizationSchema(identifier) {
     new bootstrap.Modal(document.getElementById('schemaViewModal')).show();
 }
 
-function deleteOrganization(identifier, name) {
-    if (confirm(`Are you sure you want to delete the organization "${name}"?`)) {
-        // Implementation for deleting organizations
-        console.log('Delete organization:', identifier);
+async function deleteOrganization(identifier, name) {
+    if (!confirm(`Are you sure you want to delete the organization "${name}"?`)) return;
+    try {
+        const response = await fetch(`/admin/organizations/${encodeURIComponent(identifier)}`, {
+            method: 'DELETE',
+            headers: { 'Accept': 'application/json' }
+        });
+        if (response.ok) {
+            location.reload();
+        } else {
+            const err = await response.json().catch(() => ({}));
+            alert('Error deleting organization: ' + (err.error || response.statusText));
+        }
+    } catch (err) {
+        alert('Error deleting organization: ' + err.message);
     }
 }
 
@@ -405,6 +566,79 @@ document.getElementById('createOrganizationForm').addEventListener('submit', asy
         }
     } catch (err) {
         alert('Error creating organization: ' + err.message);
+    }
+});
+
+// #624: edit-form submit — collects fields, builds the JSON-LD patch, PUTs
+// to the rewired admin route. Mirrors the create handler's data-shaping
+// logic (address inclusion, contact-point dedup) so on-disk records stay
+// consistent across create/update.
+document.getElementById('editOrganizationForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const formData = new FormData(e.target);
+    const identifier = formData.get('identifier');
+    const orgData = {
+        name: formData.get('name'),
+        legalName: formData.get('legalName') || null,
+        alternateName: formData.get('alternateName') || null,
+        description: formData.get('description') || null,
+        url: formData.get('url') || null,
+        foundingDate: formData.get('foundingDate') || null,
+        knowsAbout: formData.get('knowsAbout')?.split(',').map(s => s.trim()).filter(s => s) || []
+    };
+
+    const addressFields = {
+        streetAddress: formData.get('address.streetAddress'),
+        addressLocality: formData.get('address.addressLocality'),
+        addressRegion: formData.get('address.addressRegion'),
+        postalCode: formData.get('address.postalCode'),
+        addressCountry: formData.get('address.addressCountry')
+    };
+    const hasAddressData = Object.values(addressFields).some(value => value && value.trim());
+    if (hasAddressData) {
+        orgData.address = {
+            "@type": "PostalAddress",
+            ...Object.fromEntries(
+                Object.entries(addressFields).filter(([_, value]) => value && value.trim())
+            )
+        };
+    } else {
+        orgData.address = null;
+    }
+
+    const contactPoints = [];
+    document.querySelectorAll('#editContactPointsContainer .contact-point-item').forEach(item => {
+        const contactType = item.querySelector('[name="contactType"]').value;
+        const email = item.querySelector('[name="contactEmail"]').value;
+        const phone = item.querySelector('[name="contactPhone"]').value;
+        if (contactType && (email || phone)) {
+            const contact = { "@type": "ContactPoint", contactType };
+            if (email) contact.email = email;
+            if (phone) contact.telephone = phone;
+            contactPoints.push(contact);
+        }
+    });
+    orgData.contactPoint = contactPoints;
+
+    try {
+        const response = await fetch(`/admin/organizations/${encodeURIComponent(identifier)}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify(orgData)
+        });
+
+        if (response.ok) {
+            location.reload();
+        } else {
+            const err = await response.json().catch(() => ({}));
+            alert('Error updating organization: ' + (err.error || response.statusText));
+        }
+    } catch (err) {
+        alert('Error updating organization: ' + err.message);
     }
 });
 </script>

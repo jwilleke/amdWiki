@@ -228,7 +228,19 @@ vi.mock('../../WikiEngine', () => {
 
   const mockSchemaManager = {
     getPerson: vi.fn().mockResolvedValue(null),
-    getOrganization: vi.fn().mockResolvedValue(null)
+    getOrganization: vi.fn().mockResolvedValue(null) // legacy; OrganizationManager owns org records since #617
+  };
+
+  // #624: org records owned by OrganizationManager. The schema endpoint and
+  // admin org-CRUD routes resolve through this manager now.
+  const mockOrganizationManager = {
+    list: vi.fn().mockResolvedValue([]),
+    getById: vi.fn().mockResolvedValue(null),
+    getByFile: vi.fn().mockResolvedValue(null),
+    create: vi.fn().mockResolvedValue({ '@id': 'urn:org:new', name: 'New' }),
+    update: vi.fn().mockResolvedValue({ '@id': 'urn:org:test', name: 'Updated' }),
+    delete: vi.fn().mockResolvedValue(true),
+    getInstallOrg: vi.fn().mockResolvedValue(null)
   };
 
   const mockConfigurationManager = {
@@ -295,6 +307,7 @@ vi.mock('../../WikiEngine', () => {
           ACLManager: mockACLManager,
           NotificationManager: mockNotificationManager,
           SchemaManager: mockSchemaManager,
+          OrganizationManager: mockOrganizationManager,
           ConfigurationManager: mockConfigurationManager,
           VariableManager: mockVariableManager,
           ExportManager: mockExportManager,
@@ -1229,20 +1242,24 @@ describe('WikiRoutes - Comprehensive Route Testing', () => {
 
     describe('GET /schema/organization/:identifier', () => {
       test('should return organization schema for admin', async () => {
-        mockUserManager.getCurrentUser.mockResolvedValue({ 
+        mockUserManager.getCurrentUser.mockResolvedValue({
           username: 'admin',
           displayName: 'Admin User',
           email: 'admin@example.com'
         });
         mockUserManager.hasPermission.mockReturnValue(true);
 
-        const mockSchemaManager = mockEngine.getManager('SchemaManager');
-        mockSchemaManager.getOrganization.mockResolvedValue({
+        // #624: org records resolve through OrganizationManager.list() now;
+        // the route's findOrganizationByName helper iterates list and matches
+        // by lowercased `name`.
+        const mockOrganizationManager = mockEngine.getManager('OrganizationManager');
+        mockOrganizationManager.list.mockResolvedValue([{
+          '@id': 'https://example.com',
           name: 'Test Company',
           url: 'https://example.com'
-        });
+        }]);
 
-        const response = await request(app).get('/schema/organization/testcompany');
+        const response = await request(app).get('/schema/organization/test%20company');
         expect(response.status).toBe(200);
       });
     });

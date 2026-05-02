@@ -167,12 +167,20 @@ const mockAssetService = {
 };
 
 const mockSchemaManager = {
-  getPerson: vi.fn().mockResolvedValue(null),
-  getOrganization: vi.fn().mockResolvedValue(null),
-  getOrganizations: vi.fn().mockResolvedValue([{ '@type': 'Organization', name: 'TestOrg' }]),
-  createOrganization: vi.fn().mockResolvedValue({ identifier: 'test-org', name: 'TestOrg' }),
-  updateOrganization: vi.fn().mockResolvedValue({ identifier: 'test-org', name: 'Updated' }),
-  deleteOrganization: vi.fn().mockResolvedValue(true)
+  getPerson: vi.fn().mockResolvedValue(null)
+  // #624: org CRUD methods removed (they were phantoms here too — never
+  // actually existed on SchemaManager). Org tests now use mockOrganizationManager.
+};
+
+// #624: OrganizationManager is now the canonical store for org records.
+const mockOrganizationManager = {
+  list: vi.fn().mockResolvedValue([{ '@type': 'Organization', '@id': 'urn:test', name: 'TestOrg' }]),
+  getById: vi.fn().mockResolvedValue(null),
+  getByFile: vi.fn().mockResolvedValue(null),
+  create: vi.fn().mockResolvedValue({ '@id': 'urn:new', name: 'New' }),
+  update: vi.fn().mockResolvedValue({ '@id': 'urn:test', name: 'Updated' }),
+  delete: vi.fn().mockResolvedValue(true),
+  getInstallOrg: vi.fn().mockResolvedValue(null)
 };
 
 const mockConfigManager = {
@@ -217,6 +225,7 @@ vi.mock('../../WikiEngine', () => {
           NotificationManager: mockNotificationManager,
           BackgroundJobManager: mockBackgroundJobManager,
           SchemaManager: mockSchemaManager,
+          OrganizationManager: mockOrganizationManager,
           MediaManager: includeMediaManager ? mockMediaManager : null,
           AssetService: includeMediaManager ? mockAssetService : null,
           FootnoteManager: { isEnabled: vi.fn().mockReturnValue(false) },
@@ -334,10 +343,11 @@ function resetMocks() {
 
   mockAssetService.search.mockResolvedValue({ results: [], total: 0 });
 
-  mockSchemaManager.getOrganizations.mockResolvedValue([{ '@type': 'Organization', name: 'TestOrg' }]);
-  mockSchemaManager.createOrganization.mockResolvedValue({ identifier: 'new-org', name: 'New' });
-  mockSchemaManager.updateOrganization.mockResolvedValue({ identifier: 'test-org', name: 'Updated' });
-  mockSchemaManager.deleteOrganization.mockResolvedValue(true);
+  // #624: org CRUD now flows through OrganizationManager.
+  mockOrganizationManager.list.mockResolvedValue([{ '@type': 'Organization', '@id': 'urn:test', name: 'TestOrg' }]);
+  mockOrganizationManager.create.mockResolvedValue({ '@id': 'urn:new', name: 'New' });
+  mockOrganizationManager.update.mockResolvedValue({ '@id': 'urn:test', name: 'Updated' });
+  mockOrganizationManager.delete.mockResolvedValue(true);
 }
 
 function buildApp() {

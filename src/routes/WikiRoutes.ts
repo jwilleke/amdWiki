@@ -173,12 +173,29 @@ interface ISchemaManager {
   getSchema(name: string): unknown;
   getAllSchemaNames(): string[];
   getComprehensiveSiteData(options?: unknown): Promise<unknown>;
-  getOrganizations(): Promise<unknown[]>;
-  getOrganization(id: string): Promise<unknown>;
-  createOrganization(data: unknown): Promise<unknown>;
-  updateOrganization(id: string, data: unknown): Promise<unknown>;
-  deleteOrganization(id: string): Promise<void>;
   getPerson(id: string): Promise<unknown>;
+  // #624 (iteration 3c): the org-CRUD methods that used to live here were
+  // phantoms — typed but never implemented on SchemaManager. Org records are
+  // owned by OrganizationManager (see IOrganizationManager).
+}
+
+interface IOrganizationRecord {
+  '@context'?: string;
+  '@type'?: string;
+  '@id': string;
+  name?: string;
+  url?: string;
+  [key: string]: unknown;
+}
+
+interface IOrganizationManager {
+  list(): Promise<IOrganizationRecord[]>;
+  getById(id: string): Promise<IOrganizationRecord | null>;
+  getByFile(filename: string): Promise<IOrganizationRecord | null>;
+  create(org: IOrganizationRecord, filename?: string): Promise<IOrganizationRecord>;
+  update(id: string, patch: Record<string, unknown>): Promise<IOrganizationRecord | null>;
+  delete(id: string): Promise<boolean>;
+  getInstallOrg(): Promise<IOrganizationRecord | null>;
 }
 
 interface ISearchManager {
@@ -219,6 +236,7 @@ interface WikiEngine {
   getManager(name: 'PageManager'): IPageManager;
   getManager(name: 'ACLManager'): IACLManager;
   getManager(name: 'SchemaManager'): ISchemaManager;
+  getManager(name: 'OrganizationManager'): IOrganizationManager;
   getManager(name: 'SearchManager'): ISearchManager;
   getManager(name: 'PolicyManager'): IPolicyManager;
   // Managers using full typed imports
@@ -7789,25 +7807,18 @@ ${panes}
 
       const templateData = await this.getCommonTemplateData(req);
 
-      // Try to get SchemaManager, fallback gracefully
+      // #624: list real Organization records via OrganizationManager (the
+      // canonical store since #617). The route's `:identifier` param is the
+      // org's `name` (URL-encoded). Lookup helpers iterate list() and match
+      // by name — adequate at admin-page scale (handful of orgs per install)
+      // and avoids dragging filename plumbing into the public URL surface.
+      const organizationManager = this.engine.getManager('OrganizationManager');
       let organizations: unknown[] = [];
       try {
-        const schemaManager = this.engine.getManager('SchemaManager');
-        organizations = await schemaManager.getOrganizations();
+        organizations = await organizationManager.list();
       } catch (err: unknown) {
-        logger.warn('SchemaManager not available:', getErrorMessage(err));
-        // Create default organization from ConfigurationManager
-        const configManager = this.engine.getManager('ConfigurationManager');
-        organizations = [
-          {
-            '@context': 'https://schema.org',
-            '@type': 'Organization',
-            identifier: 'ngdpbase-platform',
-            name: configManager.getProperty('ngdpbase.application-name', 'ngdpbase Platform'),
-            description:
-              'Digital platform for wiki, document management, and modular content systems'
-          }
-        ];
+        logger.error('Error loading organizations:', getErrorMessage(err));
+        organizations = [];
       }
 
       templateData.organizations = organizations;
@@ -7838,13 +7849,25 @@ ${panes}
         return res.status(403).json({ error: 'Admin access required' });
       }
 
-      const schemaManager = this.engine.getManager('SchemaManager');
-      const organizationData = req.body;
+      const organizationManager = this.engine.getManager('OrganizationManager');
+      const organizationData = req.body as Record<string, unknown>;
 
-      // Validate and create organization
-      const newOrganization = await schemaManager.createOrganization(
-        organizationData
-      );
+      // #624: ensure the JSON-LD type fields are present even if the form
+      // submitted only the user-editable fields.
+      const nameForSlug = ((organizationData.name as string) || 'organization')
+        .toLowerCase()
+        .normalize('NFKD')
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '')
+        .slice(0, 80);
+      const orgRecord: IOrganizationRecord = {
+        '@context': 'https://schema.org',
+        '@type': 'Organization',
+        ...organizationData,
+        '@id': (organizationData['@id'] as string) || (organizationData.url as string) || `urn:ngdpbase:org:${nameForSlug}`
+      };
+
+      const newOrganization = await organizationManager.create(orgRecord);
 
       if (req.headers.accept?.includes('application/json')) {
         return res.json({ success: true, organization: newOrganization });
@@ -7875,15 +7898,23 @@ ${panes}
         return res.status(403).json({ error: 'Admin access required' });
       }
 
-      const schemaManager = this.engine.getManager('SchemaManager');
+      const organizationManager = this.engine.getManager('OrganizationManager');
       const identifier = req.params.identifier;
-      const organizationData = req.body;
+      const patch = req.body as Record<string, unknown>;
 
-      // Update organization
-      const updatedOrganization = await schemaManager.updateOrganization(
-        identifier,
-        organizationData
-      );
+      // #624: route :identifier is the org's `name` (URL-decoded by Express).
+      // Look up the org to find its `@id`, then patch by @id. Mutation of
+      // identity fields (`@context`, `@type`, `@id`) is rejected by the
+      // provider's update() implementation.
+      const existing = await this.findOrganizationByName(organizationManager, identifier);
+      if (!existing) {
+        if (req.headers.accept?.includes('application/json')) {
+          return res.status(404).json({ error: `Organization "${identifier}" not found` });
+        }
+        return res.redirect('/admin/organizations?error=' + encodeURIComponent(`Organization "${identifier}" not found`));
+      }
+
+      const updatedOrganization = await organizationManager.update(existing['@id'], patch);
 
       if (req.headers.accept?.includes('application/json')) {
         return res.json({ success: true, organization: updatedOrganization });
@@ -7914,11 +7945,18 @@ ${panes}
         return res.status(403).json({ error: 'Admin access required' });
       }
 
-      const schemaManager = this.engine.getManager('SchemaManager');
+      const organizationManager = this.engine.getManager('OrganizationManager');
       const identifier = req.params.identifier;
 
-      // Delete organization
-      await schemaManager.deleteOrganization(identifier);
+      const existing = await this.findOrganizationByName(organizationManager, identifier);
+      if (!existing) {
+        if (req.headers.accept?.includes('application/json')) {
+          return res.status(404).json({ error: `Organization "${identifier}" not found` });
+        }
+        return res.redirect('/admin/organizations?error=' + encodeURIComponent(`Organization "${identifier}" not found`));
+      }
+
+      await organizationManager.delete(existing['@id']);
 
       if (req.headers.accept?.includes('application/json')) {
         return res.json({ success: true });
@@ -7949,9 +7987,9 @@ ${panes}
         return res.status(403).json({ error: 'Admin access required' });
       }
 
-      const schemaManager = this.engine.getManager('SchemaManager');
+      const organizationManager = this.engine.getManager('OrganizationManager');
       const identifier = req.params.identifier;
-      const organization = await schemaManager.getOrganization(identifier);
+      const organization = await this.findOrganizationByName(organizationManager, identifier);
 
       if (!organization) {
         return res.status(404).json({ error: 'Organization not found' });
@@ -7962,6 +8000,20 @@ ${panes}
       logger.error('Error getting organization:', error);
       return res.status(500).json({ error: getErrorMessage(error) });
     }
+  }
+
+  /**
+   * #624 helper — find an Organization record by its `name` field (case-
+   * insensitive). The admin UI uses `name` as the URL identifier. Returns
+   * the org or null.
+   */
+  private async findOrganizationByName(
+    organizationManager: { list(): Promise<Array<{ name?: string; '@id': string; [key: string]: unknown }>> },
+    identifier: string
+  ): Promise<{ '@id': string; [key: string]: unknown } | null> {
+    const target = decodeURIComponent(identifier).toLowerCase();
+    const all = await organizationManager.list();
+    return all.find((o) => typeof o.name === 'string' && o.name.toLowerCase() === target) ?? null;
   }
 
   /**
@@ -8048,9 +8100,9 @@ ${panes}
         return res.status(403).json({ error: 'Admin access required' });
       }
 
-      const schemaManager = this.engine.getManager('SchemaManager');
+      const organizationManager = this.engine.getManager('OrganizationManager');
       const identifier = req.params.identifier;
-      const organization = await schemaManager.getOrganization(identifier);
+      const organization = await this.findOrganizationByName(organizationManager, identifier);
 
       if (!organization) {
         return res.status(404).json({ error: 'Organization not found' });
