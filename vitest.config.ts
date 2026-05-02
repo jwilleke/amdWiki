@@ -54,7 +54,16 @@ export default defineConfig({
       '**/dist/**',
       'tests/e2e/**'
     ],
-    testTimeout: 20000,
+    // Bumped from 20000 → 30000 to absorb cold-start parallel-pool
+    // contention (#622). On the first vitest run after a quiet period,
+    // 193 test files spinning up workers in parallel can delay individual
+    // supertest requests past 20s — observed deterministically on the
+    // first run, never on warm re-runs. The underlying cause is module-
+    // load + worker-startup overhead, not a real per-test slowdown
+    // (every affected test passes in <10ms when run in isolation).
+    // Track #622 for the deeper investigation; this is the band-aid that
+    // restores deterministic CI signal in the meantime.
+    testTimeout: 30000,
     coverage: {
       provider: 'v8',
       include: ['src/**/*.ts'],
