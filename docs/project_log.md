@@ -2,6 +2,81 @@
 
 AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version history.
 
+## 2026-05-03-11
+
+- Agent: Claude
+- Subject: Shipped #636/#637 (perf), #629 Pass 1+2 (ParseContext refactor), #632 (deprecated ACLManager API removal); cut v3.7.0 release; fixed #619 (CI); shipped #639 Slice E (cleanup); audited open issues and closed #608. Plus back-filled this log per `/session-commit` workflow reminder.
+- Current Issue: #629 (closed), #632 (closed), #636 (closed), #637 (closed), #608 (closed), #619 (closed), #639 (closed Slice E); #622 (open — updated with current observations); v3.7.0 released.
+- Work Done:
+  - **#636 + #637 — WikiContext perf optimizations (d769da60)**: Per-request memoization of `hasPermission(action)` / `canAccess(action)` keyed on action / `${action}:${pageName}`; Promise-level cache so concurrent callers share one in-flight evaluation. Plus `UserManager.hasPermission` accepts pre-resolved `UserContext` (skips `provider.getUser` + `resolveUserRoles` when caller already has session-resolved roles). WikiContext / ApiContext / ParseContext all updated to pass `userContext` through. Combined effect: hot-path access-control overhead from "lookup roles + iterate policies, every call" → "one policy iteration per unique action per request, no redundant lookups". +7 tests; full suite 5223/5223
+  - **#629 Pass 1 — ParseContext wikiContext reference (5f3df903)**: Added `WikiContextLike` structural interface in ParseContext.ts; nested options gained optional `wikiContext` field. Duplicated readonly fields became delegating getters with snapshot fallback. `WikiContext.toParseOptions()` includes `wikiContext: this`. `clone()` preserves the reference. Live binding verified — mutating wikiContext is visible through ParseContext getters. +5 tests; full suite 5228/5228
+  - **#629 Pass 2 — sweep + remove getters (e5da6640)**:
+    - ~50 consumer call sites across 13 files migrated to read user/page-data via `ctx.wikiContext?.X` instead of the duplicate getters
+    - Removed `pageName`/`userContext`/`pageMetadata` getters and `hasRole`/`hasPermission`/`canAccess`/`getPrincipals` methods from ParseContext
+    - Kept `userName` as a one-line derivation helper, plus `requestInfo` snapshot
+    - `wikiContext` is now non-nullable — synthesized stub from PageContext when no real WikiContext provided (test fixtures); stub delegates `hasPermission`/`canAccess` to engine's UserManager / ACLManager so legacy tests still get policy-evaluated answers
+    - Resolved long-standing TODO in BaseFilter.ts + BaseSyntaxHandler.ts: their local `interface ParseContext { pageName?: string; ... }` stubs were silently shielding consumer code from typecheck — replaced with `export type { ParseContext }` from the real class
+    - Live server smoke: home / view/Welcome / view/SandBox all 200. Full suite 5229/5229
+  - **#632 — drop deprecated 4-arg ACLManager.checkPagePermission (4f4ae99e)**: Three remaining call sites in WikiRoutes (LeftMenu, Footer, adminDashboard) migrated to canonical `checkPagePermissionWithContext`. The deprecated method only ran tier 2 (PolicyEvaluator); canonical runs full 3-tier (private user-keyword → frontmatter audience → global policies). Side-effect upgrade: LeftMenu/Footer now correctly honor private + audience. Method removed (~70 LOC) along with `IACLManager.checkPagePermission` interface declaration. Tests for the deprecated method (12 in ACLManager.test.ts + 1 in policy-system.test.ts) deleted/migrated. Net -197 lines. Full suite 5218/5218
+  - **v3.7.0 release (2a0f1ee6)**: 28 commits since v3.6.0 covering #634, #635, #638, #626, #639 A-D, #641, #636, #637, #629 Pass 1+2, #632. `npm run build` + `npm test` (5218/5218 after #622 transient retry) + `npm run test:e2e` (72/72) + version bump via `dist/src/utils/version.js minor` + baseline profile capture (`docs/performance/baseline-v3.7.0-2026-05-03.md`) + tag + GitHub release with auto-generated notes. **Sister sites propagated** via `/othersites`: each had local diffs (`package-lock.json` + the migrated required-pages file from prior session) — discarded with `git checkout` then `git pull --ff-only`. All four sites: 5218/5218 unit + 72/72 E2E + 302 smoke. Release URL: <https://github.com/jwilleke/ngdpbase/releases/tag/v3.7.0>
+  - **#619 — unbreak CI (a000eb14)**: Three bugs in `.github/workflows/ci.yml` — (1) smoke test referenced `ngdpbase.applicationName` (camelCase), canonical key is `ngdpbase.application-name`; (2) E2E seed step ran `node scripts/seed-e2e-test-data.js` but file is `.ts`, switched to `npx tsx`; (3) WikiEngine init step used `require('./src/WikiEngine')` in ESM project, rewrote as `node --input-type=module` with dynamic import of built output. All three verified locally. **Workflow currently disabled (`disabled_manually`)** — almost certainly because it was failing on every run; user needs to re-enable manually
+  - **#622 update**: Posted current observations after v3.7.0. The flake is now visible in additional tests beyond the original `coverage3.test.ts:812` (also `coverage.test.ts`, `coverage5.test.ts`, `routes.test.ts`). Two distinct symptom classes identified: timeout (original) and status-mismatch (new — caused by mock state leaking between tests). Concrete example caught + fixed in 4f4ae99e: `mockACLManager.checkPagePermissionWithContext` not in global beforeEach reset. Suggested next step: audit `mockResolvedValue` calls in `routes.test.ts` + `coverage*.test.ts`, convert one-shot denials to `mockResolvedValueOnce`
+  - **Open-issue audit + #608 closure**: Walked the open-issue list to identify finished work. Closed **#608 (RecentChangesPlugin perf)** — fixed by #635 (`pageManager.getRecentChanges()` API). Live measurement on jimstest (17,063-page dataset): page with 4 plugin invocations renders **1.4s first / 20ms warm**. Pre-#635 was N×getPage + N×fs.stat per render. No other open issues turned out to be already-finished
+  - **#639 Slice E — cleanup (2c8b6b84)**:
+    - Dropped `userKeywords.includes('private')` back-compat fallbacks from 6 read sites (ACLManager / Lunr / ES / VersioningFileProvider pageIndex / FileSystemProvider getRecentChanges / MediaManager)
+    - Save handler simplified — `wantsPrivate` now reads only `metadata.private === true`; `userKeywordDefs` lookup gone; defensive strip of `'private'` from user-keywords array kept as cheap insurance
+    - Removed `private` entry from `ngdpbase.user-keywords` config vocabulary in `app-default-config.json`
+    - `metadata['system-location'] === 'private'` kept as defensive read (it's a different field — storage hint set by PageManager, not a duplicate)
+    - Tests removed: 4 ACLManager Tier-0-user-keyword + 1 MediaManager back-compat + 1 LunrSearchProvider back-compat. Full suite 5212/5212. Net -68 lines
+    - Closes #639 — full lifecycle done (A: read fallback → B: write normalization → C: UI checkbox → D: migration script + applied to 4 sites → E: cleanup)
+  - **Memory updates**: Added `feedback_session_commit_workflow.md` capturing the user's reminder that every code commit must be followed by a project_log entry + GH issue comment + log push, per `/.claude/commands/session-commit.md`, even when `/session-commit` isn't explicitly invoked. Indexed in MEMORY.md
+- Testing:
+  - typecheck: clean across all changes
+  - eslint: clean
+  - vitest unit: peaked at 5229/5229 mid-session; final 5212/5212 after Slice E (-6 from removing legacy-path tests). #622-class transient observed several times; retry was always clean
+  - Playwright E2E: 72/72 passing on each of jimstest / fairways / ve-geology / temp-builds during release propagation
+  - Live server smoke: home / view/Welcome / view/SandBox / view/Recent Changes all 200 post-#629 Pass 2 and post-Slice E
+- Commits:
+  - d769da60 (`perf(#636,#637): WikiContext per-request hasPermission/canAccess memoization + UserManager fast path`)
+  - 5f3df903 (`refactor(#629): ParseContext Pass 1 — wikiContext reference + delegating getters`)
+  - e5da6640 (`refactor(#629): Pass 2 — sweep ParseContext consumers off duplicating getters; remove the getters`)
+  - 4f4ae99e (`refactor(#632): migrate remaining callers off deprecated ACLManager.checkPagePermission; remove the method`)
+  - 2a0f1ee6 (`chore: release v3.7.0`)
+  - a000eb14 (`fix(#619): unbreak CI smoke + E2E + WikiEngine init step`)
+  - 2c8b6b84 (`refactor(#639): Slice E — drop user-keywords back-compat fallbacks; remove private from user-keywords vocabulary`)
+- Files Modified:
+  - src/managers/UserManager.ts (#637 fast path)
+  - src/managers/ACLManager.ts (#632 method removal; #639 Slice E fallback drop)
+  - src/managers/MediaManager.ts (#639 Slice E)
+  - src/managers/PageManager.ts (#637 fast path; #639 Slice E save simplification)
+  - src/context/WikiContext.ts (#636 memoization; #629 toParseOptions wikiContext pass-through)
+  - src/context/ApiContext.ts (#637 fast path)
+  - src/parsers/context/ParseContext.ts (#629 Passes 1 + 2 — biggest single rewrite)
+  - src/parsers/handlers/{BaseSyntax,WikiTag,PluginSyntax,WikiForm,Attachment,InterWikiLink,LinkParser}Handler.ts (#629 Pass 2 sweep)
+  - src/parsers/filters/{Base,Security,Validation,Spam}Filter.ts (#629 Pass 2 sweep)
+  - src/parsers/dom/handlers/DOMPluginHandler.ts (#629 Pass 2 sweep)
+  - src/parsers/MarkupParser.ts (#629 Pass 2 sweep)
+  - src/providers/{Lunr,Elasticsearch}SearchProvider.ts (#639 Slice E)
+  - src/providers/{Versioning,File}SystemProvider.ts (#639 Slice E + #629 Pass 2 sweep)
+  - src/routes/WikiRoutes.ts (#632 migration)
+  - src/routes/**tests**/routes.test.ts (#632 mock + #622 reset)
+  - src/managers/**tests**/{ACLManager,UserManager,MediaManager,PageManager,policy-system}.test.ts (Slice E updates + #637 fast-path tests)
+  - src/context/**tests**/{WikiContext,ApiContext}.test.ts (#636 memoization tests + #637 signature tests)
+  - src/parsers/context/**tests**/ParseContext.test.ts (#629 Pass 2 — wikiContext.X migration; +5 stub-delegation tests)
+  - src/providers/**tests**/LunrSearchProvider.privateFilter.test.ts (#639 Slice E)
+  - config/app-default-config.json (#639 Slice E — removed private user-keyword)
+  - .github/workflows/ci.yml (#619 fixes)
+  - package.json + CHANGELOG.md (3.6.0 → 3.7.0 bump)
+  - **NEW** docs/performance/baseline-v3.7.0-2026-05-03.md (release baseline)
+- GH issues:
+  - **Closed**: #608 (fixed by #635); #629 (Pass 1+2 done); #632 (deprecated method removed); #636 (memoization shipped); #637 (fast path shipped); #619 (CI fixes shipped, workflow re-enable is manual); #639 (Slice E completes the lifecycle)
+  - **Updated**: #622 (current observations across this session)
+  - **Open follow-ups still on the board**: #640 (My Contributions card — not started); #622 (deeper investigation pending); #634 closed earlier; #635 closed earlier; #641 closed earlier
+- Notes:
+  - **#619 CI workflow stays disabled** until user re-enables. Code fix is verified locally; needs a CI run to confirm green there
+  - **#622 mock-leak class** — fixing one instance (the #632 commit's beforeEach reset) suggests a tractable audit across `routes.test.ts` and `coverage*.test.ts` would reduce flake rate. Estimated 30 min if attacked
+  - **`/session-commit` workflow reminder** from user mid-session: every code commit needs a project_log entry. New memory `feedback_session_commit_workflow.md` codifies this. This entry is the back-fill for d769da60 / 5f3df903 / e5da6640 / 4f4ae99e / 2a0f1ee6 / a000eb14 / 2c8b6b84 — seven code commits squashed into one log entry rather than seven separate ones (the work happened as one continuous session)
+
 ## 2026-05-03-10
 
 - Agent: Claude
