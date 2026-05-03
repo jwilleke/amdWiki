@@ -2,6 +2,35 @@
 
 AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version history.
 
+## 2026-05-03-15
+
+- Agent: Claude
+- Subject: Cut v3.8.0 release; added release-to-release perf diff + cross-reference to `/othersites` in `.claude/commands/semver.md`
+- Current Issue: none (release + workflow improvements)
+- Work Done:
+  - **v3.8.0 release (e3b1af5d, tag v3.8.0)**: 9 commits since v3.7.0. `npm run build` + 5228/5228 unit + 72/72 E2E + version bump + baseline capture (`docs/performance/baseline-v3.8.0-2026-05-03.md`) + tag + GitHub release. Propagated to all three sister sites via `/othersites` (Fairways / ve-geology / temp-builds): each 5228/5228 unit + 72/72 E2E + 302 smoke. ve-geology hit one #622 transient on first run; retry clean. No bugs filed
+  - **Historical perf summary**: walked the 10 baseline files (v3.3.7 → v3.8.0). Memory stable at ~3.4–3.7 GB since v3.4.0 (the v3.3.7 / v3.5.4 outliers are cold-cache snapshot artefacts, not real regressions). Latencies steady on always-warm routes (`/view/Welcome` 15-19ms, `/login` 15-17ms). `/search?q=test` is bimodal (~130ms hot / ~250ms cold-Lunr-index). No version-correlated regressions across the series. Caveat: the `Pages on disk` metric is misleading — it counts `data/pages` in the repo (104) instead of `$SLOW_STORAGE/pages` (17,063 actual). Worth fixing in `scripts/baseline-profile.sh` next time
+  - **`.claude/commands/semver.md` updates** — two commits to integrate the perf-diff insight back into the release workflow:
+    - **2e1d2ed8** — added "Step 5b: Compute and surface the release-to-release perf diff". After capturing the new baseline, find the previous baseline file, parse memory + 4 route timings from each, compute absolute + relative deltas, render an inline markdown table to the user. Flag regression candidates with ⚠️ when memory >+500MB OR (any route >+50% relative AND >+50ms absolute). Don't auto-rollback — measurement noise is real per the historical series. Step 9 (Report) updated to re-include the diff table. Partial substitute for #611 (open: `baseline-profile.sh: --compare mode`); once that ships, Step 5b can shrink to "run `npm run test:baseline:compare`"
+    - **adf4ecc4** — Step 8 now references `.claude/commands/othersites.md` by path and inlines the current install list (jimstest / fairways / ve-geology / temp-builds with paths and ports), plus documents the dirty-working-tree resolution pattern that worked across v3.7.0 + v3.8.0 propagations (`git checkout -- <file>` for known-identical local diffs)
+- Testing:
+  - Release path: build clean, `npm test` 5228/5228, `npm run test:e2e` 72/72
+  - Sister-site propagation: 5228 + 72 on each of the three; ve-geology hit one #622 transient on first try, retry clean
+  - Live smoke after release: all four sites 302 (login redirect — healthy)
+- Commits:
+  - e3b1af5d (`chore: release v3.8.0`)
+  - 2e1d2ed8 (`docs(semver): add release-to-release perf diff to /semver workflow (Step 5b + Step 9 update)`)
+  - adf4ecc4 (`docs(semver): reference .claude/commands/othersites.md by path in Step 8 + document the install list inline`)
+- Files Modified:
+  - package.json + config/app-default-config.json + CHANGELOG.md (3.7.0 → 3.8.0)
+  - **NEW** docs/performance/baseline-v3.8.0-2026-05-03.md
+  - .claude/commands/semver.md (Step 5b + Step 8 cross-reference + Step 9 update)
+- GH issues:
+  - #611 still open — `baseline-profile.sh: --compare mode` is the proper home for the diff logic. Step 5b in semver.md is the working substitute until the script learns the flag itself
+- Notes:
+  - v3.8.0 tag URL: <https://github.com/jwilleke/ngdpbase/releases/tag/v3.8.0>
+  - The "Pages on disk" metric in the baseline files is currently misleading (104 vs the real 17,063). Worth a small fix to `scripts/baseline-profile.sh` to count from `${SLOW_STORAGE:-./data}/pages` excluding `versions/` subdirs. Not blocking anything; could be folded into the next minor release
+
 ## 2026-05-03-14
 
 - Agent: Claude
