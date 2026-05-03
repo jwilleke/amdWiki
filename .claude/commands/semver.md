@@ -64,6 +64,49 @@ After the version bump (so the new `<VERSION>` is reflected in the filename) and
 
 This gives every release a baseline file that's diffable against the previous one for regression detection. If you want a cold-start measurement included, use `npm run test:baseline:cold` instead — it stops and starts the server first (slower; only do this when the server is already going to be restarted anyway).
 
+### Step 5b: Compute and surface the release-to-release perf diff
+
+Right after the new baseline is written (Step 5a) and before the release commit, compare it against the **previous** baseline file to surface any regression. Output the diff to the user inline AND include it in the eventual release report (Step 9). Track the deltas in the session's project_log entry.
+
+**Find the two baseline files:**
+
+```bash
+NEW_BASELINE=$(ls -t docs/performance/baseline-v*-*.md | head -1)
+PREV_BASELINE=$(ls -t docs/performance/baseline-v*-*.md | sed -n '2p')
+```
+
+If `PREV_BASELINE` is empty (first-ever baseline), skip the diff and note "no prior baseline to compare against" in the report.
+
+**Extract metrics from each file** — the baselines have a stable shape (`| Resident memory (idle) | <N> MB |`, `|`/`<sup>backtick</sup> | <N> ms |`, etc.). For each of: resident memory, `/`, `/view/Welcome`, `/search?q=test`, `/login`, parse both files and compute:
+
+- **Absolute delta** (new - old)
+- **Relative delta** (`(new - old) / old * 100` percent)
+
+**Render an inline diff table in your reply** with this shape:
+
+```
+Perf diff vs vPREV (baseline-vPREV-DATE.md):
+
+| Metric            | Previous | New      | Δ          |
+|-------------------|----------|----------|------------|
+| Memory (idle)     | 3537.7 MB | 3665.7 MB | +128.0 MB (+3.6%) |
+| `/`               | 19 ms     | 20 ms     | +1 ms (+5.3%)     |
+| `/view/Welcome`   | 16 ms     | 16 ms     | 0 ms (0%)          |
+| `/search?q=test`  | 257 ms    | 127 ms    | -130 ms (-50.6%)   |
+| `/login`          | 17 ms     | 16 ms     | -1 ms (-5.9%)      |
+```
+
+**Flag regressions** as warnings (don't block the release — these are usually measurement noise, but the user should see them):
+
+- Memory delta > +500 MB
+- Any route delta > +50% relative AND > +50 ms absolute (both conditions, to ignore micro-jitter on already-fast routes)
+
+If any flagged regression fires, prefix the diff table with `⚠️ Regression candidate(s): <list>` so the user can decide whether to investigate before completing Step 8 (othersites propagation). Don't auto-rollback — measurement noise is real (cold-cache snapshots show up as 100ms+ outliers across the historical baseline series; see `docs/performance/` for examples). User judgment required.
+
+**No regressions visible**: just show the diff table and continue. The diff is informational regardless.
+
+This step replaces "release-to-release diff visualization" — the work that was tracked as #611 (`baseline-profile.sh: --compare mode for release-to-release regression detection`). Once `baseline-profile.sh` learns a `--compare` flag of its own, this step can shrink to "run `npm run test:baseline:compare`" and parse its output.
+
 ### Step 6: Commit, tag, and push
 
 Run sequentially:
@@ -90,6 +133,7 @@ Output to the user:
 - Old version → new version
 - Tag URL (from `gh release view v<next> --json url --jq .url`)
 - Number of commits in this release (from Step 3)
+- **Perf diff table** from Step 5b (re-included here for easy reference; if any regression candidate was flagged, repeat the warning)
 - Whether `/othersites` propagation succeeded.
 
 ## Rules
