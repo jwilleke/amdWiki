@@ -84,3 +84,131 @@ describe('ParseContext.getPrincipals', () => {
     expect(roles).toEqual(['editor']);
   });
 });
+
+// ─── #629: WikiContext delegation (Pass 1) ─────────────────────────────────
+
+describe('ParseContext — wikiContext delegation (#629)', () => {
+  // A minimal WikiContextLike fixture we can mutate during tests.
+  function makeWikiContextLike(initial: {
+    pageName?: string | null;
+    userContext?: { username?: string; roles?: string[]; isAuthenticated?: boolean } | null;
+    pageMetadata?: { title?: string; uuid?: string } | null;
+  } = {}) {
+    return {
+      engine: mockEngine,
+      pageName: initial.pageName ?? null,
+      userContext: initial.userContext ?? null,
+      pageMetadata: initial.pageMetadata ?? null,
+      hasRole: () => false,
+      hasPermission: async () => false,
+      canAccess: async () => false
+    };
+  }
+
+  test('wikiContext is null when constructor is called with raw context (back-compat)', () => {
+    const ctx = new ParseContext(
+      'content',
+      { pageName: 'Direct', userContext: { username: 'alice', roles: ['editor'] } },
+      mockEngine
+    );
+    expect(ctx.wikiContext).toBeNull();
+    // Snapshot path still works
+    expect(ctx.pageName).toBe('Direct');
+    expect(ctx.userContext?.username).toBe('alice');
+    expect(ctx.userName).toBe('alice');
+  });
+
+  test('wikiContext is wired when nested context includes it; getters delegate to it', () => {
+    const wc = makeWikiContextLike({
+      pageName: 'FromWiki',
+      userContext: { username: 'bob', roles: ['admin'], isAuthenticated: true },
+      pageMetadata: { title: 'FromWiki', uuid: 'u-1' }
+    });
+    const ctx = new ParseContext(
+      'content',
+      {
+        pageContext: { pageName: 'StaleSnap', userContext: { username: 'old' } },
+        engine: mockEngine,
+        wikiContext: wc
+      },
+      mockEngine
+    );
+    expect(ctx.wikiContext).toBe(wc);
+    // Getters return live wikiContext values, not the snapshot
+    expect(ctx.pageName).toBe('FromWiki');
+    expect(ctx.userContext?.username).toBe('bob');
+    expect(ctx.userName).toBe('bob');
+    expect(ctx.pageMetadata?.uuid).toBe('u-1');
+  });
+
+  test('mutating wikiContext after construction is visible through ParseContext getters (live binding)', () => {
+    const wc = makeWikiContextLike({
+      pageName: 'Initial',
+      userContext: { username: 'alice', roles: ['user'] }
+    });
+    const ctx = new ParseContext(
+      'content',
+      {
+        pageContext: { pageName: 'StaleSnap' },
+        engine: mockEngine,
+        wikiContext: wc
+      },
+      mockEngine
+    );
+    expect(ctx.pageName).toBe('Initial');
+
+    // Mutate the wikiContext (in real usage WikiContext fields are readonly,
+    // but the live-binding contract is what we're testing).
+    (wc as { pageName: string }).pageName = 'MutatedLive';
+    (wc as { userContext: { username: string; roles: string[] } }).userContext = {
+      username: 'mallory',
+      roles: ['admin']
+    };
+
+    expect(ctx.pageName).toBe('MutatedLive');
+    expect(ctx.userContext?.username).toBe('mallory');
+    expect(ctx.userName).toBe('mallory');
+  });
+
+  test('snapshot acts as fallback when wikiContext fields are null', () => {
+    // Null pageName / userContext / pageMetadata on the wikiContext should
+    // surface the constructor-time snapshot via the `??` fallback.
+    const wc = makeWikiContextLike({ pageName: null, userContext: null, pageMetadata: null });
+    const ctx = new ParseContext(
+      'content',
+      {
+        pageContext: {
+          pageName: 'SnapPage',
+          userContext: { username: 'snapuser', roles: ['reader'] },
+          pageMetadata: { title: 'SnapPage', uuid: 'u-snap' }
+        },
+        engine: mockEngine,
+        wikiContext: wc
+      },
+      mockEngine
+    );
+    expect(ctx.pageName).toBe('SnapPage');
+    expect(ctx.userContext?.username).toBe('snapuser');
+    expect(ctx.pageMetadata?.uuid).toBe('u-snap');
+  });
+
+  test('clone() preserves the wikiContext reference', () => {
+    const wc = makeWikiContextLike({
+      pageName: 'Parent',
+      userContext: { username: 'alice', roles: ['admin'] }
+    });
+    const parent = new ParseContext(
+      'parent content',
+      {
+        pageContext: { pageName: 'ParentSnap' },
+        engine: mockEngine,
+        wikiContext: wc
+      },
+      mockEngine
+    );
+    const child = parent.clone();
+    expect(child.wikiContext).toBe(wc);
+    expect(child.pageName).toBe('Parent');
+    expect(child.userName).toBe('alice');
+  });
+});

@@ -116,6 +116,13 @@ export interface ParseOptions {
   pageContext: PageContext;
   /** Wiki engine instance */
   engine: WikiEngine;
+  /**
+   * Optional reference to the parent WikiContext (#629). When present,
+   * ParseContext getters delegate user/page-data lookups to it instead of
+   * reading the constructor-time `pageContext` snapshot, keeping the
+   * WikiContext as the single source of truth across the parse run.
+   */
+  wikiContext?: unknown;
 }
 
 /**
@@ -596,7 +603,12 @@ class WikiContext {
         themeContext: this.themeContext,
         pageMetadata: this.pageMetadata
       },
-      engine: this.engine
+      engine: this.engine,
+      // #629: ParseContext getters delegate to this when present so the
+      // WikiContext stays the single source of truth across the parse run.
+      // The pageContext snapshot above is kept as a back-compat fallback for
+      // callers that aren't ParseContext (or test fixtures that pass raw options).
+      wikiContext: this as unknown
     };
   }
 

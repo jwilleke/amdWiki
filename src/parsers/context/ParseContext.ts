@@ -60,11 +60,38 @@ export interface WikiEngine {
 }
 
 /**
+ * Minimal WikiContext interface for the parser side (#629).
+ *
+ * ParseContext holds a reference to its parent WikiContext so user/page-data
+ * fields don't have to be copied. We define a structural interface here rather
+ * than importing the full WikiContext class to avoid coupling the parser
+ * package to context internals (and to side-step circular imports).
+ *
+ * Only the fields/methods ParseContext needs to delegate are listed.
+ */
+export interface WikiContextLike {
+  readonly engine: WikiEngine;
+  readonly pageName: string | null;
+  readonly userContext: UserContext | null;
+  readonly pageMetadata: PageFrontmatter | null;
+  hasRole(...names: string[]): boolean;
+  hasPermission(action: string): Promise<boolean>;
+  canAccess(action: string): Promise<boolean>;
+}
+
+/**
  * Nested context structure (from WikiContext.toParseOptions())
  */
 export interface NestedContextOptions {
   pageContext: PageContext;
   engine?: WikiEngine;
+  /**
+   * #629: optional reference to the parent WikiContext. When provided,
+   * ParseContext getters delegate user/page-data lookups to it instead of
+   * the constructor-time snapshot in `pageContext`. Lets the WikiContext
+   * stay the single source of truth across the parse run.
+   */
+  wikiContext?: WikiContextLike;
 }
 
 /**
@@ -128,16 +155,34 @@ export interface CachedContextData {
 
 /**
  * ParseContext - Context object for markup parsing operations
+ *
+ * #629: holds a reference to the parent WikiContext. When present, the
+ * user/page-data getters delegate to it; when absent (legacy callers passing
+ * raw PageContext objects), the getters fall back to the constructor-time
+ * snapshot. Either way the public surface is identical, so consumers don't
+ * need to change.
  */
 class ParseContext {
   readonly originalContent: string;
   readonly pageContext: PageContext;
   readonly engine: WikiEngine;
-  readonly pageName: string;
-  readonly userName: string;
-  readonly userContext: UserContext | null;
-  readonly requestInfo: RequestInfo | null;
-  readonly pageMetadata: PageFrontmatter | null;
+
+  /**
+   * Reference to the parent WikiContext (#629). Null when constructed from a
+   * raw context object (tests / direct construction). When non-null, the
+   * pageName / userContext / pageMetadata getters delegate to it so the
+   * WikiContext stays the single source of truth across the parse run.
+   */
+  readonly wikiContext: WikiContextLike | null;
+
+  // Snapshot — populated at construction. Used as the fallback for the
+  // public getters when `wikiContext` is null. Keeping these private under-
+  // scores so no consumer is tempted to read them directly.
+  private readonly _snapPageName: string;
+  private readonly _snapUserContext: UserContext | null;
+  private readonly _snapRequestInfo: RequestInfo | null;
+  private readonly _snapPageMetadata: PageFrontmatter | null;
+  private readonly _snapUserName: string;
 
   // Mutable processing state
   protectedBlocks: unknown[];
@@ -155,39 +200,41 @@ class ParseContext {
     this.originalContent = content;
 
     // Handle nested structure from WikiContext.toParseOptions()
-    // Context structure: { pageContext: { pageName, userContext, requestInfo }, engine }
+    // Context structure: { pageContext: { pageName, userContext, requestInfo }, engine, wikiContext? }
     if ('pageContext' in context && context.pageContext) {
       // Nested structure from WikiContext
       const nestedContext = context as NestedContextOptions;
       this.pageContext = nestedContext.pageContext;
       this.engine = nestedContext.engine || engine;
+      this.wikiContext = nestedContext.wikiContext ?? null;
 
-      // Extract from nested pageContext
-      this.pageName = nestedContext.pageContext.pageName || 'unknown';
-      this.userContext = nestedContext.pageContext.userContext || null;
-      this.requestInfo = nestedContext.pageContext.requestInfo || null;
-      this.pageMetadata = nestedContext.pageContext.pageMetadata ?? null;
+      // Snapshot from nested pageContext
+      this._snapPageName = nestedContext.pageContext.pageName || 'unknown';
+      this._snapUserContext = nestedContext.pageContext.userContext || null;
+      this._snapRequestInfo = nestedContext.pageContext.requestInfo || null;
+      this._snapPageMetadata = nestedContext.pageContext.pageMetadata ?? null;
 
       // Extract userName from userContext if not directly provided
-      this.userName = nestedContext.pageContext.userName ||
-                      this.userContext?.username ||
-                      this.userContext?.userName ||
+      this._snapUserName = nestedContext.pageContext.userName ||
+                      this._snapUserContext?.username ||
+                      this._snapUserContext?.userName ||
                       'anonymous';
     } else {
       // Direct structure (legacy or alternative calling pattern)
       const directContext = context as DirectContextOptions;
       this.pageContext = directContext;
       this.engine = engine;
+      this.wikiContext = null;
 
-      this.pageName = directContext.pageName || 'unknown';
-      this.userContext = directContext.userContext || null;
-      this.requestInfo = directContext.requestInfo || null;
-      this.pageMetadata = directContext.pageMetadata ?? null;
+      this._snapPageName = directContext.pageName || 'unknown';
+      this._snapUserContext = directContext.userContext || null;
+      this._snapRequestInfo = directContext.requestInfo || null;
+      this._snapPageMetadata = directContext.pageMetadata ?? null;
 
       // Extract userName from userContext if not directly provided
-      this.userName = directContext.userName ||
-                      this.userContext?.username ||
-                      this.userContext?.userName ||
+      this._snapUserName = directContext.userName ||
+                      this._snapUserContext?.username ||
+                      this._snapUserContext?.userName ||
                       'anonymous';
     }
 
@@ -201,6 +248,53 @@ class ParseContext {
     // Performance tracking
     this.startTime = Date.now();
     this.phaseTimings = new Map();
+  }
+
+  /**
+   * Page name. Delegates to wikiContext when present, else returns the
+   * constructor-time snapshot. (#629)
+   */
+  get pageName(): string {
+    return this.wikiContext?.pageName ?? this._snapPageName;
+  }
+
+  /**
+   * Caller userContext. Delegates to wikiContext when present, else returns
+   * the snapshot. The WikiContext-side type is structurally compatible with
+   * the parser-side UserContext interface (both expose username / roles /
+   * isAuthenticated). (#629)
+   */
+  get userContext(): UserContext | null {
+    return (this.wikiContext?.userContext) ?? this._snapUserContext;
+  }
+
+  /**
+   * Page metadata. Delegates to wikiContext when present, else snapshot. (#629)
+   */
+  get pageMetadata(): PageFrontmatter | null {
+    return (this.wikiContext?.pageMetadata) ?? this._snapPageMetadata;
+  }
+
+  /**
+   * Request info. WikiContextLike doesn't expose this directly (it's derived
+   * from request headers in toParseOptions), so we always return the snapshot.
+   * If we ever need live request info on the context, add it to WikiContextLike
+   * and delegate. (#629)
+   */
+  get requestInfo(): RequestInfo | null {
+    return this._snapRequestInfo;
+  }
+
+  /**
+   * Caller's username. Recomputed from the live userContext when wikiContext
+   * is present so a session change mid-parse is reflected. (#629)
+   */
+  get userName(): string {
+    if (this.wikiContext) {
+      const uc = this.wikiContext.userContext;
+      return uc?.username ?? uc?.userName ?? 'anonymous';
+    }
+    return this._snapUserName;
   }
 
   /**
@@ -416,11 +510,24 @@ class ParseContext {
    * @returns New context instance
    */
   clone(overrides: Partial<PageContext> = {}): ParseContext {
-    const newContext = new ParseContext(
-      this.originalContent,
-      { ...this.pageContext, ...overrides },
-      this.engine
-    );
+    // #629: preserve the wikiContext reference on clone. Use the nested form
+    // so the constructor picks up the wikiContext. If the source ParseContext
+    // didn't have one, this falls back to the direct path.
+    const newContext = this.wikiContext
+      ? new ParseContext(
+        this.originalContent,
+        {
+          pageContext: { ...this.pageContext, ...overrides },
+          engine: this.engine,
+          wikiContext: this.wikiContext
+        },
+        this.engine
+      )
+      : new ParseContext(
+        this.originalContent,
+        { ...this.pageContext, ...overrides },
+        this.engine
+      );
 
     // Copy current state
     newContext.protectedBlocks = [...this.protectedBlocks];

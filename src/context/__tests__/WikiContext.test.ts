@@ -136,7 +136,11 @@ describe('WikiContext', () => {
     test('should create correct parse options object', () => {
       const options = context.toParseOptions();
 
-      expect(options).toEqual({
+      // #629: toParseOptions now also includes a wikiContext reference so
+      // ParseContext getters can delegate to the live WikiContext. Use
+      // expect.objectContaining to assert the shape we care about without
+      // pinning the wikiContext identity in the snapshot.
+      expect(options).toEqual(expect.objectContaining({
         pageContext: {
           pageName: 'TestPage',
           userContext: { isAuthenticated: true, roles: ['user'] },
@@ -157,8 +161,9 @@ describe('WikiContext', () => {
           },
           pageMetadata: null
         },
-        engine: mockEngine
-      });
+        engine: mockEngine,
+        wikiContext: context // #629: live reference to the parent
+      }));
     });
 
     test('should handle missing request object', () => {
