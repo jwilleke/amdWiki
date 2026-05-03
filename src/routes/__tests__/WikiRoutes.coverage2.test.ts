@@ -35,34 +35,16 @@ let mockUserContext: {
   preferences?: Record<string, unknown>;
 } | null = null;
 
-vi.mock('../../context/WikiContext', () => {
-  const MockWikiContext = vi.fn().mockImplementation(function (engine: unknown, options: Record<string, unknown> = {}) {
-    const userContext = (options.userContext as { roles?: string[]; username?: string } | null | undefined) || mockUserContext;
-    return {
+vi.mock('../../context/WikiContext', async () => {
+  const { createMockWikiContext, MOCK_WIKI_CONTEXT_CONSTANTS } = await import('./__fixtures__/createMockWikiContext');
+  const MockWikiContext = vi.fn().mockImplementation(function (engine: unknown, options = {}) {
+    return createMockWikiContext(options, {
       engine,
-      context: options.context || 'none',
-      pageName: options.pageName || null,
-      content: options.content || null,
-      userContext,
-      request: options.request || null,
-      response: options.response || null,
-      getContext: vi.fn().mockReturnValue(options.context || 'none'),
-      renderMarkdown: vi.fn().mockResolvedValue('<p>Rendered</p>'),
-      toParseOptions: vi.fn().mockReturnValue({ pageContext: { pageName: options.pageName, userContext: userContext }, engine }),
-      // #625 — mirror the four methods on the real WikiContext so route handlers
-      // that call them on a mocked context don't throw "X is not a function".
-      hasRole: vi.fn((...names: string[]) => names.some(n => (userContext?.roles ?? []).includes(n))),
-      hasPermission: vi.fn(async (action: string) => { try { return await mockUserManager.hasPermission(userContext?.username ?? '', action); } catch { return true; } }),
-      canAccess: vi.fn().mockResolvedValue(true),
-      getPrincipals: vi.fn(() => {
-        const roles = userContext?.roles ?? [];
-        return userContext?.username ? [...roles, userContext.username] : [...roles];
-      })
-    };
+      fallbackUserContext: mockUserContext,
+      mockUserManager
+    });
   });
-  (MockWikiContext as unknown as { CONTEXT: Record<string, string> }).CONTEXT = {
-    VIEW: 'view', EDIT: 'edit', PREVIEW: 'preview', DIFF: 'diff', INFO: 'info', NONE: 'none'
-  };
+  (MockWikiContext as unknown as { CONTEXT: typeof MOCK_WIKI_CONTEXT_CONSTANTS }).CONTEXT = MOCK_WIKI_CONTEXT_CONSTANTS;
   return { default: MockWikiContext };
 });
 

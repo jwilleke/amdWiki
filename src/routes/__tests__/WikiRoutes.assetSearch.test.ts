@@ -11,6 +11,7 @@
  */
 
 import WikiRoutes from '../WikiRoutes';
+import { createMockWikiContext } from './__fixtures__/createMockWikiContext';
 import type { Request } from 'express';
 
 function makeAssetPage(results = [], total = null, hasMore = false) {
@@ -55,17 +56,10 @@ function makeRes() {
 function makeRoutes(assetService) {
   const engine = makeEngine(assetService);
   const routes = new WikiRoutes(engine);
-  routes.createWikiContext = vi.fn((req: Request) => {
-    const userContext = (req as { userContext?: { roles?: string[]; username?: string } }).userContext;
-    const roles = userContext?.roles ?? [];
-    return {
-      userContext,
-      hasRole: (...names: string[]) => names.some(n => roles.includes(n)),
-      hasPermission: async () => true,
-      canAccess: async () => true,
-      getPrincipals: () => userContext?.username ? [...roles, userContext.username] : [...roles]
-    };
-  });
+  // #638 — shared mock fixture
+  routes.createWikiContext = vi.fn((req: Request) =>
+    createMockWikiContext({ userContext: (req as { userContext?: unknown }).userContext as never }, { engine })
+  );
   return routes;
 }
 
@@ -112,17 +106,10 @@ describe('WikiRoutes.assetSearch — GET /api/assets/search', () => {
     it('returns 503 when AssetService is not registered', async () => {
       const engine = { getManager: vi.fn().mockReturnValue(null) };
       const routes = new WikiRoutes(engine);
-      routes.createWikiContext = vi.fn((req: Request) => {
-        const userContext = (req as { userContext?: { roles?: string[] } }).userContext;
-        const roles = userContext?.roles ?? [];
-        return {
-          userContext,
-          hasRole: (...names: string[]) => names.some(n => roles.includes(n)),
-          hasPermission: async () => true,
-          canAccess: async () => true,
-          getPrincipals: () => [...roles]
-        };
-      });
+      // #638 — shared mock fixture
+      routes.createWikiContext = vi.fn((req: Request) =>
+        createMockWikiContext({ userContext: (req as { userContext?: unknown }).userContext as never }, { engine })
+      );
       const req = makeReq({ query: {} });
       const res = makeRes();
 

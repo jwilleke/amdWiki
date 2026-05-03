@@ -52,7 +52,9 @@ export default defineConfig({
     exclude: [
       '**/node_modules/**',
       '**/dist/**',
-      'tests/e2e/**'
+      'tests/e2e/**',
+      // #638: shared test fixtures (importable helpers, not test cases)
+      '**/__tests__/__fixtures__/**'
     ],
     // #622: 30s ceiling absorbs cold-start parallel-pool variance. The
     // flake is a real cold-start race — experiments with `pool: 'threads'`
