@@ -2,6 +2,26 @@
 
 AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version history.
 
+## 2026-05-03-04
+
+- Agent: Claude
+- Subject: Discussion of provider-level structural caches → 5 GitHub issues filed (#634, #635, #636, #637, #638). No code or repo-tracked doc changes; working notes captured in gitignored `private/2026-05-03-temp-discussion.md`
+- Current Issue: #634, #635, #636, #637, #638 (all newly filed); #626, #627, #628 referenced as already-tracked sibling
+- Work Done:
+  - **Mapped consumers of each Layer-2 cache** (the "Source-of-truth in-memory" caches from `CacheManager-Complete-Guide.md#provider-level-structural-caches`). For each cache (`FileSystemProvider.pageCache`, `VersioningFileProvider.pageIndex`, `LunrSearchProvider.documents/searchIndex`, ES cluster, `MarkupParser` parse-result cache, `ThemeManager` cache, `UserManager`/`RoleManager` records, `ConfigurationManager`/`PolicyManager`) — listed who reads it and whether through the canonical manager API or via direct provider reach. Identified two direct-reach exceptions worth tracking
+  - **Filed #634** — `[FEATURE] MediaManager.checkPrivatePageAccess reaches into provider.pageIndex directly — migrate to pageManager.getPageMetadata`. `src/managers/MediaManager.ts:411-418` casts `getCurrentPageProvider() as ProviderWithIndex` and reads `pageIndex.pages[uuid]` for `entry.location`/`entry.creator`. Couples MediaManager to `VersioningFileProvider`. Migration path: read `system-location` and `author` frontmatter via `pageManager.getPageMetadata(pageName)`, or potentially collapse the whole method to `wikiContext.canAccess('view')` if tier-0 semantics align
+  - **Filed #635** — `[FEATURE] RecentChangesPlugin reads data/page-index.json directly off disk — add pageManager.getRecentChanges() API`. `src/plugins/RecentChangesPlugin.ts:70-77, 193-196` reads the JSON file directly via `fs.readFile`. Three problems: (1) couples plugin to file-based providers; (2) bypasses the in-memory `pageIndex` already loaded; (3) **privacy leak** — plugin can't honor frontmatter audience / private user-keywords, exposing private page titles in recent-changes lists. Proposed: add `getRecentChanges({limit, since, includePrivate, username})` to `IPageProvider` and `PageManager`; each provider implements against its own data
+  - **Brainstormed 7 optimization candidates** (memoize hasPermission/canAccess, per-action policy index, single role-resolve per session, pre-warm render cache on save, search-index audience denorm — already #626/#627/#628, lazy themeInfo path resolution, shared mock fixture). User picked top 3 to file
+  - **Filed #636** — `[FEATURE] Memoize wikiContext.hasPermission / canAccess per request to avoid repeat policy evaluation`. Cache method results on the WikiContext instance keyed by `action` (hasPermission) or `action:pageName` (canAccess). Lifetime = request. Mirror on ParseContext. Caches the **promise** to handle concurrent calls correctly. Eliminates redundant PolicyEvaluator iterations for handlers that check the same permission multiple times (wiki:If conditions, multi-step admin handlers)
+  - **Filed #637** — `[FEATURE] Resolve user roles once per session, not per UserManager.hasPermission call`. `UserManager.hasPermission(username, action)` calls `resolveUserRoles(username)` and `provider.getUser(username)` on every invocation, even though the session middleware already resolved roles into `req.userContext.roles` at session-build time. Proposed: accept `string | UserContext` overload; callers with a resolved userContext pass it in; existing username-only callers (background jobs, tools) keep working. Complementary to #636 — that one cuts call count, this one cuts per-call cost
+  - **Filed #638** — `[FEATURE] Extract shared createMockWikiContext fixture for WikiRoutes test files`. Maintenance lever. 19 test files currently each define their own slightly-different WikiContext mock factory. Every WikiContext API addition (#625, #630, #633) required ~17 mock-factory edits. Two specific bugs caught us during #625: closure-variable mismatch (`userContext` referenced as closure but only defined as a property), and inconsistent `hasPermission` defaults across files. Solution: shared `src/routes/__tests__/__fixtures__/createMockWikiContext.ts` with one canonical factory; test files import + use it
+  - **Captured discussion in `private/2026-05-03-temp-discussion.md`** (gitignored — local working notes). Includes the full consumer map, the two-layer cache framing, the 7 optimization candidates with priority order, and pointers to what's filed where. Promote anything durable to `docs/` later; otherwise the temp file can be cleaned up after the optimizations are filed-or-declined
+- Testing:
+  - No code changes; nothing to test
+  - All filed issues link to relevant source line numbers and reference companion issues
+- Commits: none — pure issue-filing session; no working-tree changes
+- Files Modified: none in repo (working tree clean before this project_log entry); 1 gitignored file added at `private/2026-05-03-temp-discussion.md`
+
 ## 2026-05-03-03
 
 - Agent: Claude
