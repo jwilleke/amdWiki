@@ -2,6 +2,34 @@
 
 AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version history.
 
+## 2026-05-03-16
+
+- Agent: Claude
+- Subject: #611 — `scripts/baseline-profile.sh --compare` mode for release-to-release regression detection. Plus two adjacent fixes folded in (don't-clobber + Pages-on-disk count)
+- Current Issue: #611 (closed completed)
+- Work Done:
+  - **#611 main feature (9dcc8f87)**: `--compare [FILE]` flag added to `scripts/baseline-profile.sh`. Captures the new baseline as before, then auto-detects the most recent prior baseline in `docs/performance/` (or accepts an explicit file path), parses memory + per-route timings from both, appends a "## Drift vs <previous>" section to the new file and prints the same table to stdout. Exits non-zero when any threshold trips, so `/semver` halts before tagging on regression
+  - **Threshold env vars** (override defaults): `BASELINE_MEM_DELTA_PCT=25`, `BASELINE_RT_DELTA_PCT=50`, `BASELINE_RT_DELTA_MS=50` (route % AND ms thresholds must BOTH trip to flag — avoids 1ms-on-already-fast-route false positives)
+  - **New npm script** `test:baseline:compare`
+  - **Don't-clobber fix**: same-day same-version re-runs (development of `--compare`, or repeated `/semver` invocations) used to silently overwrite the canonical release-time capture with whatever cold-cache state the server was in. The script now suffixes the new file with `-r2.md`, `-r3.md` etc. when an existing file matches the v+date filename
+  - **Pages-on-disk count fix**: was reading in-repo `data/pages` (104 seed fixtures) instead of live `${SLOW_STORAGE}/pages` (17,063 actual on jimstest). Caught during historical perf review across v3.3.7 → v3.8.0 — every release reported the same 104. Fixed to use `${SLOW_STORAGE:-./data}/pages`, excludes `versions/` subdirs from count
+  - **`/semver` Step 5a** now calls `npm run test:baseline:compare` (was plain `npm run test:baseline`). Step 5b updated to describe handling the script's exit code (acknowledge in release report, ask user before tagging on regression). Previous inline shell snippet for the diff is gone — the script owns the logic now
+- Testing:
+  - Local smoke: `--compare` correctly emits the Drift table with deltas and percentages; auto-detected the v3.7.0 → v3.8.0 baseline pair on first run
+  - Don't-clobber path: re-running on same v+date correctly produced `-r2.md` instead of overwriting; `-r3.md` etc. iterate as expected
+  - Threshold mechanics: tested with `BASELINE_MEM_DELTA_PCT=1` and `BASELINE_RT_DELTA_PCT=5` — only positive deltas (regressions) are flagged; improvements (memory drop, faster routes) don't trip. Exit code is non-zero when something trips
+  - Restored canonical v3.8.0 baseline (3665.7 MB, 20/16/127/16 ms route times) after dev runs clobbered it; cleaned up `-r*.md` artefacts before commit
+- Commits: 9dcc8f87 (`feat(#611): add --compare flag to baseline-profile.sh`)
+- Files Modified:
+  - scripts/baseline-profile.sh (+205 / -40 lines: arg parsing, comparison logic, fmt helpers, threshold check, don't-clobber, Pages-on-disk fix)
+  - package.json (`test:baseline:compare` script entry)
+  - .claude/commands/semver.md (Step 5a + 5b updated to use new flag)
+- GH issues:
+  - #611 closed completed (auto via commit trailer)
+- Notes:
+  - The `/semver` release flow will exercise this on the next minor/patch — this is the first release-tooling change since v3.8.0 that the next release will inherit
+  - Other open performance-labelled issues (`#610` MetricsManager memory observable, `#612` per-addon overhead diff, `#613` authenticated route timings) remain open. None blocking; each is its own coherent slice when there's bandwidth
+
 ## 2026-05-03-15
 
 - Agent: Claude
