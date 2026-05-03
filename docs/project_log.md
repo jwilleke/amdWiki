@@ -2,6 +2,55 @@
 
 AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version history.
 
+## 2026-05-03-08
+
+- Agent: Claude
+- Subject: Closed #634 (MediaManager → pageManager.getPageMetadata, drops pageIndex coupling); shipped Slices A + B of #639 (`private` as top-level frontmatter field with back-compat fallback + save-handler normalization)
+- Current Issue: #634 (closed completed); #639 (open — Slices A + B done; C, D, E remain)
+- Work Done:
+  - **#634 closed**: `MediaManager.checkPrivatePageAccess` no longer reaches into `provider.pageIndex`. The 8-line block with `as unknown as ProviderWithIndex` cast and `pageIndex.pages[uuid]` lookup is gone. New path reads `system-location` and `author` from frontmatter via `pageManager.getPageMetadata(pageName)`. Audit confirmed the two values stay in lockstep (pageIndex.creator is derived from metadata.author at write time; metadata.author is immutable per PageManager.savePageWithContext). Did NOT migrate to `wikiContext.canAccess('view')` — MediaManager's freshly-constructed WikiContext doesn't carry pageMetadata, so canAccess would skip tier-0/tier-1 and fall through to PolicyEvaluator with no page context. Documented as a future cleanup. Added 8 focused tests
+  - **#639 Slice A — read path with back-compat fallback (cee1eceb)**:
+    - Added `private?: boolean` to `PageFrontmatter` (peer of `audience` / `author-lock`)
+    - Updated 6 read sites to prefer top-level `private` while still falling back to legacy signals (`user-keywords: [private]` and/or `system-location: 'private'`):
+      - `ACLManager.checkPagePermissionWithContext` tier 0
+      - `LunrSearchProvider.buildDocumentFromPageData` (`isPrivate` denormalization)
+      - `ElasticsearchSearchProvider.buildDocumentFromPageData` (same)
+      - `VersioningFileProvider.createNewVersion` (pageIndex `isPrivate` field)
+      - `FileSystemProvider.getRecentChanges` (visibility filter)
+      - `MediaManager.checkPrivatePageAccess` (the one #634 just touched)
+    - Picked Option B (back-compat read fallback) over Option A (strict cutover). Rationale: low risk, zero existing-behavior change, no migration script needed yet
+    - 14 new tests across ACLManager (7), MediaManager (2), LunrSearchProvider (5)
+  - **#639 Slice B — write path with implicit migration (37f80ec2)**:
+    - `PageManager.savePageWithContext` now normalizes privacy on every save: detects privacy from EITHER `metadata.private === true` OR a `user-keywords` entry whose config has `storageLocation: 'private'`; writes `private: true` at top level; emits `system-location: 'private'` (unchanged contract with provider's storage routing); strips the literal `'private'` entry from `user-keywords` array — but only when it was present, so non-private pages don't gain spurious empty `user-keywords: []` arrays
+    - Required pages: `wantsPrivate` forced false; any incoming `private: true` is stripped (destructure-and-conditional-spread pattern)
+    - **Implicit migration for free**: every existing private page auto-migrates to the new shape on its next save. Slice D (explicit migration script) becomes optional — pages convert over a long deprecation window
+    - 6 new PageManager tests covering: top-level shape, legacy keyword shape (migration path), both-signals-present, non-private (no fields added), explicit `private:false` clean strip, untouched user-keywords arrays
+  - **Misstep — labeled #639 `in review` then unlabeled it**: After Slice A landed, applied `in review` label per memory pattern, then realized that's wrong for a multi-slice issue where only 1 of 5 slices is done. The label means "work attempted, awaiting confirmation"; this issue's work is *partially* attempted across multiple commits over multiple sessions. Removed the label; #639 stays plain `enhancement`. Worth noting for the workflow memory: "in review" presumes single-commit work — multi-slice issues need a different signal (or just stay unlabeled until all slices ship)
+- Testing:
+  - typecheck: clean across all changes
+  - eslint: clean (one fix mid-Slice-A test for `WikiEngine` intersection-type lint warning — restructured to a separate cast variable)
+  - vitest full suite: 5196/5196 deterministic green at end of session (was 5168 at start, +28 from new tests)
+- Commits:
+  - 8e72be2d (`refactor(#634): MediaManager.checkPrivatePageAccess reads frontmatter via PageManager`)
+  - cee1eceb (`feat(#639): Slice A — add top-level "private" frontmatter field with back-compat fallback (read path)`)
+  - 37f80ec2 (`feat(#639): Slice B — save handler writes top-level "private" and strips legacy keyword`)
+- Files Modified:
+  - src/managers/MediaManager.ts (#634 + #639 Slice A back-compat fallback)
+  - src/managers/**tests**/MediaManager.test.ts (#634 + #639 — net +10 tests)
+  - src/types/Page.ts (#639 Slice A — `private?: boolean` field)
+  - src/managers/ACLManager.ts (#639 Slice A — tier 0 fallback)
+  - src/managers/**tests**/ACLManager.test.ts (#639 Slice A — 7 tests)
+  - src/providers/LunrSearchProvider.ts (#639 Slice A — buildDocumentFromPageData fallback)
+  - src/providers/ElasticsearchSearchProvider.ts (#639 Slice A — same)
+  - src/providers/VersioningFileProvider.ts (#639 Slice A — pageIndex.isPrivate fallback)
+  - src/providers/FileSystemProvider.ts (#639 Slice A — getRecentChanges fallback)
+  - src/providers/**tests**/LunrSearchProvider.privateFilter.test.ts (#639 Slice A — 5 tests)
+  - src/managers/PageManager.ts (#639 Slice B — save normalization)
+  - src/managers/**tests**/PageManager.test.ts (#639 Slice B — 6 tests)
+- GH issues:
+  - #634 closed completed
+  - #639 open — Slices A + B done; remaining: C (edit UI checkbox), D (optional migration — may be unnecessary given Slice B's implicit-migration behavior), E (cleanup — drop fallback + remove `private` from `app-default-config.json` user-keywords vocabulary)
+
 ## 2026-05-03-07
 
 - Agent: Claude
