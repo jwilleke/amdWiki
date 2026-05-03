@@ -2,6 +2,33 @@
 
 AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version history.
 
+## 2026-05-03-05
+
+- Agent: Claude
+- Subject: #638 — extract shared `createMockWikiContext` fixture for WikiRoutes tests. 18 of 19 test files migrated. -319 net lines. Pre-work for the C → A plan (privacy bugs next)
+- Current Issue: #638 (open, fix landed); pre-work for #626 + #635
+- Work Done:
+  - **Audited mock-factory variations** across the 19 affected test files. Catalog: 16 vi.mock-based files with same core shape but variations in `renderMarkdown` return value (`'<p>Rendered</p>'` vs `'<p>ok</p>'` vs `'<p>Rendered content</p>'`), `toParseOptions` shape (`{}` vs structured `{pageContext, engine}`), and one outlier (`routes.test.ts`) with eagerly-resolved manager refs and an inline `mockUserManager` declared inside the `vi.mock('../../WikiEngine')` factory body. 2 spyOn-based files (`assetSearch`, `authorLock`) with their own duck-typed objects
+  - **Created** `src/routes/__tests__/__fixtures__/createMockWikiContext.ts` (~125 lines) — canonical `createMockWikiContext(options, deps)` factory + `MOCK_WIKI_CONTEXT_CONSTANTS` static enum. Deps: `engine`, `fallbackUserContext` (re-evaluated per construction so `let mockUserContext = ...; mockUserContext = beforeEach()` patterns work), `mockUserManager` for `hasPermission` delegation, `resolveManagers: true` flag for the routes.test.ts-style eager manager refs. Override knobs: `renderMarkdownReturn`, `toParseOptionsReturn` for tests that asserted on specific return values
+  - **Solved vi.mock hoisting issue** — `vi.mock` factories are hoisted above imports, so importing `createMockWikiContext` at the top of a test file doesn't work. Used the async factory pattern with dynamic import: `vi.mock('../../context/WikiContext', async () => { const { createMockWikiContext } = await import('./__fixtures__/createMockWikiContext'); ... })`. Async vi.mock factories run lazily, by which time the dynamic import resolves cleanly
+  - **Migrated 16 vi.mock-based files** (WikiRoutes.coverage{,2-16}.test.ts) via a Node migration script. Each file's `vi.mock('../../context/WikiContext', () => {...})` block (~30 lines) replaced with the shorter async-import form (~13 lines). Script detected per-file variations (renderMd / toParseOptions shape) and passed appropriate override options
+  - **Migrated 2 spyOn-based files** (`WikiRoutes.assetSearch.test.ts`, `WikiRoutes.authorLock.test.ts`) — their `routes.createWikiContext = vi.fn(...)` stubs now call the shared `createMockWikiContext({...})` directly. Each shrunk from ~10 lines of duck-typed object literal to a single function call
+  - **Left routes.test.ts on its original mock** — its structure (eager manager refs from engine.getManager + a `mockUserManager` const declared INSIDE the `vi.mock('../../WikiEngine')` factory body, not at module scope) doesn't fit the shared fixture cleanly. The migration produced 31/48 test failures (silent 500s in viewPage handler). Reverting routes.test.ts to its original form restored 5152/5152. Documented as a known exception in the issue body and commit message
+  - **`vitest.config.ts` exclude update** — added `**/__tests__/__fixtures__/**` so the new fixture file isn't picked up as a test (vitest's default include is `src/**/__tests__/**/*.ts` which would otherwise scan it)
+  - **Determinism check** — ran the full vitest suite 5 times. 4 of 5 runs passed 5152/5152. 1 transient flake in run 3 (unrelated to these changes — same `coverage10` `Media handlers > GET /media/keyword/nature returns 200` `socket hang up` we've seen all session, #622-class cold-start race). Subsequent run was clean
+- Testing:
+  - typecheck: clean
+  - eslint: clean
+  - vitest: 5152/5152 deterministic green (modulo the unrelated transient)
+- Commits: 3925f0b3 (`refactor(#638): extract shared createMockWikiContext fixture for WikiRoutes tests`)
+- Files Modified:
+  - **NEW** src/routes/**tests**/**fixtures**/createMockWikiContext.ts (~125 lines, canonical fixture)
+  - vitest.config.ts (exclude **fixtures**)
+  - src/routes/**tests**/WikiRoutes.coverage{,2-16}.test.ts (16 files, vi.mock-based)
+  - src/routes/**tests**/WikiRoutes.assetSearch.test.ts (spyOn-based)
+  - src/routes/**tests**/WikiRoutes.authorLock.test.ts (spyOn-based)
+  - **Net**: -319 lines (-492 removed, +173 added across 19 files)
+
 ## 2026-05-03-04
 
 - Agent: Claude
