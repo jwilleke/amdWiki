@@ -55,57 +55,36 @@ Run sequentially:
 - Stage the three updated files: `git add package.json config/app-default-config.json CHANGELOG.md`.
   - Stage `package-lock.json` too only if it actually changed (rare for version-only edits).
 
-### Step 5a: Capture a performance baseline
+### Step 5a: Capture a performance baseline + diff vs previous (#611)
 
-After the version bump (so the new `<VERSION>` is reflected in the filename) and before the release commit, capture a baseline snapshot:
+After the version bump (so the new `<VERSION>` is reflected in the filename) and before the release commit, capture a baseline snapshot **and** diff it against the most recent prior baseline in one shot:
 
-- `npm run test:baseline` — runs `scripts/baseline-profile.sh`, which writes `docs/performance/baseline-v<VERSION>-<DATE>.md` (memory + response times for `/`, `/view/Welcome`, `/search?q=test`, `/login`).
+- `npm run test:baseline:compare` — runs `scripts/baseline-profile.sh --compare`. Writes `docs/performance/baseline-v<VERSION>-<DATE>.md` (or `-r2.md` etc. if a same-day same-version baseline already exists), then appends a "## Drift vs <previous>" section to it and prints the same table to stdout.
 - Stage the new file: `git add docs/performance/baseline-v<VERSION>-*.md`.
 
-This gives every release a baseline file that's diffable against the previous one for regression detection. If you want a cold-start measurement included, use `npm run test:baseline:cold` instead — it stops and starts the server first (slower; only do this when the server is already going to be restarted anyway).
+The plain `npm run test:baseline` is still available for non-release captures (just measure, no diff). Use `npm run test:baseline:cold` to also stop/start the server first (slower; only do this when a restart is already part of the plan).
 
-### Step 5b: Compute and surface the release-to-release perf diff
+The script auto-detects the previous baseline. If this is the first-ever baseline, the diff section is skipped and the script exits 0.
 
-Right after the new baseline is written (Step 5a) and before the release commit, compare it against the **previous** baseline file to surface any regression. Output the diff to the user inline AND include it in the eventual release report (Step 9). Track the deltas in the session's project_log entry.
+### Step 5b: Surface the perf diff to the user (and maybe stop)
 
-**Find the two baseline files:**
+The script flags regression candidates with `⚠️` and **exits non-zero** when any threshold trips. Default thresholds (override via env var if you have a reason):
 
-```bash
-NEW_BASELINE=$(ls -t docs/performance/baseline-v*-*.md | head -1)
-PREV_BASELINE=$(ls -t docs/performance/baseline-v*-*.md | sed -n '2p')
-```
+- `BASELINE_MEM_DELTA_PCT=25` — memory % regression
+- `BASELINE_RT_DELTA_PCT=50` — route % regression (must trip together with the ms threshold below)
+- `BASELINE_RT_DELTA_MS=50` — route absolute regression (avoids 1ms-on-already-fast-route false positives)
 
-If `PREV_BASELINE` is empty (first-ever baseline), skip the diff and note "no prior baseline to compare against" in the report.
+**Default thresholds** — override via env var if needed:
 
-**Extract metrics from each file** — the baselines have a stable shape (`| Resident memory (idle) | <N> MB |`, `|`/`<sup>backtick</sup> | <N> ms |`, etc.). For each of: resident memory, `/`, `/view/Welcome`, `/search?q=test`, `/login`, parse both files and compute:
+- `BASELINE_MEM_DELTA_PCT=25` — memory % regression
+- `BASELINE_RT_DELTA_PCT=50` — route % regression (must trip together with the ms threshold below)
+- `BASELINE_RT_DELTA_MS=50` — route absolute regression (avoids 1ms-on-already-fast-route false positives)
 
-- **Absolute delta** (new - old)
-- **Relative delta** (`(new - old) / old * 100` percent)
+Behavior on regression: the script exits 1 with the warning printed. Acknowledge the regression in your reply, surface it in the release report (Step 9), and ask the user whether to proceed before continuing to Step 6. **Don't auto-rollback** — measurement noise is real (cold-cache snapshots show 100ms+ outliers across the historical baseline series; see `docs/performance/`). User judgment required.
 
-**Render an inline diff table in your reply** with this shape:
+**No regressions** (script exits 0): just include the printed Drift table in the report and continue.
 
-```
-Perf diff vs vPREV (baseline-vPREV-DATE.md):
-
-| Metric            | Previous | New      | Δ          |
-|-------------------|----------|----------|------------|
-| Memory (idle)     | 3537.7 MB | 3665.7 MB | +128.0 MB (+3.6%) |
-| `/`               | 19 ms     | 20 ms     | +1 ms (+5.3%)     |
-| `/view/Welcome`   | 16 ms     | 16 ms     | 0 ms (0%)          |
-| `/search?q=test`  | 257 ms    | 127 ms    | -130 ms (-50.6%)   |
-| `/login`          | 17 ms     | 16 ms     | -1 ms (-5.9%)      |
-```
-
-**Flag regressions** as warnings (don't block the release — these are usually measurement noise, but the user should see them):
-
-- Memory delta > +500 MB
-- Any route delta > +50% relative AND > +50 ms absolute (both conditions, to ignore micro-jitter on already-fast routes)
-
-If any flagged regression fires, prefix the diff table with `⚠️ Regression candidate(s): <list>` so the user can decide whether to investigate before completing Step 8 (othersites propagation). Don't auto-rollback — measurement noise is real (cold-cache snapshots show up as 100ms+ outliers across the historical baseline series; see `docs/performance/` for examples). User judgment required.
-
-**No regressions visible**: just show the diff table and continue. The diff is informational regardless.
-
-This step replaces "release-to-release diff visualization" — the work that was tracked as #611 (`baseline-profile.sh: --compare mode for release-to-release regression detection`). Once `baseline-profile.sh` learns a `--compare` flag of its own, this step can shrink to "run `npm run test:baseline:compare`" and parse its output.
+**First release** (no prior baseline): the script prints "no prior baseline to compare against" and exits 0 — proceed normally.
 
 ### Step 6: Commit, tag, and push
 
