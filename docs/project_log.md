@@ -2,6 +2,31 @@
 
 AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version history.
 
+## 2026-05-03-17
+
+- Agent: Claude
+- Subject: #613 — authenticated route timings in `scripts/baseline-profile.sh`
+- Current Issue: #613
+- Work Done:
+  - Added opt-in auth path to `scripts/baseline-profile.sh` (a945bacd). When `BASELINE_USER` + `BASELINE_PASS` env vars are set, the script primes a session via `GET /login`, `POST`s credentials, then verifies the cookie by checking `GET /profile` for a 200 response (302 = login failed)
+  - Auth routes sampled when verified: `/edit/Welcome`, `/profile`, `/my/pages`, `/admin` (10 iterations each, mean reported in a separate "Authenticated route timings" markdown section)
+  - `/admin` is included for admin-credentialled installs; for non-admin creds it 302s to /login and the timing reflects the redirect — flagged in the methodology section so it isn't misread as a regression
+  - `--compare` drift section now also iterates auth routes (rows tagged with `(auth)` suffix). Same regression thresholds apply (`BASELINE_RT_DELTA_PCT` AND `BASELINE_RT_DELTA_MS` must both trip)
+  - `processLogin` doesn't validate CSRF on /login POST (verified at `src/routes/WikiRoutes.ts:3727`), so a direct form POST is sufficient — no CSRF round-trip needed
+- Testing:
+  - Syntax check: `bash -n` clean
+  - Non-auth path (no env vars): script runs end-to-end, auth block silently skipped, output identical to pre-change shape
+  - Bad-creds path: `BASELINE_USER=nonexistent BASELINE_PASS=wrongpass` correctly produces `✗ Login failed (/profile returned 302) — skipping auth routes` and exits 0 with the unauth-only baseline written
+  - End-to-end auth path with valid creds not yet verified — install only has an `admin` user with non-default password; needs a user with creds to exercise the green path. Code path is straightforward (curl form POST + 200/302 check) and the failure path is well-tested
+- Commits: a945bacd (`feat(#613): authenticated route timings in baseline-profile.sh`)
+- Files Modified:
+  - scripts/baseline-profile.sh (+107 / -7 lines: auth login block, AUTH_ROUTES sampling, markdown section, compare loop extension, refactored regression check into `check_route_regression` helper)
+- GH issues:
+  - #613 — comment with implementation summary (see Step 4)
+- Notes:
+  - Two performance-labelled issues remain: `#610` (MetricsManager memory observable) and `#612` (per-addon overhead diff). #612 is the larger of the two
+  - Worth a follow-up to call this from `/semver` Step 5a if the user maintains a release-time admin account — would surface auth-route regressions in the same run
+
 ## 2026-05-03-16
 
 - Agent: Claude
