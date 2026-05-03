@@ -454,18 +454,22 @@ describe('WikiRoutes - Comprehensive Route Testing', () => {
     mockSearchManager = mockEngine.getManager('SearchManager');
     mockTemplateManager = mockEngine.getManager('TemplateManager');
 
-    // Set up default mock implementations - using defaults from vi.mock()
-    // No additional setup needed as vi.mock() provides the defaults
+    // #622: establish default mock implementations BEFORE every test, not
+    // after — that way the first test in the file gets defaults too, and any
+    // test that flips a mock to a denial value can't leak into later tests.
+    establishMockDefaults();
 
     // Register routes
     wikiRoutes.registerRoutes(app);
   });
 
   afterEach(() => {
-    // Clear all mocks but preserve the WikiEngine mock setup
+    // #622: clear call history only. Implementations are re-established by
+    // beforeEach for the next test.
     vi.clearAllMocks();
+  });
 
-    // Re-establish default mock implementations
+  function establishMockDefaults() {
     mockUserManager.getCurrentUser.mockResolvedValue({
       username: 'testuser',
       displayName: 'Test User',
@@ -545,7 +549,7 @@ describe('WikiRoutes - Comprehensive Route Testing', () => {
         maintenance: { enabled: false, allowAdmins: true }
       }
     };
-  });
+  }
 
   describe('Public Routes', () => {
     describe('GET /', () => {
