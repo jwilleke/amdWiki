@@ -2,6 +2,36 @@
 
 AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version history.
 
+## 2026-05-03-14
+
+- Agent: Claude
+- Subject: #640 Phase 2 (the easy two) — `/my/edits` (recent edits by user) + `/my/shared` (audience-shared pages). Profile card now has six rows
+- Current Issue: #640 (still closed; Phase 2 adds onto the closed-completed work)
+- Work Done:
+  - **Phase 2 triage**: investigated all four nice-to-haves. Two feasible without new data plumbing (`/my/edits`, `/my/shared` — both ride on existing pageIndex denormalisations). Two deferred (`/my/comments` needs CommentsManager.listByAuthor which doesn't exist; `/my/attachments` needs uploader tracking which isn't in the current data model)
+  - **API**: New `PagesScanOptions` type. `PageProvider.getPagesByEditor(username, options)` — match by pageIndex.editor (or metadata.editor in FileSystemProvider's base impl). `PageProvider.getPagesSharedWith(principals, options)` — match where pageIndex.audienceRoles overlaps principals; **excludes** pages owned by any principal so they don't double-count with /my/pages. PageManager forwards both
+  - **Routes**: `/my/edits` and `/my/shared`. Both reuse `views/my-list.ejs` with `listKind='pages'`. Anonymous → 302 redirect to /login
+  - **Profile card**: two new rows ("Pages I've Edited", "Pages Shared With Me") with count badges. `getMyContributionsCounts()` now computes 6 counts in one call (was 4)
+  - **Tests**: +7 in `VersioningFileProvider.pagesByCreator.test.ts` covering both new methods (empty inputs, match by editor / audience, limit, owner-exclusion logic for shared, no-audience-anywhere case)
+- Testing:
+  - typecheck: clean
+  - vitest: 5228/5228 (was 5212; +16 from Phase 1's pagesByCreator + 7 new in this commit, minus minor balance from refactor)
+  - Live smoke: `/my/edits` + `/my/shared` both 302→login for anonymous; EJS templates compile clean
+- Commits: bd5be808 (`feat(#640): Phase 2 — /my/edits and /my/shared (recent edits + audience-shared pages)`)
+- Files Modified:
+  - src/types/Provider.ts (PagesScanOptions + 2 new interface methods)
+  - src/providers/VersioningFileProvider.ts (rich pageIndex impls — both new methods)
+  - src/providers/FileSystemProvider.ts (pageCache + metadata fallback impls)
+  - src/managers/PageManager.ts (forwarders)
+  - src/routes/WikiRoutes.ts (2 new handlers + getMyContributionsCounts updated to 6 counts + 2 new route registrations)
+  - views/profile.ejs (2 new card rows)
+  - src/providers/**tests**/VersioningFileProvider.pagesByCreator.test.ts (+7 tests)
+- GH issues:
+  - #640 still closed (Phase 1 closed it via trailer; Phase 2 is additive enhancement)
+- Notes:
+  - Comments + Attachments uploaded surfaces deferred. Each can become its own [FEATURE] issue if demanded — both need new manager-level support that doesn't exist yet
+  - Authenticated browser smoke not done (CSRF dance from cURL is awkward). Worth a manual check next time at the keyboard
+
 ## 2026-05-03-13
 
 - Agent: Claude
