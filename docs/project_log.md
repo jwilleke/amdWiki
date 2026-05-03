@@ -2,6 +2,37 @@
 
 AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version history.
 
+## 2026-05-03-18
+
+- Agent: Claude
+- Subject: #610 — memory observable gauges in MetricsManager + telemetry-aware baseline-profile.sh
+- Current Issue: #610
+- Work Done:
+  - **Part 1 (MetricsManager)**: 5 new observable gauges for process memory (`_process_resident_memory_bytes`, `_process_heap_total_bytes`, `_process_heap_used_bytes`, `_process_external_memory_bytes`, `_process_array_buffers_bytes`). Registered via a single `meter.addBatchObservableCallback` so `process.memoryUsage()` is called once per scrape regardless of gauge count
+  - **Part 2 (baseline-profile.sh)**: now prefers `/metrics` when reachable. Reads RSS + heap + engine init duration from the Prometheus text format via an awk parser keyed on metric-name suffix. Falls back to `pm2 jlist` silently when telemetry is off (default). New env vars: `BASELINE_METRICS_URL` (override endpoint, default `http://localhost:9464/metrics`), `BASELINE_METRICS_DISABLE=1` (force pm2 path)
+  - **Part 3 (engine init from /metrics)**: folded into Part 2 — the markdown report adds an `Engine init duration (mean from telemetry)` row when telemetry is the source. Computed from `_sum / _count` rather than true p95 — for one-shot histograms (engine init runs once per process) the two are equivalent and bucket interpolation in awk would be overkill
+  - Markdown additions when sourced from telemetry: `Memory source`, `Heap used`, `Heap total`, `Engine init duration (mean from telemetry)`
+  - Methodology section + script header doc updated to describe the new env-var contract
+  - Mock OpenTelemetry meter in `MetricsManager.test.ts` extended with `createObservableGauge` + `addBatchObservableCallback`. Two new tests added: gauge name assertions, batch-callback semantics (one `process.memoryUsage()` call → 5 observe() calls, each with the right metric value)
+- Testing:
+  - `npm test` — 5230/5230 tests pass (200 files), including the 2 new gauge tests
+  - `bash -n` syntax check on the modified script: clean
+  - Telemetry-off smoke: script runs end-to-end, `Memory source: pm2`, output shape unchanged from pre-change
+  - `BASELINE_METRICS_DISABLE=1` smoke: forces pm2 path correctly
+  - Awk parser validated inline against a fixture covering gauges + histogram `_sum`/`_count` + `_bucket{le=...}` lines — bare suffix correctly does NOT match buckets (regex anchors at `$1`'s end, bucket lines have `{le="..."}` appended)
+  - Telemetry-on live end-to-end not exercised — install runs with default `ngdpbase.telemetry.enabled: false`, and flipping it requires a server restart that wasn't in scope for this slice. Will be exercised on the next `/semver` capture by anyone running with telemetry on
+- Commits: feca8178 (`feat(#610): memory observable in MetricsManager + telemetry-aware baseline`)
+- Files Modified:
+  - src/managers/MetricsManager.ts (+45 / -1: 5 ObservableGauge fields, 5 createObservableGauge calls in createInstruments(), batch callback)
+  - src/managers/**tests**/MetricsManager.test.ts (+50 / -2: mock extensions + 2 new tests)
+  - scripts/baseline-profile.sh (+89 / -6: telemetry detection block, awk get_metric helper, fallback path, markdown additions, header doc update)
+- GH issues:
+  - #610 — comment with implementation summary (Parts 1/2/3)
+- Notes:
+  - **Unrelated edit detected**: `config/app-default-config.json` had `ngdpbase.auth.magic-link.enabled` flipped from `false` → `true` (user IDE-side, not part of #610). Left it uncommitted for the user to handle separately
+  - One performance-labelled issue remains: `#612` (per-addon overhead diff) — the bigger of the two outstanding. `#259` is also still open under the performance label
+  - Worth noting that `--compare` drift section will compare numbers from whichever source produced each baseline. If a release straddles a telemetry config flip, the absolute memory number will jump by whatever the gap is between RSS-via-pm2 and RSS-via-telemetry (should be ~equal but may differ slightly due to measurement timing)
+
 ## 2026-05-03-17
 
 - Agent: Claude
