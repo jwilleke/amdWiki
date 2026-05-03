@@ -56,14 +56,7 @@ export interface PageContext {
  * TODO: Replace with proper WikiEngine import once converted
  */
 export interface WikiEngine {
-  getManager(name: string): unknown;
-}
-
-/**
- * PolicyManager minimal interface
- */
-interface PolicyManager {
-  checkPermission(userContext: UserContext, permission: string, resource: string | null): boolean;
+  getManager<T = unknown>(name: string): T | undefined;
 }
 
 /**
@@ -228,24 +221,50 @@ class ParseContext {
   }
 
   /**
-   * Check if user has specific permission
-   * @param permission - Permission to check
-   * @param resource - Resource context (optional)
-   * @returns True if user has permission
+   * Check if user has specific permission.
+   *
+   * Delegates to `UserManager.hasPermission` — same canonical
+   * `PolicyEvaluator`-backed path that `WikiContext.hasPermission` uses.
+   * Honors anonymous/authenticated role expansion, deny policies, resource
+   * patterns, and the `'All'`/`'Authenticated'` role semantics. (#633)
+   *
+   * For page-resource-aware checks, use {@link canAccess} instead.
+   *
+   * @param action - Permission action (e.g., 'admin-system', 'user-edit')
+   * @returns Promise resolving to true if user has the permission
    */
-  hasPermission(permission: string, resource: string | null = null): boolean {
-    if (!this.userContext) {
-      return false;
-    }
+  async hasPermission(action: string): Promise<boolean> {
+    const userManager = this.engine.getManager<{
+      hasPermission(u: string, a: string): Promise<boolean>;
+        }>('UserManager');
+    if (!userManager) return false;
+    const username = this.userContext?.username ?? this.userContext?.userName ?? '';
+    return userManager.hasPermission(typeof username === 'string' ? username : '', action);
+  }
 
-    const policyManager = this.getManager('PolicyManager') as PolicyManager | undefined;
-    if (policyManager) {
-      // Use PolicyManager for permission checks
-      return policyManager.checkPermission(this.userContext, permission, resource);
-    }
-
-    // Fallback to basic permission check
-    return Boolean(this.userContext.permissions?.includes(permission));
+  /**
+   * Returns true if the user is allowed to perform the given action on the
+   * current page.
+   *
+   * Delegates to {@link ACLManager.checkPagePermissionWithContext}, which runs
+   * the three-tier evaluator (private user-keyword → frontmatter audience →
+   * global policies). Synthesizes a minimal WikiContext-shaped object from
+   * ParseContext fields. (#633)
+   *
+   * @param action - Page action (e.g., 'view', 'edit', 'delete')
+   * @returns Promise resolving to true if access is allowed
+   */
+  async canAccess(action: string): Promise<boolean> {
+    const aclManager = this.engine.getManager<{
+      checkPagePermissionWithContext(ctx: unknown, action: string): Promise<boolean>;
+        }>('ACLManager');
+    if (!aclManager || !this.pageName || this.pageName === 'unknown') return false;
+    return aclManager.checkPagePermissionWithContext({
+      pageName: this.pageName,
+      content: this.originalContent,
+      userContext: this.userContext ?? undefined,
+      pageMetadata: this.pageMetadata
+    }, action);
   }
 
   /**

@@ -27,7 +27,7 @@
 
 import type { Request } from 'express';
 import type { WikiEngine } from '../types/WikiEngine.js';
-import type ConfigurationManager from '../managers/ConfigurationManager.js';
+import type UserManager from '../managers/UserManager.js';
 
 // ── ApiError ────────────────────────────────────────────────────────────────
 
@@ -147,32 +147,30 @@ export class ApiContext {
   }
 
   /**
-   * Returns true if the caller's already-resolved roles grant the given permission.
+   * Returns true if the caller has the given permission.
    *
-   * Reads `ngdpbase.roles.definitions` from ConfigurationManager (in-memory) —
-   * no async DB call needed since roles are resolved at session time.
+   * Delegates to {@link UserManager.hasPermission} — same canonical
+   * `PolicyEvaluator`-backed path that `WikiContext.hasPermission` uses.
+   * Honors anonymous/authenticated role expansion, deny policies, resource
+   * patterns, and the `'All'`/`'Authenticated'` role semantics. (#630)
    *
    * @example
-   * if (ctx.hasPermission('user-read')) { // include PII fields }
+   * if (await ctx.hasPermission('user-read')) { // include PII fields }
    */
-  hasPermission(permission: string): boolean {
-    const cm = this.engine.getManager<ConfigurationManager>('ConfigurationManager');
-    if (!cm) return false;
-    const defs = cm.getProperty('ngdpbase.roles.definitions', {}) as Record<string, { permissions?: string[] }>;
-    return this.roles.some(role => {
-      const roleDef = defs[role];
-      return Array.isArray(roleDef?.permissions) && roleDef.permissions.includes(permission);
-    });
+  async hasPermission(permission: string): Promise<boolean> {
+    const userManager = this.engine.getManager<UserManager>('UserManager');
+    if (!userManager) return false;
+    return userManager.hasPermission(this.username ?? '', permission);
   }
 
   /**
    * Throws `ApiError(403)` if the caller's roles do not grant the given permission.
    *
    * @example
-   * ctx.requirePermission('search-user'); // → 403 if no role grants it
+   * await ctx.requirePermission('search-user'); // → 403 if no role grants it
    */
-  requirePermission(permission: string): void {
-    if (!this.hasPermission(permission)) {
+  async requirePermission(permission: string): Promise<void> {
+    if (!(await this.hasPermission(permission))) {
       throw new ApiError(403, 'Forbidden');
     }
   }

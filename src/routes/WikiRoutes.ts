@@ -3971,7 +3971,7 @@ ${panes}
     try {
       const ctx = ApiContext.from(req, this.engine as unknown as import('../types/WikiEngine.js').WikiEngine);
       ctx.requireAuthenticated();
-      ctx.requirePermission('search-user');
+      await ctx.requirePermission('search-user');
 
       const userManager = this.engine.getManager('UserManager') as IUserManager | null;
       if (!userManager) { res.status(503).json({ error: 'UserManager not available' }); return; }
@@ -3984,7 +3984,7 @@ ${panes}
 
       const results = await userManager.searchUsers(q, { role, limit, activeOnly });
 
-      const canReadFull = ctx.hasPermission('user-read');
+      const canReadFull = await ctx.hasPermission('user-read');
       const payload = canReadFull
         ? results
         : results.map((u: { username: string; displayName?: string }) => ({ username: u.username, displayName: u.displayName }));

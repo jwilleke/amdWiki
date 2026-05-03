@@ -16,12 +16,14 @@ class MockPageManager {
   }
 }
 
-// Mock PolicyManager
-class MockPolicyManager {
-  async checkPermission(userContext, permission, resource) {
-    // Allow read access for testing
-    if (permission === 'read') return true;
-    if (permission === 'write') return userContext?.roles?.includes('admin');
+// Mock ACLManager — #633 migrated from PolicyManager-direct to canonical
+// ACLManager.checkPagePermissionWithContext path. Mock returns the same
+// allow/deny semantics that MockPolicyManager.checkPermission used to.
+class MockACLManager {
+  async checkPagePermissionWithContext(ctx, action) {
+    const userContext = ctx?.userContext;
+    if (action === 'read' || action === 'view') return true;
+    if (action === 'write' || action === 'edit') return userContext?.roles?.includes('admin');
     return false;
   }
 }
@@ -57,10 +59,16 @@ class MockMarkupParser {
   }
 }
 
-// Mock UserManager
+// Mock UserManager — #633 ParseContext.hasPermission delegates here
 class MockUserManager {
   constructor() {
     this.initialized = true;
+  }
+  async hasPermission(username, action) {
+    // Same semantics MockPolicyManager used for permission tests
+    if (action === 'read' || action === 'view') return true;
+    if (action === 'write' || action === 'edit') return username === 'admin';
+    return false;
   }
 }
 
@@ -69,7 +77,7 @@ const createMockEngine = (userContext = null) => ({
   getManager: vi.fn((name) => {
     switch (name) {
     case 'PageManager': return new MockPageManager();
-    case 'PolicyManager': return new MockPolicyManager();
+    case 'ACLManager': return new MockACLManager();
     case 'VariableManager': return new MockVariableManager();
     case 'MarkupParser': return new MockMarkupParser();
     case 'UserManager': return new MockUserManager();
@@ -407,12 +415,12 @@ describe('WikiTagHandler', () => {
     });
 
     test('should prevent unauthorized includes', async () => {
-      // Mock PolicyManager to deny access
+      // #633: was MockPolicyManager — migrated to ACLManager. Mock denies access.
       const restrictiveEngine = {
         getManager: vi.fn((name) => {
-          if (name === 'PolicyManager') {
+          if (name === 'ACLManager') {
             return {
-              checkPermission: vi.fn().mockResolvedValue(false)
+              checkPagePermissionWithContext: vi.fn().mockResolvedValue(false)
             };
           }
           return createMockEngine().getManager(name);

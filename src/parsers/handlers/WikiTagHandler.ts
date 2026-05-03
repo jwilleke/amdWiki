@@ -61,13 +61,6 @@ interface PageManager {
 }
 
 /**
- * Policy manager interface
- */
-interface PolicyManager {
-  checkPermission(user: string | null, permission: string, resource: string): Promise<boolean>;
-}
-
-/**
  * Variable manager interface
  */
 interface VariableManager {
@@ -80,8 +73,9 @@ interface VariableManager {
 interface WikiTagParseContext extends ParseContext {
   userContext?: unknown;
   isAuthenticated(): boolean;
-  hasRole(role: string): boolean;
-  hasPermission(permission: string, resource: string): boolean;
+  hasRole(...names: string[]): boolean;
+  hasPermission(action: string): Promise<boolean>;
+  canAccess(action: string): Promise<boolean>;
   getUserRoles(): string[];
   getManager(name: string): unknown;
   getMetadata(key: string): unknown;
@@ -438,10 +432,12 @@ class WikiTagHandler extends BaseSyntaxHandler {
     }
 
     // Permission checks: hasPermission:read, hasPermission:write
+    // #633: was the resource-aware two-arg form; use canAccess for the
+    // current page's resource-aware ACL evaluation.
     const permissionMatch = condition.match(/^hasPermission:(\w+)$/);
     if (permissionMatch) {
       const permission = permissionMatch[1];
-      return context.hasPermission(permission, context.pageName ?? '');
+      return context.canAccess(permission);
     }
 
     // Page existence checks: exists:PageName
@@ -560,17 +556,26 @@ class WikiTagHandler extends BaseSyntaxHandler {
    * @returns True if permission granted
    */
   private async checkIncludePermission(pageName: string, context: WikiTagParseContext): Promise<boolean> {
-    if (!context.isAuthenticated()) {
-      // Check if anonymous users can read the page
-      const policyManager = context.getManager('PolicyManager') as PolicyManager | undefined;
-      if (policyManager) {
-        return await policyManager.checkPermission(null, 'read', pageName);
-      }
-      return true; // Default allow for anonymous if no policy system
-    }
-
-    // Check if authenticated user has read permission
-    return context.hasPermission('read', pageName);
+    // #633: prior implementation called PolicyManager.checkPermission (which the
+    // class doesn't actually expose — broken at runtime) for anonymous users and
+    // the deprecated two-arg ParseContext.hasPermission for authenticated users.
+    // Migrated to the canonical ACLManager 3-tier evaluator so anonymous and
+    // authenticated paths share one code path. PolicyEvaluator's anonymous-role
+    // expansion ('anonymous', 'All') makes the if-anonymous branch unnecessary.
+    //
+    // Note: tier 0 (private user-keyword) and tier 1 (frontmatter audience) are
+    // skipped here because we don't fetch the included page's content/metadata.
+    // The check falls through to tier 2 (PolicyEvaluator), which matches what
+    // the original PolicyManager-based path was attempting. A future enhancement
+    // could fetch the included page's metadata for full tier-0/1 evaluation.
+    const aclManager = context.getManager('ACLManager') as { checkPagePermissionWithContext(ctx: unknown, action: string): Promise<boolean> } | undefined;
+    if (!aclManager) return true; // Conservative: allow if ACLManager isn't registered
+    return aclManager.checkPagePermissionWithContext({
+      pageName,
+      content: '',
+      userContext: context.userContext ?? undefined,
+      pageMetadata: null
+    }, 'view');
   }
 
   /**
