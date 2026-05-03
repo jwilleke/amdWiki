@@ -224,6 +224,113 @@ describe('PageManager', () => {
       );
     });
 
+    // ---------------------------------------------------------------------
+    // #639 Slice B: privacy normalization on save
+    // ---------------------------------------------------------------------
+
+    test('savePageWithContext() — top-level private:true → emits private:true and system-location:private', async () => {
+      pageManager.provider.savePage = vi.fn().mockResolvedValue(undefined);
+      mockConfigurationManager.getProperty.mockImplementation((key, dv) => {
+        if (key === 'ngdpbase.user-keywords') return { private: { storageLocation: 'private' } };
+        if (key === 'ngdpbase.system-category') return {};
+        return dv;
+      });
+
+      const wikiContext = {
+        pageName: 'Secret', content: 'body',
+        userContext: { username: 'alice' }
+      };
+      await pageManager.savePageWithContext(wikiContext, { private: true });
+
+      const saved = pageManager.provider.savePage.mock.calls[0][2];
+      expect(saved.private).toBe(true);
+      expect(saved['system-location']).toBe('private');
+    });
+
+    test('savePageWithContext() — legacy user-keywords:[private] → strips keyword and emits private:true (migration path)', async () => {
+      pageManager.provider.savePage = vi.fn().mockResolvedValue(undefined);
+      mockConfigurationManager.getProperty.mockImplementation((key, dv) => {
+        if (key === 'ngdpbase.user-keywords') return { private: { storageLocation: 'private' } };
+        if (key === 'ngdpbase.system-category') return {};
+        return dv;
+      });
+
+      const wikiContext = {
+        pageName: 'OldSecret', content: 'body',
+        userContext: { username: 'alice' }
+      };
+      await pageManager.savePageWithContext(wikiContext, { 'user-keywords': ['private', 'draft'] });
+
+      const saved = pageManager.provider.savePage.mock.calls[0][2];
+      expect(saved.private).toBe(true);
+      expect(saved['system-location']).toBe('private');
+      expect(saved['user-keywords']).toEqual(['draft']); // 'private' stripped
+    });
+
+    test('savePageWithContext() — both signals present → strips keyword, keeps top-level', async () => {
+      pageManager.provider.savePage = vi.fn().mockResolvedValue(undefined);
+      mockConfigurationManager.getProperty.mockImplementation((key, dv) => {
+        if (key === 'ngdpbase.user-keywords') return { private: { storageLocation: 'private' } };
+        if (key === 'ngdpbase.system-category') return {};
+        return dv;
+      });
+
+      const wikiContext = {
+        pageName: 'P', content: 'body',
+        userContext: { username: 'alice' }
+      };
+      await pageManager.savePageWithContext(wikiContext, {
+        private: true,
+        'user-keywords': ['private', 'draft']
+      });
+
+      const saved = pageManager.provider.savePage.mock.calls[0][2];
+      expect(saved.private).toBe(true);
+      expect(saved['user-keywords']).toEqual(['draft']);
+    });
+
+    test('savePageWithContext() — non-private save does NOT add private or system-location', async () => {
+      pageManager.provider.savePage = vi.fn().mockResolvedValue(undefined);
+
+      const wikiContext = {
+        pageName: 'Public', content: 'body',
+        userContext: { username: 'alice' }
+      };
+      await pageManager.savePageWithContext(wikiContext, { 'user-keywords': ['draft'] });
+
+      const saved = pageManager.provider.savePage.mock.calls[0][2];
+      expect(saved.private).toBeUndefined();
+      expect(saved['system-location']).toBeUndefined();
+      expect(saved['user-keywords']).toEqual(['draft']); // unchanged
+    });
+
+    test('savePageWithContext() — incoming private:false strips it cleanly (no top-level private in saved metadata)', async () => {
+      pageManager.provider.savePage = vi.fn().mockResolvedValue(undefined);
+
+      const wikiContext = {
+        pageName: 'P', content: 'body',
+        userContext: { username: 'alice' }
+      };
+      await pageManager.savePageWithContext(wikiContext, { private: false });
+
+      const saved = pageManager.provider.savePage.mock.calls[0][2];
+      expect(saved.private).toBeUndefined();
+      expect(saved['system-location']).toBeUndefined();
+    });
+
+    test('savePageWithContext() — leaves user-keywords untouched when no `private` to strip', async () => {
+      pageManager.provider.savePage = vi.fn().mockResolvedValue(undefined);
+
+      const wikiContext = {
+        pageName: 'P', content: 'body',
+        userContext: { username: 'alice' }
+      };
+      await pageManager.savePageWithContext(wikiContext, { 'user-keywords': ['draft', 'wip'] });
+
+      const saved = pageManager.provider.savePage.mock.calls[0][2];
+      expect(saved['user-keywords']).toEqual(['draft', 'wip']);
+    });
+
     test('deletePageWithContext() should require WikiContext', async () => {
       await expect(pageManager.deletePageWithContext(null)).rejects.toThrow(
         'PageManager.deletePageWithContext requires a WikiContext'

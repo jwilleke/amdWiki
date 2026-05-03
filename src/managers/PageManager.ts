@@ -462,12 +462,32 @@ class PageManager extends BaseManager {
       (cfg) => ((cfg.label || '').toLowerCase() === pageSystemCategory.toLowerCase() && cfg.storageLocation === 'required')
     );
 
-    const privateStorageLocation = !isRequiredPage
-      ? userKeywords.map(kw => userKeywordDefs[kw]?.storageLocation).find(loc => loc === 'private')
-      : undefined;
+    // #639 Slice B: privacy comes from EITHER the top-level `private` field OR
+    // a legacy `user-keywords: [private]` entry. Normalize on save:
+    //   - drop the legacy keyword from the array (it's not a tag any more)
+    //   - write `private: true` at the top level when the page is private
+    //   - emit `system-location: 'private'` storage hint (provider needs it
+    //     to route file placement; unchanged from before)
+    // Required pages can never be private, so wantsPrivate is forced false there.
+    const privacyFromTopLevel = (rawMetadata as Record<string, unknown>).private === true;
+    const privacyFromKeyword = userKeywords.includes('private')
+      || userKeywords.some(kw => userKeywordDefs[kw]?.storageLocation === 'private');
+    const wantsPrivate = !isRequiredPage && (privacyFromTopLevel || privacyFromKeyword);
+    const keywordsHadPrivate = userKeywords.includes('private');
+    const normalizedKeywords = userKeywords.filter(kw => kw !== 'private');
+    const privateStorageLocation = wantsPrivate ? 'private' : undefined;
+
+    // Strip the existing top-level `private` so the spread below can't carry a
+    // stale value when wantsPrivate is false (e.g. unsetting on a required page).
+    const rawMetadataCopy = { ...rawMetadata } as Record<string, unknown>;
+    delete rawMetadataCopy.private;
 
     const metadataWithLocation: Partial<PageFrontmatter> & Record<string, unknown> = {
-      ...rawMetadata,
+      ...rawMetadataCopy,
+      // Only override user-keywords if we actually stripped 'private' — otherwise
+      // leave the field exactly as the caller provided it (including absent).
+      ...(keywordsHadPrivate ? { 'user-keywords': normalizedKeywords } : {}),
+      ...(wantsPrivate ? { private: true } : {}),
       ...(privateStorageLocation ? { 'system-location': privateStorageLocation } : {})
     };
 
