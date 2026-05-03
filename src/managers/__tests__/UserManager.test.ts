@@ -340,6 +340,75 @@ describe('UserManager', () => {
       expect(Array.isArray(permissions)).toBe(true);
       expect(permissions.length).toBe(0);
     });
+
+    // ─── #637: hasPermission fast path (pre-resolved userContext) ─────────────
+
+    function installPolicyEvaluator(allowed: boolean) {
+      const policyEvaluator = {
+        evaluateAccess: vi.fn().mockResolvedValue({ allowed })
+      };
+      mockEngine.getManager = vi.fn((name) => {
+        if (name === 'ConfigurationManager') return mockConfigurationManager;
+        if (name === 'PolicyEvaluator') return policyEvaluator;
+        return null;
+      });
+      return policyEvaluator;
+    }
+
+    test('hasPermission(userContext, action) skips provider.getUser + resolveUserRoles (#637)', async () => {
+      installPolicyEvaluator(true);
+      userManager.provider.getUser = vi.fn().mockResolvedValue(null);
+      userManager.resolveUserRoles = vi.fn().mockResolvedValue([]);
+
+      const result = await userManager.hasPermission(
+        { username: 'jane', roles: ['admin', 'Authenticated', 'All'], isAuthenticated: true },
+        'admin-system'
+      );
+
+      // Fast path: skipped both lookups
+      expect(userManager.provider.getUser).not.toHaveBeenCalled();
+      expect(userManager.resolveUserRoles).not.toHaveBeenCalled();
+      expect(result).toBe(true);
+    });
+
+    test('hasPermission(username, action) still works (back-compat string path) (#637)', async () => {
+      installPolicyEvaluator(true);
+      const mockUser = { username: 'jane', roles: ['admin'], isActive: true };
+      userManager.provider.getUser = vi.fn().mockResolvedValue(mockUser);
+
+      const result = await userManager.hasPermission('jane', 'admin-system');
+
+      // String path: must look up the user
+      expect(userManager.provider.getUser).toHaveBeenCalledWith('jane');
+      expect(result).toBe(true);
+    });
+
+    test('hasPermission(userContext, action) trusts the caller-provided roles array verbatim (#637)', async () => {
+      const policyEvaluator = installPolicyEvaluator(true);
+      userManager.provider.getUser = vi.fn();
+      userManager.resolveUserRoles = vi.fn();
+
+      // Caller's userContext claims `super-admin` role even though the user
+      // record on disk wouldn't grant it. Fast path must trust the caller —
+      // session middleware is the source of truth for roles.
+      await userManager.hasPermission(
+        { username: 'mallory', roles: ['super-admin'], isAuthenticated: true },
+        'admin-system'
+      );
+
+      expect(userManager.provider.getUser).not.toHaveBeenCalled();
+      expect(userManager.resolveUserRoles).not.toHaveBeenCalled();
+      // Verify the roles array was passed through to PolicyEvaluator verbatim
+      expect(policyEvaluator.evaluateAccess).toHaveBeenCalledWith(
+        expect.objectContaining({
+          userContext: expect.objectContaining({
+            username: 'mallory',
+            roles: ['super-admin'],
+            isAuthenticated: true
+          })
+        })
+      );
+    });
   });
 
   describe('Password Management', () => {

@@ -522,47 +522,76 @@ class UserManager extends BaseManager {
   }
 
   /**
-   * Check if user has permission using policy-based access control
-   * @param {string} username - Username (null for anonymous)
-   * @param {string} action - Action/permission to check (e.g., 'page-create', 'user-read')
-   * @returns {Promise<boolean>} True if user has permission via policies
+   * Check if user has permission using policy-based access control.
+   *
+   * #637: accepts either a username string OR a pre-resolved UserContext-shaped
+   * object. The fast path (passing a UserContext) skips `provider.getUser` and
+   * `resolveUserRoles` — both of which the session middleware already did once
+   * per request when building `req.userContext`. Callers that already have
+   * `req.userContext` (WikiContext, ApiContext, ParseContext) should pass it
+   * through to avoid the redundant work.
+   *
+   * The string path is preserved for callers without a context (background
+   * jobs, CLI tools, tests).
+   *
+   * Anonymous/asserted role-expansion happens here only on the string path.
+   * UserContext callers are responsible for the correct role array — the
+   * session middleware handles this for HTTP requests.
+   *
+   * @param usernameOrContext - Username string, or a UserContext-shaped object
+   *                            with `roles` already resolved.
+   * @param action - Action/permission to check (e.g., 'page-create', 'user-read')
+   * @returns True if user has permission via policies
    */
-  async hasPermission(username: string, action: string): Promise<boolean> {
+  async hasPermission(
+    usernameOrContext: string | { username: string; roles: string[]; isAuthenticated: boolean },
+    action: string
+  ): Promise<boolean> {
     const policyEvaluator = this.engine?.getManager<PolicyEvaluator>('PolicyEvaluator');
     if (!policyEvaluator) {
       logger.warn('[UserManager] PolicyEvaluator not available, denying permission');
       return false;
     }
 
-    if (!this.provider) {
-      return false;
-    }
-
-    // Build user context for policy evaluation
     let userContext: UserContext;
-    if (!username || username === 'anonymous') {
+
+    // Fast path: caller already has a resolved userContext — trust it.
+    if (typeof usernameOrContext === 'object' && usernameOrContext !== null) {
       userContext = {
-        username: 'Anonymous',
-        roles: ['anonymous', 'All'],
-        isAuthenticated: false
-      };
-    } else if (username === 'asserted') {
-      userContext = {
-        username: 'Asserted',
-        roles: ['reader', 'All'],
-        isAuthenticated: false
+        username: usernameOrContext.username,
+        roles: usernameOrContext.roles,
+        isAuthenticated: usernameOrContext.isAuthenticated
       };
     } else {
-      const user = await this.provider.getUser(username);
-      if (!user || !user.isActive) {
+      // String path: build the context from scratch (existing behavior).
+      const username = usernameOrContext;
+      if (!this.provider) {
         return false;
       }
-      const baseRoles = await this.resolveUserRoles(username);
-      userContext = {
-        username: user.username,
-        roles: [...baseRoles, 'Authenticated', 'All'],
-        isAuthenticated: true
-      };
+      if (!username || username === 'anonymous') {
+        userContext = {
+          username: 'Anonymous',
+          roles: ['anonymous', 'All'],
+          isAuthenticated: false
+        };
+      } else if (username === 'asserted') {
+        userContext = {
+          username: 'Asserted',
+          roles: ['reader', 'All'],
+          isAuthenticated: false
+        };
+      } else {
+        const user = await this.provider.getUser(username);
+        if (!user || !user.isActive) {
+          return false;
+        }
+        const baseRoles = await this.resolveUserRoles(username);
+        userContext = {
+          username: user.username,
+          roles: [...baseRoles, 'Authenticated', 'All'],
+          isAuthenticated: true
+        };
+      }
     }
 
     // Evaluate using policies - use generic page resource for permission checks

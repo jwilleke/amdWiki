@@ -267,7 +267,7 @@ describe('WikiContext', () => {
   });
 
   describe('hasPermission', () => {
-    test('delegates to UserManager.hasPermission with the user\'s username', async () => {
+    test('delegates to UserManager.hasPermission passing the resolved userContext (#637 fast path)', async () => {
       const userManagerMock = {
         hasPermission: vi.fn().mockResolvedValue(true)
       };
@@ -283,7 +283,12 @@ describe('WikiContext', () => {
 
       const result = await ctx.hasPermission('admin-system');
 
-      expect(userManagerMock.hasPermission).toHaveBeenCalledWith('alice', 'admin-system');
+      // #637: pass-through userContext lets UserManager skip provider.getUser
+      // + resolveUserRoles for callers that already have a resolved context.
+      expect(userManagerMock.hasPermission).toHaveBeenCalledWith(
+        expect.objectContaining({ username: 'alice', roles: ['editor'] }),
+        'admin-system'
+      );
       expect(result).toBe(true);
     });
 
@@ -312,6 +317,76 @@ describe('WikiContext', () => {
       // mockEngine returns null for UserManager
       const result = await ctx.hasPermission('admin-system');
       expect(result).toBe(false);
+    });
+
+    test('memoizes the result per action — repeat calls share one userManager invocation (#636)', async () => {
+      const userManagerMock = { hasPermission: vi.fn().mockResolvedValue(true) };
+      const engine = {
+        getManager: vi.fn((name) => {
+          if (name === 'UserManager') return userManagerMock;
+          return mockEngine.getManager(name);
+        })
+      };
+      const ctx = new WikiContext(engine as unknown as WikiEngine, {
+        userContext: { username: 'alice', roles: ['editor'] }
+      });
+
+      const r1 = await ctx.hasPermission('admin-system');
+      const r2 = await ctx.hasPermission('admin-system');
+      const r3 = await ctx.hasPermission('admin-system');
+
+      expect(r1).toBe(true);
+      expect(r2).toBe(true);
+      expect(r3).toBe(true);
+      // Three calls but only ONE userManager invocation thanks to memoization
+      expect(userManagerMock.hasPermission).toHaveBeenCalledTimes(1);
+    });
+
+    test('different actions cache independently — distinct userManager calls per action (#636)', async () => {
+      const userManagerMock = { hasPermission: vi.fn().mockResolvedValue(true) };
+      const engine = {
+        getManager: vi.fn((name) => {
+          if (name === 'UserManager') return userManagerMock;
+          return mockEngine.getManager(name);
+        })
+      };
+      const ctx = new WikiContext(engine as unknown as WikiEngine, {
+        userContext: { username: 'alice', roles: ['editor'] }
+      });
+
+      await ctx.hasPermission('admin-system');
+      await ctx.hasPermission('user-edit');
+      await ctx.hasPermission('admin-system'); // cached
+      await ctx.hasPermission('user-edit');    // cached
+
+      expect(userManagerMock.hasPermission).toHaveBeenCalledTimes(2);
+    });
+
+    test('concurrent calls share one in-flight Promise (#636 — Promise-level memoization)', async () => {
+      let resolveFn: (v: boolean) => void = () => { /* set below */ };
+      const userManagerMock = {
+        hasPermission: vi.fn(() => new Promise<boolean>((resolve) => { resolveFn = resolve; }))
+      };
+      const engine = {
+        getManager: vi.fn((name) => {
+          if (name === 'UserManager') return userManagerMock;
+          return mockEngine.getManager(name);
+        })
+      };
+      const ctx = new WikiContext(engine as unknown as WikiEngine, {
+        userContext: { username: 'alice', roles: ['editor'] }
+      });
+
+      const p1 = ctx.hasPermission('admin-system');
+      const p2 = ctx.hasPermission('admin-system');
+      // Both calls dispatched before the first promise resolves
+      expect(userManagerMock.hasPermission).toHaveBeenCalledTimes(1);
+
+      resolveFn(true);
+      const [r1, r2] = await Promise.all([p1, p2]);
+      expect(r1).toBe(true);
+      expect(r2).toBe(true);
+      expect(userManagerMock.hasPermission).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -365,6 +440,31 @@ describe('WikiContext', () => {
       });
       const result = await ctx.canAccess('edit');
       expect(result).toBe(false);
+    });
+
+    test('memoizes the result per action+pageName — repeat calls share one ACL evaluation (#636)', async () => {
+      const aclManagerMock = {
+        checkPagePermissionWithContext: vi.fn().mockResolvedValue(true)
+      };
+      const engine = {
+        getManager: vi.fn((name) => {
+          if (name === 'ACLManager') return aclManagerMock;
+          return mockEngine.getManager(name);
+        })
+      };
+      const ctx = new WikiContext(engine as unknown as WikiEngine, {
+        pageName: 'Main',
+        userContext: { username: 'alice', roles: ['editor'] }
+      });
+
+      await ctx.canAccess('edit');
+      await ctx.canAccess('edit');
+      await ctx.canAccess('view');
+      await ctx.canAccess('edit');
+      await ctx.canAccess('view');
+
+      // 5 calls, 2 unique action+pageName combos → 2 ACL invocations
+      expect(aclManagerMock.checkPagePermissionWithContext).toHaveBeenCalledTimes(2);
     });
   });
 

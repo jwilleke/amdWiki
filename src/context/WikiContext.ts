@@ -264,6 +264,21 @@ class WikiContext {
   private readonly _fallbackConverter: Showdown.Converter;
 
   /**
+   * Per-instance memoization for hasPermission(action) results (#636).
+   * The WikiContext is request-scoped, so this cache lifetime is the request.
+   * We cache the Promise (not the resolved value) so concurrent callers all
+   * await the same in-flight evaluation.
+   */
+  private readonly _permissionCache: Map<string, Promise<boolean>> = new Map();
+
+  /**
+   * Per-instance memoization for canAccess(action) results, keyed by
+   * `${action}:${pageName}` to handle the rare case where a request mutates
+   * pageName mid-handler (#636).
+   */
+  private readonly _canAccessCache: Map<string, Promise<boolean>> = new Map();
+
+  /**
    * Creates a new WikiContext instance
    *
    * @constructor
@@ -380,7 +395,18 @@ class WikiContext {
   async hasPermission(action: string): Promise<boolean> {
     const userManager = this.engine.getManager<UserManager>('UserManager');
     if (!userManager) return false;
-    return userManager.hasPermission(this.userContext?.username ?? '', action);
+    // #636: per-instance memoization — repeat calls share the same in-flight
+    // promise. Cache the Promise (not the result) so concurrent callers all
+    // wait on one evaluation.
+    const cached = this._permissionCache.get(action);
+    if (cached) return cached;
+    // #637: pass the already-resolved userContext when we have one, so
+    // UserManager.hasPermission can skip provider.getUser + resolveUserRoles.
+    const promise = this.userContext
+      ? userManager.hasPermission(this.userContext as { username: string; roles: string[]; isAuthenticated: boolean }, action)
+      : userManager.hasPermission('', action);
+    this._permissionCache.set(action, promise);
+    return promise;
   }
 
   /**
@@ -401,12 +427,19 @@ class WikiContext {
    */
   async canAccess(action: string): Promise<boolean> {
     if (!this.aclManager || !this.pageName) return false;
+    // #636: per-instance memoization keyed by action+pageName. Concurrent calls
+    // for the same key share an in-flight Promise so a single evaluation runs.
+    const key = `${action}:${this.pageName}`;
+    const cached = this._canAccessCache.get(key);
+    if (cached) return cached;
     // ACLManager has a local minimal WikiContext interface that types pageName
     // as `string`; the runtime guard above ensures pageName is non-null here.
-    return this.aclManager.checkPagePermissionWithContext(
+    const promise = this.aclManager.checkPagePermissionWithContext(
       this as unknown as Parameters<ACLManager['checkPagePermissionWithContext']>[0],
       action
     );
+    this._canAccessCache.set(key, promise);
+    return promise;
   }
 
   /**

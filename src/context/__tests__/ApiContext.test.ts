@@ -180,14 +180,19 @@ describe('ApiContext#hasPermission()', () => {
     };
   }
 
-  test('delegates to UserManager.hasPermission with the caller\'s username', async () => {
+  test('delegates to UserManager.hasPermission passing the resolved userContext (#637 fast path)', async () => {
     const engine = makeEngineWithUserManager(true);
     const ctx = ApiContext.from(
       makeReq({ userContext: { username: 'jane', roles: ['editor'], isAuthenticated: true } }),
       engine
     );
     const result = await ctx.hasPermission('page-edit');
-    expect(engine._hasPermission).toHaveBeenCalledWith('jane', 'page-edit');
+    // #637: caller passes a structured userContext object instead of just the
+    // username so UserManager can skip provider.getUser + resolveUserRoles.
+    expect(engine._hasPermission).toHaveBeenCalledWith(
+      { username: 'jane', roles: ['editor'], isAuthenticated: true },
+      'page-edit'
+    );
     expect(result).toBe(true);
   });
 

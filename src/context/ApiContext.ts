@@ -160,7 +160,18 @@ export class ApiContext {
   async hasPermission(permission: string): Promise<boolean> {
     const userManager = this.engine.getManager<UserManager>('UserManager');
     if (!userManager) return false;
-    return userManager.hasPermission(this.username ?? '', permission);
+    // #637: build a userContext from our request-scoped fields and pass it
+    // through so UserManager can skip provider.getUser + resolveUserRoles.
+    // The session middleware already resolved roles + added 'Authenticated'/'All'
+    // for authenticated callers; we trust that shape here.
+    if (this.username) {
+      return userManager.hasPermission(
+        { username: this.username, roles: this.roles, isAuthenticated: this.isAuthenticated },
+        permission
+      );
+    }
+    // Anonymous (no username): preserve existing string-path behavior.
+    return userManager.hasPermission('', permission);
   }
 
   /**

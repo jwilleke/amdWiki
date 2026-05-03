@@ -235,10 +235,22 @@ class ParseContext {
    */
   async hasPermission(action: string): Promise<boolean> {
     const userManager = this.engine.getManager<{
-      hasPermission(u: string, a: string): Promise<boolean>;
+      hasPermission(
+        u: string | { username: string; roles: string[]; isAuthenticated: boolean },
+        a: string
+      ): Promise<boolean>;
         }>('UserManager');
     if (!userManager) return false;
-    const username = this.userContext?.username ?? this.userContext?.userName ?? '';
+    // #637: pass the resolved userContext directly when we have one so
+    // UserManager can skip provider.getUser + resolveUserRoles.
+    const uc = this.userContext;
+    const username = uc?.username ?? uc?.userName ?? '';
+    if (uc && Array.isArray(uc.roles) && typeof username === 'string' && username) {
+      return userManager.hasPermission(
+        { username, roles: uc.roles, isAuthenticated: Boolean(uc.isAuthenticated ?? uc.authenticated) },
+        action
+      );
+    }
     return userManager.hasPermission(typeof username === 'string' ? username : '', action);
   }
 
