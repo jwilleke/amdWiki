@@ -1,0 +1,78 @@
+<%- include('header', { pageName: '' }) %>
+
+<div class="container">
+  <div class="row">
+    <div class="col-12">
+      <div class="card mt-4">
+        <div class="card-header d-flex align-items-center justify-content-between">
+          <h4 class="mb-0">
+            <i class="fas <%= icon %>"></i> <%= title %>
+            <span class="badge bg-secondary ms-2"><%= items.length %></span>
+          </h4>
+          <a href="/profile" class="btn btn-sm btn-outline-secondary">
+            <i class="fas fa-arrow-left"></i> Back to Profile
+          </a>
+        </div>
+        <div class="card-body">
+          <% if (!items || items.length === 0) { %>
+            <p class="text-muted"><%= emptyMessage %></p>
+          <% } else if (listKind === 'links') { %>
+            <ul class="list-group">
+              <% items.forEach(function(item) { %>
+                <li class="list-group-item d-flex align-items-center justify-content-between">
+                  <a href="<%= item.url %>" class="wikipage"><%= item.title %></a>
+                  <% if (item.pinnedAt) { %>
+                    <small class="text-muted">pinned <%= new Date(item.pinnedAt).toLocaleDateString() %></small>
+                  <% } %>
+                </li>
+              <% }); %>
+            </ul>
+          <% } else if (listKind === 'journal') { %>
+            <ul class="list-group">
+              <% items.forEach(function(item) { %>
+                <li class="list-group-item">
+                  <a href="/view/<%= encodeURIComponent(item.uuid) %>" class="wikipage"><%= item.title %></a>
+                  <small class="text-muted ms-2"><%= item.lastModified %></small>
+                  <% if (item.preview) { %>
+                    <div class="small text-muted mt-1"><%= item.preview %></div>
+                  <% } %>
+                </li>
+              <% }); %>
+            </ul>
+          <% } else { %>
+            <div class="table-responsive">
+              <table class="table table-hover">
+                <thead>
+                  <tr>
+                    <th>Page</th>
+                    <th style="width: 25%;">Last Modified</th>
+                    <th style="width: 15%;">Editor</th>
+                    <th style="width: 12%;">Visibility</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% items.forEach(function(item) { %>
+                    <tr>
+                      <td><a class="wikipage" href="/view/<%= encodeURIComponent(item.title) %>"><%= item.title %></a></td>
+                      <td><small class="text-muted"><%= item.lastModified ? new Date(item.lastModified).toLocaleString() : '-' %></small></td>
+                      <td><small><%= item.editor || '-' %></small></td>
+                      <td>
+                        <% if (item.isPrivate) { %>
+                          <span class="badge bg-warning text-dark"><i class="fas fa-eye-slash"></i> Private</span>
+                        <% } else { %>
+                          <span class="badge bg-light text-dark">Public</span>
+                        <% } %>
+                      </td>
+                    </tr>
+                  <% }); %>
+                </tbody>
+              </table>
+            </div>
+          <% } %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%- include('footer') %>

@@ -4121,6 +4121,11 @@ ${panes}
 
       const availableDateFormats = LocaleUtils.getDateFormatOptions();
 
+      // #640: contributions counts for the "My Contributions" card
+      const contributions = currentUser.username
+        ? await this.getMyContributionsCounts(currentUser.username, freshUser as { preferences?: Record<string, unknown> } | null)
+        : { pages: undefined, private: undefined, journal: undefined, links: undefined };
+
       res.render('profile', {
         ...commonData,
         title: 'Profile',
@@ -4128,6 +4133,7 @@ ${panes}
         permissions: userPermissions,
         availableTimezones: availableTimezones,
         availableDateFormats: availableDateFormats,
+        contributions, // #640
         error: req.query.error,
         success: req.query.success,
         csrfToken: req.session.csrfToken
@@ -4135,6 +4141,197 @@ ${panes}
     } catch (err: unknown) {
       logger.error('Error loading profile page:', err);
       res.status(500).send('Error loading profile page');
+    }
+  }
+
+  /**
+   * Compute the four "My Contributions" counts in one call so the profile
+   * card can render without N round-trips. Called from profilePage. Failures
+   * for any sub-count fall back to undefined so a single broken manager
+   * doesn't break the whole card. (#640)
+   */
+  private async getMyContributionsCounts(
+    username: string,
+    user: { preferences?: Record<string, unknown> } | null
+  ): Promise<{
+    pages: number | undefined;
+    private: number | undefined;
+    journal: number | undefined;
+    links: number | undefined;
+  }> {
+    const counts: {
+      pages: number | undefined;
+      private: number | undefined;
+      journal: number | undefined;
+      links: number | undefined;
+    } = { pages: undefined, private: undefined, journal: undefined, links: undefined };
+
+    try {
+      const pageManager = this.engine.getManager('PageManager') as unknown as {
+        getPagesByCreator?: (u: string, o?: { onlyPrivate?: boolean }) => Promise<unknown[]>;
+      };
+      if (pageManager?.getPagesByCreator) {
+        const all = await pageManager.getPagesByCreator(username);
+        const privateOnly = await pageManager.getPagesByCreator(username, { onlyPrivate: true });
+        counts.pages = all.length;
+        counts.private = privateOnly.length;
+      }
+    } catch (err) {
+      logger.warn('[/profile] getMyContributionsCounts: pages count failed', { error: err instanceof Error ? err.message : String(err) });
+    }
+
+    try {
+      const journalManager = this.engine.getManager('JournalDataManager') as {
+        countByAuthor?: (u: string) => number;
+      };
+      if (journalManager?.countByAuthor) {
+        counts.journal = journalManager.countByAuthor(username);
+      }
+    } catch (err) {
+      logger.warn('[/profile] getMyContributionsCounts: journal count failed', { error: err instanceof Error ? err.message : String(err) });
+    }
+
+    try {
+      const pinned = (user?.preferences?.['nav.pinnedPages'] ?? []) as Array<{ url: string }>;
+      counts.links = Array.isArray(pinned) ? pinned.length : 0;
+    } catch {
+      counts.links = 0;
+    }
+
+    return counts;
+  }
+
+  /**
+   * GET /my/pages — list of pages owned by the current user (#640).
+   */
+  async myPagesPage(req: Request, res: Response) {
+    return this.renderMyContributionsList(req, res, {
+      title: 'My Pages',
+      icon: 'fa-file-alt',
+      onlyPrivate: false,
+      emptyMessage: 'You haven\'t created any pages yet.'
+    });
+  }
+
+  /**
+   * GET /my/private — list of private pages owned by the current user (#640).
+   */
+  async myPrivatePagesPage(req: Request, res: Response) {
+    return this.renderMyContributionsList(req, res, {
+      title: 'My Private Pages',
+      icon: 'fa-eye-slash',
+      onlyPrivate: true,
+      emptyMessage: 'You don\'t have any private pages yet.'
+    });
+  }
+
+  private async renderMyContributionsList(
+    req: Request,
+    res: Response,
+    spec: { title: string; icon: string; onlyPrivate: boolean; emptyMessage: string }
+  ) {
+    try {
+      const wikiContext = this.createWikiContext(req);
+      const currentUser = wikiContext.userContext;
+      if (!currentUser || !currentUser.isAuthenticated || !currentUser.username) {
+        return res.redirect('/login?redirect=' + encodeURIComponent(req.originalUrl));
+      }
+      const pageManager = this.engine.getManager('PageManager') as unknown as {
+        getPagesByCreator?: (u: string, o?: { onlyPrivate?: boolean }) => Promise<Array<{
+          title: string; uuid: string; lastModified: string; isPrivate?: boolean; editor?: string
+        }>>;
+      };
+      const items = pageManager?.getPagesByCreator
+        ? await pageManager.getPagesByCreator(currentUser.username, { onlyPrivate: spec.onlyPrivate })
+        : [];
+      const commonData = await this.getCommonTemplateData(req);
+      res.render('my-list', {
+        ...commonData,
+        title: spec.title,
+        icon: spec.icon,
+        items,
+        listKind: 'pages',
+        emptyMessage: spec.emptyMessage
+      });
+    } catch (err) {
+      logger.error('Error rendering My Contributions list:', err);
+      res.status(500).send('Error loading list');
+    }
+  }
+
+  /**
+   * GET /my/journal — list of journal entries authored by the current user (#640).
+   * Delegates to the JournalDataManager from the journal addon if present.
+   */
+  async myJournalPage(req: Request, res: Response) {
+    try {
+      const wikiContext = this.createWikiContext(req);
+      const currentUser = wikiContext.userContext;
+      if (!currentUser || !currentUser.isAuthenticated || !currentUser.username) {
+        return res.redirect('/login?redirect=/my/journal');
+      }
+      const journalManager = this.engine.getManager('JournalDataManager') as {
+        listByAuthor?: (u: string, o?: { limit?: number; offset?: number }) => Array<{
+          slug: string; title: string; date: string; preview?: string
+        }>;
+      };
+      const entries = journalManager?.listByAuthor
+        ? journalManager.listByAuthor(currentUser.username, { limit: 1000, offset: 0 })
+        : [];
+      // Adapt journal entries to the my-list shape so we can reuse the view.
+      const items = entries.map(e => ({
+        title: e.title,
+        uuid: e.slug,
+        lastModified: e.date,
+        preview: e.preview
+      }));
+      const commonData = await this.getCommonTemplateData(req);
+      res.render('my-list', {
+        ...commonData,
+        title: 'My Journal Entries',
+        icon: 'fa-book',
+        items,
+        listKind: 'journal',
+        emptyMessage: journalManager
+          ? 'You haven\'t made any journal entries yet.'
+          : 'Journal addon is not enabled on this install.'
+      });
+    } catch (err) {
+      logger.error('Error rendering My Journal list:', err);
+      res.status(500).send('Error loading journal list');
+    }
+  }
+
+  /**
+   * GET /my/links — current user's pinned MyLinks pages from preferences (#640).
+   */
+  async myLinksPage(req: Request, res: Response) {
+    try {
+      const wikiContext = this.createWikiContext(req);
+      const currentUser = wikiContext.userContext;
+      if (!currentUser || !currentUser.isAuthenticated || !currentUser.username) {
+        return res.redirect('/login?redirect=/my/links');
+      }
+      const userManager = this.engine.getManager('UserManager');
+      const freshUser = await userManager.getUser(currentUser.username);
+      const pinnedRaw = (freshUser?.preferences?.['nav.pinnedPages'] ?? []) as Array<{ url?: string; title?: string; pinnedAt?: string }>;
+      const items = (Array.isArray(pinnedRaw) ? pinnedRaw : []).map(p => ({
+        title: p.title ?? p.url ?? '(untitled)',
+        url: p.url ?? '',
+        pinnedAt: p.pinnedAt
+      }));
+      const commonData = await this.getCommonTemplateData(req);
+      res.render('my-list', {
+        ...commonData,
+        title: 'My Links',
+        icon: 'fa-link',
+        items,
+        listKind: 'links',
+        emptyMessage: 'You haven\'t pinned any pages yet. Pin pages from the page menu to add them here.'
+      });
+    } catch (err) {
+      logger.error('Error rendering My Links list:', err);
+      res.status(500).send('Error loading links list');
     }
   }
 
@@ -8263,6 +8460,11 @@ ${panes}
     app.post('/register', (req: Request, res: Response) => this.processRegister(req, res));
     app.get('/profile', (req: Request, res: Response) => this.profilePage(req, res));
     app.post('/profile', (req: Request, res: Response) => this.updateProfile(req, res));
+    // #640: My Contributions surfaces
+    app.get('/my/pages', (req: Request, res: Response) => this.myPagesPage(req, res));
+    app.get('/my/private', (req: Request, res: Response) => this.myPrivatePagesPage(req, res));
+    app.get('/my/journal', (req: Request, res: Response) => this.myJournalPage(req, res));
+    app.get('/my/links', (req: Request, res: Response) => this.myLinksPage(req, res));
     app.post('/preferences', (req: Request, res: Response) => this.updatePreferences(req, res));
     app.post('/api/comments/:pageUuid', (req: Request, res: Response) => void this.addComment(req, res));
     app.delete('/api/comments/:pageUuid/:commentId', (req: Request, res: Response) => void this.deleteComment(req, res));

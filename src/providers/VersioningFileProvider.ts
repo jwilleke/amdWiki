@@ -787,6 +787,51 @@ class VersioningFileProvider extends FileSystemProvider {
   }
 
   /**
+   * Pages owned by a user — backed by pageIndex (#640). Match by `author`
+   * (canonical) OR `creator` (denormalised for private pages, kept in lockstep
+   * with author at write time per #634 audit). Visibility filter intentionally
+   * skipped — caller is asking about their own pages.
+   */
+  async getPagesByCreator(
+    username: string,
+    options: import('../types/Provider.js').GetPagesByCreatorOptions = {}
+  ): Promise<RecentChangeEntry[]> {
+    if (!this.pageIndex || !username) {
+      return [];
+    }
+
+    const limit = typeof options.limit === 'number' && options.limit > 0 ? options.limit : 1000;
+    const onlyPrivate = options.onlyPrivate === true;
+    const sortBy = options.sortBy ?? 'lastModified-desc';
+
+    const entries: RecentChangeEntry[] = [];
+    for (const idx of Object.values(this.pageIndex.pages)) {
+      const matches = idx.author === username || idx.creator === username;
+      if (!matches) continue;
+      if (onlyPrivate && !idx.isPrivate) continue;
+
+      entries.push({
+        title: idx.title,
+        uuid: idx.uuid,
+        lastModified: idx.lastModified,
+        author: idx.author,
+        editor: idx.editor,
+        currentVersion: idx.currentVersion,
+        hasVersions: idx.hasVersions,
+        isPrivate: idx.isPrivate || undefined,
+        creator: idx.creator
+      });
+    }
+
+    if (sortBy === 'title-asc') {
+      entries.sort((a, b) => a.title.localeCompare(b.title));
+    } else {
+      entries.sort((a, b) => new Date(b.lastModified).getTime() - new Date(a.lastModified).getTime());
+    }
+    return entries.slice(0, limit);
+  }
+
+  /**
    * Save page index to disk (atomic write, serialized via queue)
    * Uses a write queue to prevent concurrent saves from conflicting.
    */

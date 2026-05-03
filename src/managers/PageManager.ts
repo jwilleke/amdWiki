@@ -4,7 +4,7 @@ import matter from 'gray-matter';
 import BaseManager, { BackupData } from './BaseManager.js';
 import logger from '../utils/logger.js';
 import { WikiEngine } from '../types/WikiEngine.js';
-import { PageProvider, ProviderInfo, RecentChangesOptions, RecentChangeEntry } from '../types/Provider.js';
+import { PageProvider, ProviderInfo, RecentChangesOptions, RecentChangeEntry, GetPagesByCreatorOptions } from '../types/Provider.js';
 import { WikiPage, PageFrontmatter } from '../types/Page.js';
 import type ConfigurationManager from './ConfigurationManager.js';
 import type ValidationManager from './ValidationManager.js';
@@ -698,6 +698,21 @@ class PageManager extends BaseManager {
       throw new Error('PageManager: Provider not initialized');
     }
     return this.provider.getRecentChanges(options);
+  }
+
+  /**
+   * Pages owned by a given user (#640).
+   *
+   * Authorization: callers MUST verify the requesting user is allowed to ask
+   * about `username` (typically only their own username, or admin asking about
+   * another). The provider does not enforce this — it filters by `author` /
+   * `creator` only.
+   */
+  async getPagesByCreator(username: string, options: GetPagesByCreatorOptions = {}): Promise<RecentChangeEntry[]> {
+    if (!this.provider) {
+      throw new Error('PageManager: Provider not initialized');
+    }
+    return this.provider.getPagesByCreator(username, options);
   }
 
   async refreshPageList(): Promise<void> {

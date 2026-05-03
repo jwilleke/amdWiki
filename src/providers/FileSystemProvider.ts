@@ -832,6 +832,56 @@ class FileSystemProvider extends BasePageProvider {
   }
 
   /**
+   * Pages owned by a user (#640). Base implementation: walks pageCache and
+   * matches by metadata.author OR metadata.creator. VersioningFileProvider
+   * overrides with the pageIndex-backed version which carries denormalised
+   * fields for free.
+   */
+  async getPagesByCreator(
+    username: string,
+    options: import('../types/Provider.js').GetPagesByCreatorOptions = {}
+  ): Promise<RecentChangeEntry[]> {
+    if (!username) return [];
+
+    const limit = typeof options.limit === 'number' && options.limit > 0 ? options.limit : 1000;
+    const onlyPrivate = options.onlyPrivate === true;
+    const sortBy = options.sortBy ?? 'lastModified-desc';
+
+    const entries: RecentChangeEntry[] = [];
+    for (const info of this.pageCache.values()) {
+      const md = info.metadata ?? {} as PageFrontmatter;
+      const author = (md as { author?: string }).author;
+      const creator = (md as { creator?: string }).creator;
+      if (author !== username && creator !== username) continue;
+
+      const userKeywords = (md as { 'user-keywords'?: unknown })['user-keywords'];
+      const userKeywordsArr = Array.isArray(userKeywords) ? userKeywords.map(String) : [];
+      const isPrivate = (md as { private?: boolean }).private === true
+        || (md as { 'system-location'?: string })['system-location'] === 'private'
+        || userKeywordsArr.includes('private');
+      if (onlyPrivate && !isPrivate) continue;
+
+      const lastModified = (md as { lastModified?: string }).lastModified ?? '';
+      entries.push({
+        title: info.title,
+        uuid: info.uuid,
+        lastModified,
+        author,
+        editor: (md as { editor?: string }).editor,
+        isPrivate: isPrivate || undefined,
+        creator
+      });
+    }
+
+    if (sortBy === 'title-asc') {
+      entries.sort((a, b) => a.title.localeCompare(b.title));
+    } else {
+      entries.sort((a, b) => new Date(b.lastModified).getTime() - new Date(a.lastModified).getTime());
+    }
+    return entries.slice(0, limit);
+  }
+
+  /**
    * Backup all pages to a serializable format
    *
    * Returns all page files with their content and relative paths.

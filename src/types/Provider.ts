@@ -90,6 +90,18 @@ export interface RecentChangesOptions {
 }
 
 /**
+ * Options for {@link PageProvider.getPagesByCreator} (#640).
+ */
+export interface GetPagesByCreatorOptions {
+  /** Maximum number of entries returned. Default 1000 (intent: full per-user list). */
+  limit?: number;
+  /** Only include pages where `isPrivate === true`. */
+  onlyPrivate?: boolean;
+  /** Sort order. Default `lastModified-desc`. */
+  sortBy?: 'lastModified-desc' | 'title-asc';
+}
+
+/**
  * Single entry returned by {@link PageProvider.getRecentChanges}.
  *
  * Fields beyond `title`/`uuid`/`lastModified` are best-effort: providers populate what
@@ -237,6 +249,20 @@ export interface PageProvider extends BaseProvider {
    * pageCache) — direct disk reads were what motivated this API.
    */
   getRecentChanges(options?: RecentChangesOptions): Promise<RecentChangeEntry[]>;
+
+  /**
+   * Return pages owned by the given user (#640).
+   *
+   * "Owned" matches by `author` or `creator` field — pageIndex keeps these in
+   * lockstep on save. The visibility filter is intentionally NOT applied here
+   * because by definition a user can see their own pages: the route handler
+   * verifies that `username === currentUser.username` before calling this.
+   *
+   * Source-of-truth: providers MUST read from in-memory state (pageIndex /
+   * pageCache). Reuses {@link RecentChangeEntry} shape since the relevant fields
+   * overlap.
+   */
+  getPagesByCreator(username: string, options?: GetPagesByCreatorOptions): Promise<RecentChangeEntry[]>;
 }
 
 /**
