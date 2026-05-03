@@ -37,6 +37,8 @@
     "migrate:versioning": "tsx scripts/migrate-to-versioning.ts",
     "migrate:versioning:dry": "tsx scripts/migrate-to-versioning.ts --dry-run",
     "migrate:versioning:verbose": "tsx scripts/migrate-to-versioning.ts --verbose",
+    "migrate:private": "tsx scripts/migrate-private-field.ts",
+    "migrate:private:dry": "tsx scripts/migrate-private-field.ts --dry-run",
     "maintain:versioning": "tsx scripts/maintain-versions.ts",
     "maintain:cleanup": "tsx scripts/maintain-versions.ts --cleanup",
     "maintain:compress": "tsx scripts/maintain-versions.ts --compress",

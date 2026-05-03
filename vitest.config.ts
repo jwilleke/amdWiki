@@ -47,7 +47,8 @@ export default defineConfig({
       'src/**/__tests__/**/*.ts',
       'src/**/*.test.ts',
       'addons/**/__tests__/**/*.ts',
-      'addons/**/*.test.ts'
+      'addons/**/*.test.ts',
+      'scripts/**/__tests__/**/*.ts'
     ],
     exclude: [
       '**/node_modules/**',
