@@ -16,9 +16,13 @@ vi.mock('../../utils/logger', () => ({
 // Mock OpenTelemetry modules to avoid port conflicts and real metric collection
 const mockCounter = { add: vi.fn() };
 const mockHistogram = { record: vi.fn() };
+const mockObservableGauge = { addCallback: vi.fn(), removeCallback: vi.fn() };
+const mockBatchObservableCallback = vi.fn();
 const mockMeter = {
   createCounter: vi.fn(() => mockCounter),
-  createHistogram: vi.fn(() => mockHistogram)
+  createHistogram: vi.fn(() => mockHistogram),
+  createObservableGauge: vi.fn(() => mockObservableGauge),
+  addBatchObservableCallback: mockBatchObservableCallback
 };
 const mockMeterProvider = {
   getMeter: vi.fn(() => mockMeter),
@@ -180,6 +184,54 @@ describe('MetricsManager', () => {
       expect(histogramNames).toContain('ngdpbase_page_index_save_duration_ms');
       expect(histogramNames).toContain('ngdpbase_engine_init_duration_ms');
       expect(histogramNames).toContain('ngdpbase_http_request_duration_ms');
+    });
+
+    test('should create process memory observable gauges (#610)', async () => {
+      await manager.initialize();
+
+      expect(mockMeter.createObservableGauge).toHaveBeenCalledTimes(5);
+      const gaugeNames = (mockMeter.createObservableGauge.mock.calls as Array<[string, ...unknown[]]>).map(c => c[0]);
+      expect(gaugeNames).toContain('ngdpbase_process_resident_memory_bytes');
+      expect(gaugeNames).toContain('ngdpbase_process_heap_total_bytes');
+      expect(gaugeNames).toContain('ngdpbase_process_heap_used_bytes');
+      expect(gaugeNames).toContain('ngdpbase_process_external_memory_bytes');
+      expect(gaugeNames).toContain('ngdpbase_process_array_buffers_bytes');
+    });
+
+    test('batch observable callback observes all 5 gauges from a single process.memoryUsage() call (#610)', async () => {
+      await manager.initialize();
+
+      expect(mockBatchObservableCallback).toHaveBeenCalledTimes(1);
+      const [callback, observedInstruments] = mockBatchObservableCallback.mock.calls[0] as [
+        (result: { observe: (gauge: unknown, value: number) => void }) => void,
+        unknown[]
+      ];
+
+      // Stub process.memoryUsage to a known shape
+      const fakeMem = {
+        rss: 1234567890,
+        heapTotal: 100000000,
+        heapUsed: 50000000,
+        external: 1000000,
+        arrayBuffers: 500000
+      };
+      const memUsageSpy = vi.spyOn(process, 'memoryUsage').mockReturnValue(fakeMem as ReturnType<typeof process.memoryUsage>);
+
+      const observe = vi.fn();
+      callback({ observe });
+
+      // One process.memoryUsage() call per scrape, regardless of gauge count
+      expect(memUsageSpy).toHaveBeenCalledTimes(1);
+      expect(observe).toHaveBeenCalledTimes(5);
+      expect(observedInstruments).toHaveLength(5);
+
+      // Each gauge gets its corresponding metric value
+      const observedValues = observe.mock.calls.map(c => c[1]);
+      expect(observedValues).toEqual(
+        expect.arrayContaining([1234567890, 100000000, 50000000, 1000000, 500000])
+      );
+
+      memUsageSpy.mockRestore();
     });
 
     test('should derive metric prefix from applicationName', async () => {

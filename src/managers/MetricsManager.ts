@@ -5,7 +5,7 @@ import type ConfigurationManager from './ConfigurationManager.js';
 import type { Request, Response, RequestHandler } from 'express';
 
 // OpenTelemetry imports
-import { metrics, type Meter, type Counter, type Histogram } from '@opentelemetry/api';
+import { metrics, type Meter, type Counter, type Histogram, type ObservableGauge } from '@opentelemetry/api';
 import { MeterProvider, PeriodicExportingMetricReader } from '@opentelemetry/sdk-metrics';
 import { resourceFromAttributes } from '@opentelemetry/resources';
 import { ATTR_SERVICE_NAME } from '@opentelemetry/semantic-conventions';
@@ -47,6 +47,14 @@ class MetricsManager extends BaseManager {
   private pageIndexSaveDuration: Histogram | null = null;
   private engineInitDuration: Histogram | null = null;
   private httpRequestDuration: Histogram | null = null;
+
+  // Observable gauges (process memory — one process.memoryUsage() call per
+  // scrape via batch callback, see #610)
+  private processResidentMemory: ObservableGauge | null = null;
+  private processHeapTotal: ObservableGauge | null = null;
+  private processHeapUsed: ObservableGauge | null = null;
+  private processExternalMemory: ObservableGauge | null = null;
+  private processArrayBuffers: ObservableGauge | null = null;
 
   constructor(engine: WikiEngine) {
     super(engine);
@@ -185,6 +193,48 @@ class MetricsManager extends BaseManager {
       description: 'HTTP request duration in milliseconds',
       unit: 'ms'
     });
+
+    // Observable gauges for process memory (#610). Five separate gauges
+    // observed via a single batch callback so process.memoryUsage() is only
+    // called once per scrape interval.
+    this.processResidentMemory = this.meter.createObservableGauge(`${this.prefix}_process_resident_memory_bytes`, {
+      description: 'Resident set size (RSS) of the Node.js process in bytes',
+      unit: 'bytes'
+    });
+    this.processHeapTotal = this.meter.createObservableGauge(`${this.prefix}_process_heap_total_bytes`, {
+      description: 'Total V8 heap size in bytes',
+      unit: 'bytes'
+    });
+    this.processHeapUsed = this.meter.createObservableGauge(`${this.prefix}_process_heap_used_bytes`, {
+      description: 'Used V8 heap size in bytes',
+      unit: 'bytes'
+    });
+    this.processExternalMemory = this.meter.createObservableGauge(`${this.prefix}_process_external_memory_bytes`, {
+      description: 'Memory used by C++ objects bound to JavaScript objects, in bytes',
+      unit: 'bytes'
+    });
+    this.processArrayBuffers = this.meter.createObservableGauge(`${this.prefix}_process_array_buffers_bytes`, {
+      description: 'Memory allocated for ArrayBuffers and SharedArrayBuffers, in bytes',
+      unit: 'bytes'
+    });
+
+    this.meter.addBatchObservableCallback(
+      (result) => {
+        const mem = process.memoryUsage();
+        if (this.processResidentMemory) result.observe(this.processResidentMemory, mem.rss);
+        if (this.processHeapTotal) result.observe(this.processHeapTotal, mem.heapTotal);
+        if (this.processHeapUsed) result.observe(this.processHeapUsed, mem.heapUsed);
+        if (this.processExternalMemory) result.observe(this.processExternalMemory, mem.external);
+        if (this.processArrayBuffers) result.observe(this.processArrayBuffers, mem.arrayBuffers);
+      },
+      [
+        this.processResidentMemory,
+        this.processHeapTotal,
+        this.processHeapUsed,
+        this.processExternalMemory,
+        this.processArrayBuffers
+      ]
+    );
   }
 
   isEnabled(): boolean {

@@ -17,6 +17,12 @@
 # Set BASELINE_USER + BASELINE_PASS to also sample authenticated routes
 # (#613). Skipped silently if either is unset, or if the login fails.
 #
+# When MetricsManager telemetry is enabled (`ngdpbase.telemetry.enabled`), the
+# script reads memory + engine init duration from /metrics instead of pm2
+# (#610). Override the endpoint with BASELINE_METRICS_URL (default
+# http://localhost:9464/metrics); force the pm2 path with
+# BASELINE_METRICS_DISABLE=1.
+#
 # When --compare is set, the script appends a "Drift vs <previous>" section
 # to the new baseline file AND prints the same table to stdout. Exits
 # non-zero if any threshold trips:
@@ -134,19 +140,76 @@ if [[ -f "$PM2_OUT" ]]; then
   fi
 fi
 
-# ── Memory snapshot via pm2 ───────────────────────────────────────────────────
+# ── Memory snapshot — telemetry first (#610), pm2 fallback ────────────────────
 
-MEM_BYTES=$(npx pm2 jlist 2>/dev/null \
-  | jq -r --arg name "$INSTANCE_NAME" '.[] | select(.name == $name) | .monit.memory' \
-  | head -1)
-MEM_MB=$(awk -v b="${MEM_BYTES:-0}" 'BEGIN { printf "%.1f", b / 1024 / 1024 }')
+# When MetricsManager is enabled, /metrics exposes process memory gauges that
+# match what telemetry consumers see — single source of truth. Falls back to
+# `pm2 jlist` when the endpoint is unreachable (telemetry off, default config).
+#
+# Override the endpoint with BASELINE_METRICS_URL.
+# Force pm2 path with BASELINE_METRICS_DISABLE=1 (e.g. to capture identical
+# numbers across pre/post telemetry-config diffs).
+
+METRICS_URL="${BASELINE_METRICS_URL:-http://localhost:9464/metrics}"
+MEM_SOURCE="pm2"
+HEAP_USED_MB=""
+HEAP_TOTAL_MB=""
+ENGINE_INIT_MEAN_MS=""
+METRICS_PAYLOAD=""
+
+if [[ "${BASELINE_METRICS_DISABLE:-0}" != "1" ]]; then
+  METRICS_PAYLOAD=$(curl -sS --max-time 5 "$METRICS_URL" 2>/dev/null || true)
+  if [[ -n "$METRICS_PAYLOAD" && "$METRICS_PAYLOAD" == *"_process_resident_memory_bytes"* ]]; then
+    MEM_SOURCE="telemetry"
+  fi
+fi
+
+# Pull a metric value where the metric name ends with the given suffix.
+# Skips comment lines (# HELP / # TYPE). Returns empty string if not found.
+get_metric() {
+  local suffix="$1"
+  echo "$METRICS_PAYLOAD" \
+    | awk -v suffix="$suffix" '/^[^#]/ && $1 ~ suffix"$" { print $2; exit }'
+}
+
+if [[ "$MEM_SOURCE" == "telemetry" ]]; then
+  RSS_BYTES=$(get_metric "_process_resident_memory_bytes")
+  HEAP_USED_BYTES=$(get_metric "_process_heap_used_bytes")
+  HEAP_TOTAL_BYTES=$(get_metric "_process_heap_total_bytes")
+  EI_SUM=$(get_metric "_engine_init_duration_ms_sum")
+  EI_COUNT=$(get_metric "_engine_init_duration_ms_count")
+
+  MEM_BYTES="${RSS_BYTES:-0}"
+  MEM_MB=$(awk -v b="${MEM_BYTES:-0}" 'BEGIN { printf "%.1f", b / 1024 / 1024 }')
+  if [[ -n "$HEAP_USED_BYTES" ]]; then
+    HEAP_USED_MB=$(awk -v b="$HEAP_USED_BYTES" 'BEGIN { printf "%.1f", b / 1024 / 1024 }')
+  fi
+  if [[ -n "$HEAP_TOTAL_BYTES" ]]; then
+    HEAP_TOTAL_MB=$(awk -v b="$HEAP_TOTAL_BYTES" 'BEGIN { printf "%.1f", b / 1024 / 1024 }')
+  fi
+  if [[ -n "$EI_SUM" && -n "$EI_COUNT" && "$EI_COUNT" != "0" ]]; then
+    ENGINE_INIT_MEAN_MS=$(awk -v s="$EI_SUM" -v c="$EI_COUNT" 'BEGIN { printf "%.0f", s / c }')
+  fi
+else
+  MEM_BYTES=$(npx pm2 jlist 2>/dev/null \
+    | jq -r --arg name "$INSTANCE_NAME" '.[] | select(.name == $name) | .monit.memory' \
+    | head -1)
+  MEM_MB=$(awk -v b="${MEM_BYTES:-0}" 'BEGIN { printf "%.1f", b / 1024 / 1024 }')
+fi
+
 # Page count: actual live data lives at $SLOW_STORAGE/pages, not the in-repo
 # data/pages (which is just seed/test fixtures). Exclude versions/ subdirs —
 # those are stored historical revisions, not current pages.
 PAGES_DIR="${SLOW_STORAGE:-./data}/pages"
 PAGE_COUNT=$(find "$PAGES_DIR" -name '*.md' -not -path '*/versions/*' 2>/dev/null | wc -l | tr -d ' ')
 
-echo "→ Memory snapshot: ${MEM_MB} MB resident"
+echo "→ Memory snapshot: ${MEM_MB} MB resident (source: ${MEM_SOURCE})"
+if [[ -n "$HEAP_USED_MB" ]]; then
+  echo "  heap used:       ${HEAP_USED_MB} MB / ${HEAP_TOTAL_MB} MB"
+fi
+if [[ -n "$ENGINE_INIT_MEAN_MS" ]]; then
+  echo "  engine init mean: ${ENGINE_INIT_MEAN_MS} ms (from telemetry histogram)"
+fi
 echo "→ Pages on disk:   ${PAGE_COUNT}"
 
 # ── Response-time samples ─────────────────────────────────────────────────────
@@ -252,6 +315,16 @@ fi
   echo "| Version | v${VERSION} |"
   echo "| Pages on disk | ${PAGE_COUNT} |"
   echo "| Resident memory (idle) | ${MEM_MB} MB |"
+  echo "| Memory source | ${MEM_SOURCE} |"
+  if [[ -n "$HEAP_USED_MB" ]]; then
+    echo "| Heap used | ${HEAP_USED_MB} MB |"
+  fi
+  if [[ -n "$HEAP_TOTAL_MB" ]]; then
+    echo "| Heap total | ${HEAP_TOTAL_MB} MB |"
+  fi
+  if [[ -n "$ENGINE_INIT_MEAN_MS" ]]; then
+    echo "| Engine init duration (mean from telemetry) | ${ENGINE_INIT_MEAN_MS} ms |"
+  fi
   if [[ -n "$LINK_GRAPH_ENTRIES" ]]; then
     echo "| Link-graph entries | ${LINK_GRAPH_ENTRIES} |"
   fi
@@ -281,7 +354,7 @@ fi
   fi
   echo "## Methodology"
   echo
-  echo "Generated by \`scripts/baseline-profile.sh\`. Memory read from \`pm2 jlist\` for the running instance. Response times measured with \`curl -L --time_total\` (follows redirects) against a warm server, 10 iterations per route, mean reported. The unauth section samples routes that don't require login. Authenticated routes are sampled separately when \`BASELINE_USER\`+\`BASELINE_PASS\` env vars are set — \`/admin\` only renders the dashboard for admin-level creds; for non-admin users it 302s to /login and the timing reflects the redirect. Cold-start time measured only when invoked with \`--cold-start\` — wraps \`./server.sh stop\` + \`./server.sh start\` and waits for the \"Engine initialized\" marker in \`pm2-out.log\`."
+  echo "Generated by \`scripts/baseline-profile.sh\`. Memory read from \`/metrics\` (\`MetricsManager\` Prometheus exporter) when reachable — single source of truth across live telemetry and per-release baselines (#610). Falls back to \`pm2 jlist\` when telemetry is off (default). The \"Memory source\" row reflects which path was used. Heap used/total and engine init duration come from telemetry only. Override the metrics endpoint with \`BASELINE_METRICS_URL\`; force the pm2 path with \`BASELINE_METRICS_DISABLE=1\`. Response times measured with \`curl -L --time_total\` (follows redirects) against a warm server, 10 iterations per route, mean reported. The unauth section samples routes that don't require login. Authenticated routes are sampled separately when \`BASELINE_USER\`+\`BASELINE_PASS\` env vars are set — \`/admin\` only renders the dashboard for admin-level creds; for non-admin users it 302s to /login and the timing reflects the redirect. Cold-start time measured only when invoked with \`--cold-start\` — wraps \`./server.sh stop\` + \`./server.sh start\` and waits for the \"Engine initialized\" marker in \`pm2-out.log\`."
   echo
   echo "Re-run on each release to track drift over time. Compare against the previous baseline file in \`docs/performance/\` to spot regressions."
 } > "$OUT_FILE"
