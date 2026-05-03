@@ -11,83 +11,44 @@
  *   [{RecentChangesPlugin since='2'}]                      - Show changes from the last 2 days (compact format)
  *   [{RecentChangesPlugin since='7' format='full'}]        - Show changes from the last 7 days (full format)
  *   [{RecentChangesPlugin format='compact'}]               - Show changes (compact format)
+ *
+ * #635: data is sourced from `pageManager.getRecentChanges()`, which reads the
+ * provider's in-memory pageIndex / pageCache. Private pages are filtered by the
+ * provider based on the caller's principals so users only see edits they're
+ * authorised to view. No direct disk reads from this plugin.
  */
 
-import fs from 'fs-extra';
-import path from 'path';
 import type { SimplePlugin, PluginContext, PluginParams } from './types.js';
 import { escapeHtml, formatDateTime, formatRelativeTime } from '../utils/pluginFormatters.js';
+import WikiContext from '../context/WikiContext.js';
 
 interface RecentChangesParams extends PluginParams {
   since?: string | number;
   format?: string;
 }
 
-interface PageMetadata {
+interface RecentChange {
+  title: string;
+  uuid: string;
+  lastModified: string;
   editor?: string;
-  author?: string;
-  [key: string]: unknown;
-}
-
-interface Page {
-  title: string;
-  uuid: string;
-  filePath?: string;
-  metadata: PageMetadata;
-}
-
-interface PageWithDate {
-  title: string;
-  uuid: string;
-  mtime: Date;
-  metadata: PageMetadata;
-  filePath: string;
-  currentVersion: number;
-  hasVersions: boolean;
-  editor: string;
-}
-
-interface PageIndexEntry {
   currentVersion?: number;
   hasVersions?: boolean;
-  editor?: string;
-}
-
-interface PageIndex {
-  pages?: Record<string, PageIndexEntry>;
 }
 
 interface PageManager {
-  getAllPages(): Promise<string[]>;
-  getPage(name: string): Promise<Page | null>;
+  getRecentChanges(options?: {
+    limit?: number;
+    since?: Date | string;
+    principals?: string[];
+    includeAll?: boolean;
+  }): Promise<RecentChange[]>;
 }
-
-/**
- * Load page-index.json for version information
- * @param indexPath - Path to page-index.json (optional, uses default if not provided)
- * @returns Page index data or null if not available
- */
-async function loadPageIndex(indexPath?: string): Promise<PageIndex | null> {
-  try {
-    const pageIndexPath = indexPath || path.join(process.cwd(), 'data', 'page-index.json');
-    if (await fs.pathExists(pageIndexPath)) {
-      const data = await fs.readFile(pageIndexPath, 'utf8');
-      return JSON.parse(data) as PageIndex;
-    }
-  } catch {
-    // Silently ignore errors loading page index
-  }
-  return null;
-}
-
 
 /**
  * Generate full format output
- * @param pages - Array of page objects with dates
- * @param since - Number of days
- * @returns HTML output
  */
-function generateFullFormat(pages: PageWithDate[], since: number): string {
+function generateFullFormat(pages: RecentChange[], since: number): string {
   let html = '<div class="recent-changes-plugin recent-changes-full">\n';
   html += `<h4>Recent Changes (Last ${since} day${since !== 1 ? 's' : ''})</h4>\n`;
   html += '<div class="table-responsive">\n';
@@ -105,7 +66,7 @@ function generateFullFormat(pages: PageWithDate[], since: number): string {
   for (const page of pages) {
     const editor = page.editor || 'Unknown';
     const version = page.currentVersion || 1;
-    const formattedDateStr = formatDateTime(page.mtime);
+    const formattedDateStr = formatDateTime(new Date(page.lastModified));
 
     html += '    <tr>\n';
     html += `      <td><a class="wikipage" href="/view/${encodeURIComponent(page.title)}">${escapeHtml(page.title)}</a></td>\n`;
@@ -126,17 +87,14 @@ function generateFullFormat(pages: PageWithDate[], since: number): string {
 
 /**
  * Generate compact format output
- * @param pages - Array of page objects with dates
- * @param since - Number of days
- * @returns HTML output
  */
-function generateCompactFormat(pages: PageWithDate[], since: number): string {
+function generateCompactFormat(pages: RecentChange[], since: number): string {
   let html = '<div class="recent-changes-plugin recent-changes-compact">\n';
   html += `<h5>Recent Changes (Last ${since} day${since !== 1 ? 's' : ''})</h5>\n`;
   html += '<ul class="list-unstyled">\n';
 
   for (const page of pages) {
-    const formattedDateStr = formatRelativeTime(page.mtime);
+    const formattedDateStr = formatRelativeTime(new Date(page.lastModified));
 
     html += '  <li class="mb-1">\n';
     html += `    <a class="wikipage" href="/view/${encodeURIComponent(page.title)}">${escapeHtml(page.title)}</a> `;
@@ -151,34 +109,23 @@ function generateCompactFormat(pages: PageWithDate[], since: number): string {
   return html;
 }
 
-/**
- * RecentChangesPlugin implementation
- */
 const RecentChangesPlugin: SimplePlugin = {
   name: 'RecentChangesPlugin',
   description: 'Displays recent page changes in chronological order',
   author: 'ngdpbase',
-  version: '1.0.0',
+  version: '2.0.0',
 
-  /**
-   * Execute the plugin
-   * @param context - Wiki context containing engine reference
-   * @param params - Plugin parameters
-   * @returns HTML output
-   */
   async execute(context: PluginContext, params: PluginParams): Promise<string> {
     const opts = (params || {}) as RecentChangesParams;
 
     try {
-      // Get PageManager from engine
       const pageManager = context?.engine?.getManager?.('PageManager') as PageManager | undefined;
-      if (!pageManager) {
+      if (!pageManager || typeof pageManager.getRecentChanges !== 'function') {
         return '<p class="error">PageManager not available</p>';
       }
 
-      // Parse parameters
-      const since = parseInt(String(opts.since || '7'), 10); // Default: 7 days
-      const format = String(opts.format || 'compact').toLowerCase(); // Default: compact
+      const since = parseInt(String(opts.since || '7'), 10);
+      const format = String(opts.format || 'compact').toLowerCase();
 
       if (isNaN(since) || since < 0) {
         return '<p class="error">Invalid "since" parameter: must be a positive number</p>';
@@ -188,74 +135,36 @@ const RecentChangesPlugin: SimplePlugin = {
         return '<p class="error">Invalid "format" parameter: must be "full" or "compact"</p>';
       }
 
-      // Get page index path from config
-      const configManager = context?.engine?.getManager?.('ConfigurationManager') as { getResolvedDataPath?: (key: string, fallback: string) => string } | undefined;
-      const pageIndexPath = configManager?.getResolvedDataPath?.('ngdpbase.page.provider.versioning.indexfile', './data/page-index.json');
-
-      // Load page-index.json for version information
-      const pageIndex = await loadPageIndex(pageIndexPath);
-
-      // Get all pages
-      const allPageNames = await pageManager.getAllPages();
-      if (!allPageNames || allPageNames.length === 0) {
-        return '<p class="text-muted">No pages found.</p>';
-      }
-
-      // Calculate the cutoff date
       const cutoffDate = new Date();
       cutoffDate.setDate(cutoffDate.getDate() - since);
-      cutoffDate.setHours(0, 0, 0, 0); // Start of day
+      cutoffDate.setHours(0, 0, 0, 0);
 
-      // Collect page information with modification times
-      const pagesWithDates: PageWithDate[] = [];
+      // #635: build principals + admin flag from userContext to drive provider-side
+      // visibility filter. Anonymous (no userContext) → empty principals → only
+      // public pages returned. Admin → includeAll bypass.
+      const userContext = context.userContext as {
+        username?: string;
+        roles?: string[];
+      } | undefined;
+      const isAdmin = WikiContext.userHasRole(userContext, 'admin');
+      const username = userContext?.username;
+      const roles = userContext?.roles ?? [];
+      const principals = [...roles, ...(username ? [username] : [])];
 
-      for (const pageName of allPageNames) {
-        try {
-          const page = await pageManager.getPage(pageName);
-          if (!page || !page.filePath) {
-            continue;
-          }
+      const recentChanges = await pageManager.getRecentChanges({
+        since: cutoffDate,
+        principals,
+        includeAll: isAdmin
+      });
 
-          // Get file stats to retrieve modification time
-          const stats = await fs.stat(page.filePath);
-          const mtime = stats.mtime;
-
-          // Filter by cutoff date
-          if (mtime >= cutoffDate) {
-            // Get version info from page-index.json
-            const indexEntry = pageIndex?.pages?.[page.uuid];
-            const currentVersion = indexEntry?.currentVersion || 1;
-            const hasVersions = indexEntry?.hasVersions || false;
-            const editor = indexEntry?.editor || page.metadata.editor || page.metadata.author || 'Unknown';
-
-            pagesWithDates.push({
-              title: page.title,
-              uuid: page.uuid,
-              mtime: mtime,
-              metadata: page.metadata || {},
-              filePath: page.filePath,
-              currentVersion: currentVersion,
-              hasVersions: hasVersions,
-              editor: editor
-            });
-          }
-        } catch {
-          // Skip pages that can't be read
-        }
-      }
-
-      // Sort by modification time (newest first)
-      pagesWithDates.sort((a, b) => b.mtime.getTime() - a.mtime.getTime());
-
-      if (pagesWithDates.length === 0) {
+      if (recentChanges.length === 0) {
         return `<p class="text-muted">No changes in the last ${since} day${since !== 1 ? 's' : ''}.</p>`;
       }
 
-      // Generate HTML output based on format
       if (format === 'full') {
-        return generateFullFormat(pagesWithDates, since);
+        return generateFullFormat(recentChanges, since);
       } else {
-        return generateCompactFormat(pagesWithDates, since);
+        return generateCompactFormat(recentChanges, since);
       }
 
     } catch (error) {
@@ -264,10 +173,6 @@ const RecentChangesPlugin: SimplePlugin = {
     }
   },
 
-  /**
-   * Plugin initialization (JSPWiki-style)
-   * @param _engine - Wiki engine instance
-   */
   initialize(_engine: unknown): void {
     // Plugin initialized
   }

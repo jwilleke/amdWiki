@@ -16,6 +16,7 @@ import {
 import { WikiEngine, ProviderInfo } from './BasePageProvider.js';
 import type ConfigurationManager from '../managers/ConfigurationManager.js';
 import type MetricsManager from '../managers/MetricsManager.js';
+import type { RecentChangesOptions, RecentChangeEntry } from '../types/Provider.js';
 
 /**
  * Page index entry structure
@@ -734,6 +735,55 @@ class VersioningFileProvider extends FileSystemProvider {
    */
   async flushWriteQueue(): Promise<void> {
     await this.pageIndexWriteQueue;
+  }
+
+  /**
+   * Recent-changes implementation backed by the in-memory pageIndex (#635).
+   *
+   * Overrides FileSystemProvider's pageCache-based version with a richer one
+   * that includes editor / currentVersion / hasVersions — fields the
+   * RecentChangesPlugin's "full" format needs. Same visibility rules.
+   */
+  async getRecentChanges(options: RecentChangesOptions = {}): Promise<RecentChangeEntry[]> {
+    if (!this.pageIndex) {
+      return [];
+    }
+
+    const limit = typeof options.limit === 'number' && options.limit > 0 ? options.limit : 50;
+    const since = options.since ? new Date(options.since) : null;
+    const principals = options.principals ?? [];
+    const includeAll = options.includeAll === true;
+
+    const entries: RecentChangeEntry[] = [];
+    for (const idx of Object.values(this.pageIndex.pages)) {
+      if (!idx.lastModified) continue;
+      if (since && new Date(idx.lastModified) < since) continue;
+
+      // #635: visibility filter — match search-provider semantics. The pageIndex
+      // already denormalizes isPrivate (from user-keywords) and audienceRoles
+      // (from frontmatter audience), so this is an O(1) lookup per page.
+      if (!includeAll && idx.isPrivate) {
+        const audience = idx.audienceRoles ?? [];
+        const isCreator = idx.creator !== undefined && principals.includes(idx.creator);
+        const inAudience = audience.length > 0 && principals.some(p => audience.includes(p));
+        if (!isCreator && !inAudience) continue;
+      }
+
+      entries.push({
+        title: idx.title,
+        uuid: idx.uuid,
+        lastModified: idx.lastModified,
+        author: idx.author,
+        editor: idx.editor,
+        currentVersion: idx.currentVersion,
+        hasVersions: idx.hasVersions,
+        isPrivate: idx.isPrivate || undefined,
+        creator: idx.creator
+      });
+    }
+
+    entries.sort((a, b) => new Date(b.lastModified).getTime() - new Date(a.lastModified).getTime());
+    return entries.slice(0, limit);
   }
 
   /**

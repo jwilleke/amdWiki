@@ -72,6 +72,42 @@ export interface BaseProvider {
 }
 
 /**
+ * Options for {@link PageProvider.getRecentChanges}.
+ */
+export interface RecentChangesOptions {
+  /** Maximum number of entries to return after filtering. Default 50. */
+  limit?: number;
+  /** Only include pages modified at or after this cutoff. */
+  since?: Date | string;
+  /**
+   * Caller principals (typically `[...userContext.roles, userContext.username]`).
+   * Used to evaluate audience visibility for private pages. If omitted (anonymous),
+   * private pages are excluded.
+   */
+  principals?: string[];
+  /** Bypass the visibility filter entirely (admin caller has already authorised). */
+  includeAll?: boolean;
+}
+
+/**
+ * Single entry returned by {@link PageProvider.getRecentChanges}.
+ *
+ * Fields beyond `title`/`uuid`/`lastModified` are best-effort: providers populate what
+ * they have. Consumers should treat optional fields as advisory.
+ */
+export interface RecentChangeEntry {
+  title: string;
+  uuid: string;
+  lastModified: string;
+  author?: string;
+  editor?: string;
+  currentVersion?: number;
+  hasVersions?: boolean;
+  isPrivate?: boolean;
+  creator?: string;
+}
+
+/**
  * Page provider interface
  *
  * Defines the contract for page storage backends (filesystem, database, etc.).
@@ -189,6 +225,18 @@ export interface PageProvider extends BaseProvider {
    * @returns Promise that resolves when refresh is complete
    */
   refreshPageList(): Promise<void>;
+
+  /**
+   * Return pages most recently modified, sorted descending by lastModified.
+   *
+   * Visibility (#635): private pages are filtered out unless one of the caller's
+   * principals is the page creator OR appears in the page's frontmatter audience.
+   * Pass `includeAll: true` to bypass (admin caller).
+   *
+   * Source-of-truth: providers MUST read from in-memory state (e.g., pageIndex /
+   * pageCache) — direct disk reads were what motivated this API.
+   */
+  getRecentChanges(options?: RecentChangesOptions): Promise<RecentChangeEntry[]>;
 }
 
 /**

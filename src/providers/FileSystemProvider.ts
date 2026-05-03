@@ -6,6 +6,7 @@ import { v4 as uuidv4 } from 'uuid';
 import logger from '../utils/logger.js';
 import PageNameMatcher from '../utils/PageNameMatcher.js';
 import { WikiPage, PageFrontmatter, PageInfo, PageSaveOptions, PageListOptions } from '../types/index.js';
+import type { RecentChangesOptions, RecentChangeEntry } from '../types/Provider.js';
 import type ConfigurationManager from '../managers/ConfigurationManager.js';
 
 /**
@@ -773,6 +774,61 @@ class FileSystemProvider extends BasePageProvider {
         'case-insensitive-lookup'
       ]
     };
+  }
+
+  /**
+   * Default recent-changes implementation: derives entries from the in-memory
+   * `pageCache` + each entry's metadata. VersioningFileProvider overrides with
+   * a richer pageIndex-based version that includes editor / version info.
+   *
+   * #635: replaces the disk-read + per-page fs.stat() the RecentChangesPlugin
+   * was doing. Honors private-page visibility based on the caller's principals.
+   */
+  async getRecentChanges(options: RecentChangesOptions = {}): Promise<RecentChangeEntry[]> {
+    const limit = typeof options.limit === 'number' && options.limit > 0 ? options.limit : 50;
+    const since = options.since ? new Date(options.since) : null;
+    const principals = options.principals ?? [];
+    const includeAll = options.includeAll === true;
+
+    const entries: RecentChangeEntry[] = [];
+    for (const info of this.pageCache.values()) {
+      const md = info.metadata ?? {} as PageFrontmatter;
+      const lastModifiedRaw = (md as { lastModified?: string }).lastModified
+        ?? (md as { 'last-modified'?: string })['last-modified']
+        ?? '';
+      if (!lastModifiedRaw) continue;
+      if (since && new Date(lastModifiedRaw) < since) continue;
+
+      // #635: visibility filter — match search-provider semantics. Private signal
+      // is `system-location === 'private'` OR user-keywords includes 'private'.
+      const userKeywords = (md as { 'user-keywords'?: unknown })['user-keywords'];
+      const userKeywordsArr = Array.isArray(userKeywords) ? userKeywords.map(String) : [];
+      const isPrivate = (md as { 'system-location'?: string })['system-location'] === 'private'
+        || userKeywordsArr.includes('private');
+
+      if (!includeAll && isPrivate) {
+        const creator = (md as { creator?: string }).creator
+          ?? (md as { author?: string }).author;
+        const audienceRaw = (md as { audience?: unknown }).audience;
+        const audience = Array.isArray(audienceRaw) ? audienceRaw.map(String) : [];
+        const inAudience = audience.length > 0 && principals.some(p => audience.includes(p));
+        const isCreator = creator !== undefined && principals.includes(creator);
+        if (!isCreator && !inAudience) continue;
+      }
+
+      entries.push({
+        title: info.title,
+        uuid: info.uuid,
+        lastModified: lastModifiedRaw,
+        author: (md as { author?: string }).author,
+        editor: (md as { editor?: string }).editor,
+        isPrivate: isPrivate || undefined,
+        creator: (md as { creator?: string }).creator
+      });
+    }
+
+    entries.sort((a, b) => new Date(b.lastModified).getTime() - new Date(a.lastModified).getTime());
+    return entries.slice(0, limit);
   }
 
   /**

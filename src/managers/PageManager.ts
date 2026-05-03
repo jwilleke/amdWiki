@@ -4,7 +4,7 @@ import matter from 'gray-matter';
 import BaseManager, { BackupData } from './BaseManager.js';
 import logger from '../utils/logger.js';
 import { WikiEngine } from '../types/WikiEngine.js';
-import { PageProvider, ProviderInfo } from '../types/Provider.js';
+import { PageProvider, ProviderInfo, RecentChangesOptions, RecentChangeEntry } from '../types/Provider.js';
 import { WikiPage, PageFrontmatter } from '../types/Page.js';
 import type ConfigurationManager from './ConfigurationManager.js';
 import type ValidationManager from './ValidationManager.js';
@@ -673,6 +673,23 @@ class PageManager extends BaseManager {
    * await pageManager.refreshPageList();
    * console.log('Page list refreshed');
    */
+  /**
+   * Return pages most recently modified, sorted descending by lastModified (#635).
+   *
+   * Delegates to the provider's in-memory state (pageIndex / pageCache) — no
+   * direct disk I/O. Honors private-page visibility based on `options.principals`
+   * unless `options.includeAll` is set (admin caller).
+   *
+   * Used by RecentChangesPlugin and any other consumer that needs a "recent edits"
+   * feed. New code should prefer this over enumerating getAllPages().
+   */
+  async getRecentChanges(options: RecentChangesOptions = {}): Promise<RecentChangeEntry[]> {
+    if (!this.provider) {
+      throw new Error('PageManager: Provider not initialized');
+    }
+    return this.provider.getRecentChanges(options);
+  }
+
   async refreshPageList(): Promise<void> {
     if (!this.provider) {
       throw new Error('PageManager: Provider not initialized');
