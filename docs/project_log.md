@@ -2,6 +2,28 @@
 
 AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version history.
 
+## 2026-05-03-12
+
+- Agent: Claude
+- Subject: #622 mock-leak audit — restructured routes.test.ts to establish mock defaults in beforeEach instead of afterEach; eliminates the mock-leak class of #622 flakes for that file
+- Current Issue: #622 (open — timeout-class still dominant, mock-leak class fixed for routes.test.ts)
+- Work Done:
+  - **Audit**: walked the open `mockResolvedValue(false|null)` denial sites across `routes.test.ts` + `WikiRoutes.coverage*.test.ts` (~240 in-test mock flips after filtering out fixture initializers). Verified that all 16 `coverage*.test.ts` files use a `resetMocks()` helper called from `beforeEach` — correct pattern, no fix needed
+  - **routes.test.ts restructure (c4965e2f)**: the entire mock-default restore block (~80 lines) was running in `afterEach`. Two consequences: (1) the FIRST test in the file ran with whatever `vi.mock()` initialized (often `vi.fn()` returning undefined — undefined-mock leak); (2) tests that flipped a mock to a denial value bled forward until afterEach finally restored. Refactored: extracted the body as `establishMockDefaults()`, called from `beforeEach` BEFORE every test. `afterEach` reduced to just `vi.clearAllMocks()` for call-history. Eliminates the mock-leak class of #622 flakes for this file
+  - **Verification**: 8 consecutive full-suite runs after the fix. 6 clean, 2 transient. The 2 flakes are consistent with the timeout-class (cold-pool / supertest race) — the dominant remaining cause per the experiment doc. Mock-leak class no longer reproduces in routes.test.ts
+- Testing:
+  - typecheck: clean
+  - vitest routes.test.ts isolated: 48/48
+  - vitest full suite: 5212/5212 (modulo timeout-class transient on ~25% of runs in this verification batch — consistent with prior baseline; no regression)
+- Commits: c4965e2f (`test(#622): move routes.test.ts mock-default restoration from afterEach to beforeEach`)
+- Files Modified:
+  - src/routes/**tests**/routes.test.ts (afterEach → beforeEach restructure; new `establishMockDefaults()` helper)
+- GH issues:
+  - #622 open — comment posted explaining: mock-leak class closed for routes.test.ts, timeout-class still dominant. Issue stays as tracking ticket for the deeper timeout investigation
+- Notes:
+  - Other test files (`coverage*.test.ts`) were audited and are already correctly architected — `resetMocks()` in beforeEach. No change needed there
+  - The timeout-class flake is the harder of the two and would benefit from the "supertest replacement" item flagged in `docs/performance/issue-622-vitest-pool-tuning.md`. Outside scope of this audit
+
 ## 2026-05-03-11
 
 - Agent: Claude
