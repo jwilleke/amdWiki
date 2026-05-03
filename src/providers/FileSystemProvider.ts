@@ -882,6 +882,87 @@ class FileSystemProvider extends BasePageProvider {
   }
 
   /**
+   * Pages edited by a user (#640 Phase 2). Walks pageCache, matches by
+   * `metadata.editor`. VersioningFileProvider overrides with a pageIndex-
+   * backed version.
+   */
+  async getPagesByEditor(
+    username: string,
+    options: import('../types/Provider.js').PagesScanOptions = {}
+  ): Promise<RecentChangeEntry[]> {
+    if (!username) return [];
+    const limit = typeof options.limit === 'number' && options.limit > 0 ? options.limit : 1000;
+    const sortBy = options.sortBy ?? 'lastModified-desc';
+
+    const entries: RecentChangeEntry[] = [];
+    for (const info of this.pageCache.values()) {
+      const md = info.metadata ?? {} as PageFrontmatter;
+      if ((md as { editor?: string }).editor !== username) continue;
+      const lastModified = (md as { lastModified?: string }).lastModified ?? '';
+      entries.push({
+        title: info.title,
+        uuid: info.uuid,
+        lastModified,
+        author: (md as { author?: string }).author,
+        editor: (md as { editor?: string }).editor,
+        isPrivate: (md as { private?: boolean }).private === true || undefined,
+        creator: (md as { creator?: string }).creator
+      });
+    }
+
+    if (sortBy === 'title-asc') {
+      entries.sort((a, b) => a.title.localeCompare(b.title));
+    } else {
+      entries.sort((a, b) => new Date(b.lastModified).getTime() - new Date(a.lastModified).getTime());
+    }
+    return entries.slice(0, limit);
+  }
+
+  /**
+   * Pages whose frontmatter audience contains any of the given principals
+   * (#640 Phase 2). Walks pageCache. Excludes pages owned by any principal.
+   */
+  async getPagesSharedWith(
+    principals: string[],
+    options: import('../types/Provider.js').PagesScanOptions = {}
+  ): Promise<RecentChangeEntry[]> {
+    if (!principals || principals.length === 0) return [];
+    const limit = typeof options.limit === 'number' && options.limit > 0 ? options.limit : 1000;
+    const sortBy = options.sortBy ?? 'lastModified-desc';
+    const principalSet = new Set(principals);
+
+    const entries: RecentChangeEntry[] = [];
+    for (const info of this.pageCache.values()) {
+      const md = info.metadata ?? {} as PageFrontmatter;
+      const audienceRaw = (md as { audience?: unknown }).audience;
+      const audience = Array.isArray(audienceRaw) ? audienceRaw.map(String) : [];
+      if (audience.length === 0) continue;
+      if (!audience.some((r) => principalSet.has(r))) continue;
+      const author = (md as { author?: string }).author;
+      const creator = (md as { creator?: string }).creator;
+      if ((author && principalSet.has(author)) || (creator && principalSet.has(creator))) continue;
+
+      const lastModified = (md as { lastModified?: string }).lastModified ?? '';
+      entries.push({
+        title: info.title,
+        uuid: info.uuid,
+        lastModified,
+        author,
+        editor: (md as { editor?: string }).editor,
+        isPrivate: (md as { private?: boolean }).private === true || undefined,
+        creator
+      });
+    }
+
+    if (sortBy === 'title-asc') {
+      entries.sort((a, b) => a.title.localeCompare(b.title));
+    } else {
+      entries.sort((a, b) => new Date(b.lastModified).getTime() - new Date(a.lastModified).getTime());
+    }
+    return entries.slice(0, limit);
+  }
+
+  /**
    * Backup all pages to a serializable format
    *
    * Returns all page files with their content and relative paths.

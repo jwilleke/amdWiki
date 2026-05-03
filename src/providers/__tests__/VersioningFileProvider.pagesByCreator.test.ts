@@ -193,3 +193,81 @@ describe('VersioningFileProvider.getPagesByCreator (#640)', () => {
     expect(result.map(e => e.title)).toEqual(['AliceSecret']);
   });
 });
+
+// ─── #640 Phase 2: getPagesByEditor + getPagesSharedWith ─────────────────
+
+function makeProviderWith(pages: Record<string, ReturnType<typeof makePageEntry>>) {
+  const p = makeProvider();
+  p.pageIndex = {
+    version: '1', lastUpdated: '', pageCount: Object.keys(pages).length, pages
+  };
+  return p;
+}
+
+describe('VersioningFileProvider.getPagesByEditor (#640 Phase 2)', () => {
+  test('returns [] when pageIndex is null or username empty', async () => {
+    const p = makeProvider();
+    p.pageIndex = null;
+    expect(await (p as unknown as { getPagesByEditor: (u: string) => Promise<unknown[]> }).getPagesByEditor('alice')).toEqual([]);
+  });
+
+  test('matches by editor field', async () => {
+    const p = makeProviderWith({
+      u1: baseEntry({ uuid: 'u1', title: 'EditedByAlice', author: 'bob', editor: 'alice' }),
+      u2: baseEntry({ uuid: 'u2', title: 'EditedByBob', author: 'bob', editor: 'bob' }),
+      u3: baseEntry({ uuid: 'u3', title: 'AliceEditedAgain', author: 'carol', editor: 'alice' })
+    });
+    const result = await (p as unknown as { getPagesByEditor: (u: string) => Promise<{ title: string }[]> }).getPagesByEditor('alice');
+    expect(result.map(e => e.title).sort()).toEqual(['AliceEditedAgain', 'EditedByAlice']);
+  });
+
+  test('respects limit', async () => {
+    const pages: Record<string, ReturnType<typeof makePageEntry>> = {};
+    for (let i = 0; i < 5; i++) {
+      pages[`u${i}`] = baseEntry({ uuid: `u${i}`, editor: 'alice', lastModified: `2026-05-0${i + 1}` });
+    }
+    const p = makeProviderWith(pages);
+    const result = await (p as unknown as { getPagesByEditor: (u: string, o?: { limit?: number }) => Promise<unknown[]> }).getPagesByEditor('alice', { limit: 2 });
+    expect(result).toHaveLength(2);
+  });
+});
+
+describe('VersioningFileProvider.getPagesSharedWith (#640 Phase 2)', () => {
+  test('returns [] when principals empty', async () => {
+    const p = makeProviderWith({
+      u1: baseEntry({ uuid: 'u1', author: 'alice', audienceRoles: ['bob'] })
+    });
+    expect(await (p as unknown as { getPagesSharedWith: (ps: string[]) => Promise<unknown[]> }).getPagesSharedWith([])).toEqual([]);
+  });
+
+  test('matches when any principal appears in audienceRoles', async () => {
+    const p = makeProviderWith({
+      u1: baseEntry({ uuid: 'u1', title: 'Shared1', author: 'alice', audienceRoles: ['bob', 'carol'] }),
+      u2: baseEntry({ uuid: 'u2', title: 'NotShared', author: 'alice', audienceRoles: ['carol'] }),
+      u3: baseEntry({ uuid: 'u3', title: 'SharedRole', author: 'alice', audienceRoles: ['editor'] })
+    });
+    const result = await (p as unknown as { getPagesSharedWith: (ps: string[]) => Promise<{ title: string }[]> }).getPagesSharedWith(['bob']);
+    expect(result.map(e => e.title)).toEqual(['Shared1']);
+
+    const roleResult = await (p as unknown as { getPagesSharedWith: (ps: string[]) => Promise<{ title: string }[]> }).getPagesSharedWith(['editor']);
+    expect(roleResult.map(e => e.title)).toEqual(['SharedRole']);
+  });
+
+  test('excludes pages owned by any principal (no double-count with /my/pages)', async () => {
+    const p = makeProviderWith({
+      u1: baseEntry({ uuid: 'u1', title: 'BobOwns', author: 'bob', audienceRoles: ['bob'] }),
+      u2: baseEntry({ uuid: 'u2', title: 'AliceOwnsSharedToBob', author: 'alice', audienceRoles: ['bob'] }),
+      u3: baseEntry({ uuid: 'u3', title: 'BobIsCreator', author: 'admin', creator: 'bob', audienceRoles: ['bob'] })
+    });
+    const result = await (p as unknown as { getPagesSharedWith: (ps: string[]) => Promise<{ title: string }[]> }).getPagesSharedWith(['bob']);
+    // Bob owns u1 (author) and u3 (creator); only u2 is genuinely "shared with bob".
+    expect(result.map(e => e.title)).toEqual(['AliceOwnsSharedToBob']);
+  });
+
+  test('returns [] when audienceRoles is empty/undefined on every page', async () => {
+    const p = makeProviderWith({
+      u1: baseEntry({ uuid: 'u1', author: 'alice' }) // no audienceRoles
+    });
+    expect(await (p as unknown as { getPagesSharedWith: (ps: string[]) => Promise<unknown[]> }).getPagesSharedWith(['bob'])).toEqual([]);
+  });
+});

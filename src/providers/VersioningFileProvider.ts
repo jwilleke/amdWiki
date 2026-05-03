@@ -832,6 +832,87 @@ class VersioningFileProvider extends FileSystemProvider {
   }
 
   /**
+   * Pages most recently edited by a user (#640 Phase 2). Backed by pageIndex.
+   */
+  async getPagesByEditor(
+    username: string,
+    options: import('../types/Provider.js').PagesScanOptions = {}
+  ): Promise<RecentChangeEntry[]> {
+    if (!this.pageIndex || !username) return [];
+    const limit = typeof options.limit === 'number' && options.limit > 0 ? options.limit : 1000;
+    const sortBy = options.sortBy ?? 'lastModified-desc';
+
+    const entries: RecentChangeEntry[] = [];
+    for (const idx of Object.values(this.pageIndex.pages)) {
+      if (idx.editor !== username) continue;
+      entries.push({
+        title: idx.title,
+        uuid: idx.uuid,
+        lastModified: idx.lastModified,
+        author: idx.author,
+        editor: idx.editor,
+        currentVersion: idx.currentVersion,
+        hasVersions: idx.hasVersions,
+        isPrivate: idx.isPrivate || undefined,
+        creator: idx.creator
+      });
+    }
+
+    if (sortBy === 'title-asc') {
+      entries.sort((a, b) => a.title.localeCompare(b.title));
+    } else {
+      entries.sort((a, b) => new Date(b.lastModified).getTime() - new Date(a.lastModified).getTime());
+    }
+    return entries.slice(0, limit);
+  }
+
+  /**
+   * Pages whose frontmatter audience contains any of the given principals
+   * (#640 Phase 2). Excludes pages owned by any of those principals — the
+   * intent is "shared WITH me", not "mine via audience". Backed by
+   * pageIndex.audienceRoles which is denormalised at write time.
+   */
+  async getPagesSharedWith(
+    principals: string[],
+    options: import('../types/Provider.js').PagesScanOptions = {}
+  ): Promise<RecentChangeEntry[]> {
+    if (!this.pageIndex || !principals || principals.length === 0) return [];
+    const limit = typeof options.limit === 'number' && options.limit > 0 ? options.limit : 1000;
+    const sortBy = options.sortBy ?? 'lastModified-desc';
+    const principalSet = new Set(principals);
+
+    const entries: RecentChangeEntry[] = [];
+    for (const idx of Object.values(this.pageIndex.pages)) {
+      const audience = idx.audienceRoles ?? [];
+      if (audience.length === 0) continue;
+      const inAudience = audience.some((r) => principalSet.has(r));
+      if (!inAudience) continue;
+      // Exclude pages the user already owns (avoid duplication with /my/pages).
+      if ((idx.author && principalSet.has(idx.author))
+        || (idx.creator && principalSet.has(idx.creator))) continue;
+
+      entries.push({
+        title: idx.title,
+        uuid: idx.uuid,
+        lastModified: idx.lastModified,
+        author: idx.author,
+        editor: idx.editor,
+        currentVersion: idx.currentVersion,
+        hasVersions: idx.hasVersions,
+        isPrivate: idx.isPrivate || undefined,
+        creator: idx.creator
+      });
+    }
+
+    if (sortBy === 'title-asc') {
+      entries.sort((a, b) => a.title.localeCompare(b.title));
+    } else {
+      entries.sort((a, b) => new Date(b.lastModified).getTime() - new Date(a.lastModified).getTime());
+    }
+    return entries.slice(0, limit);
+  }
+
+  /**
    * Save page index to disk (atomic write, serialized via queue)
    * Uses a write queue to prevent concurrent saves from conflicting.
    */

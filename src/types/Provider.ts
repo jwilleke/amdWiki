@@ -102,6 +102,16 @@ export interface GetPagesByCreatorOptions {
 }
 
 /**
+ * Options for {@link PageProvider.getPagesByEditor} / {@link PageProvider.getPagesSharedWith} (#640 Phase 2).
+ */
+export interface PagesScanOptions {
+  /** Maximum number of entries returned. Default 1000. */
+  limit?: number;
+  /** Sort order. Default `lastModified-desc`. */
+  sortBy?: 'lastModified-desc' | 'title-asc';
+}
+
+/**
  * Single entry returned by {@link PageProvider.getRecentChanges}.
  *
  * Fields beyond `title`/`uuid`/`lastModified` are best-effort: providers populate what
@@ -263,6 +273,21 @@ export interface PageProvider extends BaseProvider {
    * overlap.
    */
   getPagesByCreator(username: string, options?: GetPagesByCreatorOptions): Promise<RecentChangeEntry[]>;
+
+  /**
+   * Return pages most recently edited by the given user (#640 Phase 2).
+   * Match by `editor` — separate from `author`/`creator` because edits change
+   * editor but not author. Visibility filter NOT applied (caller asks about
+   * own activity).
+   */
+  getPagesByEditor(username: string, options?: PagesScanOptions): Promise<RecentChangeEntry[]>;
+
+  /**
+   * Return pages whose frontmatter audience contains any of the given
+   * principals — i.e., pages explicitly shared with the user (#640 Phase 2).
+   * Excludes pages the user already owns (those show up under `getPagesByCreator`).
+   */
+  getPagesSharedWith(principals: string[], options?: PagesScanOptions): Promise<RecentChangeEntry[]>;
 }
 
 /**

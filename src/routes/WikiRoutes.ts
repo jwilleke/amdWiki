@@ -4152,29 +4152,44 @@ ${panes}
    */
   private async getMyContributionsCounts(
     username: string,
-    user: { preferences?: Record<string, unknown> } | null
+    user: { preferences?: Record<string, unknown>; roles?: string[] } | null
   ): Promise<{
     pages: number | undefined;
     private: number | undefined;
     journal: number | undefined;
     links: number | undefined;
+    edits: number | undefined;
+    shared: number | undefined;
   }> {
     const counts: {
       pages: number | undefined;
       private: number | undefined;
       journal: number | undefined;
       links: number | undefined;
-    } = { pages: undefined, private: undefined, journal: undefined, links: undefined };
+      edits: number | undefined;
+      shared: number | undefined;
+    } = { pages: undefined, private: undefined, journal: undefined, links: undefined, edits: undefined, shared: undefined };
 
     try {
       const pageManager = this.engine.getManager('PageManager') as unknown as {
         getPagesByCreator?: (u: string, o?: { onlyPrivate?: boolean }) => Promise<unknown[]>;
+        getPagesByEditor?: (u: string) => Promise<unknown[]>;
+        getPagesSharedWith?: (principals: string[]) => Promise<unknown[]>;
       };
       if (pageManager?.getPagesByCreator) {
         const all = await pageManager.getPagesByCreator(username);
         const privateOnly = await pageManager.getPagesByCreator(username, { onlyPrivate: true });
         counts.pages = all.length;
         counts.private = privateOnly.length;
+      }
+      if (pageManager?.getPagesByEditor) {
+        const edits = await pageManager.getPagesByEditor(username);
+        counts.edits = edits.length;
+      }
+      if (pageManager?.getPagesSharedWith) {
+        const principals = [...(user?.roles ?? []), username];
+        const shared = await pageManager.getPagesSharedWith(principals);
+        counts.shared = shared.length;
       }
     } catch (err) {
       logger.warn('[/profile] getMyContributionsCounts: pages count failed', { error: err instanceof Error ? err.message : String(err) });
@@ -4256,6 +4271,73 @@ ${panes}
     } catch (err) {
       logger.error('Error rendering My Contributions list:', err);
       res.status(500).send('Error loading list');
+    }
+  }
+
+  /**
+   * GET /my/edits — pages most recently edited by the current user (#640 Phase 2).
+   */
+  async myEditsPage(req: Request, res: Response) {
+    try {
+      const wikiContext = this.createWikiContext(req);
+      const currentUser = wikiContext.userContext;
+      if (!currentUser || !currentUser.isAuthenticated || !currentUser.username) {
+        return res.redirect('/login?redirect=/my/edits');
+      }
+      const pageManager = this.engine.getManager('PageManager') as unknown as {
+        getPagesByEditor?: (u: string) => Promise<Array<{
+          title: string; uuid: string; lastModified: string; isPrivate?: boolean; editor?: string
+        }>>;
+      };
+      const items = pageManager?.getPagesByEditor
+        ? await pageManager.getPagesByEditor(currentUser.username)
+        : [];
+      const commonData = await this.getCommonTemplateData(req);
+      res.render('my-list', {
+        ...commonData,
+        title: 'My Recent Edits',
+        icon: 'fa-history',
+        items,
+        listKind: 'pages',
+        emptyMessage: 'You haven\'t edited any pages yet.'
+      });
+    } catch (err) {
+      logger.error('Error rendering My Edits list:', err);
+      res.status(500).send('Error loading edits list');
+    }
+  }
+
+  /**
+   * GET /my/shared — pages shared with the current user via frontmatter audience (#640 Phase 2).
+   */
+  async mySharedPage(req: Request, res: Response) {
+    try {
+      const wikiContext = this.createWikiContext(req);
+      const currentUser = wikiContext.userContext;
+      if (!currentUser || !currentUser.isAuthenticated || !currentUser.username) {
+        return res.redirect('/login?redirect=/my/shared');
+      }
+      const principals = [...(currentUser.roles ?? []), currentUser.username];
+      const pageManager = this.engine.getManager('PageManager') as unknown as {
+        getPagesSharedWith?: (p: string[]) => Promise<Array<{
+          title: string; uuid: string; lastModified: string; isPrivate?: boolean; editor?: string
+        }>>;
+      };
+      const items = pageManager?.getPagesSharedWith
+        ? await pageManager.getPagesSharedWith(principals)
+        : [];
+      const commonData = await this.getCommonTemplateData(req);
+      res.render('my-list', {
+        ...commonData,
+        title: 'Pages Shared With Me',
+        icon: 'fa-share-alt',
+        items,
+        listKind: 'pages',
+        emptyMessage: 'No pages have been shared with you via the audience field.'
+      });
+    } catch (err) {
+      logger.error('Error rendering My Shared list:', err);
+      res.status(500).send('Error loading shared list');
     }
   }
 
@@ -8465,6 +8547,9 @@ ${panes}
     app.get('/my/private', (req: Request, res: Response) => this.myPrivatePagesPage(req, res));
     app.get('/my/journal', (req: Request, res: Response) => this.myJournalPage(req, res));
     app.get('/my/links', (req: Request, res: Response) => this.myLinksPage(req, res));
+    // #640 Phase 2
+    app.get('/my/edits', (req: Request, res: Response) => this.myEditsPage(req, res));
+    app.get('/my/shared', (req: Request, res: Response) => this.mySharedPage(req, res));
     app.post('/preferences', (req: Request, res: Response) => this.updatePreferences(req, res));
     app.post('/api/comments/:pageUuid', (req: Request, res: Response) => void this.addComment(req, res));
     app.delete('/api/comments/:pageUuid/:commentId', (req: Request, res: Response) => void this.deleteComment(req, res));

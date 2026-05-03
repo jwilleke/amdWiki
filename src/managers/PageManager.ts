@@ -4,7 +4,7 @@ import matter from 'gray-matter';
 import BaseManager, { BackupData } from './BaseManager.js';
 import logger from '../utils/logger.js';
 import { WikiEngine } from '../types/WikiEngine.js';
-import { PageProvider, ProviderInfo, RecentChangesOptions, RecentChangeEntry, GetPagesByCreatorOptions } from '../types/Provider.js';
+import { PageProvider, ProviderInfo, RecentChangesOptions, RecentChangeEntry, GetPagesByCreatorOptions, PagesScanOptions } from '../types/Provider.js';
 import { WikiPage, PageFrontmatter } from '../types/Page.js';
 import type ConfigurationManager from './ConfigurationManager.js';
 import type ValidationManager from './ValidationManager.js';
@@ -713,6 +713,27 @@ class PageManager extends BaseManager {
       throw new Error('PageManager: Provider not initialized');
     }
     return this.provider.getPagesByCreator(username, options);
+  }
+
+  /**
+   * Pages most recently edited by a user (#640 Phase 2).
+   */
+  async getPagesByEditor(username: string, options: PagesScanOptions = {}): Promise<RecentChangeEntry[]> {
+    if (!this.provider) {
+      throw new Error('PageManager: Provider not initialized');
+    }
+    return this.provider.getPagesByEditor(username, options);
+  }
+
+  /**
+   * Pages whose frontmatter audience matches any of the caller's principals,
+   * excluding pages the caller already owns (#640 Phase 2).
+   */
+  async getPagesSharedWith(principals: string[], options: PagesScanOptions = {}): Promise<RecentChangeEntry[]> {
+    if (!this.provider) {
+      throw new Error('PageManager: Provider not initialized');
+    }
+    return this.provider.getPagesSharedWith(principals, options);
   }
 
   async refreshPageList(): Promise<void> {
