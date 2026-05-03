@@ -1,7 +1,7 @@
 # Current Rendering Pipeline
 
-**Status**: Production Architecture (as of 2026-04-27)
-**Related**: [Current-Save-Page-Pipeline.md](./Current-Save-Page-Pipeline.md) | [WikiDocument-DOM-Architecture.md](./WikiDocument-DOM-Architecture.md) | [JSPWikiPreprocessor.md](./JSPWikiPreprocessor.md)
+**Status**: Production Architecture (as of 2026-05-03, post-v3.6.0)
+**Related**: [Current-Save-Page-Pipeline.md](./Current-Save-Page-Pipeline.md) | [WikiDocument-DOM-Architecture.md](./WikiDocument-DOM-Architecture.md) | [JSPWikiPreprocessor.md](./JSPWikiPreprocessor.md) | [Access-Control.md](./Access-Control.md)
 
 ---
 
@@ -12,9 +12,10 @@ HTTP GET /wiki/PageName
     │
     ▼
 WikiRoutes.viewPage()
-    │  ACL check, page load
+    │  wikiContext.canAccess('view') / hasPermission(...) — see Access-Control.md
+    │  page load via PageManager
     ▼
-WikiContext (request encapsulation)
+WikiContext (request encapsulation; lazy theme resolution post-v3.6.0)
     │
     ▼
 RenderingManager.renderMarkdown()
@@ -36,7 +37,7 @@ DOM placeholder restoration (UUID spans → rendered HTML)
 FilterChain  ⚠️ WIRED BUT NOT CALLED — see #596
     │
     ▼
-TemplateManager (EJS) → HTTP Response
+TemplateManager (EJS) — reads wikiContext.activeTheme/themeInfo lazily → HTTP Response
 ```
 
 ---
@@ -48,8 +49,12 @@ TemplateManager (EJS) → HTTP Response
 | `MarkupParser.parseWithDOMExtraction()` | ✅ Active | Primary rendering path |
 | `WikiDocument` DOM | ✅ Active (partial) | Used for extracted elements (code, plugins, style blocks, links) — not full-page DOM parse |
 | `JSPWikiPreprocessor` | ✅ Active | Phase 2.5 — converts bare table syntax and `%%class%%` style blocks to HTML |
+| **WikiContext access methods** | ✅ Active | `hasRole` / `hasPermission` / `canAccess` / `getPrincipals` route-handler gates (post-#625, v3.6.0) — see [Access-Control.md](./Access-Control.md) |
+| **Lazy theme resolution** | ✅ Active | `wikiContext.activeTheme` / `themeInfo` are getters; resolution + ThemeManager fs I/O fire only on first read (typically inside template rendering) |
+| **ParseContext access methods** | ✅ Active | `hasRole(...names)`, `hasPermission`, `canAccess`, `getPrincipals` (mirrors WikiContext API; #625 + #633) |
 | `FilterChain` (Security/Spam/Validation) | ⚠️ Initialized, never called | `filterChain.execute()` missing — tracked in [#596](https://github.com/jwilleke/ngdpbase/issues/596) |
 | Legacy 7-phase string pipeline | ❌ Superseded | Replaced by `parseWithDOMExtraction()` |
+| Inline `userContext.roles.includes('admin')` / `.isAdmin` | ❌ Lint-blocked | `eslint.config.mjs` `no-restricted-syntax` rule (post-v3.6.0) flags reads outside test files |
 
 ---
 
@@ -219,11 +224,30 @@ Key config properties controlling the rendering pipeline:
 
 ---
 
+## Access-control gating (where it sits in the pipeline)
+
+Permission checks happen at the **route-handler layer**, before `RenderingManager.renderMarkdown()` is invoked. The pipeline itself is permission-agnostic — by the time `MarkupParser` sees content, the user has already been authorized to read the page. Inside the parser pipeline, `ParseContext` plugins can do their own role checks (e.g., `CommentsPlugin` hides delete buttons for non-admins via `WikiContext.userHasRole(userContext, 'admin')`).
+
+| Layer | Check | Method |
+|---|---|---|
+| Route handler (`viewPage`, `editPage`, etc.) | "Can this user read/edit this page?" | `wikiContext.canAccess('view')` / `canAccess('edit')` (3-tier ACL) |
+| Route handler (admin/system endpoints) | "Can this user perform admin action X?" | `wikiContext.hasPermission('admin-system')` (global, PolicyEvaluator) |
+| Hot-path middleware (maintenance, `/metrics`) | "Is this user an admin?" | `WikiContext.userHasRole(req.userContext, 'admin')` (sync, no context construction) |
+| Plugins (parser pipeline) | "Should I render the delete link?" | `parseContext.hasRole('admin')` or `WikiContext.userHasRole(...)` |
+| Search providers | "Which audience principals match this user?" | `wikiContext.getPrincipals()` — fed into per-doc audience filter at index-query time |
+
+See [Access-Control.md](./Access-Control.md) for the full operational guide.
+
+---
+
 ## See Also
 
+- [Access-Control.md](./Access-Control.md) — operational guide for `hasRole` / `hasPermission` / `canAccess` / `getPrincipals` across contexts
 - [Current-Save-Page-Pipeline.md](./Current-Save-Page-Pipeline.md) — How pages are written to disk
 - [JSPWikiPreprocessor.md](./JSPWikiPreprocessor.md) — Table and style-block handler detail
 - [WikiDocument-DOM-Architecture.md](./WikiDocument-DOM-Architecture.md) — WikiDocument design
+- [WikiContext-Complete-Guide.md](../WikiContext-Complete-Guide.md) — full WikiContext API and lifecycle
 - [RenderingManager Complete Guide](../managers/RenderingManager-Complete-Guide.md)
 - [Issue #596](https://github.com/jwilleke/ngdpbase/issues/596) — FilterChain not wired
 - [Issue #592](https://github.com/jwilleke/ngdpbase/issues/592) — Table inline style fix (Step 0.55 ordering)
+- [Issue #625](https://github.com/jwilleke/ngdpbase/issues/625) — WikiContext access-method consolidation (shipped v3.6.0)

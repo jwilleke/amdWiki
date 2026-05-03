@@ -1,9 +1,9 @@
 # CacheManager Complete Guide
 
-**Module:** `src/managers/CacheManager.js`
+**Module:** `src/managers/CacheManager.ts`
 **Quick Reference:** [CacheManager.md](CacheManager.md)
-**Version:** 1.0.0
-**Last Updated:** 2025-12-20
+**Version:** 2.0.0
+**Last Updated:** 2026-05-03 (post-v3.6.0)
 **Based on:** JSPWiki caching patterns with provider architecture
 
 ---
@@ -11,16 +11,19 @@
 ## Table of Contents
 
 1. [Overview](#overview)
-2. [Architecture](#architecture)
-3. [Configuration](#configuration)
-4. [Provider System](#provider-system)
-5. [Usage Examples](#usage-examples)
-6. [Cache Regions](#cache-regions)
-7. [API Reference](#api-reference)
-8. [Statistics and Monitoring](#statistics-and-monitoring)
-9. [Future Providers](#future-providers)
-10. [Best Practices](#best-practices)
-11. [Troubleshooting](#troubleshooting)
+2. [Two cache layers in ngdpbase](#two-cache-layers-in-ngdpbase)
+3. [Architecture](#architecture)
+4. [Configuration](#configuration)
+5. [Provider System](#provider-system)
+6. [Usage Examples](#usage-examples)
+7. [Cache Regions](#cache-regions)
+8. [API Reference](#api-reference)
+9. [Statistics and Monitoring](#statistics-and-monitoring)
+10. [Admin API](#admin-api)
+11. [Provider-level structural caches](#provider-level-structural-caches)
+12. [Future Providers](#future-providers)
+13. [Best Practices](#best-practices)
+14. [Troubleshooting](#troubleshooting)
 
 ## Overview
 
@@ -45,6 +48,51 @@ Following the provider pattern established in AttachmentManager, PageManager, an
 3. All configuration keys are lowercase
 4. Provider name normalization (lowercase config → PascalCase class)
 5. Health check with automatic failover to NullCacheProvider
+
+---
+
+## Two cache layers in ngdpbase
+
+ngdpbase has **two distinct caching layers** that serve different purposes. CacheManager (this document) is one of them. Understanding the split prevents confusion when "where is X cached?" comes up.
+
+### Layer 1 — CacheManager-managed regions (this doc)
+
+**Opportunistic memoization**, TTL-based, pluggable backends.
+
+- **What it caches**: result-of-computation values that benefit from temporary memoization — rendered HTML, policy decisions, ACL parses, search results, etc.
+- **Lifetime**: TTL-bounded (default 300s). Auto-evicted on expiry; explicitly invalidated on data changes.
+- **Backend**: pluggable — `NodeCacheProvider` (in-memory, current default), `NullCacheProvider` (no-op for tests/disabled), planned `RedisCacheProvider` for multi-instance deployments.
+- **Topology**: in-process or remote.
+- **API**: `engine.getManager('CacheManager').region('foo').get/set/del/...`.
+- **Behavior on miss**: caller re-computes and caches.
+
+This layer is what the rest of this document covers in detail.
+
+### Layer 2 — Provider-level structural caches
+
+**Authoritative in-memory copies** of source-of-truth data, built at init time, kept current via write-through invalidation. **Not managed by CacheManager.**
+
+- **What it caches**: the data itself (page metadata, content, search index, theme paths). These structures *are* the lookup tables; cache misses are usually impossible (everything was loaded at init).
+- **Lifetime**: process lifetime. Updated on every relevant write (savePage / deletePage / rename → cache update).
+- **Backend**: plain JavaScript `Map` / `Object`, sometimes persisted to disk for fast restart (`data/page-index.json`, `data/search-index/documents.json`).
+- **Topology**: always in-process (with the exception of ES, which lives in its own cluster).
+- **API**: provider-specific — not exposed through CacheManager.
+
+The full inventory is in [Provider-level structural caches](#provider-level-structural-caches) below.
+
+### Side-by-side
+
+| | CacheManager region | Provider-level cache |
+|---|---|---|
+| Purpose | Opportunistic memoization | Source-of-truth in-memory copy |
+| Lifetime | TTL (default 300s) | Process lifetime |
+| Invalidation | TTL expiry + manual `clear()` | Explicit on every write (savePage / deletePage / rename) |
+| Backend | Pluggable (`NodeCacheProvider` / `NullCacheProvider` / future `RedisCacheProvider`) | Plain JS `Map` / `Object`; sometimes disk-persisted |
+| Behavior on miss | Recompute and cache | Either impossible or fall through to a one-off disk read |
+| Topology | In-process or remote | Always in-process (ES being the exception by design) |
+| Documented here | ✅ Layer 1 sections | Inventory in [Provider-level structural caches](#provider-level-structural-caches) |
+
+> **Quick rule of thumb**: if the value would be expensive to recompute and is fine to be slightly stale (rendered HTML, policy decisions), it goes in a CacheManager region. If the value *is* the lookup table you need to serve a request synchronously (which page exists, what's its frontmatter, what tokens does it contain for search), it lives in a provider-level structural cache.
 
 ---
 
@@ -720,6 +768,172 @@ setInterval(async () => {
     // Alert monitoring system
   }
 }, 60000); // Every minute
+```
+
+---
+
+## Admin API
+
+The cache statistics and clear operations are exposed via REST endpoints, useful for ops dashboards and post-incident clearing.
+
+### `GET /api/admin/cache/stats`
+
+Returns global and per-region cache statistics including hit/miss ratios, key counts, and configuration.
+
+```bash
+curl -H "Cookie: ngdpbase.sid=<session>" http://localhost:3000/api/admin/cache/stats
+```
+
+Response shape:
+
+```json
+{
+  "global": { "hits": 12345, "misses": 678, "hitRate": 0.948, "keys": 412 },
+  "regions": {
+    "PageManager":   { "hits": 8000, "misses": 200, "hitRate": 0.976, "keys": 104 },
+    "RenderingManager": { "hits": 3200, "misses": 350, "hitRate": 0.901, "keys": 87 },
+    "ACLManager":    { "hits": 800,  "misses": 80,  "hitRate": 0.909, "keys": 24 }
+  },
+  "config": { "provider": "NodeCacheProvider", "defaultTTL": 300, "maxKeys": 1000 }
+}
+```
+
+### `POST /api/admin/cache/clear`
+
+Clear all caches across all regions.
+
+```bash
+curl -X POST -H "Cookie: ngdpbase.sid=<session>" -H "x-csrf-token: <token>" \
+  http://localhost:3000/api/admin/cache/clear
+```
+
+### `POST /api/admin/cache/clear/:region`
+
+Clear a specific region.
+
+```bash
+curl -X POST -H "Cookie: ngdpbase.sid=<session>" -H "x-csrf-token: <token>" \
+  http://localhost:3000/api/admin/cache/clear/RenderingManager
+```
+
+Both clear endpoints require `admin-system` permission and a valid CSRF token. Both affect only **CacheManager-managed regions** — provider-level structural caches (page metadata, search index) are not cleared.
+
+---
+
+## Provider-level structural caches
+
+These are the Layer 2 caches mentioned in [Two cache layers in ngdpbase](#two-cache-layers-in-ngdpbase). They are not managed by CacheManager and not exposed through its API. Each lives in the provider that owns it. Listed here as a reference for "where does X live?" questions.
+
+### `FileSystemProvider` — page data
+
+**File**: `src/providers/FileSystemProvider.ts`
+
+| Cache | Type | Populated | Invalidated |
+|---|---|---|---|
+| `pageCache` | `Map<title, PageInfo>` (metadata + filepath + uuid + title) | Provider init, walks pages dir, parses every file's YAML frontmatter | `savePage` / `deletePage` / `renamePage` write-through |
+| `contentCache` | `Map<title, content>` (raw markdown without frontmatter) | Same as above for fast-init pages | Same write-through |
+| `uuidIndex` | `Map<uuid, title>` | Same | Same |
+| `titleIndex` | `Map<lowercased-title, title>` (case-insensitive lookup) | Same | Same |
+
+Hit rate is essentially 100% after init — `getPageMetadata` never falls through to disk; `getPage` / `getPageContent` may fall through once for a page added after init, then caches the result.
+
+### `VersioningFileProvider` — versioned page metadata index
+
+**File**: `src/providers/VersioningFileProvider.ts`
+
+| Cache | Type | Persisted? |
+|---|---|---|
+| `pageIndex: PageIndex` | `{ pageCount, pages: Record<uuid, PageIndexEntry> }` — uuid keyed entries with `title`, `location`, `creator`, `lastModified`, `filename`, version count | Yes — `data/page-index.json` (configurable via `ngdpbase.page.provider.versioning.indexfile`) |
+
+Loaded once at init via `loadOrCreatePageIndex()`, mutated in memory, queued writes back to disk. Used by `MediaManager.checkPrivatePageAccess` and `RecentChangesPlugin` for cross-page metadata lookups without per-page disk reads. Internal to the provider — consumers should go through `pageManager.getPage*` rather than reaching into `pageIndex` directly. See [Access-Control.md](../architecture/Access-Control.md) for the architectural boundary.
+
+### `LunrSearchProvider` — full-text index + denormalized documents
+
+**File**: `src/providers/LunrSearchProvider.ts`
+
+| Cache | Type | Persisted? |
+|---|---|---|
+| `documents: Record<pageName, LunrDocument>` | Denormalized per-page docs (title, content, userKeywords, tags, isPrivate, creator, ...) | Yes — `data/search-index/documents.json` |
+| `searchIndex: lunr.Index` | BM25 reverse index built from `documents` via `lunr()` | Rebuilt from `documents` on warm start; serialized only as part of the lunr.js library's own format (rebuild is fast) |
+
+Cold path: walks `pageManager.getAllPages()` and `getPage(name)` (which hit FileSystemProvider's `pageCache`/`contentCache` — no NAS reads beyond init). Warm path: load persisted `documents.json`, rebuild lunr index, skip the PageManager round-trip entirely.
+
+Search-time visibility filters operate on fields denormalized into `LunrDocument`. Fields not denormalized cannot be filtered — see open issues [#626](https://github.com/jwilleke/ngdpbase/issues/626) (audience), [#627](https://github.com/jwilleke/ngdpbase/issues/627) (AuthorLocked).
+
+### `ElasticsearchSearchProvider` — distributed full-text index
+
+**File**: `src/providers/ElasticsearchSearchProvider.ts`
+
+| Cache | Type | Persisted? |
+|---|---|---|
+| ES cluster index | Sharded inverted segments managed by Elasticsearch itself | Yes — by ES |
+
+Topology: out-of-process. ngdpbase indexes documents into ES at indexing time and queries via the ES HTTP API at search time. ES handles its own caching, persistence, and clustering. Indexed document shape: `{ title, content, systemCategory, systemKeywords, userKeywords, lastModified, isPrivate, audience }`. Same denormalization rule as Lunr — fields not in the indexed shape can't be filtered. See open issue [#628](https://github.com/jwilleke/ngdpbase/issues/628) (AuthorLocked not indexed).
+
+### `MarkupParser` — parse-result cache
+
+**File**: `src/parsers/MarkupParser.ts`
+
+| Cache | Type | Persisted? |
+|---|---|---|
+| Parse result cache | TTL-based, keyed by `hash(content + context)` | No — in-process, lost on restart |
+
+This one straddles the two layers: it's TTL-based like a CacheManager region but lives inside MarkupParser with its own implementation. See [Current-Rendering-Pipeline.md](../architecture/Current-Rendering-Pipeline.md#caching). Configured via `ngdpbase.markup.cache-ttl` (default 300s). Invalidated on save through the rendering pipeline. Could be migrated to a `CacheManager.region('MarkupParser')` if cross-instance invalidation becomes important.
+
+### Engine-wide ThemeManager cache (#625)
+
+**File**: `src/managers/ThemeManager.ts`
+
+| Cache | Type | Persisted? |
+|---|---|---|
+| `cachedThemeManager` (single-entry) | `ThemeManager` instance keyed by `${themesDir}::${activeTheme}` | No — in-process |
+
+Built lazily on first `getThemeManager(activeTheme, themesDir)` call. Ensures `WikiContext.activeTheme` / `themeInfo` getters don't trigger fresh fs I/O on every request. See [WikiContext-Complete-Guide.md](../WikiContext-Complete-Guide.md#lazy-theme-resolution-v360).
+
+### `UserManager` / `RoleManager` — user records and role definitions
+
+**Files**: `src/managers/UserManager.ts`, `src/providers/FileUserProvider.ts`, `src/managers/RoleManager.ts`
+
+These have their own in-memory user / role records loaded at init from JSON files. Used by `userManager.hasPermission(...)` (PolicyEvaluator path) and role-resolution helpers without disk hits. See [Access-Control.md](../architecture/Access-Control.md) for the access-path performance characteristics.
+
+### Other in-process caches
+
+- **Configuration**: `ConfigurationManager` holds the merged config in memory; `getProperty` is a Map lookup.
+- **Policies**: `PolicyManager` keeps the loaded policy file in memory; `PolicyEvaluator.evaluateAccess` iterates them in-process.
+- **Plugin output cache**: `MarkupParser`'s handler-result cache (separate from parse-result cache).
+
+None of these are CacheManager regions; all are in-process structural caches.
+
+### Visualizing the layers
+
+```text
+                                     ┌─────────────────────────────────────────┐
+                                     │  Layer 1 — CacheManager regions (TTL)   │
+                                     │                                         │
+                                     │  PageManager:rendered-html              │
+                                     │  RenderingManager:parsed-content        │
+                                     │  ACLManager:permission-decisions        │
+                                     │  PolicyManager:evaluation-results       │
+                                     │  ...                                    │
+                                     │                                         │
+                                     │  Backend: NodeCacheProvider (default)   │
+                                     │           NullCacheProvider (disabled)  │
+                                     │           RedisCacheProvider (planned)  │
+                                     └─────────────────────────────────────────┘
+
+   ┌──────────────────────────────┐  ┌──────────────────────────────┐  ┌──────────────────────┐
+   │  Layer 2 — page provider     │  │  Layer 2 — search provider   │  │  Layer 2 — managers  │
+   │                              │  │                              │  │                      │
+   │  FileSystemProvider          │  │  LunrSearchProvider          │  │  ThemeManager cache  │
+   │   .pageCache (Map)           │  │   .documents (Record)        │  │  UserManager / Role  │
+   │   .contentCache (Map)        │  │   .searchIndex (lunr.Index)  │  │  ConfigurationMgr    │
+   │   .uuidIndex (Map)           │  │  → data/search-index/        │  │  PolicyManager       │
+   │   .titleIndex (Map)          │  │       documents.json         │  │                      │
+   │                              │  │                              │  │  All in-process      │
+   │  VersioningFileProvider      │  │  ElasticsearchSearchProvider │  │  Map / Object        │
+   │   .pageIndex (Record)        │  │   ES cluster (out-of-process)│  │                      │
+   │  → data/page-index.json      │  │                              │  │                      │
+   └──────────────────────────────┘  └──────────────────────────────┘  └──────────────────────┘
 ```
 
 ---

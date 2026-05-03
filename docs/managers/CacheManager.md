@@ -1,6 +1,6 @@
 # CacheManager
 
-**Module:** `src/managers/CacheManager.js`
+**Module:** `src/managers/CacheManager.ts`
 **Extends:** [BaseManager](BaseManager.md)
 **Complete Guide:** [CacheManager-Complete-Guide.md](CacheManager-Complete-Guide.md)
 
@@ -9,6 +9,8 @@
 ## Overview
 
 CacheManager provides centralized cache management for ngdpbase with pluggable cache providers, cache regions (namespaces), configurable TTL, and comprehensive statistics tracking.
+
+> **Two cache layers in ngdpbase**: this document covers the CacheManager layer — opportunistic, TTL-based memoization through pluggable providers (NodeCache, Redis-planned, Null). It is **not** the only caching in the system. Provider-level structural caches (e.g., `FileSystemProvider.pageCache`, `LunrSearchProvider.documents`, `ThemeManager` cache) are separate in-memory data structures populated at init and write-through invalidated; they're not exposed through CacheManager. See [the full inventory in the Complete Guide](CacheManager-Complete-Guide.md#provider-level-structural-caches) and [Access-Control.md](../architecture/Access-Control.md#performance-characteristics) for the page-access performance angle.
 
 ## Key Features
 
@@ -218,15 +220,25 @@ class PageManager extends BaseManager {
 
 When disabled, CacheManager automatically loads NullCacheProvider (no-op).
 
-## Related Managers
+## Admin API
 
-- [ConfigurationManager](ConfigurationManager.md) - Cache configuration
-- [PageManager](PageManager.md) - Page caching
-- [UserManager](UserManager.md) - User session caching
-- [SearchManager](SearchManager.md) - Search result caching
+CacheManager regions are exposed via REST endpoints (admin-only). Provider-level structural caches are **not** affected by these.
 
-## Developer Documentation
+| Endpoint | Effect |
+| --- | --- |
+| `GET /api/admin/cache/stats` | Returns global + per-region hit/miss/keys/config |
+| `POST /api/admin/cache/clear` | Clears all CacheManager regions |
+| `POST /api/admin/cache/clear/:region` | Clears one region (e.g., `RenderingManager`) |
 
-For complete provider architecture, custom provider implementation, statistics details, and troubleshooting:
+Both `clear` endpoints require `admin-system` permission and a valid CSRF token. See [CacheManager-Complete-Guide.md § Admin API](CacheManager-Complete-Guide.md#admin-api) for response shape and examples.
 
-- [CacheManager-Complete-Guide.md](CacheManager-Complete-Guide.md)
+## Related Documentation
+
+- [CacheManager-Complete-Guide.md](CacheManager-Complete-Guide.md) — full provider architecture, all regions, admin API, provider-level structural caches inventory
+- [ConfigurationManager](ConfigurationManager.md) — cache configuration loader
+- [PageManager](PageManager.md) — uses both CacheManager regions and provider-level structural caches
+- [UserManager](UserManager.md) — user session caching
+- [SearchManager](SearchManager.md) — search result caching (separate from search-provider-level indexed documents)
+- [Access-Control.md](../architecture/Access-Control.md#performance-characteristics) — how the two cache layers affect access-check performance
+- [WikiContext-Complete-Guide.md](../WikiContext-Complete-Guide.md#lazy-theme-resolution-v360) — engine-wide ThemeManager cache (provider-level)
+- [Current-Rendering-Pipeline.md](../architecture/Current-Rendering-Pipeline.md#caching) — MarkupParser parse-result cache

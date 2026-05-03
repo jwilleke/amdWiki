@@ -1,11 +1,11 @@
 # WikiContext Complete Guide
 
-**Version:** 1.1.0
-**Last Updated:** 2026-02-27
+**Version:** 2.0.0
+**Last Updated:** 2026-05-03 (post-v3.6.0)
 **Status:** Production Ready
 **Source:** `src/context/WikiContext.ts`
 
-This guide covers everything about WikiContext in ngdpbase — its purpose, TypeScript API, usage patterns, and role as the central rendering orchestrator.
+This guide covers everything about WikiContext in ngdpbase — its purpose, TypeScript API, usage patterns, and role as the central rendering orchestrator. v2.0 captures the access-control consolidation from #625 (v3.6.0): four canonical access methods on WikiContext + a static helper, lazy theme resolution, and an ESLint guard against reintroduction of the inline role-check boilerplate.
 
 ---
 
@@ -46,8 +46,13 @@ Inspired by JSPWiki's architectural patterns, `WikiContext` solves "parameter ex
 
 | Component | Status | Tests |
 |---|---|---|
-| **WikiContext class** (`src/context/WikiContext.ts`) | ✅ Production | 12/12 |
+| **WikiContext class** (`src/context/WikiContext.ts`) | ✅ Production | 35 in `WikiContext.test.ts` |
 | **Route integration** (`src/routes/WikiRoutes.ts`) | ✅ Active | All routes |
+| **Access-method consolidation** (#625, v3.6.0) | ✅ Production | `hasRole`, `hasPermission`, `canAccess`, `getPrincipals`, static `userHasRole` |
+| **`ParseContext` mirror** | ✅ Production | `hasRole(...names)` rest-args, `getPrincipals` (#625); `hasPermission` async, `canAccess` (#633) |
+| **`ApiContext` parity** | ✅ Production | `hasRole`/`requireRole` sync; `hasPermission`/`requirePermission` async (#630) |
+| **Lazy theme resolution** | ✅ Production | `activeTheme` / `themeInfo` are lazy getters; permission-only callers don't trigger ConfigurationManager.getProperty |
+| **ESLint guard** | ✅ Production | `no-restricted-syntax` flags `.isAdmin` and `.roles.includes(...)` reads outside test files |
 | **Manager method migration** | 🔄 In Progress | `savePageWithContext()` done; new managers start with WikiContext |
 
 ---
@@ -289,6 +294,64 @@ if (wikiContext.getContext() === WikiContext.CONTEXT.EDIT) {
 }
 ```
 
+#### Access-control methods (#625, v3.6.0)
+
+The four canonical methods for role/permission checks. Use these instead of inline `userContext.roles.includes(...)` or `userContext.isAdmin` reads — those are lint-blocked outside test files. See [Access-Control.md](architecture/Access-Control.md) for the full operational guide.
+
+##### `hasRole(...names: string[]): boolean`
+
+Pure roles-array check. Sync. Returns `true` if `userContext.roles` contains any of the given names. Does **not** consult PolicyEvaluator. Backed by `WikiContext.userHasRole(this.userContext, ...names)`.
+
+```typescript
+if (wikiContext.hasRole('admin')) { ... }
+if (wikiContext.hasRole('admin', 'editor', 'contributor')) { ... }   // multi-role OR
+```
+
+##### `async hasPermission(action: string): Promise<boolean>`
+
+Global permission check. Delegates to `UserManager.hasPermission(username, action)` → `PolicyEvaluator`. Honors anonymous/authenticated role expansion (`'anonymous'`/`'All'`, `'Authenticated'`/`'All'`), inactive-user rejection, deny policies, and policy priority order.
+
+```typescript
+if (!(await wikiContext.hasPermission('admin-system'))) {
+  return res.status(403).send('Access denied');
+}
+```
+
+##### `async canAccess(action: string): Promise<boolean>`
+
+Page-resource-aware permission check. Delegates to `ACLManager.checkPagePermissionWithContext(this, action)`, which runs the 3-tier evaluator: tier 0 (private user-keyword), tier 1 (frontmatter audience/access), tier 2 (global policies via PolicyEvaluator). Returns `false` if `pageName` is null or ACLManager is unavailable.
+
+```typescript
+if (!(await wikiContext.canAccess('edit'))) {
+  return res.status(403).send('Cannot edit this page');
+}
+```
+
+Action-name mapping inside ACLManager: `view` → `page-read`, `edit` → `page-edit`, `delete` → `page-delete`, `create` → `page-create`, `rename` → `page-rename`, `upload` → `asset-upload`.
+
+##### `getPrincipals(): string[]`
+
+Returns `[...roles, username]` if authenticated, `[...roles]` otherwise. Used by search providers to filter results without per-result ACL evaluation.
+
+```typescript
+const principals = wikiContext.getPrincipals();
+// e.g. ['editor', 'reader', 'alice']
+```
+
+##### `static userHasRole(userContext, ...names): boolean`
+
+Same semantics as instance `hasRole` but takes a userContext-like object directly. For hot-path callers that don't have a full WikiContext (maintenance middleware, `/metrics`, parser-pipeline plugins). Avoids the per-request WikiContext construction cost.
+
+```typescript
+import WikiContext from '../context/WikiContext.js';
+
+app.use((req, res, next) => {
+  const isAdmin = WikiContext.userHasRole(req.userContext, 'admin');
+  if (allowAdmins && isAdmin) { next(); return; }
+  // ...
+});
+```
+
 #### `async renderMarkdown(content?): Promise<string>`
 
 Renders markdown content through the full rendering pipeline.
@@ -313,11 +376,29 @@ Creates the plain object passed to `MarkupParser.parse()`. Decouples the parser 
 ```typescript
 const options = wikiContext.toParseOptions();
 // {
-//   pageContext: { pageName, userContext, requestInfo: { ... } },
+//   pageContext: { pageName, userContext, requestInfo: { ... }, themeContext, pageMetadata },
 //   engine: WikiEngine
 // }
 const html = await parser.parse(content, options);
 ```
+
+---
+
+## Lazy theme resolution (v3.6.0)
+
+Pre-v3.6.0, `createWikiContext()` eagerly resolved the active theme: it called `configManager.getProperty('ngdpbase.theme.active')` and constructed a `ThemeManager` (which did fs I/O for theme.json + asset paths) on **every** request, even if the request never read theme info.
+
+After v3.6.0, theme resolution is lazy:
+
+- `wikiContext.activeTheme` and `wikiContext.themeInfo` are now getters that resolve on first access and cache on the instance.
+- `createWikiContext()` is a thin constructor wrapper — no fs I/O, no ConfigurationManager.getProperty.
+- `ThemeManager` is cached engine-wide via `getThemeManager(activeTheme, themesDir)` (`src/managers/ThemeManager.ts`) keyed by `${themesDir}::${activeTheme}`. Cache invalidates implicitly when the active-theme name changes.
+
+Practical effect:
+
+- Permission-only callers (route handlers that only call `hasRole` / `hasPermission` / `canAccess`) never trigger theme resolution.
+- Template-rendering callers (`getCommonTemplateData`, `adminSettings`) trigger it on first read of `activeTheme` / `themeInfo`; subsequent calls within the same request hit the cached value.
+- Tests using `mockConfigManager.getProperty.mockImplementationOnce(...)` no longer have their mock value consumed by theme lookup at construction time.
 
 ---
 
@@ -434,24 +515,40 @@ async savePage(req: Request, res: Response): Promise<void> {
 }
 ```
 
-### Example 3: Access control check
+### Example 3: Access control check (post-#625)
+
+The canonical pattern is `wikiContext.hasRole(...)` for role checks, `wikiContext.hasPermission(action)` for global permission gates, and `wikiContext.canAccess(action)` for page-resource-aware gates. The ESLint guard (post-v3.6.0) blocks the old inline `userContext.roles.includes('admin')` and `userContext.isAdmin` patterns outside test files.
 
 ```typescript
-// Private page guard using ACLManager (note: authenticated field, not isAuthenticated)
-function checkPrivatePageAccess(wikiContext: WikiContext): boolean {
-  const index = wikiContext.pageObject?.metadata?.['index-entry'] as PageIndexEntry | undefined;
-  if (index?.location !== 'private') return true;
-  if (!wikiContext.userContext?.authenticated) return false;
-  if (wikiContext.userContext.roles?.includes('admin')) return true;
-  return wikiContext.userContext.username === index.owner;
+// Admin-only route guard
+const wikiContext = this.createWikiContext(req);
+if (!(await wikiContext.hasPermission('admin-system'))) {
+  return await this.renderError(req, res, 403, 'Access Denied', '...');
 }
 
-// In route handler:
-const wikiContext = this.createWikiContext(req, { pageName });
-if (!checkPrivatePageAccess(wikiContext)) {
-  return res.status(403).render('error', { code: 403 });
+// Multi-role gate
+if (!wikiContext.hasRole('admin', 'editor', 'contributor')) {
+  return res.status(403).json({ success: false, error: 'Access denied' });
 }
+
+// Per-page edit gate (resource-aware — runs the 3-tier ACL evaluator)
+const wikiContext = this.createWikiContext(req, { pageName });
+if (!(await wikiContext.canAccess('edit'))) {
+  return await this.renderError(req, res, 403, 'Access Denied', '...');
+}
+
+// Hot-path middleware (no full WikiContext) — use the static helper
+import WikiContext from './context/WikiContext.js';
+app.use((req, res, next) => {
+  const isAdmin = WikiContext.userHasRole(req.userContext, 'admin');
+  if (allowAdmins && isAdmin) { next(); return; }
+  res.status(503).render('maintenance', { isAdmin });
+});
 ```
+
+For the legacy private-page check pattern (admin-OR-creator on private pages), use `wikiContext.canAccess('view')` — ACLManager's tier 0 handles `user-keywords: [private]` natively.
+
+See [Access-Control.md](architecture/Access-Control.md) for the full operational guide, including ParseContext / ApiContext patterns.
 
 ### Example 4: Page Preview
 
@@ -564,17 +661,25 @@ if (parser) {
 
 ### ACLManager
 
+Prefer `wikiContext.canAccess(action)` (post-#625) — it delegates to `ACLManager.checkPagePermissionWithContext` and returns `false` cleanly if `pageName` or ACLManager is missing.
+
 ```typescript
-// checkPagePermissionWithContext() takes a WikiContext directly
+// Canonical (post-v3.6.0)
+if (!(await wikiContext.canAccess('edit'))) {
+  return res.status(403).render('error', { code: 403 });
+}
+```
+
+Direct calls still work for code that needs a non-current page name or wants to pass a synthesized context:
+
+```typescript
 const canEdit = await wikiContext.aclManager.checkPagePermissionWithContext(
   wikiContext,   // ← pass WikiContext, not separate (userContext, pageName)
   'edit'
 );
-
-if (!canEdit) {
-  return res.status(403).render('error', { code: 403 });
-}
 ```
+
+The deprecated 4-arg `checkPagePermission(pageName, action, userContext, content)` has 3 remaining callers tracked in #632 (LeftMenu, Footer, adminDashboard) — do not add new callers.
 
 ---
 
@@ -582,20 +687,30 @@ if (!canEdit) {
 
 ### Test Coverage
 
+`src/context/__tests__/WikiContext.test.ts` — 35 tests as of v3.6.0.
+
 | Category | Tests | Status |
 |---|---|---|
-| Constructor | 3 | ✅ 100% |
-| `getContext()` | 2 | ✅ 100% |
-| `renderMarkdown()` | 4 | ✅ 100% |
-| `toParseOptions()` | 2 | ✅ 100% |
-| Context constants | 1 | ✅ 100% |
-| **Total** | **12** | **✅ 100%** |
+| Constructor | 3 | ✅ |
+| `getContext()` | 2 | ✅ |
+| `renderMarkdown()` | 4 | ✅ |
+| `toParseOptions()` | 2 | ✅ |
+| Context constants | 1 | ✅ |
+| `hasRole(...names)` (instance) | 6 | ✅ |
+| `userHasRole(...)` (static) | 6 | ✅ |
+| `hasPermission(action)` | 3 | ✅ |
+| `canAccess(action)` | 3 | ✅ |
+| `getPrincipals()` | 5 | ✅ |
+| **Total** | **35** | **✅** |
+
+Plus 12 tests in `src/parsers/context/__tests__/ParseContext.test.ts` (hasRole rest-args + getPrincipals) and 31 tests in `src/context/__tests__/ApiContext.test.ts` (post-#630 contract-based tests).
 
 ### Running Tests
 
 ```bash
-npm test -- WikiContext.test.js --verbose
-npm test -- WikiContext.test.js --coverage
+npx vitest run src/context/__tests__/WikiContext.test.ts
+npx vitest run src/parsers/context/__tests__/ParseContext.test.ts
+npx vitest run src/context/__tests__/ApiContext.test.ts
 ```
 
 ### Mock Setup
@@ -624,12 +739,18 @@ const wikiContext = new WikiContext(mockEngine as unknown as WikiEngine, {
 
 | Operation | Notes |
 |---|---|
-| Create WikiContext | Very fast — manager references are cheap pointer assignments |
+| Create WikiContext | Very fast — manager references are cheap pointer assignments. Lazy theme = no fs I/O at construction. |
 | `getContext()` | Simple property access |
+| `hasRole(...)` | Set lookup over `userContext.roles` — sub-microsecond |
+| `hasPermission(...)` | Async — UserManager → PolicyEvaluator round-trip; cached at PolicyManager layer |
+| `canAccess(...)` | Async — ACLManager 3-tier evaluation; cheap unless tier-0 metadata fetch fires |
+| `getPrincipals()` | Array spread + push — sub-microsecond |
+| `activeTheme` (first read) | ConfigurationManager.getProperty + cached ThemeManager lookup; subsequent reads are property access |
+| `themeInfo` (first read) | Triggers `activeTheme` lookup; reads cached ThemeManager paths |
 | `toParseOptions()` | Object construction (~0.1ms) |
 | `renderMarkdown()` | Depends on parser and content (20–30ms typical) |
 
-**Key:** `WikiContext` is created once per request. Manager references are stored as pointers — no copying. Always create one instance per request and reuse it for multiple operations within that request.
+**Key:** `WikiContext` is created once per request. Manager references are stored as pointers — no copying. Always create one instance per request and reuse it for multiple operations within that request. Permission-only callers (most route handlers post-#625) never trigger theme resolution.
 
 ```typescript
 // ✅ One context, multiple operations
@@ -729,8 +850,10 @@ if (wikiContext.userContext?.authenticated) { ... }
 ## Related Documentation
 
 - [WikiContext.md](WikiContext.md) — original shorter reference
-- [CONTRIBUTING.md](../CONTRIBUTING.md#wikicontext---single-source-of-truth) — contributing guidelines for WikiContext usage
+- [docs/architecture/Access-Control.md](architecture/Access-Control.md) — operational guide for `hasRole` / `hasPermission` / `canAccess` / `getPrincipals` across WikiContext, ParseContext, ApiContext
 - [docs/architecture/Current-Rendering-Pipeline.md](architecture/Current-Rendering-Pipeline.md) — rendering pipeline detail
+- [docs/design/policy-based-access-control-design.md](design/policy-based-access-control-design.md) — JSON policy schema design (Issue #19)
+- [CONTRIBUTING.md](../CONTRIBUTING.md#wikicontext---single-source-of-truth) — contributing guidelines for WikiContext usage
 - [ARCHITECTURE.md](../ARCHITECTURE.md) — overall ngdpbase architecture
 - [docs/WikiDocument-Complete-Guide.md](WikiDocument-Complete-Guide.md) — WikiDocument (used internally by MarkupParser)
 
@@ -751,8 +874,15 @@ if (wikiContext.userContext?.authenticated) { ... }
 - Issue #132 — Refactor to use WikiContext as Single Source of Truth ✅
 - Issue #68 — Integrate VariableManager.js into WikiContext ✅
 - Issue #71 — Refactor Rendering Pipeline in app.js ✅
+- Issue #625 — `WikiContext.hasRole/hasPermission/canAccess/getPrincipals` consolidation ✅ (shipped in v3.6.0)
+- Issue #609 — Test-isolation flake fix tied to #625's mock-state semantics ✅ (shipped in v3.6.0)
+- Issue #630 — `ApiContext.hasPermission` divergence ✅ (delegates to UserManager post-fix)
+- Issue #633 — `ParseContext.hasPermission` divergence ✅ (delegates to UserManager post-fix)
+- Issue #629 — Open: collapse ParseContext data redundancy by holding a WikiContext reference
+- Issue #631 — Open: service-principal model (`WikiContext.system()` factory)
+- Issue #632 — Open: migrate 3 deprecated 4-arg `aclManager.checkPagePermission` callers
 
 ---
 
-**Last Updated:** 2026-02-27
+**Last Updated:** 2026-05-03 (post-v3.6.0)
 **Maintained By:** ngdpbase Development Team
