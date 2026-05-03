@@ -2,6 +2,30 @@
 
 AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version history.
 
+## 2026-05-03-06
+
+- Agent: Claude
+- Subject: #626 A1-A3 — denormalize frontmatter audience onto LunrDocument and filter at search time; mirror ElasticsearchSearchProvider semantics. Filed #639 to relocate `private` from user-keywords array to top-level frontmatter
+- Current Issue: #626 (audience drift fix landed); #639 (new feature request filed)
+- Work Done:
+  - **#626 A1 — `LunrDocument` shape**: added `audience?: string[]` field alongside the existing `isPrivate` / `creator`. Field is optional and undefined when no audience is set
+  - **#626 A2 — `buildDocumentFromPageData`**: now reads `metadata['audience']` via the existing `toStrArr()` helper (handles string-or-array input from frontmatter) and stores `audience.length > 0 ? audience : undefined`. Populated unconditionally — mirrors ElasticsearchSearchProvider, which always denormalizes audience even on public pages
+  - **Cold-path consolidation**: `buildIndex` had two doc-construction paths — a hot path that called `buildDocumentFromPageData` and a cold path that inlined ~35 lines of partial doc shape, omitting `isPrivate`, `creator`, and `audience`. Cold path now collapsed to a single `documents[pageName] = this.buildDocumentFromPageData(pageName, pageData)` so both paths produce identical shapes. Eliminates a class of latent drift bugs where private/audience fields were silently missing on rebuild
+  - **#626 A3 — search-time filter**: in `search()`, the per-result private-page check now reads `wikiContext?.getPrincipals?.() ?? []` and computes `inAudience = Array.isArray(doc.audience) && principals.some(p => doc.audience!.includes(p))`. Final access rule is unchanged in intent: `if (!isAdmin && !isCreator && !inAudience) return null`. Brings Lunr in line with the ES audience semantics that already shipped
+  - **Test fixture extension** — `LunrSearchProvider.privateFilter.test.ts` `makeDoc` helper now accepts `audience?: string[]`. New `describe('frontmatter audience (#626)')` block covers: audience-by-username (bob in `[bob, carol]` → page visible), audience-by-role (dave with role `editor`, page audience `[editor]` → visible), no-match denial (eve, no roles match → page hidden), admin bypasses audience entirely, creator still bypasses audience for their own pages
+  - **#639 filed** — `[FEATURE] Move 'private' from user-keywords array to top-level frontmatter field`. Schema proposal: promote `private` from a `user-keywords[]` entry to a peer of `author-lock` / `audience`. Captures the three-way overload problem (user-keywords array, system-location hint, search-doc denormalization), both migration strategies (recommends Option B back-compat read fallback for one or two minor releases), all touch points (ACLManager tier-0, both search providers, save handlers, edit UI, config vocabulary), and links to siblings #626/#635/#625
+- Testing:
+  - typecheck: clean
+  - eslint: clean
+  - vitest: full suite 5157/5157 deterministic green pre-commit
+- Commits: 665144e4 (`fix(#626): denormalize frontmatter audience onto LunrDocument and filter at search time`)
+- Files Modified:
+  - src/providers/LunrSearchProvider.ts (audience field on LunrDocument; buildDocumentFromPageData reads metadata.audience; cold-path consolidation; search filter checks principals against doc.audience)
+  - src/providers/**tests**/LunrSearchProvider.privateFilter.test.ts (audience option on makeDoc helper; 5 new tests in #626 describe block)
+- GH issues:
+  - #626 — closing ready (drift class fixed; matches ES semantics)
+  - #639 — new feature filed (relocate `private` to top-level frontmatter)
+
 ## 2026-05-03-05
 
 - Agent: Claude
