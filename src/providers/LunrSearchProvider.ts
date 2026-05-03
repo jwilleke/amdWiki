@@ -59,6 +59,8 @@ interface LunrDocument {
   isPrivate?: boolean;
   /** Username that created the page (only set when isPrivate === true) */
   creator?: string;
+  /** Frontmatter audience principals (#626) — populated for all pages, consulted at search time when isPrivate */
+  audience?: string[];
 }
 
 /**
@@ -247,6 +249,11 @@ class LunrSearchProvider extends BaseSearchProvider {
       if (typeof val === 'number' || typeof val === 'boolean') return String(val);
       return fallback;
     };
+    const toStrArr = (v: unknown): string[] => {
+      if (Array.isArray(v)) return v.map(String).filter(Boolean);
+      if (typeof v === 'string' && v) return [v];
+      return [];
+    };
 
     const metadata = (pageData.metadata as Record<string, unknown>) || {};
     const userKeywordsRaw = metadata['user-keywords'];
@@ -261,6 +268,10 @@ class LunrSearchProvider extends BaseSearchProvider {
     const creator = typeof pageData.creator === 'string' ? pageData.creator
       : typeof metadata.author === 'string' ? metadata.author
         : undefined;
+    // #626: denormalize frontmatter audience for all pages so the search-time
+    // filter can honor it (mirrors ElasticsearchSearchProvider). Populated
+    // unconditionally; consulted only when isPrivate at search time.
+    const audience = toStrArr(metadata['audience']);
 
     return {
       id: pageName,
@@ -276,7 +287,8 @@ class LunrSearchProvider extends BaseSearchProvider {
       author: toStr(metadata.author) || undefined,
       editor: toStr(metadata.editor) || undefined,
       isPrivate: isPrivate || undefined,
-      creator: isPrivate ? creator : undefined
+      creator: isPrivate ? creator : undefined,
+      audience: audience.length > 0 ? audience : undefined
     };
   }
 
@@ -320,41 +332,20 @@ class LunrSearchProvider extends BaseSearchProvider {
       const pageNames = await pageManager.getAllPages();
       const documents: Record<string, LunrDocument> = {};
 
-      // Load each page and prepare documents for indexing
+      // #626: cold path now uses buildDocumentFromPageData so isPrivate /
+      // creator / audience are populated for all pages. Pre-#626 the cold
+      // path inlined a partial doc shape that omitted these fields, leaving
+      // a window after first index where private pages were searchable as
+      // public until the next savePage triggered an incremental re-index.
       for (const pageName of pageNames) {
         const pageData = await pageManager.getPage(pageName);
         if (!pageData) {
           continue; // Skip if page can't be loaded
         }
-
-        // Extract metadata fields
-        const metadata = pageData.metadata;
-        const systemCategory = String(metadata['system-category'] || '');
-        const userKeywordsArray = metadata['user-keywords'];
-        const userKeywords = Array.isArray(userKeywordsArray) ?
-          userKeywordsArray.join(',') :
-          String(userKeywordsArray || '');
-        const metadataRecord = metadata as Record<string, unknown>;
-        const tagsValue = metadataRecord.tags;
-        const tags = Array.isArray(tagsValue) ?
-          tagsValue.join(' ') :
-          (typeof tagsValue === 'string' ? tagsValue : '');
-        const title = String(metadata.title || pageName);
-
-        documents[pageName] = {
-          id: pageName,
-          title: title,
-          content: pageData.content || '',
-          body: pageData.content || '',
-          systemCategory: systemCategory,
-          userKeywords: userKeywords,
-          tags: tags,
-          keywords: `${userKeywords} ${tags}`,
-          lastModified: String(metadata.lastModified || ''),
-          uuid: String(metadata.uuid || ''),
-          author: String(metadata.author || '') || undefined,
-          editor: String(metadata.editor || '') || undefined
-        };
+        documents[pageName] = this.buildDocumentFromPageData(
+          pageName,
+          pageData as unknown as Record<string, unknown>
+        );
       }
 
       this.documents = documents;
@@ -389,6 +380,9 @@ class LunrSearchProvider extends BaseSearchProvider {
       const wikiContext = options.wikiContext;
       const isAdmin = wikiContext?.hasRole?.('admin') ?? false;
       const username = wikiContext?.userContext?.username;
+      // #626: principals from WikiContext.getPrincipals() — same source ES uses
+      // for its audience filter. Mirrors ElasticsearchSearchProvider semantics.
+      const principals = wikiContext?.getPrincipals?.() ?? [];
 
       const searchResults = results
         .map(result => {
@@ -398,7 +392,11 @@ class LunrSearchProvider extends BaseSearchProvider {
           // Filter out private pages the current user cannot access
           if (doc.isPrivate) {
             const isCreator = username !== undefined && username === doc.creator;
-            if (!isAdmin && !isCreator) return null;
+            // #626: honor frontmatter audience — the user can see a private
+            // page if any of their principals appears in the page's audience.
+            const inAudience = Array.isArray(doc.audience)
+              && principals.some(p => doc.audience!.includes(p));
+            if (!isAdmin && !isCreator && !inAudience) return null;
           }
 
           // Generate snippet

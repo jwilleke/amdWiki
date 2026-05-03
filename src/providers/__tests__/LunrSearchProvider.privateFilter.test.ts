@@ -56,6 +56,7 @@ function makeDoc(id, opts: {
   editor?: string;
   isPrivate?: boolean;
   creator?: string;
+  audience?: string[];
 } = {}) {
   return {
     id,
@@ -71,7 +72,8 @@ function makeDoc(id, opts: {
     author: opts.author ?? undefined,
     editor: opts.editor ?? undefined,
     isPrivate: opts.isPrivate ?? undefined,
-    creator: opts.creator ?? undefined
+    creator: opts.creator ?? undefined,
+    audience: opts.audience ?? undefined
   };
 }
 
@@ -191,6 +193,87 @@ describe('LunrSearchProvider.search — private filtering — admin user', () =>
     const names = results.map(r => r.name);
     expect(names).toContain('AlicePrivatePage');
     expect(names).toContain('BobPrivatePage');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// #626: Audience filter — private page with frontmatter audience
+// ---------------------------------------------------------------------------
+
+describe('LunrSearchProvider.search — private filtering — frontmatter audience (#626)', () => {
+  beforeEach(() => {
+    // Override the default fixture with audience-bearing private pages
+    provider['documents'] = {
+      'AliceShared': makeDoc('AliceShared', {
+        isPrivate: true,
+        creator: 'alice',
+        audience: ['bob', 'carol'],
+        content: 'shared private content'
+      }),
+      'AliceRoleShared': makeDoc('AliceRoleShared', {
+        isPrivate: true,
+        creator: 'alice',
+        audience: ['editor'],
+        content: 'role-audience private content'
+      }),
+      'AliceUnshared': makeDoc('AliceUnshared', {
+        isPrivate: true,
+        creator: 'alice',
+        content: 'no audience private content'
+      })
+    };
+    provider['searchIndex'] = {
+      search: vi.fn().mockReturnValue([
+        { ref: 'AliceShared', score: 1.0, matchData: {} },
+        { ref: 'AliceRoleShared', score: 0.9, matchData: {} },
+        { ref: 'AliceUnshared', score: 0.8, matchData: {} }
+      ])
+    };
+  });
+
+  test('user listed in audience by username sees the private page', async () => {
+    const wikiContext = makeWikiContext('bob');
+    const results = await provider.search('content', { wikiContext });
+    const names = results.map(r => r.name);
+    expect(names).toContain('AliceShared');         // bob is in audience
+    expect(names).not.toContain('AliceRoleShared'); // bob not 'editor'
+    expect(names).not.toContain('AliceUnshared');   // no audience match, not creator, not admin
+  });
+
+  test('user matching audience by role sees the role-audience page', async () => {
+    const wikiContext = makeWikiContext('dave', ['editor']);
+    const results = await provider.search('content', { wikiContext });
+    const names = results.map(r => r.name);
+    expect(names).not.toContain('AliceShared');     // dave not listed by username
+    expect(names).toContain('AliceRoleShared');     // dave has 'editor' role
+    expect(names).not.toContain('AliceUnshared');   // no audience
+  });
+
+  test('user not in audience and not creator/admin sees nothing private', async () => {
+    const wikiContext = makeWikiContext('eve');
+    const results = await provider.search('content', { wikiContext });
+    const names = results.map(r => r.name);
+    expect(names).not.toContain('AliceShared');
+    expect(names).not.toContain('AliceRoleShared');
+    expect(names).not.toContain('AliceUnshared');
+  });
+
+  test('admin still bypasses audience — sees all private pages regardless', async () => {
+    const wikiContext = makeWikiContext('root', ['admin']);
+    const results = await provider.search('content', { wikiContext });
+    const names = results.map(r => r.name);
+    expect(names).toContain('AliceShared');
+    expect(names).toContain('AliceRoleShared');
+    expect(names).toContain('AliceUnshared');
+  });
+
+  test('creator still sees their own private page even when not in audience', async () => {
+    const wikiContext = makeWikiContext('alice');
+    const results = await provider.search('content', { wikiContext });
+    const names = results.map(r => r.name);
+    expect(names).toContain('AliceShared');         // alice is creator
+    expect(names).toContain('AliceRoleShared');     // alice is creator
+    expect(names).toContain('AliceUnshared');       // alice is creator
   });
 });
 
