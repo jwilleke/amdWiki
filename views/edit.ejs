@@ -38,7 +38,16 @@
                     <input type="text" id="title" name="title" class="form-control" value="<%= metadata.title || pageName %>" required>
                 </div>
                 
-                <!-- System Category (Admin only) and User Keywords (Editable by any editor) -->
+                <%
+                    // #639 Slice C/follow-up: precompute Private checkbox state once so the
+                    // same control can render in either branch (admin / non-admin). State
+                    // honours either the new top-level `private` field or the legacy
+                    // `user-keywords: [private]` for unmigrated pages.
+                    const _legacyPrivateKeyword = Array.isArray(selectedUserKeywords)
+                        && selectedUserKeywords.some(kw => String(kw).toLowerCase() === 'private');
+                    const _isPrivate = metadata.private === true || _legacyPrivateKeyword;
+                %>
+                <!-- System Category (Admin only) + Author Lock (Admin only) + Private + User Keywords -->
                 <div class="row mb-3">
                     <% if (user && user.roles && user.roles.includes('admin')) { %>
                     <div class="col-md-4">
@@ -62,11 +71,31 @@
                         </div>
                         <input type="hidden" name="author-lock-present" value="1">
                     </div>
+                    <div class="col-md-2">
+                        <label style="font-weight:bold;">Private: <%- include('_help-icon', { slug: 'page-private', label: 'Private Page' }) %></label>
+                        <div class="form-check mt-2">
+                            <input class="form-check-input" type="checkbox" name="private" id="privateFlag" value="true" <%= _isPrivate ? 'checked' : '' %>>
+                            <label class="form-check-label" for="privateFlag" title="Only the page author and admins can view this page">
+                                <i class="fas fa-eye-slash"></i> Private
+                            </label>
+                        </div>
+                        <input type="hidden" name="private-present" value="1">
+                    </div>
                     <% } else { %>
-                    <div class="col-md-6">
+                    <div class="col-md-4">
                         <label style="font-weight:bold;">System Category: <%- include('_help-icon', { slug: 'system-category', label: 'System Category' }) %></label>
                         <input type="hidden" id="systemCategory" name="system-category" value="<%= metadata['system-category'] %>">
                         <input type="text" class="form-control" value="<%= metadata['system-category'] %>" readonly>
+                    </div>
+                    <div class="col-md-2">
+                        <label style="font-weight:bold;">Private: <%- include('_help-icon', { slug: 'page-private', label: 'Private Page' }) %></label>
+                        <div class="form-check mt-2">
+                            <input class="form-check-input" type="checkbox" name="private" id="privateFlag" value="true" <%= _isPrivate ? 'checked' : '' %>>
+                            <label class="form-check-label" for="privateFlag" title="Only the page author and admins can view this page">
+                                <i class="fas fa-eye-slash"></i> Private
+                            </label>
+                        </div>
+                        <input type="hidden" name="private-present" value="1">
                     </div>
                     <% } %>
                     <% if (metadata['author-lock']) { %>
@@ -104,24 +133,6 @@
                     </div>
                 </div>
 
-                <!-- #639 Slice C: Private — peer of audience / author-lock -->
-                <div class="row mb-3">
-                    <div class="col-md-3">
-                        <label style="font-weight:bold;"><i class="fas fa-eye-slash"></i> Private: <%- include('_help-icon', { slug: 'page-private', label: 'Private Page' }) %></label>
-                        <div class="form-check mt-2">
-                            <%
-                                const _legacyPrivateKeyword = Array.isArray(selectedUserKeywords)
-                                    && selectedUserKeywords.some(kw => String(kw).toLowerCase() === 'private');
-                                const _isPrivate = metadata.private === true || _legacyPrivateKeyword;
-                            %>
-                            <input class="form-check-input" type="checkbox" name="private" id="privateFlag" value="true" <%= _isPrivate ? 'checked' : '' %>>
-                            <label class="form-check-label" for="privateFlag" title="Only the page author and admins can view this page">
-                                Private — visible only to author + admins
-                            </label>
-                        </div>
-                        <input type="hidden" name="private-present" value="1">
-                    </div>
-                </div>
 
                 <!-- Audience (view access) -->
                 <% if (typeof availableRoles !== 'undefined' && availableRoles && availableRoles.length > 0) { %>
