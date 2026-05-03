@@ -2,6 +2,45 @@
 
 AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version history.
 
+## 2026-05-03-07
+
+- Agent: Claude
+- Subject: Closed two AuthorLocked search-filter bugs (#627 + #628) as wontfix with explicit code markers; shipped #635 — `pageManager.getRecentChanges()` API + visibility filter; filed #639 — relocate `private` from user-keywords to top-level frontmatter
+- Current Issue: #627 (closed wontfix), #628 (closed wontfix), #635 (closed completed), #639 (filed)
+- Work Done:
+  - **#639 filed** — `[FEATURE] Move 'private' from user-keywords array to top-level frontmatter field`. Schema proposal: promote `private` to a peer of `author-lock` / `audience`; remove from user-keywords vocabulary. Captures the three-way overload (user-keywords, system-location, search denormalization), recommends Option B back-compat read fallback for migration, lists every touch point (ACLManager tier-0, both search providers, save handlers, edit UI, config vocabulary). Filed because the same drift pattern (#626, #635) keeps surfacing — fixing the schema would close the bug class at the root
+  - **#627 + #628 closed wontfix (Reading A)** — AuthorLocked is an *edit* constraint parallel to git branch protection; locked pages are still freely readable. Search filters by *read* access, so AuthorLocked has no place in either search filter. Decision recorded directly in code (commit c2f25e88) at `LunrSearchProvider.search()` (just after the private-page filter block) and `ElasticsearchSearchProvider._wrapWithPrivacy` doc comment so a future audit grep sees the explicit decision instead of re-flagging the gap
+  - **#635 implemented (Slices 1 + 2 bundled per user direction)**:
+    - **Types** — added `RecentChangesOptions` and `RecentChangeEntry` to `src/types/Provider.ts`; `getRecentChanges(options?)` now part of the `PageProvider` interface
+    - **`FileSystemProvider.getRecentChanges`** — base implementation reading from in-memory `pageCache` + each entry's metadata (`lastModified`, `system-location`, `user-keywords`, `audience`, `creator`/`author`). Provides a working impl for any consumer using FileSystemProvider standalone
+    - **`VersioningFileProvider.getRecentChanges`** — overrides with the rich pageIndex-backed version. The `pageIndex` already denormalizes `lastModified`, `editor`, `currentVersion`, `hasVersions`, `isPrivate`, `audienceRoles`, `creator` — so this is O(1) per page on cheap in-memory state. No extra I/O
+    - **`PageManager.getRecentChanges`** — thin forwarder to the active provider
+    - **`RecentChangesPlugin` v2.0.0** — migrated to call `pageManager.getRecentChanges({ since, principals, includeAll })`. Drops `loadPageIndex()` (was reading `data/page-index.json` directly off disk), drops `pageManager.getPage()` per page, drops `fs.stat()` per page. Builds principals from `userContext.username` + `userContext.roles`; uses `WikiContext.userHasRole(userContext, 'admin')` for the `includeAll` admin bypass. Closes the privacy leak (private pages were previously listed in recent-changes regardless of viewer)
+    - **Visibility rule** — provider-layer filter using cheap denormalized signals only (creator + audienceRoles). Does NOT consult tier-2 PolicyEvaluator per page (would be O(N) policy evaluations per render). Mirrors `MediaManager.checkPrivatePageAccess` and the search-provider audience filters. Tradeoff documented in the docstring on the new method
+  - **Tests**:
+    - Plugin test (`src/plugins/__tests__/RecentChangesPlugin.test.ts`) rewritten against the new mock surface — replaces the fs.stat-based fixture with direct mocking of `pageManager.getRecentChanges`. New cases for principals forwarding, admin includeAll bypass, anonymous principals
+    - New focused provider test (`src/providers/__tests__/VersioningFileProvider.recentChanges.test.ts`) — 11 cases covering sort, limit, since cutoff, missing-lastModified handling, anonymous denial, non-creator denial, creator visibility, audience-by-username, audience-by-role, includeAll bypass, field preservation. Constructs a provider with synthetic pageIndex injected (no full bootstrap) so the filter logic is testable in isolation
+- Testing:
+  - typecheck: clean across all changes
+  - eslint: clean
+  - vitest full suite: 5168/5168 deterministic green (was 5157 — net +11 from the new provider tests)
+- Commits: c2f25e88 (`docs(#627,#628): record AuthorLocked-not-in-search decision in code`); 2cdd159d (`feat(#635): add pageManager.getRecentChanges() API + visibility filter; migrate RecentChangesPlugin`)
+- Files Modified:
+  - src/providers/LunrSearchProvider.ts (#627 wontfix marker — code comment in search() filter)
+  - src/providers/ElasticsearchSearchProvider.ts (#628 wontfix marker — doc comment on `_wrapWithPrivacy`)
+  - src/types/Provider.ts (#635 — RecentChangesOptions, RecentChangeEntry, getRecentChanges on PageProvider interface)
+  - src/providers/FileSystemProvider.ts (#635 — base getRecentChanges impl using pageCache + metadata)
+  - src/providers/VersioningFileProvider.ts (#635 — override using pageIndex)
+  - src/managers/PageManager.ts (#635 — getRecentChanges forwarder)
+  - src/plugins/RecentChangesPlugin.ts (#635 — v2.0.0 rewrite; disk reads + fs.stat removed)
+  - src/plugins/**tests**/RecentChangesPlugin.test.ts (#635 — rewritten against new API)
+  - **NEW** src/providers/**tests**/VersioningFileProvider.recentChanges.test.ts (#635 — 11 focused cases)
+- GH issues:
+  - #627 closed wontfix
+  - #628 closed wontfix
+  - #635 closed completed
+  - #639 filed (open)
+
 ## 2026-05-03-06
 
 - Agent: Claude
