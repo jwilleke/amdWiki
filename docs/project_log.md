@@ -2,6 +2,37 @@
 
 AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version history.
 
+## 2026-05-03-13
+
+- Agent: Claude
+- Subject: #640 Phase 1 — "My Contributions" card on /profile + 4 list routes (private pages, pages I authored, journal entries, my links). API foundation `pageManager.getPagesByCreator()`
+- Current Issue: #640 (closed completed)
+- Work Done:
+  - **API foundation**: New `GetPagesByCreatorOptions` type, `PageProvider.getPagesByCreator(username, options)` interface method. Implemented in VersioningFileProvider (rich pageIndex match by `author` OR `creator`) and FileSystemProvider (pageCache + metadata fallback for installs without versioning). Forwarded through PageManager. Visibility filter intentionally skipped — by definition the caller is asking about their own pages; route handler responsible for "user can only ask about themselves"
+  - **Routes**: `/my/pages` (all user-authored), `/my/private` (author AND isPrivate), `/my/journal` (delegates to JournalDataManager.listByAuthor; graceful "addon not enabled" message when absent), `/my/links` (user.preferences['nav.pinnedPages']). All redirect anonymous → `/login?redirect=<path>`
+  - **Shared view** `views/my-list.ejs` renders three list shapes via a `listKind` switch: `pages` (table with Last Modified / Editor / Visibility cols), `journal` (list-group with date + preview), `links` (list-group with pin date)
+  - **Profile card** in `views/profile.ejs` between Permissions and User Preferences. Four list-group rows with `<i>` icon + label + count badge linking to the corresponding `/my/*` route. Counts computed by new `getMyContributionsCounts(username, user)` helper which calls all four sub-counts in one shot. Sub-count failures fall back to `undefined` so one broken manager doesn't break the whole card
+  - **Tests**: New `VersioningFileProvider.pagesByCreator.test.ts` — 9 cases (empty inputs, author match, creator match for denormalised private pages, onlyPrivate filter, default lastModified-desc sort, title-asc sort, limit, no-visibility-filter on own private pages)
+- Testing:
+  - typecheck: clean
+  - vitest: 5212/5212 (modulo one #622 transient on first attempt; retry clean)
+  - Live smoke: all four `/my/*` routes return 302→login for anonymous; EJS templates compile clean for both `profile.ejs` and `my-list.ejs`
+- Commits: 741af693 (`feat(#640): My Contributions card + 4 list routes (Phase 1 complete)`)
+- Files Modified:
+  - src/types/Provider.ts (GetPagesByCreatorOptions + interface method)
+  - src/providers/VersioningFileProvider.ts (rich pageIndex impl)
+  - src/providers/FileSystemProvider.ts (pageCache impl)
+  - src/managers/PageManager.ts (forwarder)
+  - src/routes/WikiRoutes.ts (4 handlers + counts helper + route registrations + profilePage wiring)
+  - views/profile.ejs (My Contributions card)
+  - **NEW** views/my-list.ejs (~80 lines, shared list view)
+  - **NEW** src/providers/**tests**/VersioningFileProvider.pagesByCreator.test.ts (9 tests)
+- GH issues:
+  - #640 closed completed (auto via commit trailer)
+- Notes:
+  - Phase 2 nice-to-haves deferred: Comments, Attachments uploaded, Audience-shared pages, Recent edits by me. Each can be filed as its own issue when there's user demand
+  - Authenticated end-to-end smoke against the running server NOT done in this commit (CSRF + session cookie management is awkward in shell scripts). Worth a manual browser smoke when next at the keyboard
+
 ## 2026-05-03-12
 
 - Agent: Claude
