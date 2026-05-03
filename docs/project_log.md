@@ -2,6 +2,34 @@
 
 AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version history.
 
+## 2026-05-03-02
+
+- Agent: Claude
+- Subject: Fix #630 + #633 — `ApiContext.hasPermission` and `ParseContext.hasPermission` both delegate to canonical `UserManager.hasPermission` → `PolicyEvaluator` path. Closes the security-adjacent correctness siblings of #625
+- Current Issue: #630 (open, fix landed); #633 (open, fix landed)
+- Work Done:
+  - **Diagnosed both divergences.** `ApiContext.hasPermission` (#630) read `ngdpbase.roles.definitions` directly from `ConfigurationManager`, missing anonymous/authenticated role expansion (`'anonymous'/'All'`, `'Authenticated'/'All'`), deny policies, resource patterns, and over-granting in deny-policy scenarios. `ParseContext.hasPermission` (#633) called `policyManager.checkPermission(...)` which **doesn't exist on the `PolicyManager` class** — the local interface declared it but the actual class never implemented it. Calls threw `TypeError` at runtime; the fallback path read `userContext.permissions?.includes(...)` directly. Both paths bypassed `PolicyEvaluator`
+  - **Fix shape.** Both contexts now delegate to `UserManager.hasPermission` (canonical PolicyEvaluator-backed path that `WikiContext.hasPermission` already uses post-#625). `ApiContext.hasPermission` and `requirePermission` are now async. `ParseContext.hasPermission` becomes single-arg async; the deprecated two-arg `hasPermission(permission, resource)` shape is gone — was dead code anyway because PolicyManager.checkPermission didn't exist
+  - **`canAccess(action)` added to ParseContext** — for resource-aware checks. Synthesizes a minimal WikiContext-shape from ParseContext fields (pageName, originalContent, userContext, pageMetadata) and delegates to `ACLManager.checkPagePermissionWithContext`. Mirrors the `WikiContext.canAccess` shape from #625
+  - **WikiTagHandler updated.** Local `WikiTagParseContext` interface updated for new method shapes. `evaluateCondition`'s `hasPermission:X` syntax now uses `context.canAccess(X)` so wiki:If permission checks evaluate against the current page's full 3-tier ACL.
+  - **`checkIncludePermission` rewritten** to use `ACLManager.checkPagePermissionWithContext` for both anonymous and authenticated paths (replacing the broken `policyManager.checkPermission` call). Tier-0 / tier-1 of the included page are skipped because the function doesn't fetch the included page's content/metadata; falls through to tier-2 (PolicyEvaluator). Future enhancement could fetch the included page's metadata for full tier-0/1 evaluation. Removed the unused local `PolicyManager` interface from both `WikiTagHandler.ts` and `ParseContext.ts`
+  - **WikiEngine type tweak.** ParseContext's local `WikiEngine` interface gained generic `getManager<T = unknown>(name: string): T | undefined` so manager-cast call sites work cleanly (`engine.getManager<UserManagerLike>('UserManager')`)
+  - **Production-side `await` updates.** WikiRoutes.ts `apiUsersSearch`'s two ApiContext permission calls (`ctx.requirePermission('search-user')`, `ctx.hasPermission('user-read')`) now `await`
+  - **Test fixtures rewritten.** `ApiContext.test.ts` was testing the ConfigurationManager-direct implementation (mocking `roles.definitions`); rewrote to test the contract (delegate to `UserManager.hasPermission`). All permission-check assertions are now async. `WikiTagHandler.test.ts` — `MockPolicyManager` replaced with `MockACLManager.checkPagePermissionWithContext`; `MockUserManager` gained a real `hasPermission` method so `ParseContext.hasPermission` delegation works in tests; "should prevent unauthorized includes" mocks ACLManager (was mocking PolicyManager)
+  - **Determinism verification.** 3/3 consecutive full-suite vitest runs pass at 5152/5152. One transient `socket hang up` in `WikiRoutes.coverage10.test.ts > GET /media/keyword/nature` recovered on re-run — looked HTTP-flaky (supertest cold-start, probably #622-class), not introduced by this fix. tsc clean, eslint clean
+- Testing:
+  - typecheck: clean
+  - eslint: 0 errors
+  - vitest: 5152/5152 deterministic across 3 runs
+- Commits: 85a0cae0 (`fix(#630, #633): ApiContext + ParseContext hasPermission delegate to UserManager`)
+- Files Modified:
+  - src/context/ApiContext.ts (hasPermission + requirePermission async, delegate to UserManager)
+  - src/context/**tests**/ApiContext.test.ts (rewritten to test contract not implementation)
+  - src/parsers/context/ParseContext.ts (single-arg async hasPermission; new canAccess; generic getManager<T>; removed unused PolicyManager interface)
+  - src/parsers/handlers/WikiTagHandler.ts (canAccess for hasPermission:X syntax; ACLManager-based checkIncludePermission; removed unused PolicyManager interface)
+  - src/parsers/handlers/**tests**/WikiTagHandler.test.ts (MockACLManager replaces MockPolicyManager; MockUserManager.hasPermission)
+  - src/routes/WikiRoutes.ts (apiUsersSearch awaits ApiContext calls)
+
 ## 2026-05-03-01
 
 - Agent: Claude
