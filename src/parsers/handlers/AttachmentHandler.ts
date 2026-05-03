@@ -619,7 +619,7 @@ class AttachmentHandler extends BaseSyntaxHandler {
     const policyManager = context.getManager('PolicyManager') as PolicyManager | undefined;
     if (policyManager) {
       return await policyManager.checkPermission(
-        context.userContext,
+        context.wikiContext?.userContext,
         'attachment:read',
         filename
       );
@@ -804,7 +804,7 @@ class AttachmentHandler extends BaseSyntaxHandler {
    */
   private generateContextHash(context: AttachmentParseContext): string {
     const contextData = {
-      pageName: context.pageName,
+      pageName: context.wikiContext?.pageName,
       userName: context.userName,
       authenticated: context.isAuthenticated(),
       // Attachment permissions may vary by user

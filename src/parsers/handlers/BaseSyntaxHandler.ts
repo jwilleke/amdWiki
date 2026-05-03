@@ -1,4 +1,5 @@
 import logger from '../../utils/logger.js';
+import type ParseContext from '../context/ParseContext.js';
 
 /**
  * BaseSyntaxHandler - Abstract base class for all markup syntax handlers
@@ -150,14 +151,12 @@ export interface InitializationContext {
 }
 
 /**
- * ParseContext (minimal interface until ParseContext.ts is converted)
- * TODO: Replace with proper ParseContext import once converted
+ * ParseContext re-export — the real class from `../context/ParseContext.js`.
+ * Kept as a re-export so existing handlers can keep their
+ * `import { ParseContext }` paths unchanged. (#629 Pass 2 resolved the
+ * long-standing TODO of using the proper ParseContext type.)
  */
-export interface ParseContext {
-  pageName?: string;
-  userName?: string;
-  getTotalTime?(): number;
-}
+export type { ParseContext };
 
 /**
  * BaseSyntaxHandler - Abstract base class for all markup syntax handlers
@@ -486,7 +485,7 @@ abstract class BaseSyntaxHandler {
       contentLength: content.length,
       contentPreview: content.substring(0, 100) + '...',
       context: {
-        pageName: context.pageName,
+        pageName: context.wikiContext?.pageName ?? undefined,
         userName: context.userName,
         processingTime: context.getTotalTime?.()
       },

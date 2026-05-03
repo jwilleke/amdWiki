@@ -61,17 +61,11 @@ interface RenderingManager {
 }
 
 /**
- * Extended parse context with manager access
+ * Extended parse context for the plugin handler. After #629 Pass 2, the
+ * fields/methods previously redeclared here all live on the real ParseContext
+ * (or are accessible via `wikiContext.X`).
  */
-interface PluginParseContext extends ParseContext {
-  getManager(name: string): unknown;
-  userContext?: unknown;
-  requestInfo?: unknown;
-  pageMetadata?: unknown;
-  engine?: WikiEngine;
-  isAuthenticated?(): boolean;
-  getUserRoles?(): string[];
-}
+type PluginParseContext = ParseContext;
 
 /**
  * PluginSyntaxHandler - Enhanced plugin syntax processing
@@ -136,7 +130,7 @@ class PluginSyntaxHandler extends BaseSyntaxHandler {
     }
 
     // First pass: Handle body-style plugins [{Plugin}]content[/{Plugin}]
-    content = await this.processBodyPlugins(content, context as PluginParseContext);
+    content = await this.processBodyPlugins(content, context);
 
     // Second pass: Handle simple plugins [{Plugin params}]
     const matches: PluginMatch[] = [];
@@ -163,7 +157,7 @@ class PluginSyntaxHandler extends BaseSyntaxHandler {
       const matchInfo = matches[i];
 
       try {
-        const replacement = await this.handlePlugin(matchInfo, context as PluginParseContext);
+        const replacement = await this.handlePlugin(matchInfo, context);
 
         // Replace the match with the plugin output
         processedContent =
@@ -286,11 +280,11 @@ class PluginSyntaxHandler extends BaseSyntaxHandler {
 
     // Create enhanced plugin execution context
     const pluginContext: Record<string, unknown> = {
-      pageName: context.pageName,
+      pageName: context.wikiContext?.pageName,
       userName: context.userName,
-      userContext: context.userContext,
+      userContext: context.wikiContext?.userContext,
       requestInfo: context.requestInfo,
-      pageMetadata: context.pageMetadata,
+      pageMetadata: context.wikiContext?.pageMetadata,
       query: (context.requestInfo as { query?: Record<string, string> })?.query ?? {},
       engine: context.engine,
 
@@ -311,7 +305,7 @@ class PluginSyntaxHandler extends BaseSyntaxHandler {
     };
 
     // Execute plugin with timeout
-    const executionPromise = pluginManager.execute(pluginName, context.pageName ?? 'unknown', validation.params, pluginContext);
+    const executionPromise = pluginManager.execute(pluginName, context.wikiContext?.pageName ?? 'unknown', validation.params, pluginContext);
     const timeoutPromise = new Promise<string>((_, reject) => {
       const timer = setTimeout(() => reject(new Error(`Plugin ${pluginName} execution timeout`)), this.options.timeout);
       timer.unref();
@@ -346,7 +340,7 @@ class PluginSyntaxHandler extends BaseSyntaxHandler {
    */
   private generateContextHash(context: PluginParseContext): string {
     const contextData = {
-      pageName: context.pageName,
+      pageName: context.wikiContext?.pageName,
       userName: context.userName,
       authenticated: context.isAuthenticated?.() ?? false,
       roles: context.getUserRoles?.() ?? [],

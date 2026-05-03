@@ -463,7 +463,7 @@ class InterWikiLinkHandler extends BaseSyntaxHandler {
    */
   private generateContextHash(context: ParseContext): string {
     const contextData = {
-      pageName: context.pageName,
+      pageName: context.wikiContext?.pageName,
       userName: context.userName,
       // InterWiki links are generally context-independent, so minimal hash
       timeBucket: Math.floor(Date.now() / 3600000) // 1-hour buckets

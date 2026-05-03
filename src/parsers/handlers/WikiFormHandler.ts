@@ -60,12 +60,10 @@ interface MarkupParser {
 }
 
 /**
- * Extended parse context with metadata methods
+ * Extended parse context for the form handler. After #629 Pass 2, the
+ * setMetadata/getMetadata methods are available on the real ParseContext.
  */
-interface FormParseContext extends ParseContext {
-  setMetadata?(key: string, value: unknown): void;
-  getMetadata?(key: string): unknown;
-}
+type FormParseContext = ParseContext;
 
 /**
  * WikiFormHandler - Interactive form generation within wiki pages
@@ -160,7 +158,7 @@ class WikiFormHandler extends BaseSyntaxHandler {
 
     for (const matchInfo of matches) {
       try {
-        const replacement = await this.handleElement(matchInfo, context as FormParseContext);
+        const replacement = await this.handleElement(matchInfo, context);
 
         const adjustedIndex = matchInfo.index + offset;
         processedContent =
@@ -276,7 +274,7 @@ class WikiFormHandler extends BaseSyntaxHandler {
       fields: [],
       csrfToken,
       context: {
-        pageName: context.pageName,
+        pageName: context.wikiContext?.pageName ?? undefined,
         userName: context.userName
       }
     });
@@ -284,7 +282,7 @@ class WikiFormHandler extends BaseSyntaxHandler {
     return `<form id="${formId}" name="${name}" action="${action}" method="${method}" class="${cssClass}">
   <input type="hidden" name="_formId" value="${formId}">
   <input type="hidden" name="_csrfToken" value="${csrfToken}">
-  <input type="hidden" name="_pageName" value="${context.pageName}">`;
+  <input type="hidden" name="_pageName" value="${context.wikiContext?.pageName}">`;
   }
 
   /**
@@ -512,7 +510,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Create token based on user context and timestamp
     const tokenData = {
       userName: context.userName || 'anonymous',
-      pageName: context.pageName,
+      pageName: context.wikiContext?.pageName,
       timestamp: Date.now(),
       random: crypto.randomBytes(16).toString('hex')
     };

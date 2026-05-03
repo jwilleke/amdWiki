@@ -270,7 +270,7 @@ class LinkParserHandler extends BaseSyntaxHandler {
 
       // Use LinkParser for comprehensive link processing
       const processedContent = this.linkParser.parseLinks(content, {
-        pageName: context.pageName || 'unknown',
+        pageName: context.wikiContext?.pageName || 'unknown',
         engine: this.engine
       });
 

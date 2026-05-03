@@ -1,4 +1,5 @@
-import BaseSyntaxHandler, { InitializationContext, ParseContext } from './BaseSyntaxHandler.js';
+import BaseSyntaxHandler, { InitializationContext } from './BaseSyntaxHandler.js';
+import ParseContext from '../context/ParseContext.js';
 import * as crypto from 'crypto';
 import logger from '../../utils/logger.js';
 
@@ -68,16 +69,13 @@ interface VariableManager {
 }
 
 /**
- * Extended parse context for WikiTag handling
+ * Extended parse context for WikiTag handling.
+ *
+ * Adds the metadata accessor pair that the handler relies on; everything else
+ * (pageName, userContext, hasRole, hasPermission, canAccess) is now reached
+ * via `context.wikiContext.X` per #629 Pass 2.
  */
 interface WikiTagParseContext extends ParseContext {
-  userContext?: unknown;
-  isAuthenticated(): boolean;
-  hasRole(...names: string[]): boolean;
-  hasPermission(action: string): Promise<boolean>;
-  canAccess(action: string): Promise<boolean>;
-  getUserRoles(): string[];
-  getManager(name: string): unknown;
   getMetadata(key: string): unknown;
   setMetadata(key: string, value: unknown): void;
   clone(overrides: Record<string, unknown>): WikiTagParseContext & { pageContext: Record<string, unknown> };
@@ -280,9 +278,9 @@ class WikiTagHandler extends BaseSyntaxHandler {
       const markupParser = this.engine?.getManager('MarkupParser') as MarkupParser | undefined;
       if (markupParser) {
         return await markupParser.parse(content, {
-          pageName: context.pageName,
+          pageName: context.wikiContext?.pageName ?? 'unknown',
           userName: context.userName,
-          userContext: context.userContext
+          userContext: context.wikiContext?.userContext
         });
       }
       return content;
@@ -338,7 +336,7 @@ class WikiTagHandler extends BaseSyntaxHandler {
       const inclusionStack = (context.getMetadata('inclusionStack') as string[] | undefined) || [];
       const inclusionContext = context.clone({
         pageName: pageName,
-        inclusionStack: [...inclusionStack, context.pageName ?? '']
+        inclusionStack: [...inclusionStack, context.wikiContext?.pageName ?? '']
       });
       inclusionContext.setMetadata('inclusionStack', inclusionContext.pageContext.inclusionStack);
 
@@ -385,12 +383,12 @@ class WikiTagHandler extends BaseSyntaxHandler {
     }
 
     if (role && context.isAuthenticated()) {
-      checkPassed = context.hasRole(role);
+      checkPassed = context.wikiContext.hasRole(role);
     }
 
     if (group && context.isAuthenticated()) {
       // Check group membership (groups are treated as roles in our system)
-      checkPassed = context.hasRole(group);
+      checkPassed = context.wikiContext.hasRole(group);
     }
 
     if (user && context.isAuthenticated()) {
@@ -402,9 +400,9 @@ class WikiTagHandler extends BaseSyntaxHandler {
       const markupParser = this.engine?.getManager('MarkupParser') as MarkupParser | undefined;
       if (markupParser) {
         return await markupParser.parse(content, {
-          pageName: context.pageName,
+          pageName: context.wikiContext?.pageName ?? 'unknown',
           userName: context.userName,
-          userContext: context.userContext
+          userContext: context.wikiContext?.userContext
         });
       }
       return content;
@@ -437,7 +435,7 @@ class WikiTagHandler extends BaseSyntaxHandler {
     const permissionMatch = condition.match(/^hasPermission:(\w+)$/);
     if (permissionMatch) {
       const permission = permissionMatch[1];
-      return context.canAccess(permission);
+      return context.wikiContext.canAccess(permission);
     }
 
     // Page existence checks: exists:PageName
@@ -531,7 +529,7 @@ class WikiTagHandler extends BaseSyntaxHandler {
       return context.userName || 'anonymous';
     case 'page':
     case 'pagename':
-      return context.pageName || '';
+      return context.wikiContext?.pageName || '';
     case 'authenticated':
       return context.isAuthenticated().toString();
     default: {
@@ -573,7 +571,7 @@ class WikiTagHandler extends BaseSyntaxHandler {
     return aclManager.checkPagePermissionWithContext({
       pageName,
       content: '',
-      userContext: context.userContext ?? undefined,
+      userContext: context.wikiContext?.userContext ?? undefined,
       pageMetadata: null
     }, 'view');
   }
@@ -586,7 +584,7 @@ class WikiTagHandler extends BaseSyntaxHandler {
    */
   private isRecursiveInclusion(pageName: string, context: WikiTagParseContext): boolean {
     const inclusionStack = (context.getMetadata('inclusionStack') as string[] | undefined) || [];
-    return inclusionStack.includes(pageName) || context.pageName === pageName;
+    return inclusionStack.includes(pageName) || context.wikiContext?.pageName === pageName;
   }
 
   /**
@@ -674,7 +672,7 @@ class WikiTagHandler extends BaseSyntaxHandler {
    */
   private generateContextHash(context: WikiTagParseContext): string {
     const contextData = {
-      pageName: context.pageName,
+      pageName: context.wikiContext?.pageName,
       userName: context.userName,
       authenticated: context.isAuthenticated(),
       roles: context.getUserRoles(),

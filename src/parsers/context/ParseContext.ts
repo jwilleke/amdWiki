@@ -77,6 +77,7 @@ export interface WikiContextLike {
   hasRole(...names: string[]): boolean;
   hasPermission(action: string): Promise<boolean>;
   canAccess(action: string): Promise<boolean>;
+  getPrincipals(): string[];
 }
 
 /**
@@ -154,13 +155,89 @@ export interface CachedContextData {
 }
 
 /**
+ * Synthesize a minimal WikiContextLike from a PageContext snapshot. Used when
+ * ParseContext is constructed without a real WikiContext (legacy callers, test
+ * fixtures).
+ *
+ * - hasRole / getPrincipals: pure functions over the snapshot's roles array
+ * - hasPermission / canAccess: delegate to the engine's UserManager / ACLManager
+ *   when registered, so legacy callers that wired up these managers (mostly
+ *   tests) keep getting the same policy-evaluated answer they did before
+ *   Pass 2. When neither manager is available the stub denies (conservative).
+ */
+function pageContextToWikiContextLike(pc: PageContext, engine: WikiEngine, content = ''): WikiContextLike {
+  const pageName = pc.pageName ?? null;
+  const pageMetadata = pc.pageMetadata ?? null;
+  // Fold the legacy top-level `userName` field into the synthesized userContext
+  // so getters that derive from `userContext.username` see it. Without this
+  // legacy fixtures that pass `userName` outside the userContext lose the
+  // username.
+  let userContext = pc.userContext ?? null;
+  if (pc.userName && (!userContext || (!userContext.username && !userContext.userName))) {
+    userContext = { ...(userContext ?? {}), username: pc.userName };
+  }
+  return {
+    engine,
+    pageName,
+    userContext,
+    pageMetadata,
+    hasRole: (...names: string[]): boolean => {
+      if (names.length === 0) return false;
+      const have = new Set(userContext?.roles ?? []);
+      return names.some((n) => have.has(n));
+    },
+    hasPermission: async (action: string): Promise<boolean> => {
+      const userManager = engine.getManager<{
+        hasPermission(
+          u: string | { username: string; roles: string[]; isAuthenticated: boolean },
+          a: string
+        ): Promise<boolean>;
+          }>('UserManager');
+      if (!userManager) return false;
+      const username = userContext?.username ?? userContext?.userName ?? '';
+      if (userContext && Array.isArray(userContext.roles) && typeof username === 'string' && username) {
+        return userManager.hasPermission(
+          { username, roles: userContext.roles, isAuthenticated: Boolean(userContext.isAuthenticated ?? userContext.authenticated) },
+          action
+        );
+      }
+      return userManager.hasPermission(typeof username === 'string' ? username : '', action);
+    },
+    canAccess: async (action: string): Promise<boolean> => {
+      const aclManager = engine.getManager<{
+        checkPagePermissionWithContext(ctx: unknown, action: string): Promise<boolean>;
+          }>('ACLManager');
+      if (!aclManager || !pageName || pageName === 'unknown') return false;
+      return aclManager.checkPagePermissionWithContext({
+        pageName,
+        content,
+        userContext: userContext ?? undefined,
+        pageMetadata
+      }, action);
+    },
+    getPrincipals: (): string[] => {
+      const roles = [...(userContext?.roles ?? [])];
+      const username = userContext?.username ?? userContext?.userName;
+      if (typeof username === 'string' && username.length > 0 && username !== 'anonymous') {
+        roles.push(username);
+      }
+      return roles;
+    }
+  };
+}
+
+/**
  * ParseContext - Context object for markup parsing operations
  *
- * #629: holds a reference to the parent WikiContext. When present, the
- * user/page-data getters delegate to it; when absent (legacy callers passing
- * raw PageContext objects), the getters fall back to the constructor-time
- * snapshot. Either way the public surface is identical, so consumers don't
- * need to change.
+ * #629 Pass 2: holds a non-nullable reference to a WikiContextLike. For HTTP
+ * requests this is the actual WikiContext (passed through toParseOptions);
+ * for tests / direct construction it's a synthesized stub from the supplied
+ * PageContext. Consumers should always read user/page-data via
+ * `parseContext.wikiContext.X` — the duplicating getters from Pass 1
+ * (pageName / userContext / pageMetadata) have been removed.
+ *
+ * Helpers that derive (not duplicate) from wikiContext are still here:
+ * userName, isAuthenticated, getUserRoles.
  */
 class ParseContext {
   readonly originalContent: string;
@@ -168,21 +245,18 @@ class ParseContext {
   readonly engine: WikiEngine;
 
   /**
-   * Reference to the parent WikiContext (#629). Null when constructed from a
-   * raw context object (tests / direct construction). When non-null, the
-   * pageName / userContext / pageMetadata getters delegate to it so the
-   * WikiContext stays the single source of truth across the parse run.
+   * Reference to the parent WikiContext (#629). Always non-null after
+   * construction — for callers without a real WikiContext, a stub is
+   * synthesized from the PageContext snapshot.
    */
-  readonly wikiContext: WikiContextLike | null;
+  readonly wikiContext: WikiContextLike;
 
-  // Snapshot — populated at construction. Used as the fallback for the
-  // public getters when `wikiContext` is null. Keeping these private under-
-  // scores so no consumer is tempted to read them directly.
-  private readonly _snapPageName: string;
-  private readonly _snapUserContext: UserContext | null;
-  private readonly _snapRequestInfo: RequestInfo | null;
-  private readonly _snapPageMetadata: PageFrontmatter | null;
-  private readonly _snapUserName: string;
+  /**
+   * Request info. Built from request headers by toParseOptions; not
+   * duplicated from wikiContext (the stub lacks the headers anyway).
+   * Static after construction.
+   */
+  readonly requestInfo: RequestInfo | null;
 
   // Mutable processing state
   protectedBlocks: unknown[];
@@ -206,36 +280,17 @@ class ParseContext {
       const nestedContext = context as NestedContextOptions;
       this.pageContext = nestedContext.pageContext;
       this.engine = nestedContext.engine || engine;
-      this.wikiContext = nestedContext.wikiContext ?? null;
-
-      // Snapshot from nested pageContext
-      this._snapPageName = nestedContext.pageContext.pageName || 'unknown';
-      this._snapUserContext = nestedContext.pageContext.userContext || null;
-      this._snapRequestInfo = nestedContext.pageContext.requestInfo || null;
-      this._snapPageMetadata = nestedContext.pageContext.pageMetadata ?? null;
-
-      // Extract userName from userContext if not directly provided
-      this._snapUserName = nestedContext.pageContext.userName ||
-                      this._snapUserContext?.username ||
-                      this._snapUserContext?.userName ||
-                      'anonymous';
+      this.wikiContext = nestedContext.wikiContext
+        ?? pageContextToWikiContextLike(nestedContext.pageContext, this.engine, content);
+      this.requestInfo = nestedContext.pageContext.requestInfo ?? null;
     } else {
-      // Direct structure (legacy or alternative calling pattern)
+      // Direct structure (legacy / alternative calling pattern; tests). The
+      // synthesized wikiContext is a static view of the supplied PageContext.
       const directContext = context as DirectContextOptions;
       this.pageContext = directContext;
       this.engine = engine;
-      this.wikiContext = null;
-
-      this._snapPageName = directContext.pageName || 'unknown';
-      this._snapUserContext = directContext.userContext || null;
-      this._snapRequestInfo = directContext.requestInfo || null;
-      this._snapPageMetadata = directContext.pageMetadata ?? null;
-
-      // Extract userName from userContext if not directly provided
-      this._snapUserName = directContext.userName ||
-                      this._snapUserContext?.username ||
-                      this._snapUserContext?.userName ||
-                      'anonymous';
+      this.wikiContext = pageContextToWikiContextLike(directContext, engine, content);
+      this.requestInfo = directContext.requestInfo ?? null;
     }
 
     // Processing state
@@ -251,50 +306,12 @@ class ParseContext {
   }
 
   /**
-   * Page name. Delegates to wikiContext when present, else returns the
-   * constructor-time snapshot. (#629)
-   */
-  get pageName(): string {
-    return this.wikiContext?.pageName ?? this._snapPageName;
-  }
-
-  /**
-   * Caller userContext. Delegates to wikiContext when present, else returns
-   * the snapshot. The WikiContext-side type is structurally compatible with
-   * the parser-side UserContext interface (both expose username / roles /
-   * isAuthenticated). (#629)
-   */
-  get userContext(): UserContext | null {
-    return (this.wikiContext?.userContext) ?? this._snapUserContext;
-  }
-
-  /**
-   * Page metadata. Delegates to wikiContext when present, else snapshot. (#629)
-   */
-  get pageMetadata(): PageFrontmatter | null {
-    return (this.wikiContext?.pageMetadata) ?? this._snapPageMetadata;
-  }
-
-  /**
-   * Request info. WikiContextLike doesn't expose this directly (it's derived
-   * from request headers in toParseOptions), so we always return the snapshot.
-   * If we ever need live request info on the context, add it to WikiContextLike
-   * and delegate. (#629)
-   */
-  get requestInfo(): RequestInfo | null {
-    return this._snapRequestInfo;
-  }
-
-  /**
-   * Caller's username. Recomputed from the live userContext when wikiContext
-   * is present so a session change mid-parse is reflected. (#629)
+   * Caller's username — derivation helper over `wikiContext.userContext`.
+   * Returns 'anonymous' when no userContext is bound.
    */
   get userName(): string {
-    if (this.wikiContext) {
-      const uc = this.wikiContext.userContext;
-      return uc?.username ?? uc?.userName ?? 'anonymous';
-    }
-    return this._snapUserName;
+    const uc = this.wikiContext.userContext;
+    return uc?.username ?? uc?.userName ?? 'anonymous';
   }
 
   /**
@@ -307,112 +324,17 @@ class ParseContext {
   }
 
   /**
-   * Check if user is authenticated
-   * @returns True if user is authenticated
+   * Check if user is authenticated — derivation helper over `wikiContext.userContext`.
    */
   isAuthenticated(): boolean {
-    return Boolean(this.userContext?.isAuthenticated);
+    return Boolean(this.wikiContext.userContext?.isAuthenticated);
   }
 
   /**
-   * Check if user has specific permission.
-   *
-   * Delegates to `UserManager.hasPermission` — same canonical
-   * `PolicyEvaluator`-backed path that `WikiContext.hasPermission` uses.
-   * Honors anonymous/authenticated role expansion, deny policies, resource
-   * patterns, and the `'All'`/`'Authenticated'` role semantics. (#633)
-   *
-   * For page-resource-aware checks, use {@link canAccess} instead.
-   *
-   * @param action - Permission action (e.g., 'admin-system', 'user-edit')
-   * @returns Promise resolving to true if user has the permission
-   */
-  async hasPermission(action: string): Promise<boolean> {
-    const userManager = this.engine.getManager<{
-      hasPermission(
-        u: string | { username: string; roles: string[]; isAuthenticated: boolean },
-        a: string
-      ): Promise<boolean>;
-        }>('UserManager');
-    if (!userManager) return false;
-    // #637: pass the resolved userContext directly when we have one so
-    // UserManager can skip provider.getUser + resolveUserRoles.
-    const uc = this.userContext;
-    const username = uc?.username ?? uc?.userName ?? '';
-    if (uc && Array.isArray(uc.roles) && typeof username === 'string' && username) {
-      return userManager.hasPermission(
-        { username, roles: uc.roles, isAuthenticated: Boolean(uc.isAuthenticated ?? uc.authenticated) },
-        action
-      );
-    }
-    return userManager.hasPermission(typeof username === 'string' ? username : '', action);
-  }
-
-  /**
-   * Returns true if the user is allowed to perform the given action on the
-   * current page.
-   *
-   * Delegates to {@link ACLManager.checkPagePermissionWithContext}, which runs
-   * the three-tier evaluator (private user-keyword → frontmatter audience →
-   * global policies). Synthesizes a minimal WikiContext-shaped object from
-   * ParseContext fields. (#633)
-   *
-   * @param action - Page action (e.g., 'view', 'edit', 'delete')
-   * @returns Promise resolving to true if access is allowed
-   */
-  async canAccess(action: string): Promise<boolean> {
-    const aclManager = this.engine.getManager<{
-      checkPagePermissionWithContext(ctx: unknown, action: string): Promise<boolean>;
-        }>('ACLManager');
-    if (!aclManager || !this.pageName || this.pageName === 'unknown') return false;
-    return aclManager.checkPagePermissionWithContext({
-      pageName: this.pageName,
-      content: this.originalContent,
-      userContext: this.userContext ?? undefined,
-      pageMetadata: this.pageMetadata
-    }, action);
-  }
-
-  /**
-   * Get user roles
-   * @returns Array of user roles
+   * Get user roles — derivation helper over `wikiContext.userContext`.
    */
   getUserRoles(): string[] {
-    if (!this.userContext) {
-      return [];
-    }
-    return this.userContext.roles || [];
-  }
-
-  /**
-   * Check if user carries any of the given roles.
-   *
-   * Pure roles-array check. Backward-compatible with the single-arg form
-   * (`hasRole('admin')`) and supports rest-args for multi-role checks
-   * (`hasRole('admin', 'editor')`) — matches the shape of `WikiContext.hasRole`.
-   *
-   * @param names - Role names (matches if user has at least one)
-   * @returns True if user has any of the given roles
-   */
-  hasRole(...names: string[]): boolean {
-    if (names.length === 0) return false;
-    const have = new Set(this.getUserRoles());
-    return names.some((n) => have.has(n));
-  }
-
-  /**
-   * Returns the user's principals — the set of identifiers that match
-   * audience-style filters. Mirrors `WikiContext.getPrincipals()`.
-   *
-   * @returns Principals: [...roles, username] (username appended only if set)
-   */
-  getPrincipals(): string[] {
-    const roles = [...this.getUserRoles()];
-    const username = this.userContext?.username ?? this.userContext?.userName;
-    if (typeof username === 'string' && username.length > 0 && username !== 'anonymous') {
-      roles.push(username);
-    }
-    return roles;
+    return this.wikiContext.userContext?.roles ?? [];
   }
 
   /**
@@ -548,7 +470,7 @@ class ParseContext {
     return {
       error: error.message,
       phase: phase,
-      pageName: this.pageName,
+      pageName: this.wikiContext.pageName ?? 'unknown',
       userName: this.userName,
       processingTime: this.getTotalTime(),
       contentLength: this.originalContent.length,
@@ -562,7 +484,7 @@ class ParseContext {
    */
   getSummary(): ContextSummary {
     return {
-      pageName: this.pageName,
+      pageName: this.wikiContext.pageName ?? 'unknown',
       userName: this.userName,
       authenticated: this.isAuthenticated(),
       roles: this.getUserRoles(),
@@ -579,13 +501,14 @@ class ParseContext {
    * @returns Serializable context data
    */
   exportForCache(): CachedContextData {
+    const uc = this.wikiContext.userContext;
     return {
-      pageName: this.pageName,
+      pageName: this.wikiContext.pageName ?? 'unknown',
       userName: this.userName,
-      userContext: this.userContext ? {
-        isAuthenticated: this.userContext.isAuthenticated || false,
-        roles: this.userContext.roles || [],
-        permissions: this.userContext.permissions || []
+      userContext: uc ? {
+        isAuthenticated: uc.isAuthenticated || false,
+        roles: uc.roles || [],
+        permissions: uc.permissions || []
       } : null,
       variables: Object.fromEntries(this.variables),
       metadata: this.metadata,

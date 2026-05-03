@@ -1,4 +1,5 @@
 import logger from '../../utils/logger.js';
+import type ParseContext from '../context/ParseContext.js';
 
 /**
  * BaseFilter - Abstract base class for all content filters with modular configuration
@@ -127,13 +128,11 @@ export interface FilterInitializationContext {
 }
 
 /**
- * ParseContext (minimal interface until ParseContext.ts is converted)
- * TODO: Replace with proper ParseContext import once converted
+ * ParseContext re-export — the real class from `../context/ParseContext.js`.
+ * Kept as a re-export so existing filters can keep their
+ * `import { ParseContext }` paths unchanged. (#629 Pass 2)
  */
-export interface ParseContext {
-  pageName?: string;
-  userName?: string;
-}
+export type { ParseContext };
 
 /**
  * ConfigurationManager minimal interface
@@ -361,7 +360,7 @@ abstract class BaseFilter {
       contentLength: content.length,
       contentPreview: content.substring(0, 100) + '...',
       context: {
-        pageName: context.pageName,
+        pageName: context.wikiContext?.pageName ?? undefined,
         userName: context.userName
       },
       stats: { ...this.stats },
