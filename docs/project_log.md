@@ -2,6 +2,43 @@
 
 AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version history.
 
+## 2026-05-03-10
+
+- Agent: Claude
+- Subject: Propagated #634/#638/#639 across sister sites via /othersites; ran migrate-private on all four sites; filed and resolved #641 (malformed JSPWiki YAML frontmatter on jimstest)
+- Current Issue: #641 (closed completed)
+- Work Done:
+  - **`/othersites` propagation**: pulled+built+restarted+tested fairways-base (port 2121), ngdpbase-veg (3333), ngdp-temp-builds/ngdpbase (3001). Each site: 5204/5204 unit tests pass + 72/72 Playwright E2E pass + 302 smoke check. No bugs filed — propagation was clean
+  - **migrate-private applied across all four sites** (jimstest + 3 sister sites): total 12 pages migrated (jimstest 6 [5 jim, 1 molly] + each sister site 2 [1 page + 1 required-pages]). The shared required-pages file `2586c69b-...` migrated identically on every site. Sister sites smoke-checked 302 post-migration; warm caches still serve the legacy shape until restart, which is fine because Slice A's read fallbacks cover both shapes
+  - **#641 filed**: 56 jimstest pages had malformed YAML frontmatter from JSPWiki imports — survived on warm in-memory cache but would 404 on cold restart. Two patterns identified: Pattern 1 (no closing `---` fence, ~48 pages) and Pattern 2 (JSPWiki ACL/plugin markup leaked inside frontmatter, ~8 pages — `[{ALLOW ...}]` single-line and `[{If group='Admin' ... <div>...</div>}]` multi-line)
+  - **#641 repair script (971ba680)**: `scripts/repair-jspwiki-frontmatter.ts` + `npm run repair:frontmatter[:dry]`. Pattern 1 strategy: walk lines after opening `---`, find longest prefix that `yaml.load()` accepts AND has a `title` field, insert closing `---` after it. Pattern 2 strategy: scan frontmatter for JSPWiki markup; track unbalanced `[{` until matching `}]` to handle multi-line spans. Pattern 2 falls through to Pattern 1 when its repair doesn't parse — important edge case for `AdminsPage` which has a `---` inside a fenced code block in the body that masquerades as a closing fence
+  - **#641 applied to jimstest**: 49 pattern 1 + 7 pattern 2 = **56 repaired, 0 unrepaired**. Migrate-private dry-run on jimstest now reports 0 errors (was 56). Smoke-checked SandBox / CSSStripedText / AdminsPage / JSW Private — all 200. Sister sites are clean (no malformed pages there); JSPWiki imports were jimstest-specific
+  - **#641 closed completed (option 3)**: data fix is the complete fix. JSPWiki imports were the only known source of malformed YAML and the import isn't running anymore. Read-path resilience hardening (graceful YAMLException degradation in `FileSystemProvider.getPage` / `refreshPageList`) is intentionally not pursued — root cause was upstream and is gone. If a future import or hand-edit ever produces malformed frontmatter again, the repair script is here
+  - **Seed page migrated (a1a9e869)**: the `migrate:private` run on this repo's `required-pages/` touched `2586c69b-...md` (the seed "Private Pages" documentation page that ships with new installs). Committed so fresh installs don't need a migration
+- Testing:
+  - typecheck: clean (npm run build clean across all four sites)
+  - eslint: clean
+  - vitest unit: 5204/5204 deterministic green on all four sites; +12 new tests in this session (8 in repair-jspwiki-frontmatter — clean files, both patterns, fall-through, idempotency, edge cases) → final 5216/5216 (after first-run flake of #622 class, retry was clean)
+  - Playwright E2E: 72/72 passing on each of fairways / ve-geology / temp-builds
+  - Live data verifications: post-migration dry-run shows 0 errors on jimstest where it had 56; sister-site smoke checks all 302
+- Commits:
+  - 971ba680 (`feat(#641): repair script for malformed JSPWiki frontmatter`)
+  - a1a9e869 (`chore(#639): migrate seed required-pages "Private Pages" doc to top-level private: true`)
+- Files Modified:
+  - **NEW** scripts/repair-jspwiki-frontmatter.ts (~190 lines)
+  - **NEW** scripts/**tests**/repair-jspwiki-frontmatter.test.ts (12 cases)
+  - package.json (`repair:frontmatter` + `repair:frontmatter:dry` npm scripts)
+  - required-pages/2586c69b-a604-4fcd-95a4-591ca45deacb.md (seed page migrated to new shape)
+  - **DATA-ONLY (not committed; in `$SLOW_STORAGE`)**: 6 jimstest pages migrated to top-level `private: true`; 56 jimstest pages had frontmatter repaired; 2 pages on each of fairways/ve-geology/temp-builds migrated
+- GH issues:
+  - #641 closed completed — repair script shipped, applied to jimstest, sister sites clean
+  - #639 open — Slices A/B/C/D done; only Slice E (drop fallback + remove from vocab) remains, gated on a release or two of soak time
+  - #640 still open — "My Contributions" profile card (filed previous session)
+- Notes:
+  - **Sister-site servers still have warm caches with legacy shape data**. The Slice A read fallbacks cover this, so views still work. A controlled restart (stop server → delete page-index.json → start) on each site would force the index to rebuild from the new frontmatter shape; not strictly necessary, but cleaner. User did not request this
+  - **Page-index.json drift**: same as above — the index entries' `isPrivate` field is now slightly mismatched with the file's `user-keywords` for the migrated pages. Slice A's read code handles this; index will catch up on next save of each page. No user-visible impact
+  - **Deeper resilience question deferred**: the FileSystemProvider try/catch path that silently skipped 56 pages on cold start is still there. We chose option 3 (data fix is sufficient). If JSPWiki imports ever resume or another batch upload produces malformed YAML, those pages will silently disappear from the wiki the same way. Worth re-opening if the import ever resumes
+
 ## 2026-05-03-09
 
 - Agent: Claude
