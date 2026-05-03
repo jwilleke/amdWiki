@@ -2,6 +2,34 @@
 
 AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version history.
 
+## 2026-05-03-03
+
+- Agent: Claude
+- Subject: Refresh access-control + caching documentation to current code state (post-v3.6.0). New `Access-Control.md` operational guide. `Cache-System.md` folded into `CacheManager-Complete-Guide.md` + `CacheManager.md`. Updates to `WikiContext-Complete-Guide.md` and `Current-Rendering-Pipeline.md`
+- Current Issue: none directly (post-#625 documentation pass; cross-links several open issues #626-#633)
+- Work Done:
+  - **New** `docs/architecture/Access-Control.md` (~370 lines) — operational guide for the four access methods (`hasRole` / `hasPermission` / `canAccess` / `getPrincipals`) across WikiContext, ParseContext, ApiContext. Covers: the four methods + static `userHasRole` helper, the two evaluation engines (UserManager → PolicyEvaluator for global, ACLManager 3-tier for per-page), the 3-tier ACL evaluator details (private user-keyword → frontmatter audience → global policies), the ESLint guard, common patterns (admin gate, multi-role, per-page, hot-path middleware, plugins, API guards, search-provider audience filter), anti-patterns, permissions catalog from `app-default-config.json`, per-request performance characteristics (in-memory cache hit vs cold-cache disk fallback), sibling open issues (#622, #626-#633)
+  - **Updated** `docs/WikiContext-Complete-Guide.md` to v2.0.0 — added a full "Access-control methods" section with the four methods + static helper; new top-level "Lazy theme resolution (v3.6.0)" section explaining construction-time vs first-read split; rewrote Example 3 to use the new methods (was using inline `userContext.roles.includes('admin')` which is now ESLint-blocked); ACLManager integration section prefers `wikiContext.canAccess`; test counts updated (12 → 35 in `WikiContext.test.ts`); expanded performance table; cross-links to Access-Control.md; expanded Related Issues with #625/#609/#630/#633/#629/#631/#632
+  - **Updated** `docs/architecture/Current-Rendering-Pipeline.md` — refreshed status header to 2026-05-03; added access-method gating to the request-flow diagram; component-status table gained 4 new rows (WikiContext access methods, lazy theme, ParseContext mirror, ESLint rule); new "Access-control gating" section showing where each check sits in the pipeline (route handler vs middleware vs plugin vs search); cross-link to Access-Control.md
+  - **Reorganized caching docs.** Deleted `docs/architecture/Cache-System.md`. Folded content into `docs/managers/CacheManager-Complete-Guide.md` (now v2.0.0) and `docs/managers/CacheManager.md`
+  - `CacheManager-Complete-Guide.md` updates: TOC expanded from 11 to 14 sections; new "Two cache layers in ngdpbase" section explicitly framing CacheManager-managed regions (TTL-based, opportunistic) vs provider-level structural caches (process-lifetime, write-through, source-of-truth); side-by-side comparison table; new "Admin API" section with `/api/admin/cache/stats` + `/api/admin/cache/clear[/:region]` response shapes and curl examples
+  - New "Provider-level structural caches" section with full inventory: FileSystemProvider's pageCache/contentCache/uuidIndex/titleIndex; VersioningFileProvider's pageIndex (data/page-index.json); LunrSearchProvider documents/searchIndex (data/search-index/documents.json); ElasticsearchSearchProvider's ES cluster index; MarkupParser parse-result cache; engine-wide ThemeManager cache (#625); UserManager/RoleManager records; ConfigurationManager / PolicyManager — each with type, persistence, populate/invalidate semantics. ASCII diagram showing the two layers side by side. Module path `.js` → `.ts`
+  - `CacheManager.md` (quick reference): added "Two cache layers" callout in Overview; new "Admin API" section with the three endpoints; "Related Documentation" expanded with cross-links to Access-Control.md, WikiContext-Complete-Guide.md, Current-Rendering-Pipeline.md; module path `.js` → `.ts`
+  - `docs/Developer-Documentation.md`: replaced the dead `Cache-System.md` link with two live links (CacheManager Complete Guide for caching strategy, Access-Control.md for the access-method operational guide)
+  - All seven affected docs lint clean (markdownlint)
+- Testing:
+  - markdownlint: clean across all 7 files
+  - No code changes; no vitest / typecheck / e2e impact
+- Commits: e656c007 (`docs: refresh access-control + caching docs to current state (post-v3.6.0)`)
+- Files Modified:
+  - docs/architecture/Access-Control.md (new — ~370 lines)
+  - docs/architecture/Cache-System.md (deleted — folded into CacheManager docs)
+  - docs/architecture/Current-Rendering-Pipeline.md (access-method gating + #625 status)
+  - docs/managers/CacheManager.md (two-layer callout + Admin API + cross-links)
+  - docs/managers/CacheManager-Complete-Guide.md (v2.0.0 — two-layer framing + Admin API + provider-level structural caches inventory)
+  - docs/WikiContext-Complete-Guide.md (v2.0.0 — access-control methods + lazy theme + #625 status)
+  - docs/Developer-Documentation.md (Cache-System.md link replaced)
+
 ## 2026-05-03-02
 
 - Agent: Claude
