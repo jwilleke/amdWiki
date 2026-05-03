@@ -2570,6 +2570,19 @@ ${panes}
         authorLock = Boolean(existingPage?.metadata?.['author-lock'] ?? false);
       }
 
+      // #639 Slice C: resolve private — top-level frontmatter field (peer of
+      // author-lock and audience). When the form posts `private-present=1` we
+      // honour the checkbox; otherwise preserve the existing value (or fall back
+      // to the legacy user-keyword for unmigrated pages). Slice B normalizes
+      // either source into the new shape on save, so even if a stray 'private'
+      // remains in userKeywordsArray it'll be stripped in PageManager.
+      const existingPrivate = existingPage?.metadata?.private === true
+        || (Array.isArray(existingPage?.metadata?.['user-keywords'])
+            && (existingPage.metadata['user-keywords']).some(kw => String(kw).toLowerCase() === 'private'));
+      const privateFlag: boolean = req.body['private-present'] === '1'
+        ? req.body['private'] === 'true'
+        : existingPrivate;
+
       // Preserve existing author on edits — never overwrite with the editor's username
       const pageAuthor = existingPage?.metadata?.author || currentUser?.username || 'anonymous';
 
@@ -2580,6 +2593,7 @@ ${panes}
         'user-keywords': userKeywordsArray,
         ...(audienceArray.length ? { audience: audienceArray } : {}),
         ...(authorLock ? { 'author-lock': true } : {}),
+        ...(privateFlag ? { private: true } : {}),
         author: pageAuthor,
         uuid: existingPage?.metadata?.uuid || undefined
       });
@@ -2612,9 +2626,10 @@ ${panes}
       )];
       const unknownTagWarning = _unknownTags.length > 0 ? _unknownTags.join(',') : undefined;
 
-      // Prevent required-pages from being marked private (they live in GitHub)
+      // Prevent required-pages from being marked private (they live in GitHub).
+      // #639: also check the new top-level field; either signal counts.
       const isCurrentlyRequired = await this.isRequiredPage(pageName);
-      if (isCurrentlyRequired && userKeywordsArray.includes('private')) {
+      if (isCurrentlyRequired && (privateFlag || userKeywordsArray.includes('private'))) {
         return res.status(400).send('Required pages cannot be marked as private');
       }
 
