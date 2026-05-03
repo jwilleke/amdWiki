@@ -399,6 +399,12 @@ class LunrSearchProvider extends BaseSearchProvider {
             if (!isAdmin && !isCreator && !inAudience) return null;
           }
 
+          // #627: AuthorLocked is intentionally NOT a search-visibility filter.
+          // It is an *edit* constraint (parallel to git branch protection) —
+          // locked pages remain freely readable. Search is a discovery surface
+          // for read access; conflating edit and read on different axes weakens
+          // the model. Closed wontfix; see issue for the discussion.
+
           // Generate snippet
           const snippet = this.generateSnippet(doc.content, query);
 

@@ -688,6 +688,11 @@ class ElasticsearchSearchProvider extends BaseSearchProvider {
    * Visibility rule (mirrors LunrSearchProvider):
    *   - Show if isPrivate === false, OR
    *   - Show if audience contains any of the current user's principals
+   *
+   * #628: AuthorLocked is intentionally NOT part of this filter. It is an *edit*
+   * constraint (parallel to git branch protection) — locked pages remain freely
+   * readable. Conflating edit and read on different axes weakens the model.
+   * Closed wontfix; see issue for discussion. Mirrors #627 for the Lunr side.
    */
   private _wrapWithPrivacy(
     must: QueryDslQueryContainer,
