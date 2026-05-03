@@ -2,6 +2,56 @@
 
 AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version history.
 
+## 2026-05-03-09
+
+- Agent: Claude
+- Subject: Shipped Slices C + D of #639 (edit-UI Private checkbox + explicit migration script); filed #640 (My Contributions profile card)
+- Current Issue: #639 (open — Slices A/B/C/D done; only E remains); #640 (filed)
+- Work Done:
+  - **#639 Slice C — edit UI (13391fc5)**:
+    - Added a "Private" row to `views/edit.ejs` (col-md-3, peer of audience / author-lock). Reflects either source: `metadata.private === true` OR legacy `selectedUserKeywords.includes('private')`. Mirrors the Author Lock pattern with a `private-present=1` hidden field so unchecking sends a deliberate false
+    - Filtered the literal `'private'` out of the user-keywords dropdown render so it can no longer be set as a free-form tag
+    - Updated the audience hint text from "the **private** keyword overrides..." to "the **Private** setting above overrides..."
+    - `WikiRoutes.editPage` reads `req.body.private` + `req.body['private-present']` mirroring Author Lock parsing; falls back to existing top-level field OR legacy keyword when not present in the form post; forwards `private: true` into `buildNewPageMetadata` (Slice B's normalisation handles the rest)
+    - Required-page guard now checks both signals (`privateFlag || userKeywordsArray.includes('private')`) so admins can't accidentally mark a required page private regardless of UI path
+    - `create.ejs` intentionally not touched — that form has no Author Lock or Audience controls; new pages can be marked private after creation via edit
+    - Verification: EJS template compiles clean (`ejs.compile`), TypeScript clean, vitest 5196/5196 deterministic green
+  - **#639 Slice C layout follow-up (a189146f)**: User asked to move the Private checkbox up next to Author Lock instead of its own row. Moved into BOTH branches of the admin/non-admin split — admin row gets System Category (col-md-4) + Author Lock (col-md-2) + Private (col-md-2); non-admin row gets System Category readonly (col-md-4) + Private (col-md-2). Non-admin authors retain Private control (no regression from initial Slice C). Removed the standalone row block. State computation extracted to a single precomputed pair of locals at the top of the row so the same control renders cleanly in either branch
+  - **#639 Slice D — explicit migration script (fc7866bf)**:
+    - `scripts/migrate-private-field.ts` + `npm run migrate:private[:dry]` entries
+    - Walks `.md` files under `$SLOW_STORAGE/pages` and `required-pages/`. For any page with `'private'` in user-keywords, rewrites frontmatter: sets `private: true` at top level, removes the keyword (drops field entirely if empty)
+    - Skips `versions/` subdirectories (versioning storage — rewriting them would break version diffs)
+    - Page-index.json deliberately untouched — Slice A's read fallbacks make every consumer correct against either shape, and the index catches up on next save. Hard re-sync option (stop server → delete index → restart) documented in script header
+    - Pure `transformFrontmatter()` extracted as a string-in/string-out function so it's testable without filesystem mocking. 8 test cases: keyword-only migration, drop empty user-keywords field, already-migrated detection, non-private detection, both-signals (transitional), case-insensitive keyword match, bare frontmatter, idempotency
+    - **Bug surfaced and fixed**: gray-matter caches its parsed `data` object by input string and reuses the same reference. The transform was mutating that cache, so two test cases with identical fixtures poisoned each other (test 8 saw test 2's mutations and reported `'already'` instead of `'migrated'`). Fixed by cloning data before mutation. Worth being aware of for future scripts that touch gray-matter
+    - `vitest.config.ts` `include` extended with `scripts/**/__tests__/**/*.ts` so future migration scripts can be tested in place
+    - Dry-run against live jimstest data: 6 pages would migrate (5 jim, 1 molly, 1 required-pages), 1 already migrated, 17,533 non-private, 56 pre-existing malformed-YAML pages gracefully skipped (separate concern, not introduced by this script)
+  - **#640 filed**: `[FEATURE] Add a "My Contributions" card to /profile linking to private pages, pages created, journal, MyLinks`. New profile card with link rows + counts to surface user-owned content. Phase 1: Private Pages, Pages Created, Journal Entries, My Links. Phase 2 (nice-to-have, marked `(?)`): Comments, Attachments uploaded, Audience-shared pages, Recent edits by me. Sketches an API surface (`pageManager.getPagesByCreator`) that builds on the #635 `getRecentChanges` pattern. Linked to sibling work (#634/#635/#639) as foundational
+- Testing:
+  - typecheck: clean across all changes
+  - eslint: clean
+  - vitest full suite: 5204/5204 deterministic green at end of session (was 5196 at start, +8 from new Slice D tests)
+  - Live UI verified by user: Slice C Private checkbox functionality confirmed working in browser
+  - EJS compile clean for both Slice C and the layout follow-up
+  - Live data dry-run: migration script behaves correctly (6 would-migrate, malformed YAML gracefully skipped)
+- Commits:
+  - 13391fc5 (`feat(#639): Slice C — dedicated Private checkbox in edit form, replaces keyword pill`)
+  - a189146f (`chore(#639): move Private checkbox up next to Author Lock in edit form`)
+  - fc7866bf (`feat(#639): Slice D — explicit migration script for legacy user-keywords: [private] pages`)
+- Files Modified:
+  - views/edit.ejs (#639 Slice C — Private checkbox + audience hint update; layout follow-up)
+  - src/routes/WikiRoutes.ts (#639 Slice C — editPage reads private + private-present; required-page guard checks both signals)
+  - **NEW** scripts/migrate-private-field.ts (#639 Slice D — migration script; ~190 lines)
+  - **NEW** scripts/**tests**/migrate-private-field.test.ts (#639 Slice D — 8 cases)
+  - package.json (#639 Slice D — `migrate:private` + `migrate:private:dry` npm scripts)
+  - vitest.config.ts (#639 Slice D — include `scripts/**/__tests__/**`)
+- GH issues:
+  - #639 open — Slices A/B/C/D done; only Slice E remains (drop read fallback + remove `private` from `app-default-config.json` user-keywords vocabulary). Slice E should wait until D has been applied to all live datasets AND we've waited a release or two for any external authoring tools to stop writing the legacy shape
+  - #640 filed (open) — "My Contributions" profile card. Phase 1 (private/created/journal/MyLinks) is straightforward given the foundational APIs from #635
+- Notes:
+  - **The 56 malformed-YAML pages on jimstest** surfaced during the Slice D dry-run. Their frontmatter doesn't parse with strict YAML rules (mostly missing colons / multi-line key issues), but they presumably load in production (gray-matter has fallback paths or wider tolerance somewhere). Worth filing as a separate `[BUG]` issue if these aren't already known
+  - **`/othersites` not yet run for this session's commits** (8e72be2d through fc7866bf). Sister sites (Fairways, ve-geology, temp-builds) need propagation before Slice E can be considered
+
 ## 2026-05-03-08
 
 - Agent: Claude
