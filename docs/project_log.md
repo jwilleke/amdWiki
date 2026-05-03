@@ -2,6 +2,37 @@
 
 AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version history.
 
+## 2026-05-03-01
+
+- Agent: Claude
+- Subject: Cut **v3.6.0** release — #625 (WikiContext consolidation, all 8 steps) and #609 (test-isolation flake fix) shipped. Release pipeline ran clean for the first time since #625 work began
+- Current Issue: #625 (open, shipped in v3.6.0); #609 (open, shipped in v3.6.0)
+- Work Done:
+  - **`/semver minor` (3.5.4 → 3.6.0)**, full pipeline ran clean:
+    - Step 1: working tree clean, on master, in sync with origin
+    - Step 2/3: 7 commits since v3.5.4 (2 features, 1 fix, 4 docs)
+    - Step 4: `npm run build` clean; `npm test` 5153/5153 pass; `npm run test:e2e` 72/72 pass (chromium-maintenance suite end-to-end exercises admin auth, asset search, location plugin, footnotes, comments, navigation)
+    - Step 5: `node dist/src/utils/version.js minor` — bumped package.json + config/app-default-config.json + CHANGELOG.md in lockstep
+    - Step 5a: `npm run test:baseline` — wrote `docs/performance/baseline-v3.6.0-2026-05-02.md` (3424.4 MB resident, 104 pages on disk, 10-iteration response-time samples for `/`, `/view/Welcome`, `/search?q=test`, `/login`)
+    - Step 6: release commit 4f82f23c (`chore: release v3.6.0`), annotated tag `v3.6.0` created, both pushed to origin
+    - Step 7: `gh release create v3.6.0 --generate-notes --notes-start-tag v3.5.4` → published at <https://github.com/jwilleke/ngdpbase/releases/tag/v3.6.0>
+  - **Sister-install propagation via `/othersites`** — pulled v3.6.0, stopped, rebuilt, restarted on all 3 sister installs (fairways-base port 2121, ngdpbase-veg port 3333, ngdp-temp-builds/ngdpbase port 3001). Restarted jimstest (port 3000) on the new build. All 4 installs serving HTTP 302 (login redirect, expected unauth behavior). vitest on each: jimstest 5153/5153, fairways 5153/5153, ngdpbase-veg 5153/5153, ngdp-temp-builds 5152/5153 on first run (deterministic on re-run — looked like a transient #622-class cold-start race, not introduced by this release; second run: 5153/5153)
+  - **v3.6.0 ships:**
+    - `feat(#625)` phase 1 — WikiContext methods + static helper + ParseContext mirror + Categories A/B/D sweeps + ThemeManager cache (commit 8509e222)
+    - `feat(#625)` phase 2 — Category C sweep (~80 sites) + ESLint guard + true lazy theme resolution (commit 37c4c6e6)
+    - `fix(#609)` — `adminCreateOrganization` 403-test deterministic + handler Step 7 catch-up (commit 2d1460a6)
+- Testing:
+  - typecheck: clean
+  - vitest: 5153/5153 pass on the release commit on jimstest; same on fairways and ve-geology; ngdp-temp had a transient flake on first run that recovered on second run
+  - playwright E2E: 72/72 pass on jimstest
+  - eslint: 0 errors, 139 warnings (all pre-existing)
+- Commits: 4f82f23c (`chore: release v3.6.0`) — tag `v3.6.0`
+- Files Modified:
+  - package.json (version bump 3.5.4 → 3.6.0)
+  - config/app-default-config.json (version bump)
+  - CHANGELOG.md (v3.6.0 entry added by version.ts)
+  - docs/performance/baseline-v3.6.0-2026-05-02.md (new, performance baseline)
+
 ## 2026-05-02-09
 
 - Agent: Claude
