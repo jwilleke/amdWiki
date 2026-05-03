@@ -442,16 +442,9 @@ class PageManager extends BaseManager {
       author: originalAuthor || wikiContext.userContext?.username || metadata.author || defaultAuthor
     };
 
-    // Detect whether any applied user-keyword requests private storage.
-    // Only applies to non-required pages (required pages are always public).
-    const configManager = this.engine.getManager<ConfigurationManager>('ConfigurationManager');
-    const userKeywordDefs = (configManager
-      ? configManager.getProperty('ngdpbase.user-keywords', {}) as Record<string, { storageLocation?: string }>
-      : {}) as Record<string, { storageLocation?: string }>;
-    const userKeywords = (rawMetadata['user-keywords'] || []);
-
     // Determine if this is a required page by checking the system-category config.
     // Required pages (storageLocation === 'required') cannot be marked private.
+    const configManager = this.engine.getManager<ConfigurationManager>('ConfigurationManager');
     const systemCategoriesConfig = (configManager
       ? configManager.getProperty('ngdpbase.system-category', {}) as Record<string, { label?: string; storageLocation?: string }>
       : {}) as Record<string, { label?: string; storageLocation?: string }>;
@@ -462,17 +455,14 @@ class PageManager extends BaseManager {
       (cfg) => ((cfg.label || '').toLowerCase() === pageSystemCategory.toLowerCase() && cfg.storageLocation === 'required')
     );
 
-    // #639 Slice B: privacy comes from EITHER the top-level `private` field OR
-    // a legacy `user-keywords: [private]` entry. Normalize on save:
-    //   - drop the legacy keyword from the array (it's not a tag any more)
-    //   - write `private: true` at the top level when the page is private
-    //   - emit `system-location: 'private'` storage hint (provider needs it
-    //     to route file placement; unchanged from before)
-    // Required pages can never be private, so wantsPrivate is forced false there.
-    const privacyFromTopLevel = (rawMetadata as Record<string, unknown>).private === true;
-    const privacyFromKeyword = userKeywords.includes('private')
-      || userKeywords.some(kw => userKeywordDefs[kw]?.storageLocation === 'private');
-    const wantsPrivate = !isRequiredPage && (privacyFromTopLevel || privacyFromKeyword);
+    // #639 Slice E: top-level `private: true` is the canonical privacy signal.
+    // The Slice B back-compat path that scanned user-keywords for 'private' (or
+    // for any keyword whose vocabulary entry had storageLocation: 'private')
+    // was dropped after data migration completed (Slices A–D, v3.7.0). Defensive
+    // strip of any stray 'private' from user-keywords is preserved — cheap
+    // insurance against external authoring tools that might still emit it.
+    const userKeywords = (rawMetadata['user-keywords'] || []);
+    const wantsPrivate = !isRequiredPage && (rawMetadata as Record<string, unknown>).private === true;
     const keywordsHadPrivate = userKeywords.includes('private');
     const normalizedKeywords = userKeywords.filter(kw => kw !== 'private');
     const privateStorageLocation = wantsPrivate ? 'private' : undefined;

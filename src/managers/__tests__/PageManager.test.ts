@@ -247,24 +247,24 @@ describe('PageManager', () => {
       expect(saved['system-location']).toBe('private');
     });
 
-    test('savePageWithContext() — legacy user-keywords:[private] → strips keyword and emits private:true (migration path)', async () => {
+    test('savePageWithContext() — stray user-keywords:[private] is stripped defensively but no longer triggers privacy (#639 Slice E)', async () => {
+      // Slice E removed the back-compat that treated 'private' in user-keywords
+      // as a privacy signal. The defensive strip remains — if external authoring
+      // tools or hand-edits introduce a stray 'private' it gets cleaned out on
+      // save. But it does NOT make the page private; only the top-level
+      // `private: true` field does.
       pageManager.provider.savePage = vi.fn().mockResolvedValue(undefined);
-      mockConfigurationManager.getProperty.mockImplementation((key, dv) => {
-        if (key === 'ngdpbase.user-keywords') return { private: { storageLocation: 'private' } };
-        if (key === 'ngdpbase.system-category') return {};
-        return dv;
-      });
 
       const wikiContext = {
-        pageName: 'OldSecret', content: 'body',
+        pageName: 'P', content: 'body',
         userContext: { username: 'alice' }
       };
       await pageManager.savePageWithContext(wikiContext, { 'user-keywords': ['private', 'draft'] });
 
       const saved = pageManager.provider.savePage.mock.calls[0][2];
-      expect(saved.private).toBe(true);
-      expect(saved['system-location']).toBe('private');
-      expect(saved['user-keywords']).toEqual(['draft']); // 'private' stripped
+      expect(saved.private).toBeUndefined();          // not promoted to private
+      expect(saved['system-location']).toBeUndefined();
+      expect(saved['user-keywords']).toEqual(['draft']); // 'private' stripped defensively
     });
 
     test('savePageWithContext() — both signals present → strips keyword, keeps top-level', async () => {

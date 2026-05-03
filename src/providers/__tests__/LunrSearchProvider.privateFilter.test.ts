@@ -324,13 +324,11 @@ describe('LunrSearchProvider.buildDocumentFromPageData — private signal source
     expect(doc.creator).toBe('alice');
   });
 
-  test('legacy user-keywords: [private] → isPrivate true (back-compat)', () => {
-    const doc = buildDoc({ title: 'X', uuid: 'u1', author: 'alice', 'user-keywords': ['private'] });
-    expect(doc.isPrivate).toBe(true);
-    expect(doc.creator).toBe('alice');
-  });
+  // #639 Slice E: user-keywords back-compat fallback removed; that test gone.
+  // system-location is kept as a defensive read since it's a different field
+  // (storage hint, not a privacy duplicate).
 
-  test('legacy system-location: private → isPrivate true (back-compat)', () => {
+  test('system-location: private → isPrivate true (defensive storage-hint fallback)', () => {
     const doc = buildDoc({ title: 'X', uuid: 'u1', author: 'alice', 'system-location': 'private' });
     expect(doc.isPrivate).toBe(true);
   });

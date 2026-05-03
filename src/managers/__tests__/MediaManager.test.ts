@@ -285,12 +285,7 @@ describe('MediaManager.checkPrivatePageAccess (#634 — via pageManager.getPageM
     expect(await callCheck(mgr, makeWikiContext('root', ['admin']), 'AlicesSecret')).toBe(true);
   });
 
-  test('legacy user-keywords [private] still triggers gate (back-compat)', async () => {
-    const engine = makeEngineWithPageManager({
-      uuid: 'u1', author: 'alice', 'user-keywords': ['private']
-    });
-    const mgr = new MediaManager(engine);
-    expect(await callCheck(mgr, makeWikiContext('bob'), 'AlicesSecret')).toBe(false);
-    expect(await callCheck(mgr, makeWikiContext('alice'), 'AlicesSecret')).toBe(true);
-  });
+  // #639 Slice E: user-keywords back-compat case removed alongside the
+  // fallback. The top-level `private: true` test above (and #634's
+  // system-location test) cover the canonical paths.
 });

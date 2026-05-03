@@ -153,39 +153,10 @@ describe('ACLManager', () => {
     return { pageName, content, userContext, pageMetadata };
   }
 
-  describe('Tier 0 — private user-keyword', () => {
-    test('private page + admin role → allow', async () => {
-      const ctx = makeWikiContext({
-        pageMetadata: { title: 'Test', uuid: 'x', lastModified: '', 'user-keywords': ['private'], author: 'alice' },
-        userContext: { username: 'bob', roles: ['admin'], isAuthenticated: true }
-      });
-      expect(await aclManager.checkPagePermissionWithContext(ctx, 'view')).toBe(true);
-    });
-
-    test('private page + page-creator username → allow', async () => {
-      const ctx = makeWikiContext({
-        pageMetadata: { title: 'Test', uuid: 'x', lastModified: '', 'user-keywords': ['private'], author: 'alice' },
-        userContext: { username: 'alice', roles: ['editor'], isAuthenticated: true }
-      });
-      expect(await aclManager.checkPagePermissionWithContext(ctx, 'view')).toBe(true);
-    });
-
-    test('private page + editor role (non-admin, non-creator) → deny', async () => {
-      const ctx = makeWikiContext({
-        pageMetadata: { title: 'Test', uuid: 'x', lastModified: '', 'user-keywords': ['private'], author: 'alice' },
-        userContext: { username: 'bob', roles: ['editor'], isAuthenticated: true }
-      });
-      expect(await aclManager.checkPagePermissionWithContext(ctx, 'view')).toBe(false);
-    });
-
-    test('private page + audience: [editor] set → editor still denied (Tier 0 wins)', async () => {
-      const ctx = makeWikiContext({
-        pageMetadata: { title: 'Test', uuid: 'x', lastModified: '', 'user-keywords': ['private'], author: 'alice', audience: ['editor'] },
-        userContext: { username: 'bob', roles: ['editor'], isAuthenticated: true }
-      });
-      expect(await aclManager.checkPagePermissionWithContext(ctx, 'view')).toBe(false);
-    });
-  });
+  // #639 Slice E: the legacy "Tier 0 — private user-keyword" describe block
+  // was removed alongside the back-compat fallback. The four cases it covered
+  // (admin / creator / non-creator / audience-doesn't-override) are still
+  // verified by the "Tier 0 — top-level `private: true` (#639)" block below.
 
   describe('Tier 0 — top-level `private: true` (#639)', () => {
     test('private: true + admin role → allow (no user-keyword required)', async () => {

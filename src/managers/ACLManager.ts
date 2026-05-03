@@ -315,11 +315,10 @@ class ACLManager extends BaseManager {
     const policyAction = actionMap[action.toLowerCase()] || action;
 
     // Tier 0: private — hard constraint, not overridable by front matter.
-    // #639: prefer the top-level `private: true` frontmatter field; fall back to
-    // scanning user-keywords for legacy pages that haven't been migrated yet.
-    const userKeywords: string[] = (wikiContext.pageMetadata?.['user-keywords']) ?? [];
-    const isPrivate = wikiContext.pageMetadata?.private === true
-      || userKeywords.includes('private');
+    // #639 Slice E: top-level `private: true` is the canonical signal; the
+    // user-keywords back-compat fallback was dropped after all datasets
+    // migrated (Slices A–D, v3.7.0).
+    const isPrivate = wikiContext.pageMetadata?.private === true;
     if (isPrivate) {
       const creator = (wikiContext.pageMetadata?.author) ?? '';
       const userRoles = userContext?.roles ?? [];

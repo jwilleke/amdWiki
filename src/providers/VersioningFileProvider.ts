@@ -1269,11 +1269,9 @@ class VersioningFileProvider extends FileSystemProvider {
       ? (newCreator || currentEntry?.creator || 'anonymous')
       : currentEntry?.creator;
     const ar = (metadata.access as Record<string, unknown> | undefined)?.['view'] ?? metadata.audience;
-    const kws = metadata['user-keywords'];
-    // #639: prefer top-level `private: true`; fall back to user-keywords scan
-    // (legacy shape) so pre-migration pages still denormalize correctly.
-    const isPrivateFlag = (metadata as Record<string, unknown>).private === true
-      || (Array.isArray(kws) && (kws).includes('private'));
+    // #639 Slice E: read top-level `private: true` only; user-keywords
+    // back-compat fallback dropped post-migration (Slices A–D, v3.7.0).
+    const isPrivateFlag = (metadata as Record<string, unknown>).private === true;
     await this.updatePageInIndex(uuid, {
       title: (metadata.title as string) || pageName,
       uuid: uuid,

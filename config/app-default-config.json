@@ -662,18 +662,6 @@
       "enabled": true,
       "restrictEditing": false
     },
-    "private": {
-      "label": "private",
-      "description": "Private content editable only by creator and admins",
-      "category": "access",
-      "enabled": true,
-      "restrictEditing": true,
-      "storageLocation": "private",
-      "allowedRoles": [
-        "admin",
-        "creator"
-      ]
-    },
     "draft": {
       "label": "draft",
       "description": "Work in progress content",

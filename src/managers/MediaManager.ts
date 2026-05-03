@@ -415,14 +415,11 @@ class MediaManager extends BaseManager {
       const pageMetadata = await pageManager.getPageMetadata(pageName);
       if (!pageMetadata) return true;
 
-      // #639: prefer top-level `private: true`; fall back to legacy signals
-      // (system-location storage hint, user-keywords scan).
+      // #639 Slice E: top-level `private: true` is canonical; system-location
+      // is a defensive storage hint. User-keywords back-compat fallback dropped
+      // post-migration.
       const md = pageMetadata as Record<string, unknown>;
-      const userKeywords = md['user-keywords'];
-      const userKeywordsArr = Array.isArray(userKeywords) ? (userKeywords as unknown[]).map(String) : [];
-      const isPrivate = md.private === true
-        || md['system-location'] === 'private'
-        || userKeywordsArr.includes('private');
+      const isPrivate = md.private === true || md['system-location'] === 'private';
       if (!isPrivate) return true;
 
       const username = wikiContext.userContext?.username;

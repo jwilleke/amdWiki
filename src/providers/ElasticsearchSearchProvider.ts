@@ -616,12 +616,11 @@ class ElasticsearchSearchProvider extends BaseSearchProvider {
       return [];
     };
 
-    // #639: prefer top-level `private: true` frontmatter field; fall back to the
-    // legacy signals (pre-migration pages, system-location storage hint, user-keyword).
-    const userKeywordsArr = toStrArr(metadata['user-keywords']);
+    // #639 Slice E: top-level `private: true` is canonical; system-location is
+    // a defensive storage hint. User-keywords back-compat fallback dropped
+    // post-migration.
     const isPrivate = metadata.private === true
-      || metadata['system-location'] === 'private'
-      || userKeywordsArr.includes('private');
+      || metadata['system-location'] === 'private';
     const audienceRaw = metadata['audience'];
     const audience = toStrArr(audienceRaw);
 
