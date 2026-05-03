@@ -162,3 +162,114 @@ describe('MediaManager initialize()', () => {
     await mgr.shutdown();
   });
 });
+
+// ---------------------------------------------------------------------------
+// #634: checkPrivatePageAccess — frontmatter-based, not pageIndex-coupled
+// ---------------------------------------------------------------------------
+
+describe('MediaManager.checkPrivatePageAccess (#634 — via pageManager.getPageMetadata)', () => {
+  // The method is private; we reach it via type assertion. Calling it through
+  // getItem() would require a fully wired provider stack — overkill for unit
+  // testing the access decision itself.
+  type CheckFn = (wikiContext: unknown, pageName: string) => Promise<boolean>;
+  const callCheck = (mgr: MediaManager, ctx: unknown, name: string): Promise<boolean> => {
+    const fn = (mgr as unknown as { checkPrivatePageAccess: CheckFn }).checkPrivatePageAccess.bind(mgr);
+    return fn(ctx, name);
+  };
+
+  function makeEngineWithPageManager(metadata: Record<string, unknown> | null) {
+    const pageManager = {
+      getPageMetadata: vi.fn().mockResolvedValue(metadata)
+    };
+    const cm = makeConfigManager();
+    const engine = {
+      getManager: vi.fn((name: string) => {
+        if (name === 'ConfigurationManager') return cm;
+        if (name === 'PageManager') return pageManager;
+        return null;
+      }),
+      pageManager
+    };
+    return engine as unknown as WikiEngine;
+  }
+
+  function makeWikiContext(username?: string, roles: string[] = []) {
+    return {
+      userContext: username ? { username, roles } : undefined,
+      hasRole: (...names: string[]) => names.some(n => roles.includes(n))
+    };
+  }
+
+  test('returns true (allow) when page is not private', async () => {
+    const engine = makeEngineWithPageManager({
+      uuid: 'u1', author: 'alice'
+      // no 'system-location' — public page
+    });
+    const mgr = new MediaManager(engine);
+    const ctx = makeWikiContext('bob');
+    expect(await callCheck(mgr, ctx, 'PublicPage')).toBe(true);
+  });
+
+  test('returns true when getPageMetadata returns null (no such page)', async () => {
+    const engine = makeEngineWithPageManager(null);
+    const mgr = new MediaManager(engine);
+    const ctx = makeWikiContext('bob');
+    expect(await callCheck(mgr, ctx, 'Missing')).toBe(true);
+  });
+
+  test('returns false for anonymous user on a private page', async () => {
+    const engine = makeEngineWithPageManager({
+      uuid: 'u1', author: 'alice', 'system-location': 'private'
+    });
+    const mgr = new MediaManager(engine);
+    const ctx = makeWikiContext(); // no username
+    expect(await callCheck(mgr, ctx, 'AlicesSecret')).toBe(false);
+  });
+
+  test('returns true for the creator on their own private page', async () => {
+    const engine = makeEngineWithPageManager({
+      uuid: 'u1', author: 'alice', 'system-location': 'private'
+    });
+    const mgr = new MediaManager(engine);
+    const ctx = makeWikiContext('alice');
+    expect(await callCheck(mgr, ctx, 'AlicesSecret')).toBe(true);
+  });
+
+  test('returns false for a non-creator non-admin on a private page', async () => {
+    const engine = makeEngineWithPageManager({
+      uuid: 'u1', author: 'alice', 'system-location': 'private'
+    });
+    const mgr = new MediaManager(engine);
+    const ctx = makeWikiContext('bob');
+    expect(await callCheck(mgr, ctx, 'AlicesSecret')).toBe(false);
+  });
+
+  test('returns true for admin on any private page', async () => {
+    const engine = makeEngineWithPageManager({
+      uuid: 'u1', author: 'alice', 'system-location': 'private'
+    });
+    const mgr = new MediaManager(engine);
+    const ctx = makeWikiContext('root', ['admin']);
+    expect(await callCheck(mgr, ctx, 'AlicesSecret')).toBe(true);
+  });
+
+  test('returns true (conservative) when PageManager is not registered', async () => {
+    const engine = {
+      getManager: vi.fn(() => null)
+    } as unknown as WikiEngine;
+    const mgr = new MediaManager(engine);
+    const ctx = makeWikiContext('bob');
+    expect(await callCheck(mgr, ctx, 'Anything')).toBe(true);
+  });
+
+  test('uses pageManager.getPageMetadata, NOT provider.pageIndex', async () => {
+    const engine = makeEngineWithPageManager({
+      uuid: 'u1', author: 'alice', 'system-location': 'private'
+    });
+    const mgr = new MediaManager(engine);
+    const ctx = makeWikiContext('alice');
+    await callCheck(mgr, ctx, 'AlicesSecret');
+    const pm = (engine as unknown as { pageManager: { getPageMetadata: ReturnType<typeof vi.fn> } }).pageManager;
+    expect(pm.getPageMetadata).toHaveBeenCalledWith('AlicesSecret');
+  });
+});

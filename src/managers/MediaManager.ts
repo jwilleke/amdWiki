@@ -395,10 +395,17 @@ class MediaManager extends BaseManager {
 
   /**
    * Check whether the user in wikiContext may access a (potentially private) page.
-   * Mirrors the logic in WikiRoutes.checkPrivatePageAccess().
+   * Mirrors the logic in WikiRoutes.checkPrivatePageAccess() and ACLManager tier 0.
    *
    * Returns true (allow) if the page is not private, if the user is an admin,
    * or if the user is the page creator.  Returns false (deny) otherwise.
+   *
+   * #634: reads `system-location` and `author` from frontmatter via
+   * `pageManager.getPageMetadata` instead of reaching into the page provider's
+   * internal `pageIndex`. The two values are kept in lockstep — `pageIndex.creator`
+   * is derived from `metadata.author` on every save (see VersioningFileProvider
+   * createNewVersion / movePrivatePage) — and `metadata.author` is the immutable
+   * canonical source per PageManager.savePageWithContext.
    */
   private async checkPrivatePageAccess(wikiContext: WikiContext, pageName: string): Promise<boolean> {
     try {
@@ -406,22 +413,15 @@ class MediaManager extends BaseManager {
       if (!pageManager) return true;
 
       const pageMetadata = await pageManager.getPageMetadata(pageName);
-      if (!pageMetadata?.uuid) return true;
+      if (!pageMetadata) return true;
 
-      type ProviderWithIndex = { pageIndex?: { pages: Record<string, { location?: string; creator?: string }> } | null };
-      const provider = (pageManager.getCurrentPageProvider() ?? null) as unknown as ProviderWithIndex | null;
-      if (!provider) return true;
-
-      const pageIndex = provider.pageIndex;
-      if (!pageIndex) return true;
-
-      const entry = pageIndex.pages[pageMetadata.uuid];
-      if (!entry || entry.location !== 'private') return true;
+      const isPrivate = (pageMetadata as Record<string, unknown>)['system-location'] === 'private';
+      if (!isPrivate) return true;
 
       const username = wikiContext.userContext?.username;
       if (!username) return false;
       if (wikiContext.hasRole('admin')) return true;
-      return username === entry.creator;
+      return username === pageMetadata.author;
     } catch {
       return true; // conservative: allow if check fails
     }
