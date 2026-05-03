@@ -235,22 +235,22 @@ describe('Policy System Integration', () => {
 
   describe('ACLManager Integration', () => {
     test('should integrate with ACLManager for permission checks', async () => {
+      // #632: migrated from deprecated 4-arg `checkPagePermission` to the
+      // canonical `checkPagePermissionWithContext`. Both routed through
+      // PolicyEvaluator so the integration outcome is the same.
       const user = {
         username: 'test-editor',
         roles: ['editor'],
         isAuthenticated: true
       };
+      const wikiContext = {
+        pageName: 'TestPage',
+        content: '# Test Page Content\n\nThis is a test page.',
+        userContext: user,
+        pageMetadata: null
+      };
 
-      const result = await aclManager.checkPagePermission(
-        'TestPage',
-        'edit',
-        user,
-        '# Test Page Content\n\nThis is a test page.',
-        {
-          ip: '192.168.1.100',
-          userAgent: 'TestBrowser/1.0'
-        }
-      );
+      const result = await aclManager.checkPagePermissionWithContext(wikiContext, 'edit');
 
       expect(result).toBe(true);
     });

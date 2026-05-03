@@ -135,163 +135,18 @@ describe('ACLManager', () => {
     });
   });
 
-  describe('checkPagePermission', () => {
-    test('should allow access when ACL grants permission to role', async () => {
-      const pageContent = '[{ALLOW view editor}]';
-      const userContext = {
-        username: 'testuser',
-        roles: ['editor'],
-        isAuthenticated: true
-      };
+  // #632: deprecated `checkPagePermission(pageName, action, userContext, content)`
+  // method removed; tests for it gone too. The canonical
+  // `checkPagePermissionWithContext` is exercised in the Tier 0 / Tier 1.5 /
+  // PolicyEvaluator describe blocks below. JSPWiki `[{ALLOW ...}]` page-level
+  // markup tested here is no longer the wiki's access mechanism — the new
+  // shape is frontmatter `audience` / `access` fields, covered elsewhere.
 
-      const result = await aclManager.checkPagePermission('TestPage', 'view', userContext, pageContent);
-
-      expect(result).toBe(true);
-    });
-
-    test('should allow access when ACL has "All" principal', async () => {
-      const pageContent = '[{ALLOW view All}]';
-      const userContext = {
-        username: 'testuser',
-        roles: [],
-        isAuthenticated: true
-      };
-
-      const result = await aclManager.checkPagePermission('TestPage', 'view', userContext, pageContent);
-
-      expect(result).toBe(true);
-    });
-
-    test('should deny access when user lacks required role', async () => {
-      const pageContent = '[{ALLOW view admin}]';
-      const userContext = {
-        username: 'testuser',
-        roles: ['editor'],  // Not admin
-        isAuthenticated: true
-      };
-
-      const result = await aclManager.checkPagePermission('TestPage', 'view', userContext, pageContent);
-
-      expect(result).toBe(false);
-    });
-
-    test('should allow access when username matches ACL', async () => {
-      const pageContent = '[{ALLOW edit testuser}]';
-      const userContext = {
-        username: 'testuser',
-        roles: [],
-        isAuthenticated: true
-      };
-
-      const result = await aclManager.checkPagePermission('TestPage', 'edit', userContext, pageContent);
-
-      expect(result).toBe(true);
-    });
-
-    test('should deny access when no ACL matches', async () => {
-      const pageContent = '[{ALLOW view admin}]';
-      const userContext = {
-        username: 'testuser',
-        roles: ['viewer'],
-        isAuthenticated: true
-      };
-
-      const result = await aclManager.checkPagePermission('TestPage', 'edit', userContext, pageContent);
-
-      // No ACL for 'edit' action, should deny
-      expect(result).toBe(false);
-    });
-
-    test('should handle null user context', async () => {
-      const pageContent = '[{ALLOW view All}]';
-
-      const result = await aclManager.checkPagePermission('TestPage', 'view', null, pageContent);
-
-      // 'All' should match even for null user
-      expect(result).toBe(true);
-    });
-
-    test('should handle empty page content', async () => {
-      const userContext = {
-        username: 'testuser',
-        roles: ['editor'],
-        isAuthenticated: true
-      };
-
-      const result = await aclManager.checkPagePermission('TestPage', 'view', userContext, '');
-
-      // No ACL, default deny
-      expect(result).toBe(false);
-    });
-
-    test('should handle multiple roles and find match', async () => {
-      const pageContent = '[{ALLOW edit admin,poweruser}]';  // No space after comma to avoid regex greedy match
-      const userContext = {
-        username: 'testuser',
-        roles: ['editor', 'poweruser', 'viewer'],
-        isAuthenticated: true
-      };
-
-      const result = await aclManager.checkPagePermission('TestPage', 'edit', userContext, pageContent);
-
-      // User has 'poweruser' role which is in ACL
-      expect(result).toBe(true);
-    });
-
-    test('should be case-insensitive for action matching', async () => {
-      const pageContent = '[{ALLOW VIEW admin}]';
-      const userContext = {
-        username: 'testuser',
-        roles: ['admin'],
-        isAuthenticated: true
-      };
-
-      // Action 'view' should match ACL 'VIEW'
-      const result = await aclManager.checkPagePermission('TestPage', 'view', userContext, pageContent);
-
-      expect(result).toBe(true);
-    });
-  });
-
-  describe('PolicyEvaluator integration', () => {
-    test('should work without PolicyEvaluator', async () => {
-      // PolicyEvaluator is null by default in our mock
-      const pageContent = '[{ALLOW view editor}]';
-      const userContext = {
-        username: 'testuser',
-        roles: ['editor'],
-        isAuthenticated: true
-      };
-
-      const result = await aclManager.checkPagePermission('TestPage', 'view', userContext, pageContent);
-
-      // Should fall back to page-level ACL check
-      expect(result).toBe(true);
-    });
-
-    test('should handle PolicyEvaluator errors gracefully', async () => {
-      // Create a mock PolicyEvaluator that throws an error
-      const mockPolicyEvaluator = {
-        evaluateAccess: vi.fn(() => {
-          throw new Error('Policy evaluation failed');
-        })
-      };
-
-      aclManager.policyEvaluator = mockPolicyEvaluator;
-
-      const pageContent = '[{ALLOW view All}]';
-      const userContext = {
-        username: 'testuser',
-        roles: [],
-        isAuthenticated: true
-      };
-
-      // Should fall back to page-level ACL despite policy error
-      const result = await aclManager.checkPagePermission('TestPage', 'view', userContext, pageContent);
-
-      expect(result).toBe(true);
-    });
-  });
+  // #632: PolicyEvaluator integration tests for the deprecated 4-arg
+  // `checkPagePermission` removed alongside the method. Tier-2 PolicyEvaluator
+  // behavior is covered indirectly by the Tier 0 / Tier 1.5 describe blocks
+  // below (when those tiers don't decide, the result falls through to
+  // PolicyEvaluator).
 
   // Helper: build a minimal WikiContext for checkPagePermissionWithContext
   function makeWikiContext({ pageName = 'TestPage', content = '', userContext = null, pageMetadata = null } = {}) {

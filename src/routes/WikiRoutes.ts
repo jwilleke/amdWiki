@@ -163,7 +163,6 @@ interface IPageManager {
 
 interface IACLManager {
   checkPagePermissionWithContext(wikiContext: WikiContext, action: string): Promise<boolean>;
-  checkPagePermission(pageName: string, action: string, userContext: UserContext | null, content: string): Promise<boolean>;
   getAccessLog(limit?: number, filters?: unknown): unknown[];
   removeACLMarkup(content: string): string;
   getAccessControlStats(): unknown;
@@ -585,23 +584,26 @@ class WikiRoutes {
         } roles=${userContext?.roles?.join('|')}`
       );
 
-      const canViewLeftMenu = leftMenuContent !== null && await aclManager.checkPagePermission(
-        'LeftMenu',
-        'view',
-        userContext,
-        leftMenuContent
-      );
-      logger.info(`[TEMPLATE] LeftMenu ACL decision: ${canViewLeftMenu}`);
-
-      if (canViewLeftMenu && leftMenuContent !== null) {
-        const ctx = new WikiContext(this.engine as unknown as import('../types/WikiEngine.js').WikiEngine, {
+      // #632: build the WikiContext once and use it for both the ACL check and
+      // the render. checkPagePermissionWithContext runs the full 3-tier evaluator
+      // (private user-keyword → frontmatter audience → global policies) where
+      // the deprecated checkPagePermission only ran tier 2.
+      const leftMenuCtx = leftMenuContent !== null
+        ? new WikiContext(this.engine as unknown as import('../types/WikiEngine.js').WikiEngine, {
           pageName: 'LeftMenu',
           content: leftMenuContent,
           userContext,
-          request: req
-        });
+          request: req,
+          pageMetadata: leftMenuPage?.metadata ?? undefined
+        })
+        : null;
+      const canViewLeftMenu = leftMenuCtx !== null
+        && await aclManager.checkPagePermissionWithContext(leftMenuCtx, 'view');
+      logger.info(`[TEMPLATE] LeftMenu ACL decision: ${canViewLeftMenu}`);
+
+      if (canViewLeftMenu && leftMenuCtx !== null && leftMenuContent !== null) {
         templateData.leftMenu = await renderingManager.textToHTML(
-          ctx,
+          leftMenuCtx,
           leftMenuContent
         );
       } else {
@@ -626,23 +628,23 @@ class WikiRoutes {
         } roles=${userContext?.roles?.join('|')}`
       );
 
-      const canViewFooter = footerContent !== null && await aclManager.checkPagePermission(
-        'Footer',
-        'view',
-        userContext,
-        footerContent
-      );
-      logger.info(`[TEMPLATE] Footer ACL decision: ${canViewFooter}`);
-
-      if (canViewFooter && footerContent !== null) {
-        const ctx = new WikiContext(this.engine as unknown as import('../types/WikiEngine.js').WikiEngine, {
+      // #632: same pattern as LeftMenu — single WikiContext for ACL + render.
+      const footerCtx = footerContent !== null
+        ? new WikiContext(this.engine as unknown as import('../types/WikiEngine.js').WikiEngine, {
           pageName: 'Footer',
           content: footerContent,
           userContext,
-          request: req
-        });
+          request: req,
+          pageMetadata: footerPage?.metadata ?? undefined
+        })
+        : null;
+      const canViewFooter = footerCtx !== null
+        && await aclManager.checkPagePermissionWithContext(footerCtx, 'view');
+      logger.info(`[TEMPLATE] Footer ACL decision: ${canViewFooter}`);
+
+      if (canViewFooter && footerCtx !== null && footerContent !== null) {
         templateData.footer = await renderingManager.textToHTML(
-          ctx,
+          footerCtx,
           footerContent
         );
       } else {
@@ -4702,16 +4704,17 @@ ${panes}
    */
   async adminDashboard(req: Request, res: Response) {
     try {
-      const wikiContext = this.createWikiContext(req);
+      const wikiContext = this.createWikiContext(req, { pageName: 'AdminDashboard' });
       const currentUser = wikiContext.userContext;
       const aclManager = this.engine.getManager('ACLManager');
 
-      // Check admin access using PolicyEvaluator
-      const hasAccess = await aclManager.checkPagePermission(
-        'AdminDashboard',
-        'view',
-        currentUser ?? null,
-        ''
+      // #632: migrated from deprecated checkPagePermission(name, action, ctx, '')
+      // to canonical checkPagePermissionWithContext. AdminDashboard isn't a real
+      // wiki page (no frontmatter, no private user-keyword) so the decision still
+      // falls through to PolicyEvaluator — same effective behavior.
+      const hasAccess = await aclManager.checkPagePermissionWithContext(
+        wikiContext,
+        'view'
       );
 
       if (!currentUser || !currentUser.isAuthenticated || !hasAccess) {

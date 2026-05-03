@@ -466,69 +466,10 @@ class ACLManager extends BaseManager {
     return { decided: true, allowed: false, reason: 'frontmatter_deny' };
   }
 
-  /**
-   * Check page permission with context-aware and audit logging
-   * Now includes policy-based access control integration
-   * @param {string} pageName - Name of the page
-   * @param {string} action - Action to check (view, edit, delete, rename, upload)
-   * @param {UserContext} userContext - User context object (null for anonymous)
-   * @param {string} pageContent - Page content to parse ACL from
-   * @returns {Promise<boolean>} True if permission granted
-   * @deprecated Use checkPagePermissionWithContext() with WikiContext instead
-   */
-  async checkPagePermission(pageName: string, action: string, userContext: UserContext | null, pageContent: string): Promise<boolean> {
-    const roles = (userContext?.roles || []).join('|');
-    logger.info(`[ACL] checkPagePermission page=${pageName} action=${action} user=${userContext?.username} roles=${roles}`);
-
-    // Map legacy action names to policy action names
-    const actionMap: Record<string, string> = {
-      view: 'page-read',
-      edit: 'page-edit',
-      delete: 'page-delete',
-      create: 'page-create',
-      rename: 'page-rename',
-      upload: 'asset-upload'
-    };
-    const policyAction = actionMap[action.toLowerCase()] || action;
-
-    // 1. Evaluate Global Policies first
-    if (this.policyEvaluator) {
-      try {
-        // Convert null to undefined for AccessContext compatibility
-        const policyContext = { pageName, action: policyAction, userContext: userContext ?? undefined };
-
-        const policyResult = await this.policyEvaluator.evaluateAccess(policyContext);
-
-        logger.info(`[ACL] PolicyEvaluator decision hasDecision=${policyResult.hasDecision} allowed=${policyResult.allowed} policy=${policyResult.policyName}`);
-
-        if (policyResult.hasDecision) {
-          return policyResult.allowed;
-        }
-      } catch (e) {
-        logger.warn('[ACL] PolicyEvaluator error', { error: e instanceof Error ? e.message : String(e), stack: e instanceof Error ? e.stack : undefined });
-      }
-    }
-
-    // 2. Evaluate Page-Level ACLs if no global policy decided
-    if (pageContent && typeof pageContent === 'string') {
-      const pageAcl = this.parsePageACL(pageContent);
-      const principals = pageAcl.get(action.toLowerCase());
-      logger.info(`[ACL] Page ACL for action=${action}: ${principals ? Array.from(principals).join('|') : 'none'}`);
-
-      if (principals) {
-        if (principals.has('All')) return true;
-        if (userContext?.roles) {
-          for (const r of userContext.roles) {
-            if (principals.has(r)) return true;
-          }
-        }
-        if (userContext?.username && principals.has(userContext.username)) return true;
-      }
-    }
-
-    logger.info(`[ACL] Default deny for page=${pageName} (no policy/ACL matched)`);
-    return false;
-  }
+  // #632: deprecated `checkPagePermission(pageName, action, userContext, content)`
+  // removed. All callers migrated to `checkPagePermissionWithContext(wikiContext, action)`,
+  // which runs the full 3-tier evaluator (private user-keyword → frontmatter
+  // audience → global policies). The old 4-arg form lacked tier 0 entirely.
 
   /**
    * Perform standard ACL check (original logic)

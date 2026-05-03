@@ -526,6 +526,10 @@ describe('WikiRoutes - Comprehensive Route Testing', () => {
       content: '# {{title}}\nTemplate content here'
     });
     mockACLManager.checkPagePermission.mockResolvedValue(true);
+    // #632: LeftMenu / Footer / adminDashboard now use the canonical method;
+    // reset it to the same default per test so tests that flip it for denial
+    // don't bleed state into later tests.
+    mockACLManager.checkPagePermissionWithContext.mockResolvedValue(true);
     mockACLManager.removeACLMarkup.mockReturnValue('Content without ACL markup');
     mockACLManager.parseACL.mockReturnValue({ permissions: [] });
     mockNotificationManager.getNotifications.mockResolvedValue([]);
@@ -972,9 +976,9 @@ describe('WikiRoutes - Comprehensive Route Testing', () => {
       });
 
       test('should return 403 for non-admin user', async () => {
-        // adminDashboard uses aclManager.checkPagePermission("AdminDashboard", "view", currentUser)
-        // Mock it to deny access for non-admin users
-        mockACLManager.checkPagePermission.mockResolvedValue(false);
+        // #632: adminDashboard now uses checkPagePermissionWithContext.
+        // Mock the canonical method to deny access for non-admin users.
+        mockACLManager.checkPagePermissionWithContext.mockResolvedValue(false);
 
         const response = await request(app).get('/admin');
         expect(response.status).toBe(403);
