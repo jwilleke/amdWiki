@@ -124,7 +124,16 @@ Run sequentially:
 
 ### Step 8: Update sister installs
 
-Sister ngdpbase installs (e.g., The Fairways, ve-geology) need to be told about the new release. Invoke the `/othersites` skill — it knows the list and how to update each one.
+Sister ngdpbase installs (e.g., The Fairways, ve-geology) need to be told about the new release. Invoke the `/othersites` skill — defined in `.claude/commands/othersites.md`. It knows the list of installs and the update sequence (`git pull` → `./server.sh stop` → `npm run build` → `./server.sh start` → unit tests + E2E per site → file `[BUG]` issues for any failures).
+
+The current sites tracked there are:
+
+- `/Volumes/hd2A/workspaces/github/fairways-base` (port 2121, "The Fairways")
+- `/Volumes/hd2A/workspaces/github/ngdpbase-veg` (port 3333, "ve-geology")
+- `/Volumes/hd2A/workspaces/github/ngdpbase` (port 3000, "jimstest" — the source of truth)
+- `/Volumes/hd2/ngdp-temp-builds/` (additional builds; ports in their `.env` files)
+
+If a site has uncommitted local diffs that block the pull (typically `package-lock.json` from a prior build, or the seed required-pages file from an auto-migration), the pattern that's worked across past releases is `git checkout -- <file>` for the known-identical-to-master files, then re-run the pull. Untracked working notes in `private/` and similar are fine to leave alone.
 
 ### Step 9: Report
 
