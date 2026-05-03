@@ -799,11 +799,13 @@ class FileSystemProvider extends BasePageProvider {
       if (!lastModifiedRaw) continue;
       if (since && new Date(lastModifiedRaw) < since) continue;
 
-      // #635: visibility filter — match search-provider semantics. Private signal
-      // is `system-location === 'private'` OR user-keywords includes 'private'.
+      // #635: visibility filter — match search-provider semantics.
+      // #639: prefer top-level `private: true`; fall back to legacy signals
+      // (system-location storage hint, user-keywords scan).
       const userKeywords = (md as { 'user-keywords'?: unknown })['user-keywords'];
       const userKeywordsArr = Array.isArray(userKeywords) ? userKeywords.map(String) : [];
-      const isPrivate = (md as { 'system-location'?: string })['system-location'] === 'private'
+      const isPrivate = (md as { private?: boolean }).private === true
+        || (md as { 'system-location'?: string })['system-location'] === 'private'
         || userKeywordsArr.includes('private');
 
       if (!includeAll && isPrivate) {

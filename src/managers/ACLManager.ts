@@ -314,9 +314,13 @@ class ACLManager extends BaseManager {
     };
     const policyAction = actionMap[action.toLowerCase()] || action;
 
-    // Tier 0: private user-keyword — hard constraint, not overridable by front matter
+    // Tier 0: private — hard constraint, not overridable by front matter.
+    // #639: prefer the top-level `private: true` frontmatter field; fall back to
+    // scanning user-keywords for legacy pages that haven't been migrated yet.
     const userKeywords: string[] = (wikiContext.pageMetadata?.['user-keywords']) ?? [];
-    if (userKeywords.includes('private')) {
+    const isPrivate = wikiContext.pageMetadata?.private === true
+      || userKeywords.includes('private');
+    if (isPrivate) {
       const creator = (wikiContext.pageMetadata?.author) ?? '';
       const userRoles = userContext?.roles ?? [];
       const username  = userContext?.username ?? '';
@@ -326,7 +330,7 @@ class ACLManager extends BaseManager {
         pageName,
         action,
         allowed,
-        reason: allowed ? 'private_keyword_match' : 'private_keyword_deny',
+        reason: allowed ? 'private_match' : 'private_deny',
         context: { wikiContext: wikiContext.context }
       });
       return allowed;

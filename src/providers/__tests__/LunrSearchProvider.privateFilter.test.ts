@@ -305,3 +305,47 @@ describe('LunrSearchProvider.search — no index', () => {
     expect(results).toHaveLength(0);
   });
 });
+
+// ---------------------------------------------------------------------------
+// #639: buildDocumentFromPageData reads top-level `private` field
+// ---------------------------------------------------------------------------
+
+describe('LunrSearchProvider.buildDocumentFromPageData — private signal sources (#639)', () => {
+  function buildDoc(metadata: Record<string, unknown>) {
+    return provider['buildDocumentFromPageData']('TestPage', {
+      metadata,
+      content: 'page body'
+    });
+  }
+
+  test('top-level private: true → isPrivate true on doc', () => {
+    const doc = buildDoc({ title: 'X', uuid: 'u1', author: 'alice', private: true });
+    expect(doc.isPrivate).toBe(true);
+    expect(doc.creator).toBe('alice');
+  });
+
+  test('legacy user-keywords: [private] → isPrivate true (back-compat)', () => {
+    const doc = buildDoc({ title: 'X', uuid: 'u1', author: 'alice', 'user-keywords': ['private'] });
+    expect(doc.isPrivate).toBe(true);
+    expect(doc.creator).toBe('alice');
+  });
+
+  test('legacy system-location: private → isPrivate true (back-compat)', () => {
+    const doc = buildDoc({ title: 'X', uuid: 'u1', author: 'alice', 'system-location': 'private' });
+    expect(doc.isPrivate).toBe(true);
+  });
+
+  test('no private signals → isPrivate undefined', () => {
+    const doc = buildDoc({ title: 'X', uuid: 'u1', author: 'alice' });
+    expect(doc.isPrivate).toBeUndefined();
+    expect(doc.creator).toBeUndefined();
+  });
+
+  test('both top-level and user-keywords present → isPrivate true', () => {
+    const doc = buildDoc({
+      title: 'X', uuid: 'u1', author: 'alice',
+      private: true, 'user-keywords': ['private']
+    });
+    expect(doc.isPrivate).toBe(true);
+  });
+});

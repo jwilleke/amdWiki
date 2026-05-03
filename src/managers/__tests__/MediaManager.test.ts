@@ -272,4 +272,25 @@ describe('MediaManager.checkPrivatePageAccess (#634 — via pageManager.getPageM
     const pm = (engine as unknown as { pageManager: { getPageMetadata: ReturnType<typeof vi.fn> } }).pageManager;
     expect(pm.getPageMetadata).toHaveBeenCalledWith('AlicesSecret');
   });
+
+  // #639: top-level `private: true` triggers the same gate as legacy signals
+  test('top-level private: true triggers gate (no system-location, no user-keyword)', async () => {
+    const engine = makeEngineWithPageManager({
+      uuid: 'u1', author: 'alice', private: true
+      // intentionally NO system-location, NO user-keywords
+    });
+    const mgr = new MediaManager(engine);
+    expect(await callCheck(mgr, makeWikiContext('bob'), 'AlicesSecret')).toBe(false);
+    expect(await callCheck(mgr, makeWikiContext('alice'), 'AlicesSecret')).toBe(true);
+    expect(await callCheck(mgr, makeWikiContext('root', ['admin']), 'AlicesSecret')).toBe(true);
+  });
+
+  test('legacy user-keywords [private] still triggers gate (back-compat)', async () => {
+    const engine = makeEngineWithPageManager({
+      uuid: 'u1', author: 'alice', 'user-keywords': ['private']
+    });
+    const mgr = new MediaManager(engine);
+    expect(await callCheck(mgr, makeWikiContext('bob'), 'AlicesSecret')).toBe(false);
+    expect(await callCheck(mgr, makeWikiContext('alice'), 'AlicesSecret')).toBe(true);
+  });
 });

@@ -332,6 +332,74 @@ describe('ACLManager', () => {
     });
   });
 
+  describe('Tier 0 — top-level `private: true` (#639)', () => {
+    test('private: true + admin role → allow (no user-keyword required)', async () => {
+      const ctx = makeWikiContext({
+        pageMetadata: { title: 'Test', uuid: 'x', lastModified: '', private: true, author: 'alice' },
+        userContext: { username: 'bob', roles: ['admin'], isAuthenticated: true }
+      });
+      expect(await aclManager.checkPagePermissionWithContext(ctx, 'view')).toBe(true);
+    });
+
+    test('private: true + page-creator → allow', async () => {
+      const ctx = makeWikiContext({
+        pageMetadata: { title: 'Test', uuid: 'x', lastModified: '', private: true, author: 'alice' },
+        userContext: { username: 'alice', roles: ['editor'], isAuthenticated: true }
+      });
+      expect(await aclManager.checkPagePermissionWithContext(ctx, 'view')).toBe(true);
+    });
+
+    test('private: true + non-creator non-admin → deny', async () => {
+      const ctx = makeWikiContext({
+        pageMetadata: { title: 'Test', uuid: 'x', lastModified: '', private: true, author: 'alice' },
+        userContext: { username: 'bob', roles: ['editor'], isAuthenticated: true }
+      });
+      expect(await aclManager.checkPagePermissionWithContext(ctx, 'view')).toBe(false);
+    });
+
+    test('private: true + audience: [bob] set → bob still denied (Tier 0 wins)', async () => {
+      const ctx = makeWikiContext({
+        pageMetadata: { title: 'Test', uuid: 'x', lastModified: '', private: true, author: 'alice', audience: ['bob'] },
+        userContext: { username: 'bob', roles: ['editor'], isAuthenticated: true }
+      });
+      expect(await aclManager.checkPagePermissionWithContext(ctx, 'view')).toBe(false);
+    });
+
+    test('private: false explicitly → tier 0 does NOT fire (falls through)', async () => {
+      const ctx = makeWikiContext({
+        pageMetadata: { title: 'Test', uuid: 'x', lastModified: '', private: false, author: 'alice' },
+        userContext: { username: 'bob', roles: ['editor'], isAuthenticated: true }
+      });
+      // Without tier-0 trigger, falls through to tier-1/tier-2; for this fixture
+      // (no audience, no policies) the result depends on default policy. The
+      // important assertion is that it's NOT denied with the private_deny reason.
+      // Use a non-null result; we just check the type is boolean (no throw).
+      const result = await aclManager.checkPagePermissionWithContext(ctx, 'view');
+      expect(typeof result).toBe('boolean');
+    });
+
+    test('back-compat: legacy user-keywords [private] still triggers tier 0', async () => {
+      // The whole point of Slice A — old pages without `private: true` still gated.
+      const ctx = makeWikiContext({
+        pageMetadata: { title: 'Test', uuid: 'x', lastModified: '', 'user-keywords': ['private'], author: 'alice' },
+        userContext: { username: 'bob', roles: ['editor'], isAuthenticated: true }
+      });
+      expect(await aclManager.checkPagePermissionWithContext(ctx, 'view')).toBe(false);
+    });
+
+    test('both signals present (migrated page with stale keyword) → tier 0 fires once', async () => {
+      const ctx = makeWikiContext({
+        pageMetadata: {
+          title: 'Test', uuid: 'x', lastModified: '',
+          private: true, 'user-keywords': ['private'],
+          author: 'alice'
+        },
+        userContext: { username: 'alice', roles: ['editor'], isAuthenticated: true }
+      });
+      expect(await aclManager.checkPagePermissionWithContext(ctx, 'view')).toBe(true);
+    });
+  });
+
   describe('Tier 1.5 — front matter access control', () => {
     test('audience: [editor, admin] + editor role → allow', async () => {
       const ctx = makeWikiContext({

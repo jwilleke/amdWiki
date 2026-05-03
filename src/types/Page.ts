@@ -61,6 +61,15 @@ export interface PageFrontmatter {
   /** Roles or usernames allowed to view this page (front matter access control) */
   audience?: string[];
 
+  /**
+   * Whether the page is private (visible only to creator + admins, gated by audience).
+   *
+   * #639: peer of `audience` and `author-lock`. Source of truth for the tier-0 ACL check.
+   * When unset, ACLManager / search providers fall back to scanning `user-keywords` for
+   * the literal `'private'` so existing pages keep working until they're migrated.
+   */
+  private?: boolean;
+
   /** Per-action principal lists — overrides audience for the named action */
   access?: {
     view?: string[];

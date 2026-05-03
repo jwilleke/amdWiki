@@ -264,7 +264,13 @@ class LunrSearchProvider extends BaseSearchProvider {
     const tags = Array.isArray(tagsRaw) ? tagsRaw.join(' ') : toStr(tagsRaw);
     const content = toStr(pageData.content);
 
-    const isPrivate = pageData.isPrivate === true || metadata['system-location'] === 'private';
+    // #639: prefer top-level `private: true` frontmatter field; fall back to the
+    // legacy signals (pre-migration pages, system-location storage hint).
+    const userKeywordsArr = Array.isArray(userKeywordsRaw) ? userKeywordsRaw.map(String) : [];
+    const isPrivate = metadata.private === true
+      || pageData.isPrivate === true
+      || metadata['system-location'] === 'private'
+      || userKeywordsArr.includes('private');
     const creator = typeof pageData.creator === 'string' ? pageData.creator
       : typeof metadata.author === 'string' ? metadata.author
         : undefined;

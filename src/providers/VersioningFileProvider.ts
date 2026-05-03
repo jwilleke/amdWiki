@@ -1270,6 +1270,10 @@ class VersioningFileProvider extends FileSystemProvider {
       : currentEntry?.creator;
     const ar = (metadata.access as Record<string, unknown> | undefined)?.['view'] ?? metadata.audience;
     const kws = metadata['user-keywords'];
+    // #639: prefer top-level `private: true`; fall back to user-keywords scan
+    // (legacy shape) so pre-migration pages still denormalize correctly.
+    const isPrivateFlag = (metadata as Record<string, unknown>).private === true
+      || (Array.isArray(kws) && (kws).includes('private'));
     await this.updatePageInIndex(uuid, {
       title: (metadata.title as string) || pageName,
       uuid: uuid,
@@ -1283,7 +1287,7 @@ class VersioningFileProvider extends FileSystemProvider {
       author: metadata.author ? String(metadata.author) : undefined,
       hasVersions: true,
       audienceRoles: Array.isArray(ar) && ar.length ? (ar as string[]) : undefined,
-      isPrivate: Array.isArray(kws) && (kws).includes('private')
+      isPrivate: isPrivateFlag
     });
 
     logger.info(`[VersioningFileProvider] Saved page '${pageName}' with versioning`);

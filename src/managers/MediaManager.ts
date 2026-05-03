@@ -415,7 +415,14 @@ class MediaManager extends BaseManager {
       const pageMetadata = await pageManager.getPageMetadata(pageName);
       if (!pageMetadata) return true;
 
-      const isPrivate = (pageMetadata as Record<string, unknown>)['system-location'] === 'private';
+      // #639: prefer top-level `private: true`; fall back to legacy signals
+      // (system-location storage hint, user-keywords scan).
+      const md = pageMetadata as Record<string, unknown>;
+      const userKeywords = md['user-keywords'];
+      const userKeywordsArr = Array.isArray(userKeywords) ? (userKeywords as unknown[]).map(String) : [];
+      const isPrivate = md.private === true
+        || md['system-location'] === 'private'
+        || userKeywordsArr.includes('private');
       if (!isPrivate) return true;
 
       const username = wikiContext.userContext?.username;
